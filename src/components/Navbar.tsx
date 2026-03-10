@@ -3,10 +3,12 @@ import { useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { X, Menu, Users, GraduationCap, Briefcase, DollarSign, LayoutDashboard, User, LogOut, ChevronRight } from 'lucide-react'
 
 export default function Navbar() {
   const { user, loading, signOut } = useAuth()
-  const [dropdownOpen, setDropdownOpen] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false)
 
   return (
     <nav className="fixed top-0 left-0 right-0 h-14 z-[999] bg-white/97 border-b border-gray-200 backdrop-blur-[8px]">
@@ -17,23 +19,29 @@ export default function Navbar() {
         </Link>
 
         {/* Desktop Center Links */}
-        <div className="hidden md:flex items-center gap-8">
-          <Link href="/community" className="text-sm font-medium text-gray-600 hover:text-black transition-colors">
+        <div className="hidden md:flex items-center gap-6">
+          <Link href="/community" className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-black transition-colors">
+            <Users size={16} />
             Community
           </Link>
-          <Link href="/dashboard/junior" className="text-sm font-medium text-gray-600 hover:text-black transition-colors">
+          <Link href="/dashboard/junior" className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-black transition-colors">
+            <LayoutDashboard size={16} />
             Dashboard
           </Link>
-          <Link href="#" className="text-sm font-medium text-gray-600 hover:text-black transition-colors">
+          <Link href="#" className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-black transition-colors">
+            <Users size={16} />
             Seniors
           </Link>
-          <Link href="#" className="text-sm font-medium text-gray-600 hover:text-black transition-colors">
+          <Link href="#" className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-black transition-colors">
+            <Briefcase size={16} />
             Jobs
           </Link>
-          <Link href="/colleges" className="text-sm font-medium text-gray-600 hover:text-black transition-colors">
+          <Link href="/colleges" className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-black transition-colors">
+            <GraduationCap size={16} />
             Colleges
           </Link>
-          <Link href="#" className="text-sm font-medium text-gray-600 hover:text-black transition-colors">
+          <Link href="#" className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-black transition-colors">
+            <DollarSign size={16} />
             Pricing
           </Link>
         </div>
@@ -54,7 +62,7 @@ export default function Navbar() {
               
               {/* Profile Avatar Button */}
               <button
-                onClick={() => setDropdownOpen(!dropdownOpen)}
+                onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -104,7 +112,7 @@ export default function Navbar() {
                 <svg width="12" height="12" viewBox="0 0 12 12"
                   fill="none"
                   style={{
-                    transform: dropdownOpen 
+                    transform: profileDropdownOpen 
                       ? 'rotate(180deg)' : 'rotate(0)',
                     transition: 'transform 0.2s'
                   }}>
@@ -115,7 +123,7 @@ export default function Navbar() {
               </button>
 
               {/* Dropdown Menu */}
-              {dropdownOpen && (
+              {profileDropdownOpen && (
                 <>
                   {/* Backdrop */}
                   <div
@@ -123,7 +131,7 @@ export default function Navbar() {
                       position: 'fixed',
                       inset: 0, zIndex: 40
                     }}
-                    onClick={() => setDropdownOpen(false)}
+                    onClick={() => setProfileDropdownOpen(false)}
                   />
                   
                   {/* Menu */}
@@ -185,19 +193,14 @@ export default function Navbar() {
                     {/* Menu items */}
                     {[
                       {
-                        icon: '🏠',
+                        icon: LayoutDashboard,
                         label: 'Dashboard',
                         href: user.role === 'senior'
                           ? '/dashboard/senior'
                           : '/dashboard/junior'
                       },
                       {
-                        icon: '💬',
-                        label: 'Community',
-                        href: '/community'
-                      },
-                      {
-                        icon: '👤',
+                        icon: User,
                         label: 'My Profile',
                         href: '/profile'
                       },
@@ -205,7 +208,7 @@ export default function Navbar() {
                       <Link
                         key={item.href}
                         href={item.href}
-                        onClick={() => setDropdownOpen(false)}
+                        onClick={() => setProfileDropdownOpen(false)}
                         style={{
                           display: 'flex',
                           alignItems: 'center',
@@ -227,10 +230,7 @@ export default function Navbar() {
                             .style.background = 'transparent'
                         }}
                       >
-                        <span style={{ fontSize: 15, width: 20,
-                          textAlign: 'center' }}>
-                          {item.icon}
-                        </span>
+                        <item.icon size={16} color="#6B7280" />
                         {item.label}
                       </Link>
                     ))}
@@ -245,7 +245,7 @@ export default function Navbar() {
                     {/* Sign out */}
                     <button
                       onClick={() => {
-                        setDropdownOpen(false)
+                        setProfileDropdownOpen(false)
                         signOut()
                       }}
                       style={{
@@ -273,10 +273,7 @@ export default function Navbar() {
                           .style.background = 'transparent'
                       }}
                     >
-                      <span style={{ fontSize: 15, width: 20,
-                        textAlign: 'center' }}>
-                        🚪
-                      </span>
+                      <LogOut size={16} color="#EF4444" />
                       Sign Out
                     </button>
                   </div>
@@ -329,7 +326,7 @@ export default function Navbar() {
             }} />
           ) : user ? (
             <button
-              onClick={() => setDropdownOpen(!dropdownOpen)}
+              onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
               className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-600 to-cyan-500 text-white text-xs font-black flex items-center justify-center hover:opacity-90 transition-opacity"
             >
               {user.full_name
@@ -346,120 +343,408 @@ export default function Navbar() {
               </button>
             </Link>
           )}
-          <button 
-            onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="text-xl font-normal text-black p-1 transition-transform duration-200"
+          
+          {/* Hamburger Menu - Always show */}
+          <button
+            onClick={() => setMobileMenuOpen(true)}
+            style={{
+              display: 'none', // show only mobile
+              width: 36, height: 36,
+              borderRadius: 8,
+              border: '1.5px solid #E5E7EB',
+              background: 'white',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              padding: '8px'
+            }}
+            className="mobile-hamburger"
           >
-            {dropdownOpen ? '✕' : '☰'}
+            <Menu size={20} color="#374151" />
           </button>
         </div>
       </div>
 
-      {/* Mobile Menu */}
-      {dropdownOpen && (
-        <div className="fixed inset-0 bg-white z-[998] md:hidden">
-          <div className="flex flex-col gap-2 px-6 pt-20 pb-10">
-            {user ? (
-              <>
-                {/* User Info */}
-                <div className="flex items-center gap-3 py-4 border-b border-gray-100">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-600 to-cyan-500 text-white text-sm font-black flex items-center justify-center">
-                    {user.full_name
-                      ?.split(' ')
-                      .map((n: string) => n[0])
-                      .join('')
-                      .toUpperCase()
-                      .slice(0, 2) || 'U'}
-                  </div>
-                  <div>
-                    <div className="text-sm font-black text-black">{user.full_name}</div>
-                    <div className="text-xs text-gray-400">{user.unique_id}</div>
-                  </div>
-                </div>
-                
-                {/* Authenticated Links */}
-                <Link 
-                  href={user.role === 'senior' ? '/dashboard/senior' : '/dashboard/junior'}
-                  className="py-4 text-lg font-semibold text-black border-b border-gray-100"
-                  onClick={() => setDropdownOpen(false)}
-                >
-                  📊 Dashboard
-                </Link>
-                <Link 
-                  href="/community"
-                  className="py-4 text-lg font-semibold text-black border-b border-gray-100"
-                  onClick={() => setDropdownOpen(false)}
-                >
-                  💬 Community
-                </Link>
-                <button 
-                  onClick={() => {
-                    signOut();
-                    setDropdownOpen(false);
-                  }}
-                  className="py-4 text-lg font-semibold text-red-600 border-b border-gray-100 text-left"
-                >
-                  🚪 Sign Out
-                </button>
-              </>
-            ) : (
-              <>
-                {/* Public Links */}
-                <Link 
-                  href="/community"
-                  className="py-4 text-lg font-semibold text-black border-b border-gray-100"
-                  onClick={() => setDropdownOpen(false)}
-                >
-                  Community
-                </Link>
-                <Link 
-                  href="/dashboard/junior"
-                  className="py-4 text-lg font-semibold text-black border-b border-gray-100"
-                  onClick={() => setDropdownOpen(false)}
-                >
-                  Dashboard
-                </Link>
-                <Link 
-                  href="#" 
-                  className="py-4 text-lg font-semibold text-black border-b border-gray-100"
-                  onClick={() => setDropdownOpen(false)}
-                >
-                  Seniors
-                </Link>
-                <Link 
-                  href="#" 
-                  className="py-4 text-lg font-semibold text-black border-b border-gray-100"
-                  onClick={() => setDropdownOpen(false)}
-                >
-                  Jobs
-                </Link>
-                <Link 
-                  href="/colleges"
-                  className="py-4 text-lg font-semibold text-black border-b border-gray-100"
-                  onClick={() => setDropdownOpen(false)}
-                >
-                  Colleges
-                </Link>
-                <Link 
-                  href="#" 
-                  className="py-4 text-lg font-semibold text-black border-b border-gray-100"
-                  onClick={() => setDropdownOpen(false)}
-                >
-                  Pricing
-                </Link>
-                
-                <Link href="/signup">
-                  <button 
-                    className="w-full bg-[#7C3AED] text-white py-3 rounded-lg text-sm font-semibold mt-4"
-                    style={{ backgroundColor: '#7C3AED' }}
-                    onClick={() => setDropdownOpen(false)}
-                  >
-                    Join
-                  </button>
-                </Link>
-              </>
-            )}
+      {/* Mobile Menu Overlay */}
+      {/* Backdrop */}
+      {mobileMenuOpen && (
+        <div
+          onClick={() => setMobileMenuOpen(false)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.4)',
+            zIndex: 998,
+            backdropFilter: 'blur(2px)',
+            animation: 'fadeIn 0.2s ease'
+          }}
+        />
+      )}
+
+      {/* Slide-in Panel */}
+      {mobileMenuOpen && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          height: '100vh',
+          width: '280px',
+          background: 'white',
+          zIndex: 999,
+          transform: 'translateX(0)',
+          transition: 'transform 0.3s cubic-bezier(0.4,0,0.2,1)',
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
+          boxShadow: '4px 0 24px rgba(0,0,0,0.12)',
+          animation: 'slideInLeft 0.3s ease-out'
+        }}>
+
+        {/* Panel Header */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '20px 20px',
+          borderBottom: '1px solid #F3F4F6'
+        }}>
+          {/* Logo */}
+          <div style={{
+            fontSize: 18,
+            fontWeight: 800,
+            color: '#0A0A0A'
+          }}>
+            🎓 Clas<span style={{
+              color: '#7C3AED'
+            }}>pire</span>
           </div>
+
+          {/* Close button */}
+          <button
+            onClick={() => setMobileMenuOpen(false)}
+            style={{
+              width: 32, height: 32,
+              borderRadius: '50%',
+              border: '1px solid #E5E7EB',
+              background: 'white',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer'
+            }}
+          >
+            <X size={16} color="#6B7280" />
+          </button>
+        </div>
+
+        {/* User card (if logged in) */}
+        {user && (
+          <div style={{
+            padding: '16px 20px',
+            borderBottom: '1px solid #F3F4F6',
+            background: '#F9FAFB'
+          }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 12
+            }}>
+              {/* Avatar */}
+              <div style={{
+                width: 40, height: 40,
+                borderRadius: '50%',
+                background: 'linear-gradient(135deg,#7C3AED,#06B6D4)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'white',
+                fontSize: 14,
+                fontWeight: 800,
+                flexShrink: 0
+              }}>
+                {user.full_name
+                  ?.split(' ')
+                  .map((n: string) => n[0])
+                  .join('')
+                  .toUpperCase()
+                  .slice(0, 2) || 'U'}
+              </div>
+
+              <div>
+                <div style={{
+                  fontSize: 14,
+                  fontWeight: 700,
+                  color: '#0A0A0A'
+                }}>
+                  {user.full_name}
+                </div>
+                <div style={{
+                  fontSize: 11,
+                  color: '#9CA3AF',
+                  marginTop: 2,
+                  fontFamily: 'monospace'
+                }}>
+                  {user.unique_id}
+                </div>
+              </div>
+            </div>
+
+            {/* Role badge */}
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 4,
+              background: user.role === 'senior'
+                ? '#F0FDF4' : '#F3F0FF',
+              border: `1px solid ${user.role === 'senior'
+                ? '#BBF7D0' : '#DDD6FE'}`,
+              borderRadius: 100,
+              padding: '3px 10px',
+              fontSize: 10,
+              fontWeight: 700,
+              color: user.role === 'senior'
+                ? '#16A34A' : '#7C3AED',
+              marginTop: 10
+            }}>
+              {user.role === 'senior'
+                ? '✓ Verified Senior'
+                : '✓ Student'}
+            </div>
+          </div>
+        )}
+
+        {/* Nav Links */}
+        <div style={{
+          flex: 1,
+          overflowY: 'auto',
+          padding: '12px 12px'
+        }}>
+
+          {/* Section: Main */}
+          <p style={{
+            fontSize: 10,
+            fontWeight: 700,
+            letterSpacing: '0.08em',
+            textTransform: 'uppercase',
+            color: '#9CA3AF',
+            padding: '8px 8px 4px',
+            margin: 0
+          }}>
+            Main
+          </p>
+
+          {[
+            { label: 'Community', href: '/community', icon: Users },
+            { label: 'Colleges', href: '/colleges', icon: GraduationCap },
+            { label: 'Seniors', href: '/seniors', icon: Users },
+            { label: 'Jobs', href: '/jobs', icon: Briefcase },
+          ].map(item => (
+            <a
+              key={item.href}
+              href={item.href}
+              onClick={() => setMobileMenuOpen(false)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                padding: '12px 10px',
+                borderRadius: 8,
+                fontSize: 14,
+                fontWeight: 600,
+                color: '#374151',
+                textDecoration: 'none',
+                transition: 'background 0.1s',
+                marginBottom: 2,
+                gap: 12
+              }}
+              onMouseEnter={e => {
+                (e.currentTarget as HTMLElement)
+                  .style.background = '#F9FAFB'
+              }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLElement)
+                  .style.background = 'transparent'
+              }}
+            >
+              <item.icon size={18} color="#6B7280" />
+              {item.label}
+            </a>
+          ))}
+
+          {/* Section: Account (if logged in) */}
+          {user && (
+            <>
+              <p style={{
+                fontSize: 10,
+                fontWeight: 700,
+                letterSpacing: '0.08em',
+                textTransform: 'uppercase',
+                color: '#9CA3AF',
+                padding: '16px 8px 4px',
+                margin: 0
+              }}>
+                Account
+              </p>
+
+              {[
+                {
+                  label: 'Dashboard',
+                  href: user.role === 'senior'
+                    ? '/dashboard/senior'
+                    : '/dashboard/junior',
+                  icon: LayoutDashboard
+                },
+                { label: 'My Profile', href: '/profile', icon: User },
+              ].map(item => (
+                <a
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    padding: '12px 10px',
+                    borderRadius: 8,
+                    fontSize: 14,
+                    fontWeight: 600,
+                    color: '#374151',
+                    textDecoration: 'none',
+                    transition: 'background 0.1s',
+                    marginBottom: 2,
+                    gap: 12
+                  }}
+                  onMouseEnter={e => {
+                    (e.currentTarget as HTMLElement)
+                      .style.background = '#F9FAFB'
+                  }}
+                  onMouseLeave={e => {
+                    (e.currentTarget as HTMLElement)
+                      .style.background = 'transparent'
+                  }}
+                >
+                  <item.icon size={18} color="#6B7280" />
+                  {item.label}
+                </a>
+              ))}
+            </>
+          )}
+
+          {/* Pricing */}
+          <p style={{
+            fontSize: 10,
+            fontWeight: 700,
+            letterSpacing: '0.08em',
+            textTransform: 'uppercase',
+            color: '#9CA3AF',
+            padding: '16px 8px 4px',
+            margin: 0
+          }}>
+            More
+          </p>
+
+          <a
+            href="/pricing"
+            onClick={() => setMobileMenuOpen(false)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              padding: '12px 10px',
+              borderRadius: 8,
+              fontSize: 14,
+              fontWeight: 600,
+              color: '#374151',
+              textDecoration: 'none',
+              marginBottom: 2,
+              gap: 12
+            }}
+          >
+            <DollarSign size={18} color="#6B7280" />
+            Pricing
+          </a>
+        </div>
+
+        {/* Bottom section */}
+        <div style={{
+          padding: '16px 20px',
+          borderTop: '1px solid #F3F4F6'
+        }}>
+          {user ? (
+            // Sign out button
+            <button
+              onClick={() => {
+                setMobileMenuOpen(false)
+                signOut()
+              }}
+              style={{
+                width: '100%',
+                padding: '12px',
+                borderRadius: 10,
+                border: '1.5px solid #FECACA',
+                background: '#FEF2F2',
+                color: '#EF4444',
+                fontSize: 14,
+                fontWeight: 700,
+                cursor: 'pointer',
+                fontFamily: 'Plus Jakarta Sans',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8
+              }}
+            >
+              <LogOut size={18} />
+              Sign Out
+            </button>
+          ) : (
+            // Login + Signup buttons
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 10
+            }}>
+              <a
+                href="/login"
+                onClick={() => setMobileMenuOpen(false)}
+                style={{
+                  display: 'block',
+                  width: '100%',
+                  padding: '12px',
+                  borderRadius: 10,
+                  border: '1.5px solid #E5E7EB',
+                  background: 'white',
+                  color: '#0A0A0A',
+                  fontSize: 14,
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  textAlign: 'center',
+                  textDecoration: 'none',
+                  boxSizing: 'border-box'
+                }}
+              >
+                Sign In
+              </a>
+              <a
+                href="/signup"
+                onClick={() => setMobileMenuOpen(false)}
+                style={{
+                  display: 'block',
+                  width: '100%',
+                  padding: '12px',
+                  borderRadius: 10,
+                  background: 'linear-gradient(135deg,#7C3AED,#06B6D4)',
+                  color: 'white',
+                  fontSize: 14,
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  textAlign: 'center',
+                  textDecoration: 'none',
+                  boxSizing: 'border-box'
+                }}
+              >
+                Join Free →
+              </a>
+            </div>
+          )}
+        </div>
         </div>
       )}
     </nav>

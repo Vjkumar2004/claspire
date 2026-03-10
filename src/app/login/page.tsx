@@ -2,6 +2,8 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import Navbar from '@/components/Navbar'
+import { Eye, EyeOff, Mail, Lock, User, GraduationCap } from 'lucide-react'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -57,14 +59,18 @@ export default function LoginPage() {
 
   return (
     <div style={{
-      display: 'flex',
-      height: '100vh',
+      minHeight: '100vh',
       background: '#F9FAFB',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '20px',
       fontFamily: 'Plus Jakarta Sans, sans-serif'
     }}>
+      <Navbar />
+      <div style={{
+        display: 'flex',
+        height: 'calc(100vh - 56px)',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '20px'
+      }}>
       <div style={{
         background: 'white',
         borderRadius: 16,
@@ -155,7 +161,17 @@ export default function LoginPage() {
                   ? '0 1px 4px rgba(0,0,0,0.1)' : 'none'
               }}
             >
-              {role === 'student' ? '🎓 Student' : '👔 Senior'}
+              {role === 'student' ? (
+                <>
+                  <GraduationCap size={16} style={{ marginRight: 6 }} />
+                  Student
+                </>
+              ) : (
+                <>
+                  <User size={16} style={{ marginRight: 6 }} />
+                  Senior
+                </>
+              )}
             </button>
           ))}
         </div>
@@ -169,6 +185,7 @@ export default function LoginPage() {
             color: '#374151',
             marginBottom: 6
           }}>
+            <Mail size={14} style={{ marginRight: 6, verticalAlign: 'middle' }} />
             Email Address
           </label>
           <input
@@ -218,6 +235,7 @@ export default function LoginPage() {
               fontWeight: 600,
               color: '#374151'
             }}>
+              <Lock size={14} style={{ marginRight: 6, verticalAlign: 'middle' }} />
               Password
             </label>
             <Link
@@ -277,7 +295,7 @@ export default function LoginPage() {
                 padding: 0
               }}
             >
-              {showPassword ? '🙈' : '👁️'}
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
           </div>
         </div>
@@ -362,6 +380,7 @@ export default function LoginPage() {
             © 2024 Claspire · India's College Community
           </p>
         </div>
+      </div>
       </div>
     </div>
   )

@@ -3,23 +3,14 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
+import Navbar from '@/components/Navbar'
+import { createClient } from '@supabase/supabase-js'
+import { Mail, Phone, Lock, Eye, EyeOff, User, GraduationCap, MapPin, Calendar } from 'lucide-react'
 
-// Mock colleges data (same as colleges page)
-const mockColleges = [
-  { slug: "srm", name: "SRM Institute of Science and Technology", shortName: "SRM Chennai", short: "SR", type: "Private", location: "Chennai, Tamil Nadu", color: "7C3AED" },
-  { slug: "vit", name: "Vellore Institute of Technology", shortName: "VIT Vellore", short: "VI", type: "Deemed", location: "Vellore, Tamil Nadu", color: "06B6D4" },
-  { slug: "nit-trichy", name: "National Institute of Technology", shortName: "NIT Trichy", short: "NI", type: "NIT", location: "Trichy, Tamil Nadu", color: "F59E0B" },
-  { slug: "anna-univ", name: "Anna University", shortName: "Anna University", short: "AN", type: "Deemed", location: "Chennai, Tamil Nadu", color: "10B981" },
-  { slug: "psg", name: "PSG College of Technology", shortName: "PSG Tech", short: "PS", type: "Private", location: "Coimbatore, Tamil Nadu", color: "EF4444" },
-  { slug: "bits", name: "BITS Pilani", shortName: "BITS Pilani", short: "BI", type: "Deemed", location: "Pilani, Rajasthan", color: "8B5CF6" },
-  { slug: "iit-madras", name: "Indian Institute of Technology", shortName: "IIT Madras", short: "II", type: "IIT", location: "Chennai, Tamil Nadu", color: "0EA5E9" },
-  { slug: "srm-ktr", name: "SRM Institute of Science and Technology, Kattankulathur", shortName: "SRM KTR", short: "SK", type: "Private", location: "Kattankulathur, Tamil Nadu", color: "7C3AED" },
-  { slug: "sastra", name: "SASTRA Deemed University", shortName: "SASTRA University", short: "SA", type: "Deemed", location: "Thanjavur, Tamil Nadu", color: "F97316" },
-  { slug: "nit-surathkal", name: "NIT Karnataka", shortName: "NIT Surathkal", short: "NK", type: "NIT", location: "Surathkal, Karnataka", color: "EC4899" },
-  { slug: "amrita", name: "Amrita Vishwa Vidyapeetham", shortName: "Amrita University", short: "AM", type: "Deemed", location: "Coimbatore, Tamil Nadu", color: "14B8A6" },
-  { slug: "vit-chennai", name: "VIT Chennai Campus", shortName: "VIT Chennai", short: "VC", type: "Deemed", location: "Chennai, Tamil Nadu", color: "06B6D4" },
-  { slug: "aaacet", name: "A.A. A. College of Engineering and Technology", shortName: "AAACET", short: "AA", type: "Private", location: "Thanjavur, Tamil Nadu", color: "F97316" }
-];
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+)
 
 export default function SignupPage() {
   const router = useRouter()
@@ -64,8 +55,37 @@ export default function SignupPage() {
   const [otpSent, setOtpSent] = useState(false)
   const [resendTimer, setResendTimer] = useState(0)
   
-  // Colleges from mock data
-  const [colleges] = useState<typeof mockColleges>(mockColleges)
+  // Colleges from database
+  const [colleges, setColleges] = useState<any[]>([])
+  const [collegesLoading, setCollegesLoading] = useState(false)
+  
+  // Fetch colleges from database
+  useEffect(() => {
+    fetchColleges()
+  }, [])
+
+  const fetchColleges = async () => {
+    setCollegesLoading(true)
+    try {
+      const { data, error } = await supabase
+        .from('colleges')
+        .select('id, name, short_name, slug, location, state')
+        .order('name')
+      
+      if (error) {
+        console.error('Error fetching colleges:', error)
+        // Fallback to mock data if database fails
+        setColleges([])
+      } else {
+        setColleges(data || [])
+      }
+    } catch (err) {
+      console.error('Error fetching colleges:', err)
+      setColleges([])
+    } finally {
+      setCollegesLoading(false)
+    }
+  }
   
   // Dropdown visibility states
   const [showStudentCollegeDropdown, setShowStudentCollegeDropdown] = useState(false)
@@ -313,9 +333,11 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen flex">
-      {/* Left Panel - Desktop Only */}
-      <div className="hidden lg:block lg:w-2/5 bg-gradient-to-br from-purple-600 to-cyan-500 relative overflow-hidden">
+    <div className="min-h-screen bg-gray-50">
+      <Navbar />
+      <div className="flex pt-14" style={{ minHeight: 'calc(100vh - 56px)' }}>
+        {/* Left Panel - Desktop Only */}
+        <div className="hidden lg:block lg:w-2/5 bg-gradient-to-br from-purple-600 to-cyan-500 relative overflow-hidden">
         {/* Background Decorations */}
         <div className="absolute top-[-100px] right-[-100px] w-[300px] h-[300px] bg-white rounded-full opacity-15"></div>
         <div className="absolute bottom-[-50px] left-[-50px] w-[200px] h-[200px] bg-white rounded-full opacity-15"></div>
@@ -435,7 +457,7 @@ export default function SignupPage() {
                     placeholder="Search your college..."
                     value={studentData.college_name}
                     onChange={(e) => {
-                      setStudentData({...studentData, college_name: e.target.value});
+                      setStudentData({...studentData, college_name: e.target.value, college_id: null});
                       setShowStudentCollegeDropdown(true);
                     }}
                     onFocus={() => setShowStudentCollegeDropdown(true)}
@@ -445,31 +467,44 @@ export default function SignupPage() {
                   {/* College Dropdown */}
                   {showStudentCollegeDropdown && studentData.college_name && (
                     <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-lg mt-1 max-h-48 overflow-y-auto z-10">
-                      {colleges.filter((college: typeof mockColleges[0]) => 
-                        college.shortName.toLowerCase().includes(studentData.college_name.toLowerCase()) ||
-                        college.name.toLowerCase().includes(studentData.college_name.toLowerCase())
-                      ).map((college: typeof mockColleges[0]) => (
-                        <div
-                          key={college.slug}
-                          onClick={() => {
-                            setStudentData({
-                              ...studentData, 
-                              college_id: null, // Use null instead of slug to avoid UUID error
-                              college_name: college.shortName
-                            });
-                            setShowStudentCollegeDropdown(false);
-                          }}
-                          className="flex items-center gap-2.5 p-3.5 hover:bg-gray-50 cursor-pointer"
-                        >
-                          <div className="w-7 h-7 rounded bg-purple-100 flex items-center justify-center text-xs font-black text-purple-600">
-                            {college.short.slice(0, 2).toUpperCase()}
-                          </div>
-                          <div>
-                            <div className="text-sm font-bold text-black">{college.shortName}</div>
-                            <div className="text-xs text-gray-400">{college.location}</div>
-                          </div>
+                      {collegesLoading ? (
+                        <div className="p-3.5 text-center text-sm text-gray-400">
+                          Loading colleges...
                         </div>
-                      ))}
+                      ) : colleges.filter((college: any) => 
+                        college.short_name.toLowerCase().includes(studentData.college_name.toLowerCase()) ||
+                        college.name.toLowerCase().includes(studentData.college_name.toLowerCase())
+                      ).length > 0 ? (
+                        colleges.filter((college: any) => 
+                          college.short_name.toLowerCase().includes(studentData.college_name.toLowerCase()) ||
+                          college.name.toLowerCase().includes(studentData.college_name.toLowerCase())
+                        ).map((college: any) => (
+                          <div
+                            key={college.id}
+                            onClick={() => {
+                              setStudentData({
+                                ...studentData, 
+                                college_id: college.id, // Use UUID from database
+                                college_name: college.short_name
+                              });
+                              setShowStudentCollegeDropdown(false);
+                            }}
+                            className="flex items-center gap-2.5 p-3.5 hover:bg-gray-50 cursor-pointer"
+                          >
+                            <div className="w-7 h-7 rounded bg-purple-100 flex items-center justify-center text-xs font-black text-purple-600">
+                              {college.short_name.slice(0, 2).toUpperCase()}
+                            </div>
+                            <div>
+                              <div className="text-sm font-bold text-black">{college.short_name}</div>
+                              <div className="text-xs text-gray-400">{college.location}, {college.state}</div>
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="p-3.5 text-center text-sm text-gray-400">
+                          No colleges found
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
@@ -532,7 +567,8 @@ export default function SignupPage() {
                 </select>
 
                 {/* Email */}
-                <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5 flex items-center gap-2">
+                  <Mail size={14} />
                   Email
                 </label>
                 <div className="flex gap-2 mb-2">
@@ -994,14 +1030,14 @@ export default function SignupPage() {
                     />
 
                     {/* College */}
-                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">Graduated From</label>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">College</label>
                     <div className="relative mb-4">
                       <input
                         type="text"
                         placeholder="Search your college..."
                         value={seniorData.college_name}
                         onChange={(e) => {
-                          setSeniorData({...seniorData, college_name: e.target.value});
+                          setSeniorData({...seniorData, college_name: e.target.value, college_id: null});
                           setShowSeniorCollegeDropdown(true);
                         }}
                         onFocus={() => setShowSeniorCollegeDropdown(true)}
@@ -1011,32 +1047,45 @@ export default function SignupPage() {
                       {/* College Dropdown */}
                       {showSeniorCollegeDropdown && seniorData.college_name && (
                         <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-lg mt-1 max-h-48 overflow-y-auto z-10">
-                        {colleges.filter((college: typeof mockColleges[0]) => 
-                          college.shortName.toLowerCase().includes(seniorData.college_name.toLowerCase()) ||
-                          college.name.toLowerCase().includes(seniorData.college_name.toLowerCase())
-                        ).map((college: typeof mockColleges[0]) => (
-                          <div
-                            key={college.slug}
-                            onClick={() => {
-                              setSeniorData({
-                                ...seniorData, 
-                                college_id: null, // Use null instead of slug to avoid UUID error
-                                college_name: college.shortName
-                              });
-                              setShowSeniorCollegeDropdown(false);
-                            }}
-                            className="flex items-center gap-2.5 p-3.5 hover:bg-gray-50 cursor-pointer"
-                          >
-                            <div className="w-7 h-7 rounded bg-purple-100 flex items-center justify-center text-xs font-black text-purple-600">
-                              {college.short.slice(0, 2).toUpperCase()}
-                            </div>
-                            <div>
-                              <div className="text-sm font-bold text-black">{college.shortName}</div>
-                              <div className="text-xs text-gray-400">{college.location}</div>
-                            </div>
+                        {collegesLoading ? (
+                          <div className="p-3.5 text-center text-sm text-gray-400">
+                            Loading colleges...
                           </div>
-                        ))}
-                      </div>
+                        ) : colleges.filter((college: any) => 
+                          college.short_name.toLowerCase().includes(seniorData.college_name.toLowerCase()) ||
+                          college.name.toLowerCase().includes(seniorData.college_name.toLowerCase())
+                        ).length > 0 ? (
+                          colleges.filter((college: any) => 
+                            college.short_name.toLowerCase().includes(seniorData.college_name.toLowerCase()) ||
+                            college.name.toLowerCase().includes(seniorData.college_name.toLowerCase())
+                          ).map((college: any) => (
+                            <div
+                              key={college.id}
+                              onClick={() => {
+                                setSeniorData({
+                                  ...seniorData, 
+                                  college_id: college.id, // Use UUID from database
+                                  college_name: college.short_name
+                                });
+                                setShowSeniorCollegeDropdown(false);
+                              }}
+                              className="flex items-center gap-2.5 p-3.5 hover:bg-gray-50 cursor-pointer"
+                            >
+                              <div className="w-7 h-7 rounded bg-purple-100 flex items-center justify-center text-xs font-black text-purple-600">
+                                {college.short_name.slice(0, 2).toUpperCase()}
+                              </div>
+                              <div>
+                                <div className="text-sm font-bold text-black">{college.short_name}</div>
+                                <div className="text-xs text-gray-400">{college.location}, {college.state}</div>
+                              </div>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="p-3.5 text-center text-sm text-gray-400">
+                            No colleges found
+                          </div>
+                        )}
+                        </div>
                       )}
                     </div>
 
@@ -1358,6 +1407,7 @@ export default function SignupPage() {
             </p>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

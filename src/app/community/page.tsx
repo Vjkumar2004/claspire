@@ -48,6 +48,28 @@ const allPosts = [
   {
     id: 3,
     type: "doubt",
+    community: "aaacet",
+    communityName: "c/aaacet",
+    communityColor: "#DC2626",
+    answered: true,
+    avatar: "MP", 
+    avatarColor: "#DC2626",
+    name: "Mohan Prakash",
+    meta: "3rd Year · MECH",
+    time: "5h ago",
+    question: "What are the placement opportunities for Mechanical students at AAACET? Which companies visit campus?",
+    tags: ["Placement", "Mechanical", "AAACET"],
+    answers: 3, 
+    upvotes: 15,
+    topAnswer: {
+      name: "Karthik R",
+      badge: "Senior Design Engineer · AAACET 2021",
+      text: "Mechanical placements are decent. Core companies like L&T, Ashok Leyland visit. Software roles also available if you have coding skills..."
+    }
+  },
+  {
+    id: 4,
+    type: "doubt",
     community: "nit-trichy",
     communityName: "c/nit-trichy",
     communityColor: "#F59E0B",
@@ -79,6 +101,7 @@ const joinedCommunities = [
 const allColleges = [
   { short: "SR", name: "SRM Chennai", members: "3,420", seniors: "234", color: "7C3AED", joined: true },
   { short: "VI", name: "VIT Vellore", members: "2,841", seniors: "198", color: "06B6D4", joined: true },
+  { short: "AA", name: "AAACET", members: "1,245", seniors: "89", color: "DC2626", joined: false },
   { short: "NI", name: "NIT Trichy", members: "1,920", seniors: "156", color: "F59E0B", joined: false },
   { short: "AN", name: "Anna University", members: "2,103", seniors: "187", color: "10B981", joined: false },
   { short: "PS", name: "PSG Tech", members: "987", seniors: "89", color: "EF4444", joined: false },
@@ -130,7 +153,7 @@ export default function CommunityPage() {
                 {joinedCommunities.map((community) => (
                   <a
                     key={community.name}
-                    href={`/community/${community.short.toLowerCase()}`}
+                    href={`/community/c/${community.short.toLowerCase()}`}
                     className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-gray-50 transition-colors no-underline"
                   >
                     <div 
@@ -227,7 +250,7 @@ export default function CommunityPage() {
                         {post.communityName.split('/')[1].toUpperCase().slice(0, 2)}
                       </div>
                       <a 
-                        href={`/community/${post.community}`}
+                        href={`/community/c/${post.community}`}
                         className="text-xs font-bold text-gray-700 hover:text-purple-600 transition-colors no-underline"
                       >
                         {post.communityName}

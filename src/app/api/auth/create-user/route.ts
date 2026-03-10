@@ -70,6 +70,18 @@ export async function POST(req: NextRequest) {
       is_verified: true,
     }
 
+    // Validate college_id is proper UUID
+    const collegeId = profileData.college_id
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+    
+    const safeCollegeId = collegeId && 
+      uuidRegex.test(collegeId) 
+      ? collegeId 
+      : null  // ← null if not valid UUID
+
+    // Debug log to verify college_id
+    console.log('Creating user with college_id:', collegeId, '-> safeCollegeId:', safeCollegeId)
+
     // Insert user
     const { data: user, error: userError } = await supabase
       .from('users')
@@ -79,6 +91,7 @@ export async function POST(req: NextRequest) {
         role,
         unique_id: uniqueId,
         password_hash: passwordHash,  // ← ADD THIS
+        college_id: safeCollegeId, // Use validated UUID
         rise_points: 50,
         rp_level: 1,
         ...safeProfileData,
@@ -104,6 +117,27 @@ export async function POST(req: NextRequest) {
       reason: 'Joined Claspire 🎉'
     })
 
+    // Give join bonus +1 RP
+    await supabase
+      .from('rise_points_log')
+      .insert({
+        user_id: userId,
+        points: 1,
+        reason: 'Welcome to Claspire! 🎉',
+        created_at: new Date().toISOString()
+      })
+
+    // Update rise_points to 51
+    // (50 default + 1 join bonus)
+    await supabase
+      .from('users')
+      .update({
+        rise_points: 51,
+        last_visit_date: new Date()
+          .toISOString().split('T')[0]
+      })
+      .eq('id', userId)
+
     // Store session in cookie
     const sessionData = {
       id: userId,
@@ -111,9 +145,14 @@ export async function POST(req: NextRequest) {
       role,
       unique_id: uniqueId,
       full_name: profileData.full_name,
-      college_id: profileData.college_id,
-      verification_status: profileData.verification_status
+      college_id: safeCollegeId,
+      verification_status: profileData.verification_status,
+      is_verified: true,        // ← ADD this!
+      is_premium: false,        // ← ADD this!
     }
+
+    // Debug log to show session data
+    console.log('Session data being stored:', sessionData)
 
     // Clean up OTP
     await supabase

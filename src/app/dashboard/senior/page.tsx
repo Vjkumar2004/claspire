@@ -1,12 +1,44 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { HelpCircle, Briefcase, Handshake, Mic, DollarSign, BarChart3, Star, Trophy, User, CheckCircle, Settings, Zap, TrendingUp } from 'lucide-react';
+
+// Helper functions
+const timeAgo = (dateStr: string) => {
+  const diff = Date.now() - new Date(dateStr).getTime()
+  const mins = Math.floor(diff / 60000)
+  const hours = Math.floor(diff / 3600000)
+  const days = Math.floor(diff / 86400000)
+  if (days > 0) return `${days}d ago` 
+  if (hours > 0) return `${hours}h ago` 
+  return `${mins}m ago` 
+}
 
 export default function SeniorDashboardPage() {
   // Move ALL useState hooks to the top - Rules of Hooks compliance
   const [activeNav, setActiveNav] = useState("overview");
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [dashData, setDashData] = useState<any>(null)
+  const [dataLoading, setDataLoading] = useState(true)
+
+  useEffect(() => {
+    fetchDashboardData()
+  }, [])
+
+  const fetchDashboardData = async () => {
+    try {
+      const res = await fetch('/api/dashboard/me')
+      if (res.ok) {
+        const data = await res.json()
+        setDashData(data)
+      }
+    } catch (err) {
+      console.error('Dashboard data error:', err)
+    } finally {
+      setDataLoading(false)
+    }
+  }
 
   // Note: Auth checking is handled by the layout.tsx file
   // No need for duplicate auth logic here
@@ -41,11 +73,15 @@ export default function SeniorDashboardPage() {
               RS
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-xs font-black text-black">Rahul Sharma</div>
-              <div className="text-xs text-gray-400">#CLS-S-2022-00234</div>
+              <div className="text-xs font-black text-black">
+                {dashData?.user?.full_name || 'Senior'}
+              </div>
+              <div className="text-xs text-gray-400">
+                {dashData?.user?.unique_id || '#CLS-S-2022-00234'}
+              </div>
               <div className="mt-1">
                 <span className="bg-green-50 border border-green-200 rounded-full px-2.5 py-0.5 text-[10px] font-black text-green-600">
-                  ✅ Verified Senior · Swiggy
+                  ✅ Verified Senior · {dashData?.user?.company || 'Company'}
                 </span>
               </div>
             </div>
@@ -54,17 +90,21 @@ export default function SeniorDashboardPage() {
 
         {/* Rise Points Card */}
         <div className="m-3 bg-gradient-to-br from-purple-600 to-cyan-500 rounded-xl p-3">
-          <div className="text-[10px] font-black text-white/75 tracking-wider uppercase mb-1">
-            ⚡ Rise Points
+          <div className="text-[10px] font-black text-white/75 tracking-wider uppercase mb-1 flex items-center gap-1">
+            <Zap size={10} />
+            Rise Points
           </div>
           <div className="font-instrument-serif text-2xl text-white leading-none my-1">
-            2,340 RP
+            {dashData?.user?.rise_points || 0} RP
           </div>
           <div className="bg-white/20 rounded-full h-1 my-2">
             <div className="bg-white rounded-full h-1 w-[46.8%]"></div>
           </div>
           <div className="flex justify-between text-[10px] text-white/70">
-            <span>Champion 🏆</span>
+            <span className="flex items-center gap-1">
+              <Trophy size={10} />
+              Champion
+            </span>
             <span>2,660 RP to Legend</span>
           </div>
         </div>
@@ -102,19 +142,19 @@ export default function SeniorDashboardPage() {
           </div>
           <div className="space-y-0.5 mb-4">
             <div className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
-              <span className="text-sm w-5 text-center">❓</span>
-              Doubts to Answer
+              <HelpCircle size={16} className="flex-shrink-0" />
+              <span>Doubts to Answer</span>
               <span className="ml-auto bg-red-500 text-white rounded-full px-1.5 py-0 text-[10px] font-black">
                 3
               </span>
             </div>
             <div className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
-              <span className="text-sm w-5 text-center">💼</span>
-              Post a Job
+              <Briefcase size={16} className="flex-shrink-0" />
+              <span>Post a Job</span>
             </div>
             <div className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
-              <span className="text-sm w-5 text-center">🤝</span>
-              Referral Requests
+              <Handshake size={16} className="flex-shrink-0" />
+              <span>Referral Requests</span>
               <span className="ml-auto bg-red-500 text-white rounded-full px-1.5 py-0 text-[10px] font-black">
                 2
               </span>
@@ -127,16 +167,16 @@ export default function SeniorDashboardPage() {
           </div>
           <div className="space-y-0.5 mb-4">
             <div className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
-              <span className="text-sm w-5 text-center">🎤</span>
-              My Webinars
+              <Mic size={16} className="flex-shrink-0" />
+              <span>My Webinars</span>
             </div>
             <div className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
-              <span className="text-sm w-5 text-center">💰</span>
-              Earnings & Payouts
+              <DollarSign size={16} className="flex-shrink-0" />
+              <span>Earnings & Payouts</span>
             </div>
             <div className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
-              <span className="text-sm w-5 text-center">📊</span>
-              Analytics
+              <BarChart3 size={16} className="flex-shrink-0" />
+              <span>Analytics</span>
             </div>
           </div>
 
@@ -146,16 +186,16 @@ export default function SeniorDashboardPage() {
           </div>
           <div className="space-y-0.5 mb-4">
             <div className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
-              <span className="text-sm w-5 text-center">🌟</span>
-              Students Placed
+              <TrendingUp size={16} className="flex-shrink-0" />
+              <span>Students Placed</span>
             </div>
             <div className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
-              <span className="text-sm w-5 text-center">⭐</span>
-              My Reputation
+              <Star size={16} className="flex-shrink-0" />
+              <span>My Reputation</span>
             </div>
             <div className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
-              <span className="text-sm w-5 text-center">🏆</span>
-              Leaderboard
+              <Trophy size={16} className="flex-shrink-0" />
+              <span>Leaderboard</span>
             </div>
           </div>
 
@@ -165,16 +205,16 @@ export default function SeniorDashboardPage() {
           </div>
           <div className="space-y-0.5">
             <div className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
-              <span className="text-sm w-5 text-center">👤</span>
-              My Profile
+              <User size={16} className="flex-shrink-0" />
+              <span>My Profile</span>
             </div>
             <div className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
-              <span className="text-sm w-5 text-center">✅</span>
-              Verification
+              <CheckCircle size={16} className="flex-shrink-0" />
+              <span>Verification</span>
             </div>
             <div className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
-              <span className="text-sm w-5 text-center">⚙️</span>
-              Settings
+              <Settings size={16} className="flex-shrink-0" />
+              <span>Settings</span>
             </div>
           </div>
         </div>
@@ -204,7 +244,7 @@ export default function SeniorDashboardPage() {
             ☰
           </button>
           <div className="bg-gray-100 border border-gray-200 rounded-lg px-3 py-1.5 text-xs font-black text-gray-600 font-mono">
-            #CLS-S-2022-00234
+            {dashData?.user?.unique_id || '#CLS-S-2022-00234'}
           </div>
         </div>
 
@@ -212,15 +252,15 @@ export default function SeniorDashboardPage() {
         <div className="flex justify-between items-center mb-7">
           <div>
             <h1 className="font-instrument-serif font-normal text-2xl text-black">
-              Welcome back, Rahul 👋
+              Welcome back, {dashData?.user?.full_name || 'Senior'} 👋
             </h1>
             <p className="text-xs text-gray-400 mt-0.5">
-              Wednesday, Mar 5 · SDE-2 @ Swiggy
+              Wednesday, Mar 5 · {dashData?.user?.designation || 'SDE-2'} @ {dashData?.user?.company || 'Company'}
             </p>
           </div>
           
           <div className="hidden lg:block bg-gray-100 border border-gray-200 rounded-lg px-3 py-1.5 text-xs font-black text-gray-600 font-mono" title="Your unique Claspire ID">
-            #CLS-S-2022-00234
+            {dashData?.user?.unique_id || '#CLS-S-2022-00234'}
           </div>
         </div>
 
@@ -245,16 +285,22 @@ export default function SeniorDashboardPage() {
                 {/* Stats Row */}
                 <div className="flex gap-8 mt-5">
                   <div>
-                    <div className="font-instrument-serif text-2xl text-white">23</div>
+                    <div className="font-instrument-serif text-2xl text-white">
+                      {dashData?.user?.answer_count || 0}
+                    </div>
                     <div className="text-xs text-white/50 mt-0.5">Doubts Answered</div>
                   </div>
                   <div>
-                    <div className="font-instrument-serif text-2xl text-white">8</div>
+                    <div className="font-instrument-serif text-2xl text-white">
+                      {dashData?.user?.referral_count || 0}
+                    </div>
                     <div className="text-xs text-white/50 mt-0.5">Referrals Approved</div>
                   </div>
                   <div>
-                    <div className="font-instrument-serif text-2xl text-white">₹4,320</div>
-                    <div className="text-xs text-white/50 mt-0.5">Earned</div>
+                    <div className="font-instrument-serif text-2xl text-white">
+                      {dashData?.user?.rise_points || 0}
+                    </div>
+                    <div className="text-xs text-white/50 mt-0.5">Rise Points</div>
                   </div>
                 </div>
               </div>
@@ -299,55 +345,78 @@ export default function SeniorDashboardPage() {
               <div className="p-3.5 border-b border-gray-100 flex justify-between items-center">
                 <div className="text-sm font-black text-black">❓ Unanswered Doubts</div>
                 <span className="bg-red-50 text-red-500 rounded-full px-2 py-0.5 text-[11px] font-black">
-                  3 waiting
+                  {dashData?.pendingDoubts?.length || 0} waiting
                 </span>
               </div>
               
               <div className="divide-y divide-gray-50">
-                {/* Doubt 1 */}
-                <div className="p-4">
-                  <div className="flex items-center gap-2 mb-1.5">
-                    <div className="w-6 h-6 rounded-full bg-purple-600 text-white text-[10px] font-black flex items-center justify-center">AK</div>
-                    <span className="text-xs font-black text-black">Arun Kumar</span>
-                    <span className="text-xs text-gray-400">·</span>
-                    <span className="text-xs text-gray-400">CSE · 3rd Year</span>
-                    <span className="text-xs text-gray-400 ml-auto">5h</span>
+                {dataLoading ? (
+                  <p style={{
+                    textAlign: 'center',
+                    color: '#9CA3AF',
+                    fontSize: 14,
+                    padding: '20px'
+                  }}>
+                    Loading doubts...
+                  </p>
+                ) : dashData?.pendingDoubts?.length > 0 ? (
+                  dashData.pendingDoubts.map((post: any) => (
+                    <div key={post.id} style={{
+                      padding: '14px',
+                      background: '#F9FAFB',
+                      borderRadius: 10,
+                      border: '1px solid #F3F4F6',
+                      marginBottom: 10
+                    }}>
+                      <p style={{
+                        fontSize: 13,
+                        fontWeight: 600,
+                        color: '#374151',
+                        margin: '0 0 6px'
+                      }}>
+                        {post.title || post.content.slice(0, 100)}
+                      </p>
+                      <div style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center'
+                      }}>
+                        <span style={{
+                          fontSize: 11,
+                          color: '#9CA3AF'
+                        }}>
+                          by {post.users?.full_name || 'Student'} · 
+                          {post.users?.branch || ''} 
+                          Year {post.users?.year || ''} · 
+                          {timeAgo(post.created_at)}
+                        </span>
+                        <button style={{
+                          fontSize: 11,
+                          fontWeight: 700,
+                          color: '#7C3AED',
+                          background: '#F3F0FF',
+                          border: 'none',
+                          borderRadius: 6,
+                          padding: '4px 10px',
+                          cursor: 'pointer'
+                        }}>
+                          Answer →
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div style={{
+                    textAlign: 'center',
+                    padding: '30px 20px',
+                    color: '#9CA3AF'
+                  }}>
+                    <div style={{ fontSize: 32, marginBottom: 8 }}>✨</div>
+                    <p style={{ fontSize: 14, margin: 0 }}>
+                      No pending doubts right now!
+                    </p>
                   </div>
-                  <div className="text-sm font-medium text-gray-700 mb-2 line-clamp-1">
-                    How competitive is Swiggy off-campus?
-                  </div>
-                  <a href="#" className="text-xs text-purple-600 font-semibold">Answer Now →</a>
-                </div>
-                
-                {/* Doubt 2 */}
-                <div className="p-4">
-                  <div className="flex items-center gap-2 mb-1.5">
-                    <div className="w-6 h-6 rounded-full bg-cyan-500 text-white text-[10px] font-black flex items-center justify-center">SK</div>
-                    <span className="text-xs font-black text-black">Sanjay K</span>
-                    <span className="text-xs text-gray-400">·</span>
-                    <span className="text-xs text-gray-400">IT · Final</span>
-                    <span className="text-xs text-gray-400 ml-auto">8h</span>
-                  </div>
-                  <div className="text-sm font-medium text-gray-700 mb-2 line-clamp-1">
-                    TCS Digital vs Product companies?
-                  </div>
-                  <a href="#" className="text-xs text-purple-600 font-semibold">Answer Now →</a>
-                </div>
-                
-                {/* Doubt 3 */}
-                <div className="p-4">
-                  <div className="flex items-center gap-2 mb-1.5">
-                    <div className="w-6 h-6 rounded-full bg-green-500 text-white text-[10px] font-black flex items-center justify-center">RV</div>
-                    <span className="text-xs font-black text-black">Rohit V</span>
-                    <span className="text-xs text-gray-400">·</span>
-                    <span className="text-xs text-gray-400">ECE · 3rd</span>
-                    <span className="text-xs text-gray-400 ml-auto">12h</span>
-                  </div>
-                  <div className="text-sm font-medium text-gray-700 mb-2 line-clamp-1">
-                    Can ECE apply for SDE roles?
-                  </div>
-                  <a href="#" className="text-xs text-purple-600 font-semibold">Answer Now →</a>
-                </div>
+                )}
               </div>
             </div>
 
