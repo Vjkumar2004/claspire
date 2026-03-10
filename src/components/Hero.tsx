@@ -55,27 +55,29 @@ export default function Hero() {
               className="py-12 lg:py-20 px-4 lg:px-0"
             >
               {/* Top Label */}
-              <motion.div variants={itemVariants} className="inline-flex items-center gap-2 bg-[#F3F0FF] border border-[#DDD6FE] rounded-md px-3 py-1.5 text-xs font-bold text-[#7C3AED] tracking-widest uppercase">
+              <motion.div variants={itemVariants} className="inline-flex items-center gap-2 bg-[#F3F0FF] border border-[#DDD6FE] rounded-md px-3 py-1.5 text-xs font-bold text-[#7C3AED] tracking-widest uppercase lg:inline-flex">
                 INDIA'S COLLEGE SENIOR NETWORK
               </motion.div>
 
               {/* H1 */}
-              <motion.h1 variants={itemVariants} className="font-instrument-serif font-normal text-[clamp(40px,5vw,72px)] leading-[1.05] text-black mt-5 mb-0">
+              <motion.h1 variants={itemVariants} className="font-instrument-serif font-normal text-[clamp(40px,5vw,72px)] leading-[1.05] text-black mt-5 mb-0 text-center lg:text-left">
                 Your senior knows<br />
                 the exact path.<br />
                 <em className="text-[#7C3AED]">You just need to ask.</em>
               </motion.h1>
 
               {/* Subtext */}
-              <motion.p variants={itemVariants} className="text-base font-normal text-gray-600 leading-relaxed max-w-[460px] mt-5 mb-0">
+              <motion.p variants={itemVariants} className="text-base font-normal text-gray-600 leading-relaxed max-w-[460px] mt-5 mb-0 text-center lg:text-left mx-auto lg:mx-0">
                 Connect with verified seniors from your own college. Real answers to real questions — placements, referrals, career paths.
               </motion.p>
 
               {/* Buttons */}
-              <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-3 mt-8">
+              <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-3 mt-8 justify-center lg:justify-start">
+                <a href="/colleges" className="no-underline">
                 <button className="bg-black text-white px-6 py-3 rounded-lg text-sm font-semibold border-none cursor-pointer hover:bg-gray-800 transition-colors w-full sm:w-auto">
                   Find your college →
                 </button>
+              </a>
                 <button className="bg-white border-[1.5px] border-gray-200 text-gray-700 px-6 py-3 rounded-lg text-sm font-semibold cursor-pointer hover:border-gray-400 transition-colors w-full sm:w-auto">
                   See how it works
                 </button>

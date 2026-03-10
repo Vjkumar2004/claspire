@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Instrument_Serif } from "next/font/google";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
+import { AuthProvider } from "@/contexts/AuthContext";
 
 const instrumentSerif = Instrument_Serif({
   variable: "--font-instrument-serif",
@@ -36,7 +37,9 @@ export default function RootLayout({
       <body
         className={`${instrumentSerif.variable} ${plusJakartaSans.variable} antialiased`}
       >
-        {children}
+        <AuthProvider>
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );
