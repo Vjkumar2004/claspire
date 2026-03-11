@@ -40,17 +40,17 @@ export async function GET(
       const mockCommunity = {
         id: 'mock-aaacet',
         slug: 'aaacet',
-        display_name: 'AAACET Community',
-        description: 'A community for students and alumni of AAA College of Engineering and Technology. Share doubts, placement experiences, and connect with seniors.',
-        member_count: 1245,
-        senior_count: 89,
-        doubt_count: 156,
+        display_name: 'AAA College of Engineering and Technology',
+        description: 'Official AAACET community on Claspire — AAA College of Engineering and Technology, Sivakasi',
+        member_count: 0,
+        senior_count: 0,
+        doubt_count: 0,
         colleges: {
           id: 'mock-college-aaacet',
           name: 'AAA College of Engineering and Technology',
           short_name: 'AAACET',
           slug: 'aaacet',
-          type: 'Engineering',
+          type: 'Private',
           location: 'Sivakasi',
           state: 'Tamil Nadu'
         }

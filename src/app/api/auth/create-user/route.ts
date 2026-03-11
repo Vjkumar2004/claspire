@@ -138,6 +138,61 @@ export async function POST(req: NextRequest) {
       })
       .eq('id', userId)
 
+    // Auto-join own college community
+    if (safeCollegeId) {
+      // Get community id
+      const { data: comm } = await supabase
+        .from('communities')
+        .select('id, member_count, senior_count')
+        .eq('college_id', safeCollegeId)
+        .single()
+
+      if (comm) {
+        // Check if already a member
+        const { data: existingMember } = await supabase
+          .from('community_members')
+          .select('id')
+          .eq('community_id', comm.id)
+          .eq('user_id', userId)
+          .single()
+
+        // Only insert if not already a member
+        if (!existingMember) {
+          // Insert member
+          await supabase
+            .from('community_members')
+            .insert({
+              community_id: comm.id,
+              user_id: userId,
+              membership_type: 'joined',
+              is_verified: true,
+              role: role === 'senior'
+                ? 'senior' : 'member',
+              joined_at: new Date().toISOString()
+            })
+
+          // Update count
+          const newMemberCount =
+            (comm.member_count || 0) + 1
+          const newSeniorCount = role === 'senior'
+            ? (comm.senior_count || 0) + 1
+            : comm.senior_count || 0
+
+          await supabase
+            .from('communities')
+            .update({
+              member_count: newMemberCount,
+              senior_count: newSeniorCount
+            })
+            .eq('id', comm.id)
+
+          console.log(`Auto-joined user ${userId} to community ${comm.id}`)
+        } else {
+          console.log(`User ${userId} already a member of community ${comm.id}`)
+        }
+      }
+    }
+
     // Store session in cookie
     const sessionData = {
       id: userId,
