@@ -193,8 +193,13 @@ export async function GET(
 
     // Check if current user is already a member of this community
     let isAlreadyMember = false
+    let isOwnCollege = false
+    
     if (currentUser) {
       console.log('Checking membership for user:', currentUser.id, 'in community:', community.id)
+      
+      isOwnCollege = currentUser.college_id === community.colleges.id
+      
       const { data: userMembership, error } = await supabase
         .from('community_members')
         .select('membership_type')
@@ -211,14 +216,10 @@ export async function GET(
     let userRole = 'guest'
 
     if (currentUser) {
-      const isOwnCollege =
-        currentUser.college_id ===
-        community.colleges.id
-
       // ADD debug log temporarily:
       console.log('User college_id:', currentUser.college_id)
       console.log('Community college_id:', community.colleges.id)
-      console.log('Match:', currentUser.college_id === community.colleges.id)
+      console.log('Is own college:', isOwnCollege)
 
       const isSenior = currentUser.role === 'senior'
       const isVerified = currentUser.is_verified
@@ -250,16 +251,21 @@ export async function GET(
         upvote_count, answer_count,
         view_count, is_answered,
         is_pinned, created_at, tags,
-        users (
+        users!posts_author_id_fkey (
           full_name, unique_id,
-          role, rise_points, is_verified
+          role, is_verified
         )
       `)
       .eq('community_id', community.id)
-      .eq('is_active', true)
-      .order('is_pinned', { ascending: false })
+      .or(
+        // Own college = see all posts
+        // Other college = public only
+        isOwnCollege
+          ? 'visibility.eq.public,visibility.eq.private'
+          : 'visibility.eq.public'
+      )
       .order('created_at', { ascending: false })
-      .limit(20)
+      .limit(50)
 
     // 6. Fetch jobs only if permitted
     let jobs = null

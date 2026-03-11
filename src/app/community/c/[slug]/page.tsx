@@ -1,5 +1,4 @@
 'use client'
-
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { 
@@ -9,6 +8,7 @@ import {
   Building, Globe, Award, Activity, Target, Zap,
   Info, X, GraduationCap, MessageCircle, Crown, LayoutGrid
 } from 'lucide-react'
+import PostModal from '@/components/PostModal'
 
 export default function CommunityPage({ params }: { params: Promise<{ slug: string }> }) {
   const router = useRouter()
@@ -20,6 +20,7 @@ export default function CommunityPage({ params }: { params: Promise<{ slug: stri
   const [showDetailsModal, setShowDetailsModal] = useState(false)
   const [showDrawer, setShowDrawer] = useState(false)
   const [showLeaderboard, setShowLeaderboard] = useState(false)
+  const [showPostModal, setShowPostModal] = useState(false)
 
   useEffect(() => {
     const getSlug = async () => {
@@ -491,7 +492,8 @@ export default function CommunityPage({ params }: { params: Promise<{ slug: stri
                   justifyContent: 'center',
                   gap: 10,
                   boxShadow: '0 4px 12px rgba(124,58,237,0.3)'
-                }}>
+                }}
+                onClick={() => canPost && setShowPostModal(true)}>
                   <Plus size={20} />
                   Start a Discussion
                 </button>
@@ -1170,12 +1172,14 @@ export default function CommunityPage({ params }: { params: Promise<{ slug: stri
                     'linear-gradient(135deg,#7C3AED,#06B6D4)',
                   border: 'none',
                   borderRadius: 10,
-                  padding: '11px',
+                  padding: '10px 12px',
                   cursor: 'pointer',
+                  transition: 'all 0.2s',
                   fontFamily: 'Plus Jakarta Sans',
                   boxShadow:
                     '0 2px 8px rgba(124,58,237,0.25)'
-                }}>
+                }}
+                onClick={() => canPost && setShowPostModal(true)}>
                   <Plus size={14} />
                   Create Post
                 </button>
@@ -1861,6 +1865,18 @@ export default function CommunityPage({ params }: { params: Promise<{ slug: stri
         </div>
       )}
 
+      {/* Post Modal */}
+      <PostModal
+        isOpen={showPostModal}
+        onClose={() => setShowPostModal(false)}
+        onSuccess={() => {
+          fetchCommunity() // refresh posts
+        }}
+        communitySlug={slug}
+        communityId={data?.community?.id || ''}
+        userRole={userRole}
+      />
+
       {/* ══ MOBILE ONLY ELEMENTS ══ */}
 
       {/* Backdrop */}
@@ -2310,6 +2326,27 @@ export default function CommunityPage({ params }: { params: Promise<{ slug: stri
           alignItems: 'flex-end'
         }}
       >
+        {/* Create Post button */}
+        {canPost && (
+          <button
+            onClick={() => canPost && setShowPostModal(true)}
+            style={{
+              width: 46, height: 46,
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg,#7C3AED,#06B6D4)',
+              border: 'none',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              boxShadow: '0 4px 16px rgba(124,58,237,0.25)',
+              color: 'white'
+            }}
+          >
+            <Plus size={20} />
+          </button>
+        )}
+
         {/* Trophy / Leaderboard button */}
         <button
           onClick={() => {
