@@ -6,7 +6,7 @@ import {
   ChevronRight, Plus, Clock,
   CheckCircle, Video, Briefcase,
   GraduationCap, Star, Target,
-  BarChart3, Menu, X
+  BarChart3, Menu, X, Trash2
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
@@ -59,10 +59,22 @@ export default function JuniorDashboard() {
   const [loading, setLoading] = useState(true)
   const [showDailyRP, setShowDailyRP] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null)
 
   useEffect(() => {
     init()
   }, [])
+
+  useEffect(() => {
+    const handleClick = () => setShowDeleteConfirm(null)
+    
+    if (showDeleteConfirm) {
+      setTimeout(() => document.addEventListener('click', handleClick), 100)
+    }
+    
+    return () => document.removeEventListener('click', handleClick)
+  }, [showDeleteConfirm])
 
   const init = async () => {
       try {
@@ -130,6 +142,39 @@ export default function JuniorDashboard() {
     if (hours > 0) return `${hours}h ago` 
     if (mins > 0) return `${mins}m ago` 
     return 'Just now'
+  }
+
+  const handleDeletePost = async (postId: string) => {
+    setDeletingId(postId)
+    try {
+      const res = await fetch('/api/posts/delete', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          post_id: postId
+        })
+      })
+
+      const data = await res.json()
+
+      if (data.success) {
+        // Remove from local state instantly
+        setDashData(prev => prev ? {
+          ...prev,
+          myPosts: prev.myPosts.filter(p => p.id !== postId)
+        } : null)
+        setShowDeleteConfirm(null)
+      } else {
+        alert(data.error || 'Delete failed')
+      }
+    } catch (err) {
+      console.error('Delete error:', err)
+      alert('Something went wrong')
+    } finally {
+      setDeletingId(null)
+    }
   }
 
   // ── Loading ──
@@ -877,16 +922,166 @@ export default function JuniorDashboard() {
                 {dashData!.myPosts.length > 0 ? (
                   dashData!.myPosts.map((post, i) => (
                     <div key={post.id} className="mobile-doubt-item" style={{
+                      position: 'relative',
                       padding: '12px 0',
                       borderBottom: i < dashData!.myPosts.length - 1
                         ? '1px solid #F9FAFB' : 'none',
                       cursor: 'pointer'
                     }}>
+                      {/* Delete Button */}
+                      <div style={{
+                        position: 'absolute',
+                        top: 12,
+                        right: 0
+                      }}>
+                        <div style={{ position: 'relative' }}>
+                          <button
+                            onClick={() =>
+                              setShowDeleteConfirm(
+                                showDeleteConfirm === post.id
+                                  ? null : post.id
+                              )
+                            }
+                            style={{
+                              width: 28, height: 28,
+                              borderRadius: 8,
+                              border: '1px solid #FEE2E2',
+                              background: '#FFF5F5',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              cursor: 'pointer',
+                              color: '#FCA5A5',
+                              transition: 'all 0.15s'
+                            }}
+                            onMouseEnter={e => {
+                              (e.currentTarget as HTMLElement)
+                                .style.background = '#FEE2E2'
+                              ;(e.currentTarget as HTMLElement)
+                                .style.color = '#EF4444'
+                            }}
+                            onMouseLeave={e => {
+                              (e.currentTarget as HTMLElement)
+                                .style.background = '#FFF5F5'
+                              ;(e.currentTarget as HTMLElement)
+                                .style.color = '#FCA5A5'
+                            }}
+                          >
+                            <Trash2 size={13} />
+                          </button>
+
+                          {/* Confirm Dropdown */}
+                          {showDeleteConfirm === post.id && (
+                            <div style={{
+                              position: 'absolute',
+                              top: 34,
+                              right: 0,
+                              background: 'white',
+                              border: '1px solid #FEE2E2',
+                              borderRadius: 12,
+                              padding: '14px',
+                              width: 200,
+                              maxWidth: '90vw',
+                              boxShadow:
+                                '0 8px 24px rgba(0,0,0,0.12)',
+                              zIndex: 100
+                            }}>
+                              <p style={{
+                                fontSize: 12,
+                                fontWeight: 700,
+                                color: '#111827',
+                                margin: '0 0 4px'
+                              }}>
+                                Delete this post?
+                              </p>
+                              <p style={{
+                                fontSize: 11,
+                                color: '#9CA3AF',
+                                margin: '0 0 12px',
+                                lineHeight: 1.5,
+                                fontWeight: 500
+                              }}>
+                                This cannot be undone.
+                                Votes and answers will also
+                                be deleted.
+                              </p>
+                              <div style={{
+                                display: 'flex',
+                                gap: 8
+                              }}>
+                                <button
+                                  onClick={() =>
+                                    setShowDeleteConfirm(null)}
+                                  style={{
+                                    flex: 1,
+                                    fontSize: 11,
+                                    fontWeight: 700,
+                                    color: '#6B7280',
+                                    background: '#F9FAFB',
+                                    border: '1px solid #F3F4F6',
+                                    borderRadius: 8,
+                                    padding: '8px',
+                                    cursor: 'pointer',
+                                    fontFamily: 'Plus Jakarta Sans'
+                                  }}
+                                >
+                                  Cancel
+                                </button>
+                                <button
+                                  onClick={() =>
+                                    handleDeletePost(post.id)}
+                                  disabled={
+                                    deletingId === post.id}
+                                  style={{
+                                    flex: 1,
+                                    fontSize: 11,
+                                    fontWeight: 700,
+                                    color: 'white',
+                                    background:
+                                      deletingId === post.id
+                                      ? '#FCA5A5' : '#EF4444',
+                                    border: 'none',
+                                    borderRadius: 8,
+                                    padding: '8px',
+                                    cursor: deletingId === post.id
+                                      ? 'not-allowed' : 'pointer',
+                                    fontFamily: 'Plus Jakarta Sans',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    gap: 4
+                                  }}
+                                >
+                                  {deletingId === post.id ? (
+                                    <>
+                                      <div style={{
+                                        width: 10, height: 10,
+                                        border:
+                                          '2px solid white',
+                                        borderTop:
+                                          '2px solid transparent',
+                                        borderRadius: '50%',
+                                        animation:
+                                          'spin 0.8s linear infinite'
+                                      }} />
+                                      ...
+                                    </>
+                                  ) : (
+                                    'Delete'
+                                  )}
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
                       <div style={{
                         display: 'flex',
                         justifyContent: 'space-between',
                         gap: 10,
-                        marginBottom: 6
+                        marginBottom: 6,
+                        paddingRight: 40
                       }}>
                         <p style={{
                           fontSize: 13,
@@ -1229,6 +1424,14 @@ export default function JuniorDashboard() {
             padding: 4px 16px 16px !important;
           }
           
+          /* Delete confirm dropdown mobile */
+          .mobile-doubt-item .delete-confirm-dropdown {
+            width: 85vw !important;
+            max-width: 280px !important;
+            right: -10px !important;
+            top: 38px !important;
+          }
+          
           /* Mobile activity items */
           .mobile-activity-item {
             padding: 10px 0 !important;
@@ -1340,6 +1543,15 @@ export default function JuniorDashboard() {
           
           .mobile-card-content {
             padding: 4px 12px 12px !important;
+          }
+          
+          /* Delete confirm dropdown small mobile */
+          .mobile-doubt-item .delete-confirm-dropdown {
+            width: 90vw !important;
+            max-width: 250px !important;
+            right: -15px !important;
+            top: 40px !important;
+            padding: '12px' !important;
           }
         }
       `}</style>
