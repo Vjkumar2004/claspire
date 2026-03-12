@@ -476,8 +476,9 @@ export default function CommunityPage({ params }: { params: Promise<{ slug: stri
         isOpen={showPostModal}
         onClose={() => setShowPostModal(false)}
         communityId={community.id}
-        onPostCreated={fetchCommunity}
-        userCollegeId={currentUser?.college_id}
+        communitySlug={community.slug}
+        onSuccess={fetchCommunity}
+        userRole={userRole}
       />
 
       <style dangerouslySetInnerHTML={{ __html: `
