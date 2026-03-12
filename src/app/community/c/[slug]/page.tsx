@@ -8,7 +8,7 @@ import {
   Building, Globe, Award, Activity, Target, Zap,
   Info, X, GraduationCap, MessageCircle, Crown,
   CheckCircle, Search, TrendingDown, MoreHorizontal,
-  Share2, ArrowUp, MessageSquarePlus, Heart, LayoutGrid
+  Share2, ArrowUp, MessageSquarePlus, Heart, LayoutGrid, DollarSign
 } from 'lucide-react'
 import PostModal from '@/components/PostModal'
 
@@ -21,6 +21,9 @@ export default function CommunityPage({ params }: { params: Promise<{ slug: stri
   const [activeTab, setActiveTab] = useState('feed')
   const [showDetailsModal, setShowDetailsModal] = useState(false)
   const [showPostModal, setShowPostModal] = useState(false)
+  const [referralConfirmOpen, setReferralConfirmOpen] = useState(false)
+  const [selectedJob, setSelectedJob] = useState<any>(null)
+  const [requestLoading, setRequestLoading] = useState(false)
 
   useEffect(() => {
     const getSlug = async () => {
@@ -37,7 +40,7 @@ export default function CommunityPage({ params }: { params: Promise<{ slug: stri
     }
   }, [slug])
 
-  const fetchCommunity = async () => {
+  async function fetchCommunity() {
     try {
       const res = await fetch(`/api/community/${slug}`)
       if (!res.ok) {
@@ -53,7 +56,7 @@ export default function CommunityPage({ params }: { params: Promise<{ slug: stri
     }
   }
 
-  const fetchCurrentUser = async () => {
+  async function fetchCurrentUser() {
     try {
       const res = await fetch('/api/auth/me')
       if (res.ok) {
@@ -62,6 +65,32 @@ export default function CommunityPage({ params }: { params: Promise<{ slug: stri
       }
     } catch {
       // User not logged in
+    }
+  }
+
+  const handleRequestReferral = async () => {
+    if (!selectedJob || !currentUser) return
+    setRequestLoading(true)
+    try {
+      const res = await fetch('/api/jobs/request-referral', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jobId: selectedJob.id,
+          seniorId: selectedJob.posted_by
+        })
+      })
+      const json = await res.json()
+      if (res.ok) {
+        alert('Referral request sent! Your profile has been shared with the senior. 🚀')
+        setReferralConfirmOpen(false)
+      } else {
+        alert(json.error || 'Failed to request referral')
+      }
+    } catch (err) {
+      alert('Network error')
+    } finally {
+      setRequestLoading(false)
     }
   }
 
@@ -166,6 +195,7 @@ export default function CommunityPage({ params }: { params: Promise<{ slug: stri
           .tab-container { overflow-x: auto !important; padding: 0 !important; }
           .tab-btn { padding: 16px 20px !important; white-space: nowrap !important; }
           .post-card { padding: 16px !important; border-radius: 20px !important; }
+          .desktop-only-btn { display: none !important; }
         }
       `}} />
 
@@ -186,8 +216,31 @@ export default function CommunityPage({ params }: { params: Promise<{ slug: stri
           <div className="hero-content" style={{ display: 'flex', alignItems: 'center', gap: 48, flexWrap: 'wrap' }}>
             {/* College Logo/Identity */}
             <div className="hero-logo-box" style={{ width: 120, height: 120, background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(16px)', borderRadius: 32, padding: 8, border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 24px 48px rgba(0,0,0,0.4)', flexShrink: 0 }}>
-              <div style={{ width: '100%', height: '100%', background: 'white', borderRadius: 24, padding: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-                <img src="/logo.jpg" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+              <div style={{ 
+                width: '100%', 
+                height: '100%', 
+                background: (community.slug === 'aaacet' || community.slug === 'vvvclg' || community.slug === 'vvv' || community.slug === 'anjac' || community.slug === 'sfr') ? 'white' : 'linear-gradient(135deg, #7C3AED, #4F46E5)', 
+                borderRadius: 24, 
+                padding: (community.slug === 'aaacet' || community.slug === 'vvvclg' || community.slug === 'vvv' || community.slug === 'anjac' || community.slug === 'sfr') ? 10 : 0, 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                overflow: 'hidden',
+                color: 'white',
+                fontSize: 48,
+                fontWeight: 800
+              }}>
+                {community.slug === 'aaacet' ? (
+                  <img src="/aaaclg_logo.jpg" alt="AAACET" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                ) : (community.slug === 'vvvclg' || community.slug === 'vvv') ? (
+                  <img src="/vvvclogo.png" alt="VVV" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                ) : community.slug === 'anjac' ? (
+                  <img src="/anjac.jpg" alt="ANJAC" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                ) : community.slug === 'sfr' ? (
+                  <img src="/sfr.jpg" alt="SFR" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                ) : (
+                  community.colleges?.short_name?.[0] || community.slug?.[0]?.toUpperCase() || 'C'
+                )}
               </div>
             </div>
 
@@ -234,7 +287,7 @@ export default function CommunityPage({ params }: { params: Promise<{ slug: stri
             ))}
           </div>
           {canPost && activeTab === 'feed' && (
-            <button onClick={() => setShowPostModal(true)} style={{ background: '#7C3AED', color: 'white', border: 'none', padding: '12px 24px', borderRadius: 14, fontSize: 14, fontWeight: 800, display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', boxShadow: '0 4px 12px rgba(124,58,237,0.2)' }}>
+            <button className="desktop-only-btn" onClick={() => setShowPostModal(true)} style={{ background: '#7C3AED', color: 'white', border: 'none', padding: '12px 24px', borderRadius: 14, fontSize: 14, fontWeight: 800, display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', boxShadow: '0 4px 12px rgba(124,58,237,0.2)' }}>
               <Plus size={15} /> Start Discussion
             </button>
           )}
@@ -317,13 +370,88 @@ export default function CommunityPage({ params }: { params: Promise<{ slug: stri
           {activeTab === 'jobs' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
               {canViewJobs ? (
-                  <div style={{ textAlign: 'center', padding: '100px 32px', background: 'white', borderRadius: 32, border: '1px solid #F1F5F9' }}>
-                    <div style={{ width: 80, height: 80, background: '#ECFDF5', borderRadius: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px', color: '#10B981' }}>
-                      <Briefcase size={40} />
+                <>
+                  {jobs && jobs.length > 0 ? (
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 24 }}>
+                      {jobs.map((job: any) => (
+                        <div key={job.id} className="glass-card post-card-hover" style={{ padding: 24, borderRadius: 28, background: 'white', border: '1px solid #F1F5F9', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
+                            <div style={{ width: 48, height: 48, background: '#F8FAFC', borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, border: '1px solid #F1F5F9' }}>
+                              🏢
+                            </div>
+                            {job.referral_available && (
+                              <div style={{ background: '#ECFDF5', color: '#059669', padding: '4px 12px', borderRadius: 100, fontSize: 10, fontWeight: 800, border: '1px solid #A7F3D0', textTransform: 'uppercase' }}>
+                                Referral Active
+                              </div>
+                            )}
+                          </div>
+                          
+                          <h3 style={{ fontSize: 18, fontWeight: 800, color: '#0F172A', margin: '0 0 4px', letterSpacing: '-0.01em' }}>{job.role}</h3>
+                          <p style={{ fontSize: 14, fontWeight: 700, color: '#64748B', marginBottom: 16 }}>{job.company_name}</p>
+                          
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 24 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, fontWeight: 600, color: '#64748B', background: '#F8FAFC', padding: '4px 10px', borderRadius: 8 }}>
+                              <MapPin size={12} /> {job.location || 'Remote'}
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, fontWeight: 600, color: '#64748B', background: '#F8FAFC', padding: '4px 10px', borderRadius: 8 }}>
+                              <Clock size={12} /> {job.job_type?.replace('_', ' ')}
+                            </div>
+                            {job.salary_range && (
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, fontWeight: 600, color: '#64748B', background: '#F8FAFC', padding: '4px 10px', borderRadius: 8 }}>
+                                <DollarSign size={12} /> {job.salary_range}
+                              </div>
+                            )}
+                          </div>
+
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+                             <a 
+                               href={job.description} 
+                               target="_blank" 
+                               rel="noopener noreferrer"
+                               style={{ flex: 1, textAlign: 'center', background: '#F5F3FF', color: '#7C3AED', textDecoration: 'none', padding: '12px', borderRadius: 14, fontSize: 13, fontWeight: 800, transition: 'all 0.2s' }}
+                               onMouseEnter={e => e.currentTarget.style.background = '#EDE9FE'}
+                               onMouseLeave={e => e.currentTarget.style.background = '#F5F3FF'}
+                             >
+                               View Details
+                             </a>
+                             <button 
+                               onClick={() => {
+                                 setSelectedJob(job)
+                                 setReferralConfirmOpen(true)
+                               }}
+                               style={{ 
+                                 flex: 1, 
+                                 background: 'linear-gradient(135deg, #7C3AED, #06B6D4)', 
+                                 color: 'white', 
+                                 border: 'none', 
+                                 padding: '12px', 
+                                 borderRadius: 14, 
+                                 fontSize: 13, 
+                                 fontWeight: 800, 
+                                 cursor: 'pointer', 
+                                 boxShadow: '0 8px 16px rgba(124, 58, 237, 0.15)', 
+                                 transition: 'transform 0.2s',
+                                 display: currentUser?.id === job.posted_by ? 'none' : 'block'
+                               }}
+                               onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
+                               onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+                             >
+                               Get Referral
+                             </button>
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                    <h3 style={{ fontSize: 20, fontWeight: 800, color: '#0F172A', marginBottom: 12 }}>Seeking Opportunities</h3>
-                    <p style={{ color: '#64748B', maxWidth: 300, margin: '0 auto', fontSize: 15, lineHeight: 1.5 }}>Internal referrals from seniors and alumni will appear here once posted.</p>
-                  </div>
+                  ) : (
+                    <div style={{ textAlign: 'center', padding: '100px 32px', background: 'white', borderRadius: 32, border: '1px solid #F1F5F9' }}>
+                      <div style={{ width: 80, height: 80, background: '#ECFDF5', borderRadius: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px', color: '#10B981' }}>
+                        <Briefcase size={40} />
+                      </div>
+                      <h3 style={{ fontSize: 20, fontWeight: 800, color: '#0F172A', marginBottom: 12 }}>Seeking Opportunities</h3>
+                      <p style={{ color: '#64748B', maxWidth: 300, margin: '0 auto', fontSize: 15, lineHeight: 1.5 }}>Internal referrals from seniors and alumni will appear here once posted.</p>
+                    </div>
+                  )}
+                </>
               ) : (
                 <LockScreen title="Career Network Locked" description="Gain access to unlisted jobs and internships through internal referrals from your university seniors." userRole={userRole} ctaText="Verify my ID" ctaAction={() => router.push('/onboarding')} />
               )}
@@ -480,6 +608,38 @@ export default function CommunityPage({ params }: { params: Promise<{ slug: stri
         onSuccess={fetchCommunity}
         userRole={userRole}
       />
+
+      {/* Referral Confirmation Modal */}
+      {referralConfirmOpen && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(12px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
+          <div className="animate-fade" style={{ background: 'white', width: '100%', maxWidth: 400, borderRadius: 28, overflow: 'hidden', boxShadow: '0 40px 80px rgba(0,0,0,0.4)', padding: 32, textAlign: 'center' }}>
+            <div style={{ width: 64, height: 64, background: '#F5F3FF', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', color: '#7C3AED' }}>
+              <Target size={32} />
+            </div>
+            <h3 style={{ fontSize: 20, fontWeight: 800, color: '#0F172A', marginBottom: 12 }}>Confirm Referral Request</h3>
+            <p style={{ fontSize: 14, color: '#64748B', lineHeight: 1.6, marginBottom: 24 }}>
+              Requesting a referral for <b>{selectedJob?.role}</b> at <b>{selectedJob?.company_name}</b>. 
+              Your profile will be shared with the senior for review.
+            </p>
+            <div style={{ display: 'flex', gap: 12 }}>
+              <button 
+                onClick={() => setReferralConfirmOpen(false)}
+                disabled={requestLoading}
+                style={{ flex: 1, background: '#F8FAFC', color: '#64748B', border: '1px solid #E2E8F0', padding: '12px', borderRadius: 14, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={handleRequestReferral}
+                disabled={requestLoading}
+                style={{ flex: 2, background: 'linear-gradient(135deg, #7C3AED, #06B6D4)', color: 'white', border: 'none', padding: '12px', borderRadius: 14, fontSize: 13, fontWeight: 800, cursor: 'pointer', opacity: requestLoading ? 0.7 : 1 }}
+              >
+                {requestLoading ? 'Sending...' : 'Confirm Request'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <style dangerouslySetInnerHTML={{ __html: `
         @media (max-width: 1024px) {

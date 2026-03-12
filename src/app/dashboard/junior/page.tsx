@@ -6,7 +6,8 @@ import {
   ChevronRight, Plus, Clock,
   CheckCircle, Video, Briefcase,
   GraduationCap, Star, Target,
-  BarChart3, Menu, X, Trash2
+  BarChart3, Menu, X, Trash2,
+  Handshake, Search
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
@@ -52,6 +53,39 @@ interface DashData {
   }>
   unreadCount: number
   dailyRPEarned: boolean
+  myReferrals: Array<{
+    id: string
+    status: string
+    created_at: string
+    job: {
+      company_name: string
+      role: string
+    }
+    senior: {
+      full_name: string
+    }
+  }>
+  joinedCommunities: Array<{
+    id: string
+    communities: {
+      id: string
+      slug: string
+      display_name: string
+    }
+  }>
+  webinars: Array<{
+    id: string
+    title: string
+    description: string
+    scheduled_at: string
+    duration: string
+    communities: {
+      display_name: string
+    }
+    users: {
+      full_name: string
+    }
+  }>
 }
 
 export default function JuniorDashboard() {
@@ -64,6 +98,11 @@ export default function JuniorDashboard() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState('overview')
+  const [doubtSearch, setDoubtSearch] = useState('')
+  const [doubtFilter, setDoubtFilter] = useState<'all' | 'answered' | 'pending'>('all')
+  const [eventSearch, setEventSearch] = useState('')
+  const [eventFilter, setEventFilter] = useState<'all' | 'attended' | 'upcoming'>('all')
 
   useEffect(() => {
     init()
@@ -367,31 +406,49 @@ export default function JuniorDashboard() {
             {
               label: 'Overview',
               icon: <LayoutDashboard size={16} />,
-              active: true,
+              active: activeTab === 'overview',
+              onClick: () => setActiveTab('overview'),
               href: '#'
             },
             {
               label: 'Doubts',
               icon: <HelpCircle size={16} />,
-              active: false,
-              href: '/dashboard/junior/doubts'
+              active: activeTab === 'doubts',
+              onClick: () => setActiveTab('doubts'),
+              href: '#'
             },
             {
               label: 'Events',
               icon: <Calendar size={16} />,
-              active: false,
-              href: '/dashboard/junior/events'
+              active: activeTab === 'events',
+              onClick: () => setActiveTab('events'),
+              href: '#'
             },
             {
               label: 'Community',
               icon: <Users size={16} />,
-              active: false,
-              href: dashData?.user?.colleges?.slug ? `/community/c/${dashData.user.colleges.slug}` : '/community'
+              active: activeTab === 'community',
+              onClick: () => setActiveTab('community'),
+              href: '#'
+            },
+            {
+              label: 'Referrals',
+              icon: <Handshake size={16} />,
+              active: activeTab === 'referrals',
+              onClick: () => setActiveTab('referrals'),
+              href: '#'
             },
           ].map(item => (
             <a
               key={item.label}
               href={item.href}
+              onClick={(e) => {
+                e.preventDefault();
+                if (item.onClick) {
+                  item.onClick();
+                  setMobileMenuOpen(false);
+                }
+              }}
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -727,7 +784,10 @@ export default function JuniorDashboard() {
             ))}
           </div>
 
-          {/* ── Recent Activity + My Doubts ── */}
+          {/* ── Main View Switcher ── */}
+          {activeTab === 'overview' ? (
+            <>
+              {/* ── Recent Activity + My Doubts ── */}
           <div className="mobile-two-column" style={{
             display: 'grid',
             gridTemplateColumns: '1fr 1fr',
@@ -1304,9 +1364,325 @@ export default function JuniorDashboard() {
               ))}
             </div>
           </div>
-
+        </>
+      ) : activeTab === 'doubts' ? (
+        <div style={{ background: 'white', borderRadius: 20, border: '1px solid #F3F4F6', overflow: 'hidden', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.02)' }}>
+          <div style={{ padding: '24px 30px', borderBottom: '1px solid #F9FAFB' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+              <div>
+                <h2 style={{ fontSize: 18, fontWeight: 800, color: '#0A0A0A', margin: 0 }}>My Doubts History</h2>
+                <p style={{ fontSize: 13, color: '#9CA3AF', margin: '2px 0 0' }}>Track all your questions and senior answers</p>
+              </div>
+              <button 
+                onClick={() => {
+                  const slug = dashData?.user?.colleges?.slug;
+                  router.push(slug ? `/community/c/${slug}` : '/community');
+                }}
+                style={{
+                  padding: '8px 16px', borderRadius: 10, background: '#7C3AED', color: 'white', 
+                  border: 'none', fontSize: 13, fontWeight: 700, cursor: 'pointer',
+                  boxShadow: '0 4px 12px rgba(124, 58, 237, 0.2)'
+                }}
+              >
+               + Ask New Doubt
+              </button>
+            </div>
+            <div style={{ display: 'flex', gap: 12 }}>
+              <div style={{ flex: 1, position: 'relative' }}>
+                <Search size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF' }} />
+                <input 
+                  type="text" 
+                  placeholder="Search doubts..." 
+                  value={doubtSearch} 
+                  onChange={e => setDoubtSearch(e.target.value)} 
+                  style={{ width: '100%', padding: '10px 12px 10px 38px', borderRadius: 10, border: '1px solid #F3F4F6', fontSize: 13, outline: 'none' }} 
+                />
+              </div>
+              <div style={{ display: 'flex', gap: 4, background: '#F9FAFB', padding: 3, borderRadius: 10 }}>
+                {['all', 'answered', 'pending'].map(opt => (
+                  <button 
+                    key={opt} 
+                    onClick={() => setDoubtFilter(opt as any)} 
+                    style={{ 
+                      padding: '6px 14px', borderRadius: 8, border: 'none', 
+                      background: doubtFilter === opt ? 'white' : 'transparent', 
+                      color: doubtFilter === opt ? '#7C3AED' : '#6B7280', 
+                      fontSize: 12, fontWeight: 700, cursor: 'pointer',
+                      boxShadow: doubtFilter === opt ? '0 2px 4px rgba(0,0,0,0.05)' : 'none'
+                    }}
+                  >
+                    {opt.charAt(0).toUpperCase() + opt.slice(1)}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+          <div style={{ padding: '30px' }}>
+            {dashData?.myPosts && dashData.myPosts.filter(p => {
+              const mS = p.title.toLowerCase().includes(doubtSearch.toLowerCase()) || p.content.toLowerCase().includes(doubtSearch.toLowerCase());
+              const mF = doubtFilter === 'all' || (doubtFilter === 'answered' && p.is_answered) || (doubtFilter === 'pending' && !p.is_answered);
+              return mS && mF;
+            }).length > 0 ? (
+              <div style={{ display: 'grid', gap: 16 }}>
+                {dashData.myPosts.filter(p => {
+                  const mS = p.title.toLowerCase().includes(doubtSearch.toLowerCase()) || p.content.toLowerCase().includes(doubtSearch.toLowerCase());
+                  const mF = doubtFilter === 'all' || (doubtFilter === 'answered' && p.is_answered) || (doubtFilter === 'pending' && !p.is_answered);
+                  return mS && mF;
+                }).map(post => (
+                  <div key={post.id} style={{ background: 'white', borderRadius: 16, border: '1px solid #F9FAFB', padding: 20, transition: 'all 0.2s', boxShadow: '0 2px 4px rgba(0,0,0,0.01)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+                      <h3 style={{ fontSize: 16, fontWeight: 700, color: '#0A0A0A', margin: 0, flex: 1 }}>{post.title}</h3>
+                      <span style={{ 
+                        fontSize: 10, fontWeight: 800, padding: '4px 10px', borderRadius: 100, 
+                        background: post.is_answered ? '#F0FDF4' : '#FFFBEB', 
+                        color: post.is_answered ? '#16A34A' : '#D97706', 
+                        border: `1px solid ${post.is_answered ? '#DCFCE7' : '#FEF3C7'}`, 
+                        whiteSpace: 'nowrap', marginLeft: 12 
+                      }}>
+                        {post.is_answered ? '✓ Answered' : '⌛ Pending'}
+                      </span>
+                    </div>
+                    <p style={{ fontSize: 13, color: '#6B7280', margin: '0 0 16px', lineHeight: 1.5 }}>{post.content.slice(0, 180)}...</p>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 16, fontSize: 11, color: '#9CA3AF' }}>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><TrendingUp size={12} /> {post.upvote_count} upvotes</span>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><HelpCircle size={12} /> {post.answer_count} answers</span>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><Clock size={12} /> {timeAgo(post.created_at)}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div style={{ padding: '60px 0', textAlign: 'center' }}>
+                <div style={{ fontSize: 48, marginBottom: 16 }}>❓</div>
+                <h3 style={{ fontSize: 16, fontWeight: 700, color: '#0A0A0A', margin: '0 0 8px' }}>No doubts found</h3>
+                <p style={{ fontSize: 13, color: '#9CA3AF', maxWidth: 300, margin: '0 auto 24px' }}>Ask questions in the community to get help from verified seniors.</p>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      ) : activeTab === 'events' ? (
+        <div style={{ background: 'white', borderRadius: 20, border: '1px solid #F3F4F6', overflow: 'hidden', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.02)' }}>
+          <div style={{ padding: '24px 30px', borderBottom: '1px solid #F9FAFB' }}>
+            <h2 style={{ fontSize: 18, fontWeight: 800, color: '#0A0A0A', margin: 0 }}>Webinar History</h2>
+            <p style={{ fontSize: 13, color: '#9CA3AF', margin: '2px 0 16px' }}>Watch recordings or join upcoming expert sessions</p>
+            <div style={{ display: 'flex', gap: 12 }}>
+              <div style={{ flex: 1, position: 'relative' }}>
+                <Search size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF' }} />
+                <input 
+                  type="text" placeholder="Search webinars..." 
+                  value={eventSearch} onChange={e => setEventSearch(e.target.value)} 
+                  style={{ width: '100%', padding: '10px 12px 10px 38px', borderRadius: 10, border: '1px solid #F3F4F6', fontSize: 13, outline: 'none' }} 
+                />
+              </div>
+            </div>
+          </div>
+          <div style={{ padding: '30px' }}>
+            {(dashData?.webinars || []).filter((w: any) => w.title.toLowerCase().includes(eventSearch.toLowerCase())).length > 0 ? (
+              <div style={{ display: 'grid', gap: 16 }}>
+                {dashData?.webinars.filter((w: any) => w.title.toLowerCase().includes(eventSearch.toLowerCase())).map(webinar => (
+                  <div key={webinar.id} style={{ background: 'white', borderRadius: 16, border: '1px solid #F3F4F6', padding: 24, transition: 'all 0.2s' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
+                      <div>
+                        <h3 style={{ fontSize: 18, fontWeight: 700, color: '#0A0A0A', margin: '0 0 6px', fontFamily: 'Instrument Serif, serif' }}>{webinar.title}</h3>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 13, color: '#6B7280' }}>
+                          <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><Users size={14} /> {webinar.users?.full_name || 'Expert'}</span>
+                          <span style={{ color: '#E5E7EB' }}>•</span>
+                          <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><Clock size={14} /> {webinar.duration}</span>
+                          <span style={{ color: '#E5E7EB' }}>•</span>
+                          <span style={{ fontSize: 12, fontWeight: 600, color: '#7C3AED' }}>{webinar.communities?.display_name}</span>
+                        </div>
+                      </div>
+                      <span style={{ fontSize: 10, fontWeight: 800, padding: '4px 10px', borderRadius: 100, background: '#F0FDF4', color: '#16A34A', border: '1px solid #DCFCE7' }}>
+                        Upcoming
+                      </span>
+                    </div>
+                    <p style={{ fontSize: 14, color: '#9CA3AF', margin: '0 0 20px', lineHeight: 1.5 }}>{webinar.description}</p>
+                    <div style={{ display: 'flex', gap: 10 }}>
+                       <button style={{ padding: '8px 16px', borderRadius: 10, background: '#7C3AED', color: 'white', border: 'none', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>Join Webinar</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div style={{ padding: '60px 0', textAlign: 'center' }}>
+                <div style={{ fontSize: 48, marginBottom: 16 }}>📅</div>
+                <h3 style={{ fontSize: 16, fontWeight: 700, color: '#0A0A0A', margin: '0 0 8px' }}>No webinars found</h3>
+                <p style={{ fontSize: 13, color: '#9CA3AF', maxWidth: 300, margin: '0 auto 24px' }}>Stay tuned for upcoming expert sessions and career guidance events.</p>
+              </div>
+            )}
+          </div>
+        </div>
+      ) : activeTab === 'community' ? (
+        <div style={{ background: 'white', borderRadius: 24, border: '1px solid #F3F4F6', overflow: 'hidden', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.05)' }}>
+          <div style={{ height: 160, background: 'linear-gradient(135deg, #7C3AED, #06B6D4)', padding: 40, display: 'flex', alignItems: 'flex-end' }}>
+             <h2 style={{ fontSize: 32, fontWeight: 900, color: 'white', margin: 0, fontFamily: 'Instrument Serif, serif' }}>
+               {dashData?.user?.colleges?.short_name || 'College'} Community
+             </h2>
+          </div>
+          <div style={{ padding: 40, borderBottom: '1px solid #F9FAFB' }}>
+            <h3 style={{ fontSize: 18, fontWeight: 800, color: '#0A0A0A', textAlign: 'center', margin: '0 0 24px' }}>My Communities</h3>
+            {dashData?.joinedCommunities && dashData.joinedCommunities.length > 0 ? (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
+                {dashData.joinedCommunities.map(item => (
+                  <div key={item.id} style={{ background: 'white', borderRadius: 16, border: '1px solid #F3F4F6', padding: 20, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <div style={{ width: 40, height: 40, borderRadius: 10, background: '#F3F0FF', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#7C3AED', fontWeight: 800 }}>
+                        {item.communities.display_name[0]}
+                      </div>
+                      <div>
+                        <h4 style={{ fontSize: 14, fontWeight: 700, color: '#0A0A0A', margin: 0 }}>{item.communities.display_name}</h4>
+                        <p style={{ fontSize: 12, color: '#9CA3AF', margin: 0 }}>Joined</p>
+                      </div>
+                    </div>
+                    <Link href={`/community/c/${item.communities.slug}`} style={{ padding: '6px 14px', borderRadius: 8, background: '#F3F4F6', color: '#6B7280', textDecoration: 'none', fontSize: 12, fontWeight: 700 }}>
+                      Enter hub
+                    </Link>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div style={{ textAlign: 'center', padding: '20px 0' }}>
+                <div style={{ fontSize: 40, marginBottom: 12 }}>🏛️</div>
+                <h3 style={{ fontSize: 16, fontWeight: 700, color: '#0A0A0A', margin: '0 0 8px' }}>Not Joined Any Communities</h3>
+                <p style={{ fontSize: 13, color: '#9CA3AF', maxWidth: 350, margin: '0 auto 24px' }}>
+                  Join your college community or other interest groups to connect with peers and seniors.
+                </p>
+                <Link href="/community" style={{ padding: '10px 24px', background: '#7C3AED', color: 'white', borderRadius: 12, textDecoration: 'none', fontSize: 13, fontWeight: 700, boxShadow: '0 4px 12px rgba(124, 58, 237, 0.2)' }}>
+                  Explore Communities
+                </Link>
+              </div>
+            )}
+          </div>
+          <div style={{ padding: 40, textAlign: 'center' }}>
+            <h3 style={{ fontSize: 18, fontWeight: 800, color: '#0A0A0A', margin: '0 0 12px' }}>Your College Network is Here</h3>
+            <p style={{ fontSize: 15, color: '#6B7280', maxWidth: 450, margin: '0 auto 32px', lineHeight: 1.6 }}>
+              Connect with your campus mates, ask doubts to verified seniors, and stay updated with exclusive college events.
+            </p>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: 16 }}>
+              <Link 
+                href={dashData?.user?.colleges?.slug ? `/community/c/${dashData.user.colleges.slug}` : '/community'} 
+                style={{ 
+                  padding: '14px 32px', background: '#7C3AED', color: 'white', 
+                  borderRadius: 16, textDecoration: 'none', fontSize: 15, 
+                  fontWeight: 700, boxShadow: '0 8px 16px rgba(124, 58, 237, 0.25)' 
+                }}
+              >
+                Go to Community Hub →
+              </Link>
+            </div>
+          </div>
+        </div>
+      ) : activeTab === 'referrals' ? (
+            <div style={{
+              background: 'white',
+              borderRadius: 20,
+              border: '1px solid #F3F4F6',
+              overflow: 'hidden',
+              boxShadow: '0 4px 6px -1px rgba(0,0,0,0.02)'
+            }}>
+              <div style={{
+                padding: '24px 30px',
+                borderBottom: '1px solid #F9FAFB',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 12
+              }}>
+                <div style={{
+                  width: 40, height: 40,
+                  borderRadius: 12,
+                  background: '#F3F0FF',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#7C3AED'
+                }}>
+                  <Handshake size={20} />
+                </div>
+                <div>
+                  <h2 style={{ fontSize: 18, fontWeight: 800, color: '#0A0A0A', margin: 0 }}>My Referral Requests</h2>
+                  <p style={{ fontSize: 13, color: '#9CA3AF', margin: '2px 0 0' }}>Track the status of your referral applications</p>
+                </div>
+              </div>
+
+              <div style={{ padding: '10px 30px 30px' }}>
+                {dashData?.myReferrals && dashData.myReferrals.length > 0 ? (
+                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    {dashData.myReferrals.map((req: any, i: number) => (
+                      <div key={req.id} style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        padding: '20px 0',
+                        borderBottom: i < dashData.myReferrals.length - 1 ? '1px solid #F9FAFB' : 'none'
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                          <div style={{
+                            width: 48, height: 48,
+                            borderRadius: 14,
+                            background: '#F9FAFB',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: 18
+                          }}>
+                            💼
+                          </div>
+                          <div>
+                            <div style={{ fontSize: 15, fontWeight: 700, color: '#0A0A0A' }}>
+                              {req.job?.role} @ {req.job?.company_name}
+                            </div>
+                            <div style={{ fontSize: 12, color: '#9CA3AF', marginTop: 4 }}>
+                              Request to <span style={{ fontWeight: 600, color: '#6B7280' }}>{req.senior?.full_name}</span> • {timeAgo(req.created_at)}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                          <span style={{
+                            padding: '6px 12px',
+                            borderRadius: 100,
+                            fontSize: 11,
+                            fontWeight: 800,
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.05em',
+                            background: req.status === 'approved' ? '#F0FDF4' : req.status === 'rejected' ? '#FEF2F2' : '#F9FAFB',
+                            color: req.status === 'approved' ? '#16A34A' : req.status === 'rejected' ? '#EF4444' : '#6B7280',
+                            border: `1px solid ${req.status === 'approved' ? '#DCFCE7' : req.status === 'rejected' ? '#FEE2E2' : '#F3F4F6'}`
+                          }}>
+                            {req.status === 'approved' ? '✓ Approved' : req.status === 'pending' ? '⌛ Pending' : req.status}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div style={{ padding: '60px 0', textAlign: 'center' }}>
+                    <div style={{ fontSize: 48, marginBottom: 16 }}>🤝</div>
+                    <h3 style={{ fontSize: 16, fontWeight: 700, color: '#0A0A0A', margin: '0 0 8px' }}>No Referral Requests Yet</h3>
+                    <p style={{ fontSize: 13, color: '#9CA3AF', maxWidth: 300, margin: '0 auto 24px' }}>
+                      Get referrals from seniors at top companies to boost your career.
+                    </p>
+                    <Link 
+                      href={dashData?.user?.colleges?.slug ? `/community/c/${dashData.user.colleges.slug}` : '/community'}
+                      style={{
+                        display: 'inline-flex',
+                        padding: '10px 20px',
+                        background: '#7C3AED',
+                        color: 'white',
+                        borderRadius: 12,
+                        textDecoration: 'none',
+                        fontSize: 13,
+                        fontWeight: 700,
+                        boxShadow: '0 4px 12px rgba(124, 58, 237, 0.2)'
+                      }}
+                    >
+                      Find Job Openings
+                    </Link>
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : null}
 
       <style>{`
         @keyframes spin {
@@ -1551,6 +1927,8 @@ export default function JuniorDashboard() {
           }
         }
       `}</style>
+        </div>
+      </div>
     </div>
   )
 }

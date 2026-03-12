@@ -1734,19 +1734,29 @@ export default function CommunityPage() {
                     width: '36px',
                     height: '36px',
                     borderRadius: '12px',
-                    background: i === 0 
-                      ? 'linear-gradient(135deg, #7C3AED, #4F46E5)' 
-                      : i === 1 
-                      ? 'linear-gradient(135deg, #059669, #10B981)'
-                      : '#F1F5F9',
+                    background: (c.slug === 'aaacet' || c.slug === 'vvvclg' || c.slug === 'vvv' || c.slug === 'anjac' || c.slug === 'sfr') ? '#F8FAFC' : (i === 0 ? 'linear-gradient(135deg, #7C3AED, #4F46E5)' : i === 1 ? 'linear-gradient(135deg, #059669, #10B981)' : '#F1F5F9'),
+                    border: (c.slug === 'aaacet' || c.slug === 'vvvclg' || c.slug === 'vvv' || c.slug === 'anjac' || c.slug === 'sfr') ? '1px solid #F1F5F9' : 'none',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
+                    overflow: 'hidden',
+                    padding: (c.slug === 'aaacet' || c.slug === 'vvvclg' || c.slug === 'vvv' || c.slug === 'anjac' || c.slug === 'sfr') ? '4px' : '0',
+                    flexShrink: 0,
                     color: i < 2 ? 'white' : '#64748B',
                     fontSize: '13px',
                     fontWeight: 800
                   }}>
-                    {c.colleges?.short_name?.[0] || 'C'}
+                    {c.slug === 'aaacet' ? (
+                      <img src="/aaaclg_logo.jpg" alt="AAACET" style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '6px' }} />
+                    ) : (c.slug === 'vvvclg' || c.slug === 'vvv') ? (
+                      <img src="/vvvclogo.png" alt="VVV" style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '6px' }} />
+                    ) : c.slug === 'anjac' ? (
+                      <img src="/anjac.jpg" alt="ANJAC" style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '6px' }} />
+                    ) : c.slug === 'sfr' ? (
+                      <img src="/sfr.jpg" alt="SFR" style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '6px' }} />
+                    ) : (
+                      c.colleges?.short_name?.[0] || c.slug?.[0]?.toUpperCase() || 'C'
+                    )}
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{

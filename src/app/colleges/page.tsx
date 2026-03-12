@@ -1,198 +1,42 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Navbar from '@/components/Navbar';
-
-// Mock data for colleges
-const colleges = [
-  {
-    slug: "srm",
-    name: "SRM Institute of Science and Technology",
-    shortName: "SRM Chennai",
-    short: "SR",
-    type: "Private",
-    location: "Chennai, Tamil Nadu",
-    color: "7C3AED",
-    members: 3420,
-    seniors: 234,
-    doubts: 1847,
-    joined: true
-  },
-  {
-    slug: "vit",
-    name: "Vellore Institute of Technology",
-    shortName: "VIT Vellore",
-    short: "VI",
-    type: "Deemed",
-    location: "Vellore, Tamil Nadu",
-    color: "06B6D4",
-    members: 2841,
-    seniors: 198,
-    doubts: 1203,
-    joined: true
-  },
-  {
-    slug: "nit-trichy",
-    name: "National Institute of Technology",
-    shortName: "NIT Trichy",
-    short: "NI",
-    type: "NIT",
-    location: "Trichy, Tamil Nadu",
-    color: "F59E0B",
-    members: 1920,
-    seniors: 156,
-    doubts: 934,
-    joined: false
-  },
-  {
-    slug: "anna-univ",
-    name: "Anna University",
-    shortName: "Anna University",
-    short: "AN",
-    type: "Deemed",
-    location: "Chennai, Tamil Nadu",
-    color: "10B981",
-    members: 2103,
-    seniors: 187,
-    doubts: 1102,
-    joined: false
-  },
-  {
-    slug: "psg",
-    name: "PSG College of Technology",
-    shortName: "PSG Tech",
-    short: "PS",
-    type: "Private",
-    location: "Coimbatore, Tamil Nadu",
-    color: "EF4444",
-    members: 987,
-    seniors: 89,
-    doubts: 543,
-    joined: false
-  },
-  {
-    slug: "bits",
-    name: "BITS Pilani",
-    shortName: "BITS Pilani",
-    short: "BI",
-    type: "Deemed",
-    location: "Pilani, Rajasthan",
-    color: "8B5CF6",
-    members: 1654,
-    seniors: 143,
-    doubts: 876,
-    joined: false
-  },
-  {
-    slug: "iit-madras",
-    name: "Indian Institute of Technology",
-    shortName: "IIT Madras",
-    short: "II",
-    type: "IIT",
-    location: "Chennai, Tamil Nadu",
-    color: "0EA5E9",
-    members: 2234,
-    seniors: 312,
-    doubts: 1567,
-    joined: false
-  },
-  {
-    slug: "srm-ktr",
-    name: "SRM Institute of Science and Technology, Kattankulathur",
-    shortName: "SRM KTR",
-    short: "SK",
-    type: "Private",
-    location: "Kattankulathur, Tamil Nadu",
-    color: "7C3AED",
-    members: 1823,
-    seniors: 167,
-    doubts: 934,
-    joined: false
-  },
-  {
-    slug: "sastra",
-    name: "SASTRA Deemed University",
-    shortName: "SASTRA University",
-    short: "SA",
-    type: "Deemed",
-    location: "Thanjavur, Tamil Nadu",
-    color: "F97316",
-    members: 743,
-    seniors: 67,
-    doubts: 412,
-    joined: false
-  },
-  {
-    slug: "nit-surathkal",
-    name: "NIT Karnataka",
-    shortName: "NIT Surathkal",
-    short: "NK",
-    type: "NIT",
-    location: "Surathkal, Karnataka",
-    color: "EC4899",
-    members: 1102,
-    seniors: 98,
-    doubts: 623,
-    joined: false
-  },
-  {
-    slug: "amrita",
-    name: "Amrita Vishwa Vidyapeetham",
-    shortName: "Amrita University",
-    short: "AM",
-    type: "Deemed",
-    location: "Coimbatore, Tamil Nadu",
-    color: "14B8A6",
-    members: 1234,
-    seniors: 112,
-    doubts: 698,
-    joined: false
-  },
-  {
-    slug: "vit-chennai",
-    name: "VIT Chennai Campus",
-    shortName: "VIT Chennai",
-    short: "VC",
-    type: "Deemed",
-    location: "Chennai, Tamil Nadu",
-    color: "06B6D4",
-    members: 1456,
-    seniors: 134,
-    doubts: 789,
-    joined: false
-  }
-];
 
 export default function CollegesPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState("All");
-  const [joinedColleges, setJoinedColleges] = useState(
-    new Set(colleges.filter(c => c.joined).map(c => c.slug))
-  );
+  const [communities, setCommunities] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const filters = ["All", "IIT", "NIT", "Private", "Deemed"];
+  // Fetch communities from API
+  useEffect(() => {
+    const fetchColleges = async () => {
+      try {
+        const res = await fetch('/api/colleges');
+        const data = await res.json();
+        if (data.success) {
+          setCommunities(data.communities);
+        }
+      } catch (err) {
+        console.error('Failed to fetch colleges:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchColleges();
+  }, []);
+
+  const filters = ["All", "Private", "Deemed", "Engineering", "Arts"];
 
   // Filter colleges based on search query and active filter
-  const filtered = colleges.filter(c =>
-    c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    c.slug.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    c.shortName.toLowerCase().includes(searchQuery.toLowerCase())
+  const filtered = communities.filter(c =>
+    c.colleges?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    c.slug?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    c.colleges?.short_name?.toLowerCase().includes(searchQuery.toLowerCase())
   ).filter(c =>
-    activeFilter === "All" ? true : c.type === activeFilter
+    activeFilter === "All" ? true : c.colleges?.type === activeFilter
   );
-
-  const toggleJoinCollege = (slug: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    setJoinedColleges(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(slug)) {
-        newSet.delete(slug);
-      } else {
-        newSet.add(slug);
-      }
-      return newSet;
-    });
-  };
 
   return (
     <div className="min-h-screen bg-gray-50 pt-14">
@@ -220,7 +64,7 @@ export default function CollegesPage() {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search college name... e.g. SRM, VIT, NIT"
+            placeholder="Search college name... e.g. AAACET, VVV College, ANJAC"
             className="w-full bg-white border border-gray-200 rounded-xl px-11 py-3.5 text-base text-black font-plus-jakarta-sans outline-none focus:border-purple-600 focus:shadow-[0_0_0_3px_rgba(124,58,237,0.09)] transition-all"
           />
         </div>
@@ -245,7 +89,9 @@ export default function CollegesPage() {
         {/* Results Header */}
         <div className="flex justify-between items-center mb-3">
           <div>
-            {searchQuery ? (
+            {loading ? (
+              <div className="text-sm font-bold text-gray-700">Loading communities...</div>
+            ) : searchQuery ? (
               <>
                 <div className="text-sm font-bold text-gray-700">
                   Results for "{searchQuery}"
@@ -265,70 +111,82 @@ export default function CollegesPage() {
               </>
             )}
           </div>
-          
-          <select className="border border-gray-200 rounded-lg px-2.5 py-1 text-xs text-gray-700 bg-white">
-            <option>Members ▾</option>
-            <option>Seniors</option>
-            <option>Doubts</option>
-          </select>
         </div>
 
         {/* College List */}
         <div className="flex flex-col gap-2">
-          {filtered.length > 0 ? (
-            filtered.map((college) => (
+          {loading ? (
+            // Skeleton loading state
+            Array(4).fill(0).map((_, i) => (
+              <div key={i} className="bg-white border border-gray-100 rounded-xl p-4 flex items-center gap-4 animate-pulse">
+                <div className="w-12 h-12 bg-gray-100 rounded-lg flex-shrink-0" />
+                <div className="flex-1">
+                  <div className="h-4 bg-gray-100 rounded w-1/4 mb-2" />
+                  <div className="h-3 bg-gray-50 rounded w-1/2" />
+                </div>
+              </div>
+            ))
+          ) : filtered.length > 0 ? (
+            filtered.map((c) => (
               <div 
-                key={college.slug}
+                key={c.id}
                 className="bg-white border border-gray-200 rounded-xl p-4 flex items-center gap-3.5 hover:border-purple-200 transition-colors cursor-pointer md:gap-3.5 md:p-4"
-                onClick={() => window.location.href = `/community/${college.slug}`}
+                onClick={() => window.location.href = `/community/c/${c.slug}`}
               >
                 {/* Avatar */}
-                <img 
-                  src={`https://ui-avatars.com/api/?name=${college.short}&background=${college.color}&color=fff&size=48&bold=true`}
-                  alt={college.short}
-                  className="w-12 h-12 rounded-lg flex-shrink-0 md:w-12 md:h-12"
-                />
+                <div style={{
+                  width: '48px',
+                  height: '48px',
+                  borderRadius: '12px',
+                  background: (c.slug === 'aaacet' || c.slug === 'vvvclg' || c.slug === 'vvv' || c.slug === 'anjac' || c.slug === 'sfr') ? '#F8FAFC' : 'linear-gradient(135deg, #7C3AED, #4F46E5)',
+                  border: (c.slug === 'aaacet' || c.slug === 'vvvclg' || c.slug === 'vvv' || c.slug === 'anjac' || c.slug === 'sfr') ? '1px solid #F1F5F9' : 'none',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  overflow: 'hidden',
+                  padding: (c.slug === 'aaacet' || c.slug === 'vvvclg' || c.slug === 'vvv' || c.slug === 'anjac' || c.slug === 'sfr') ? '6px' : '0',
+                  flexShrink: 0,
+                  color: 'white',
+                  fontSize: '18px',
+                  fontWeight: 800
+                }}>
+                  {c.slug === 'aaacet' ? (
+                    <img src="/aaaclg_logo.jpg" alt="AAACET" style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '4px' }} />
+                  ) : (c.slug === 'vvvclg' || c.slug === 'vvv') ? (
+                    <img src="/vvvclogo.png" alt="VVV" style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '4px' }} />
+                  ) : c.slug === 'anjac' ? (
+                    <img src="/anjac.jpg" alt="ANJAC" style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '4px' }} />
+                  ) : c.slug === 'sfr' ? (
+                    <img src="/sfr.jpg" alt="SFR" style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '4px' }} />
+                  ) : (
+                    c.colleges?.short_name?.[0] || c.slug?.[0]?.toUpperCase() || 'C'
+                  )}
+                </div>
 
                 {/* Info */}
                 <div className="flex-1 min-w-0">
                   {/* Top Row */}
                   <div className="flex items-center gap-2 mb-1">
                     <span className="text-base font-bold text-black">
-                      c/{college.slug}
+                      c/{c.slug}
                     </span>
                     <span className="bg-gray-100 rounded px-2 py-0.5 text-[10px] font-bold text-gray-500">
-                      {college.type}
+                      {c.colleges?.type || 'College'}
                     </span>
                   </div>
 
                   {/* College Name */}
-                  <div className="text-sm text-gray-500 mb-2">
-                    {college.shortName}
+                  <div className="text-sm text-gray-500 mb-2 truncate">
+                    {c.colleges?.name}
                   </div>
 
                   {/* Stats Row */}
                   <div className="flex gap-4 flex-wrap text-xs text-gray-400 md:gap-4">
-                    <span>👥 {college.members.toLocaleString()} members</span>
-                    <span>🎓 {college.seniors} seniors</span>
-                    <span className="hidden sm:inline">💬 {college.doubts} doubts</span>
-                    <span>📍 {college.location}</span>
+                    <span>👥 {c.member_count?.toLocaleString() || 0} members</span>
+                    <span>🎓 {c.senior_count || 0} seniors</span>
+                    <span className="hidden sm:inline">💬 {c.doubt_count || 0} doubts</span>
+                    <span>📍 {c.colleges?.location}</span>
                   </div>
-                </div>
-
-                {/* Action */}
-                <div className="flex-shrink-0">
-                  {joinedColleges.has(college.slug) ? (
-                    <span className="text-sm font-semibold text-green-600">
-                      ✓ Joined
-                    </span>
-                  ) : (
-                    <button
-                      onClick={(e) => toggleJoinCollege(college.slug, e)}
-                      className="border border-purple-600 text-purple-600 font-bold rounded-lg px-5 py-1.5 text-sm bg-white hover:bg-purple-600 hover:text-white transition-colors md:px-5 md:py-1.5"
-                    >
-                      Join
-                    </button>
-                  )}
                 </div>
               </div>
             ))

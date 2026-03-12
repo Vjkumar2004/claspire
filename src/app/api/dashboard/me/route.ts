@@ -129,11 +129,103 @@ export async function GET(req: NextRequest) {
       .eq('user_id', userId)
       .eq('is_read', false)
 
+    // ── Pending Doubts & Referrals (for Seniors) ──
+    let pendingDoubts: any[] = []
+    let pendingReferrals: any[] = []
+    const userCollege = Array.isArray(user.colleges) ? user.colleges[0] : user.colleges
+
+    if (user.role === 'senior' && userCollege?.id) {
+      // Find the community for this college
+      const { data: comm } = await supabase
+        .from('communities')
+        .select('id')
+        .eq('college_id', userCollege.id)
+        .single()
+
+      if (comm) {
+        // Fetch Doubts
+        const { data: doubts } = await supabase
+          .from('posts')
+          .select(`
+            id, title, content, created_at,
+            users:author_id ( id, full_name, role )
+          `)
+          .eq('community_id', comm.id)
+          .eq('type', 'doubt')
+          .eq('is_answered', false)
+          .neq('author_id', userId)
+          .order('created_at', { ascending: false })
+          .limit(5)
+        
+        pendingDoubts = doubts || []
+
+        // Fetch Referral Requests
+        const { data: referrals } = await supabase
+          .from('referral_requests')
+          .select(`
+            id, status, created_at,
+            job:job_id ( company_name, role ),
+            requester:requester_id ( id, full_name, role, unique_id, colleges(name, short_name) )
+          `)
+          .eq('senior_id', userId)
+          .eq('status', 'pending')
+          .order('created_at', { ascending: false })
+          .limit(5)
+        
+        pendingReferrals = referrals || []
+      }
+    }
+
+    // ── My Referral Requests (for Juniors/Students to track) ──
+    const { data: myReferrals } = await supabase
+      .from('referral_requests')
+      .select(`
+        id, status, created_at,
+        job:job_id ( company_name, role ),
+        senior:senior_id ( full_name )
+      `)
+      .eq('requester_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(10)
+
+    // ── Joined Communities ──
+    const { data: joinedCommunities } = await supabase
+      .from('community_members')
+      .select(`
+        id,
+        communities ( id, slug, display_name )
+      `)
+      .eq('user_id', userId)
+      .eq('membership_type', 'joined')
+
+    // ── Available Webinars ──
+    let upcomingWebinars: any[] = []
+    if (joinedCommunities && joinedCommunities.length > 0) {
+      const communityIds = joinedCommunities.map((m: any) => m.communities.id)
+      const { data: webinars } = await supabase
+        .from('webinars')
+        .select(`
+          id, title, description, scheduled_at, duration,
+          communities ( display_name ),
+          users:instructor_id ( full_name )
+        `)
+        .in('community_id', communityIds)
+        .in('status', ['upcoming', 'live'])
+        .order('scheduled_at', { ascending: true })
+        .limit(10)
+      upcomingWebinars = webinars || []
+    }
+
     return NextResponse.json({
       success: true,
       user,
       rpLog: rpLog || [],
       myPosts: myPosts || [],
+      pendingDoubts,
+      pendingReferrals,
+      myReferrals: myReferrals || [],
+      joinedCommunities: joinedCommunities || [],
+      webinars: upcomingWebinars,
       unreadCount: unreadCount || 0,
       dailyRPEarned
     })

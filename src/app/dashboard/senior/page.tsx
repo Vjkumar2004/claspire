@@ -23,6 +23,22 @@ export default function SeniorDashboardPage() {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [dashData, setDashData] = useState<any>(null)
   const [dataLoading, setDataLoading] = useState(true)
+  const [jobModalOpen, setJobModalOpen] = useState(false)
+  const [jobFormLoading, setJobFormLoading] = useState(false)
+  const [jobFormData, setJobFormData] = useState({
+    company_name: '',
+    role: '',
+    location: '',
+    job_type: 'full_time',
+    salary_range: '',
+    description: '', // Job Link
+    deadline: '',
+    referral_available: false,
+    is_active: true
+  })
+  const [selectedReferral, setSelectedReferral] = useState<any>(null)
+  const [reviewModalOpen, setReviewModalOpen] = useState(false)
+  const [referralActionLoading, setReferralActionLoading] = useState(false)
 
   useEffect(() => {
     fetchDashboardData()
@@ -44,6 +60,66 @@ export default function SeniorDashboardPage() {
       console.error('Dashboard data error:', err)
     } finally {
       setDataLoading(false)
+    }
+  }
+
+  const handlePostJob = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setJobFormLoading(true)
+    try {
+      const res = await fetch('/api/jobs/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(jobFormData)
+      })
+      if (res.ok) {
+        showAward(20, "Job posted successfully! 💼")
+        setJobModalOpen(false)
+        setJobFormData({
+          company_name: '',
+          role: '',
+          location: '',
+          job_type: 'full_time',
+          salary_range: '',
+          description: '',
+          deadline: '',
+          referral_available: false,
+          is_active: true
+        })
+        fetchDashboardData() // Refresh activity
+      } else {
+        const err = await res.json()
+        alert(err.error || 'Failed to post job')
+      }
+    } catch (err) {
+      console.error('Job post error:', err)
+      alert('Something went wrong')
+    } finally {
+      setJobFormLoading(false)
+    }
+  }
+
+  const handleApproveReferral = async () => {
+    if (!selectedReferral) return
+    setReferralActionLoading(true)
+    try {
+      const res = await fetch('/api/referrals/approve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ referralId: selectedReferral.id })
+      })
+      if (res.ok) {
+        showAward(10, "Referral Approved! 🤝")
+        setReviewModalOpen(false)
+        fetchDashboardData() // Refresh counts
+      } else {
+        const err = await res.json()
+        alert(err.error || 'Failed to approve')
+      }
+    } catch (err) {
+      alert('Network error')
+    } finally {
+      setReferralActionLoading(false)
     }
   }
 
@@ -149,9 +225,11 @@ export default function SeniorDashboardPage() {
             <div className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
               <span className="text-sm w-5 text-center">🔔</span>
               Notifications
-              <span className="ml-auto bg-red-500 text-white rounded-full px-1.5 py-0 text-[10px] font-black">
-                5
-              </span>
+              {dashData?.unreadCount > 0 && (
+                <span className="ml-auto bg-red-500 text-white rounded-full px-1.5 py-0 text-[10px] font-black">
+                  {dashData.unreadCount}
+                </span>
+              )}
             </div>
           </div>
 
@@ -160,23 +238,33 @@ export default function SeniorDashboardPage() {
             COMMUNITY
           </div>
           <div className="space-y-0.5 mb-4">
-            <div className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
+            <div 
+              onClick={() => setActiveNav("overview")}
+              className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors"
+            >
               <HelpCircle size={16} className="flex-shrink-0" />
               <span>Doubts to Answer</span>
-              <span className="ml-auto bg-red-500 text-white rounded-full px-1.5 py-0 text-[10px] font-black">
-                3
-              </span>
+              {dashData?.pendingDoubts?.length > 0 && (
+                <span className="ml-auto bg-red-500 text-white rounded-full px-1.5 py-0 text-[10px] font-black">
+                  {dashData.pendingDoubts.length}
+                </span>
+              )}
             </div>
-            <div className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
+            <div 
+              onClick={() => setJobModalOpen(true)}
+              className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors"
+            >
               <Briefcase size={16} className="flex-shrink-0" />
               <span>Post a Job</span>
             </div>
             <div className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
               <Handshake size={16} className="flex-shrink-0" />
               <span>Referral Requests</span>
-              <span className="ml-auto bg-red-500 text-white rounded-full px-1.5 py-0 text-[10px] font-black">
-                2
-              </span>
+              {dashData?.pendingReferrals?.length > 0 && (
+                <span className="ml-auto w-4 h-4 rounded-full bg-purple-600 text-white text-[8px] flex items-center justify-center">
+                  {dashData.pendingReferrals.length}
+                </span>
+              )}
             </div>
           </div>
 
@@ -295,10 +383,10 @@ export default function SeniorDashboardPage() {
                   🌟 YOUR IMPACT
                 </div>
                 <div className="font-instrument-serif text-2xl text-white leading-tight mb-1">
-                  12 students placed
+                  {dashData?.user?.answer_count > 0 ? `${dashData.user.answer_count * 2} students impacted` : '0 students impacted'}
                 </div>
                 <div className="text-sm text-white/60">
-                  because of your answers & referrals
+                  from your community interactions
                 </div>
                 
                 {/* Stats Row */}
@@ -348,92 +436,54 @@ export default function SeniorDashboardPage() {
         </div>
 
         {/* Action Needed Section */}
-        <div className="mb-5">
-          <div className="flex items-center gap-2 mb-3">
-            <div className="text-[11px] font-black tracking-wider text-gray-400">
-              ACTION NEEDED
+        <div className="mb-8">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="text-[11px] font-black tracking-wider text-gray-400 uppercase">
+              Action Needed
             </div>
             <span className="bg-red-50 text-red-500 rounded-full px-2 py-0.5 text-[10px] font-black">
-              5 pending
+              {(dashData?.pendingDoubts?.length || 0) + (dashData?.pendingReferrals?.length || 0)} total
             </span>
           </div>
           
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
             {/* Unanswered Doubts Card */}
             <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-              <div className="p-3.5 border-b border-gray-100 flex justify-between items-center">
+              <div className="p-4 border-b border-gray-100 flex justify-between items-center">
                 <div className="text-sm font-black text-black">❓ Unanswered Doubts</div>
-                <span className="bg-red-50 text-red-500 rounded-full px-2 py-0.5 text-[11px] font-black">
-                  {dashData?.pendingDoubts?.length || 0} waiting
-                </span>
+                <div className="text-[10px] font-bold text-gray-400">SYNCED</div>
               </div>
               
               <div className="divide-y divide-gray-50">
                 {dataLoading ? (
-                  <p style={{
-                    textAlign: 'center',
-                    color: '#9CA3AF',
-                    fontSize: 14,
-                    padding: '20px'
-                  }}>
-                    Loading doubts...
-                  </p>
+                  <div className="p-10 text-center text-gray-400 text-xs">Loading...</div>
                 ) : dashData?.pendingDoubts?.length > 0 ? (
                   dashData.pendingDoubts.map((post: any) => (
-                    <div key={post.id} style={{
-                      padding: '14px',
-                      background: '#F9FAFB',
-                      borderRadius: 10,
-                      border: '1px solid #F3F4F6',
-                      marginBottom: 10
-                    }}>
-                      <p style={{
-                        fontSize: 13,
-                        fontWeight: 600,
-                        color: '#374151',
-                        margin: '0 0 6px'
-                      }}>
-                        {post.title || post.content.slice(0, 100)}
-                      </p>
-                      <div style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center'
-                      }}>
-                        <span style={{
-                          fontSize: 11,
-                          color: '#9CA3AF'
-                        }}>
-                          by {post.users?.full_name || 'Student'} · 
-                          {post.users?.branch || ''} 
-                          Year {post.users?.year || ''} · 
-                          {timeAgo(post.created_at)}
-                        </span>
-                        <button style={{
-                          fontSize: 11,
-                          fontWeight: 700,
-                          color: '#7C3AED',
-                          background: '#F3F0FF',
-                          border: 'none',
-                          borderRadius: 6,
-                          padding: '4px 10px',
-                          cursor: 'pointer'
-                        }}>
+                    <div key={post.id} className="p-4 hover:bg-gray-50 transition-colors">
+                      <div className="flex justify-between items-start gap-3">
+                        <div className="flex-1">
+                          <p className="text-xs font-black text-black leading-relaxed">
+                            {post.title || post.content.slice(0, 80) + '...'}
+                          </p>
+                          <div className="flex items-center gap-2 mt-1.5">
+                            <span className="text-[10px] text-gray-400">by {post.users?.full_name || 'Student'}</span>
+                            <span className="text-[10px] text-gray-300">•</span>
+                            <span className="text-[10px] text-gray-400">{timeAgo(post.created_at)}</span>
+                          </div>
+                        </div>
+                        <Link 
+                          href={`/community/c/${dashData?.user?.colleges?.[0]?.slug || 'hub'}/p/${post.id}`}
+                          className="bg-purple-50 text-purple-600 rounded-lg px-3 py-1.5 text-[10px] font-black hover:bg-purple-100 transition-colors whitespace-nowrap"
+                        >
                           Answer →
-                        </button>
+                        </Link>
                       </div>
                     </div>
                   ))
                 ) : (
-                  <div style={{
-                    textAlign: 'center',
-                    padding: '30px 20px',
-                    color: '#9CA3AF'
-                  }}>
-                    <div style={{ fontSize: 32, marginBottom: 8 }}>✨</div>
-                    <p style={{ fontSize: 14, margin: 0 }}>
-                      No pending doubts right now!
-                    </p>
+                  <div className="p-10 text-center text-gray-400 text-xs">
+                    <div style={{ fontSize: 24, marginBottom: 8 }}>✨</div>
+                    No pending doubts right now!
                   </div>
                 )}
               </div>
@@ -441,61 +491,43 @@ export default function SeniorDashboardPage() {
 
             {/* Referral Requests Card */}
             <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-              <div className="p-3.5 border-b border-gray-100 flex justify-between items-center">
+              <div className="p-4 border-b border-gray-100 flex justify-between items-center">
                 <div className="text-sm font-black text-black">🤝 Referral Requests</div>
-                <span className="bg-orange-50 text-orange-500 rounded-full px-2 py-0.5 text-[11px] font-black">
-                  2 pending
-                </span>
+                <div className="text-[10px] font-bold text-gray-400">PENDING</div>
               </div>
               
               <div className="divide-y divide-gray-50">
-                {/* Referral 1 */}
-                <div className="p-4">
-                  <div className="flex items-center gap-2 mb-1.5">
-                    <div className="w-6 h-6 rounded-full bg-purple-600 text-white text-[10px] font-black flex items-center justify-center">AK</div>
-                    <span className="text-xs font-black text-black">Arun Kumar</span>
-                    <span className="text-xs text-gray-400">·</span>
-                    <span className="text-xs text-gray-400">SRM</span>
+                {dashData?.pendingReferrals?.length > 0 ? (
+                  dashData.pendingReferrals.map((req: any) => (
+                    <div key={req.id} className="p-4 hover:bg-gray-50 transition-colors">
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-purple-100 to-cyan-50 text-purple-600 text-xs font-black flex items-center justify-center border border-purple-100">
+                            {req.requester?.full_name?.[0]}
+                          </div>
+                          <div>
+                            <p className="text-xs font-black text-black">{req.requester?.full_name}</p>
+                            <p className="text-[10px] text-gray-400 font-semibold">{req.job?.role} @ {req.job?.company_name}</p>
+                          </div>
+                        </div>
+                        <button 
+                          onClick={() => {
+                            setSelectedReferral(req)
+                            setReviewModalOpen(true)
+                          }}
+                          className="bg-black text-white rounded-lg px-3 py-1.5 text-[10px] font-black hover:bg-gray-800 transition-colors"
+                        >
+                          Review Detail
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="p-10 text-center text-gray-400 text-xs">
+                    <div style={{ fontSize: 24, marginBottom: 8 }}>💼</div>
+                    No pending referrals
                   </div>
-                  <div className="text-xs text-gray-600 mb-2">
-                    For: Swiggy SDE-1 · ₹18 LPA
-                  </div>
-                  <div className="bg-purple-50 text-purple-600 rounded px-2 py-0.5 text-[10px] font-black mb-2">
-                    🤖 AI drafted email ready
-                  </div>
-                  <div className="flex gap-2">
-                    <button className="bg-purple-600 text-white rounded px-3 py-1 text-xs font-semibold hover:bg-purple-700 transition-colors">
-                      Review & Approve →
-                    </button>
-                    <button className="bg-white border border-gray-200 text-gray-400 rounded px-2.5 py-1 text-xs hover:border-gray-300 transition-colors">
-                      Decline
-                    </button>
-                  </div>
-                </div>
-                
-                {/* Referral 2 */}
-                <div className="p-4">
-                  <div className="flex items-center gap-2 mb-1.5">
-                    <div className="w-6 h-6 rounded-full bg-pink-500 text-white text-[10px] font-black flex items-center justify-center">PR</div>
-                    <span className="text-xs font-black text-black">Priya R</span>
-                    <span className="text-xs text-gray-400">·</span>
-                    <span className="text-xs text-gray-400">SRM</span>
-                  </div>
-                  <div className="text-xs text-gray-600 mb-2">
-                    For: Swiggy Data Analyst · ₹12 LPA
-                  </div>
-                  <div className="bg-purple-50 text-purple-600 rounded px-2 py-0.5 text-[10px] font-black mb-2">
-                    🤖 AI drafted email ready
-                  </div>
-                  <div className="flex gap-2">
-                    <button className="bg-purple-600 text-white rounded px-3 py-1 text-xs font-semibold hover:bg-purple-700 transition-colors">
-                      Review & Approve →
-                    </button>
-                    <button className="bg-white border border-gray-200 text-gray-400 rounded px-2.5 py-1 text-xs hover:border-gray-300 transition-colors">
-                      Decline
-                    </button>
-                  </div>
-                </div>
+                )}
               </div>
             </div>
           </div>
@@ -514,71 +546,9 @@ export default function SeniorDashboardPage() {
                 </button>
               </div>
 
-              {/* Upcoming Webinar */}
-              <div className="p-5 border-b border-gray-100">
-                <div className="text-[10px] font-black tracking-wider text-green-600 uppercase mb-2.5">
-                  UPCOMING
-                </div>
-                <div className="flex gap-3.5 items-center">
-                  {/* Date Box */}
-                  <div className="bg-purple-50 rounded-lg p-3 text-center flex-shrink-0">
-                    <div className="text-[10px] font-black text-purple-600 uppercase">MAR</div>
-                    <div className="font-instrument-serif text-2xl text-purple-600 leading-none">09</div>
-                    <div className="text-xs text-gray-400">SUN</div>
-                  </div>
-                  
-                  {/* Webinar Info */}
-                  <div className="flex-1">
-                    <div className="text-sm font-black text-black">How I cracked Amazon SDE</div>
-                    <div className="text-xs text-gray-400 mt-1">
-                      10:00 AM · 2 hours · ₹99/seat
-                    </div>
-                    <div className="flex gap-3 text-xs text-gray-500 mt-2">
-                      <span>👥 18 registered</span>
-                      <span>💰 ₹1,782 projected earnings</span>
-                    </div>
-                  </div>
-                  
-                  {/* Actions */}
-                  <div className="flex flex-col gap-1.5">
-                    <button className="border border-gray-200 rounded px-2 py-1 text-xs text-gray-600 hover:border-gray-300 transition-colors">
-                      Edit
-                    </button>
-                    <button className="bg-purple-600 text-white rounded px-2 py-1 text-xs font-semibold hover:bg-purple-700 transition-colors">
-                      View →
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Past Webinars */}
-              <div className="p-5">
-                <div className="text-[10px] font-black tracking-wider text-gray-400 uppercase mb-2.5">
-                  PAST
-                </div>
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center pb-3 border-b border-gray-50">
-                    <div>
-                      <div className="text-sm font-black text-black">DSA for Placements</div>
-                      <div className="text-xs text-gray-400 mt-0.5">Jan 5 · 34 attended</div>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-xs font-bold text-amber-500">⭐ 4.8</div>
-                      <div className="text-sm font-bold text-green-600">₹3,366</div>
-                    </div>
-                  </div>
-                  
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <div className="text-sm font-black text-black">Resume Writing Workshop</div>
-                      <div className="text-xs text-gray-400 mt-0.5">Dec 22 · 28 attended</div>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-xs font-bold text-amber-500">⭐ 4.9</div>
-                      <div className="text-sm font-bold text-green-600">₹2,772</div>
-                    </div>
-                  </div>
-                </div>
+              <div className="p-10 text-center text-gray-400 text-xs">
+                <div style={{ fontSize: 24, marginBottom: 8 }}>🎤</div>
+                No webinars scheduled.
               </div>
             </div>
 
@@ -589,90 +559,29 @@ export default function SeniorDashboardPage() {
               </div>
 
               <div className="divide-y divide-gray-50">
-                {/* Activity 1 */}
-                <div className="flex gap-3 p-5 items-start">
-                  <div className="w-9 h-9 bg-green-50 rounded-full flex items-center justify-center text-base flex-shrink-0">
-                    ✅
-                  </div>
-                  <div className="flex-1">
-                    <div className="text-xs font-semibold text-black">Answered Arun's doubt</div>
-                    <div className="text-xs text-gray-400 mt-0.5">Got 23 upvotes · Marked helpful</div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-xs text-gray-400">2h ago</div>
-                    <div className="bg-purple-50 text-purple-600 rounded-full px-2 py-0.5 text-[10px] font-black mt-1">
-                      +10 RP
+                {dashData?.rpLog?.length > 0 ? (
+                  dashData.rpLog.map((log: any, i: number) => (
+                    <div key={log.id || i} className="flex gap-3 p-5 items-start">
+                      <div className="w-9 h-9 bg-purple-50 rounded-full flex items-center justify-center text-base flex-shrink-0">
+                        {log.reason?.includes('Posted') ? '✍️' : log.reason?.includes('Answering') ? '✅' : '🌟'}
+                      </div>
+                      <div className="flex-1">
+                        <div className="text-xs font-semibold text-black">{log.reason}</div>
+                        <div className="text-xs text-gray-400 mt-0.5">Interaction logged in community</div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-xs text-gray-400">{timeAgo(log.created_at)}</div>
+                        <div className="bg-purple-50 text-purple-600 rounded-full px-2 py-0.5 text-[10px] font-black mt-1">
+                          +{log.points} RP
+                        </div>
+                      </div>
                     </div>
+                  ))
+                ) : (
+                  <div className="p-10 text-center text-gray-400 text-xs">
+                    No recent activity yet.
                   </div>
-                </div>
-
-                {/* Activity 2 */}
-                <div className="flex gap-3 p-5 items-start">
-                  <div className="w-9 h-9 bg-blue-50 rounded-full flex items-center justify-center text-base flex-shrink-0">
-                    🤝
-                  </div>
-                  <div className="flex-1">
-                    <div className="text-xs font-semibold text-black">Approved referral for Priya</div>
-                    <div className="text-xs text-gray-400 mt-0.5">Swiggy Data Analyst application sent</div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-xs text-gray-400">5h ago</div>
-                    <div className="bg-purple-50 text-purple-600 rounded-full px-2 py-0.5 text-[10px] font-black mt-1">
-                      +30 RP
-                    </div>
-                  </div>
-                </div>
-
-                {/* Activity 3 */}
-                <div className="flex gap-3 p-5 items-start">
-                  <div className="w-9 h-9 bg-purple-50 rounded-full flex items-center justify-center text-base flex-shrink-0">
-                    💼
-                  </div>
-                  <div className="flex-1">
-                    <div className="text-xs font-semibold text-black">Posted Swiggy SDE-1 opening</div>
-                    <div className="text-xs text-gray-400 mt-0.5">12 students viewed · 3 applied</div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-xs text-gray-400">1d ago</div>
-                    <div className="bg-purple-50 text-purple-600 rounded-full px-2 py-0.5 text-[10px] font-black mt-1">
-                      +20 RP
-                    </div>
-                  </div>
-                </div>
-
-                {/* Activity 4 */}
-                <div className="flex gap-3 p-5 items-start">
-                  <div className="w-9 h-9 bg-orange-50 rounded-full flex items-center justify-center text-base flex-shrink-0">
-                    🎤
-                  </div>
-                  <div className="flex-1">
-                    <div className="text-xs font-semibold text-black">Webinar completed</div>
-                    <div className="text-xs text-gray-400 mt-0.5">34 attended · ₹3,366 earned</div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-xs text-gray-400">3d ago</div>
-                    <div className="bg-purple-50 text-purple-600 rounded-full px-2 py-0.5 text-[10px] font-black mt-1">
-                      +50 RP
-                    </div>
-                  </div>
-                </div>
-
-                {/* Activity 5 */}
-                <div className="flex gap-3 p-5 items-start">
-                  <div className="w-9 h-9 bg-green-50 rounded-full flex items-center justify-center text-base flex-shrink-0">
-                    🌟
-                  </div>
-                  <div className="flex-1">
-                    <div className="text-xs font-semibold text-black">Student placed! 🎉</div>
-                    <div className="text-xs text-gray-400 mt-0.5">Arun Kumar → Swiggy SDE-1</div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-xs text-gray-400">5d ago</div>
-                    <div className="bg-purple-50 text-purple-600 rounded-full px-2 py-0.5 text-[10px] font-black mt-1">
-                      +100 RP
-                    </div>
-                  </div>
-                </div>
+                )}
               </div>
             </div>
           </div>
@@ -684,12 +593,12 @@ export default function SeniorDashboardPage() {
               <h3 className="text-sm font-black text-black mb-4">💰 Earnings</h3>
               
               <div className="font-instrument-serif text-[36px] text-black my-2">
-                ₹4,320
+                ₹0
               </div>
               
-              <div className="flex items-center gap-1.5 text-xs text-green-600 font-semibold">
-                <span>↑</span>
-                <span>28% vs last month</span>
+              <div className="flex items-center gap-1.5 text-xs text-gray-400 font-semibold">
+                <span>-</span>
+                <span>No earnings yet</span>
               </div>
               
               {/* Progress Bar */}
@@ -756,38 +665,13 @@ export default function SeniorDashboardPage() {
                 <div className="space-y-2">
                   <div className="flex justify-between py-2 border-b border-gray-50">
                     <div className="flex items-center gap-2">
-                      <span className="text-sm">❓</span>
-                      <span className="text-xs font-semibold text-gray-700">Answering doubts</span>
+                      <span className="text-sm">⚡</span>
+                      <span className="text-xs font-semibold text-gray-700">Total Points</span>
                     </div>
-                    <span className="text-xs font-black text-purple-600">+230 RP</span>
+                    <span className="text-xs font-black text-purple-600">+{dashData?.user?.rise_points || 0} RP</span>
                   </div>
-                  <div className="flex justify-between py-2 border-b border-gray-50">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm">🤝</span>
-                      <span className="text-xs font-semibold text-gray-700">Referrals approved</span>
-                    </div>
-                    <span className="text-xs font-black text-purple-600">+240 RP</span>
-                  </div>
-                  <div className="flex justify-between py-2 border-b border-gray-50">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm">🎤</span>
-                      <span className="text-xs font-semibold text-gray-700">Webinars hosted</span>
-                    </div>
-                    <span className="text-xs font-black text-purple-600">+200 RP</span>
-                  </div>
-                  <div className="flex justify-between py-2 border-b border-gray-50">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm">🌟</span>
-                      <span className="text-xs font-semibold text-gray-700">Students placed</span>
-                    </div>
-                    <span className="text-xs font-black text-purple-600">+1,200 RP</span>
-                  </div>
-                  <div className="flex justify-between py-2">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm">👤</span>
-                      <span className="text-xs font-semibold text-gray-700">Profile complete</span>
-                    </div>
-                    <span className="text-xs font-black text-purple-600">+90 RP</span>
+                  <div className="p-4 text-center text-[10px] text-gray-400 italic">
+                    Earn more by helping students!
                   </div>
                 </div>
               </div>
@@ -936,7 +820,225 @@ export default function SeniorDashboardPage() {
             </div>
           </div>
         </div>
-      </div>
+      {/* Job Posting Modal */}
+      {jobModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => !jobFormLoading && setJobModalOpen(false)} />
+          
+          <div className="bg-white rounded-2xl w-full max-w-lg relative z-10 overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+            {/* Header */}
+            <div className="p-5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+              <div>
+                <h2 className="text-lg font-black text-black">💼 Post a Job Opening</h2>
+                <p className="text-xs text-gray-400 mt-1">Share opportunities and earn 20 Rise Points</p>
+              </div>
+              <button 
+                onClick={() => setJobModalOpen(false)}
+                className="text-gray-400 hover:text-black transition-colors"
+                disabled={jobFormLoading}
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Form Scrollable Content */}
+            <div className="p-6 overflow-y-auto">
+              <form id="jobForm" onSubmit={handlePostJob} className="space-y-4">
+                {/* Company & Role */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-[11px] font-black text-gray-500 uppercase tracking-wider">Company Name</label>
+                    <input 
+                      required
+                      type="text"
+                      placeholder="e.g. Swiggy"
+                      className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
+                      value={jobFormData.company_name}
+                      onChange={e => setJobFormData({...jobFormData, company_name: e.target.value})}
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[11px] font-black text-gray-500 uppercase tracking-wider">Job Role</label>
+                    <input 
+                      required
+                      type="text"
+                      placeholder="e.g. SDE-1"
+                      className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
+                      value={jobFormData.role}
+                      onChange={e => setJobFormData({...jobFormData, role: e.target.value})}
+                    />
+                  </div>
+                </div>
+
+                {/* Location & Type */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-[11px] font-black text-gray-500 uppercase tracking-wider">Location</label>
+                    <input 
+                      type="text"
+                      placeholder="e.g. Remote / Bangalore"
+                      className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
+                      value={jobFormData.location}
+                      onChange={e => setJobFormData({...jobFormData, location: e.target.value})}
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[11px] font-black text-gray-500 uppercase tracking-wider">Job Type</label>
+                    <select 
+                      className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
+                      value={jobFormData.job_type}
+                      onChange={e => setJobFormData({...jobFormData, job_type: e.target.value})}
+                    >
+                      <option value="full_time">Full Time</option>
+                      <option value="internship">Internship</option>
+                      <option value="contract">Contract</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Job Link */}
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-black text-gray-500 uppercase tracking-wider">Job Link / Description</label>
+                  <input 
+                    required
+                    type="url"
+                    placeholder="https://company.com/careers/job123"
+                    className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
+                    value={jobFormData.description}
+                    onChange={e => setJobFormData({...jobFormData, description: e.target.value})}
+                  />
+                </div>
+
+                {/* Expiry & Salary */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-[11px] font-black text-gray-500 uppercase tracking-wider">Expiry Date</label>
+                    <input 
+                      type="date"
+                      className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
+                      value={jobFormData.deadline}
+                      onChange={e => setJobFormData({...jobFormData, deadline: e.target.value})}
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[11px] font-black text-gray-500 uppercase tracking-wider">Salary (Optional)</label>
+                    <input 
+                      type="text"
+                      placeholder="e.g. 12-15 LPA"
+                      className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
+                      value={jobFormData.salary_range}
+                      onChange={e => setJobFormData({...jobFormData, salary_range: e.target.value})}
+                    />
+                  </div>
+                </div>
+
+                {/* Toggles */}
+                <div className="flex flex-col gap-3 pt-2">
+                  <label className="flex items-center gap-3 cursor-pointer group">
+                    <div className="relative inline-flex items-center">
+                      <input 
+                        type="checkbox" 
+                        className="sr-only peer"
+                        checked={jobFormData.referral_available}
+                        onChange={e => setJobFormData({...jobFormData, referral_available: e.target.checked})}
+                      />
+                      <div className="w-10 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-purple-600"></div>
+                    </div>
+                    <span className="text-xs font-semibold text-gray-700">Referral Available?</span>
+                  </label>
+
+                  <label className="flex items-center gap-3 cursor-pointer group">
+                    <div className="relative inline-flex items-center">
+                      <input 
+                        type="checkbox" 
+                        className="sr-only peer"
+                        checked={jobFormData.is_active}
+                        onChange={e => setJobFormData({...jobFormData, is_active: e.target.checked})}
+                      />
+                      <div className="w-10 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-600"></div>
+                    </div>
+                    <span className="text-xs font-semibold text-gray-700">Set as Open/Active</span>
+                  </label>
+                </div>
+              </form>
+            </div>
+
+            {/* Footer */}
+            <div className="p-5 border-t border-gray-100 bg-gray-50/50 flex gap-3">
+              <button 
+                type="button"
+                onClick={() => setJobModalOpen(false)}
+                className="flex-1 bg-white border border-gray-200 rounded-xl py-2.5 text-xs font-black text-gray-500 hover:bg-gray-100 transition-colors"
+                disabled={jobFormLoading}
+              >
+                Cancel
+              </button>
+              <button 
+                type="submit"
+                form="jobForm"
+                className="flex-[2] bg-purple-600 text-white border-none rounded-xl py-2.5 text-xs font-black shadow-lg shadow-purple-200 hover:bg-purple-700 transition-all transform active:scale-[0.98] disabled:opacity-50"
+                disabled={jobFormLoading}
+              >
+                {jobFormLoading ? 'Posting...' : 'Post Job Opening →'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Referral Review Modal */}
+      {reviewModalOpen && selectedReferral && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => !referralActionLoading && setReviewModalOpen(false)} />
+          
+          <div className="bg-white rounded-2xl w-full max-w-md relative z-10 overflow-hidden shadow-2xl animate-fade">
+            <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+              <h2 className="text-lg font-black text-black">🤝 Review Referral</h2>
+              <button onClick={() => setReviewModalOpen(false)} className="text-gray-400 hover:text-black">✕</button>
+            </div>
+
+            <div className="p-8 text-center border-b border-gray-50">
+              <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-purple-100 to-cyan-50 text-purple-600 text-2xl font-black flex items-center justify-center border-2 border-white shadow-xl mx-auto mb-4">
+                {selectedReferral.requester?.full_name?.[0]}
+              </div>
+              <h3 className="text-xl font-black text-black">{selectedReferral.requester?.full_name}</h3>
+              <p className="text-sm text-gray-400 font-semibold">{selectedReferral.requester?.unique_id}</p>
+              <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">
+                {selectedReferral.requester?.colleges?.[0]?.name || selectedReferral.requester?.colleges?.name}
+              </p>
+              
+              <div className="mt-6 inline-flex items-center gap-2 bg-purple-50 text-purple-600 px-4 py-2 rounded-full text-xs font-black">
+                <Briefcase size={14} />
+                Seeking: {selectedReferral.job?.role} @ {selectedReferral.job?.company_name}
+              </div>
+            </div>
+
+            <div className="p-6 bg-gray-50/50">
+              <p className="text-xs text-center text-gray-400 leading-relaxed mb-6">
+                By confirming, you agree to refer this student for the opening. Their profile details will be shared with you for the formal process.
+              </p>
+              
+              <div className="flex gap-3">
+                <button 
+                  onClick={() => setReviewModalOpen(false)}
+                  className="flex-1 bg-white border border-gray-200 rounded-xl py-3 text-sm font-black text-gray-400 hover:bg-gray-100 transition-colors"
+                  disabled={referralActionLoading}
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={handleApproveReferral}
+                  className="flex-[2] bg-purple-600 text-white rounded-xl py-3 text-sm font-black shadow-lg shadow-purple-200 hover:bg-purple-700 transition-all active:scale-[0.98] disabled:opacity-50"
+                  disabled={referralActionLoading}
+                >
+                  {referralActionLoading ? 'Processing...' : 'Confirm & Approve →'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
-  );
+  </div>
+);
 }
