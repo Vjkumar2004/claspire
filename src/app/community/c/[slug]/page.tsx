@@ -363,7 +363,7 @@ export default function CommunityPage({ params }: { params: Promise<{ slug: stri
                 { label: 'Referrals', val: jobs?.length || 0, icon: <Target size={16} color="#10B981" />, bg: '#F0FDF4' }
               ].map((s, i) => (
                 <div key={i} className="stat-card-hover" style={{ padding: 12, borderRadius: 14, background: '#F8FAFC', border: '1px solid #F1F5F9', transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)' }}>
-                   <div style={{ width: 28, height: 28, borderRadius: 8, background: s.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 8 }}>{cloneElement(s.icon as ReactElement, { size: 12 })}</div>
+                   <div style={{ width: 28, height: 28, borderRadius: 8, background: s.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 8 }}>{cloneElement(s.icon as ReactElement<any>, { size: 12 })}</div>
                    <div style={{ fontSize: 16, fontWeight: 800, color: '#0F172A', fontFamily: 'Instrument Serif, serif' }}>{s.val}</div>
                    <div style={{ fontSize: 9, fontWeight: 600, color: '#64748B', marginTop: 1 }}>{s.label}</div>
                 </div>
