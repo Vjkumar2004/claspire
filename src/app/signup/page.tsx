@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { useAuth } from '@/hooks/useAuth'
 import Navbar from '@/components/Navbar'
 import { createClient } from '@supabase/supabase-js'
@@ -345,9 +346,12 @@ export default function SignupPage() {
         {/* Content */}
         <div className="relative z-10 h-full flex flex-col justify-center p-12">
           {/* Logo */}
-          <div className="text-white text-2xl font-bold mb-12">
-            🎓 Claspire
-          </div>
+          <Link 
+            href="/" 
+            className="text-white text-2xl font-bold mb-12 no-underline inline-block"
+          >
+            Clas<span style={{ color: 'white' }}>pire</span>
+          </Link>
           
           {/* Heading */}
           <h2 className="font-instrument-serif font-normal text-[36px] text-white leading-tight mb-4">
@@ -397,9 +401,12 @@ export default function SignupPage() {
       <div className="lg:w-3/5 bg-white min-h-screen flex items-center justify-center p-12 lg:p-12">
         <div className="w-full max-w-[440px] mx-auto">
           {/* Mobile Logo */}
-          <div className="lg:hidden text-black text-xl font-bold mb-8 text-center">
-            🎓 Claspire
-          </div>
+          <Link 
+            href="/" 
+            className="lg:hidden text-black text-xl font-bold mb-8 text-center block no-underline"
+          >
+            Clas<span style={{ color: '#7C3AED' }}>pire</span>
+          </Link>
           
           {/* Header */}
           <h1 className="font-instrument-serif font-normal text-[28px] text-black mb-1.5">

@@ -409,15 +409,19 @@ export default function Navbar() {
           borderBottom: '1px solid #F3F4F6'
         }}>
           {/* Logo */}
-          <div style={{
-            fontSize: 18,
-            fontWeight: 800,
-            color: '#0A0A0A'
-          }}>
-            🎓 Clas<span style={{
-              color: '#7C3AED'
-            }}>pire</span>
-          </div>
+          <Link 
+            href="/" 
+            onClick={() => setMobileMenuOpen(false)}
+            style={{
+              fontSize: 18,
+              fontWeight: 800,
+              color: '#0A0A0A',
+              textDecoration: 'none',
+              fontFamily: 'Plus Jakarta Sans, sans-serif'
+            }}
+          >
+            Clas<span style={{ color: '#7C3AED' }}>pire</span>
+          </Link>
 
           {/* Close button */}
           <button

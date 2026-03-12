@@ -10,6 +10,8 @@ import {
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+import { usePoints } from '@/contexts/PointsContext'
 
 interface DashData {
   user: {
@@ -54,6 +56,7 @@ interface DashData {
 
 export default function JuniorDashboard() {
   const router = useRouter()
+  const { showAward } = usePoints()
   const [authChecked, setAuthChecked] = useState(false)
   const [dashData, setDashData] = useState<DashData | null>(null)
   const [loading, setLoading] = useState(true)
@@ -95,8 +98,7 @@ export default function JuniorDashboard() {
 
         // Show daily RP toast
         if (data.dailyRPEarned) {
-          setShowDailyRP(true)
-          setTimeout(() => setShowDailyRP(false), 3000)
+          showAward(1, "Daily visit bonus 🌅");
         }
       } catch {
         router.replace('/login')
@@ -268,21 +270,15 @@ export default function JuniorDashboard() {
           padding: '24px 20px 16px',
           borderBottom: '1px solid #F9FAFB'
         }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 10
-          }}>
-            <div style={{
-              width: 34, height: 34,
-              borderRadius: 10,
-              background: 'linear-gradient(135deg,#7C3AED,#06B6D4)',
+          <Link 
+            href="/"
+            style={{
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center'
-            }}>
-              <GraduationCap size={18} color="white" />
-            </div>
+              gap: 10,
+              textDecoration: 'none'
+            }}
+          >
             <span style={{
               fontSize: 18,
               fontWeight: 800,
@@ -290,7 +286,7 @@ export default function JuniorDashboard() {
             }}>
               Clas<span style={{ color: '#7C3AED' }}>pire</span>
             </span>
-          </div>
+          </Link>
         </div>
 
         {/* User Profile */}
@@ -390,7 +386,7 @@ export default function JuniorDashboard() {
               label: 'Community',
               icon: <Users size={16} />,
               active: false,
-              href: '/community/c/aaacet'
+              href: dashData?.user?.colleges?.slug ? `/community/c/${dashData.user.colleges.slug}` : '/community'
             },
           ].map(item => (
             <a

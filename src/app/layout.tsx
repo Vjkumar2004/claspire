@@ -3,6 +3,8 @@ import { Instrument_Serif } from "next/font/google";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { PointsProvider } from "@/contexts/PointsContext";
+import RPNotification from "@/components/RPNotification";
 
 const instrumentSerif = Instrument_Serif({
   variable: "--font-instrument-serif",
@@ -38,7 +40,10 @@ export default function RootLayout({
         className={`${instrumentSerif.variable} ${plusJakartaSans.variable} antialiased`}
       >
         <AuthProvider>
-          {children}
+          <PointsProvider>
+            <RPNotification />
+            {children}
+          </PointsProvider>
         </AuthProvider>
       </body>
     </html>

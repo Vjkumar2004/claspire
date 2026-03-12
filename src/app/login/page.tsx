@@ -82,25 +82,24 @@ export default function LoginPage() {
       }}>
 
         {/* Logo */}
-        <div style={{
-          textAlign: 'center',
-          marginBottom: 28
-        }}>
-          <div style={{
-            fontSize: 28,
-            marginBottom: 8
-          }}>🎓</div>
+        <Link 
+          href="/"
+          style={{
+            display: 'block',
+            textAlign: 'center',
+            marginBottom: 28,
+            textDecoration: 'none'
+          }}
+        >
           <h1 style={{
             fontSize: 20,
             fontWeight: 800,
             color: '#0A0A0A',
             margin: 0
           }}>
-            Clas<span style={{
-              color: '#7C3AED'
-            }}>pire</span>
+            Clas<span style={{ color: '#7C3AED' }}>pire</span>
           </h1>
-        </div>
+        </Link>
 
         {/* Heading */}
         <h2 style={{

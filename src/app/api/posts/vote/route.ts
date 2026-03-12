@@ -184,9 +184,42 @@ export async function POST(req: NextRequest) {
         })
         .eq('id', post_id)
 
+      // Award RP to author
+      if (vote_type === 'upvote' && action === 'added') {
+        // Fetch author_id
+        const { data: authorData } = await supabase
+          .from('posts')
+          .select('author_id, title')
+          .eq('id', post_id)
+          .single()
+
+        if (authorData && authorData.author_id !== userId) {
+          // Award 1 RP
+          const { data: user } = await supabase
+            .from('users')
+            .select('rise_points')
+            .eq('id', authorData.author_id)
+            .single()
+          
+          await supabase
+            .from('users')
+            .update({ rise_points: (user?.rise_points || 0) + 1 })
+            .eq('id', authorData.author_id)
+
+          await supabase
+            .from('rise_points_log')
+            .insert({
+              user_id: authorData.author_id,
+              points: 1,
+              reason: `Upvote received on: "${authorData.title.slice(0, 30)}..."`,
+              created_at: new Date().toISOString()
+            })
+        }
+      }
+
       return NextResponse.json({
         success: true,
-        action: 'added',
+        action,
         vote: { vote_type },
         upvotes: newUpvotes,
         downvotes: newDownvotes

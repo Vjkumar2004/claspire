@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { usePoints } from '@/contexts/PointsContext';
 import { HelpCircle, Briefcase, Handshake, Mic, DollarSign, BarChart3, Star, Trophy, User, CheckCircle, Settings, Zap, TrendingUp } from 'lucide-react';
 
 // Helper functions
@@ -17,6 +18,7 @@ const timeAgo = (dateStr: string) => {
 
 export default function SeniorDashboardPage() {
   // Move ALL useState hooks to the top - Rules of Hooks compliance
+  const { showAward } = usePoints();
   const [activeNav, setActiveNav] = useState("overview");
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [dashData, setDashData] = useState<any>(null)
@@ -32,6 +34,11 @@ export default function SeniorDashboardPage() {
       if (res.ok) {
         const data = await res.json()
         setDashData(data)
+        
+        // Show daily RP award
+        if (data.dailyRPEarned) {
+          showAward(1, "Daily visit bonus 🌅");
+        }
       }
     } catch (err) {
       console.error('Dashboard data error:', err)
@@ -60,12 +67,24 @@ export default function SeniorDashboardPage() {
         {/* Logo + User */}
         <div className="p-4 border-b border-gray-100">
           {/* Logo */}
-          <div className="flex items-center gap-2 mb-5">
-            <span className="text-lg">🎓</span>
-            <span className="text-base font-black">
+          <Link 
+            href="/"
+            style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: 2, 
+              textDecoration: 'none'
+            }}
+            className="mb-5"
+          >
+            <span style={{
+              fontSize: 18,
+              fontWeight: 800,
+              color: '#0A0A0A'
+            }}>
               Clas<span style={{ color: '#7C3AED' }}>pire</span>
             </span>
-          </div>
+          </Link>
 
           {/* User Card */}
           <div className="flex items-center gap-2.5">

@@ -4,6 +4,7 @@ import {
   X, Globe, Lock, ChevronDown,
   Loader2, Tag, AlertCircle
 } from 'lucide-react'
+import { usePoints } from '@/contexts/PointsContext'
 
 interface PostModalProps {
   isOpen: boolean
@@ -22,9 +23,10 @@ export default function PostModal({
   communityId,
   userRole
 }: PostModalProps) {
+  const { showAward } = usePoints()
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
-  const [type, setType] = useState<'doubt' | 'discussion' | 'announcement'>('doubt')
+  const [type, setType] = useState<'doubt' | 'discussion' | 'experience' | 'referral_hunt' | 'resource'>('doubt')
   const [visibility, setVisibility] = useState<'public' | 'private'>('public')
   const [tagInput, setTagInput] = useState('')
   const [tags, setTags] = useState<string[]>([])
@@ -97,6 +99,17 @@ export default function PostModal({
           data.error || 'Failed to post'
         )
         return
+      }
+
+      // Show RP Award
+      if (data.rpEarned) {
+        let reason = "New post created! 🚀";
+        if (type === 'doubt') reason = "Doubt posted! ❓";
+        if (type === 'experience') reason = "Experience shared! ⭐";
+        if (type === 'referral_hunt') reason = "Referral hunt posted! 🎯";
+        if (type === 'resource') reason = "Resource shared! 📚";
+        
+        showAward(data.rpEarned, reason);
       }
 
       // Reset form
@@ -201,67 +214,131 @@ export default function PostModal({
         {/* Body */}
         <div style={{ padding: '20px 24px' }}>
 
-          {/* Post Type Selector */}
+          {/* Post Type */}
+<div style={{ marginBottom: 16 }}>
+  <p style={{
+    fontSize: 11,
+    fontWeight: 700,
+    color: '#9CA3AF',
+    letterSpacing: '0.06em',
+    textTransform: 'uppercase',
+    margin: '0 0 10px'
+  }}>
+    Post Type
+  </p>
+
+  <div style={{
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr',
+    gap: 8
+  }}>
+    {([
+      {
+        key: 'doubt',
+        icon: '❓',
+        label: 'Doubt',
+        desc: 'Ask a specific question',
+        color: '#2563EB',
+        bg: '#EFF6FF',
+        border: '#BFDBFE'
+      },
+      {
+        key: 'discussion',
+        icon: '💬',
+        label: 'Discussion',
+        desc: 'Start a conversation',
+        color: '#7C3AED',
+        bg: '#F5F3FF',
+        border: '#DDD6FE'
+      },
+      {
+        key: 'experience',
+        icon: '⭐',
+        label: 'Experience',
+        desc: 'Share your story',
+        color: '#D97706',
+        bg: '#FFFBEB',
+        border: '#FDE68A'
+      },
+      {
+        key: 'referral_hunt',
+        icon: '🎯',
+        label: 'Referral Hunt',
+        desc: 'Find a referral',
+        color: '#059669',
+        bg: '#ECFDF5',
+        border: '#A7F3D0'
+      },
+      {
+        key: 'resource',
+        icon: '📚',
+        label: 'Resource',
+        desc: 'Share study material',
+        color: '#DC2626',
+        bg: '#FEF2F2',
+        border: '#FECACA'
+      }
+    ] as any[]).map(t => (
+      <button
+        key={t.key}
+        onClick={() => setType(t.key)}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
+          padding: '11px 13px',
+          borderRadius: 12,
+          border: type === t.key
+            ? `1.5px solid ${t.border}` 
+            : '1.5px solid #F3F4F6',
+          background: type === t.key
+            ? t.bg : 'white',
+          cursor: 'pointer',
+          textAlign: 'left',
+          transition: 'all 0.15s',
+          fontFamily: 'Plus Jakarta Sans'
+        }}
+      >
+        <span style={{ fontSize: 18 }}>
+          {t.icon}
+        </span>
+        <div>
           <div style={{
-            display: 'flex',
-            gap: 8,
-            marginBottom: 16
+            fontSize: 12,
+            fontWeight: 700,
+            color: type === t.key
+              ? t.color : '#374151'
           }}>
-            {([
-              {
-                key: 'doubt',
-                label: 'Doubt',
-                color: '#7C3AED',
-                bg: '#F5F3FF'
-              },
-              {
-                key: 'discussion',
-                label: 'Discussion',
-                color: '#0891B2',
-                bg: '#ECFEFF'
-              },
-              ...(userRole === 'own_senior' ? [{
-                key: 'announcement',
-                label: 'Announcement',
-                color: '#D97706',
-                bg: '#FFFBEB'
-              }] : [])
-            ] as any[]).map(t => (
-              <button
-                key={t.key}
-                onClick={() => setType(t.key)}
-                style={{
-                  fontSize: 12,
-                  fontWeight: 700,
-                  padding: '7px 14px',
-                  borderRadius: 100,
-                  border: type === t.key
-                    ? `1.5px solid ${t.color}` 
-                    : '1.5px solid #F3F4F6',
-                  background: type === t.key
-                    ? t.bg : 'white',
-                  color: type === t.key
-                    ? t.color : '#9CA3AF',
-                  cursor: 'pointer',
-                  fontFamily: 'Plus Jakarta Sans',
-                  transition: 'all 0.15s'
-                }}
-              >
-                {t.label}
-              </button>
-            ))}
+            {t.label}
           </div>
+          <div style={{
+            fontSize: 10,
+            color: '#9CA3AF',
+            marginTop: 1,
+            fontWeight: 500
+          }}>
+            {t.desc}
+          </div>
+        </div>
+      </button>
+    ))}
+  </div>
+</div>
 
           {/* Title */}
           <input
             type="text"
             placeholder={
-              type === 'doubt'
-                ? 'What is your doubt?'
-                : type === 'discussion'
-                ? 'What do you want to discuss?'
-                : 'Announcement title...'
-            }
+  type === 'doubt'
+    ? 'What is your doubt? Be specific...'
+  : type === 'discussion'
+    ? 'What do you want to discuss?'
+  : type === 'experience'
+    ? 'Share your experience title...'
+  : type === 'referral_hunt'
+    ? 'Looking for referral at [Company]...'
+  : 'Resource title or topic...'
+}
             value={title}
             onChange={e => setTitle(e.target.value)}
             maxLength={150}
@@ -284,12 +361,16 @@ export default function PostModal({
           {/* Content */}
           <textarea
             placeholder={
-              type === 'doubt'
-                ? 'Describe your doubt in detail. The more specific, the better the answers!'
-                : type === 'discussion'
-                ? 'Share your thoughts, experiences or questions...'
-                : 'Write your announcement...'
-            }
+  type === 'doubt'
+    ? 'Describe your doubt in detail. Include your year, branch, CGPA if relevant. The more specific, the better answers you get!'
+  : type === 'discussion'
+    ? 'Share your thoughts, opinions or experiences. Ask others what they think...'
+  : type === 'experience'
+    ? 'Share your complete experience — company, process, tips, what to prepare. This helps your juniors a lot!'
+  : type === 'referral_hunt'
+    ? 'Include: Company name, Role, Your CGPA, Branch, Batch year, and why you want to work there.'
+  : 'Share the resource — include links, key points, or upload material. Mention what it covers and who it helps.'
+}
             value={content}
             onChange={e =>
               setContent(e.target.value)}
@@ -543,12 +624,11 @@ export default function PostModal({
                 Posting...
               </>
             ) : (
-              `Post ${
-                type === 'doubt' ? 'Doubt'
-                : type === 'discussion'
-                ? 'Discussion'
-                : 'Announcement'
-              } →`
+              type === 'doubt' ? 'Post Doubt →'
+              : type === 'discussion' ? 'Start Discussion →'
+              : type === 'experience' ? 'Share Experience →'
+              : type === 'referral_hunt' ? 'Post Referral Hunt →'
+              : 'Share Resource →'
             )}
           </button>
         </div>

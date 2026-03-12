@@ -99,7 +99,7 @@ export async function GET(req: NextRequest) {
     const { data: myPosts } = await supabase
       .from('posts')
       .select(`
-        id, title, content,
+        id, title, content, type,
         upvote_count, answer_count,
         is_answered, created_at,
         communities ( display_name, slug )
@@ -107,6 +107,21 @@ export async function GET(req: NextRequest) {
       .eq('author_id', userId)
       .order('created_at', { ascending: false })
       .limit(5)
+
+    // Sync doubt_count if desynced
+    const { count: actualDoubtCount } = await supabase
+      .from('posts')
+      .select('*', { count: 'exact', head: true })
+      .eq('author_id', userId)
+      .eq('type', 'doubt')
+
+    if (actualDoubtCount !== null && actualDoubtCount !== user.doubt_count) {
+      await supabase
+        .from('users')
+        .update({ doubt_count: actualDoubtCount })
+        .eq('id', userId)
+      user.doubt_count = actualDoubtCount
+    }
 
     // ── Unread notifications ──
     const { count: unreadCount } = await supabase

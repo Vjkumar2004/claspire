@@ -135,14 +135,17 @@ export async function POST(req: NextRequest) {
     // Give RP for posting
     const { data: user } = await supabase
       .from('users')
-      .select('rise_points')
+      .select('rise_points, doubt_count, answer_count, referral_count')
       .eq('id', userId)
       .single()
 
     const rpAmount =
-      type === 'doubt' ? 3
-      : type === 'discussion' ? 2
-      : 5 // announcement
+  type === 'doubt' ? 3
+  : type === 'discussion' ? 2
+  : type === 'experience' ? 8
+  : type === 'referral_hunt' ? 5
+  : type === 'resource' ? 6
+  : 2
 
     await supabase
       .from('rise_points_log')
@@ -156,7 +159,10 @@ export async function POST(req: NextRequest) {
     await supabase
       .from('users')
       .update({
-        rise_points: (user?.rise_points || 0) + rpAmount
+        rise_points: (user?.rise_points || 0) + rpAmount,
+        doubt_count: type === 'doubt' ? (user?.doubt_count || 0) + 1 : user?.doubt_count,
+        answer_count: type === 'answer' ? (user?.answer_count || 0) + 1 : user?.answer_count,
+        referral_count: type === 'referral_hunt' ? (user?.referral_count || 0) + 1 : user?.referral_count
       })
       .eq('id', userId)
 

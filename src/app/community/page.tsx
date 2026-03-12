@@ -1,5 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
+import { useAuth } from '@/hooks/useAuth'
+import { usePoints } from '@/contexts/PointsContext'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@supabase/supabase-js'
 import Navbar from '@/components/Navbar'
@@ -9,8 +11,10 @@ import {
   ArrowUp, ArrowDown, CheckCircle,
   Eye, ChevronRight, Briefcase,
   Video, Building2, Crown, Zap,
-  Hash, Star, Shield, Globe
+  Hash, Star, Shield, Globe, Plus,
+  BookOpen, Target, Send, X, ChevronDown, ChevronUp, Sparkles, Filter
 } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -19,13 +23,22 @@ const supabase = createClient(
 
 export default function CommunityPage() {
   const router = useRouter()
+  const { user } = useAuth()
+  const { showAward } = usePoints()
   const [communities, setCommunities] = useState<any[]>([])
   const [posts, setPosts] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState('all')
   const [userCommunity, setUserCommunity] = useState<any>(null)
-  
+
+  // Inline answer section state
+  const [expandedPost, setExpandedPost] = useState<string | null>(null)
+  const [postAnswers, setPostAnswers] = useState<Record<string, any[]>>({})
+  const [answersLoading, setAnswersLoading] = useState<Record<string, boolean>>({})
+  const [newAnswerText, setNewAnswerText] = useState<Record<string, string>>({})
+  const [answerSubmitting, setAnswerSubmitting] = useState<Record<string, boolean>>({})
+
   // Add state for each post's vote status
   const [votes, setVotes] = useState<Record<string, {
     userVote: 'upvote' | 'downvote' | null
@@ -38,10 +51,45 @@ export default function CommunityPage() {
   // Initialize vote state with user's existing votes
   useEffect(() => {
     if (!posts.length) return
-    
-    const userStr = localStorage.getItem('claspire_user')
-    const userId = userStr ? JSON.parse(userStr).id : null
-    
+
+    const fetchUserVotes = async () => {
+      // Get current user from API
+      let userId: string | null = null
+      try {
+        const authRes = await fetch('/api/auth/me')
+        if (authRes.ok) {
+          const authData = await authRes.json()
+          userId = authData.user?.id || null
+        }
+      } catch (error) {
+        console.error('Failed to get user for votes:', error)
+      }
+
+      if (!userId) return
+
+      try {
+        const { data: userVotes } = await supabase
+          .from('votes')
+          .select('post_id, vote_type')
+          .eq('user_id', userId)
+          .in('post_id', posts.map(p => p.id))
+
+        if (userVotes) {
+          setVotes(prev => {
+            const updated = { ...prev }
+            userVotes.forEach(vote => {
+              if (updated[vote.post_id]) {
+                updated[vote.post_id].userVote = vote.vote_type as 'upvote' | 'downvote'
+              }
+            })
+            return updated
+          })
+        }
+      } catch (error) {
+        console.error('Failed to fetch user votes:', error)
+      }
+    }
+
     const v: Record<string, {
       userVote: 'upvote' | 'downvote' | null
       upvotes: number
@@ -49,7 +97,7 @@ export default function CommunityPage() {
       isLoading: boolean
       error: string | null
     }> = {}
-    
+
     posts.forEach((p: any) => {
       v[p.id] = {
         userVote: null,
@@ -60,49 +108,33 @@ export default function CommunityPage() {
       }
     })
     setVotes(v)
-    
-    // Fetch user's existing votes
-    if (userId) {
-      fetchUserVotes(userId)
-    }
-  }, [posts])
 
-  // Fetch user's existing votes
-  const fetchUserVotes = async (userId: string) => {
-    try {
-      const { data: userVotes } = await supabase
-        .from('votes')
-        .select('post_id, vote_type')
-        .eq('user_id', userId)
-        .in('post_id', posts.map(p => p.id))
-      
-      if (userVotes) {
-        setVotes(prev => {
-          const updated = { ...prev }
-          userVotes.forEach(vote => {
-            if (updated[vote.post_id]) {
-              updated[vote.post_id].userVote = vote.vote_type as 'upvote' | 'downvote'
-            }
-          })
-          return updated
-        })
-      }
-    } catch (error) {
-      console.error('Failed to fetch user votes:', error)
-    }
-  }
+    // Fetch user's existing votes
+    fetchUserVotes()
+  }, [posts])
 
   // Get user's college community
   useEffect(() => {
-    const userStr = localStorage.getItem('claspire_user')
-    if (userStr) {
-      const user = JSON.parse(userStr)
-      if (user.college_id) {
-        const mine = communities.find(c =>
-          c.colleges?.id === user.college_id
-        )
-        setUserCommunity(mine || null)
+    const getUserCommunity = async () => {
+      try {
+        const authRes = await fetch('/api/auth/me')
+        if (authRes.ok) {
+          const authData = await authRes.json()
+          const user = authData.user
+          if (user && user.college_id) {
+            const mine = communities.find(c =>
+              c.colleges?.id === user.college_id
+            )
+            setUserCommunity(mine || null)
+          }
+        }
+      } catch (error) {
+        console.error('Failed to get user community:', error)
       }
+    }
+
+    if (communities.length) {
+      getUserCommunity()
     }
   }, [communities])
 
@@ -111,15 +143,26 @@ export default function CommunityPage() {
     postId: string,
     voteType: 'upvote' | 'downvote'
   ) => {
-    // Authentication check
-    const userStr = localStorage.getItem('claspire_user')
-    if (!userStr) {
+    // Authentication check - fetch current user from session
+    let userId: string
+    try {
+      // Use session-based authentication like the API expects
+      const authRes = await fetch('/api/auth/me')
+      if (!authRes.ok) {
+        router.push('/login')
+        return
+      }
+      const authData = await authRes.json()
+      if (!authData.user) {
+        router.push('/login')
+        return
+      }
+      userId = authData.user.id
+    } catch (error) {
+      console.error('Auth check failed:', error)
       router.push('/login')
       return
     }
-
-    const user = JSON.parse(userStr)
-    const userId = user.id
 
     // Get current vote state
     const currentVote = votes[postId]
@@ -129,15 +172,15 @@ export default function CommunityPage() {
 
     // Store previous state for rollback
     const previousState = { ...currentVote }
-    
+
     // Calculate optimistic updates
     let optimisticUpdate: Partial<typeof currentVote>
-    
+
     if (currentVote.userVote === voteType) {
       // Toggle off (remove vote)
       optimisticUpdate = {
         userVote: null,
-        upvotes: voteType === 'upvote' 
+        upvotes: voteType === 'upvote'
           ? Math.max(0, currentVote.upvotes - 1)
           : currentVote.upvotes,
         downvotes: voteType === 'downvote'
@@ -215,8 +258,8 @@ export default function CommunityPage() {
         ...prev,
         [postId]: {
           ...prev[postId],
-          upvotes: updatedPost?.upvote_count || prev[postId].upvotes,
-          downvotes: updatedPost?.downvote_count || prev[postId].downvotes,
+          upvotes: result.upvotes || prev[postId].upvotes,
+          downvotes: result.downvotes || prev[postId].downvotes,
           isLoading: false,
           error: null,
           userVote: result.action === 'removed' ? null : voteType
@@ -225,7 +268,7 @@ export default function CommunityPage() {
 
     } catch (error) {
       console.error('Vote error:', error)
-      
+
       // Rollback to previous state
       setVotes(prev => ({
         ...prev,
@@ -256,11 +299,110 @@ export default function CommunityPage() {
     }
   }
 
+  // Fetch answers for a post
+  const fetchPostAnswers = async (postId: string) => {
+    if (postAnswers[postId]) return // Already cached
+    
+    setAnswersLoading(prev => ({ ...prev, [postId]: true }))
+    try {
+      const { data, error } = await supabase
+        .from('answers')
+        .select(`
+          *,
+          users!answers_author_id_fkey (
+            id, full_name, unique_id,
+            role, is_verified
+          )
+        `)
+        .eq('post_id', postId)
+        .order('is_accepted', { ascending: false })
+        .order('upvote_count', { ascending: false })
+        .order('created_at', { ascending: true })
+      
+      setPostAnswers(prev => ({ ...prev, [postId]: data || [] }))
+    } catch (err) {
+      console.error('Failed to fetch answers:', err)
+      setPostAnswers(prev => ({ ...prev, [postId]: [] }))
+    } finally {
+      setAnswersLoading(prev => ({ ...prev, [postId]: false }))
+    }
+  }
+
+  // Toggle answer section
+  const toggleAnswerSection = (postId: string) => {
+    if (expandedPost === postId) {
+      setExpandedPost(null)
+    } else {
+      setExpandedPost(postId)
+      fetchPostAnswers(postId)
+    }
+  }
+
+  // Submit inline answer
+  const submitInlineAnswer = async (postId: string) => {
+    const text = newAnswerText[postId]?.trim()
+    if (!text || answerSubmitting[postId]) return
+
+    try {
+      const authRes = await fetch('/api/auth/me')
+      if (!authRes.ok) {
+        router.push('/login')
+        return
+      }
+      const authData = await authRes.json()
+      if (!authData.user) {
+        router.push('/login')
+        return
+      }
+
+      setAnswerSubmitting(prev => ({ ...prev, [postId]: true }))
+
+      const response = await fetch('/api/answers/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          post_id: postId,
+          content: text
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to submit answer')
+      }
+
+      const result = await response.json()
+
+      if (result.success && result.answer) {
+        // Show points award
+        showAward(5, "Answered a question 🤝");
+
+        setPostAnswers(prev => ({
+          ...prev,
+          [postId]: [...(prev[postId] || []), result.answer]
+        }))
+        setNewAnswerText(prev => ({ ...prev, [postId]: '' }))
+        
+        // Update answer count on the post UI
+        setPosts(prev => prev.map((p: any) =>
+          p.id === postId
+            ? { ...p, answer_count: (p.answer_count || 0) + 1, is_answered: true }
+            : p
+        ))
+      }
+    } catch (err) {
+      console.error('Answer submit error:', err)
+    } finally {
+      setAnswerSubmitting(prev => ({ ...prev, [postId]: false }))
+    }
+  }
+
   const fetchCommunities = async () => {
     setLoading(true)
     try {
       console.log('Fetching communities and posts...')
-      
+
       // Fetch communities
       const { data: communitiesData, error: communitiesError } = await supabase
         .from('communities')
@@ -305,7 +447,7 @@ export default function CommunityPage() {
       if (!communitiesError && communitiesData) {
         setCommunities(communitiesData)
       }
-      
+
       if (!postsError && postsData) {
         setPosts(postsData)
       }
@@ -330,18 +472,67 @@ export default function CommunityPage() {
 
     const matchFilter =
       filter === 'all' ? true
-      : filter === 'unanswered' ? !p.is_answered
-      : filter === 'trending' ? (p.upvote_count || 0) > 0
-      : p.type === filter
+        : filter === 'unanswered'
+          ? !p.is_answered && p.type === 'doubt'
+          : filter === 'trending'
+            ? (p.upvote_count || 0) >= 3
+            : p.type === filter
 
     return matchSearch && matchFilter
   })
 
   // Helper functions
   const getTypeStyle = (type: string) => {
-    return type === 'doubt'
-      ? { bg: '#FEF3C7', color: '#D97706', label: 'DOUBT' }
-      : { bg: '#DBEAFE', color: '#2563EB', label: 'DISCUSSION' }
+    switch (type) {
+      case 'doubt':
+        return {
+          label: 'Doubt',
+          color: '#2563EB',
+          bg: '#EFF6FF',
+          border: '#BFDBFE',
+          icon: '❓'
+        }
+      case 'discussion':
+        return {
+          label: 'Discussion',
+          color: '#7C3AED',
+          bg: '#F5F3FF',
+          border: '#DDD6FE',
+          icon: '💬'
+        }
+      case 'experience':
+        return {
+          label: 'Experience',
+          color: '#D97706',
+          bg: '#FFFBEB',
+          border: '#FDE68A',
+          icon: '⭐'
+        }
+      case 'referral_hunt':
+        return {
+          label: 'Referral Hunt',
+          color: '#059669',
+          bg: '#ECFDF5',
+          border: '#A7F3D0',
+          icon: '🎯'
+        }
+      case 'resource':
+        return {
+          label: 'Resource',
+          color: '#DC2626',
+          bg: '#FEF2F2',
+          border: '#FECACA',
+          icon: '📚'
+        }
+      default:
+        return {
+          label: type,
+          color: '#6B7280',
+          bg: '#F9FAFB',
+          border: '#F3F4F6',
+          icon: '📝'
+        }
+    }
   }
 
   const timeAgo = (date: string) => {
@@ -395,86 +586,143 @@ export default function CommunityPage() {
     <div style={{
       minHeight: '100vh',
       background: '#F5F4FF',
-      fontFamily: 'Plus Jakarta Sans, sans-serif'
+      fontFamily: 'Plus Jakarta Sans, sans-serif',
+      overflowX: 'hidden',
+      width: '100%',
+      maxWidth: '100vw'
     }}>
       <Navbar />
 
-      {/* ── HERO BANNER ── */}
+      {/* ── PREMIUM HERO BANNER ── */}
       <div style={{
-        background: 'linear-gradient(135deg,#1E0A4E 0%,#4C1D95 50%,#0C4A6E 100%)',
-        padding: '72px 16px 24px 16px',
-        color: 'white'
+        position: 'relative',
+        background: 'linear-gradient(135deg, #1A1A2E 0%, #16213E 50%, #0F3460 100%)',
+        padding: '60px 20px 48px',
+        color: 'white',
+        overflow: 'hidden',
+        borderBottom: '1px solid rgba(124, 58, 237, 0.2)'
       }}>
+        {/* Animated Background Elements */}
+        <div style={{
+          position: 'absolute',
+          top: '-10%',
+          right: '-5%',
+          width: '400px',
+          height: '400px',
+          background: 'radial-gradient(circle, rgba(124, 58, 237, 0.15) 0%, transparent 70%)',
+          borderRadius: '50%',
+          filter: 'blur(60px)',
+          pointerEvents: 'none'
+        }} />
+        <div style={{
+          position: 'absolute',
+          bottom: '-20%',
+          left: '-5%',
+          width: '500px',
+          height: '500px',
+          background: 'radial-gradient(circle, rgba(6, 182, 212, 0.1) 0%, transparent 70%)',
+          borderRadius: '50%',
+          filter: 'blur(80px)',
+          pointerEvents: 'none'
+        }} />
+
         <div style={{
           maxWidth: 1200,
-          margin: '0 auto'
+          margin: '0 auto',
+          position: 'relative',
+          zIndex: 1
         }}>
           <div style={{
             display: 'inline-flex',
             alignItems: 'center',
-            gap: 6,
-            background: 'rgba(255,255,255,0.12)',
-            border: '1px solid rgba(255,255,255,0.2)',
-            borderRadius: 100,
-            padding: '4px 12px',
-            fontSize: 10,
-            fontWeight: 700,
-            marginBottom: 12,
-            letterSpacing: '0.06em'
+            gap: 8,
+            background: 'rgba(255, 255, 255, 0.05)',
+            backdropFilter: 'blur(8px)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            borderRadius: '100px',
+            padding: '6px 16px',
+            fontSize: '11px',
+            fontWeight: 800,
+            marginBottom: 20,
+            letterSpacing: '0.1em',
+            color: '#A78BFA',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
           }}>
-            🎓 CLASPIRE COMMUNITY
+            <Sparkles size={12} />
+            CLASPIRE COMMUNITY
           </div>
+          
           <h1 style={{
-            fontSize: 'clamp(20px,5vw,28px)',
-            fontWeight: 900,
-            margin: '0 0 6px',
-            fontFamily: 'Instrument Serif, serif',
-            lineHeight: 1.2
+            fontSize: 'clamp(32px, 8vw, 48px)',
+            fontWeight: 400,
+            margin: '0 0 12px',
+            fontFamily: 'var(--font-instrument-serif)',
+            lineHeight: 1.1,
+            background: 'linear-gradient(to bottom, #FFFFFF, #D1D5DB)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            letterSpacing: '-0.02em'
           }}>
-            Community Feed
+            The Heart of College <br /> Conversations
           </h1>
+          
           <p style={{
-            fontSize: 13,
-            opacity: 0.7,
-            margin: '0 0 20px',
-            fontWeight: 500,
-            lineHeight: 1.4
+            fontSize: '16px',
+            opacity: 0.8,
+            margin: '0 0 32px',
+            fontWeight: 400,
+            lineHeight: 1.6,
+            maxWidth: '600px',
+            color: '#94A3B8'
           }}>
-            Doubts, discussions & opportunities from {communities.length} college communities
+            Connect with {communities.length}+ college communities. Ask doubts, share experiences, and find career opportunities in a verified senior network.
           </p>
 
           {/* Search Bar in Hero */}
           <div style={{
-            maxWidth: '100%',
+            maxWidth: '700px',
             position: 'relative'
           }}>
             <Search
-              size={16}
+              size={20}
               style={{
                 position: 'absolute',
-                left: 14,
+                left: 18,
                 top: '50%',
                 transform: 'translateY(-50%)',
-                color: '#9CA3AF'
+                color: '#94A3B8',
+                zIndex: 2
               }}
             />
             <input
               type="text"
-              placeholder="Search posts, doubts, tags..."
+              placeholder="Search posts, doubts, or @seniors..."
               value={search}
               onChange={e => setSearch(e.target.value)}
               style={{
                 width: '100%',
-                padding: '12px 16px 12px 42px',
-                borderRadius: 12,
-                border: 'none',
-                fontSize: 14,
+                padding: '18px 24px 18px 54px',
+                borderRadius: '16px',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                fontSize: '15px',
                 fontFamily: 'Plus Jakarta Sans',
                 outline: 'none',
-                background: 'white',
-                color: '#111827',
+                background: 'rgba(255, 255, 255, 0.03)',
+                backdropFilter: 'blur(20px)',
+                color: 'white',
                 boxSizing: 'border-box',
-                boxShadow: '0 4px 20px rgba(0,0,0,0.15)'
+                boxShadow: '0 20px 40px rgba(0,0,0,0.3), inset 0 1px 1px rgba(255,255,255,0.05)',
+                transition: 'all 0.3s ease'
+              }}
+              onFocus={(e) => {
+                e.target.style.background = 'rgba(255, 255, 255, 0.06)';
+                e.target.style.borderColor = 'rgba(124, 58, 237, 0.5)';
+                e.target.style.boxShadow = '0 20px 40px rgba(124, 58, 237, 0.2), inset 0 1px 1px rgba(255,255,255,0.1)';
+              }}
+              onBlur={(e) => {
+                e.target.style.background = 'rgba(255, 255, 255, 0.03)';
+                e.target.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                e.target.style.boxShadow = '0 20px 40px rgba(0,0,0,0.3), inset 0 1px 1px rgba(255,255,255,0.05)';
               }}
             />
           </div>
@@ -482,54 +730,35 @@ export default function CommunityPage() {
       </div>
 
       {/* ── 3 COLUMN LAYOUT ── */}
-      <div style={{
-        maxWidth: 1200,
-        margin: '20px auto',
-        padding: '0 16px',
-        display: 'grid',
-        gridTemplateColumns: '220px 1fr 300px',
-        gap: 20,
-        alignItems: 'start'
-      }}
-      className="feed-grid"
-      >
+      <div className="feed-grid">
 
         {/* ════ LEFT SIDEBAR ════ */}
-        <div style={{
-          position: 'sticky',
-          top: 20,
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 12
-        }}
-        className="left-sidebar"
-        >
-
-          {/* My Communities */}
+        <div className="left-sidebar">
+          {/* My Community Section */}
           <div style={{
             background: 'white',
-            borderRadius: 16,
-            border: '1px solid #EEEBFF',
-            overflow: 'hidden',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+            borderRadius: '20px',
+            border: '1px solid rgba(124, 58, 237, 0.08)',
+            padding: '8px',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.02)',
+            marginBottom: '16px'
           }}>
             <div style={{
-              padding: '14px 16px',
-              borderBottom: '1px solid #F9FAFB'
+              padding: '12px 16px',
+              borderBottom: '1px solid #F1F5F9'
             }}>
               <p style={{
-                fontSize: 10,
+                fontSize: '10px',
                 fontWeight: 800,
                 letterSpacing: '0.08em',
                 textTransform: 'uppercase',
-                color: '#9CA3AF',
+                color: '#94A3B8',
                 margin: 0
               }}>
                 My Community
               </p>
             </div>
 
-            {/* Show user's own college community */}
             {userCommunity ? (
               <div
                 onClick={() => router.push(`/community/c/${userCommunity.slug}`)}
@@ -538,17 +767,17 @@ export default function CommunityPage() {
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 10,
-                  borderBottom: '1px solid #F9FAFB',
-                  transition: 'background 0.15s'
+                  gap: 12,
+                  borderRadius: '12px',
+                  transition: 'background 0.2s ease'
                 }}
-                onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = '#F9FAFB'}
-                onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'white'}
+                onMouseEnter={e => e.currentTarget.style.background = '#F8FAFC'}
+                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
               >
                 <div style={{
                   width: 32, height: 32,
-                  borderRadius: 9,
-                  background: 'linear-gradient(135deg,#7C3AED,#06B6D4)',
+                  borderRadius: 10,
+                  background: 'linear-gradient(135deg, #7C3AED, #06B6D4)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -563,18 +792,14 @@ export default function CommunityPage() {
                   <div style={{
                     fontSize: 12,
                     fontWeight: 700,
-                    color: '#111827',
+                    color: '#1E293B',
                     whiteSpace: 'nowrap',
                     overflow: 'hidden',
                     textOverflow: 'ellipsis'
                   }}>
                     c/{userCommunity.slug}
                   </div>
-                  <div style={{
-                    fontSize: 10,
-                    color: '#9CA3AF',
-                    fontWeight: 500
-                  }}>
+                  <div style={{ fontSize: 10, color: '#94A3B8', fontWeight: 500 }}>
                     {userCommunity.member_count || 0} members
                   </div>
                 </div>
@@ -586,31 +811,22 @@ export default function CommunityPage() {
                 }} />
               </div>
             ) : (
-              <div style={{
-                padding: '16px',
-                textAlign: 'center'
-              }}>
-                <p style={{
-                  fontSize: 11,
-                  color: '#9CA3AF',
-                  margin: '0 0 10px',
-                  lineHeight: 1.5,
-                  fontWeight: 500
-                }}>
-                  Join your college community!
+              <div style={{ padding: '16px', textAlign: 'center' }}>
+                <p style={{ fontSize: 11, color: '#94A3B8', margin: '0 0 10px', fontWeight: 500 }}>
+                  Join your college!
                 </p>
                 <button
                   onClick={() => router.push('/signup')}
                   style={{
+                    width: '100%',
                     fontSize: 11,
                     fontWeight: 700,
                     color: 'white',
-                    background: 'linear-gradient(135deg,#7C3AED,#06B6D4)',
+                    background: 'linear-gradient(135deg, #7C3AED, #06B6D4)',
                     border: 'none',
                     borderRadius: 8,
-                    padding: '8px 14px',
-                    cursor: 'pointer',
-                    fontFamily: 'Plus Jakarta Sans'
+                    padding: '8px',
+                    cursor: 'pointer'
                   }}
                 >
                   Get Started →
@@ -618,158 +834,229 @@ export default function CommunityPage() {
               </div>
             )}
           </div>
-
-          {/* Feed Filter Links */}
+          {/* Main Navigation */}
           <div style={{
             background: 'white',
-            borderRadius: 16,
-            border: '1px solid #EEEBFF',
-            overflow: 'hidden',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+            borderRadius: '20px',
+            border: '1px solid rgba(124, 58, 237, 0.08)',
+            padding: '8px',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.02)'
           }}>
-            <div style={{
-              padding: '14px 16px',
-              borderBottom: '1px solid #F9FAFB'
-            }}>
-              <p style={{
-                fontSize: 10,
-                fontWeight: 800,
-                letterSpacing: '0.08em',
-                textTransform: 'uppercase',
-                color: '#9CA3AF',
-                margin: 0
-              }}>
-                Browse
-              </p>
-            </div>
             {[
-              { key: 'all', label: 'All Posts', icon: <LayoutGrid size={14} /> },
-              { key: 'doubt', label: 'Doubts', icon: <HelpCircle size={14} /> },
-              { key: 'discussion', label: 'Discussions', icon: <MessageCircle size={14} /> },
-              { key: 'unanswered', label: 'Unanswered', icon: <Clock size={14} /> },
-              { key: 'trending', label: 'Trending', icon: <TrendingUp size={14} /> }
+              { key: 'all', label: 'Feed Home', icon: <Globe size={18} /> },
+              { key: 'trending', label: 'Trending Now', icon: <TrendingUp size={18} /> },
+              { key: 'doubt', label: 'Q&A Section', icon: <HelpCircle size={18} /> },
+              { key: 'resource', label: 'Resources', icon: <BookOpen size={18} /> }
             ].map(item => (
-              <button
+              <div
                 key={item.key}
                 onClick={() => setFilter(item.key as any)}
-                style={{
-                  width: '100%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 10,
-                  padding: '11px 16px',
-                  background: filter === item.key ? '#F5F3FF' : 'white',
-                  border: 'none',
-                  borderLeft: filter === item.key ? '3px solid #7C3AED' : '3px solid transparent',
-                  color: filter === item.key ? '#7C3AED' : '#6B7280',
-                  fontSize: 13,
-                  fontWeight: filter === item.key ? 700 : 500,
-                  cursor: 'pointer',
-                  fontFamily: 'Plus Jakarta Sans',
-                  textAlign: 'left',
-                  transition: 'all 0.15s'
-                }}
+                className={`nav-item ${filter === item.key ? 'active' : ''}`}
               >
                 {item.icon}
                 {item.label}
-              </button>
+              </div>
             ))}
           </div>
 
-          {/* Quick Links */}
-          <div style={{
-            background: 'white',
-            borderRadius: 16,
-            border: '1px solid #EEEBFF',
-            padding: '14px 16px',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
-          }}>
+          {/* Categories */}
+          <div style={{ padding: '0 16px' }}>
             <p style={{
-              fontSize: 10,
+              fontSize: '11px',
               fontWeight: 800,
-              letterSpacing: '0.08em',
+              color: '#94A3B8',
+              letterSpacing: '0.1em',
               textTransform: 'uppercase',
-              color: '#9CA3AF',
-              margin: '0 0 10px'
+              margin: '24px 0 12px'
             }}>
-              Quick Links
+              Categories
             </p>
             {[
-              { label: 'Jobs Board', icon: <Briefcase size={13} />, href: '/jobs' },
-              { label: 'Webinars', icon: <Video size={13} />, href: '/webinars' },
-              { label: 'All Colleges', icon: <Building2 size={13} />, href: '/colleges' },
-              { label: 'Pricing', icon: <Crown size={13} />, href: '/pricing' }
-            ].map(link => (
+              { key: 'discussion', label: 'Discussions', icon: <Hash size={14} /> },
+              { key: 'experience', label: 'Experiences', icon: <Star size={14} /> },
+              { key: 'referral_hunt', label: 'Referrals', icon: <Target size={14} /> },
+              { key: 'unanswered', label: 'Unanswered', icon: <Filter size={14} /> }
+            ].map(item => (
               <div
-                key={link.label}
-                onClick={() => router.push(link.href)}
+                key={item.key}
+                onClick={() => setFilter(item.key as any)}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 8,
-                  padding: '8px 0',
-                  fontSize: 12,
-                  color: '#6B7280',
-                  fontWeight: 600,
+                  gap: 10,
+                  padding: '8px 4px',
+                  fontSize: '13px',
+                  fontWeight: 550,
+                  color: filter === item.key ? '#7C3AED' : '#64748B',
                   cursor: 'pointer',
-                  borderBottom: '1px solid #F9FAFB',
-                  transition: 'color 0.15s'
+                  transition: 'all 0.2s ease'
                 }}
-                onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = '#7C3AED'}
-                onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = '#6B7280'}
               >
-                <span style={{ color: '#A78BFA' }}>
-                  {link.icon}
-                </span>
-                {link.label}
-                <ChevronRight size={12} style={{ marginLeft: 'auto' }} />
+                <span style={{ opacity: filter === item.key ? 1 : 0.6 }}>{item.icon}</span>
+                {item.label}
               </div>
             ))}
+          </div>
+
+          {/* Quick Links Card */}
+          <div style={{
+            background: 'linear-gradient(135deg, #7C3AED 0%, #4F46E5 100%)',
+            borderRadius: '20px',
+            padding: '24px',
+            color: 'white',
+            marginTop: 12,
+            position: 'relative',
+            overflow: 'hidden'
+          }}>
+            <div style={{
+              position: 'absolute',
+              top: '-20%',
+              right: '-20%',
+              width: '100px',
+              height: '100px',
+              background: 'rgba(255,255,255,0.1)',
+              borderRadius: '50%',
+              filter: 'blur(20px)'
+            }} />
+            <p style={{
+              fontSize: '18px',
+              fontFamily: 'var(--font-instrument-serif)',
+              margin: '0 0 12px',
+              position: 'relative'
+            }}>
+              Premium Access
+            </p>
+            <p style={{
+              fontSize: '12px',
+              opacity: 0.8,
+              lineHeight: 1.5,
+              margin: '0 0 20px',
+              position: 'relative'
+            }}>
+              Unlock placement guides & senior mock interviews.
+            </p>
+            <button
+              onClick={() => router.push('/pricing')}
+              style={{
+                width: '100%',
+                padding: '10px',
+                borderRadius: '12px',
+                background: 'white',
+                color: '#7C3AED',
+                border: 'none',
+                fontSize: '13px',
+                fontWeight: 700,
+                cursor: 'pointer',
+                transition: 'transform 0.2s ease',
+                position: 'relative'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
+              onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+            >
+              Explore Plans
+            </button>
           </div>
         </div>
 
         {/* ════ CENTER FEED ════ */}
         <div className="feed-wrapper">
 
-          {/* Filter Pills (mobile-friendly) */}
+          {/* Filter Pills */}
           <div style={{
-            display: 'flex',
-            gap: 6,
-            marginBottom: 16,
-            overflowX: 'auto',
-            paddingBottom: 4
-          }}
-          className="filter-pills hide-scrollbar"
-          >
-            {[
-              { key: 'all', label: 'All' },
-              { key: 'doubt', label: 'Doubts' },
-              { key: 'discussion', label: 'Discussions' },
-              { key: 'unanswered', label: 'Unanswered' },
-              { key: 'trending', label: 'Trending' }
-            ].map(f => (
-              <button
-                key={f.key}
-                onClick={() => setFilter(f.key as any)}
-                style={{
-                  fontSize: 11,
-                  fontWeight: 700,
-                  padding: '6px 12px',
-                  borderRadius: 100,
-                  border: filter === f.key ? 'none' : '1.5px solid #E5E7EB',
-                  background: filter === f.key ? 'linear-gradient(135deg,#7C3AED,#06B6D4)' : 'white',
-                  color: filter === f.key ? 'white' : '#6B7280',
-                  cursor: 'pointer',
-                  fontFamily: 'Plus Jakarta Sans',
-                  whiteSpace: 'nowrap',
-                  flexShrink: 0,
-                  boxShadow: filter === f.key ? '0 2px 8px rgba(124,58,237,0.3)' : 'none',
-                  transition: 'all 0.15s'
-                }}
-              >
-                {f.label}
-              </button>
-            ))}
+            position: 'relative',
+            marginTop: 16,
+            marginBottom: 16
+          }}>
+            <div
+              className="custom-scrollbar"
+              style={{
+                display: 'flex',
+                gap: 8,
+                overflowX: 'auto',
+                paddingBottom: 12,
+                WebkitOverflowScrolling: 'touch'
+              }}
+            >
+              {[
+                {
+                  key: 'all',
+                  label: 'All'
+                },
+                {
+                  key: 'doubt',
+                  label: '❓ Doubts'
+                },
+                {
+                  key: 'discussion',
+                  label: '💬 Discussions'
+                },
+                {
+                  key: 'experience',
+                  label: '⭐ Experiences'
+                },
+                {
+                  key: 'referral_hunt',
+                  label: '🎯 Referrals'
+                },
+                {
+                  key: 'resource',
+                  label: '📚 Resources'
+                },
+                {
+                  key: 'unanswered',
+                  label: '🔔 Unanswered'
+                },
+                {
+                  key: 'trending',
+                  label: '🔥 Trending'
+                }
+              ].map(f => (
+                <button
+                  key={f.key}
+                  onClick={() =>
+                    setFilter(f.key as any)}
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 700,
+                    padding: '8px 16px',
+                    borderRadius: 100,
+                    border: filter === f.key
+                      ? 'none'
+                      : '1.5px solid #E5E7EB',
+                    background: filter === f.key
+                      ? 'linear-gradient(135deg,#7C3AED,#06B6D4)'
+                      : 'white',
+                    color: filter === f.key
+                      ? 'white' : '#6B7280',
+                    cursor: 'pointer',
+                    fontFamily: 'Plus Jakarta Sans',
+                    whiteSpace: 'nowrap',
+                    flexShrink: 0,
+                    boxShadow: filter === f.key
+                      ? '0 2px 8px rgba(124,58,237,0.3)'
+                      : 'none',
+                    transition: 'all 0.15s'
+                  }}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Right fade gradient 
+      shows more pills exist */}
+            <div style={{
+              position: 'absolute',
+              right: 0,
+              top: 0,
+              bottom: 4,
+              width: 40,
+              background:
+                'linear-gradient(to left, #F5F4FF, transparent)',
+              pointerEvents: 'none'
+            }}
+              className="pills-fade"
+            />
           </div>
 
           {/* Posts */}
@@ -779,7 +1066,7 @@ export default function CommunityPage() {
               flexDirection: 'column',
               gap: 12
             }}>
-              {[1,2,3].map(i => (
+              {[1, 2, 3].map(i => (
                 <div key={i} style={{
                   background: 'white',
                   borderRadius: 16,
@@ -843,366 +1130,279 @@ export default function CommunityPage() {
               </p>
             </div>
           ) : (
-            filteredPosts.map((post: any) => {
+          <AnimatePresence mode="popLayout">
+            {filteredPosts.map((post: any) => {
               const ts = getTypeStyle(post.type)
               return (
-                <div
+                <motion.div
                   key={post.id}
-                  onClick={() => router.push(`/community/c/${post.communities?.slug}/post/${post.id}`)}
+                  layout
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+                  onClick={() => router.push(`/community/c/${post.communities?.slug}/p/${post.id}`)}
                   className="post-card"
-                  style={{
-                    background: 'white',
-                    borderRadius: 16,
-                    border: '1px solid #EEEBFF',
-                    padding: '16px',
-                    marginBottom: 12,
-                    cursor: 'pointer',
-                    transition: 'box-shadow 0.15s, border-color 0.15s',
-                    boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
-                    maxWidth: '100%',
-                    overflow: 'hidden',
-                    wordBreak: 'break-word',
-                    overflowWrap: 'break-word'
-                  }}
-                  onMouseEnter={e => {
-                    (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 16px rgba(124,58,237,0.1)'
-                    ;(e.currentTarget as HTMLElement).style.borderColor = '#DDD6FE'
-                  }}
-                  onMouseLeave={e => {
-                    (e.currentTarget as HTMLElement).style.boxShadow = '0 1px 4px rgba(0,0,0,0.04)'
-                    ;(e.currentTarget as HTMLElement).style.borderColor = '#EEEBFF'
-                  }}
                 >
-                  {/* Author Row */}
+                  {/* Top Header: Community & Type */}
                   <div style={{
                     display: 'flex',
-                    alignItems: 'flex-start',
-                    gap: 8,
-                    marginBottom: 10,
-                    flexWrap: 'wrap'
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    marginBottom: 16,
+                    gap: 12
                   }}>
-                    {/* Avatar */}
                     <div style={{
-                      width: 32, height: 32,
-                      borderRadius: 8,
-                      background: post.users?.role === 'senior'
-                        ? 'linear-gradient(135deg,#059669,#34D399)'
-                        : 'linear-gradient(135deg,#7C3AED,#06B6D4)',
                       display: 'flex',
                       alignItems: 'center',
-                      justifyContent: 'center',
-                      color: 'white',
-                      fontSize: 12,
-                      fontWeight: 800,
-                      flexShrink: 0
+                      gap: 8,
+                      overflow: 'hidden'
                     }}>
-                      {post.users?.full_name?.[0] || 'U'}
+                      <div 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          router.push(`/community/c/${post.communities?.slug}`);
+                        }}
+                        style={{
+                          fontSize: '11px',
+                          fontWeight: 800,
+                          color: '#7C3AED',
+                          background: 'rgba(124, 58, 237, 0.05)',
+                          padding: '4px 10px',
+                          borderRadius: '100px',
+                          border: '1px solid rgba(124, 58, 237, 0.1)',
+                          whiteSpace: 'nowrap',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease'
+                        }}
+                      >
+                        c/{post.communities?.slug}
+                      </div>
+                      <span style={{ fontSize: '10px', color: '#CBD5E1' }}>•</span>
+                      <span style={{
+                        fontSize: '11px',
+                        color: '#64748B',
+                        fontWeight: 500,
+                        whiteSpace: 'nowrap'
+                      }}>
+                        {timeAgo(post.created_at)}
+                      </span>
                     </div>
 
-                    <div style={{ flex: 1, minWidth: 0, maxWidth: 'calc(100% - 80px)' }}>
-                      <div style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 6,
-                        flexWrap: 'wrap',
-                        marginBottom: 2
-                      }}>
-                        <span style={{
-                          fontSize: 13,
-                          fontWeight: 700,
-                          color: '#1F2937',
-                          wordBreak: 'break-word'
-                        }}>
-                          {post.users?.full_name}
-                        </span>
-                        {post.users?.role === 'senior' && (
-                          <span style={{
-                            fontSize: 8,
-                            fontWeight: 700,
-                            background: '#ECFDF5',
-                            color: '#059669',
-                            padding: '1px 5px',
-                            borderRadius: 100,
-                            border: '1px solid #A7F3D0',
-                            flexShrink: 0
-                          }}>
-                            SENIOR
-                          </span>
-                        )}
-                        {post.users?.is_verified && (
-                          <span style={{
-                            fontSize: 8,
-                            fontWeight: 700,
-                            background: '#EDE9FE',
-                            color: '#7C3AED',
-                            padding: '1px 5px',
-                            borderRadius: 100,
-                            flexShrink: 0
-                          }}>
-                            VERIFIED
-                          </span>
-                        )}
-                      </div>
-                      <div style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 6,
-                        flexWrap: 'wrap'
-                      }}>
-                        {/* Community badge */}
-                        <span
-                          onClick={e => {
-                            e.stopPropagation()
-                            router.push(`/community/c/${post.communities?.slug}`)
-                          }}
-                          style={{
-                            fontSize: 10,
-                            fontWeight: 700,
-                            color: '#7C3AED',
-                            background: '#F5F3FF',
-                            padding: '1px 5px',
-                            borderRadius: 100,
-                            cursor: 'pointer',
-                            flexShrink: 0
-                          }}
-                        >
-                          c/{post.communities?.slug}
-                        </span>
-                        <span style={{ fontSize: 10, color: '#D1D5DB', flexShrink: 0 }}>•</span>
-                        <span style={{
-                          fontSize: 10,
-                          color: '#9CA3AF',
-                          fontWeight: 500,
-                          flexShrink: 0
-                        }}>
-                          {timeAgo(post.created_at)}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Type badge */}
-                    <span style={{
-                      fontSize: 9,
-                      fontWeight: 700,
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 6,
                       background: ts.bg,
                       color: ts.color,
-                      padding: '2px 8px',
-                      borderRadius: 100,
+                      padding: '4px 10px',
+                      borderRadius: '100px',
+                      fontSize: '10px',
+                      fontWeight: 700,
+                      letterSpacing: '0.02em',
+                      textTransform: 'uppercase',
+                      border: `1px solid ${ts.border}`,
                       flexShrink: 0
                     }}>
-                      {ts.label}
-                    </span>
+                      {ts.icon} {ts.label}
+                    </div>
                   </div>
 
-                  {/* Title */}
-                  <h3 
-                    className="post-title"
-                    style={{
-                      fontSize: 14,
-                      fontWeight: 700,
-                      color: '#111827',
+                  {/* Title & Content */}
+                  <div style={{ marginBottom: 20 }}>
+                    <h3 style={{
+                      fontSize: '20px',
+                      fontWeight: 400,
+                      color: '#0F172A',
                       margin: '0 0 8px',
                       lineHeight: 1.3,
-                      wordBreak: 'break-word',
-                      overflowWrap: 'break-word',
-                      hyphens: 'auto'
-                    }}
-                  >
-                    {post.title}
-                  </h3>
+                      fontFamily: 'var(--font-instrument-serif)',
+                      letterSpacing: '-0.01em'
+                    }}>
+                      {post.title}
+                    </h3>
 
-                  {/* Content preview */}
-                  <p 
-                    className="post-content"
-                    style={{
-                      fontSize: 12,
-                      color: '#6B7280',
-                      margin: '0 0 12px',
+                    <p style={{
+                      fontSize: '14px',
+                      color: '#475569',
+                      margin: 0,
                       lineHeight: 1.6,
-                      wordBreak: 'break-word',
-                      overflowWrap: 'break-word',
-                      WebkitLineClamp: 2,
                       display: '-webkit-box',
+                      WebkitLineClamp: 3,
                       WebkitBoxOrient: 'vertical',
-                      overflow: 'hidden'
-                    }}
-                  >
-                    {post.content}
-                  </p>
+                      overflow: 'hidden',
+                      fontWeight: 450
+                    }}>
+                      {post.content}
+                    </p>
+                  </div>
 
                   {/* Tags */}
                   {post.tags?.length > 0 && (
                     <div style={{
                       display: 'flex',
-                      gap: 4,
+                      gap: 6,
                       flexWrap: 'wrap',
-                      marginBottom: 10
+                      marginBottom: 20
                     }}>
-                      {post.tags.slice(0, 3).map((tag: string) => (
+                      {post.tags.slice(0, 4).map((tag: string) => (
                         <span key={tag} style={{
-                          fontSize: 9,
+                          fontSize: '10px',
                           fontWeight: 600,
-                          background: '#F5F3FF',
-                          color: '#7C3AED',
-                          padding: '2px 6px',
-                          borderRadius: 100,
-                          border: '1px solid #EDE9FE'
+                          color: '#64748B',
+                          background: '#F1F5F9',
+                          padding: '4px 10px',
+                          borderRadius: '8px',
+                          border: '1px solid #E2E8F0'
                         }}>
                           #{tag}
                         </span>
                       ))}
-                      {post.tags.length > 3 && (
-                        <span style={{
-                          fontSize: 9,
-                          fontWeight: 600,
-                          color: '#9CA3AF',
-                          padding: '2px 6px'
-                        }}>
-                          +{post.tags.length - 3}
-                        </span>
-                      )}
                     </div>
                   )}
 
-                  {/* Action Bar */}
+                  {/* Footer Action Bar */}
                   <div style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: 8,
-                    paddingTop: 12,
-                    borderTop: '1px solid #F9FAFB',
-                    flexWrap: 'wrap',
-                    justifyContent: 'space-between'
+                    justifyContent: 'space-between',
+                    paddingTop: 16,
+                    borderTop: '1px solid #F1F5F9'
                   }}>
                     <div style={{
                       display: 'flex',
                       alignItems: 'center',
-                      gap: 4,
-                      flexWrap: 'wrap'
+                      gap: 8
                     }}>
-                      {/* Upvote */}
-                      <button
-                        onClick={e => {
-                          e.stopPropagation()
-                          handleVote(post.id, 'upvote')
-                        }}
-                        disabled={votes[post.id]?.isLoading}
-                        style={{
+                      {/* Author Info */}
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 10
+                      }}>
+                        <div style={{
+                          width: 28,
+                          height: 28,
+                          borderRadius: '8px',
+                          background: post.users?.role === 'senior' 
+                            ? 'linear-gradient(135deg, #059669, #10B981)' 
+                            : 'linear-gradient(135deg, #7C3AED, #4F46E5)',
                           display: 'flex',
                           alignItems: 'center',
-                          gap: 4,
-                          fontSize: 11,
-                          fontWeight: 700,
-                          color: votes[post.id]?.userVote === 'upvote' ? '#7C3AED' : '#6B7280',
-                          background: votes[post.id]?.userVote === 'upvote' ? '#F5F3FF' : '#F9FAFB',
-                          border: votes[post.id]?.userVote === 'upvote' ? '1.5px solid #DDD6FE' : '1px solid #F3F4F6',
-                          borderRadius: 6,
-                          padding: '6px 10px',
-                          cursor: votes[post.id]?.isLoading ? 'not-allowed' : 'pointer',
-                          fontFamily: 'Plus Jakarta Sans',
-                          transition: 'all 0.15s',
+                          justifyContent: 'center',
+                          color: 'white',
+                          fontSize: '11px',
+                          fontWeight: 800,
                           flexShrink: 0,
-                          opacity: votes[post.id]?.isLoading ? 0.6 : 1
-                        }}
-                      >
-                        {votes[post.id]?.isLoading && votes[post.id]?.userVote !== 'upvote' ? (
-                          <div style={{
-                            width: 11, height: 11,
-                            border: '2px solid #6B7280',
-                            borderTop: '2px solid transparent',
-                            borderRadius: '50%',
-                            animation: 'spin 0.8s linear infinite'
-                          }} />
-                        ) : (
-                          <ArrowUp size={11} />
-                        )}
-                        {votes[post.id]?.upvotes || 0}
-                      </button>
-
-                      {/* Downvote */}
-                      <button
-                        onClick={e => {
-                          e.stopPropagation()
-                          handleVote(post.id, 'downvote')
-                        }}
-                        disabled={votes[post.id]?.isLoading}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 4,
-                          fontSize: 11,
-                          fontWeight: 700,
-                          color: votes[post.id]?.userVote === 'downvote' ? '#EF4444' : '#6B7280',
-                          background: votes[post.id]?.userVote === 'downvote' ? '#FEF2F2' : '#F9FAFB',
-                          border: votes[post.id]?.userVote === 'downvote' ? '1.5px solid #FECACA' : '1px solid #F3F4F6',
-                          borderRadius: 6,
-                          padding: '6px 10px',
-                          cursor: votes[post.id]?.isLoading ? 'not-allowed' : 'pointer',
-                          fontFamily: 'Plus Jakarta Sans',
-                          transition: 'all 0.15s',
-                          flexShrink: 0,
-                          opacity: votes[post.id]?.isLoading ? 0.6 : 1
-                        }}
-                      >
-                        {votes[post.id]?.isLoading && votes[post.id]?.userVote !== 'downvote' ? (
-                          <div style={{
-                            width: 11, height: 11,
-                            border: '2px solid #6B7280',
-                            borderTop: '2px solid transparent',
-                            borderRadius: '50%',
-                            animation: 'spin 0.8s linear infinite'
-                          }} />
-                        ) : (
-                          <ArrowDown size={11} />
-                        )}
-                        {votes[post.id]?.downvotes || 0}
-                      </button>
-
-                      {/* Answers */}
-                      <button
-                        onClick={e => {
-                          e.stopPropagation()
-                          router.push(`/community/c/${post.communities?.slug}/post/${post.id}`)
-                        }}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 4,
-                          fontSize: 11,
-                          fontWeight: 600,
-                          color: post.is_answered ? '#059669' : '#6B7280',
-                          background: post.is_answered ? '#ECFDF5' : '#F9FAFB',
-                          border: post.is_answered ? '1px solid #A7F3D0' : '1px solid #F3F4F6',
-                          borderRadius: 6,
-                          padding: '6px 10px',
-                          cursor: 'pointer',
-                          fontFamily: 'Plus Jakarta Sans',
-                          flexShrink: 0
-                        }}
-                      >
-                        <MessageCircle size={11} />
-                        <span style={{ whiteSpace: 'nowrap' }}>
-                          {post.answer_count || 0}
-                          {post.is_answered ? ' Solved' : ' Answers'}
-                        </span>
-                        {post.is_answered && <CheckCircle size={9} />}
-                      </button>
+                          boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                        }}>
+                          {post.users?.full_name?.[0] || 'U'}
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                          <span style={{
+                            fontSize: '12px',
+                            fontWeight: 700,
+                            color: '#1E293B',
+                            lineHeight: 1.2
+                          }}>
+                            {post.users?.full_name}
+                          </span>
+                          <span style={{
+                            fontSize: '10px',
+                            color: '#94A3B8',
+                            fontWeight: 500
+                          }}>
+                            {post.users?.role === 'senior' ? 'Verified Senior' : 'Junior Mentee'}
+                          </span>
+                        </div>
+                      </div>
                     </div>
 
-                    {/* Views */}
-                    <span style={{
-                      fontSize: 10,
-                      color: '#D1D5DB',
+                    <div style={{
                       display: 'flex',
                       alignItems: 'center',
-                      gap: 2,
-                      fontWeight: 500,
-                      flexShrink: 0,
-                      whiteSpace: 'nowrap'
+                      gap: 12
                     }}>
-                      <Eye size={10} />
-                      {post.view_count || 0}
-                    </span>
+                      {/* Voting Buttons (Small) */}
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        background: '#F8FAFC',
+                        borderRadius: '10px',
+                        padding: '2px',
+                        border: '1px solid #E2E8F0'
+                      }}>
+                        <button
+                          onClick={e => {
+                            e.stopPropagation()
+                            handleVote(post.id, 'upvote')
+                          }}
+                          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 4,
+            padding: '4px 8px',
+            borderRadius: '8px',
+            border: 'none',
+            background: votes[post.id]?.userVote === 'upvote' ? 'white' : 'transparent',
+            color: votes[post.id]?.userVote === 'upvote' ? '#7C3AED' : '#64748B',
+            boxShadow: votes[post.id]?.userVote === 'upvote' ? '0 2px 4px rgba(0,0,0,0.05)' : 'none',
+            fontSize: '11px',
+            fontWeight: 700,
+            cursor: 'pointer'
+          }}
+                        >
+                          <ArrowUp size={12} strokeWidth={2.5} />
+                          {votes[post.id]?.upvotes || 0}
+                        </button>
+                        <button
+                          onClick={e => {
+                            e.stopPropagation()
+                            handleVote(post.id, 'downvote')
+                          }}
+                          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 4,
+            padding: '4px 8px',
+            borderRadius: '8px',
+            border: 'none',
+            background: votes[post.id]?.userVote === 'downvote' ? 'white' : 'transparent',
+            color: votes[post.id]?.userVote === 'downvote' ? '#EF4444' : '#64748B',
+            boxShadow: votes[post.id]?.userVote === 'downvote' ? '0 2px 4px rgba(0,0,0,0.05)' : 'none',
+            fontSize: '11px',
+            fontWeight: 700,
+            cursor: 'pointer'
+          }}
+                        >
+                          <ArrowDown size={12} strokeWidth={2.5} />
+                        </button>
+                      </div>
+
+                      {/* Answer Count Button */}
+                      <button
+                        onClick={e => {
+                          e.stopPropagation()
+                          toggleAnswerSection(post.id)
+                        }}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 6,
+                          fontSize: '11px',
+                          fontWeight: 700,
+                          color: '#7C3AED',
+                          background: 'rgba(124, 58, 237, 0.05)',
+                          border: 'none',
+                          borderRadius: '10px',
+                          padding: '6px 12px',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        <MessageCircle size={12} strokeWidth={2.5} />
+                        {post.answer_count || 0} Answers
+                      </button>
+                    </div>
                   </div>
 
                   {/* Error Display */}
@@ -1220,355 +1420,508 @@ export default function CommunityPage() {
                       {votes[post.id]?.error}
                     </div>
                   )}
-                </div>
+
+                  {/* ── INLINE ANSWER SECTION (YouTube-style) ── */}
+                  {expandedPost === post.id && (
+                    <div
+                      onClick={e => e.stopPropagation()}
+                      style={{
+                        marginTop: 12,
+                        borderTop: '1px solid #F3F4F6',
+                        paddingTop: 12
+                      }}
+                    >
+                      {/* Answers Header */}
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        marginBottom: 12
+                      }}>
+                        <span style={{
+                          fontSize: 12,
+                          fontWeight: 700,
+                          color: '#374151',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 6
+                        }}>
+                          <MessageCircle size={13} color="#7C3AED" />
+                          {postAnswers[post.id]?.length || 0} Answers
+                        </span>
+                        <button
+                          onClick={e => {
+                            e.stopPropagation()
+                            router.push(`/community/c/${post.communities?.slug}/p/${post.id}`)
+                          }}
+                          style={{
+                            fontSize: 10,
+                            fontWeight: 600,
+                            color: '#7C3AED',
+                            background: 'none',
+                            border: 'none',
+                            cursor: 'pointer',
+                            fontFamily: 'Plus Jakarta Sans',
+                            padding: 0
+                          }}
+                        >
+                          View Full Post →
+                        </button>
+                      </div>
+
+                      {/* Loading */}
+                      {answersLoading[post.id] && (
+                        <div style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          padding: '16px 0',
+                          gap: 8
+                        }}>
+                          <div style={{
+                            width: 14, height: 14,
+                            border: '2px solid #EDE9FE',
+                            borderTop: '2px solid #7C3AED',
+                            borderRadius: '50%',
+                            animation: 'spin 0.8s linear infinite'
+                          }} />
+                          <span style={{ fontSize: 11, color: '#9CA3AF', fontWeight: 500 }}>
+                            Loading answers...
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Answers list */}
+                      {!answersLoading[post.id] && postAnswers[post.id]?.length === 0 && (
+                        <div style={{
+                          padding: '12px 0',
+                          textAlign: 'center'
+                        }}>
+                          <p style={{
+                            fontSize: 11,
+                            color: '#9CA3AF',
+                            margin: 0,
+                            fontWeight: 500
+                          }}>
+                            No answers yet — be the first to help!
+                          </p>
+                        </div>
+                      )}
+
+                      {!answersLoading[post.id] && postAnswers[post.id]?.map((answer: any) => (
+                        <div
+                          key={answer.id}
+                          style={{
+                            display: 'flex',
+                            gap: 8,
+                            padding: '10px 0',
+                            borderBottom: '1px solid #F9FAFB'
+                          }}
+                        >
+                          {/* Answer avatar */}
+                          <div style={{
+                            width: 26, height: 26,
+                            borderRadius: 7,
+                            background: answer.users?.role === 'senior'
+                              ? 'linear-gradient(135deg,#059669,#34D399)'
+                              : 'linear-gradient(135deg,#7C3AED,#06B6D4)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: 'white',
+                            fontSize: 10,
+                            fontWeight: 800,
+                            flexShrink: 0,
+                            marginTop: 2
+                          }}>
+                            {answer.users?.full_name?.[0] || 'U'}
+                          </div>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 6,
+                              marginBottom: 3,
+                              flexWrap: 'wrap'
+                            }}>
+                              <span style={{
+                                fontSize: 11,
+                                fontWeight: 700,
+                                color: '#1F2937'
+                              }}>
+                                {answer.users?.full_name}
+                              </span>
+                              {answer.users?.role === 'senior' && (
+                                <span style={{
+                                  fontSize: 8,
+                                  fontWeight: 700,
+                                  background: '#ECFDF5',
+                                  color: '#059669',
+                                  padding: '1px 4px',
+                                  borderRadius: 100,
+                                  border: '1px solid #A7F3D0'
+                                }}>
+                                  SENIOR
+                                </span>
+                              )}
+                              {answer.is_accepted && (
+                                <span style={{
+                                  fontSize: 8,
+                                  fontWeight: 700,
+                                  background: '#ECFDF5',
+                                  color: '#059669',
+                                  padding: '1px 4px',
+                                  borderRadius: 100,
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: 2
+                                }}>
+                                  <CheckCircle size={8} /> ACCEPTED
+                                </span>
+                              )}
+                              <span style={{
+                                fontSize: 9,
+                                color: '#D1D5DB',
+                                fontWeight: 500
+                              }}>
+                                {timeAgo(answer.created_at)}
+                              </span>
+                            </div>
+                            <p style={{
+                              fontSize: 12,
+                              color: '#4B5563',
+                              margin: 0,
+                              lineHeight: 1.5,
+                              wordBreak: 'break-word',
+                              whiteSpace: 'pre-wrap'
+                            }}>
+                              {answer.content}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+
+                      {/* Answer input */}
+                      <div style={{
+                        display: 'flex',
+                        gap: 8,
+                        marginTop: 10,
+                        alignItems: 'flex-end'
+                      }}>
+                        <textarea
+                          value={newAnswerText[post.id] || ''}
+                          onChange={e => setNewAnswerText(prev => ({ ...prev, [post.id]: e.target.value }))}
+                          placeholder="Write your answer..."
+                          rows={1}
+                          style={{
+                            flex: 1,
+                            padding: '8px 12px',
+                            borderRadius: 10,
+                            border: '1.5px solid #EEEBFF',
+                            fontSize: 12,
+                            fontFamily: 'Plus Jakarta Sans',
+                            color: '#374151',
+                            outline: 'none',
+                            resize: 'none',
+                            minHeight: 36,
+                            maxHeight: 120,
+                            lineHeight: 1.4,
+                            boxSizing: 'border-box',
+                            transition: 'border-color 0.15s'
+                          }}
+                          onFocus={e => e.target.style.borderColor = '#7C3AED'}
+                          onBlur={e => e.target.style.borderColor = '#EEEBFF'}
+                          onInput={e => {
+                            const target = e.target as HTMLTextAreaElement
+                            target.style.height = 'auto'
+                            target.style.height = Math.min(target.scrollHeight, 120) + 'px'
+                          }}
+                        />
+                        <button
+                          onClick={e => {
+                            e.stopPropagation()
+                            submitInlineAnswer(post.id)
+                          }}
+                          disabled={!newAnswerText[post.id]?.trim() || answerSubmitting[post.id]}
+                          style={{
+                            width: 36,
+                            height: 36,
+                            borderRadius: 10,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            border: 'none',
+                            cursor: !newAnswerText[post.id]?.trim() || answerSubmitting[post.id]
+                              ? 'not-allowed' : 'pointer',
+                            background: !newAnswerText[post.id]?.trim() || answerSubmitting[post.id]
+                              ? '#E5E7EB'
+                              : 'linear-gradient(135deg,#7C3AED,#06B6D4)',
+                            color: 'white',
+                            flexShrink: 0,
+                            transition: 'all 0.15s'
+                          }}
+                        >
+                          {answerSubmitting[post.id] ? (
+                            <div style={{
+                              width: 14, height: 14,
+                              border: '2px solid rgba(255,255,255,0.3)',
+                              borderTop: '2px solid white',
+                              borderRadius: '50%',
+                              animation: 'spin 0.8s linear infinite'
+                            }} />
+                          ) : (
+                            <Send size={14} />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </motion.div>
               )
-            })
-          )}
-        </div>
+            })}
+          </AnimatePresence>
+        )}
+      </div>
 
         {/* ════ RIGHT SIDEBAR ════ */}
-        <div style={{
-          position: 'sticky',
-          top: 20,
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 14
-        }}
-        className="right-sidebar"
-        >
-
-          {/* Top Communities */}
+        <div className="right-sidebar">
+          {/* Top Communities Hub */}
           <div style={{
             background: 'white',
-            borderRadius: 16,
-            border: '1px solid #EEEBFF',
+            borderRadius: '24px',
+            border: '1px solid rgba(124, 58, 237, 0.08)',
             overflow: 'hidden',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+            boxShadow: '0 4px 20px rgba(0,0,0,0.02)'
           }}>
             <div style={{
-              padding: '14px 16px',
-              borderBottom: '1px solid #F9FAFB',
+              padding: '20px 24px',
+              borderBottom: '1px solid #F1F5F9',
               display: 'flex',
               alignItems: 'center',
-              gap: 8
+              justifyContent: 'space-between'
             }}>
-              <div style={{
-                width: 28, height: 28,
-                borderRadius: 8,
-                background: '#F5F3FF',
+              <span style={{
+                fontSize: '14px',
+                fontWeight: 700,
+                color: '#1E293B',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center'
+                gap: 8
               }}>
-                <TrendingUp size={13} color="#7C3AED" />
-              </div>
-              <span style={{
-                fontSize: 13,
-                fontWeight: 700,
-                color: '#111827'
-              }}>
-                Top Communities
+                <TrendingUp size={16} color="#7C3AED" />
+                Community Hub
               </span>
             </div>
 
-            {communities.slice(0, 5).map((c, i) => (
-              <div
-                key={c.id}
-                onClick={() => router.push(`/community/c/${c.slug}`)}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 10,
-                  padding: '12px 16px',
-                  cursor: 'pointer',
-                  borderBottom: '1px solid #F9FAFB',
-                  transition: 'background 0.15s'
-                }}
-                onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = '#F9FAFB'}
-                onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'white'}
-              >
-                {/* Rank */}
-                <span style={{
-                  fontSize: 13,
-                  fontWeight: 800,
-                  color: i === 0 ? '#D97706' : i === 1 ? '#9CA3AF' : i === 2 ? '#B45309' : '#D1D5DB',
-                  width: 20,
-                  textAlign: 'center',
-                  flexShrink: 0
-                }}>
-                  {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : i + 1}
-                </span>
-
-                {/* Avatar */}
-                <div style={{
-                  width: 32, height: 32,
-                  borderRadius: 9,
-                  background: 'linear-gradient(135deg,#7C3AED,#06B6D4)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: 'white',
-                  fontSize: 12,
-                  fontWeight: 800,
-                  flexShrink: 0
-                }}>
-                  {c.colleges?.short_name?.[0] || 'C'}
-                </div>
-
-                <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ padding: '8px' }}>
+              {communities.slice(0, 4).map((c, i) => (
+                <div
+                  key={c.id}
+                  onClick={() => router.push(`/community/c/${c.slug}`)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 12,
+                    padding: '10px 16px',
+                    borderRadius: '16px',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.background = '#F8FAFC'}
+                  onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                >
                   <div style={{
-                    fontSize: 12,
-                    fontWeight: 700,
-                    color: '#111827',
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis'
+                    width: '36px',
+                    height: '36px',
+                    borderRadius: '12px',
+                    background: i === 0 
+                      ? 'linear-gradient(135deg, #7C3AED, #4F46E5)' 
+                      : i === 1 
+                      ? 'linear-gradient(135deg, #059669, #10B981)'
+                      : '#F1F5F9',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: i < 2 ? 'white' : '#64748B',
+                    fontSize: '13px',
+                    fontWeight: 800
                   }}>
-                    c/{c.slug}
+                    {c.colleges?.short_name?.[0] || 'C'}
                   </div>
-                  <div style={{
-                    fontSize: 10,
-                    color: '#9CA3AF',
-                    fontWeight: 500
-                  }}>
-                    {c.member_count || 0} members
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{
+                      fontSize: '13px',
+                      fontWeight: 700,
+                      color: '#1E293B',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap'
+                    }}>
+                      c/{c.slug}
+                    </div>
+                    <div style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 500 }}>
+                      {c.member_count || 0} active members
+                    </div>
                   </div>
                 </div>
-
-                <ChevronRight size={13} color="#D1D5DB" />
-              </div>
-            ))}
+              ))}
+            </div>
 
             <div
               onClick={() => router.push('/colleges')}
               style={{
-                padding: '12px 16px',
-                fontSize: 12,
+                padding: '16px',
+                fontSize: '13px',
                 fontWeight: 700,
                 color: '#7C3AED',
                 cursor: 'pointer',
                 textAlign: 'center',
-                background: '#FAFAFA'
+                background: '#F5F3FF',
+                borderTop: '1px solid rgba(124, 58, 237, 0.1)'
               }}
             >
-              View All Colleges →
+              Explore All Colleges ↗
             </div>
           </div>
 
-          {/* Suggested Communities */}
+          {/* Suggested For You */}
           <div style={{
             background: 'white',
-            borderRadius: 16,
-            border: '1px solid #EEEBFF',
-            overflow: 'hidden',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+            borderRadius: '24px',
+            border: '1px solid rgba(124, 58, 237, 0.08)',
+            padding: '24px',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.02)'
           }}>
-            <div style={{
-              padding: '14px 16px',
-              borderBottom: '1px solid #F9FAFB',
+            <h4 style={{
+              fontSize: '14px',
+              fontWeight: 700,
+              color: '#1E293B',
+              margin: '0 0 16px',
               display: 'flex',
               alignItems: 'center',
               gap: 8
             }}>
-              <div style={{
-                width: 28, height: 28,
-                borderRadius: 8,
-                background: '#ECFDF5',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}>
-                <Zap size={13} color="#059669" />
-              </div>
-              <span style={{
-                fontSize: 13,
-                fontWeight: 700,
-                color: '#111827'
-              }}>
-                Suggested For You
-              </span>
+              <Sparkles size={16} color="#059669" />
+              Suggested For You
+            </h4>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              {communities
+                .filter(c => c.slug !== userCommunity?.slug)
+                .slice(0, 3)
+                .map(c => (
+                  <div key={c.id} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <div style={{
+                      width: '32px',
+                      height: '32px',
+                      borderRadius: '10px',
+                      background: '#F1F5F9',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#64748B',
+                      fontSize: '12px',
+                      fontWeight: 800
+                    }}>
+                      {c.colleges?.short_name?.[0]}
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p style={{ fontSize: '13px', fontWeight: 600, color: '#1E293B', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {c.colleges?.short_name}
+                      </p>
+                      <p style={{ fontSize: '11px', color: '#94A3B8', margin: 0 }}>
+                        {c.colleges?.location}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => router.push(`/community/c/${c.slug}`)}
+                      style={{
+                        padding: '6px 12px',
+                        borderRadius: '8px',
+                        border: '1px solid #E2E8F0',
+                        background: 'white',
+                        color: '#64748B',
+                        fontSize: '11px',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease'
+                      }}
+                      onMouseEnter={e => {
+                        e.currentTarget.style.borderColor = '#7C3AED';
+                        e.currentTarget.style.color = '#7C3AED';
+                      }}
+                      onMouseLeave={e => {
+                        e.currentTarget.style.borderColor = '#E2E8F0';
+                        e.currentTarget.style.color = '#64748B';
+                      }}
+                    >
+                      View
+                    </button>
+                  </div>
+                ))}
             </div>
-
-            {/* Show communities user hasn't joined */}
-            {communities
-              .filter(c => c.slug !== userCommunity?.slug)
-              .slice(0, 4)
-              .map(c => (
-              <div
-                key={c.id}
-                style={{
-                  padding: '12px 16px',
-                  borderBottom: '1px solid #F9FAFB',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 10
-                }}
-              >
-                <div style={{
-                  width: 32, height: 32,
-                  borderRadius: 9,
-                  background: 'linear-gradient(135deg,#0C4A6E,#06B6D4)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: 'white',
-                  fontSize: 12,
-                  fontWeight: 800,
-                  flexShrink: 0
-                }}>
-                  {c.colleges?.short_name?.[0] || 'C'}
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{
-                    fontSize: 12,
-                    fontWeight: 700,
-                    color: '#111827',
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis'
-                  }}>
-                    {c.colleges?.short_name}
-                  </div>
-                  <div style={{
-                    fontSize: 10,
-                    color: '#9CA3AF',
-                    fontWeight: 500
-                  }}>
-                    {c.colleges?.location}
-                  </div>
-                </div>
-                <button
-                  onClick={() => router.push(`/community/c/${c.slug}`)}
-                  style={{
-                    fontSize: 10,
-                    fontWeight: 700,
-                    color: '#7C3AED',
-                    background: '#F5F3FF',
-                    border: '1px solid #DDD6FE',
-                    borderRadius: 8,
-                    padding: '5px 10px',
-                    cursor: 'pointer',
-                    fontFamily: 'Plus Jakarta Sans',
-                    flexShrink: 0
-                  }}
-                >
-                  View →
-                </button>
-              </div>
-            ))}
           </div>
 
-          {/* Platform Stats */}
+          {/* Stats Card */}
           <div style={{
-            background: 'linear-gradient(135deg,#1E0A4E,#4C1D95)',
-            borderRadius: 16,
-            padding: '18px',
-            color: 'white'
+            background: 'linear-gradient(135deg, #0F172A 0%, #1E293B 100%)',
+            borderRadius: '24px',
+            padding: '24px',
+            color: 'white',
+            position: 'relative',
+            overflow: 'hidden'
           }}>
-            <p style={{
-              fontSize: 13,
-              fontWeight: 800,
-              margin: '0 0 14px',
-              fontFamily: 'Instrument Serif'
-            }}>
-              Claspire Stats
-            </p>
-            {[
-              { label: 'Colleges', value: communities.length },
-              { label: 'Total Members', value: communities.reduce((a, c) => a + (c.member_count || 0), 0) },
-              { label: 'Posts Today', value: posts.filter((p: any) => {
-                const d = new Date(p.created_at)
-                const today = new Date()
-                return d.toDateString() === today.toDateString()
-              }).length }
-            ].map(stat => (
-              <div key={stat.label} style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                padding: '8px 0',
-                borderBottom: '1px solid rgba(255,255,255,0.1)',
-                fontSize: 12
-              }}>
-                <span style={{ opacity: 0.65, fontWeight: 500 }}>
-                  {stat.label}
-                </span>
-                <span style={{
-                  fontWeight: 800,
-                  fontSize: 15,
-                  fontFamily: 'Instrument Serif'
-                }}>
-                  {stat.value}
-                </span>
-              </div>
-            ))}
-          </div>
+             <div style={{
+              position: 'absolute',
+              top: '-10%',
+              right: '-10%',
+              width: '120px',
+              height: '120px',
+              background: 'rgba(124, 58, 237, 0.15)',
+              borderRadius: '50%',
+              filter: 'blur(30px)'
+            }} />
 
+            <h4 style={{
+              fontSize: '18px',
+              fontFamily: 'var(--font-instrument-serif)',
+              margin: '0 0 20px',
+              letterSpacing: '0.01em',
+              position: 'relative'
+            }}>
+              Platform Ecosystem
+            </h4>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16, position: 'relative' }}>
+              {[
+                { label: 'Verified Communities', value: communities.length, icon: <Building2 size={14} /> },
+                { label: 'Active Members', value: communities.reduce((a, c) => a + (c.member_count || 0), 0), icon: <Globe size={14} /> },
+                { 
+                  label: 'New Posts Today', 
+                  value: posts.filter((p: any) => {
+                    const today = new Date().toDateString();
+                    return new Date(p.created_at).toDateString() === today;
+                  }).length,
+                  icon: <Zap size={14} /> 
+                }
+              ].map((stat, i) => (
+                <div key={i} style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, opacity: 0.8, fontSize: '12px' }}>
+                    {stat.icon}
+                    {stat.label}
+                  </div>
+                  <span style={{ fontSize: '16px', fontWeight: 400, fontFamily: 'var(--font-instrument-serif)' }}>
+                    {stat.value}
+                  </span>
+                </div>
+              ))}
+            </div>
         </div>
       </div>
-
-      {/* Mobile Bottom Navigation */}
-      <div className="mobile-bottom-nav" style={{
-        display: 'none',
-        position: 'fixed',
-        bottom: 0, left: 0, right: 0,
-        background: 'white',
-        borderTop: '1px solid #F3F4F6',
-        zIndex: 990,
-        padding: '8px 0 20px',
-        boxShadow: '0 -4px 20px rgba(0,0,0,0.08)'
-      }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center'
-        }}>
-          {[
-            {
-              label: 'Feed',
-              icon: <LayoutGrid size={20} />,
-              href: '/community'
-            },
-            {
-              label: 'Colleges',
-              icon: <Building2 size={20} />,
-              href: '/colleges'
-            },
-            {
-              label: 'Jobs',
-              icon: <Briefcase size={20} />,
-              href: '/jobs'
-            },
-            {
-              label: 'Dashboard',
-              icon: <Star size={20} />,
-              href: '/dashboard'
-            }
-          ].map((tab, i) => (
-            <button
-              key={tab.label}
-              onClick={() => router.push(tab.href)}
-              style={{
-                flex: 1,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: 3,
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                color: i === 0
-                  ? '#7C3AED' : '#9CA3AF',
-                fontFamily: 'Plus Jakarta Sans',
-                fontSize: 10,
-                fontWeight: i === 0 ? 700 : 500,
-                padding: '4px 0'
-              }}
-            >
-              {tab.icon}
-              {tab.label}
-            </button>
-          ))}
-        </div>
       </div>
 
       <style>{`
@@ -1576,65 +1929,219 @@ export default function CommunityPage() {
           0%, 100% { opacity: 1 }
           50% { opacity: 0.5 }
         }
-        @keyframes spin {
-          to { transform: rotate(360deg) }
-        }
-        .hide-scrollbar::-webkit-scrollbar {
-          display: none;
+
+        .custom-scrollbar {
+          scrollbar-width: thin;
+          scrollbar-color: rgba(124, 58, 237, 0.2) transparent;
         }
 
-        /* Tablet */
-        @media (max-width: 1024px) {
+        .custom-scrollbar::-webkit-scrollbar {
+          height: 6px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: transparent;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background-color: rgba(124, 58, 237, 0.2);
+          border-radius: 10px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background-color: rgba(124, 58, 237, 0.4);
+        }
+
+        @media (max-width: 768px) {
+          .custom-scrollbar::-webkit-scrollbar {
+            display: none;
+          }
+          .custom-scrollbar {
+            scrollbar-width: none;
+          }
+        }
+
+        .left-sidebar { 
+            position: sticky;
+            top: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .right-sidebar { 
+            position: sticky;
+            top: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            min-width: 0;
+        }
+
+        .feed-grid {
+            max-width: 1280px;
+            margin: 40px auto;
+            padding: 0 32px;
+            display: grid;
+            grid-template-columns: 240px minmax(0, 1fr) 320px;
+            gap: 32px;
+            align-items: start;
+            box-sizing: border-box;
+        }
+
+        .feed-wrapper {
+            min-width: 0;
+            overflow: hidden;
+            width: 100%;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .post-card {
+            background: white;
+            border-radius: 20px;
+            border: 1px solid rgba(124, 58, 237, 0.08);
+            padding: 24px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+            position: relative;
+            z-index: 1;
+        }
+
+        .post-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(124, 58, 237, 0.06);
+            border-color: rgba(124, 58, 237, 0.2);
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #64748B;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .nav-item:hover {
+            background: rgba(124, 58, 237, 0.05);
+            color: #7C3AED;
+        }
+
+        .nav-item.active {
+            background: #F5F3FF;
+            color: #7C3AED;
+        }
+
+        /* Desktop: 3 columns */
+        @media (min-width: 1025px) {
           .feed-grid {
-            grid-template-columns: 1fr 260px !important;
+            grid-template-columns: 240px minmax(0,1fr) 320px;
           }
-          .left-sidebar {
-            display: none !important;
+          .pills-fade {
+            display: none;
           }
         }
 
-        /* Mobile */
+        /* Tablet: 2 columns */
+        @media (max-width: 1024px) and (min-width: 769px) {
+          .feed-grid {
+            grid-template-columns: minmax(0,1fr) 280px;
+            gap: 24px;
+            padding: 0 24px;
+          }
+          .left-sidebar { 
+            display: none; 
+          }
+        }
+
+        /* Mobile Responsive */
         @media (max-width: 768px) {
           .feed-grid {
             grid-template-columns: 1fr !important;
-            padding: 0 !important;
-            gap: 0 !important;
+            padding: 16px !important;
+            margin: 0 !important;
+            gap: 16px !important;
           }
-          .right-sidebar {
-            display: none !important;
-          }
-          .left-sidebar {
-            display: none !important;
+          .left-sidebar, .right-sidebar { 
+            display: none !important; 
           }
           .post-card {
-            border-radius: 0 !important;
-            border-left: none !important;
-            border-right: none !important;
-            border-top: none !important;
-            border-bottom: 6px solid #F5F4FF !important;
-            margin-bottom: 0 !important;
-            padding: 14px 16px !important;
-          }
-          .feed-wrapper {
-            padding: 0 !important;
-          }
-          .filter-pills {
-            padding: 10px 16px !important;
-            background: white;
-            border-bottom: 1px solid #F3F4F6;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-          }
-          .mobile-bottom-nav {
-            display: block !important;
-          }
-          /* Add bottom padding to feed */
-          .feed-wrapper {
-            padding-bottom: 80px !important;
+            padding: 20px !important;
+            border-radius: 16px !important;
           }
         }
       `}</style>
+
+      {/* Floating Create Post Button */}
+      <button
+        className="floating-create-btn"
+        onClick={async () => {
+          // Check if user is logged in
+          try {
+            const authRes = await fetch('/api/auth/me')
+            if (!authRes.ok) {
+              router.push('/login')
+              return
+            }
+            const authData = await authRes.json()
+            if (!authData.user) {
+              router.push('/login')
+              return
+            }
+
+            // Check if user has a community
+            if (userCommunity) {
+              // Redirect to user's community with post modal open
+              router.push(`/community/c/${userCommunity.slug}?create=true`)
+            } else {
+              // Scroll to communities section to find their college
+              const element = document.getElementById('communities-section')
+              if (element) {
+                element.scrollIntoView({ behavior: 'smooth' })
+              }
+            }
+          } catch (error) {
+            console.error('Auth check failed:', error)
+            router.push('/login')
+          }
+        }}
+        style={{
+          position: 'fixed',
+          bottom: 20,
+          right: 20,
+          width: 48,
+          height: 48,
+          borderRadius: '50%',
+          background: 'linear-gradient(135deg,#7C3AED,#06B6D4)',
+          border: 'none',
+          color: 'white',
+          cursor: 'pointer',
+          boxShadow: '0 4px 12px rgba(124,58,237,0.4)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+          transition: 'all 0.3s ease'
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.transform = 'scale(1.1)'
+          e.currentTarget.style.boxShadow = '0 6px 20px rgba(124,58,237,0.5)'
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = 'scale(1)'
+          e.currentTarget.style.boxShadow = '0 4px 12px rgba(124,58,237,0.4)'
+        }}
+      >
+        <Plus size={20} />
+      </button>
     </div>
   )
 }
