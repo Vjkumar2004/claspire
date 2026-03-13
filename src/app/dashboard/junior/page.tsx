@@ -28,6 +28,7 @@ interface DashData {
     referral_count: number
     webinar_count: number
     is_verified: boolean
+    avatar_url?: string
     colleges: {
       name: string
       short_name: string
@@ -64,7 +65,9 @@ interface DashData {
       role: string
     }
     senior: {
+      id: string
       full_name: string
+      avatar_url?: string
     }
   }>
   joinedCommunities: Array<{
@@ -85,7 +88,9 @@ interface DashData {
       display_name: string
     }
     users: {
+      id: string
       full_name: string
+      avatar_url?: string
     }
   }>
 }
@@ -302,8 +307,12 @@ export default function JuniorDashboard() {
                   <Bell size={18} />
                   {dashData.unreadCount > 0 && <span className="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-red-500 border-2 border-[#0F172A]" />}
                 </button>
-                <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white text-sm font-black shadow-lg">
-                  {u.full_name[0].toUpperCase()}
+                <div className={`w-11 h-11 rounded-2xl ${u.avatar_url ? 'bg-transparent' : 'bg-gradient-to-br from-purple-500 to-indigo-600'} flex items-center justify-center text-white text-sm font-black shadow-lg overflow-hidden`}>
+                  {u.avatar_url ? (
+                    <img src={u.avatar_url} alt={u.full_name} className="w-full h-full object-cover" />
+                  ) : (
+                    u.full_name[0].toUpperCase()
+                  )}
                 </div>
               </div>
             </header>
@@ -486,7 +495,13 @@ export default function JuniorDashboard() {
                            <h3 className="text-xl font-bold text-[#0F172A] m-0 mb-2 truncate group-hover:text-purple-600 transition-colors">{w.title}</h3>
                            <p className="text-sm font-medium text-[#64748B] line-clamp-2 mb-6 h-10">{w.description}</p>
                            <div className="flex items-center gap-3 mb-6">
-                              <div className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-lg">👨‍🏫</div>
+                              <div className={`w-10 h-10 rounded-xl ${w.users.avatar_url ? 'bg-transparent' : 'bg-gray-50'} flex items-center justify-center text-lg overflow-hidden`}>
+                                {w.users.avatar_url ? (
+                                  <img src={w.users.avatar_url} alt={w.users.full_name} className="w-full h-full object-cover" />
+                                ) : (
+                                  '👨‍🏫'
+                                )}
+                              </div>
                               <div>
                                  <p className="text-xs font-bold text-[#0F172A] m-0">{w.users.full_name}</p>
                                  <p className="text-[10px] font-bold text-[#94A3B8] m-0 uppercase tracking-wider">Expert Mentor</p>
@@ -553,12 +568,18 @@ export default function JuniorDashboard() {
                        {dashData.myReferrals.length > 0 ? dashData.myReferrals.map((req, i) => (
                          <div key={i} className="bg-white p-6 rounded-[32px] border border-[#E2E8F0] hover:border-purple-200 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4 group cursor-pointer">
                             <div className="flex items-center gap-5">
-                               <div className="w-16 h-16 rounded-[24px] bg-gray-50 border border-gray-100 flex items-center justify-center text-3xl group-hover:scale-110 transition-transform">💼</div>
-                               <div>
-                                  <h3 className="text-lg font-bold text-[#0F172A] m-0">{req.job.role} <span className="text-[#94A3B8] font-medium">@ {req.job.company_name}</span></h3>
-                                  <p className="text-xs font-bold text-[#64748B] mt-1 m-0">Request sent to <span className="text-[#0F172A]">{req.senior.full_name}</span> • {timeAgo(req.created_at)}</p>
-                               </div>
-                            </div>
+                                <div className={`w-16 h-16 rounded-[24px] ${req.senior.avatar_url ? 'bg-transparent' : 'bg-gray-50'} border border-gray-100 flex items-center justify-center text-3xl group-hover:scale-110 transition-transform overflow-hidden`}>
+                                  {req.senior.avatar_url ? (
+                                    <img src={req.senior.avatar_url} alt={req.senior.full_name} className="w-full h-full object-cover" />
+                                  ) : (
+                                    '💼'
+                                  )}
+                                </div>
+                                <div>
+                                   <h3 className="text-lg font-bold text-[#0F172A] m-0">{req.job.role} <span className="text-[#94A3B8] font-medium">@ {req.job.company_name}</span></h3>
+                                   <p className="text-xs font-bold text-[#64748B] mt-1 m-0">Request sent to <span className="text-[#0F172A]">{req.senior.full_name}</span> • {timeAgo(req.created_at)}</p>
+                                </div>
+                             </div>
                             <div className={`px-5 py-2 rounded-full text-[11px] font-black uppercase tracking-widest border text-center ${
                               req.status === 'approved' ? 'bg-green-50 text-green-600 border-green-200' :
                               req.status === 'rejected' ? 'bg-red-50 text-red-500 border-red-200' :

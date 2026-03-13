@@ -21,6 +21,7 @@ export async function GET(req: NextRequest) {
         designation,
         graduation_year,
         rise_points,
+        avatar_url,
         created_at,
         college:college_id (
           name,

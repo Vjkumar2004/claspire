@@ -164,8 +164,12 @@ export default function SeniorDashboardPage() {
 
           {/* User Card */}
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-purple-600 to-cyan-500 text-white text-xs font-black flex items-center justify-center flex-shrink-0">
-              RS
+            <div className={`w-9 h-9 rounded-full ${dashData?.user?.avatar_url ? 'bg-transparent' : 'bg-gradient-to-br from-purple-600 to-cyan-500'} text-white text-xs font-black flex items-center justify-center flex-shrink-0 overflow-hidden`}>
+              {dashData?.user?.avatar_url ? (
+                <img src={dashData.user.avatar_url} alt={dashData.user.full_name} className="w-full h-full object-cover" />
+              ) : (
+                dashData?.user?.full_name?.[0] || 'S'
+              )}
             </div>
             <div className="flex-1 min-w-0">
               <div className="text-xs font-black text-black">
@@ -462,9 +466,18 @@ export default function SeniorDashboardPage() {
                     <div key={post.id} className="p-4 hover:bg-gray-50 transition-colors">
                       <div className="flex justify-between items-start gap-3">
                         <div className="flex-1">
-                          <p className="text-xs font-black text-black leading-relaxed">
-                            {post.title || post.content.slice(0, 80) + '...'}
-                          </p>
+                          <div className="flex items-center gap-3">
+                            <div className={`w-8 h-8 rounded-lg flex-shrink-0 ${post.users?.avatar_url ? 'bg-transparent' : 'bg-purple-100'} flex items-center justify-center text-purple-600 font-bold text-[10px] overflow-hidden`}>
+                              {post.users?.avatar_url ? (
+                                <img src={post.users.avatar_url} alt={post.users.full_name} className="w-full h-full object-cover" />
+                              ) : (
+                                post.users?.full_name?.[0] || 'S'
+                              )}
+                            </div>
+                            <p className="text-xs font-black text-black leading-relaxed">
+                              {post.title || post.content.slice(0, 80) + '...'}
+                            </p>
+                          </div>
                           <div className="flex items-center gap-2 mt-1.5">
                             <span className="text-[10px] text-gray-400">by {post.users?.full_name || 'Student'}</span>
                             <span className="text-[10px] text-gray-300">•</span>
@@ -502,8 +515,12 @@ export default function SeniorDashboardPage() {
                     <div key={req.id} className="p-4 hover:bg-gray-50 transition-colors">
                       <div className="flex justify-between items-center">
                         <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-purple-100 to-cyan-50 text-purple-600 text-xs font-black flex items-center justify-center border border-purple-100">
-                            {req.requester?.full_name?.[0]}
+                          <div className={`w-9 h-9 rounded-full ${req.requester?.avatar_url ? 'bg-transparent' : 'bg-gradient-to-br from-purple-100 to-cyan-50'} text-purple-600 text-xs font-black flex items-center justify-center border border-purple-100 overflow-hidden flex-shrink-0`}>
+                            {req.requester?.avatar_url ? (
+                              <img src={req.requester.avatar_url} alt={req.requester.full_name} className="w-full h-full object-cover" />
+                            ) : (
+                              req.requester?.full_name?.[0] || 'S'
+                            )}
                           </div>
                           <div>
                             <p className="text-xs font-black text-black">{req.requester?.full_name}</p>

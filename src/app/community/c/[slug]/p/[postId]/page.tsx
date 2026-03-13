@@ -65,7 +65,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
           *,
           users!posts_author_id_fkey (
             id, full_name, unique_id,
-            role, is_verified
+            role, is_verified, avatar_url
           ),
           communities (
             slug,
@@ -96,7 +96,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
           *,
           users!answers_author_id_fkey (
             id, full_name, unique_id,
-            role, is_verified
+            role, is_verified, avatar_url
           )
         `)
         .eq('post_id', postId)
@@ -211,7 +211,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
           *,
           users!answers_author_id_fkey (
             id, full_name, unique_id,
-            role, is_verified
+            role, is_verified, avatar_url
           )
         `)
         .single()
@@ -390,18 +390,29 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
             <div style={{
               width: 40, height: 40,
               borderRadius: 10,
-              background: post.users?.role === 'senior'
-                ? 'linear-gradient(135deg,#059669,#34D399)'
-                : 'linear-gradient(135deg,#7C3AED,#06B6D4)',
+              background: post.users?.avatar_url 
+                ? 'transparent' 
+                : (post.users?.role === 'senior'
+                    ? 'linear-gradient(135deg,#059669,#34D399)'
+                    : 'linear-gradient(135deg,#7C3AED,#06B6D4)'),
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               color: 'white',
               fontSize: 15,
               fontWeight: 800,
-              flexShrink: 0
+              flexShrink: 0,
+              overflow: 'hidden'
             }}>
-              {post.users?.full_name?.[0] || 'U'}
+              {post.users?.avatar_url ? (
+                <img 
+                  src={post.users.avatar_url} 
+                  alt={post.users.full_name} 
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                />
+              ) : (
+                post.users?.full_name?.[0] || 'U'
+              )}
             </div>
 
             <div style={{ flex: 1, minWidth: 0 }}>
@@ -656,13 +667,24 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
                 }}>
                   <div style={{
                     width: 32, height: 32, borderRadius: 8,
-                    background: answer.users?.role === 'senior'
-                      ? 'linear-gradient(135deg,#059669,#34D399)'
-                      : 'linear-gradient(135deg,#7C3AED,#06B6D4)',
+                    background: answer.users?.avatar_url 
+                      ? 'transparent' 
+                      : (answer.users?.role === 'senior'
+                          ? 'linear-gradient(135deg,#059669,#34D399)'
+                          : 'linear-gradient(135deg,#7C3AED,#06B6D4)'),
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    color: 'white', fontSize: 12, fontWeight: 800, flexShrink: 0
+                    color: 'white', fontSize: 12, fontWeight: 800, flexShrink: 0,
+                    overflow: 'hidden'
                   }}>
-                    {answer.users?.full_name?.[0] || 'U'}
+                    {answer.users?.avatar_url ? (
+                      <img 
+                        src={answer.users.avatar_url} 
+                        alt={answer.users.full_name} 
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                      />
+                    ) : (
+                      answer.users?.full_name?.[0] || 'U'
+                    )}
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>

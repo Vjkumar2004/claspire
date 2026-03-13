@@ -79,21 +79,32 @@ export default function Navbar() {
                 <div style={{
                   width: 28, height: 28,
                   borderRadius: '50%',
-                  background: 'linear-gradient(135deg, #7C3AED, #06B6D4)',
+                  background: user.avatar_url 
+                    ? 'transparent' 
+                    : 'linear-gradient(135deg, #7C3AED, #06B6D4)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   color: 'white',
                   fontSize: 11,
                   fontWeight: 800,
-                  flexShrink: 0
+                  flexShrink: 0,
+                  overflow: 'hidden'
                 }}>
-                  {user.full_name
-                    ?.split(' ')
-                    .map((n: string) => n[0])
-                    .join('')
-                    .toUpperCase()
-                    .slice(0, 2) || 'U'}
+                  {user.avatar_url ? (
+                    <img 
+                      src={user.avatar_url} 
+                      alt={user.full_name} 
+                      className="w-full h-full object-cover" 
+                    />
+                  ) : (
+                    user.full_name
+                      ?.split(' ')
+                      .map((n: string) => n[0])
+                      .join('')
+                      .toUpperCase()
+                      .slice(0, 2) || 'U'
+                  )}
                 </div>
                 
                 {/* Name (hide on mobile) */}
@@ -327,14 +338,22 @@ export default function Navbar() {
           ) : user ? (
             <button
               onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-              className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-600 to-cyan-500 text-white text-xs font-black flex items-center justify-center hover:opacity-90 transition-opacity"
+              className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-600 to-cyan-500 text-white text-xs font-black flex items-center justify-center hover:opacity-90 transition-opacity overflow-hidden"
             >
-              {user.full_name
-                ?.split(' ')
-                .map((n: string) => n[0])
-                .join('')
-                .toUpperCase()
-                .slice(0, 2) || 'U'}
+              {user.avatar_url ? (
+                <img 
+                  src={user.avatar_url} 
+                  alt={user.full_name} 
+                  className="w-full h-full object-cover" 
+                />
+              ) : (
+                user.full_name
+                  ?.split(' ')
+                  .map((n: string) => n[0])
+                  .join('')
+                  .toUpperCase()
+                  .slice(0, 2) || 'U'
+              )}
             </button>
           ) : (
             <Link href="/signup">
@@ -457,21 +476,32 @@ export default function Navbar() {
               <div style={{
                 width: 40, height: 40,
                 borderRadius: '50%',
-                background: 'linear-gradient(135deg,#7C3AED,#06B6D4)',
+                background: user.avatar_url 
+                  ? 'transparent' 
+                  : 'linear-gradient(135deg,#7C3AED,#06B6D4)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 color: 'white',
                 fontSize: 14,
                 fontWeight: 800,
-                flexShrink: 0
+                flexShrink: 0,
+                overflow: 'hidden'
               }}>
-                {user.full_name
-                  ?.split(' ')
-                  .map((n: string) => n[0])
-                  .join('')
-                  .toUpperCase()
-                  .slice(0, 2) || 'U'}
+                {user.avatar_url ? (
+                  <img 
+                    src={user.avatar_url} 
+                    alt={user.full_name} 
+                    className="w-full h-full object-cover" 
+                  />
+                ) : (
+                  user.full_name
+                    ?.split(' ')
+                    .map((n: string) => n[0])
+                    .join('')
+                    .toUpperCase()
+                    .slice(0, 2) || 'U'
+                )}
               </div>
 
               <div>

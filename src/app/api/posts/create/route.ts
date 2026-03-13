@@ -28,7 +28,8 @@ export async function POST(req: NextRequest) {
       type = 'doubt',
       visibility = 'public',
       tags = [],
-      is_pinned = false
+      is_pinned = false,
+      image_url = null
     } = body
 
     // Ensure content is a string
@@ -113,6 +114,7 @@ export async function POST(req: NextRequest) {
         visibility,
         tags,
         is_pinned,
+        image_url: image_url || null,
         upvote_count: 0,
         downvote_count: 0,
         answer_count: 0,

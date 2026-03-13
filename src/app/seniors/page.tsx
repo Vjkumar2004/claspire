@@ -19,6 +19,7 @@ interface Senior {
   college_id: string
   graduation_year: number
   rise_points: number
+  avatar_url?: string
   college: {
     name: string
     short_name: string
@@ -172,8 +173,12 @@ export default function SeniorsPage() {
                 >
                   <div className="flex items-start gap-4 mb-6">
                     {/* Avatar */}
-                    <div className="w-14 h-14 rounded-[18px] bg-gradient-to-br from-gray-100 to-gray-50 flex items-center justify-center text-xl font-black text-gray-400 border border-gray-200 group-hover:border-cyan-200 group-hover:text-cyan-600 transition-colors shadow-sm">
-                      {senior.full_name.substring(0, 2).toUpperCase()}
+                    <div className={`w-14 h-14 rounded-[18px] ${senior.avatar_url ? 'bg-transparent' : 'bg-gradient-to-br from-gray-100 to-gray-50'} flex items-center justify-center text-xl font-black text-gray-400 border border-gray-200 group-hover:border-cyan-200 group-hover:text-cyan-600 transition-colors shadow-sm overflow-hidden`}>
+                      {senior.avatar_url ? (
+                        <img src={senior.avatar_url} alt={senior.full_name} className="w-full h-full object-cover" />
+                      ) : (
+                        senior.full_name.substring(0, 2).toUpperCase()
+                      )}
                     </div>
                     
                     <div className="flex-1">

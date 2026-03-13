@@ -9,6 +9,7 @@ interface User {
   unique_id: string
   full_name: string
   college_id: string | null
+  avatar_url?: string
 }
 
 export function useAuth() {

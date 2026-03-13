@@ -234,7 +234,10 @@ export default function CollegesPage() {
               </div>
               <h3 className="text-lg font-bold text-black mb-2">No colleges found</h3>
               <p className="text-gray-500 text-sm mb-6">We couldn't find any college matching "{searchQuery}"</p>
-              <button className="text-sm font-bold text-purple-600 hover:text-purple-700 bg-purple-50 px-6 py-2.5 rounded-xl hover:bg-purple-100 transition-colors">
+              <button 
+                onClick={() => window.location.href = '/colleges/request'}
+                className="text-sm font-bold text-purple-600 hover:text-purple-700 bg-purple-50 px-6 py-2.5 rounded-xl hover:bg-purple-100 transition-colors cursor-pointer"
+              >
                 Request your college
               </button>
             </div>
@@ -252,7 +255,10 @@ export default function CollegesPage() {
                 Request it and our team will verify and add it within 24 hours.
               </div>
             </div>
-            <button className="whitespace-nowrap bg-black text-white px-6 py-3 rounded-xl font-bold text-sm hover:opacity-90 transition-opacity flex items-center gap-2 group">
+            <button 
+              onClick={() => window.location.href = '/colleges/request'}
+              className="whitespace-nowrap bg-black text-white px-6 py-3 rounded-xl font-bold text-sm hover:opacity-90 transition-opacity flex items-center gap-2 group cursor-pointer"
+            >
               Request College
               <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
             </button>

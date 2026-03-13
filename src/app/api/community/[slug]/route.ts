@@ -253,7 +253,7 @@ export async function GET(
         is_pinned, created_at, tags,
         users!posts_author_id_fkey (
           full_name, unique_id,
-          role, is_verified
+          role, is_verified, avatar_url
         )
       `)
       .eq('community_id', community.id)

@@ -134,7 +134,12 @@ export default function CommunityPage({ params }: { params: Promise<{ slug: stri
     const map: any = {}
     data.posts.forEach((p: any) => {
       const id = p.users?.id || 'u'
-      if(!map[id]) map[id] = { name: p.users?.full_name || 'User', count: 0, role: p.users?.role || 'student' }
+      if(!map[id]) map[id] = { 
+        name: p.users?.full_name || 'User', 
+        count: 0, 
+        role: p.users?.role || 'student',
+        avatar_url: p.users?.avatar_url
+      }
       map[id].count++
     })
     return Object.entries(map).sort((a:any, b:any) => b[1].count - a[1].count).slice(0, 5)
@@ -309,8 +314,26 @@ export default function CommunityPage({ params }: { params: Promise<{ slug: stri
                       {/* Interaction Bar Top */}
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                          <div style={{ width: 36, height: 36, borderRadius: 10, background: post.users?.role === 'senior' ? 'linear-gradient(135deg, #10B981, #34D399)' : 'linear-gradient(135deg, #7C3AED, #06B6D4)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 800, boxShadow: '0 4px 12px rgba(0,0,0,0.06)' }}>
-                            {post.users?.full_name?.[0]}
+                          <div style={{ 
+                            width: 36, height: 36, 
+                            borderRadius: 10, 
+                            background: post.users?.avatar_url 
+                              ? 'transparent' 
+                              : (post.users?.role === 'senior' ? 'linear-gradient(135deg, #10B981, #34D399)' : 'linear-gradient(135deg, #7C3AED, #06B6D4)'), 
+                            color: 'white', 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            justifyContent: 'center', 
+                            fontSize: 13, 
+                            fontWeight: 800, 
+                            boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
+                            overflow: 'hidden'
+                          }}>
+                            {post.users?.avatar_url ? (
+                              <img src={post.users.avatar_url} alt={post.users.full_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            ) : (
+                              post.users?.full_name?.[0]
+                            )}
                           </div>
                           <div>
                             <div style={{ fontSize: 14, fontWeight: 800, color: '#0F172A', display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -334,6 +357,29 @@ export default function CommunityPage({ params }: { params: Promise<{ slug: stri
                           <h2 style={{ fontSize: 18, fontWeight: 800, color: '#0F172A', marginBottom: 10, lineHeight: 1.35, letterSpacing: '-0.01em' }}>{post.title}</h2>
                         )}
                         <p style={{ fontSize: 14, color: '#475569', lineHeight: 1.6, marginBottom: 20, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{post.content}</p>
+                        {post.image_url && (
+                          <div style={{
+                            borderRadius: 12,
+                            overflow: 'hidden',
+                            marginBottom: 20,
+                            border: '1px solid #F1F5F9'
+                          }}>
+                            <img
+                              src={post.image_url}
+                              alt="Post"
+                              style={{
+                                width: '100%',
+                                maxHeight: 320,
+                                objectFit: 'cover',
+                                display: 'block'
+                              }}
+                              onClick={e => {
+                                e.stopPropagation()
+                                window.open(post.image_url, '_blank')
+                              }}
+                            />
+                          </div>
+                        )}
                       </div>
 
                       {/* Engagement Bar */}
@@ -511,10 +557,27 @@ export default function CommunityPage({ params }: { params: Promise<{ slug: stri
                {topContributors.length > 0 ? topContributors.map(([id, c]: any, i) => (
                  <div key={id} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px', borderRadius: 16, background: i === 0 ? 'linear-gradient(to right, #F5F3FF, transparent)' : 'transparent' }}>
                     <div style={{ position: 'relative' }}>
-                      <div style={{ width: 40, height: 40, borderRadius: 14, background: c.role === 'senior' ? 'linear-gradient(135deg, #10B981, #059669)' : 'linear-gradient(135deg, #7C3AED, #4C1D95)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, fontWeight: 800 }}>
-                        {c.name[0]}
-                      </div>
-                      {i < 3 && <div style={{ position: 'absolute', bottom: -4, right: -4, width: 18, height: 18, background: '#fff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, border: '1px solid #F1F5F9' }}>{i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉'}</div>}
+                       <div style={{ 
+                         width: 40, height: 40, 
+                         borderRadius: 14, 
+                         background: c.avatar_url 
+                           ? 'transparent' 
+                           : (c.role === 'senior' ? 'linear-gradient(135deg, #10B981, #059669)' : 'linear-gradient(135deg, #7C3AED, #4C1D95)'), 
+                         color: 'white', 
+                         display: 'flex', 
+                         alignItems: 'center', 
+                         justifyContent: 'center', 
+                         fontSize: 15, 
+                         fontWeight: 800,
+                         overflow: 'hidden'
+                       }}>
+                         {c.avatar_url ? (
+                           <img src={c.avatar_url} alt={c.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                         ) : (
+                           c.name[0]
+                         )}
+                       </div>
+                       {i < 3 && <div style={{ position: 'absolute', bottom: -4, right: -4, width: 18, height: 18, background: '#fff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, border: '1px solid #F1F5F9' }}>{i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉'}</div>}
                     </div>
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: 14, fontWeight: 700, color: '#1E293B' }}>{c.name}</div>

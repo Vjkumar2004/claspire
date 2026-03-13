@@ -28,6 +28,7 @@ export async function GET(req: NextRequest) {
         doubt_count, answer_count,
         referral_count, webinar_count,
         is_verified, verification_status,
+        avatar_url,
         last_visit_date,
         colleges (
           id, name, short_name, slug
@@ -165,7 +166,7 @@ export async function GET(req: NextRequest) {
           .from('posts')
           .select(`
             id, title, content, created_at,
-            users:author_id ( id, full_name, role )
+            users:author_id ( id, full_name, role, avatar_url )
           `)
           .eq('community_id', comm.id)
           .eq('type', 'doubt')
@@ -182,7 +183,7 @@ export async function GET(req: NextRequest) {
           .select(`
             id, status, created_at,
             job:job_id ( company_name, role ),
-            requester:requester_id ( id, full_name, role, unique_id, colleges(name, short_name) )
+            requester:requester_id ( id, full_name, role, unique_id, avatar_url, colleges(name, short_name) )
           `)
           .eq('senior_id', userId)
           .eq('status', 'pending')
@@ -199,7 +200,7 @@ export async function GET(req: NextRequest) {
       .select(`
         id, status, created_at,
         job:job_id ( company_name, role ),
-        senior:senior_id ( full_name )
+        senior:senior_id ( id, full_name, avatar_url )
       `)
       .eq('requester_id', userId)
       .order('created_at', { ascending: false })
@@ -224,7 +225,7 @@ export async function GET(req: NextRequest) {
         .select(`
           id, title, description, scheduled_at, duration,
           communities ( display_name ),
-          users:instructor_id ( full_name )
+          users:instructor_id ( id, full_name, avatar_url )
         `)
         .in('community_id', communityIds)
         .in('status', ['upcoming', 'live'])

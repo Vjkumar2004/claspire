@@ -311,7 +311,7 @@ export default function CommunityPage() {
           *,
           users!answers_author_id_fkey (
             id, full_name, unique_id,
-            role, is_verified
+            role, is_verified, avatar_url
           )
         `)
         .eq('post_id', postId)
@@ -433,7 +433,7 @@ export default function CommunityPage() {
           *,
           users!posts_author_id_fkey (
             full_name, unique_id,
-            role, is_verified
+            role, is_verified, avatar_url
           ),
           communities (
             slug,
@@ -1235,6 +1235,29 @@ export default function CommunityPage() {
                     }}>
                       {post.content}
                     </p>
+                    {post.image_url && (
+                      <div style={{
+                        borderRadius: 12,
+                        overflow: 'hidden',
+                        marginTop: 16,
+                        border: '1px solid #F1F5F9'
+                      }}>
+                        <img
+                          src={post.image_url}
+                          alt="Post"
+                          style={{
+                            width: '100%',
+                            maxHeight: 300,
+                            objectFit: 'cover',
+                            display: 'block'
+                          }}
+                          onClick={e => {
+                            e.stopPropagation()
+                            window.open(post.image_url, '_blank')
+                          }}
+                        />
+                      </div>
+                    )}
                   </div>
 
                   {/* Tags */}
@@ -1284,9 +1307,11 @@ export default function CommunityPage() {
                           width: 28,
                           height: 28,
                           borderRadius: '8px',
-                          background: post.users?.role === 'senior' 
-                            ? 'linear-gradient(135deg, #059669, #10B981)' 
-                            : 'linear-gradient(135deg, #7C3AED, #4F46E5)',
+                          background: post.users?.avatar_url 
+                            ? 'transparent' 
+                            : (post.users?.role === 'senior' 
+                                ? 'linear-gradient(135deg, #059669, #10B981)' 
+                                : 'linear-gradient(135deg, #7C3AED, #4F46E5)'),
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
@@ -1294,9 +1319,18 @@ export default function CommunityPage() {
                           fontSize: '11px',
                           fontWeight: 800,
                           flexShrink: 0,
-                          boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                          overflow: 'hidden'
                         }}>
-                          {post.users?.full_name?.[0] || 'U'}
+                          {post.users?.avatar_url ? (
+                            <img 
+                              src={post.users.avatar_url} 
+                              alt={post.users.full_name} 
+                              style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                            />
+                          ) : (
+                            post.users?.full_name?.[0] || 'U'
+                          )}
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column' }}>
                           <span style={{
@@ -1522,9 +1556,11 @@ export default function CommunityPage() {
                           <div style={{
                             width: 26, height: 26,
                             borderRadius: 7,
-                            background: answer.users?.role === 'senior'
-                              ? 'linear-gradient(135deg,#059669,#34D399)'
-                              : 'linear-gradient(135deg,#7C3AED,#06B6D4)',
+                            background: answer.users?.avatar_url 
+                              ? 'transparent' 
+                              : (answer.users?.role === 'senior'
+                                  ? 'linear-gradient(135deg,#059669,#34D399)'
+                                  : 'linear-gradient(135deg,#7C3AED,#06B6D4)'),
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
@@ -1532,9 +1568,18 @@ export default function CommunityPage() {
                             fontSize: 10,
                             fontWeight: 800,
                             flexShrink: 0,
-                            marginTop: 2
+                            marginTop: 2,
+                            overflow: 'hidden'
                           }}>
-                            {answer.users?.full_name?.[0] || 'U'}
+                            {answer.users?.avatar_url ? (
+                              <img 
+                                src={answer.users.avatar_url} 
+                                alt={answer.users.full_name} 
+                                style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                              />
+                            ) : (
+                              answer.users?.full_name?.[0] || 'U'
+                            )}
                           </div>
                           <div style={{ flex: 1, minWidth: 0 }}>
                             <div style={{

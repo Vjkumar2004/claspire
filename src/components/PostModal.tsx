@@ -2,8 +2,9 @@
 import { useState } from 'react'
 import {
   X, Globe, Lock, ChevronDown,
-  Loader2, Tag, AlertCircle
+  Loader2, Tag, AlertCircle, ImagePlus
 } from 'lucide-react'
+import { useRef } from 'react'
 import { usePoints } from '@/contexts/PointsContext'
 
 interface PostModalProps {
@@ -33,6 +34,13 @@ export default function PostModal({
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
+  // Image Upload States
+  const [image, setImage] = useState<File | null>(null)
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const [imageUploading, setImageUploading] = useState(false)
+  const [imageUrl, setImageUrl] = useState<string | null>(null)
+  const imageRef = useRef<HTMLInputElement>(null)
+
   if (!isOpen) return null
 
   const addTag = (e: React.KeyboardEvent) => {
@@ -51,6 +59,68 @@ export default function PostModal({
 
   const removeTag = (tag: string) => {
     setTags(tags.filter(t => t !== tag))
+  }
+
+  const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    // Validate
+    const allowed = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
+    if (!allowed.includes(file.type)) {
+      setError('Only JPG, PNG, WebP allowed')
+      return
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Image max size is 5MB')
+      return
+    }
+
+    // Preview
+    const reader = new FileReader()
+    reader.onload = () => {
+      setImagePreview(reader.result as string)
+    }
+    reader.readAsDataURL(file)
+    setImage(file)
+
+    // Upload
+    setImageUploading(true)
+    setError('')
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('type', 'post_image')
+
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData
+      })
+      const data = await res.json()
+
+      if (res.ok && data.url) {
+        setImageUrl(data.url)
+      } else {
+        setError(data.error || 'Image upload failed')
+        setImage(null)
+        setImagePreview(null)
+      }
+    } catch (err) {
+      setError('Image upload failed')
+      setImage(null)
+      setImagePreview(null)
+    } finally {
+      setImageUploading(false)
+    }
+  }
+
+  const removeImage = () => {
+    setImage(null)
+    setImagePreview(null)
+    setImageUrl(null)
+    if (imageRef.current) {
+      imageRef.current.value = ''
+    }
   }
 
   const handleSubmit = async () => {
@@ -87,7 +157,8 @@ export default function PostModal({
             type,
             visibility,
             tags,
-            is_pinned: false
+            is_pinned: false,
+            image_url: imageUrl || null
           })
         }
       )
@@ -119,6 +190,9 @@ export default function PostModal({
       setVisibility('public')
       setTags([])
       setTagInput('')
+      setImage(null)
+      setImagePreview(null)
+      setImageUrl(null)
 
       onSuccess()
       onClose()
@@ -392,6 +466,131 @@ export default function PostModal({
             }}
           />
 
+          {/* Image Upload Section */}
+          <div style={{ marginBottom: 16 }}>
+            {!imagePreview && (
+              <button
+                type="button"
+                onClick={() => imageRef.current?.click()}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color: '#6B7280',
+                  background: '#F9FAFB',
+                  border: '1.5px dashed #E5E7EB',
+                  borderRadius: 10,
+                  padding: '10px 16px',
+                  cursor: 'pointer',
+                  fontFamily: 'Plus Jakarta Sans',
+                  transition: 'all 0.15s',
+                  width: '100%',
+                  justifyContent: 'center'
+                }}
+                onMouseEnter={e => {
+                  (e.currentTarget as HTMLElement).style.borderColor = '#A78BFA'
+                  ;(e.currentTarget as HTMLElement).style.color = '#7C3AED'
+                  ;(e.currentTarget as HTMLElement).style.background = '#F5F3FF'
+                }}
+                onMouseLeave={e => {
+                  (e.currentTarget as HTMLElement).style.borderColor = '#E5E7EB'
+                  ;(e.currentTarget as HTMLElement).style.color = '#6B7280'
+                  ;(e.currentTarget as HTMLElement).style.background = '#F9FAFB'
+                }}
+              >
+                <ImagePlus size={15} />
+                Add Image (optional)
+              </button>
+            )}
+
+            {imagePreview && (
+              <div style={{
+                position: 'relative',
+                borderRadius: 12,
+                overflow: 'hidden',
+                border: '1.5px solid #EDE9FE'
+              }}>
+                <img
+                  src={imagePreview}
+                  alt="Preview"
+                  style={{
+                    width: '100%',
+                    maxHeight: 240,
+                    objectFit: 'cover',
+                    display: 'block'
+                  }}
+                />
+
+                {imageUploading && (
+                  <div style={{
+                    position: 'absolute',
+                    inset: 0,
+                    background: 'rgba(0,0,0,0.5)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 8
+                  }}>
+                    <Loader2 size={28} color="white" style={{ animation: 'spin 1s linear infinite' }} />
+                    <span style={{ fontSize: 12, color: 'white', fontWeight: 600 }}>Uploading...</span>
+                  </div>
+                )}
+
+                {!imageUploading && imageUrl && (
+                  <div style={{
+                    position: 'absolute',
+                    bottom: 8,
+                    left: 8,
+                    background: '#ECFDF5',
+                    border: '1px solid #A7F3D0',
+                    borderRadius: 100,
+                    padding: '3px 10px',
+                    fontSize: 10,
+                    fontWeight: 700,
+                    color: '#059669',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 4
+                  }}>
+                    ✓ Uploaded
+                  </div>
+                )}
+
+                <button
+                  onClick={removeImage}
+                  style={{
+                    position: 'absolute',
+                    top: 8,
+                    right: 8,
+                    width: 28,
+                    height: 28,
+                    borderRadius: '50%',
+                    background: 'rgba(0,0,0,0.6)',
+                    border: 'none',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    color: 'white'
+                  }}
+                >
+                  <X size={14} />
+                </button>
+              </div>
+            )}
+
+            <input
+              ref={imageRef}
+              type="file"
+              accept="image/jpeg,image/jpg,image/png,image/webp"
+              onChange={handleImageSelect}
+              style={{ display: 'none' }}
+            />
+          </div>
+
           {/* Tags */}
           <div style={{ marginBottom: 20 }}>
             <div style={{
@@ -588,7 +787,7 @@ export default function PostModal({
           {/* Submit */}
           <button
             onClick={handleSubmit}
-            disabled={loading}
+            disabled={loading || imageUploading}
             style={{
               width: '100%',
               display: 'flex',
@@ -598,7 +797,7 @@ export default function PostModal({
               fontSize: 14,
               fontWeight: 800,
               color: 'white',
-              background: loading
+              background: (loading || imageUploading)
                 ? '#C4B5FD'
                 : 'linear-gradient(135deg,#7C3AED,#06B6D4)',
               border: 'none',
@@ -607,20 +806,19 @@ export default function PostModal({
               cursor: loading
                 ? 'not-allowed' : 'pointer',
               fontFamily: 'Plus Jakarta Sans',
-              boxShadow: loading ? 'none'
+              boxShadow: (loading || imageUploading) ? 'none'
                 : '0 4px 16px rgba(124,58,237,0.35)',
               transition: 'all 0.2s'
             }}
           >
-            {loading ? (
+            {imageUploading ? (
               <>
-                <Loader2
-                  size={16}
-                  style={{
-                    animation:
-                      'spin 1s linear infinite'
-                  }}
-                />
+                <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} />
+                Uploading Image...
+              </>
+            ) : loading ? (
+              <>
+                <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} />
                 Posting...
               </>
             ) : (
