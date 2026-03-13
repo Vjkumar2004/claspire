@@ -1,12 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
-  Building2, MapPin, Globe, Mail, 
-  Send, Clock, CheckCircle2, XCircle, 
-  Plus, Search, Building, GraduationCap,
-  Sparkles, Check, Info, Camera, Upload, ArrowRight
+  Send, Clock, CheckCircle2, 
+  Plus, Sparkles, Check, Info, Upload, ArrowRight
 } from 'lucide-react'
 import Navbar from '@/components/Navbar'
 
@@ -15,6 +13,9 @@ export default function CollegeRequestPage() {
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [error, setError] = useState('')
   const [logoPreview, setLogoPreview] = useState<string | null>(null)
+  const [requests, setRequests] = useState<any[]>([])
+  const [existingColleges, setExistingColleges] = useState<any[]>([])
+  const [dataLoading, setDataLoading] = useState(true)
 
   const [formData, setFormData] = useState({
     college_name: '',
@@ -40,6 +41,33 @@ export default function CollegeRequestPage() {
     "Private", "Government", "Autonomous", "Deemed", 
     "IIT", "NIT", "Polytechnic", "Central"
   ]
+
+  useEffect(() => {
+    fetchInitialData()
+  }, [])
+
+  const fetchInitialData = async () => {
+    try {
+      const [reqRes, colRes] = await Promise.all([
+        fetch('/api/colleges/request'),
+        fetch('/api/colleges')
+      ])
+      
+      const reqData = await reqRes.json()
+      const colData = await colRes.json()
+
+      if (reqData.requests) setRequests(reqData.requests)
+      if (colData.communities) {
+        // Extract college info from communities response
+        const colleges = colData.communities.map((c: any) => c.colleges).filter(Boolean)
+        setExistingColleges(colleges)
+      }
+    } catch (err) {
+      console.error('Fetch error:', err)
+    } finally {
+      setDataLoading(false)
+    }
+  }
 
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -67,6 +95,7 @@ export default function CollegeRequestPage() {
       const data = await res.json()
       if (res.ok) {
         setIsSubmitted(true)
+        fetchInitialData() // Refresh list in background
       } else {
         setError(data.error || 'Failed to submit request')
       }
@@ -92,14 +121,9 @@ export default function CollegeRequestPage() {
                     <Check size={32} strokeWidth={3} />
                  </div>
               </div>
-              <h2 className="text-3xl font-black text-[#0F172A] mb-4 font-instrument-serif">Request Submitted Successfully!</h2>
+              <h2 className="text-3xl font-black text-[#0F172A] mb-4 font-instrument-serif">Request Submitted!</h2>
               <p className="text-gray-500 font-medium leading-relaxed mb-10">
-                Your request to add <span className="text-[#0F172A] font-black">{formData.college_name}</span> has been sent to our campus verification team.
-              </p>
-              
-              <h2 className="text-3xl font-black text-[#0F172A] mb-4 font-instrument-serif">Request Recorded!</h2>
-              <p className="text-gray-500 font-medium leading-relaxed mb-10">
-                Your request to add <span className="text-[#0F172A] font-black">{formData.college_name}</span> has been received.
+                Your request to add <span className="text-[#0F172A] font-black">{formData.college_name}</span> has been received. Our team will verify it shortly.
               </p>
               
               <motion.div 
@@ -112,7 +136,7 @@ export default function CollegeRequestPage() {
                     <Sparkles size={20} className="text-yellow-300 animate-pulse" /> Coming Soon!
                   </h3>
                   <p className="text-sm font-medium opacity-90">
-                    We're currently scaling our campus verification system. Your college hub will be live shortly!
+                    Campus verification usually takes less than 24 hours. We&apos;ll notify you once it&apos;s live!
                   </p>
               </motion.div>
 
@@ -148,10 +172,10 @@ export default function CollegeRequestPage() {
                animate={{ opacity: 1, y: 0 }}
             >
                <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-2 text-[10px] font-black text-purple-400 tracking-[0.2em] uppercase mb-6">
-                  <Sparkles size={14} /> Can't find your college?
+                  <Sparkles size={14} /> Can&apos;t find your college?
                </div>
                <h1 className="text-4xl md:text-6xl font-black text-white mb-6 font-instrument-serif leading-tight">Request Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-300">College Hub</span></h1>
-               <p className="text-white/60 text-lg md:text-xl font-medium max-w-2xl mx-auto mb-10">Submit details and we'll add your college within 24 hours.</p>
+               <p className="text-white/60 text-lg md:text-xl font-medium max-w-2xl mx-auto mb-10">Submit details and we&apos;ll add your college within 24 hours.</p>
             </motion.div>
          </div>
       </div>
@@ -254,15 +278,18 @@ export default function CollegeRequestPage() {
                         </div>
                     </div>
 
-                    {error && (
-                        <motion.div 
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: 'auto' }}
-                            className="p-4 rounded-2xl bg-red-50 text-red-500 text-xs font-bold border border-red-100"
-                        >
-                            ⚠️ {error}
-                        </motion.div>
-                    )}
+                    <AnimatePresence>
+                        {error && (
+                            <motion.div 
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: 'auto' }}
+                                exit={{ opacity: 0, height: 0 }}
+                                className="p-4 rounded-2xl bg-red-50 text-red-500 text-xs font-bold border border-red-100"
+                            >
+                                ⚠️ {error}
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
 
                     <button 
                         type="submit" disabled={loading}
@@ -274,15 +301,16 @@ export default function CollegeRequestPage() {
                 </form>
             </div>
 
-            {/* Right Column: Logo Upload */}
+            {/* Right Column: Logo Upload & Lists */}
             <div className="lg:col-span-4">
                 <div className="sticky top-24 space-y-8">
+                    {/* Logo Section */}
                     <div className="bg-gray-50 rounded-[32px] p-8 border border-gray-100 text-center">
                         <h3 className="text-lg font-black text-[#0F172A] font-instrument-serif mb-2">College Logo</h3>
                         <p className="text-xs text-gray-500 mb-8 font-medium">Upload a clear logo for your college community.</p>
                         
                         <div className="relative group mx-auto mb-8">
-                            <div className="w-32 h-32 md:w-40 md:h-40 bg-white rounded-[32px] border-2 border-dashed border-gray-200 flex items-center justify-center overflow-hidden transition-all group-hover:border-purple-400">
+                            <div className="w-32 h-32 md:w-36 md:h-36 bg-white rounded-[32px] border-2 border-dashed border-gray-200 flex items-center justify-center overflow-hidden transition-all group-hover:border-purple-400">
                                 {logoPreview ? (
                                     <img src={logoPreview} alt="Logo Preview" className="w-full h-full object-contain p-4" />
                                 ) : (
@@ -309,13 +337,49 @@ export default function CollegeRequestPage() {
                         </div>
                     </div>
 
-                    <div className="bg-gradient-to-br from-purple-600 to-indigo-700 rounded-[32px] p-8 text-white shadow-xl relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-[40px] -mr-16 -mt-16" />
-                        <h4 className="text-sm font-black uppercase tracking-widest mb-4 flex items-center gap-2">
-                           <Info size={16} /> Admin Policy
+                    {/* Recent Requests */}
+                    <div className="bg-white rounded-3xl border border-gray-100 p-6">
+                       <div className="flex items-center gap-3 mb-6">
+                           <div className="w-8 h-8 rounded-xl bg-orange-50 text-orange-500 flex items-center justify-center">
+                              <Clock size={16} />
+                           </div>
+                           <h3 className="text-sm font-black text-[#0F172A] uppercase tracking-wider">Recent Requests</h3>
+                       </div>
+
+                       <div className="space-y-3">
+                          {dataLoading ? (
+                             [1,2].map(i => <div key={i} className="h-12 bg-gray-50 rounded-2xl animate-pulse" />)
+                          ) : requests.length > 0 ? (
+                             requests.slice(0, 3).map(req => (
+                                <div key={req.id} className="flex items-center justify-between gap-3 p-3 bg-gray-50 rounded-2xl border border-transparent hover:border-orange-100 transition-colors">
+                                   <div className="min-w-0">
+                                      <p className="text-xs font-bold text-[#0F172A] truncate m-0">{req.short_name || req.college_name}</p>
+                                      <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">{req.status}</p>
+                                   </div>
+                                   {req.status === 'approved' && <CheckCircle2 size={14} className="text-green-500 flex-shrink-0" />}
+                                </div>
+                             ))
+                          ) : (
+                             <p className="text-[10px] text-gray-400 italic">No recent requests</p>
+                          )}
+                       </div>
+                    </div>
+
+                    {/* Active Colleges */}
+                    <div className="bg-[#0F172A] rounded-3xl p-6 text-white relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-24 h-24 bg-purple-600/20 rounded-full blur-2xl -mr-12 -mt-12" />
+                        <h4 className="text-[10px] font-black uppercase tracking-widest mb-4 flex items-center gap-2 opacity-60">
+                           <Info size={14} /> Active Hubs
                         </h4>
-                        <p className="text-sm font-medium leading-relaxed opacity-80">
-                           Once submitted, your request will be reviewed by multiple administrators. We verify the college existence and domain details before activation.
+                        <div className="flex flex-wrap gap-2">
+                           {existingColleges.slice(0, 6).map(col => (
+                              <span key={col.id} className="text-[10px] font-bold bg-white/10 px-2.5 py-1 rounded-lg border border-white/5">
+                                 {col.short_name}
+                              </span>
+                           ))}
+                        </div>
+                        <p className="text-[9px] font-medium opacity-50 mt-4 leading-relaxed">
+                           These colleges are verified and have active student communities.
                         </p>
                     </div>
                 </div>
