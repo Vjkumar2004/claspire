@@ -28,11 +28,11 @@ export default function Navbar() {
             <LayoutDashboard size={16} />
             Dashboard
           </Link>
-          <Link href="#" className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-black transition-colors">
+          <Link href="/seniors" className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-black transition-colors">
             <Users size={16} />
             Seniors
           </Link>
-          <Link href="#" className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-black transition-colors">
+          <Link href="/jobs" className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-black transition-colors">
             <Briefcase size={16} />
             Jobs
           </Link>

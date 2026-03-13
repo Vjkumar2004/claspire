@@ -122,6 +122,23 @@ export async function GET(req: NextRequest) {
       user.doubt_count = actualDoubtCount
     }
 
+    // Sync referral_count for juniors based on approved referral requests
+    if (user.role !== 'senior') {
+      const { count: actualReferralCount } = await supabase
+        .from('referral_requests')
+        .select('*', { count: 'exact', head: true })
+        .eq('requester_id', userId)
+        .eq('status', 'approved')
+
+      if (actualReferralCount !== null && actualReferralCount !== user.referral_count) {
+        await supabase
+          .from('users')
+          .update({ referral_count: actualReferralCount })
+          .eq('id', userId)
+        user.referral_count = actualReferralCount
+      }
+    }
+
     // ── Unread notifications ──
     const { count: unreadCount } = await supabase
       .from('notifications')

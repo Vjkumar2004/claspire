@@ -43,9 +43,9 @@ export default function Hero() {
   };
 
   return (
-    <section className="bg-white pt-14 overflow-hidden">
-      <div className="container">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-0">
+    <section className="bg-white pt-14 overflow-hidden min-h-[100dvh] flex flex-col justify-center lg:justify-start lg:min-h-0">
+      <div className="container py-8 lg:py-0">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-0 items-center">
           {/* Left Content */}
           <div className="lg:col-span-7" ref={ref}>
             <motion.div
