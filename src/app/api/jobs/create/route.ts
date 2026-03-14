@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Only seniors can post jobs' }, { status: 403 })
     }
 
-    const {
+    let {
       community_id,
       role: jobRole,
       company_name,
@@ -28,10 +28,32 @@ export async function POST(req: NextRequest) {
       location,
       job_type,
       salary_range,
-      apply_link,
       referral_available,
-      last_date
+      deadline
     } = await req.json()
+
+    // If community_id is missing, find user's college community
+    if (!community_id) {
+      const { data: userProfile } = await supabase
+        .from('users')
+        .select('college_id')
+        .eq('id', userId)
+        .single()
+      
+      if (userProfile?.college_id) {
+        const { data: comm } = await supabase
+          .from('communities')
+          .select('id')
+          .eq('college_id', userProfile.college_id)
+          .single()
+        
+        if (comm) community_id = comm.id
+      }
+    }
+
+    if (!community_id) {
+      return NextResponse.json({ error: 'Could not find a community to post this job to.' }, { status: 400 })
+    }
 
     // Insert job
     const { data: job, error } = await supabase
@@ -45,9 +67,8 @@ export async function POST(req: NextRequest) {
         location,
         job_type,
         salary_range,
-        apply_link,
         referral_available: referral_available || false,
-        last_date: last_date || null,
+        deadline: deadline || null,
         is_active: true,
         created_at: new Date().toISOString()
       })
@@ -55,6 +76,7 @@ export async function POST(req: NextRequest) {
       .single()
 
     if (error) {
+      console.error('Job insert error:', error)
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
