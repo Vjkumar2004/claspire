@@ -61,12 +61,13 @@ export async function POST(req: NextRequest) {
     // Hash password
     const passwordHash = await bcrypt.hash(password, 10)
 
-    // Force valid verification_type
+    // Force valid verification_type and remove non-db fields
+    const { is_fresher, ...cleanProfileData } = profileData
+    
     const safeProfileData = {
-      ...profileData,
-      verification_type: 'manual',
-      verification_status: profileData.verification_status 
-        || 'verified',
+      ...cleanProfileData,
+      verification_type: is_fresher ? 'fresher' : (profileData.verification_type || 'manual'),
+      verification_status: profileData.verification_status || 'verified',
       is_verified: true,
     }
 
