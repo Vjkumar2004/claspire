@@ -61,12 +61,12 @@ export async function POST(req: NextRequest) {
     // Hash password
     const passwordHash = await bcrypt.hash(password, 10)
 
-    // Force valid verification_type and remove non-db fields
-    const { is_fresher, ...cleanProfileData } = profileData
+    // Standardize verification_type to pass DB constraint and remove non-db fields
+    const { is_fresher, work_email, verification_type, ...cleanProfileData } = profileData
     
     const safeProfileData = {
       ...cleanProfileData,
-      verification_type: is_fresher ? 'fresher' : (profileData.verification_type || 'manual'),
+      verification_type: 'manual', // Forced to pass users_verification_type_check
       verification_status: profileData.verification_status || 'verified',
       is_verified: true,
     }
