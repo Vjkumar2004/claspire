@@ -777,16 +777,35 @@ export default function CommunityPage() {
                 <div style={{
                   width: 32, height: 32,
                   borderRadius: 10,
-                  background: 'linear-gradient(135deg, #7C3AED, #06B6D4)',
+                  background: (userCommunity.slug === 'aaacet' || userCommunity.slug === 'vvvclg' || userCommunity.slug === 'vvv' || userCommunity.slug === 'anjac' || userCommunity.slug === 'sfr' || userCommunity.slug === 'skc' || userCommunity.slug === 'kamaraj' || userCommunity.slug === 'agpc') ? 'white' : 'linear-gradient(135deg, #7C3AED, #06B6D4)',
+                  border: (userCommunity.slug === 'aaacet' || userCommunity.slug === 'vvvclg' || userCommunity.slug === 'vvv' || userCommunity.slug === 'anjac' || userCommunity.slug === 'sfr' || userCommunity.slug === 'skc' || userCommunity.slug === 'kamaraj' || userCommunity.slug === 'agpc') ? '1px solid #F1F5F9' : 'none',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   color: 'white',
                   fontSize: 12,
                   fontWeight: 800,
-                  flexShrink: 0
+                  flexShrink: 0,
+                  overflow: 'hidden',
+                  padding: (userCommunity.slug === 'aaacet' || userCommunity.slug === 'vvvclg' || userCommunity.slug === 'vvv' || userCommunity.slug === 'anjac' || userCommunity.slug === 'sfr' || userCommunity.slug === 'skc' || userCommunity.slug === 'kamaraj' || userCommunity.slug === 'agpc') ? '4px' : '0'
                 }}>
-                  {userCommunity.colleges?.short_name?.[0] || 'C'}
+                  {userCommunity.slug === 'aaacet' ? (
+                    <img src="/aaaclg_logo.jpg" alt="AAACET" style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '4px' }} />
+                  ) : (userCommunity.slug === 'vvvclg' || userCommunity.slug === 'vvv') ? (
+                    <img src="/vvvclogo.png" alt="VVV" style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '4px' }} />
+                  ) : userCommunity.slug === 'anjac' ? (
+                    <img src="/anjac.jpg" alt="ANJAC" style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '4px' }} />
+                  ) : userCommunity.slug === 'sfr' ? (
+                    <img src="/sfr.jpg" alt="SFR" style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '4px' }} />
+                  ) : userCommunity.slug === 'skc' ? (
+                    <img src="/skc.jpg" alt="SKC" style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '4px' }} />
+                  ) : userCommunity.slug === 'kamaraj' ? (
+                    <img src="/kamaraj.jpg" alt="Kamaraj" style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '4px' }} />
+                  ) : userCommunity.slug === 'agpc' ? (
+                    <img src="/agpc.jpg" alt="AGPC" style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '4px' }} />
+                  ) : (
+                    userCommunity.colleges?.short_name?.[0] || 'C'
+                  )}
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{
@@ -1779,8 +1798,8 @@ export default function CommunityPage() {
                     width: '36px',
                     height: '36px',
                     borderRadius: '12px',
-                    background: (c.slug === 'aaacet' || c.slug === 'vvvclg' || c.slug === 'vvv' || c.slug === 'anjac' || c.slug === 'sfr') ? '#F8FAFC' : (i === 0 ? 'linear-gradient(135deg, #7C3AED, #4F46E5)' : i === 1 ? 'linear-gradient(135deg, #059669, #10B981)' : '#F1F5F9'),
-                    border: (c.slug === 'aaacet' || c.slug === 'vvvclg' || c.slug === 'vvv' || c.slug === 'anjac' || c.slug === 'sfr') ? '1px solid #F1F5F9' : 'none',
+                    background: (c.slug === 'aaacet' || c.slug === 'vvvclg' || c.slug === 'vvv' || c.slug === 'anjac' || c.slug === 'sfr' || c.slug === 'skc' || c.slug === 'kamaraj' || c.slug === 'agpc') ? '#F8FAFC' : (i === 0 ? 'linear-gradient(135deg, #7C3AED, #4F46E5)' : i === 1 ? 'linear-gradient(135deg, #059669, #10B981)' : '#F1F5F9'),
+                    border: (c.slug === 'aaacet' || c.slug === 'vvvclg' || c.slug === 'vvv' || c.slug === 'anjac' || c.slug === 'sfr' || c.slug === 'skc' || c.slug === 'kamaraj' || c.slug === 'agpc') ? '1px solid #F1F5F9' : 'none',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -1799,6 +1818,12 @@ export default function CommunityPage() {
                       <img src="/anjac.jpg" alt="ANJAC" style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '6px' }} />
                     ) : c.slug === 'sfr' ? (
                       <img src="/sfr.jpg" alt="SFR" style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '6px' }} />
+                    ) : c.slug === 'skc' ? (
+                      <img src="/skc.jpg" alt="SKC" style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '6px' }} />
+                    ) : c.slug === 'kamaraj' ? (
+                      <img src="/kamaraj.jpg" alt="Kamaraj" style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '6px' }} />
+                    ) : c.slug === 'agpc' ? (
+                      <img src="/agpc.jpg" alt="AGPC" style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '6px' }} />
                     ) : (
                       c.colleges?.short_name?.[0] || c.slug?.[0]?.toUpperCase() || 'C'
                     )}

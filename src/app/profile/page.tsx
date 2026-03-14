@@ -73,6 +73,16 @@ export default function ProfilePage() {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    if (
+      formData.linkedin_url && 
+      !formData.linkedin_url.startsWith('https://linkedin.com') &&
+      !formData.linkedin_url.startsWith('https://www.linkedin.com')
+    ) {
+      setError('LinkedIn URL must start with https://linkedin.com or https://www.linkedin.com')
+      return
+    }
+
     setSaving(true)
     setError('')
     setSuccess('')
@@ -143,8 +153,12 @@ export default function ProfilePage() {
       {/* ── Desktop Sidebar ── */}
       <aside className="fixed left-6 top-24 bottom-6 w-72 bg-white rounded-[32px] border border-[#E2E8F0] shadow-sm hidden lg:flex flex-col p-6 z-40">
         <div className="flex items-center gap-3 px-4 mb-10">
-          <div className="w-10 h-10 rounded-xl bg-purple-600 flex items-center justify-center text-white font-black text-xl shadow-lg shadow-purple-200">
-            {initials}
+          <div className={`w-10 h-10 rounded-xl ${avatarUrl ? 'bg-transparent' : 'bg-purple-600'} flex items-center justify-center text-white font-black text-xl shadow-lg shadow-purple-200 overflow-hidden`}>
+            {avatarUrl ? (
+              <img src={avatarUrl} alt={user.full_name} className="w-full h-full object-cover" />
+            ) : (
+              initials
+            )}
           </div>
           <div>
             <p className="text-sm font-black text-[#0F172A] m-0">{user.full_name}</p>
@@ -211,12 +225,23 @@ export default function ProfilePage() {
                      </div>
                      <div className="flex flex-wrap items-center gap-4 text-sm font-semibold text-[#64748B]">
                         <span className="flex items-center gap-1.5"><Building2 size={16} className="text-purple-600" /> {collegeName}</span>
-                        <span className="w-1.5 h-1.5 rounded-full bg-gray-300 hidden md:block" />
+                         {user.role === 'senior' && user.company ? (
+                            <>
+                               <span className="w-1.5 h-1.5 rounded-full bg-gray-300 hidden md:block" />
+                               <span className="flex items-center gap-1.5"><Briefcase size={16} className="text-blue-600" /> {user.designation} at {user.company}</span>
+                               <span className="w-1.5 h-1.5 rounded-full bg-gray-300 hidden md:block" />
+                            </>
+                         ) : (
+                            <span className="w-1.5 h-1.5 rounded-full bg-gray-300 hidden md:block" />
+                         )}
                         <span className="flex items-center gap-1.5 uppercase tracking-widest text-[11px] font-black text-purple-600">{user.unique_id}</span>
                      </div>
                   </div>
                   <div className="flex items-center gap-3">
-                     <button className="px-6 py-3 rounded-2xl bg-white border border-[#E2E8F0] text-sm font-bold text-[#0F172A] hover:bg-gray-50 transition-colors cursor-pointer">
+                     <button 
+                        onClick={() => router.push(`/u/${user.unique_id}`)}
+                        className="px-6 py-3 rounded-2xl bg-white border border-[#E2E8F0] text-sm font-bold text-[#0F172A] hover:bg-gray-50 transition-colors cursor-pointer"
+                     >
                         View Public Profile
                      </button>
                      <button onClick={handleSave} disabled={saving} className="px-8 py-3 rounded-2xl bg-[#0F172A] text-white text-sm font-bold hover:bg-black transition-all cursor-pointer disabled:opacity-50 shadow-xl shadow-gray-200">
@@ -298,30 +323,34 @@ export default function ProfilePage() {
                                 </div>
                              </div>
 
-                             <div>
-                                <label className="block text-[10px] font-black text-[#94A3B8] uppercase tracking-[0.2em] mb-2 px-1">Academic Year</label>
-                                <select 
-                                   value={formData.year}
-                                   onChange={(e) => setFormData({...formData, year: e.target.value})}
-                                   className="w-full bg-gray-50 border border-transparent rounded-2xl px-5 py-4 text-sm text-[#0F172A] outline-none focus:bg-white focus:border-purple-600 transition-all font-bold appearance-none cursor-pointer"
-                                >
-                                   <option value="1">1st Year</option>
-                                   <option value="2">2nd Year</option>
-                                   <option value="3">3rd Year</option>
-                                   <option value="4">Final Year</option>
-                                </select>
-                             </div>
+                             {user.role !== 'senior' && (
+                               <div>
+                                  <label className="block text-[10px] font-black text-[#94A3B8] uppercase tracking-[0.2em] mb-2 px-1">Academic Year</label>
+                                  <select 
+                                     value={formData.year}
+                                     onChange={(e) => setFormData({...formData, year: e.target.value})}
+                                     className="w-full bg-gray-50 border border-transparent rounded-2xl px-5 py-4 text-sm text-[#0F172A] outline-none focus:bg-white focus:border-purple-600 transition-all font-bold appearance-none cursor-pointer"
+                                  >
+                                     <option value="1">1st Year</option>
+                                     <option value="2">2nd Year</option>
+                                     <option value="3">3rd Year</option>
+                                     <option value="4">Final Year</option>
+                                  </select>
+                               </div>
+                             )}
 
-                             <div>
-                                <label className="block text-[10px] font-black text-[#94A3B8] uppercase tracking-[0.2em] mb-2 px-1">Academic CGPA</label>
-                                <input 
-                                   type="number" step="0.01" max="10"
-                                   value={formData.cgpa}
-                                   onChange={(e) => setFormData({...formData, cgpa: e.target.value})}
-                                   placeholder="Current CGPA"
-                                   className="w-full bg-gray-50 border border-transparent rounded-2xl px-5 py-4 text-sm text-[#0F172A] outline-none focus:bg-white focus:border-purple-600 transition-all font-bold"
-                                />
-                             </div>
+                             {user.role !== 'senior' && (
+                               <div>
+                                  <label className="block text-[10px] font-black text-[#94A3B8] uppercase tracking-[0.2em] mb-2 px-1">Academic CGPA</label>
+                                  <input 
+                                     type="number" step="0.01" max="10"
+                                     value={formData.cgpa}
+                                     onChange={(e) => setFormData({...formData, cgpa: e.target.value})}
+                                     placeholder="Current CGPA"
+                                     className="w-full bg-gray-50 border border-transparent rounded-2xl px-5 py-4 text-sm text-[#0F172A] outline-none focus:bg-white focus:border-purple-600 transition-all font-bold"
+                                  />
+                               </div>
+                             )}
                           </div>
                           
                           {error && (
@@ -362,18 +391,35 @@ export default function ProfilePage() {
                                 />
                              </div>
 
-                             <div>
-                                <label className="block text-[10px] font-black text-[#94A3B8] uppercase tracking-[0.2em] mb-2 px-1">Passout Year</label>
-                                <select 
-                                   value={formData.passout_year}
-                                   onChange={(e) => setFormData({...formData, passout_year: e.target.value})}
-                                   className="w-full bg-gray-50 border border-transparent rounded-2xl px-5 py-4 text-sm text-[#0F172A] outline-none focus:bg-white focus:border-purple-600 transition-all font-bold appearance-none cursor-pointer"
-                                >
-                                   {[2024, 2025, 2026, 2027, 2028, 2029, 2030].map(y => (
-                                      <option key={y} value={y}>{y}</option>
-                                   ))}
-                                </select>
-                             </div>
+                             {user.role !== 'senior' && (
+                               <div>
+                                  <label className="block text-[10px] font-black text-[#94A3B8] uppercase tracking-[0.2em] mb-2 px-1">Passout Year</label>
+                                  <select 
+                                     value={formData.passout_year}
+                                     onChange={(e) => setFormData({...formData, passout_year: e.target.value})}
+                                     className="w-full bg-gray-50 border border-transparent rounded-2xl px-5 py-4 text-sm text-[#0F172A] outline-none focus:bg-white focus:border-purple-600 transition-all font-bold appearance-none cursor-pointer"
+                                  >
+                                     {[2024, 2025, 2026, 2027, 2028, 2029, 2030].map(y => (
+                                        <option key={y} value={y}>{y}</option>
+                                     ))}
+                                  </select>
+                               </div>
+                             )}
+
+                             {user.role === 'senior' && (
+                               <div>
+                                  <label className="block text-[10px] font-black text-[#94A3B8] uppercase tracking-[0.2em] mb-2 px-1">Graduation Year</label>
+                                  <select 
+                                     value={formData.graduation_year}
+                                     onChange={(e) => setFormData({...formData, graduation_year: e.target.value})}
+                                     className="w-full bg-gray-50 border border-transparent rounded-2xl px-5 py-4 text-sm text-[#0F172A] outline-none focus:bg-white focus:border-purple-600 transition-all font-bold appearance-none cursor-pointer"
+                                  >
+                                     {[2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025].map(y => (
+                                        <option key={y} value={y}>{y}</option>
+                                     ))}
+                                  </select>
+                               </div>
+                             )}
                           </div>
 
                           {user.role === 'senior' && (
@@ -426,22 +472,38 @@ export default function ProfilePage() {
                        <div className="divide-y divide-[#F1F5F9]">
                           {posts.length > 0 ? posts.map(post => (
                              <div key={post.id} className="p-8 hover:bg-gray-50 flex items-start justify-between group transition-colors cursor-pointer">
-                                <div className="space-y-2">
-                                   <div className="flex items-center gap-3">
-                                      <span className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest border ${
-                                         post.type === 'doubt' ? 'bg-orange-50 text-orange-600 border-orange-100' : 'bg-blue-50 text-blue-600 border-blue-100'
-                                      }`}>
-                                         {post.type}
-                                      </span>
-                                      <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">{new Date(post.created_at).toLocaleDateString()}</span>
+                                <div className="flex gap-4 flex-1">
+                                   <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center text-purple-600 font-bold text-xs overflow-hidden flex-shrink-0 mt-1 shadow-sm">
+                                      {post.users?.avatar_url ? (
+                                         <img src={post.users.avatar_url} alt={post.users.full_name} className="w-full h-full object-cover" />
+                                      ) : (
+                                         post.users?.full_name?.[0] || 'U'
+                                      )}
                                    </div>
-                                   <h3 className="text-md font-bold text-[#0F172A] group-hover:text-purple-600 transition-colors">{post.title}</h3>
-                                   <div className="flex items-center gap-6">
-                                      <div className="flex items-center gap-1.5 text-xs text-green-600 font-bold">
-                                         <ArrowUpCircle size={14} /> {post.upvote_count} Upvotes
+                                   <div className="space-y-2 flex-1">
+                                      <div className="flex items-center gap-3">
+                                         <span className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest border ${
+                                            post.type === 'doubt' ? 'bg-orange-50 text-orange-600 border-orange-100' : 'bg-blue-50 text-blue-600 border-blue-100'
+                                         }`}>
+                                            {post.type}
+                                         </span>
+                                         <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">{new Date(post.created_at).toLocaleDateString()}</span>
                                       </div>
-                                      <div className="flex items-center gap-1.5 text-xs text-purple-600 font-bold">
-                                         <Star size={14} /> {post.answer_count} Answers
+                                      <h3 className="text-md font-bold text-[#0F172A] group-hover:text-purple-600 transition-colors">{post.title}</h3>
+                                      
+                                      {post.image_url && (
+                                         <div className="mt-4 rounded-2xl overflow-hidden border border-gray-100 max-w-sm shadow-sm group-hover:shadow-md transition-shadow">
+                                            <img src={post.image_url} alt="Post content" className="w-full h-auto object-cover max-h-72" />
+                                         </div>
+                                      )}
+
+                                      <div className="flex items-center gap-6">
+                                         <div className="flex items-center gap-1.5 text-xs text-green-600 font-bold">
+                                            <ArrowUpCircle size={14} /> {post.upvote_count} Upvotes
+                                         </div>
+                                         <div className="flex items-center gap-1.5 text-xs text-purple-600 font-bold">
+                                            <Star size={14} /> {post.answer_count} Answers
+                                         </div>
                                       </div>
                                    </div>
                                 </div>
@@ -486,16 +548,23 @@ export default function ProfilePage() {
                         </div>
                      </div>
 
-                     <div className="space-y-6 mb-10">
-                        <div>
-                           <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-1">Claspire Badge</p>
-                           <p className="text-lg font-bold">Standard Member</p>
-                        </div>
-                        <div>
-                           <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-1">Passout Class</p>
-                           <p className="text-lg font-bold">{formData.passout_year || '2025'}</p>
-                        </div>
-                     </div>
+                      <div className="space-y-6 mb-10">
+                         <div>
+                            <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-1">Claspire Badge</p>
+                            <p className="text-lg font-bold">Standard Member</p>
+                         </div>
+                         {user.role === 'senior' ? (
+                            <div>
+                               <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-1">Graduation Year</p>
+                               <p className="text-lg font-bold">{formData.graduation_year || '2024'}</p>
+                            </div>
+                         ) : (
+                            <div>
+                               <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-1">Passout Class</p>
+                               <p className="text-lg font-bold">{formData.passout_year || '2025'}</p>
+                            </div>
+                         )}
+                      </div>
 
                      <div className="pt-8 border-t border-white/10 flex items-center justify-between">
                         <div>

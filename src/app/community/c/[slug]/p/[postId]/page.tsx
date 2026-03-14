@@ -402,8 +402,14 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
               fontSize: 15,
               fontWeight: 800,
               flexShrink: 0,
-              overflow: 'hidden'
-            }}>
+              overflow: 'hidden',
+              cursor: 'pointer',
+              transition: 'transform 0.2s'
+            }}
+            onClick={() => router.push(`/u/${post.users?.unique_id}`)}
+            onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.05)'}
+            onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+            >
               {post.users?.avatar_url ? (
                 <img 
                   src={post.users.avatar_url} 
@@ -423,7 +429,12 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
                 flexWrap: 'wrap',
                 marginBottom: 4
               }}>
-                <span style={{ fontSize: 15, fontWeight: 700, color: '#1F2937' }}>
+                <span 
+                  onClick={() => router.push(`/u/${post.users?.unique_id}`)}
+                  style={{ fontSize: 15, fontWeight: 700, color: '#1F2937', cursor: 'pointer' }}
+                  onMouseEnter={e => e.currentTarget.style.color = '#7C3AED'}
+                  onMouseLeave={e => e.currentTarget.style.color = '#1F2937'}
+                >
                   {post.users?.full_name}
                 </span>
                 {post.users?.role === 'senior' && (
@@ -507,6 +518,24 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
           }}>
             {post.content}
           </p>
+
+          {post.image_url && (
+            <div style={{
+              borderRadius: 16,
+              overflow: 'hidden',
+              marginBottom: 24,
+              border: '1px solid #F3F4F6',
+              cursor: 'pointer'
+            }}
+            onClick={() => window.open(post.image_url, '_blank')}
+            >
+              <img 
+                src={post.image_url} 
+                alt="Post content" 
+                style={{ width: '100%', height: 'auto', display: 'block' }} 
+              />
+            </div>
+          )}
 
           {/* Tags */}
           {post.tags?.length > 0 && (
@@ -665,17 +694,24 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
                   display: 'flex', alignItems: 'center', gap: 10,
                   marginBottom: 12
                 }}>
-                  <div style={{
-                    width: 32, height: 32, borderRadius: 8,
-                    background: answer.users?.avatar_url 
-                      ? 'transparent' 
-                      : (answer.users?.role === 'senior'
-                          ? 'linear-gradient(135deg,#059669,#34D399)'
-                          : 'linear-gradient(135deg,#7C3AED,#06B6D4)'),
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    color: 'white', fontSize: 12, fontWeight: 800, flexShrink: 0,
-                    overflow: 'hidden'
-                  }}>
+                  <div 
+                    onClick={() => router.push(`/u/${answer.users?.unique_id}`)}
+                    style={{
+                      width: 32, height: 32, borderRadius: 8,
+                      background: answer.users?.avatar_url 
+                        ? 'transparent' 
+                        : (answer.users?.role === 'senior'
+                            ? 'linear-gradient(135deg,#059669,#34D399)'
+                            : 'linear-gradient(135deg,#7C3AED,#06B6D4)'),
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      color: 'white', fontSize: 12, fontWeight: 800, flexShrink: 0,
+                      overflow: 'hidden',
+                      cursor: 'pointer',
+                      transition: 'transform 0.2s'
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.05)'}
+                    onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+                  >
                     {answer.users?.avatar_url ? (
                       <img 
                         src={answer.users.avatar_url} 
@@ -688,7 +724,12 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-                      <span style={{ fontSize: 13, fontWeight: 700, color: '#1F2937' }}>
+                      <span 
+                        onClick={() => router.push(`/u/${answer.users?.unique_id}`)}
+                        style={{ fontSize: 13, fontWeight: 700, color: '#1F2937', cursor: 'pointer' }}
+                        onMouseEnter={e => e.currentTarget.style.color = '#7C3AED'}
+                        onMouseLeave={e => e.currentTarget.style.color = '#1F2937'}
+                      >
                         {answer.users?.full_name}
                       </span>
                       {answer.users?.role === 'senior' && (

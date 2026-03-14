@@ -140,56 +140,45 @@ export async function GET(
       )
     }
 
-    // 3. Get verified counts
+    // 3. Get total member count (joined + following)
+    const { count: totalMembersCount } = await supabase
+      .from('community_members')
+      .select('*', { count: 'exact', head: true })
+      .eq('community_id', community.id)
+      .in('membership_type', ['joined', 'following'])
+
+    // 4. Get senior count specifically
+    const { count: seniorMembersCount } = await supabase
+      .from('community_members')
+      .select('*', { count: 'exact', head: true })
+      .eq('community_id', community.id)
+      .eq('role', 'senior')
+      .in('membership_type', ['joined', 'following'])
+
+    // 5. Get verified stats for display
     const { data: members } = await supabase
       .from('community_members')
-      .select(`
-        membership_type,
-        users (
-          role, is_verified
-        )
-      `)
+      .select('users(role, is_verified)')
       .eq('community_id', community.id)
-      .eq('membership_type', 'joined')
+      .eq('is_verified', true)
+      .in('membership_type', ['joined', 'following'])
 
-    console.log('All members for community:', community.id, members)
+    const verifiedJuniors = members?.filter((m: any) => 
+      ['student', 'member'].includes(m.users?.role)
+    ).length || 0
+    const verifiedSeniors = members?.filter((m: any) => m.users?.role === 'senior').length || 0
 
-    // Also check all verified users in this college (not just joined members)
-    const { data: collegeUsers } = await supabase
+    // Get all verified users in this college (fallback)
+    const { count: collegeVerifiedCount } = await supabase
       .from('users')
-      .select('role, is_verified')
+      .select('*', { count: 'exact', head: true })
       .eq('college_id', community.colleges.id)
       .eq('is_verified', true)
 
-    console.log('All verified users in college:', community.colleges.id, collegeUsers)
-
-    const verifiedJuniors = members?.filter(
-      (m: any) => m.users?.role === 'student' && 
-           m.users?.is_verified
-    ).length || 0
-
-    const verifiedSeniors = members?.filter(
-      (m: any) => m.users?.role === 'senior' && 
-           m.users?.is_verified
-    ).length || 0
-
-    // Alternative count: count all verified students in the college
-    const allVerifiedJuniorsInCollege = collegeUsers?.filter(
-      (u: any) => u.role === 'student'
-    ).length || 0
-
-    const allVerifiedSeniorsInCollege = collegeUsers?.filter(
-      (u: any) => u.role === 'senior'
-    ).length || 0
-
-    console.log('Verified juniors count (joined members):', verifiedJuniors)
-    console.log('Verified seniors count (joined members):', verifiedSeniors)
-    console.log('All verified juniors in college:', allVerifiedJuniorsInCollege)
-    console.log('All verified seniors in college:', allVerifiedSeniorsInCollege)
-
-    // Use the broader count if joined members count is 0
-    const finalJuniorsCount = verifiedJuniors > 0 ? verifiedJuniors : allVerifiedJuniorsInCollege
-    const finalSeniorsCount = verifiedSeniors > 0 ? verifiedSeniors : allVerifiedSeniorsInCollege
+    // Final display counts
+    const finalJuniorsCount = verifiedJuniors > 0 ? verifiedJuniors : (collegeVerifiedCount || 0)
+    const finalSeniorsCount = verifiedSeniors > 0 ? verifiedSeniors : 0
+    const totalMembers = totalMembersCount || 0
 
     // Check if current user is already a member of this community
     let isAlreadyMember = false
@@ -200,15 +189,15 @@ export async function GET(
       
       isOwnCollege = currentUser.college_id === community.colleges.id
       
-      const { data: userMembership, error } = await supabase
+      const { data: userMembership } = await supabase
         .from('community_members')
         .select('membership_type')
         .eq('community_id', community.id)
         .eq('user_id', currentUser.id)
-        .single()
+        .maybeSingle()
       
-      console.log('User membership result:', { userMembership, error })
       isAlreadyMember = !!userMembership
+      console.log('Membership check result:', { userId: currentUser.id, isAlreadyMember, userMembership })
       console.log('Is already member (from DB):', isAlreadyMember)
     }
 
@@ -311,11 +300,13 @@ export async function GET(
       community,
       verifiedJuniors: finalJuniorsCount,
       verifiedSeniors: finalSeniorsCount,
+      totalMembers,
       posts: posts || [],
       jobs,
       webinars,
       userRole,
       isAlreadyMember,
+      isJoined: isAlreadyMember,
       canPost: ['own_junior', 'own_senior']
         .includes(userRole),
       canAnswer: userRole === 'own_senior',

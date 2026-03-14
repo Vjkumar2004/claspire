@@ -99,10 +99,11 @@ export async function GET(req: NextRequest) {
     const { data: myPosts } = await supabase
       .from('posts')
       .select(`
-        id, title, content, type,
+        id, title, content, type, image_url,
         upvote_count, answer_count,
         is_answered, created_at,
-        communities ( display_name, slug )
+        communities ( display_name, slug ),
+        users:author_id ( full_name, avatar_url, unique_id )
       `)
       .eq('author_id', userId)
       .order('created_at', { ascending: false })
@@ -166,7 +167,7 @@ export async function GET(req: NextRequest) {
           .from('posts')
           .select(`
             id, title, content, created_at,
-            users:author_id ( id, full_name, role, avatar_url )
+            users:author_id ( id, full_name, role, avatar_url, unique_id )
           `)
           .eq('community_id', comm.id)
           .eq('type', 'doubt')
@@ -200,7 +201,7 @@ export async function GET(req: NextRequest) {
       .select(`
         id, status, created_at,
         job:job_id ( company_name, role ),
-        senior:senior_id ( id, full_name, avatar_url )
+        senior:senior_id ( id, full_name, avatar_url, unique_id )
       `)
       .eq('requester_id', userId)
       .order('created_at', { ascending: false })
@@ -225,7 +226,7 @@ export async function GET(req: NextRequest) {
         .select(`
           id, title, description, scheduled_at, duration,
           communities ( display_name ),
-          users:instructor_id ( id, full_name, avatar_url )
+          users:instructor_id ( id, full_name, avatar_url, unique_id )
         `)
         .in('community_id', communityIds)
         .in('status', ['upcoming', 'live'])

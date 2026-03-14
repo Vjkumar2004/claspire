@@ -31,8 +31,12 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: 'Year must be between 1 and 4' }, { status: 400 })
     }
 
-    if (linkedin_url && !linkedin_url.startsWith('https://linkedin.com')) {
-      return NextResponse.json({ error: 'LinkedIn URL must start with https://linkedin.com' }, { status: 400 })
+    if (
+      linkedin_url && 
+      !linkedin_url.startsWith('https://linkedin.com') && 
+      !linkedin_url.startsWith('https://www.linkedin.com')
+    ) {
+      return NextResponse.json({ error: 'LinkedIn URL must start with https://linkedin.com or https://www.linkedin.com' }, { status: 400 })
     }
 
     // Only allow specific fields

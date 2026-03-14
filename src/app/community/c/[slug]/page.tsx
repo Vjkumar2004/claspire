@@ -24,6 +24,8 @@ export default function CommunityPage({ params }: { params: Promise<{ slug: stri
   const [referralConfirmOpen, setReferralConfirmOpen] = useState(false)
   const [selectedJob, setSelectedJob] = useState<any>(null)
   const [requestLoading, setRequestLoading] = useState(false)
+  const [joining, setJoining] = useState(false)
+  const [hasJoined, setHasJoined] = useState(false)
 
   useEffect(() => {
     const getSlug = async () => {
@@ -40,15 +42,22 @@ export default function CommunityPage({ params }: { params: Promise<{ slug: stri
     }
   }, [slug])
 
+  useEffect(() => {
+    if (data) {
+      setHasJoined(data.isJoined || data.isAlreadyMember || false)
+    }
+  }, [data])
+
   async function fetchCommunity() {
     try {
-      const res = await fetch(`/api/community/${slug}`)
+      const res = await fetch(`/api/community/${slug}`, { cache: 'no-store' })
       if (!res.ok) {
         router.push('/community')
         return
       }
       const json = await res.json()
       setData(json)
+      setHasJoined(json.isJoined || false)
     } catch {
       router.push('/community')
     } finally {
@@ -58,7 +67,7 @@ export default function CommunityPage({ params }: { params: Promise<{ slug: stri
 
   async function fetchCurrentUser() {
     try {
-      const res = await fetch('/api/auth/me')
+      const res = await fetch('/api/auth/me', { cache: 'no-store' })
       if (res.ok) {
         const json = await res.json()
         setCurrentUser(json.user)
@@ -91,6 +100,34 @@ export default function CommunityPage({ params }: { params: Promise<{ slug: stri
       alert('Network error')
     } finally {
       setRequestLoading(false)
+    }
+  }
+
+  const handleJoin = async () => {
+    const userStr = localStorage.getItem('claspire_user')
+    if (!userStr) {
+      router.push('/login')
+      return
+    }
+
+    if (joining) return
+    setJoining(true)
+
+    try {
+      const res = await fetch(`/api/community/${slug}/join`, { method: 'POST' })
+      const result = await res.json()
+
+      if (result.success) {
+        setHasJoined(true)
+        // Refresh community data to update member count
+        await fetchCommunity()
+      } else {
+        console.error(result.error)
+      }
+    } catch (err) {
+      console.error('Join error:', err)
+    } finally {
+      setJoining(false)
     }
   }
 
@@ -165,7 +202,8 @@ export default function CommunityPage({ params }: { params: Promise<{ slug: stri
     canPost, 
     canViewJobs, 
     canViewWebinars, 
-    isAlreadyMember 
+    isAlreadyMember,
+    totalMembers = 0
   } = data || {}
 
   const tabs = [
@@ -224,9 +262,9 @@ export default function CommunityPage({ params }: { params: Promise<{ slug: stri
               <div style={{ 
                 width: '100%', 
                 height: '100%', 
-                background: (community.slug === 'aaacet' || community.slug === 'vvvclg' || community.slug === 'vvv' || community.slug === 'anjac' || community.slug === 'sfr') ? 'white' : 'linear-gradient(135deg, #7C3AED, #4F46E5)', 
+                background: (community.slug === 'aaacet' || community.slug === 'vvvclg' || community.slug === 'vvv' || community.slug === 'anjac' || community.slug === 'sfr' || community.slug === 'skc' || community.slug === 'kamaraj' || community.slug === 'agpc') ? 'white' : 'linear-gradient(135deg, #7C3AED, #4F46E5)', 
                 borderRadius: 24, 
-                padding: (community.slug === 'aaacet' || community.slug === 'vvvclg' || community.slug === 'vvv' || community.slug === 'anjac' || community.slug === 'sfr') ? 10 : 0, 
+                padding: (community.slug === 'aaacet' || community.slug === 'vvvclg' || community.slug === 'vvv' || community.slug === 'anjac' || community.slug === 'sfr' || community.slug === 'skc' || community.slug === 'kamaraj' || community.slug === 'agpc') ? 10 : 0, 
                 display: 'flex', 
                 alignItems: 'center', 
                 justifyContent: 'center', 
@@ -243,6 +281,12 @@ export default function CommunityPage({ params }: { params: Promise<{ slug: stri
                   <img src="/anjac.jpg" alt="ANJAC" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                 ) : community.slug === 'sfr' ? (
                   <img src="/sfr.jpg" alt="SFR" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                ) : community.slug === 'skc' ? (
+                  <img src="/skc.jpg" alt="SKC" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                ) : community.slug === 'kamaraj' ? (
+                  <img src="/kamaraj.jpg" alt="Kamaraj" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                ) : community.slug === 'agpc' ? (
+                  <img src="/agpc.jpg" alt="AGPC" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                 ) : (
                   community.colleges?.short_name?.[0] || community.slug?.[0]?.toUpperCase() || 'C'
                 )}
@@ -254,7 +298,7 @@ export default function CommunityPage({ params }: { params: Promise<{ slug: stri
                 <div style={{ background: 'rgba(124, 58, 237, 0.15)', color: '#A78BFA', padding: '6px 16px', borderRadius: 100, fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', border: '1px solid rgba(124, 58, 237, 0.3)' }}>Official Hub</div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'white', fontSize: 13, fontWeight: 600 }}>
                    <div style={{ width: 6, height: 6, background: '#10B981', borderRadius: '50%', boxShadow: '0 0 10px #10B981' }} />
-                   {verifiedJuniors + verifiedSeniors} Members
+                   {(totalMembers || community.member_count || (verifiedJuniors + verifiedSeniors))} Members
                 </div>
               </div>
               
@@ -266,15 +310,92 @@ export default function CommunityPage({ params }: { params: Promise<{ slug: stri
                 <button onClick={() => setShowDetailsModal(true)} style={{ background: 'rgba(255,255,255,0.08)', color: 'white', border: '1px solid rgba(255,255,255,0.15)', padding: '10px 20px', borderRadius: 14, fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, transition: 'all 0.2s' }} onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'} onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}>
                   <Info size={14} /> Community Insight
                 </button>
-                {!isAlreadyMember && userRole !== 'guest' ? (
-                  <button style={{ background: 'linear-gradient(135deg, #7C3AED, #06B6D4)', color: 'white', border: 'none', padding: '11px 24px', borderRadius: 14, fontSize: 12, fontWeight: 800, cursor: 'pointer', boxShadow: '0 8px 16px rgba(124, 58, 237, 0.25)', transition: 'transform 0.2s' }} onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'} onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}>
-                    Join Network
+                {userRole === 'guest' ? (
+                  <button
+                    onClick={() => router.push('/signup')}
+                    style={{
+                      background: 'linear-gradient(135deg, #7C3AED, #06B6D4)',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: 14,
+                      padding: '11px 24px',
+                      fontSize: 12,
+                      fontWeight: 800,
+                      cursor: 'pointer',
+                      boxShadow: '0 8px 16px rgba(124, 58, 237, 0.25)',
+                      transition: 'transform 0.2s'
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
+                    onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+                  >
+                    Join Free →
                   </button>
-                ) : (
-                  <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: 14, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <CheckCircle size={18} color="#10B981" /> Verified Member
+                ) : (userRole === 'own_junior' || userRole === 'own_senior') ? (
+                  <div style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: 8, 
+                    background: 'rgba(16, 185, 129, 0.15)', 
+                    border: '1px solid rgba(16, 185, 129, 0.3)', 
+                    padding: '10px 20px', 
+                    borderRadius: 14, 
+                    fontSize: 12, 
+                    fontWeight: 700, 
+                    color: '#6EE7B7' 
+                  }}>
+                    <CheckCircle size={16} /> 
+                    {userRole === 'own_senior' ? 'Verified Senior ✓' : 'Verified Member ✓'}
                   </div>
-                )}
+                ) : userRole === 'other_college' ? (
+                  hasJoined ? (
+                    <div style={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: 8, 
+                      background: 'rgba(124, 58, 237, 0.15)', 
+                      border: '1px solid rgba(124, 58, 237, 0.3)', 
+                      padding: '10px 20px', 
+                      borderRadius: 14, 
+                      fontSize: 12, 
+                      fontWeight: 700, 
+                      color: '#C4B5FD' 
+                    }}>
+                      <CheckCircle size={16} /> Joined Network ✓
+                    </div>
+                  ) : (
+                    <button 
+                      onClick={handleJoin}
+                      disabled={joining}
+                      style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: 8,
+                        background: joining ? 'rgba(255,255,255,0.1)' : 'white', 
+                        color: '#4C1D95', 
+                        border: 'none', 
+                        padding: '11px 24px', 
+                        borderRadius: 14, 
+                        fontSize: 12, 
+                        fontWeight: 800, 
+                        cursor: joining ? 'wait' : 'pointer', 
+                        boxShadow: '0 8px 16px rgba(0, 0, 0, 0.15)', 
+                        transition: 'all 0.2s',
+                        opacity: joining ? 0.7 : 1
+                      }}
+                      onMouseEnter={e => !joining && (e.currentTarget.style.transform = 'translateY(-2px)')}
+                      onMouseLeave={e => !joining && (e.currentTarget.style.transform = 'translateY(0)')}
+                    >
+                      {joining ? (
+                        <>
+                          <div style={{ width: 14, height: 14, border: '2px solid #4C1D95', borderTop: '2px solid transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+                          Joining...
+                        </>
+                      ) : (
+                        'Join Network →'
+                      )}
+                    </button>
+                  )
+                ) : null}
               </div>
             </div>
           </div>
@@ -314,21 +435,28 @@ export default function CommunityPage({ params }: { params: Promise<{ slug: stri
                       {/* Interaction Bar Top */}
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                          <div style={{ 
-                            width: 36, height: 36, 
-                            borderRadius: 10, 
-                            background: post.users?.avatar_url 
-                              ? 'transparent' 
-                              : (post.users?.role === 'senior' ? 'linear-gradient(135deg, #10B981, #34D399)' : 'linear-gradient(135deg, #7C3AED, #06B6D4)'), 
-                            color: 'white', 
-                            display: 'flex', 
-                            alignItems: 'center', 
-                            justifyContent: 'center', 
-                            fontSize: 13, 
-                            fontWeight: 800, 
-                            boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
-                            overflow: 'hidden'
-                          }}>
+                          <div 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              router.push(`/u/${post.users?.unique_id}`);
+                            }}
+                            style={{ 
+                              width: 36, height: 36, 
+                              borderRadius: 10, 
+                              background: post.users?.avatar_url 
+                                ? 'transparent' 
+                                : (post.users?.role === 'senior' ? 'linear-gradient(135deg, #10B981, #34D399)' : 'linear-gradient(135deg, #7C3AED, #06B6D4)'), 
+                              color: 'white', 
+                              display: 'flex', 
+                              alignItems: 'center', 
+                              justifyContent: 'center', 
+                              fontSize: 13, 
+                              fontWeight: 800, 
+                              boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
+                              overflow: 'hidden',
+                              cursor: 'pointer'
+                            }}
+                          >
                             {post.users?.avatar_url ? (
                               <img src={post.users.avatar_url} alt={post.users.full_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                             ) : (
@@ -336,7 +464,14 @@ export default function CommunityPage({ params }: { params: Promise<{ slug: stri
                             )}
                           </div>
                           <div>
-                            <div style={{ fontSize: 14, fontWeight: 800, color: '#0F172A', display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <div 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                router.push(`/u/${post.users?.unique_id}`);
+                              }}
+                              style={{ fontSize: 14, fontWeight: 800, color: '#0F172A', display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}
+                              className="hover:text-purple-600 transition-colors"
+                            >
                               {post.users?.full_name}
                               {post.users?.role === 'senior' && <Crown size={12} color="#F59E0B" />}
                             </div>
@@ -532,7 +667,7 @@ export default function CommunityPage({ params }: { params: Promise<{ slug: stri
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
               {[
                 { label: 'Seniors', val: verifiedSeniors, icon: <Crown size={16} color="#7C3AED" />, bg: '#F5F3FF' },
-                { label: 'Students', val: verifiedJuniors, icon: <GraduationCap size={16} color="#06B6D4" />, bg: '#ECFEFF' },
+                { label: 'Network', val: totalMembers, icon: <Users size={16} color="#06B6D4" />, bg: '#ECFEFF' },
                 { label: 'Debates', val: posts?.length || 0, icon: <MessageCircle size={16} color="#F59E0B" />, bg: '#FFFBEB' },
                 { label: 'Referrals', val: jobs?.length || 0, icon: <Target size={16} color="#10B981" />, bg: '#F0FDF4' }
               ].map((s, i) => (
@@ -636,7 +771,7 @@ export default function CommunityPage({ params }: { params: Promise<{ slug: stri
                   </div>
                   <div style={{ padding: 16, borderRadius: 16, background: '#F8FAFC', border: '1px solid #F1F5F9' }}>
                     <div style={{ fontSize: 9, fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', marginBottom: 4 }}>MEMBERS</div>
-                    <div style={{ fontSize: 14, fontWeight: 800, color: '#1E293B' }}>{verifiedJuniors + verifiedSeniors}+ Peers</div>
+                    <div style={{ fontSize: 14, fontWeight: 800, color: '#1E293B' }}>{(totalMembers > 0 ? totalMembers : (verifiedJuniors + verifiedSeniors))} Peers</div>
                   </div>
                 </div>
                 <div style={{ background: '#F5F3FF', borderRadius: 16, padding: 16, border: '1px solid rgba(124, 58, 237, 0.1)' }}>

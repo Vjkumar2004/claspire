@@ -1,12 +1,15 @@
 'use client'
-import { useState } from 'react'
+
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useAuth } from '@/hooks/useAuth'
 import Link from 'next/link'
 import Navbar from '@/components/Navbar'
 import { Eye, EyeOff, Mail, Lock, User, GraduationCap } from 'lucide-react'
 
 export default function LoginPage() {
   const router = useRouter()
+  const { user, loading: authLoading } = useAuth()
   const [activeRole, setActiveRole] = useState<'student' | 'senior'>('student')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -14,6 +17,37 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
+  // Redirect if already logged in
+  useEffect(() => {
+    if (!authLoading && user) {
+      if (user.role === 'senior') {
+        router.push('/dashboard/senior')
+      } else {
+        router.push('/dashboard/junior')
+      }
+    }
+  }, [user, authLoading, router])
+
+  if (authLoading) {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: '#F9FAFB'
+      }}>
+        <div style={{
+          width: 40, height: 40,
+          border: '3px solid #E5E7EB',
+          borderTop: '3px solid #7C3AED',
+          borderRadius: '50%',
+          animation: 'spin 0.8s linear infinite'
+        }} />
+        <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
+      </div>
+    )
+  }
   const handleLogin = async () => {
     if (!email || !password) {
       setError('Email and password required')

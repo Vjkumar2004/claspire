@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePoints } from '@/contexts/PointsContext';
+import { useRouter } from 'next/navigation';
 import { HelpCircle, Briefcase, Handshake, Mic, DollarSign, BarChart3, Star, Trophy, User, CheckCircle, Settings, Zap, TrendingUp } from 'lucide-react';
 
 // Helper functions
@@ -17,6 +18,7 @@ const timeAgo = (dateStr: string) => {
 }
 
 export default function SeniorDashboardPage() {
+  const router = useRouter();
   // Move ALL useState hooks to the top - Rules of Hooks compliance
   const { showAward } = usePoints();
   const [activeNav, setActiveNav] = useState("overview");
@@ -467,7 +469,10 @@ export default function SeniorDashboardPage() {
                       <div className="flex justify-between items-start gap-3">
                         <div className="flex-1">
                           <div className="flex items-center gap-3">
-                            <div className={`w-8 h-8 rounded-lg flex-shrink-0 ${post.users?.avatar_url ? 'bg-transparent' : 'bg-purple-100'} flex items-center justify-center text-purple-600 font-bold text-[10px] overflow-hidden`}>
+                            <div 
+                              onClick={() => router.push(`/u/${post.users?.unique_id}`)}
+                              className={`w-8 h-8 rounded-lg flex-shrink-0 ${post.users?.avatar_url ? 'bg-transparent' : 'bg-purple-100'} flex items-center justify-center text-purple-600 font-bold text-[10px] overflow-hidden cursor-pointer hover:scale-105 transition-transform`}
+                            >
                               {post.users?.avatar_url ? (
                                 <img src={post.users.avatar_url} alt={post.users.full_name} className="w-full h-full object-cover" />
                               ) : (
@@ -479,7 +484,12 @@ export default function SeniorDashboardPage() {
                             </p>
                           </div>
                           <div className="flex items-center gap-2 mt-1.5">
-                            <span className="text-[10px] text-gray-400">by {post.users?.full_name || 'Student'}</span>
+                            <span 
+                              onClick={() => router.push(`/u/${post.users?.unique_id}`)}
+                              className="text-[10px] text-gray-400 cursor-pointer hover:text-purple-600 transition-colors"
+                            >
+                              by {post.users?.full_name || 'Student'}
+                            </span>
                             <span className="text-[10px] text-gray-300">•</span>
                             <span className="text-[10px] text-gray-400">{timeAgo(post.created_at)}</span>
                           </div>
@@ -515,7 +525,10 @@ export default function SeniorDashboardPage() {
                     <div key={req.id} className="p-4 hover:bg-gray-50 transition-colors">
                       <div className="flex justify-between items-center">
                         <div className="flex items-center gap-3">
-                          <div className={`w-9 h-9 rounded-full ${req.requester?.avatar_url ? 'bg-transparent' : 'bg-gradient-to-br from-purple-100 to-cyan-50'} text-purple-600 text-xs font-black flex items-center justify-center border border-purple-100 overflow-hidden flex-shrink-0`}>
+                          <div 
+                            onClick={() => router.push(`/u/${req.requester?.unique_id}`)}
+                            className={`w-9 h-9 rounded-full ${req.requester?.avatar_url ? 'bg-transparent' : 'bg-gradient-to-br from-purple-100 to-cyan-50'} text-purple-600 text-xs font-black flex items-center justify-center border border-purple-100 overflow-hidden flex-shrink-0 cursor-pointer hover:scale-105 transition-transform`}
+                          >
                             {req.requester?.avatar_url ? (
                               <img src={req.requester.avatar_url} alt={req.requester.full_name} className="w-full h-full object-cover" />
                             ) : (
@@ -523,7 +536,12 @@ export default function SeniorDashboardPage() {
                             )}
                           </div>
                           <div>
-                            <p className="text-xs font-black text-black">{req.requester?.full_name}</p>
+                            <p 
+                              onClick={() => router.push(`/u/${req.requester?.unique_id}`)}
+                              className="text-xs font-black text-black cursor-pointer hover:text-purple-600 transition-colors"
+                            >
+                              {req.requester?.full_name}
+                            </p>
                             <p className="text-[10px] text-gray-400 font-semibold">{req.job?.role} @ {req.job?.company_name}</p>
                           </div>
                         </div>

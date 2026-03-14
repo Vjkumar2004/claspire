@@ -45,6 +45,7 @@ interface DashData {
     id: string
     title: string
     content: string
+    image_url?: string
     upvote_count: number
     answer_count: number
     is_answered: boolean
@@ -53,6 +54,11 @@ interface DashData {
       display_name: string
       slug: string
     } | null
+    users: {
+      full_name: string
+      avatar_url?: string
+      unique_id: string
+    }
   }>
   unreadCount: number
   dailyRPEarned: boolean
@@ -68,6 +74,7 @@ interface DashData {
       id: string
       full_name: string
       avatar_url?: string
+      unique_id: string
     }
   }>
   joinedCommunities: Array<{
@@ -91,6 +98,7 @@ interface DashData {
       id: string
       full_name: string
       avatar_url?: string
+      unique_id: string
     }
   }>
 }
@@ -449,8 +457,24 @@ export default function JuniorDashboard() {
                                 </button>
                               </div>
                             </div>
-                            <h3 className="text-lg font-bold text-[#1E293B] group-hover:text-purple-600 transition-colors mb-2">{post.title}</h3>
-                            <p className="text-sm font-medium text-[#64748B] line-clamp-2 mb-6">{post.content}</p>
+                            <div className="flex gap-4">
+                              <div className={`w-9 h-9 rounded-xl ${post.users?.avatar_url ? 'bg-transparent' : 'bg-purple-100'} flex items-center justify-center text-purple-600 font-bold text-xs overflow-hidden flex-shrink-0 mt-1 shadow-sm`}>
+                                {post.users?.avatar_url ? (
+                                  <img src={post.users.avatar_url} alt={post.users.full_name} className="w-full h-full object-cover" />
+                                ) : (
+                                  post.users?.full_name?.[0] || 'U'
+                                )}
+                              </div>
+                              <div className="flex-1">
+                                <h3 className="text-lg font-bold text-[#1E293B] group-hover:text-purple-600 transition-colors mb-2">{post.title}</h3>
+                                <p className="text-sm font-medium text-[#64748B] line-clamp-2 mb-4">{post.content}</p>
+                                {post.image_url && (
+                                  <div className="mb-6 rounded-xl overflow-hidden border border-gray-100 max-w-md shadow-sm">
+                                    <img src={post.image_url} alt="Post content" className="w-full h-auto object-cover max-h-60" />
+                                  </div>
+                                )}
+                              </div>
+                            </div>
                             <div className="flex items-center justify-between text-xs font-bold text-[#94A3B8] border-t border-[#F1F5F9] pt-4">
                               <div className="flex gap-4">
                                 <span className="flex items-center gap-1.5"><ArrowUp size={14} /> {post.upvote_count}</span>
@@ -495,7 +519,10 @@ export default function JuniorDashboard() {
                            <h3 className="text-xl font-bold text-[#0F172A] m-0 mb-2 truncate group-hover:text-purple-600 transition-colors">{w.title}</h3>
                            <p className="text-sm font-medium text-[#64748B] line-clamp-2 mb-6 h-10">{w.description}</p>
                            <div className="flex items-center gap-3 mb-6">
-                              <div className={`w-10 h-10 rounded-xl ${w.users.avatar_url ? 'bg-transparent' : 'bg-gray-50'} flex items-center justify-center text-lg overflow-hidden`}>
+                              <div 
+                                onClick={() => router.push(`/u/${w.users.unique_id}`)}
+                                className={`w-10 h-10 rounded-xl ${w.users.avatar_url ? 'bg-transparent' : 'bg-gray-50'} flex items-center justify-center text-lg overflow-hidden cursor-pointer hover:scale-105 transition-transform`}
+                              >
                                 {w.users.avatar_url ? (
                                   <img src={w.users.avatar_url} alt={w.users.full_name} className="w-full h-full object-cover" />
                                 ) : (
@@ -503,7 +530,12 @@ export default function JuniorDashboard() {
                                 )}
                               </div>
                               <div>
-                                 <p className="text-xs font-bold text-[#0F172A] m-0">{w.users.full_name}</p>
+                                 <p 
+                                   onClick={() => router.push(`/u/${w.users.unique_id}`)}
+                                   className="text-xs font-bold text-[#0F172A] m-0 cursor-pointer hover:text-purple-600 transition-colors"
+                                 >
+                                   {w.users.full_name}
+                                 </p>
                                  <p className="text-[10px] font-bold text-[#94A3B8] m-0 uppercase tracking-wider">Expert Mentor</p>
                               </div>
                            </div>
@@ -568,7 +600,10 @@ export default function JuniorDashboard() {
                        {dashData.myReferrals.length > 0 ? dashData.myReferrals.map((req, i) => (
                          <div key={i} className="bg-white p-6 rounded-[32px] border border-[#E2E8F0] hover:border-purple-200 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4 group cursor-pointer">
                             <div className="flex items-center gap-5">
-                                <div className={`w-16 h-16 rounded-[24px] ${req.senior.avatar_url ? 'bg-transparent' : 'bg-gray-50'} border border-gray-100 flex items-center justify-center text-3xl group-hover:scale-110 transition-transform overflow-hidden`}>
+                                <div 
+                                  onClick={() => router.push(`/u/${req.senior.unique_id}`)}
+                                  className={`w-16 h-16 rounded-[24px] ${req.senior.avatar_url ? 'bg-transparent' : 'bg-gray-50'} border border-gray-100 flex items-center justify-center text-3xl hover:scale-105 transition-transform overflow-hidden cursor-pointer`}
+                                >
                                   {req.senior.avatar_url ? (
                                     <img src={req.senior.avatar_url} alt={req.senior.full_name} className="w-full h-full object-cover" />
                                   ) : (

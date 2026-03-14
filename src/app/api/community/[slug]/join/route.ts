@@ -1,0 +1,158 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@supabase/supabase-js'
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SECRET_KEY!
+)
+
+export async function POST(
+  req: NextRequest,
+  { params }: { params: Promise<{ slug: string }> }
+) {
+  try {
+    const { slug } = await params
+    const cookie = req.cookies.get('claspire_session')
+    if (!cookie) {
+      return NextResponse.json(
+        { error: 'Not authenticated' },
+        { status: 401 }
+      )
+    }
+
+    let session
+    try {
+      session = JSON.parse(cookie.value)
+    } catch (e) {
+      return NextResponse.json(
+        { error: 'Invalid session' },
+        { status: 401 }
+      )
+    }
+
+    const userId = session.id
+    const userRole = session.role
+
+    // Get community
+    const { data: community } = await supabase
+      .from('communities')
+      .select('id, member_count, college_id')
+      .eq('slug', slug)
+      .single()
+
+    if (!community) {
+      return NextResponse.json(
+        { error: 'Community not found' },
+        { status: 404 }
+      )
+    }
+
+    // Check already member
+    const { data: existing } = await supabase
+      .from('community_members')
+      .select('id, membership_type')
+      .eq('community_id', community.id)
+      .eq('user_id', userId)
+      .maybeSingle()
+
+    if (existing) {
+      return NextResponse.json({
+        success: true,
+        message: 'Already a member',
+        alreadyMember: true
+      })
+    }
+
+    // Get user college to determine type
+    const { data: user } = await supabase
+      .from('users')
+      .select('college_id, is_verified')
+      .eq('id', userId)
+      .single()
+
+    const isOwnCollege = user?.college_id === community.college_id
+
+    // Insert member
+    const { error: insertError } = await supabase
+      .from('community_members')
+      .insert({
+        community_id: community.id,
+        user_id: userId,
+        membership_type: isOwnCollege ? 'joined' : 'following',
+        joined_at: new Date().toISOString()
+      })
+
+    if (insertError) {
+      console.error('Join insertion error:', insertError)
+      return NextResponse.json({ error: 'Failed to join community' }, { status: 500 })
+    }
+
+    // Recount members (total network)
+    const { count: totalMembers } = await supabase
+      .from('community_members')
+      .select('*', { count: 'exact', head: true })
+      .eq('community_id', community.id)
+      .in('membership_type', ['joined', 'following'])
+
+    // Recount seniors (must join with users to check role)
+    const { data: seniors } = await supabase
+      .from('community_members')
+      .select('users!inner(role)')
+      .eq('community_id', community.id)
+      .eq('users.role', 'senior')
+      .in('membership_type', ['joined', 'following'])
+    
+    const seniorCount = seniors?.length || 0
+
+    // Update community counts in DB
+    const { error: updateError } = await supabase
+      .from('communities')
+      .update({
+        member_count: totalMembers || 0,
+        senior_count: seniorCount || 0
+      })
+      .eq('id', community.id)
+    
+    if (updateError) console.error('Count update error:', updateError)
+
+    // RP for joining new community
+    if (!isOwnCollege) {
+      const { data: rpUser } = await supabase
+        .from('users')
+        .select('rise_points')
+        .eq('id', userId)
+        .single()
+
+      await supabase
+        .from('rise_points_log')
+        .insert({
+          user_id: userId,
+          points: 2,
+          reason: `Joined c/${slug} network`,
+          created_at: new Date().toISOString()
+        })
+
+      await supabase
+        .from('users')
+        .update({
+          rise_points: (rpUser?.rise_points || 0) + 2
+        })
+        .eq('id', userId)
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: isOwnCollege ? 'Joined community!' : 'Joined network!',
+      isJoined: true,
+      memberCount: totalMembers || 0,
+      seniorCount: seniorCount || 0
+    })
+
+  } catch (err: any) {
+    console.error('Join error:', err)
+    return NextResponse.json(
+      { error: 'Failed to join' },
+      { status: 500 }
+    )
+  }
+}

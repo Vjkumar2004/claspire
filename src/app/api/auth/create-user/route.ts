@@ -165,9 +165,6 @@ export async function POST(req: NextRequest) {
               community_id: comm.id,
               user_id: userId,
               membership_type: 'joined',
-              is_verified: true,
-              role: role === 'senior'
-                ? 'senior' : 'member',
               joined_at: new Date().toISOString()
             })
 

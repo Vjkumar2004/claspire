@@ -8,6 +8,7 @@ import {
   MessageSquare, Lock, Sparkles, CheckCircle2,
   ArrowRight, Globe, Award, Briefcase, GraduationCap
 } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
 interface Senior {
@@ -28,6 +29,7 @@ interface Senior {
 }
 
 export default function SeniorsPage() {
+  const router = useRouter()
   const { user } = useAuth()
   const [seniors, setSeniors] = useState<Senior[]>([])
   const [loading, setLoading] = useState(true)
@@ -173,7 +175,10 @@ export default function SeniorsPage() {
                 >
                   <div className="flex items-start gap-4 mb-6">
                     {/* Avatar */}
-                    <div className={`w-14 h-14 rounded-[18px] ${senior.avatar_url ? 'bg-transparent' : 'bg-gradient-to-br from-gray-100 to-gray-50'} flex items-center justify-center text-xl font-black text-gray-400 border border-gray-200 group-hover:border-cyan-200 group-hover:text-cyan-600 transition-colors shadow-sm overflow-hidden`}>
+                    <div 
+                      onClick={() => router.push(`/u/${senior.unique_id}`)}
+                      className={`w-14 h-14 rounded-[18px] ${senior.avatar_url ? 'bg-transparent' : 'bg-gradient-to-br from-gray-100 to-gray-50'} flex items-center justify-center text-xl font-black text-gray-400 border border-gray-200 group-hover:border-cyan-200 group-hover:text-cyan-600 transition-all shadow-sm overflow-hidden cursor-pointer hover:scale-105 active:scale-95`}
+                    >
                       {senior.avatar_url ? (
                         <img src={senior.avatar_url} alt={senior.full_name} className="w-full h-full object-cover" />
                       ) : (
@@ -183,7 +188,10 @@ export default function SeniorsPage() {
                     
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
-                        <h3 className="text-lg font-bold text-black group-hover:text-cyan-600 transition-colors">
+                        <h3 
+                          onClick={() => router.push(`/u/${senior.unique_id}`)}
+                          className="text-lg font-bold text-black group-hover:text-cyan-600 transition-colors cursor-pointer"
+                        >
                           {senior.full_name}
                         </h3>
                         {senior.rise_points > 50 && (
