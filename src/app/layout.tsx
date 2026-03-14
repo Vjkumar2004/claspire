@@ -5,6 +5,7 @@ import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { PointsProvider } from "@/contexts/PointsContext";
 import RPNotification from "@/components/RPNotification";
+import OneSignalInit from "@/components/OneSignalInit";
 
 const instrumentSerif = Instrument_Serif({
   variable: "--font-instrument-serif",
@@ -41,6 +42,7 @@ export default function RootLayout({
       >
         <AuthProvider>
           <PointsProvider>
+            <OneSignalInit />
             <RPNotification />
             {children}
           </PointsProvider>

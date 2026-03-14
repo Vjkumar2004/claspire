@@ -109,6 +109,29 @@ export async function POST(req: NextRequest) {
       })
       .eq('id', userId)
 
+    // Trigger Notification for all community members
+    const { data: members } = await supabase
+      .from('community_members')
+      .select('user_id')
+      .eq('community_id', comm.id)
+
+    if (members && members.length > 0) {
+      const { createNotification } = await import('@/lib/notifications')
+      // Map members to notification promises
+      const notifPromises = members
+        .filter(m => m.user_id !== userId) // Don't notify the poster
+        .map(m => createNotification({
+          receiverId: m.user_id,
+          senderId: userId,
+          type: 'job_post',
+          title: 'New Job Opportunity! 💼',
+          message: `${company_name} is hiring for ${role}! Check it out.`,
+          link: '/jobs'
+        }))
+      
+      await Promise.all(notifPromises.slice(0, 50)) // Cap at 50 for performance/sanity
+    }
+
     return NextResponse.json({
       success: true,
       job,

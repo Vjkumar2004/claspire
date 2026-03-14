@@ -145,7 +145,7 @@ export async function GET(req: NextRequest) {
     const { count: unreadCount } = await supabase
       .from('notifications')
       .select('*', { count: 'exact', head: true })
-      .eq('user_id', userId)
+      .eq('receiver_id', userId)
       .eq('is_read', false)
 
     // ── Pending Doubts & Referrals (for Seniors) ──

@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
     const userId = session.id
 
     const { post_id, vote_type } = await req.json()
-    
+
     // Validate input
     if (!post_id || !vote_type || !['upvote', 'downvote'].includes(vote_type)) {
       return NextResponse.json(
@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
       .select('id')
       .eq('id', post_id)
       .single()
-    
+
     if (postError || !post) {
       return NextResponse.json(
         { error: 'Post not found' },
@@ -63,7 +63,7 @@ export async function POST(req: NextRequest) {
       if (existing.vote_type === vote_type) {
         // Same vote → remove (toggle off)
         action = 'removed'
-        
+
         // Remove vote
         await supabase
           .from('votes')
@@ -77,10 +77,10 @@ export async function POST(req: NextRequest) {
           .eq('id', post_id)
           .single()
 
-        const newUpvotes = vote_type === 'upvote' 
+        const newUpvotes = vote_type === 'upvote'
           ? Math.max(0, (currentPost?.upvote_count || 0) - 1)
           : currentPost?.upvote_count || 0
-          
+
         const newDownvotes = vote_type === 'downvote'
           ? Math.max(0, (currentPost?.downvote_count || 0) - 1)
           : currentPost?.downvote_count || 0
@@ -103,7 +103,7 @@ export async function POST(req: NextRequest) {
       } else {
         // Different vote → switch
         action = 'switched'
-        
+
         // Update vote
         await supabase
           .from('votes')
@@ -146,7 +146,7 @@ export async function POST(req: NextRequest) {
     } else {
       // New vote
       action = 'added'
-      
+
       // Insert new vote
       const { error: insertError } = await supabase
         .from('votes')
@@ -171,7 +171,7 @@ export async function POST(req: NextRequest) {
       const newUpvotes = vote_type === 'upvote'
         ? (currentPost?.upvote_count || 0) + 1
         : currentPost?.upvote_count || 0
-        
+
       const newDownvotes = vote_type === 'downvote'
         ? (currentPost?.downvote_count || 0) + 1
         : currentPost?.downvote_count || 0
@@ -200,7 +200,7 @@ export async function POST(req: NextRequest) {
             .select('rise_points')
             .eq('id', authorData.author_id)
             .single()
-          
+
           await supabase
             .from('users')
             .update({ rise_points: (user?.rise_points || 0) + 1 })
@@ -214,6 +214,18 @@ export async function POST(req: NextRequest) {
               reason: `Upvote received on: "${authorData.title.slice(0, 30)}..."`,
               created_at: new Date().toISOString()
             })
+
+          // Trigger Notification
+          const { createNotification } = await import('@/lib/notifications')
+          await createNotification({
+            receiverId: authorData.author_id,
+            senderId: userId,
+            type: 'post_like',
+            title: 'New Upvote! ⬆️',
+            message: `${session.full_name} upvoted your post: "${authorData.title.slice(0, 40)}${authorData.title.length > 40 ? '...' : ''}"`,
+            postId: post_id,
+            link: `/community/c/all/p/${post_id}`
+          })
         }
       }
 
@@ -228,7 +240,7 @@ export async function POST(req: NextRequest) {
 
   } catch (err: any) {
     console.error('Vote error:', err)
-    
+
     // Handle specific error cases
     if (err.code === '23505') {
       // Unique constraint violation - vote already exists
@@ -237,7 +249,7 @@ export async function POST(req: NextRequest) {
         { status: 409 }
       )
     }
-    
+
     if (err.code === '23503') {
       // Foreign key constraint violation
       return NextResponse.json(
@@ -245,7 +257,7 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       )
     }
-    
+
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

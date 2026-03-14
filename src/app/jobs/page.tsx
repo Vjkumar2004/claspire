@@ -24,6 +24,7 @@ interface Job {
   referral_available: boolean
   created_at: string
   senior: {
+    id: string
     full_name: string
     company: string
     designation: string
@@ -90,7 +91,10 @@ export default function JobsPage() {
       const res = await fetch('/api/jobs/request-referral', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ jobId: selectedJob.id })
+        body: JSON.stringify({ 
+          jobId: selectedJob.id,
+          seniorId: selectedJob.senior.id
+        })
       })
 
       if (res.ok) {

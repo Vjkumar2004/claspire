@@ -12,6 +12,7 @@ export async function POST(req: NextRequest) {
     if (!cookie) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
     }
+    const session = JSON.parse(cookie.value)
 
     const { referralId } = await req.json()
     if (!referralId) {
@@ -58,15 +59,15 @@ export async function POST(req: NextRequest) {
       .eq('id', referral.senior_id)
 
     const ref = referral as any
-    await supabase
-      .from('notifications')
-      .insert({
-        user_id: ref.requester_id,
-        title: 'Referral Approved! 🎉',
-        content: `Your request for ${ref.job?.role} at ${ref.job?.company_name} has been approved by ${ref.senior?.full_name}.`,
-        type: 'referral_approved',
-        link: '/dashboard'
-      })
+    const { createNotification } = await import('@/lib/notifications')
+    await createNotification({
+      receiverId: ref.requester_id,
+      senderId: session.id, // Assuming session.id is available, let's verify
+      type: 'referral_status',
+      title: 'Referral Approved! 🎉',
+      message: `Your request for ${ref.job?.role} at ${ref.job?.company_name} has been approved by ${ref.senior?.full_name}.`,
+      link: '/dashboard/junior' // Redirect to junior dashboard
+    })
 
     return NextResponse.json({ success: true, message: 'Referral approved successfully' })
 

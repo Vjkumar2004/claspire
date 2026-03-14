@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
 
     await supabase
       .from('users')
-      .update({ 
+      .update({
         rise_points: (user?.rise_points || 0) + 5,
         answer_count: (user?.answer_count || 0) + 1
       })
@@ -71,11 +71,31 @@ export async function POST(req: NextRequest) {
 
     await supabase
       .from('posts')
-      .update({ 
+      .update({
         answer_count: (postData?.answer_count || 0) + 1,
-        is_answered: true 
+        is_answered: true
       })
       .eq('id', post_id)
+
+    // Trigger Notification for Post Author
+    const { data: authorData } = await supabase
+      .from('posts')
+      .select('author_id, title')
+      .eq('id', post_id)
+      .single()
+
+    if (authorData && authorData.author_id !== userId) {
+      const { createNotification } = await import('@/lib/notifications')
+      await createNotification({
+        receiverId: authorData.author_id,
+        senderId: userId,
+        type: 'post_answer',
+        title: 'New Answer! 💡',
+        message: `${session.full_name} answered your post: "${authorData.title.slice(0, 40)}${authorData.title.length > 40 ? '...' : ''}"`,
+        postId: post_id,
+        link: `/community/c/all/p/${post_id}`
+      })
+    }
 
     return NextResponse.json({
       success: true,

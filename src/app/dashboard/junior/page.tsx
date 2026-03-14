@@ -15,6 +15,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { usePoints } from '@/contexts/PointsContext'
 import { motion, AnimatePresence } from 'framer-motion'
+import NotificationPrompt from '@/components/NotificationPrompt'
 
 interface DashData {
   user: {
@@ -209,11 +210,11 @@ export default function JuniorDashboard() {
 
   return (
     <div className="min-h-screen bg-[#F0F2F5] font-plus-jakarta-sans text-[#1E293B]">
-      
+
       {/* ═══ MOBILE SIDEBAR OVERLAY ═══ */}
       <AnimatePresence>
         {mobileMenuOpen && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             onClick={() => setMobileMenuOpen(false)}
             className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] lg:hidden"
@@ -236,11 +237,10 @@ export default function JuniorDashboard() {
               <button
                 key={item.id}
                 onClick={() => { setActiveTab(item.id); setMobileMenuOpen(false); }}
-                className={`w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all group cursor-pointer ${
-                  activeTab === item.id 
-                    ? 'bg-[#F5F3FF] text-[#7C3AED] shadow-sm shadow-purple-500/5' 
+                className={`w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all group cursor-pointer ${activeTab === item.id
+                    ? 'bg-[#F5F3FF] text-[#7C3AED] shadow-sm shadow-purple-500/5'
                     : 'text-[#64748B] hover:bg-[#F8FAFC] hover:text-[#0F172A]'
-                }`}
+                  }`}
               >
                 <span className={`transition-transform duration-300 ${activeTab === item.id ? 'scale-110' : 'group-hover:scale-110'}`}>
                   {item.icon}
@@ -273,9 +273,9 @@ export default function JuniorDashboard() {
                   <span className="text-[#A5B4FC]">{Math.round(rpProgress)}%</span>
                 </div>
                 <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
-                  <motion.div 
+                  <motion.div
                     initial={{ width: 0 }} animate={{ width: `${rpProgress}%` }}
-                    className="h-full bg-gradient-to-r from-purple-400 to-cyan-400 rounded-full" 
+                    className="h-full bg-gradient-to-r from-purple-400 to-cyan-400 rounded-full"
                   />
                 </div>
               </div>
@@ -286,7 +286,7 @@ export default function JuniorDashboard() {
 
       {/* ═══ MAIN CONTENT AREA ═══ */}
       <main className="lg:ml-[280px] min-h-screen">
-        
+
         {/* TOP NAV / DASHBOARD HERO */}
         <div className="relative bg-[#0F172A] pt-6 pb-20 px-6 md:px-12 overflow-hidden border-b border-white/5">
           <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-[120px] -mr-64 -mt-64" />
@@ -296,7 +296,7 @@ export default function JuniorDashboard() {
           <div className="relative z-10 flex flex-col gap-10">
             <header className="flex justify-between items-center">
               <div className="flex items-center gap-4">
-                <button 
+                <button
                   onClick={() => setMobileMenuOpen(true)}
                   className="lg:hidden w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white cursor-pointer"
                 >
@@ -310,11 +310,6 @@ export default function JuniorDashboard() {
               </div>
 
               <div className="flex items-center gap-3">
-
-                <button className="relative w-11 h-11 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-white/10 transition-colors cursor-pointer">
-                  <Bell size={18} />
-                  {dashData.unreadCount > 0 && <span className="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-red-500 border-2 border-[#0F172A]" />}
-                </button>
                 <div className={`w-11 h-11 rounded-2xl ${u.avatar_url ? 'bg-transparent' : 'bg-gradient-to-br from-purple-500 to-indigo-600'} flex items-center justify-center text-white text-sm font-black shadow-lg overflow-hidden`}>
                   {u.avatar_url ? (
                     <img src={u.avatar_url} alt={u.full_name} className="w-full h-full object-cover" />
@@ -327,7 +322,7 @@ export default function JuniorDashboard() {
 
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
               <div>
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
                   className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-[10px] font-black tracking-widest uppercase mb-4"
                 >
@@ -341,7 +336,7 @@ export default function JuniorDashboard() {
                 </p>
               </div>
               <div className="flex items-center gap-4">
-                <button 
+                <button
                   onClick={() => router.push('/community')}
                   className="bg-white text-[#0F172A] px-6 py-3.5 rounded-[20px] font-bold text-sm shadow-xl hover:scale-105 transition-transform flex items-center gap-2 cursor-pointer"
                 >
@@ -354,15 +349,15 @@ export default function JuniorDashboard() {
 
         {/* ═══ TAB CONTENT ═══ */}
         <div className="px-6 md:px-12 -mt-10 relative z-20 pb-20">
-          
+
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            
+
             {/* LEFT COLUMN: MAIN FEED (8 COLS) */}
             <div className="lg:col-span-8 space-y-8">
-              
+
               <AnimatePresence mode="wait">
                 {activeTab === 'overview' && (
-                  <motion.div 
+                  <motion.div
                     key="overview" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
                     className="space-y-8"
                   >
@@ -420,126 +415,126 @@ export default function JuniorDashboard() {
                 )}
 
                 {activeTab === 'doubts' && (
-                  <motion.div 
+                  <motion.div
                     key="doubts" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
                     className="space-y-6"
                   >
-                     <div className="flex items-center justify-between bg-white p-6 rounded-[28px] border border-[#E2E8F0] shadow-sm">
-                        <div>
-                          <h2 className="text-2xl font-black text-[#0F172A] font-instrument-serif m-0">My Doubts</h2>
-                          <p className="text-[#64748B] text-sm font-medium m-0 mt-1">History of all questions asked across communities.</p>
-                        </div>
-                        <div className="flex gap-2 bg-gray-50 p-1.5 rounded-2xl border border-gray-100">
-                          {['all', 'answered', 'pending'].map(f => (
-                            <button 
-                              key={f} onClick={() => setDoubtFilter(f as any)}
-                              className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all capitalize cursor-pointer ${doubtFilter === f ? 'bg-white shadow-sm text-purple-600' : 'text-gray-400'}`}
-                            >
-                              {f}
-                            </button>
-                          ))}
-                        </div>
-                     </div>
-
-                     <div className="grid grid-cols-1 gap-4">
-                        {dashData.myPosts.filter(p => doubtFilter === 'all' || (doubtFilter === 'answered' ? p.is_answered : !p.is_answered)).map(post => (
-                          <div key={post.id} className="group bg-white p-6 rounded-[28px] border border-[#E2E8F0] hover:border-purple-200 transition-all shadow-sm hover:shadow-xl relative overflow-hidden cursor-pointer">
-                            <div className="flex justify-between items-start mb-4">
-                              <span className={`px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${post.is_answered ? 'bg-green-50 text-green-600 border-green-200' : 'bg-amber-50 text-amber-600 border-amber-200'}`}>
-                                {post.is_answered ? '✓ Answered' : '⌛ Pending'}
-                              </span>
-                              <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button
-                                  onClick={() => setShowDeleteConfirm(post.id)}
-                                  className="p-2 rounded-xl bg-red-50 text-red-400 hover:bg-red-500 hover:text-white transition-all shadow-sm border border-red-100"
-                                >
-                                  <Trash2 size={14} />
-                                </button>
-                              </div>
-                            </div>
-                            <div className="flex gap-4">
-                              <div className={`w-9 h-9 rounded-xl ${post.users?.avatar_url ? 'bg-transparent' : 'bg-purple-100'} flex items-center justify-center text-purple-600 font-bold text-xs overflow-hidden flex-shrink-0 mt-1 shadow-sm`}>
-                                {post.users?.avatar_url ? (
-                                  <img src={post.users.avatar_url} alt={post.users.full_name} className="w-full h-full object-cover" />
-                                ) : (
-                                  post.users?.full_name?.[0] || 'U'
-                                )}
-                              </div>
-                              <div className="flex-1">
-                                <h3 className="text-lg font-bold text-[#1E293B] group-hover:text-purple-600 transition-colors mb-2">{post.title}</h3>
-                                <p className="text-sm font-medium text-[#64748B] line-clamp-2 mb-4">{post.content}</p>
-                                {post.image_url && (
-                                  <div className="mb-6 rounded-xl overflow-hidden border border-gray-100 max-w-md shadow-sm">
-                                    <img src={post.image_url} alt="Post content" className="w-full h-auto object-cover max-h-60" />
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                            <div className="flex items-center justify-between text-xs font-bold text-[#94A3B8] border-t border-[#F1F5F9] pt-4">
-                              <div className="flex gap-4">
-                                <span className="flex items-center gap-1.5"><ArrowUp size={14} /> {post.upvote_count}</span>
-                                <span className="flex items-center gap-1.5"><HelpCircle size={14} /> {post.answer_count} answers</span>
-                              </div>
-                              <span className="flex items-center gap-1.5"><Clock size={14} /> {timeAgo(post.created_at)}</span>
-                            </div>
-                            
-                            {showDeleteConfirm === post.id && (
-                              <div className="absolute inset-0 bg-white/95 backdrop-blur-sm z-10 flex flex-col items-center justify-center p-8 text-center">
-                                <p className="font-black text-[#0F172A] mb-2 text-lg">Delete this doubt?</p>
-                                <p className="text-sm text-[#64748B] mb-6 font-medium">This cannot be undone. All answers will also be removed.</p>
-                                <div className="flex gap-3 w-full max-w-xs">
-                                  <button onClick={() => setShowDeleteConfirm(null)} className="flex-1 py-3 rounded-2xl border border-gray-200 font-bold text-sm text-[#64748B] hover:bg-gray-50">Cancel</button>
-                                  <button onClick={() => handleDeletePost(post.id)} className="flex-1 py-3 rounded-2xl bg-red-500 text-white font-bold text-sm hover:bg-red-600">Delete</button>
-                                </div>
-                              </div>
-                            )}
-                          </div>
+                    <div className="flex items-center justify-between bg-white p-6 rounded-[28px] border border-[#E2E8F0] shadow-sm">
+                      <div>
+                        <h2 className="text-2xl font-black text-[#0F172A] font-instrument-serif m-0">My Doubts</h2>
+                        <p className="text-[#64748B] text-sm font-medium m-0 mt-1">History of all questions asked across communities.</p>
+                      </div>
+                      <div className="flex gap-2 bg-gray-50 p-1.5 rounded-2xl border border-gray-100">
+                        {['all', 'answered', 'pending'].map(f => (
+                          <button
+                            key={f} onClick={() => setDoubtFilter(f as any)}
+                            className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all capitalize cursor-pointer ${doubtFilter === f ? 'bg-white shadow-sm text-purple-600' : 'text-gray-400'}`}
+                          >
+                            {f}
+                          </button>
                         ))}
-                     </div>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-4">
+                      {dashData.myPosts.filter(p => doubtFilter === 'all' || (doubtFilter === 'answered' ? p.is_answered : !p.is_answered)).map(post => (
+                        <div key={post.id} className="group bg-white p-6 rounded-[28px] border border-[#E2E8F0] hover:border-purple-200 transition-all shadow-sm hover:shadow-xl relative overflow-hidden cursor-pointer">
+                          <div className="flex justify-between items-start mb-4">
+                            <span className={`px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${post.is_answered ? 'bg-green-50 text-green-600 border-green-200' : 'bg-amber-50 text-amber-600 border-amber-200'}`}>
+                              {post.is_answered ? '✓ Answered' : '⌛ Pending'}
+                            </span>
+                            <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <button
+                                onClick={() => setShowDeleteConfirm(post.id)}
+                                className="p-2 rounded-xl bg-red-50 text-red-400 hover:bg-red-500 hover:text-white transition-all shadow-sm border border-red-100"
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            </div>
+                          </div>
+                          <div className="flex gap-4">
+                            <div className={`w-9 h-9 rounded-xl ${post.users?.avatar_url ? 'bg-transparent' : 'bg-purple-100'} flex items-center justify-center text-purple-600 font-bold text-xs overflow-hidden flex-shrink-0 mt-1 shadow-sm`}>
+                              {post.users?.avatar_url ? (
+                                <img src={post.users.avatar_url} alt={post.users.full_name} className="w-full h-full object-cover" />
+                              ) : (
+                                post.users?.full_name?.[0] || 'U'
+                              )}
+                            </div>
+                            <div className="flex-1">
+                              <h3 className="text-lg font-bold text-[#1E293B] group-hover:text-purple-600 transition-colors mb-2">{post.title}</h3>
+                              <p className="text-sm font-medium text-[#64748B] line-clamp-2 mb-4">{post.content}</p>
+                              {post.image_url && (
+                                <div className="mb-6 rounded-xl overflow-hidden border border-gray-100 max-w-md shadow-sm">
+                                  <img src={post.image_url} alt="Post content" className="w-full h-auto object-cover max-h-60" />
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-between text-xs font-bold text-[#94A3B8] border-t border-[#F1F5F9] pt-4">
+                            <div className="flex gap-4">
+                              <span className="flex items-center gap-1.5"><ArrowUp size={14} /> {post.upvote_count}</span>
+                              <span className="flex items-center gap-1.5"><HelpCircle size={14} /> {post.answer_count} answers</span>
+                            </div>
+                            <span className="flex items-center gap-1.5"><Clock size={14} /> {timeAgo(post.created_at)}</span>
+                          </div>
+
+                          {showDeleteConfirm === post.id && (
+                            <div className="absolute inset-0 bg-white/95 backdrop-blur-sm z-10 flex flex-col items-center justify-center p-8 text-center">
+                              <p className="font-black text-[#0F172A] mb-2 text-lg">Delete this doubt?</p>
+                              <p className="text-sm text-[#64748B] mb-6 font-medium">This cannot be undone. All answers will also be removed.</p>
+                              <div className="flex gap-3 w-full max-w-xs">
+                                <button onClick={() => setShowDeleteConfirm(null)} className="flex-1 py-3 rounded-2xl border border-gray-200 font-bold text-sm text-[#64748B] hover:bg-gray-50">Cancel</button>
+                                <button onClick={() => handleDeletePost(post.id)} className="flex-1 py-3 rounded-2xl bg-red-500 text-white font-bold text-sm hover:bg-red-600">Delete</button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
                   </motion.div>
                 )}
 
                 {activeTab === 'events' && (
-                  <motion.div 
+                  <motion.div
                     key="events" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
                     className="grid grid-cols-1 md:grid-cols-2 gap-6"
                   >
                     {dashData.webinars.length > 0 ? dashData.webinars.map((w, i) => (
                       <div key={i} className="bg-white rounded-[32px] border border-[#E2E8F0] overflow-hidden group shadow-sm hover:shadow-2xl transition-all cursor-pointer">
                         <div className="h-48 bg-[#0F172A] relative overflow-hidden">
-                           <div className="absolute inset-0 bg-gradient-to-tr from-purple-600/20 to-blue-600/10" />
-                           <div className="absolute top-4 left-4 bg-white/10 backdrop-blur-md border border-white/20 px-3 py-1 rounded-full text-white text-[10px] font-black uppercase tracking-widest">
-                             UPCOMING
-                           </div>
-                           <div className="absolute inset-0 flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
-                              <Video size={48} className="text-white/20" />
-                           </div>
+                          <div className="absolute inset-0 bg-gradient-to-tr from-purple-600/20 to-blue-600/10" />
+                          <div className="absolute top-4 left-4 bg-white/10 backdrop-blur-md border border-white/20 px-3 py-1 rounded-full text-white text-[10px] font-black uppercase tracking-widest">
+                            UPCOMING
+                          </div>
+                          <div className="absolute inset-0 flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
+                            <Video size={48} className="text-white/20" />
+                          </div>
                         </div>
                         <div className="p-6">
-                           <h3 className="text-xl font-bold text-[#0F172A] m-0 mb-2 truncate group-hover:text-purple-600 transition-colors">{w.title}</h3>
-                           <p className="text-sm font-medium text-[#64748B] line-clamp-2 mb-6 h-10">{w.description}</p>
-                           <div className="flex items-center gap-3 mb-6">
-                              <div 
+                          <h3 className="text-xl font-bold text-[#0F172A] m-0 mb-2 truncate group-hover:text-purple-600 transition-colors">{w.title}</h3>
+                          <p className="text-sm font-medium text-[#64748B] line-clamp-2 mb-6 h-10">{w.description}</p>
+                          <div className="flex items-center gap-3 mb-6">
+                            <div
+                              onClick={() => router.push(`/u/${w.users.unique_id}`)}
+                              className={`w-10 h-10 rounded-xl ${w.users.avatar_url ? 'bg-transparent' : 'bg-gray-50'} flex items-center justify-center text-lg overflow-hidden cursor-pointer hover:scale-105 transition-transform`}
+                            >
+                              {w.users.avatar_url ? (
+                                <img src={w.users.avatar_url} alt={w.users.full_name} className="w-full h-full object-cover" />
+                              ) : (
+                                '👨‍🏫'
+                              )}
+                            </div>
+                            <div>
+                              <p
                                 onClick={() => router.push(`/u/${w.users.unique_id}`)}
-                                className={`w-10 h-10 rounded-xl ${w.users.avatar_url ? 'bg-transparent' : 'bg-gray-50'} flex items-center justify-center text-lg overflow-hidden cursor-pointer hover:scale-105 transition-transform`}
+                                className="text-xs font-bold text-[#0F172A] m-0 cursor-pointer hover:text-purple-600 transition-colors"
                               >
-                                {w.users.avatar_url ? (
-                                  <img src={w.users.avatar_url} alt={w.users.full_name} className="w-full h-full object-cover" />
-                                ) : (
-                                  '👨‍🏫'
-                                )}
-                              </div>
-                              <div>
-                                 <p 
-                                   onClick={() => router.push(`/u/${w.users.unique_id}`)}
-                                   className="text-xs font-bold text-[#0F172A] m-0 cursor-pointer hover:text-purple-600 transition-colors"
-                                 >
-                                   {w.users.full_name}
-                                 </p>
-                                 <p className="text-[10px] font-bold text-[#94A3B8] m-0 uppercase tracking-wider">Expert Mentor</p>
-                              </div>
-                           </div>
-                           <button className="w-full py-3.5 rounded-2xl bg-[#0F172A] text-white font-bold text-sm hover:bg-black transition-colors shadow-lg cursor-pointer">Register for Webinar</button>
+                                {w.users.full_name}
+                              </p>
+                              <p className="text-[10px] font-bold text-[#94A3B8] m-0 uppercase tracking-wider">Expert Mentor</p>
+                            </div>
+                          </div>
+                          <button className="w-full py-3.5 rounded-2xl bg-[#0F172A] text-white font-bold text-sm hover:bg-black transition-colors shadow-lg cursor-pointer">Register for Webinar</button>
                         </div>
                       </div>
                     )) : (
@@ -554,83 +549,82 @@ export default function JuniorDashboard() {
 
                 {activeTab === 'community' && (
                   <motion.div key="community" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
-                     <div className="bg-gradient-to-br from-[#7C3AED] to-[#4F46E5] rounded-[40px] p-10 text-white relative overflow-hidden shadow-2xl">
-                        <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-32 -mt-32" />
-                        <div className="relative z-10">
-                           <h2 className="text-4xl font-black font-instrument-serif tracking-tight mb-4">Inside {u.colleges?.short_name || 'Your College'} Hub</h2>
-                           <p className="text-white/60 font-medium text-lg max-w-lg mb-8">Access private discussions and exclusive resources limited to your college members.</p>
-                           <Link href={u.colleges?.slug ? `/community/c/${u.colleges.slug}` : '/community'} className="inline-flex items-center gap-3 bg-white text-[#0F172A] px-8 py-4 rounded-2xl font-black text-sm hover:scale-105 transition-transform no-underline cursor-pointer">
-                             Enter College Hub <ChevronRight size={18} />
-                           </Link>
-                        </div>
-                     </div>
+                    <div className="bg-gradient-to-br from-[#7C3AED] to-[#4F46E5] rounded-[40px] p-10 text-white relative overflow-hidden shadow-2xl">
+                      <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-32 -mt-32" />
+                      <div className="relative z-10">
+                        <h2 className="text-4xl font-black font-instrument-serif tracking-tight mb-4">Inside {u.colleges?.short_name || 'Your College'} Hub</h2>
+                        <p className="text-white/60 font-medium text-lg max-w-lg mb-8">Access private discussions and exclusive resources limited to your college members.</p>
+                        <Link href={u.colleges?.slug ? `/community/c/${u.colleges.slug}` : '/community'} className="inline-flex items-center gap-3 bg-white text-[#0F172A] px-8 py-4 rounded-2xl font-black text-sm hover:scale-105 transition-transform no-underline cursor-pointer">
+                          Enter College Hub <ChevronRight size={18} />
+                        </Link>
+                      </div>
+                    </div>
 
-                     <div>
-                        <h3 className="text-[11px] font-black text-[#94A3B8] uppercase tracking-[0.2em] mb-6 ml-4">Subscription Overview</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                           {dashData.joinedCommunities.map((item, i) => (
-                             <div key={i} className="bg-white p-5 rounded-[28px] border border-[#E2E8F0] flex items-center justify-between group hover:shadow-xl transition-all cursor-pointer">
-                                <div className="flex items-center gap-4">
-                                   <div className="w-14 h-14 rounded-2xl bg-[#F5F3FF] flex items-center justify-center text-[#7C3AED] font-black text-xl border border-purple-100 group-hover:scale-110 transition-transform duration-300">
-                                      {item.communities.display_name[0]}
-                                   </div>
-                                   <div>
-                                      <h4 className="text-base font-bold text-[#0F172A] m-0">{item.communities.display_name}</h4>
-                                      <p className="text-[10px] font-black text-[#94A3B8] uppercase tracking-widest mt-1">Joined Member</p>
-                                   </div>
-                                </div>
-                                 <button onClick={() => router.push(`/community/c/${item.communities.slug}`)} className="p-3.5 rounded-2xl bg-gray-50 text-gray-400 group-hover:bg-[#F5F3FF] group-hover:text-purple-600 transition-colors cursor-pointer">
-                                   <ChevronRight size={20} />
-                                </button>
-                             </div>
-                           ))}
-                        </div>
-                     </div>
+                    <div>
+                      <h3 className="text-[11px] font-black text-[#94A3B8] uppercase tracking-[0.2em] mb-6 ml-4">Subscription Overview</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {dashData.joinedCommunities.map((item, i) => (
+                          <div key={i} className="bg-white p-5 rounded-[28px] border border-[#E2E8F0] flex items-center justify-between group hover:shadow-xl transition-all cursor-pointer">
+                            <div className="flex items-center gap-4">
+                              <div className="w-14 h-14 rounded-2xl bg-[#F5F3FF] flex items-center justify-center text-[#7C3AED] font-black text-xl border border-purple-100 group-hover:scale-110 transition-transform duration-300">
+                                {item.communities.display_name[0]}
+                              </div>
+                              <div>
+                                <h4 className="text-base font-bold text-[#0F172A] m-0">{item.communities.display_name}</h4>
+                                <p className="text-[10px] font-black text-[#94A3B8] uppercase tracking-widest mt-1">Joined Member</p>
+                              </div>
+                            </div>
+                            <button onClick={() => router.push(`/community/c/${item.communities.slug}`)} className="p-3.5 rounded-2xl bg-gray-50 text-gray-400 group-hover:bg-[#F5F3FF] group-hover:text-purple-600 transition-colors cursor-pointer">
+                              <ChevronRight size={20} />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   </motion.div>
                 )}
 
                 {activeTab === 'referrals' && (
                   <motion.div key="referrals" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
                     <div className="bg-white p-6 rounded-[28px] border border-[#E2E8F0] shadow-sm flex items-center justify-between">
-                       <h2 className="text-2xl font-black text-[#0F172A] font-instrument-serif m-0">Referral Tracker</h2>
-                       <button onClick={() => router.push('/jobs')} className="px-5 py-2.5 rounded-xl bg-[#0F172A] text-white text-xs font-bold hover:bg-black transition-colors cursor-pointer">Browse Jobs</button>
+                      <h2 className="text-2xl font-black text-[#0F172A] font-instrument-serif m-0">Referral Tracker</h2>
+                      <button onClick={() => router.push('/jobs')} className="px-5 py-2.5 rounded-xl bg-[#0F172A] text-white text-xs font-bold hover:bg-black transition-colors cursor-pointer">Browse Jobs</button>
                     </div>
 
                     <div className="space-y-4">
-                       {dashData.myReferrals.length > 0 ? dashData.myReferrals.map((req, i) => (
-                         <div key={i} className="bg-white p-6 rounded-[32px] border border-[#E2E8F0] hover:border-purple-200 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4 group cursor-pointer">
-                            <div className="flex items-center gap-5">
-                                <div 
-                                  onClick={() => router.push(`/u/${req.senior.unique_id}`)}
-                                  className={`w-16 h-16 rounded-[24px] ${req.senior.avatar_url ? 'bg-transparent' : 'bg-gray-50'} border border-gray-100 flex items-center justify-center text-3xl hover:scale-105 transition-transform overflow-hidden cursor-pointer`}
-                                >
-                                  {req.senior.avatar_url ? (
-                                    <img src={req.senior.avatar_url} alt={req.senior.full_name} className="w-full h-full object-cover" />
-                                  ) : (
-                                    '💼'
-                                  )}
-                                </div>
-                                <div>
-                                   <h3 className="text-lg font-bold text-[#0F172A] m-0">{req.job.role} <span className="text-[#94A3B8] font-medium">@ {req.job.company_name}</span></h3>
-                                   <p className="text-xs font-bold text-[#64748B] mt-1 m-0">Request sent to <span className="text-[#0F172A]">{req.senior.full_name}</span> • {timeAgo(req.created_at)}</p>
-                                </div>
-                             </div>
-                            <div className={`px-5 py-2 rounded-full text-[11px] font-black uppercase tracking-widest border text-center ${
-                              req.status === 'approved' ? 'bg-green-50 text-green-600 border-green-200' :
-                              req.status === 'rejected' ? 'bg-red-50 text-red-500 border-red-200' :
-                              'bg-amber-50 text-amber-600 border-amber-200'
-                            }`}>
-                              {req.status === 'approved' ? '✓ Approved' : req.status === 'pending' ? '⌛ Pending Review' : req.status}
+                      {dashData.myReferrals.length > 0 ? dashData.myReferrals.map((req, i) => (
+                        <div key={i} className="bg-white p-6 rounded-[32px] border border-[#E2E8F0] hover:border-purple-200 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4 group cursor-pointer">
+                          <div className="flex items-center gap-5">
+                            <div
+                              onClick={() => router.push(`/u/${req.senior.unique_id}`)}
+                              className={`w-16 h-16 rounded-[24px] ${req.senior.avatar_url ? 'bg-transparent' : 'bg-gray-50'} border border-gray-100 flex items-center justify-center text-3xl hover:scale-105 transition-transform overflow-hidden cursor-pointer`}
+                            >
+                              {req.senior.avatar_url ? (
+                                <img src={req.senior.avatar_url} alt={req.senior.full_name} className="w-full h-full object-cover" />
+                              ) : (
+                                '💼'
+                              )}
                             </div>
-                         </div>
-                       )) : (
-                         <div className="p-32 bg-white rounded-[40px] border border-dashed border-[#E2E8F0] text-center">
-                            <Handshake size={48} className="mx-auto text-gray-200 mb-6" />
-                            <h3 className="text-xl font-black text-[#0F172A] font-instrument-serif m-0 mb-2">No Referrals Requested</h3>
-                            <p className="text-[#64748B] font-medium mb-8">Reach out to seniors at top tech companies for referrals.</p>
-                             <button onClick={() => router.push('/jobs')} className="bg-[#0F172A] text-white px-8 py-4 rounded-2xl font-black text-sm hover:scale-105 transition-all cursor-pointer">Explore Opportunities</button>
-                         </div>
-                       )}
+                            <div>
+                              <h3 className="text-lg font-bold text-[#0F172A] m-0">{req.job.role} <span className="text-[#94A3B8] font-medium">@ {req.job.company_name}</span></h3>
+                              <p className="text-xs font-bold text-[#64748B] mt-1 m-0">Request sent to <span className="text-[#0F172A]">{req.senior.full_name}</span> • {timeAgo(req.created_at)}</p>
+                            </div>
+                          </div>
+                          <div className={`px-5 py-2 rounded-full text-[11px] font-black uppercase tracking-widest border text-center ${req.status === 'approved' ? 'bg-green-50 text-green-600 border-green-200' :
+                              req.status === 'rejected' ? 'bg-red-50 text-red-500 border-red-200' :
+                                'bg-amber-50 text-amber-600 border-amber-200'
+                            }`}>
+                            {req.status === 'approved' ? '✓ Approved' : req.status === 'pending' ? '⌛ Pending Review' : req.status}
+                          </div>
+                        </div>
+                      )) : (
+                        <div className="p-32 bg-white rounded-[40px] border border-dashed border-[#E2E8F0] text-center">
+                          <Handshake size={48} className="mx-auto text-gray-200 mb-6" />
+                          <h3 className="text-xl font-black text-[#0F172A] font-instrument-serif m-0 mb-2">No Referrals Requested</h3>
+                          <p className="text-[#64748B] font-medium mb-8">Reach out to seniors at top tech companies for referrals.</p>
+                          <button onClick={() => router.push('/jobs')} className="bg-[#0F172A] text-white px-8 py-4 rounded-2xl font-black text-sm hover:scale-105 transition-all cursor-pointer">Explore Opportunities</button>
+                        </div>
+                      )}
                     </div>
                   </motion.div>
                 )}
@@ -640,7 +634,7 @@ export default function JuniorDashboard() {
 
             {/* RIGHT COLUMN: INFO & BADGES (4 COLS) */}
             <div className="lg:col-span-4 space-y-8">
-              
+
               {/* How to Earn RP Card */}
               <div className="bg-white rounded-[32px] border border-[#E2E8F0] p-8 shadow-sm hover:shadow-xl transition-all overflow-hidden relative group">
                 <div className="absolute top-0 right-0 w-24 h-24 bg-purple-50 group-hover:bg-purple-100 transition-colors rounded-bl-full -mr-8 -mt-8" />
@@ -668,42 +662,42 @@ export default function JuniorDashboard() {
               {/* Action Sidebar: Quick Nav */}
               <div className="bg-[#0F172A] rounded-[32px] p-8 text-white shadow-2xl space-y-8">
                 <div>
-                   <h4 className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-6">Account Settings</h4>
-                   <div className="space-y-2">
-                      <button className="w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold text-white/70 hover:bg-white/5 hover:text-white transition-all group">
-                         <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center group-hover:scale-110 transition-transform">
-                            <User size={16} />
-                         </div>
-                         My Profile
-                      </button>
-                      <button className="w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold text-white/70 hover:bg-white/5 hover:text-white transition-all group">
-                         <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center group-hover:scale-110 transition-transform">
-                            <Settings size={16} />
-                         </div>
-                         Preferences
-                      </button>
-                       <button onClick={() => { localStorage.removeItem('claspire_user'); router.push('/login'); }} className="w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold text-red-400 hover:bg-red-500/10 transition-all group cursor-pointer">
-                         <div className="w-8 h-8 rounded-xl bg-red-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                            <LogOut size={16} />
-                         </div>
-                         Sign Out
-                      </button>
-                   </div>
+                  <h4 className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-6">Account Settings</h4>
+                  <div className="space-y-2">
+                    <button className="w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold text-white/70 hover:bg-white/5 hover:text-white transition-all group">
+                      <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <User size={16} />
+                      </div>
+                      My Profile
+                    </button>
+                    <button className="w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold text-white/70 hover:bg-white/5 hover:text-white transition-all group">
+                      <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <Settings size={16} />
+                      </div>
+                      Preferences
+                    </button>
+                    <button onClick={() => { localStorage.removeItem('claspire_user'); router.push('/login'); }} className="w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold text-red-400 hover:bg-red-500/10 transition-all group cursor-pointer">
+                      <div className="w-8 h-8 rounded-xl bg-red-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <LogOut size={16} />
+                      </div>
+                      Sign Out
+                    </button>
+                  </div>
                 </div>
 
                 <div className="pt-8 border-t border-white/5">
-                   <div className="flex items-center justify-between mb-4">
-                      <h4 className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Platform Status</h4>
-                      <div className="flex items-center gap-1.5">
-                         <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                         <span className="text-[9px] font-bold text-green-500 text-purple-400">ONLINE</span>
-                      </div>
-                   </div>
-                   <div className="bg-white/5 rounded-2xl p-4 border border-white/5">
-                      <p className="text-[11px] text-white/40 font-medium leading-relaxed italic m-0">
-                        "Your degree is just a piece of paper, your education is seen in your behavior."
-                      </p>
-                   </div>
+                  <div className="flex items-center justify-between mb-4">
+                    <h4 className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Platform Status</h4>
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                      <span className="text-[9px] font-bold text-green-500 text-purple-400">ONLINE</span>
+                    </div>
+                  </div>
+                  <div className="bg-white/5 rounded-2xl p-4 border border-white/5">
+                    <p className="text-[11px] text-white/40 font-medium leading-relaxed italic m-0">
+                      "Your degree is just a piece of paper, your education is seen in your behavior."
+                    </p>
+                  </div>
                 </div>
               </div>
 
@@ -740,6 +734,7 @@ export default function JuniorDashboard() {
           scrollbar-width: none;
         }
       `}</style>
+      <NotificationPrompt />
     </div>
   )
 }

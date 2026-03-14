@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { createBulkNotifications } from '@/lib/notifications'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -89,7 +90,7 @@ export async function POST(req: NextRequest) {
             .eq('user_id', userId)
             .eq('membership_type', 'joined')
             .single()
-          
+
           isMember = !!member
         }
       }
@@ -142,12 +143,12 @@ export async function POST(req: NextRequest) {
       .single()
 
     const rpAmount =
-  type === 'doubt' ? 3
-  : type === 'discussion' ? 2
-  : type === 'experience' ? 8
-  : type === 'referral_hunt' ? 5
-  : type === 'resource' ? 6
-  : 2
+      type === 'doubt' ? 3
+        : type === 'discussion' ? 2
+          : type === 'experience' ? 8
+            : type === 'referral_hunt' ? 5
+              : type === 'resource' ? 6
+                : 2
 
     await supabase
       .from('rise_points_log')
@@ -174,6 +175,67 @@ export async function POST(req: NextRequest) {
       column_name: 'post_count',
       row_id: community_id
     })
+
+    // --- NOTIFICATION LOGIC ---
+    try {
+      // Get member user IDs (excluding author)
+      const { data: memberIds } = await supabase
+        .from('community_members')
+        .select('user_id')
+        .eq('community_id', community_id)
+        .neq('user_id', userId)
+
+      if (memberIds?.length) {
+        const ids = memberIds.map(m => m.user_id)
+        
+        // Get community info
+        const { data: comm } = await supabase
+          .from('communities')
+          .select('display_name, slug')
+          .eq('id', community_id)
+          .single()
+
+        // 1. Send In-App Notifications (Real-time)
+        await createBulkNotifications({
+          receiverIds: ids,
+          senderId: userId,
+          type: 'job_post', // Use an appropriate type or add a generic one
+          title: `New ${type} in c/${comm?.slug} 🚀`,
+          message: `${session.full_name} posted: "${title.slice(0, 50)}..."`,
+          link: `/community/c/${comm?.slug}/posts/${post.id}`,
+          postId: post.id
+        })
+
+        // 2. Send Push Notifications via OneSignal
+        // Get their onesignal_player_ids
+        const { data: pushUsers } = await supabase
+          .from('users')
+          .select('onesignal_player_id')
+          .in('id', ids)
+          .not('onesignal_player_id', 'is', null)
+
+        const playerIds = pushUsers?.map(u => u.onesignal_player_id).filter(Boolean) || []
+
+        if (playerIds.length) {
+          await fetch('https://onesignal.com/api/v1/notifications', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Basic ${process.env.ONESIGNAL_REST_API_KEY}`
+            },
+            body: JSON.stringify({
+              app_id: process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID,
+              include_player_ids: playerIds,
+              headings: { en: `New ${type} in c/${comm?.slug}` },
+              contents: { en: `${session.full_name}: "${title.slice(0, 60)}"` },
+              url: `https://claspire.vercel.app/community/c/${comm?.slug}`
+            })
+          })
+        }
+      }
+    } catch (notifErr) {
+      console.error('Notification trigger error:', notifErr)
+    }
 
     return NextResponse.json({
       success: true,

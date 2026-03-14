@@ -43,7 +43,7 @@ export async function PATCH(req: NextRequest) {
     const updateData: any = {}
     const allowedFields = [
       'bio', 'branch', 'year', 'cgpa', 'linkedin_url', 'passout_year',
-      'company', 'designation', 'graduation_year'
+      'company', 'designation', 'graduation_year', 'onesignal_player_id'
     ]
 
     allowedFields.forEach(field => {
@@ -51,6 +51,11 @@ export async function PATCH(req: NextRequest) {
         updateData[field] = body[field]
       }
     })
+
+    // Explicitly handle onesignal_player_id if provided outside the loop or to ensure it's captured
+    if (body.onesignal_player_id !== undefined) {
+      updateData.onesignal_player_id = body.onesignal_player_id
+    }
 
     updateData.updated_at = new Date().toISOString()
 
@@ -66,7 +71,7 @@ export async function PATCH(req: NextRequest) {
         is_verified, verification_status,
         bio, branch, year, cgpa, linkedin_url, passout_year,
         company, designation, graduation_year,
-        avatar_url,
+        avatar_url, onesignal_player_id,
         colleges ( id, name, short_name, slug )
       `)
       .single()

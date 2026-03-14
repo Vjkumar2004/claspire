@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { createNotification } from '@/lib/notifications'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -52,15 +53,14 @@ export async function POST(req: NextRequest) {
     if (requestError) throw requestError
 
     // 4. Create notification for the senior
-    await supabase
-      .from('notifications')
-      .insert({
-        user_id: seniorId,
-        title: 'New Referral Request 📥',
-        content: `${user.full_name} is seeking a referral for ${job?.role} at ${job?.company_name}.`,
-        type: 'referral_request',
-        link: '/dashboard/senior'
-      })
+    await createNotification({
+      receiverId: seniorId,
+      senderId: user.id,
+      title: 'New Referral Request 📥',
+      message: `${user.full_name} is seeking a referral for ${job?.role} at ${job?.company_name}.`,
+      type: 'referral_request',
+      link: '/dashboard/senior'
+    })
 
     return NextResponse.json({ success: true, message: 'Referral request sent successfully' })
 

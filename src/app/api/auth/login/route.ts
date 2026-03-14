@@ -64,9 +64,10 @@ export async function POST(req: NextRequest) {
       role: user.role,
       unique_id: user.unique_id,
       full_name: user.full_name,
-      college_id: user.college_id || null,  // ← ADD this!
-      is_verified: user.is_verified,        // ← ADD this!
-      is_premium: user.is_premium || false, // ← ADD this!
+      avatar_url: user.avatar_url,
+      college_id: user.college_id || null,
+      is_verified: user.is_verified,
+      is_premium: user.is_premium || false,
     }
 
     // Debug log to show session data

@@ -9,7 +9,7 @@ const supabase = createClient(
 
 export async function POST(req: NextRequest) {
   try {
-    const { email, role, profileData, password } = await req.json()
+    const { email, role, profileData, password, onesignal_player_id } = await req.json()
 
     // Validate password
     if (!password || password.length < 6) {
@@ -95,6 +95,7 @@ export async function POST(req: NextRequest) {
         rise_points: 50,
         rp_level: 1,
         ...safeProfileData,
+        onesignal_player_id: onesignal_player_id || null,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
         avatar_url: `https://api.dicebear.com/7.x/initials/svg?seed=${profileData.full_name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)}`
@@ -197,6 +198,7 @@ export async function POST(req: NextRequest) {
       role,
       unique_id: uniqueId,
       full_name: profileData.full_name,
+      avatar_url: user.avatar_url,
       college_id: safeCollegeId,
       verification_status: profileData.verification_status,
       is_verified: true,        // ← ADD this!

@@ -13,6 +13,7 @@ export async function GET(req: NextRequest) {
       .select(`
         *,
         senior:posted_by (
+          id,
           full_name,
           company,
           designation,
