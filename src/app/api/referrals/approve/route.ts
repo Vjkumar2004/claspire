@@ -61,8 +61,8 @@ export async function POST(req: NextRequest) {
     const ref = referral as any
     const { createNotification } = await import('@/lib/notifications')
     await createNotification({
-      receiverId: ref.requester_id,
-      senderId: session.id, // Assuming session.id is available, let's verify
+      receiver_id: ref.requester_id,
+      sender_id: session.id,
       type: 'referral_status',
       title: 'Referral Approved! 🎉',
       message: `Your request for ${ref.job?.role} at ${ref.job?.company_name} has been approved by ${ref.senior?.full_name}.`,

@@ -218,14 +218,38 @@ export async function POST(req: NextRequest) {
           // Trigger Notification
           const { createNotification } = await import('@/lib/notifications')
           await createNotification({
-            receiverId: authorData.author_id,
-            senderId: userId,
-            type: 'post_like',
-            title: 'New Upvote! ⬆️',
-            message: `${session.full_name} upvoted your post: "${authorData.title.slice(0, 40)}${authorData.title.length > 40 ? '...' : ''}"`,
-            postId: post_id,
+            type: 'post_upvoted',
+            title: '🔥 Someone liked your post!',
+            message: `${session.full_name || 'Someone'} liked your post "${authorData.title?.slice(0, 50)}"`,
+            receiver_id: authorData.author_id,
+            sender_id: userId,
+            post_id: post_id,
             link: `/community/c/all/p/${post_id}`
           })
+
+          // Push for upvote
+          const { data: receiver } = await supabase
+            .from('users')
+            .select('onesignal_player_id')
+            .eq('id', authorData.author_id)
+            .single()
+
+          if (receiver?.onesignal_player_id) {
+            await fetch('https://onesignal.com/api/v1/notifications', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Basic ${process.env.ONESIGNAL_REST_API_KEY}`
+              },
+              body: JSON.stringify({
+                app_id: process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID,
+                include_player_ids: [receiver.onesignal_player_id],
+                headings: { en: '🔥 Someone liked your post!' },
+                contents: { en: `${session.full_name || 'Someone'} liked "${authorData.title?.slice(0, 50)}"` },
+                url: `${process.env.NEXT_PUBLIC_APP_URL}/community/c/all/p/${post_id}`
+              })
+            })
+          }
         }
       }
 

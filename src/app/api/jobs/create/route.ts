@@ -10,139 +10,128 @@ export async function POST(req: NextRequest) {
   try {
     const cookie = req.cookies.get('claspire_session')
     if (!cookie) {
-      return NextResponse.json(
-        { error: 'Not authenticated' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
     }
 
     const session = JSON.parse(cookie.value)
     const userId = session.id
 
-    // Check if user is a senior
-    const { data: user, error: userError } = await supabase
-      .from('users')
-      .select('role, rise_points, college_id')
-      .eq('id', userId)
-      .single()
-
-    if (userError || user?.role !== 'senior') {
-      return NextResponse.json(
-        { error: 'Only seniors can post jobs' },
-        { status: 403 }
-      )
+    if (session.role !== 'senior') {
+      return NextResponse.json({ error: 'Only seniors can post jobs' }, { status: 403 })
     }
 
-    const body = await req.json()
     const {
+      community_id,
+      role: jobRole,
       company_name,
-      role,
-      salary_range,
+      description,
       location,
       job_type,
-      description, // Used for job link/description
-      requirements,
-      deadline,
+      salary_range,
+      apply_link,
       referral_available,
-      is_active = true
-    } = body
-
-    // Find the community ID for the user's college
-    const { data: comm } = await supabase
-      .from('communities')
-      .select('id')
-      .eq('college_id', user.college_id)
-      .single()
-
-    if (!comm) {
-      return NextResponse.json(
-        { error: 'Community not found for your college' },
-        { status: 404 }
-      )
-    }
+      last_date
+    } = await req.json()
 
     // Insert job
-    const { data: job, error: jobError } = await supabase
+    const { data: job, error } = await supabase
       .from('jobs')
       .insert({
+        community_id,
         posted_by: userId,
-        community_id: comm.id,
+        role: jobRole,
         company_name,
-        role,
-        salary_range,
+        description,
         location,
         job_type,
-        description,
-        requirements,
-        deadline,
-        referral_available,
-        is_active,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        salary_range,
+        apply_link,
+        referral_available: referral_available || false,
+        last_date: last_date || null,
+        is_active: true,
+        created_at: new Date().toISOString()
       })
       .select()
       .single()
 
-    if (jobError) {
-      console.error('Job create error:', jobError)
-      return NextResponse.json(
-        { error: jobError.message },
-        { status: 500 }
-      )
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    // Reward senior with Rise Points (e.g., +20 RP for posting a job)
-    const rpAmount = 20
-    await supabase
-      .from('rise_points_log')
-      .insert({
-        user_id: userId,
-        points: rpAmount,
-        reason: `Posted a job: ${role} at ${company_name} 💼`,
-        created_at: new Date().toISOString()
-      })
+    // Get community slug + members
+    const { data: comm } = await supabase
+      .from('communities')
+      .select('slug')
+      .eq('id', community_id)
+      .single()
 
-    await supabase
+    const { data: poster } = await supabase
       .from('users')
-      .update({
-        rise_points: (user.rise_points || 0) + rpAmount
-      })
+      .select('full_name')
       .eq('id', userId)
+      .single()
 
-    // Trigger Notification for all community members
+    // Notify all community members
     const { data: members } = await supabase
       .from('community_members')
       .select('user_id')
-      .eq('community_id', comm.id)
+      .eq('community_id', community_id)
+      .neq('user_id', userId)
 
-    if (members && members.length > 0) {
-      const { createNotification } = await import('@/lib/notifications')
-      // Map members to notification promises
-      const notifPromises = members
-        .filter(m => m.user_id !== userId) // Don't notify the poster
-        .map(m => createNotification({
-          receiverId: m.user_id,
-          senderId: userId,
-          type: 'job_post',
-          title: 'New Job Opportunity! 💼',
-          message: `${company_name} is hiring for ${role}! Check it out.`,
-          link: '/jobs'
-        }))
-      
-      await Promise.all(notifPromises.slice(0, 50)) // Cap at 50 for performance/sanity
+    if (members?.length) {
+      // In-app notifications
+      const notifs = members.map(m => ({
+        type: 'new_job',
+        title: `💼 New Job at ${company_name}!`,
+        message: `${poster?.full_name} posted ${jobRole} at ${company_name}${referral_available ? ' — Referral Available! 🎯' : ''}`,
+        receiver_id: m.user_id,
+        sender_id: userId,
+        link: `/community/c/${comm?.slug}?tab=jobs`,
+        is_read: false,
+        created_at: new Date().toISOString()
+      }))
+
+      for (let i = 0; i < notifs.length; i += 50) {
+        await supabase
+          .from('notifications')
+          .insert(notifs.slice(i, i + 50))
+      }
+
+      // Push notifications via OneSignal
+      const { data: pushUsers } = await supabase
+        .from('users')
+        .select('onesignal_player_id')
+        .in('id', members.map(m => m.user_id))
+        .not('onesignal_player_id', 'is', null)
+
+      if (pushUsers?.length) {
+        const playerIds = pushUsers.map(u => u.onesignal_player_id).filter(Boolean)
+        if (playerIds.length) {
+          await fetch('https://onesignal.com/api/v1/notifications', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Basic ${process.env.ONESIGNAL_REST_API_KEY}`
+            },
+            body: JSON.stringify({
+              app_id: process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID,
+              include_player_ids: playerIds,
+              headings: { en: `💼 New Job at ${company_name}!` },
+              contents: { en: `${jobRole} at ${company_name}${referral_available ? ' — Referral Available!' : ''}` },
+              url: `${process.env.NEXT_PUBLIC_APP_URL}/community/c/${comm?.slug}`
+            })
+          })
+        }
+      }
     }
 
     return NextResponse.json({
       success: true,
-      job,
-      rpEarned: rpAmount
+      job
     })
 
   } catch (err: any) {
-    console.error('Create job error:', err)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    console.error('Job create error:', err)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

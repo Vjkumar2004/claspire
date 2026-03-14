@@ -54,8 +54,8 @@ export async function POST(req: NextRequest) {
 
     // 4. Create notification for the senior
     await createNotification({
-      receiverId: seniorId,
-      senderId: user.id,
+      receiver_id: seniorId,
+      sender_id: user.id,
       title: 'New Referral Request 📥',
       message: `${user.full_name} is seeking a referral for ${job?.role} at ${job?.company_name}.`,
       type: 'referral_request',

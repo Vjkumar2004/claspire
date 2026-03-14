@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { createBulkNotifications } from '@/lib/notifications'
+import { notifyNewPost } from '@/lib/notifications'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -178,61 +178,39 @@ export async function POST(req: NextRequest) {
 
     // --- NOTIFICATION LOGIC ---
     try {
-      // Get member user IDs (excluding author)
-      const { data: memberIds } = await supabase
-        .from('community_members')
-        .select('user_id')
-        .eq('community_id', community_id)
-        .neq('user_id', userId)
+      // Get community info
+      const { data: comm } = await supabase
+        .from('communities')
+        .select('display_name, slug')
+        .eq('id', community_id)
+        .single()
 
-      if (memberIds?.length) {
-        const ids = memberIds.map(m => m.user_id)
-        
-        // Get community info
-        const { data: comm } = await supabase
-          .from('communities')
-          .select('display_name, slug')
-          .eq('id', community_id)
-          .single()
+      // Post type based messages
+      const notifTitle = 
+        type === 'doubt' ? `❓ New Doubt in c/${comm?.slug}`
+        : type === 'discussion' ? `💬 New Discussion in c/${comm?.slug}`
+        : type === 'experience' ? `⭐ New Experience shared in c/${comm?.slug}`
+        : type === 'referral_hunt' ? `🎯 Someone is hunting for Referral!`
+        : type === 'resource' ? `📚 New Resource shared in c/${comm?.slug}`
+        : `New post in c/${comm?.slug}`
 
-        // 1. Send In-App Notifications (Real-time)
-        await createBulkNotifications({
-          receiverIds: ids,
-          senderId: userId,
-          type: 'job_post', // Use an appropriate type or add a generic one
-          title: `New ${type} in c/${comm?.slug} 🚀`,
-          message: `${session.full_name} posted: "${title.slice(0, 50)}..."`,
-          link: `/community/c/${comm?.slug}/posts/${post.id}`,
-          postId: post.id
-        })
+      const notifMessage =
+        type === 'referral_hunt' ? `${currentUser?.full_name} is looking for referral: "${title.slice(0, 50)}"`
+        : type === 'experience' ? `${currentUser?.full_name} shared their experience: "${title.slice(0, 50)}"`
+        : `${currentUser?.full_name} posted: "${title.slice(0, 50)}"`
 
-        // 2. Send Push Notifications via OneSignal
-        // Get their onesignal_player_ids
-        const { data: pushUsers } = await supabase
-          .from('users')
-          .select('onesignal_player_id')
-          .in('id', ids)
-          .not('onesignal_player_id', 'is', null)
-
-        const playerIds = pushUsers?.map(u => u.onesignal_player_id).filter(Boolean) || []
-
-        if (playerIds.length) {
-          await fetch('https://onesignal.com/api/v1/notifications', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Basic ${process.env.ONESIGNAL_REST_API_KEY}`
-            },
-            body: JSON.stringify({
-              app_id: process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID,
-              include_player_ids: playerIds,
-              headings: { en: `New ${type} in c/${comm?.slug}` },
-              contents: { en: `${session.full_name}: "${title.slice(0, 60)}"` },
-              url: `https://claspire.vercel.app/community/c/${comm?.slug}`
-            })
-          })
-        }
-      }
+      // Pass to notifyNewPost
+      await notifyNewPost({
+        communityId: community_id,
+        communitySlug: comm?.slug || '',
+        postId: post.id,
+        postTitle: title,
+        postType: type,
+        authorId: userId,
+        authorName: currentUser?.full_name || 'Someone',
+        customTitle: notifTitle,
+        customMessage: notifMessage
+      })
     } catch (notifErr) {
       console.error('Notification trigger error:', notifErr)
     }
