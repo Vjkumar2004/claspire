@@ -7,13 +7,12 @@ const supabase = createClient(
 
 export type NotificationType = 
   | 'post_like' 
-  | 'post_answer' 
+  | 'post_answered' 
   | 'job_post' 
-  | 'referral_status' 
+  | 'referral_approved' 
   | 'referral_request'
   | 'post_in_community'
   | 'post_upvoted'
-  | 'post_answered'
   | 'new_job'
 
 interface CreateNotificationParams {

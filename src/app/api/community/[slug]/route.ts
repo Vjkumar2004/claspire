@@ -205,14 +205,22 @@ export async function GET(
     let userRole = 'guest'
 
     if (currentUser) {
-      // ADD debug log temporarily:
-      console.log('User college_id:', currentUser.college_id)
-      console.log('Community college_id:', community.colleges.id)
-      console.log('Is own college:', isOwnCollege)
+      // Fetch latest user data from DB to ensure premium status is synced
+      const { data: dbUser } = await supabase
+        .from('users')
+        .select('is_premium, is_verified, role, college_id')
+        .eq('id', currentUser.id)
+        .single()
 
-      const isSenior = currentUser.role === 'senior'
-      const isVerified = currentUser.is_verified
-      const isPremium = currentUser.is_premium
+      const userToUse = dbUser || currentUser
+      const isSenior = userToUse.role === 'senior'
+      const isVerified = userToUse.is_verified
+      const isPremium = userToUse.is_premium
+      const userCollegeId = userToUse.college_id
+
+      isOwnCollege = userCollegeId === community.colleges.id
+
+      console.log('User permissions refreshed from DB:', { isPremium, isOwnCollege })
 
       if (isOwnCollege && isVerified && isSenior) {
         userRole = 'own_senior'
@@ -260,7 +268,7 @@ export async function GET(
     let jobs = null
     const canViewJobs = [
       'own_junior', 'own_senior', 'premium'
-    ].includes(userRole)
+    ].includes(userRole) || (userRole === 'other_college' && isAlreadyMember)
 
     if (canViewJobs) {
       const { data } = await supabase
@@ -277,7 +285,7 @@ export async function GET(
     let webinars = null
     const canViewWebinars = [
       'own_junior', 'own_senior', 'premium'
-    ].includes(userRole)
+    ].includes(userRole) || (userRole === 'other_college' && isAlreadyMember)
 
     if (canViewWebinars) {
       const { data } = await supabase

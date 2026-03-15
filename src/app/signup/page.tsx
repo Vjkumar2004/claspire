@@ -154,11 +154,11 @@ export default function SignupPage() {
         setError('Please select your college')
         return
       }
-      if (!seniorData.company.trim()) {
+      if (!seniorData.is_fresher && !seniorData.company.trim()) {
         setError('Company name is required')
         return
       }
-      if (!seniorData.designation.trim()) {
+      if (!seniorData.is_fresher && !seniorData.designation.trim()) {
         setError('Designation is required')
         return
       }
@@ -266,8 +266,8 @@ export default function SignupPage() {
       const profileData = activeRole === 'senior' ? {
         full_name: seniorData.full_name,
         college_id: seniorData.college_id,
-        company: seniorData.company,
-        designation: seniorData.designation,
+        company: seniorData.company.trim() || (seniorData.is_fresher ? 'Fresher' : ''),
+        designation: seniorData.designation.trim() || (seniorData.is_fresher ? 'Seeking Opportunity' : ''),
         branch: seniorData.branch,
         passout_year: parseInt(seniorData.passout_year),
         graduation_year: parseInt(seniorData.passout_year),
@@ -662,7 +662,9 @@ export default function SignupPage() {
 
                           <div className="grid grid-cols-2 gap-3">
                             <div>
-                              <label className="block text-sm font-semibold text-gray-700 mb-1.5">Company</label>
+                              <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                                Company {seniorData.is_fresher && <span className="text-gray-400 font-normal">(Optional)</span>}
+                              </label>
                               <input
                                 type="text"
                                 placeholder="Google, etc."
@@ -672,7 +674,9 @@ export default function SignupPage() {
                               />
                             </div>
                             <div>
-                              <label className="block text-sm font-semibold text-gray-700 mb-1.5">Designation</label>
+                              <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                                Designation {seniorData.is_fresher && <span className="text-gray-400 font-normal">(Optional)</span>}
+                              </label>
                               <input
                                 type="text"
                                 placeholder="Software Engineer"

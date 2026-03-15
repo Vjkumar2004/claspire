@@ -75,8 +75,11 @@ export default function JobsPage() {
       return
     }
 
-    // Gating Logic: User must be from the same college as the senior
-    if (user.college_id === job.senior.college_id) {
+    // Gating Logic: Same college OR Premium user
+    const isSameCollege = user.college_id === job.senior.college_id
+    const isPremium = user.is_premium === true
+
+    if (isSameCollege || isPremium) {
       setSelectedJob(job)
     } else {
       setShowPremiumModal(true)
@@ -261,7 +264,7 @@ export default function JobsPage() {
                           : 'bg-black text-white hover:bg-gray-800'
                       }`}
                     >
-                      {isOwnCollege ? <Zap size={14} /> : <Lock size={14} />}
+                      {isOwnCollege ? <Zap size={14} /> : (user?.is_premium || user?.premium_plan === 'premium' ? <Sparkles size={14} /> : <Lock size={14} />)}
                       Get Referral
                     </button>
                   </div>

@@ -80,17 +80,32 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
+    // Award 20 RP to the senior for posting a job
+    const { data: seniorUser } = await supabase
+      .from('users')
+      .select('rise_points, full_name')
+      .eq('id', userId)
+      .single()
+
+    await supabase
+      .from('rise_points_log')
+      .insert({
+        user_id: userId,
+        points: 20,
+        reason: `Posted a job: ${jobRole} at ${company_name} 💼`,
+        created_at: new Date().toISOString()
+      })
+
+    await supabase
+      .from('users')
+      .update({ rise_points: (seniorUser?.rise_points || 0) + 20 })
+      .eq('id', userId)
+
     // Get community slug + members
     const { data: comm } = await supabase
       .from('communities')
       .select('slug')
       .eq('id', community_id)
-      .single()
-
-    const { data: poster } = await supabase
-      .from('users')
-      .select('full_name')
-      .eq('id', userId)
       .single()
 
     // Notify all community members
@@ -105,7 +120,7 @@ export async function POST(req: NextRequest) {
       const notifs = members.map(m => ({
         type: 'new_job',
         title: `💼 New Job at ${company_name}!`,
-        message: `${poster?.full_name} posted ${jobRole} at ${company_name}${referral_available ? ' — Referral Available! 🎯' : ''}`,
+        message: `${seniorUser?.full_name} posted ${jobRole} at ${company_name}${referral_available ? ' — Referral Available! 🎯' : ''}`,
         receiver_id: m.user_id,
         sender_id: userId,
         link: `/community/c/${comm?.slug}?tab=jobs`,
@@ -129,20 +144,29 @@ export async function POST(req: NextRequest) {
       if (pushUsers?.length) {
         const playerIds = pushUsers.map(u => u.onesignal_player_id).filter(Boolean)
         if (playerIds.length) {
-          await fetch('https://onesignal.com/api/v1/notifications', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Basic ${process.env.ONESIGNAL_REST_API_KEY}`
-            },
-            body: JSON.stringify({
-              app_id: process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID,
-              include_player_ids: playerIds,
-              headings: { en: `💼 New Job at ${company_name}!` },
-              contents: { en: `${jobRole} at ${company_name}${referral_available ? ' — Referral Available!' : ''}` },
-              url: `${process.env.NEXT_PUBLIC_APP_URL}/community/c/${comm?.slug}`
+          try {
+            const pushRes = await fetch('https://onesignal.com/api/v1/notifications', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Basic ${process.env.ONESIGNAL_REST_API_KEY}`
+              },
+              body: JSON.stringify({
+                app_id: process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID,
+                include_player_ids: playerIds,
+                headings: { en: `💼 New Job at ${company_name}!` },
+                contents: { en: `${jobRole} at ${company_name}${referral_available ? ' — Referral Available!' : ''}` },
+                url: `${process.env.NEXT_PUBLIC_APP_URL}/community/c/${comm?.slug}`
+              })
             })
-          })
+            const pushResult = await pushRes.json()
+            console.log('Job post push result:', JSON.stringify(pushResult))
+            if (pushResult.errors) {
+              console.error('OneSignal push errors:', pushResult.errors)
+            }
+          } catch (pushErr) {
+            console.error('Push notification error (job post):', pushErr)
+          }
         }
       }
     }

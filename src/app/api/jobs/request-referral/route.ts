@@ -62,6 +62,34 @@ export async function POST(req: NextRequest) {
       link: '/dashboard/senior'
     })
 
+    // 5. Push notification to the senior via OneSignal
+    try {
+      const { data: senior } = await supabase
+        .from('users')
+        .select('onesignal_player_id')
+        .eq('id', seniorId)
+        .single()
+
+      if (senior?.onesignal_player_id) {
+        await fetch('https://onesignal.com/api/v1/notifications', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Basic ${process.env.ONESIGNAL_REST_API_KEY}`
+          },
+          body: JSON.stringify({
+            app_id: process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID,
+            include_player_ids: [senior.onesignal_player_id],
+            headings: { en: '📥 New Referral Request!' },
+            contents: { en: `${user.full_name} wants a referral for ${job?.role} at ${job?.company_name}` },
+            url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/senior`
+          })
+        })
+      }
+    } catch (pushErr) {
+      console.error('Push notification error (referral request):', pushErr)
+    }
+
     return NextResponse.json({ success: true, message: 'Referral request sent successfully' })
 
   } catch (err: any) {

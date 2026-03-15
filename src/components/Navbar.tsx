@@ -14,10 +14,18 @@ export default function Navbar() {
   return (
     <nav className="fixed top-0 left-0 right-0 h-14 z-[999] bg-white/97 border-b border-gray-200 backdrop-blur-[8px]">
       <div className="flex items-center justify-between h-full px-6">
-        {/* Logo */}
-        <Link href="/" className="font-plus-jakarta-sans font-bold text-lg text-black no-underline hover:no-underline">
-          Clas<span style={{ color: '#7C3AED' }}>pire</span>
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link href="/" className="font-plus-jakarta-sans font-bold text-lg text-black no-underline hover:no-underline">
+            Clas<span style={{ color: '#7C3AED' }}>pire</span>
+          </Link>
+          {user && (
+            <div className={`px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider ${
+              user.is_premium ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-500'
+            }`}>
+              {user.is_premium ? 'Premium' : 'Free'}
+            </div>
+          )}
+        </div>
 
         {/* Desktop Center Links */}
         <div className="hidden md:flex items-center gap-6">
@@ -25,7 +33,7 @@ export default function Navbar() {
             <Users size={16} />
             Community
           </Link>
-          <Link href="/dashboard/junior" className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-black transition-colors">
+          <Link href={user?.role === 'senior' ? '/dashboard/senior' : '/dashboard/junior'} className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-black transition-colors">
             <LayoutDashboard size={16} />
             Dashboard
           </Link>
@@ -41,7 +49,7 @@ export default function Navbar() {
             <GraduationCap size={16} />
             Colleges
           </Link>
-          <Link href="#" className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-black transition-colors">
+          <Link href="/pricing" className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-black transition-colors">
             <DollarSign size={16} />
             Pricing
           </Link>

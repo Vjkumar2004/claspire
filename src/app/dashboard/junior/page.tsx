@@ -16,6 +16,7 @@ import Link from 'next/link'
 import { usePoints } from '@/contexts/PointsContext'
 import { motion, AnimatePresence } from 'framer-motion'
 import NotificationPrompt from '@/components/NotificationPrompt'
+import NotificationBell from '@/components/NotificationBell'
 
 interface DashData {
   user: {
@@ -288,12 +289,12 @@ export default function JuniorDashboard() {
       <main className="lg:ml-[280px] min-h-screen">
 
         {/* TOP NAV / DASHBOARD HERO */}
-        <div className="relative bg-[#0F172A] pt-6 pb-20 px-6 md:px-12 overflow-hidden border-b border-white/5">
+        <div className="relative z-40 bg-[#0F172A] pt-6 pb-20 px-6 md:px-12 border-b border-white/5">
           <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-[120px] -mr-64 -mt-64" />
           <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-cyan-600/10 rounded-full blur-[100px] -ml-40 -mb-40" />
 
           {/* Desktop Header Container */}
-          <div className="relative z-10 flex flex-col gap-10">
+          <div className="relative z-30 flex flex-col gap-10">
             <header className="flex justify-between items-center">
               <div className="flex items-center gap-4">
                 <button
@@ -310,6 +311,7 @@ export default function JuniorDashboard() {
               </div>
 
               <div className="flex items-center gap-3">
+                <NotificationBell />
                 <div className={`w-11 h-11 rounded-2xl ${u.avatar_url ? 'bg-transparent' : 'bg-gradient-to-br from-purple-500 to-indigo-600'} flex items-center justify-center text-white text-sm font-black shadow-lg overflow-hidden`}>
                   {u.avatar_url ? (
                     <img src={u.avatar_url} alt={u.full_name} className="w-full h-full object-cover" />
@@ -644,7 +646,7 @@ export default function JuniorDashboard() {
                     { label: 'Post a Doubt', rp: '+5', done: u.doubt_count > 0, icon: <HelpCircle size={14} /> },
                     { label: 'Daily Visit', rp: '+1', done: true, icon: <Calendar size={14} /> },
                     { label: 'Join Webinar', rp: '+10', done: u.webinar_count > 0, icon: <Video size={14} /> },
-                    { label: 'Get Referral', rp: '+20', done: dashData.myReferrals.length > 0, icon: <Handshake size={14} /> },
+                    { label: 'Get Referral', rp: '+20', done: dashData.myReferrals.some((r: any) => r.status === 'approved'), icon: <Handshake size={14} /> },
                   ].map((task, i) => (
                     <div key={i} className={`flex items-center justify-between p-4 rounded-2xl border transition-all cursor-pointer ${task.done ? 'bg-green-50 border-green-100' : 'bg-gray-50 border-transparent hover:bg-white hover:border-gray-200 shadow-sm'}`}>
                       <div className="flex items-center gap-3">

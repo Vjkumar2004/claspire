@@ -4,8 +4,9 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePoints } from '@/contexts/PointsContext';
 import { useRouter } from 'next/navigation';
-import { HelpCircle, Briefcase, Handshake, Mic, DollarSign, BarChart3, Star, Trophy, User, CheckCircle, Settings, Zap, TrendingUp } from 'lucide-react';
+import { HelpCircle, Briefcase, Handshake, Mic, DollarSign, BarChart3, Star, Trophy, User, CheckCircle, Settings, Zap, TrendingUp, LayoutDashboard } from 'lucide-react';
 import NotificationPrompt from '@/components/NotificationPrompt';
+import NotificationBell from '@/components/NotificationBell';
 
 // Helper functions
 const timeAgo = (dateStr: string) => {
@@ -16,6 +17,13 @@ const timeAgo = (dateStr: string) => {
   if (days > 0) return `${days}d ago`
   if (hours > 0) return `${hours}h ago`
   return `${mins}m ago`
+}
+
+const getRPLevel = (points: number) => {
+  if (points >= 5000) return { label: 'Legend', emoji: '🔒', next: null, color: '#F59E0B' }
+  if (points >= 2000) return { label: 'Champion', emoji: '🏆', next: 5000, color: '#7C3AED' }
+  if (points >= 500) return { label: 'Mentor', emoji: '💎', next: 2000, color: '#06B6D4' }
+  return { label: 'Contributor', emoji: '🌟', next: 500, color: '#16A34A' }
 }
 
 export default function SeniorDashboardPage() {
@@ -139,33 +147,34 @@ export default function SeniorDashboardPage() {
         />
       )}
 
-      {/* Left Sidebar */}
-      <div className={`w-60 flex-shrink-0 bg-white border-r border-gray-200 h-screen fixed lg:sticky top-0 flex flex-col overflow-y-auto z-50 lg:z-auto transition-transform lg:transition-none ${mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-        }`}>
-        {/* Logo + User */}
-        <div className="p-4 border-b border-gray-100">
-          {/* Logo */}
-          <Link
-            href="/"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 2,
-              textDecoration: 'none'
-            }}
-            className="mb-5"
-          >
-            <span style={{
-              fontSize: 18,
-              fontWeight: 800,
-              color: '#0A0A0A'
-            }}>
-              Clas<span style={{ color: '#7C3AED' }}>pire</span>
-            </span>
-          </Link>
+      <div className={`w-60 flex-shrink-0 bg-white border-r border-gray-200 h-screen fixed lg:sticky top-0 flex flex-col z-50 transition-transform lg:transition-none ${mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+        {/* Logo + Notifications (Always visible) */}
+        <div className="p-4 border-b border-gray-100 flex items-center justify-between">
+            {/* Logo */}
+            <Link
+              href="/"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 2,
+                textDecoration: 'none'
+              }}
+            >
+              <span style={{
+                fontSize: 18,
+                fontWeight: 800,
+                color: '#0A0A0A'
+              }}>
+                Clas<span style={{ color: '#7C3AED' }}>pire</span>
+              </span>
+            </Link>
+            <NotificationBell align="left" />
+        </div>
 
+        {/* Scrollable Content Container */}
+        <div className="flex-1 overflow-y-auto flex flex-col custom-scrollbar">
           {/* User Card */}
-          <div className="flex items-center gap-2.5">
+          <div className="p-4 border-b border-gray-100 flex items-center gap-2.5">
             <div className={`w-9 h-9 rounded-full ${dashData?.user?.avatar_url ? 'bg-transparent' : 'bg-gradient-to-br from-purple-600 to-cyan-500'} text-white text-xs font-black flex items-center justify-center flex-shrink-0 overflow-hidden`}>
               {dashData?.user?.avatar_url ? (
                 <img src={dashData.user.avatar_url} alt={dashData.user.full_name} className="w-full h-full object-cover" />
@@ -174,48 +183,51 @@ export default function SeniorDashboardPage() {
               )}
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-xs font-black text-black">
+              <div className="text-xs font-black text-black leading-tight">
                 {dashData?.user?.full_name || 'Senior'}
               </div>
-              <div className="text-xs text-gray-400">
+              <div className="text-[10px] text-gray-400">
                 {dashData?.user?.unique_id || '#CLS-S-2022-00234'}
               </div>
               <div className="mt-1">
-                <span className="bg-green-50 border border-green-200 rounded-full px-2.5 py-0.5 text-[10px] font-black text-green-600">
-                  ✅ Verified Senior · {dashData?.user?.company || 'Company'}
+                <span className="bg-green-50 border border-green-200 rounded-full px-2 py-0.5 text-[9px] font-black text-green-600 block w-fit">
+                  ✅ Verified Senior
                 </span>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Rise Points Card */}
-        <div className="m-3 bg-gradient-to-br from-purple-600 to-cyan-500 rounded-xl p-3">
-          <div className="text-[10px] font-black text-white/75 tracking-wider uppercase mb-1 flex items-center gap-1">
-            <Zap size={10} />
-            Rise Points
+          {/* Rise Points Card */}
+          <div className="m-3 bg-gradient-to-br from-purple-600 to-cyan-500 rounded-xl p-3">
+            <div className="text-[10px] font-black text-white/75 tracking-wider uppercase mb-1 flex items-center gap-1">
+              <Zap size={10} />
+              Rise Points
+            </div>
+            <div className="font-instrument-serif text-2xl text-white leading-none my-1">
+              {dashData?.user?.rise_points || 0} RP
+            </div>
+            <div className="bg-white/20 rounded-full h-1 my-2">
+              <div className="bg-white rounded-full h-1" style={{ width: `${Math.min((dashData?.user?.rise_points || 0) / (getRPLevel(dashData?.user?.rise_points || 0).next || dashData?.user?.rise_points || 1) * 100, 100)}%` }}></div>
+            </div>
+            <div className="flex justify-between text-[10px] text-white/70">
+              <span className="flex items-center gap-1">
+                <Trophy size={10} />
+                {getRPLevel(dashData?.user?.rise_points || 0).label}
+              </span>
+              <span className="text-[9px]">
+                {getRPLevel(dashData?.user?.rise_points || 0).next 
+                  ? `${getRPLevel(dashData?.user?.rise_points || 0).next! - (dashData?.user?.rise_points || 0)} RP to Next` 
+                  : 'Legend Status'}
+              </span>
+            </div>
           </div>
-          <div className="font-instrument-serif text-2xl text-white leading-none my-1">
-            {dashData?.user?.rise_points || 0} RP
-          </div>
-          <div className="bg-white/20 rounded-full h-1 my-2">
-            <div className="bg-white rounded-full h-1 w-[46.8%]"></div>
-          </div>
-          <div className="flex justify-between text-[10px] text-white/70">
-            <span className="flex items-center gap-1">
-              <Trophy size={10} />
-              Champion
-            </span>
-            <span>2,660 RP to Legend</span>
-          </div>
-        </div>
 
-        {/* Nav Links */}
-        <div className="p-2 flex-1 overflow-y-auto">
-          {/* Main Section */}
-          <div className="text-[10px] font-black tracking-wider uppercase text-gray-400 px-2 mb-1.5 mt-0">
-            MAIN
-          </div>
+          {/* Nav Links */}
+          <div className="p-2">
+            {/* Main Section */}
+            <div className="text-[10px] font-black tracking-wider uppercase text-gray-400 px-2 mb-1.5 mt-0">
+              MAIN
+            </div>
           <div className="space-y-0.5 mb-4">
             <div
               onClick={() => setActiveNav("overview")}
@@ -335,17 +347,21 @@ export default function SeniorDashboardPage() {
           </button>
         </div>
       </div>
+    </div>
 
-      {/* Main Content Area */}
+    {/* Main Content Area */}
       <div className="flex-1 overflow-y-auto p-7 lg:p-8">
         {/* Mobile Top Bar */}
         <div className="lg:hidden flex items-center justify-between mb-6">
-          <button
-            onClick={() => setMobileSidebarOpen(true)}
-            className="text-xl p-2"
-          >
-            ☰
-          </button>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setMobileSidebarOpen(true)}
+              className="text-xl p-2"
+            >
+              ☰
+            </button>
+            <NotificationBell align="left" />
+          </div>
           <div className="bg-gray-100 border border-gray-200 rounded-lg px-3 py-1.5 text-xs font-black text-gray-600 font-mono">
             {dashData?.user?.unique_id || '#CLS-S-2022-00234'}
           </div>
@@ -588,7 +604,7 @@ export default function SeniorDashboardPage() {
                   dashData.rpLog.map((log: any, i: number) => (
                     <div key={log.id || i} className="flex gap-3 p-5 items-start">
                       <div className="w-9 h-9 bg-purple-50 rounded-full flex items-center justify-center text-base flex-shrink-0">
-                        {log.reason?.includes('Posted') ? '✍️' : log.reason?.includes('Answering') ? '✅' : '🌟'}
+                        {log.reason?.includes('Posted') ? '✍️' : log.reason?.includes('Answering') || log.reason?.includes('Answered') ? '✅' : log.reason?.includes('Approved') || log.reason?.includes('referral') ? '🤝' : '🌟'}
                       </div>
                       <div className="flex-1">
                         <div className="text-xs font-semibold text-black">{log.reason}</div>
@@ -673,13 +689,17 @@ export default function SeniorDashboardPage() {
               <h3 className="text-sm font-black text-black mb-4">⚡ Rise Points</h3>
 
               <div className="flex justify-between items-center mb-3">
-                <div className="text-base font-black text-purple-600">Champion 🏆</div>
-                <div className="text-xs font-black text-black">2,340 RP</div>
+                <div className="text-base font-black text-purple-600">{getRPLevel(dashData?.user?.rise_points || 0).label} {getRPLevel(dashData?.user?.rise_points || 0).emoji}</div>
+                <div className="text-xs font-black text-black">{dashData?.user?.rise_points || 0} RP</div>
               </div>
 
-              <div className="text-xs text-gray-400 mb-2">2340/5000 to Legend</div>
+              <div className="text-xs text-gray-400 mb-2">
+                {getRPLevel(dashData?.user?.rise_points || 0).next 
+                  ? `${dashData?.user?.rise_points || 0}/${getRPLevel(dashData?.user?.rise_points || 0).next} to ${getRPLevel(dashData?.user?.rise_points || 0).label === 'Champion' ? 'Legend' : 'Next Level'}`
+                  : 'Legend Status Achieved'}
+              </div>
               <div className="bg-gray-100 rounded-full h-1.5 overflow-hidden mb-4">
-                <div className="bg-gradient-to-r from-purple-600 to-cyan-500 h-full rounded-full" style={{ width: '46.8%' }}></div>
+                <div className="bg-gradient-to-r from-purple-600 to-cyan-500 h-full rounded-full" style={{ width: `${Math.min((dashData?.user?.rise_points || 0) / (getRPLevel(dashData?.user?.rise_points || 0).next || dashData?.user?.rise_points || 1) * 100, 100)}%` }}></div>
               </div>
 
               {/* RP Sources */}

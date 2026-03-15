@@ -18,7 +18,11 @@ interface Notification {
   created_at: string
 }
 
-export default function NotificationBell() {
+interface NotificationBellProps {
+  align?: 'left' | 'right'
+}
+
+export default function NotificationBell({ align = 'right' }: NotificationBellProps) {
   const { user } = useAuth()
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [unreadCount, setUnreadCount] = useState(0)
@@ -133,7 +137,7 @@ export default function NotificationBell() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
             transition={{ duration: 0.15, ease: 'easeOut' }}
-            className="absolute right-0 mt-2 w-80 max-h-[480px] bg-white rounded-2xl border border-gray-200 shadow-2xl z-[1000] overflow-hidden flex flex-col"
+            className={`absolute ${align === 'right' ? 'right-0' : 'left-0'} mt-2 w-80 max-h-[480px] bg-white rounded-2xl border border-gray-200 shadow-2xl z-[1000] overflow-hidden flex flex-col`}
           >
             {/* Header */}
             <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-white/50 backdrop-blur-sm sticky top-0 z-10">

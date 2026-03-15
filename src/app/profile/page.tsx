@@ -186,7 +186,11 @@ export default function ProfilePage() {
         </nav>
 
         <button 
-          onClick={() => { localStorage.removeItem('claspire_user'); router.push('/login'); }}
+          onClick={async () => { 
+            localStorage.removeItem('claspire_user'); 
+            try { await fetch('/api/auth/signout', { method: 'POST' }) } catch {} 
+            router.push('/login'); 
+          }}
           className="mt-auto w-full flex items-center gap-3 px-4 py-4 rounded-2xl text-sm font-bold text-red-500 hover:bg-red-50 transition-all group cursor-pointer border-none bg-transparent"
         >
            <LogOut size={20} className="group-hover:-translate-x-1 transition-transform" />

@@ -38,7 +38,20 @@ export async function GET(req: NextRequest) {
         ...dbUser
       }
 
-      return NextResponse.json({ user })
+      const response = NextResponse.json({ user })
+
+      // Check if cookie is stale (e.g. is_premium manually updated in DB)
+      if (dbUser.is_premium !== cookieUser.is_premium || dbUser.role !== cookieUser.role || dbUser.college_id !== cookieUser.college_id) {
+        console.log('useAuth - refreshing stale session cookie')
+        response.cookies.set('claspire_session', JSON.stringify(user), {
+          path: '/',
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          maxAge: 60 * 60 * 24 * 7 // 7 days
+        })
+      }
+
+      return response
     } catch (parseError) {
       console.error('Failed to parse session:', parseError)
       return NextResponse.json(

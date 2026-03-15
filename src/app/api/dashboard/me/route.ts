@@ -28,6 +28,7 @@ export async function GET(req: NextRequest) {
         doubt_count, answer_count,
         referral_count, webinar_count,
         is_verified, verification_status,
+        is_premium,
         avatar_url,
         last_visit_date,
         colleges (

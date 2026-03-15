@@ -64,8 +64,12 @@ export default function SeniorsPage() {
       return
     }
 
-    // Gating Logic: Direct messaging always requires Premium
-    setShowPremiumModal(true)
+    // Gating Logic: Direct messaging requires Premium
+    if (user.is_premium) {
+      setSelectedSenior(senior)
+    } else {
+      setShowPremiumModal(true)
+    }
   }
 
   const confirmMessage = async () => {
@@ -229,7 +233,7 @@ export default function SeniorsPage() {
                       onClick={() => handleMessageClick(senior)}
                       className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-sm font-bold transition-all bg-black text-white hover:bg-gray-800"
                     >
-                      <Lock size={16} />
+                      {user?.is_premium || user?.premium_plan === 'premium' ? <MessageSquare size={16} /> : <Lock size={16} />}
                       Message {senior.full_name.split(' ')[0]}
                     </button>
                   </div>
