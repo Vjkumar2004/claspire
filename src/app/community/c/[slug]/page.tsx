@@ -3,9 +3,9 @@ import React, { useState, useEffect, useMemo, cloneElement, ReactElement, Suspen
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 
 export const dynamic = 'force-dynamic';
-import { 
-  ChevronRight, Users, Star, MapPin, MessageSquare, 
-  Briefcase, Video, Lock, Shield, 
+import {
+  ChevronRight, Users, Star, MapPin, MessageSquare,
+  Briefcase, Video, Lock, Shield,
   Clock, TrendingUp, Calendar,
   Building, Globe, Award, Activity, Target, Zap,
   Info, X, GraduationCap, MessageCircle, Crown,
@@ -153,16 +153,16 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
     const mins = Math.floor(diff / 60000)
     const hours = Math.floor(diff / 3600000)
     const days = Math.floor(diff / 86400000)
-    if (days > 0) return `${days}d ago` 
-    if (hours > 0) return `${hours}h ago` 
-    if (mins > 0) return `${mins}m ago` 
+    if (days > 0) return `${days}d ago`
+    if (hours > 0) return `${hours}h ago`
+    if (mins > 0) return `${mins}m ago`
     return 'Just now'
   }
 
   // No auto-open effect here anymore
 
   const getTypeStyle = (type: string) => {
-    switch(type) {
+    switch (type) {
       case 'doubt': return { label: 'Doubt', color: '#2563EB', bg: '#EFF6FF', border: '#BFDBFE', highlight: '#3B82F6' }
       case 'discussion': return { label: 'Discussion', color: '#7C3AED', bg: '#F5F3FF', border: '#DDD6FE', highlight: '#8B5CF6' }
       case 'experience': return { label: 'Experience', color: '#D97706', bg: '#FFFBEB', border: '#FDE68A', highlight: '#F59E0B' }
@@ -190,15 +190,15 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
     const map: any = {}
     data.posts.forEach((p: any) => {
       const id = p.users?.id || 'u'
-      if(!map[id]) map[id] = { 
-        name: p.users?.full_name || 'User', 
-        count: 0, 
+      if (!map[id]) map[id] = {
+        name: p.users?.full_name || 'User',
+        count: 0,
         role: p.users?.role || 'student',
         avatar_url: p.users?.avatar_url
       }
       map[id].count++
     })
-    return Object.entries(map).sort((a:any, b:any) => b[1].count - a[1].count).slice(0, 5)
+    return Object.entries(map).sort((a: any, b: any) => b[1].count - a[1].count).slice(0, 5)
   }, [data?.posts])
 
   if (loading) return (
@@ -210,17 +210,17 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
 
   if (!data) return null
 
-  const { 
-    community, 
-    verifiedJuniors = 0, 
-    verifiedSeniors = 0, 
-    posts = [], 
-    jobs = [], 
-    webinars = [], 
-    userRole, 
-    canPost, 
-    canViewJobs, 
-    canViewWebinars, 
+  const {
+    community,
+    verifiedJuniors = 0,
+    verifiedSeniors = 0,
+    posts = [],
+    jobs = [],
+    webinars = [],
+    userRole,
+    canPost,
+    canViewJobs,
+    canViewWebinars,
     isAlreadyMember,
     totalMembers = 0
   } = data || {}
@@ -235,7 +235,8 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
 
   return (
     <div style={{ minHeight: '100vh', background: '#F8F9FE', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
-      <style dangerouslySetInnerHTML={{ __html: `
+      <style dangerouslySetInnerHTML={{
+        __html: `
         @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
         
         .glass-card { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.4); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03); }
@@ -280,15 +281,15 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
           <div className="hero-content" style={{ display: 'flex', alignItems: 'center', gap: 48, flexWrap: 'wrap' }}>
             {/* College Logo/Identity */}
             <div className="hero-logo-box" style={{ width: 120, height: 120, background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(16px)', borderRadius: 32, padding: 8, border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 24px 48px rgba(0,0,0,0.4)', flexShrink: 0 }}>
-              <div style={{ 
-                width: '100%', 
-                height: '100%', 
-                background: (community.slug === 'aaacet' || community.slug === 'vvvclg' || community.slug === 'vvv' || community.slug === 'anjac' || community.slug === 'sfr' || community.slug === 'skc' || community.slug === 'kamaraj' || community.slug === 'agpc') ? 'white' : 'linear-gradient(135deg, #7C3AED, #4F46E5)', 
-                borderRadius: 24, 
-                padding: (community.slug === 'aaacet' || community.slug === 'vvvclg' || community.slug === 'vvv' || community.slug === 'anjac' || community.slug === 'sfr' || community.slug === 'skc' || community.slug === 'kamaraj' || community.slug === 'agpc') ? 10 : 0, 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center', 
+              <div style={{
+                width: '100%',
+                height: '100%',
+                background: (community.slug === 'aaacet' || community.slug === 'vvvclg' || community.slug === 'vvv' || community.slug === 'anjac' || community.slug === 'sfr' || community.slug === 'skc' || community.slug === 'kamaraj' || community.slug === 'agpc') ? 'white' : 'linear-gradient(135deg, #7C3AED, #4F46E5)',
+                borderRadius: 24,
+                padding: (community.slug === 'aaacet' || community.slug === 'vvvclg' || community.slug === 'vvv' || community.slug === 'anjac' || community.slug === 'sfr' || community.slug === 'skc' || community.slug === 'kamaraj' || community.slug === 'agpc') ? 10 : 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
                 overflow: 'hidden',
                 color: 'white',
                 fontSize: 48,
@@ -318,11 +319,11 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
               <div className="hero-stats" style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
                 <div style={{ background: 'rgba(124, 58, 237, 0.15)', color: '#A78BFA', padding: '6px 16px', borderRadius: 100, fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', border: '1px solid rgba(124, 58, 237, 0.3)' }}>Official Hub</div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'white', fontSize: 13, fontWeight: 600 }}>
-                   <div style={{ width: 6, height: 6, background: '#10B981', borderRadius: '50%', boxShadow: '0 0 10px #10B981' }} />
-                   {(totalMembers || community.member_count || (verifiedJuniors + verifiedSeniors))} Members
+                  <div style={{ width: 6, height: 6, background: '#10B981', borderRadius: '50%', boxShadow: '0 0 10px #10B981' }} />
+                  {(totalMembers || community.member_count || (verifiedJuniors + verifiedSeniors))} Members
                 </div>
               </div>
-              
+
               <h1 style={{ fontSize: 'clamp(28px, 5vw, 44px)', fontFamily: 'Instrument Serif, serif', color: 'white', margin: '0 0 20px', lineHeight: 1.1, letterSpacing: '-0.02em' }}>
                 {community.colleges?.name}
               </h1>
@@ -352,54 +353,54 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                     Join Free →
                   </button>
                 ) : (userRole === 'own_junior' || userRole === 'own_senior') ? (
-                  <div style={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    gap: 8, 
-                    background: 'rgba(16, 185, 129, 0.15)', 
-                    border: '1px solid rgba(16, 185, 129, 0.3)', 
-                    padding: '10px 20px', 
-                    borderRadius: 14, 
-                    fontSize: 12, 
-                    fontWeight: 700, 
-                    color: '#6EE7B7' 
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    background: 'rgba(16, 185, 129, 0.15)',
+                    border: '1px solid rgba(16, 185, 129, 0.3)',
+                    padding: '10px 20px',
+                    borderRadius: 14,
+                    fontSize: 12,
+                    fontWeight: 700,
+                    color: '#6EE7B7'
                   }}>
-                    <CheckCircle size={16} /> 
+                    <CheckCircle size={16} />
                     {userRole === 'own_senior' ? 'Verified Senior ✓' : 'Verified Member ✓'}
                   </div>
                 ) : userRole === 'other_college' ? (
                   hasJoined ? (
-                    <div style={{ 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      gap: 8, 
-                      background: 'rgba(124, 58, 237, 0.15)', 
-                      border: '1px solid rgba(124, 58, 237, 0.3)', 
-                      padding: '10px 20px', 
-                      borderRadius: 14, 
-                      fontSize: 12, 
-                      fontWeight: 700, 
-                      color: '#C4B5FD' 
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8,
+                      background: 'rgba(124, 58, 237, 0.15)',
+                      border: '1px solid rgba(124, 58, 237, 0.3)',
+                      padding: '10px 20px',
+                      borderRadius: 14,
+                      fontSize: 12,
+                      fontWeight: 700,
+                      color: '#C4B5FD'
                     }}>
                       <CheckCircle size={16} /> Joined Network ✓
                     </div>
                   ) : (
-                    <button 
+                    <button
                       onClick={handleJoin}
                       disabled={joining}
-                      style={{ 
-                        display: 'flex', 
-                        alignItems: 'center', 
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
                         gap: 8,
-                        background: joining ? 'rgba(255,255,255,0.1)' : 'white', 
-                        color: '#4C1D95', 
-                        border: 'none', 
-                        padding: '11px 24px', 
-                        borderRadius: 14, 
-                        fontSize: 12, 
-                        fontWeight: 800, 
-                        cursor: joining ? 'wait' : 'pointer', 
-                        boxShadow: '0 8px 16px rgba(0, 0, 0, 0.15)', 
+                        background: joining ? 'rgba(255,255,255,0.1)' : 'white',
+                        color: '#4C1D95',
+                        border: 'none',
+                        padding: '11px 24px',
+                        borderRadius: 14,
+                        fontSize: 12,
+                        fontWeight: 800,
+                        cursor: joining ? 'wait' : 'pointer',
+                        boxShadow: '0 8px 16px rgba(0, 0, 0, 0.15)',
                         transition: 'all 0.2s',
                         opacity: joining ? 0.7 : 1
                       }}
@@ -438,7 +439,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
 
       {/* ── PREMIUM CONTENT GRID ── */}
       <div className="main-layout" style={{ maxWidth: 1200, margin: '32px auto', padding: '0 20px', display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 340px', gap: 32 }}>
-        
+
         {/* Left Section (Dynamic Content) */}
         <div className="animate-fade">
           {activeTab === 'feed' && (
@@ -451,23 +452,23 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                       {/* Interaction Bar Top */}
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                          <div 
+                          <div
                             onClick={(e) => {
                               e.stopPropagation();
                               router.push(`/u/${post.users?.unique_id}`);
                             }}
-                            style={{ 
-                              width: 36, height: 36, 
-                              borderRadius: 10, 
-                              background: post.users?.avatar_url 
-                                ? 'transparent' 
-                                : (post.users?.role === 'senior' ? 'linear-gradient(135deg, #10B981, #34D399)' : 'linear-gradient(135deg, #7C3AED, #06B6D4)'), 
-                              color: 'white', 
-                              display: 'flex', 
-                              alignItems: 'center', 
-                              justifyContent: 'center', 
-                              fontSize: 13, 
-                              fontWeight: 800, 
+                            style={{
+                              width: 36, height: 36,
+                              borderRadius: 10,
+                              background: post.users?.avatar_url
+                                ? 'transparent'
+                                : (post.users?.role === 'senior' ? 'linear-gradient(135deg, #10B981, #34D399)' : 'linear-gradient(135deg, #7C3AED, #06B6D4)'),
+                              color: 'white',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              fontSize: 13,
+                              fontWeight: 800,
                               boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
                               overflow: 'hidden',
                               cursor: 'pointer'
@@ -480,7 +481,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                             )}
                           </div>
                           <div>
-                            <div 
+                            <div
                               onClick={(e) => {
                                 e.stopPropagation();
                                 router.push(`/u/${post.users?.unique_id}`);
@@ -492,10 +493,10 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                               {post.users?.role === 'senior' && <Crown size={12} color="#F59E0B" />}
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 1 }}>
-                               <span style={{ fontSize: 10, fontWeight: 800, color: s.color, background: s.bg, padding: '2px 8px', borderRadius: 100, border: `1px solid ${s.border}`, textTransform: 'uppercase' }}>{s.label}</span>
-                               <span style={{ fontSize: 10, color: '#94A3B8', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
-                                 <Clock size={10} /> {timeAgo(post.created_at)}
-                               </span>
+                              <span style={{ fontSize: 10, fontWeight: 800, color: s.color, background: s.bg, padding: '2px 8px', borderRadius: 100, border: `1px solid ${s.border}`, textTransform: 'uppercase' }}>{s.label}</span>
+                              <span style={{ fontSize: 10, color: '#94A3B8', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
+                                <Clock size={10} /> {timeAgo(post.created_at)}
+                              </span>
                             </div>
                           </div>
                         </div>
@@ -544,8 +545,8 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                           {post.answer_count} <span style={{ fontWeight: 600, opacity: 0.6, fontSize: 10 }}>responses</span>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#64748B', fontSize: 11, fontWeight: 700 }}>
-                           <Activity size={12} className="opacity-40" />
-                           {post.view_count || 0} <span style={{ fontWeight: 600, opacity: 0.6, fontSize: 10 }}>reads</span>
+                          <Activity size={12} className="opacity-40" />
+                          {post.view_count || 0} <span style={{ fontWeight: 600, opacity: 0.6, fontSize: 10 }}>reads</span>
                         </div>
                         <button style={{ marginLeft: 'auto', background: 'none', border: 'none', color: '#94A3B8', cursor: 'pointer' }}><Share2 size={15} /></button>
                       </div>
@@ -554,11 +555,11 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                 })
               ) : (
                 <div style={{ textAlign: 'center', padding: '100px 32px', background: 'white', borderRadius: 32, border: '1px solid #F1F5F9' }}>
-                   <div style={{ width: 80, height: 80, background: '#F5F3FF', borderRadius: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px', color: '#7C3AED' }}>
+                  <div style={{ width: 80, height: 80, background: '#F5F3FF', borderRadius: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px', color: '#7C3AED' }}>
                     <MessageSquare size={40} />
-                   </div>
-                   <h3 style={{ fontSize: 20, fontWeight: 800, color: '#0F172A', marginBottom: 12 }}>Silent Campus</h3>
-                   <p style={{ color: '#64748B', maxWidth: 300, margin: '0 auto', fontSize: 15, lineHeight: 1.5 }}>Be the visionary to spark the first conversation in your university community.</p>
+                  </div>
+                  <h3 style={{ fontSize: 20, fontWeight: 800, color: '#0F172A', marginBottom: 12 }}>Silent Campus</h3>
+                  <p style={{ color: '#64748B', maxWidth: 300, margin: '0 auto', fontSize: 15, lineHeight: 1.5 }}>Be the visionary to spark the first conversation in your university community.</p>
                 </div>
               )}
             </div>
@@ -582,10 +583,10 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                               </div>
                             )}
                           </div>
-                          
+
                           <h3 style={{ fontSize: 18, fontWeight: 800, color: '#0F172A', margin: '0 0 4px', letterSpacing: '-0.01em' }}>{job.role}</h3>
                           <p style={{ fontSize: 14, fontWeight: 700, color: '#64748B', marginBottom: 16 }}>{job.company_name}</p>
-                          
+
                           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 24 }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, fontWeight: 600, color: '#64748B', background: '#F8FAFC', padding: '4px 10px', borderRadius: 8 }}>
                               <MapPin size={12} /> {job.location || 'Remote'}
@@ -601,44 +602,44 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                           </div>
 
                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-                             <a 
-                               href={job.description} 
-                               target="_blank" 
-                               rel="noopener noreferrer"
-                               style={{ flex: 1, textAlign: 'center', background: '#F5F3FF', color: '#7C3AED', textDecoration: 'none', padding: '12px', borderRadius: 14, fontSize: 13, fontWeight: 800, transition: 'all 0.2s' }}
-                               onMouseEnter={e => e.currentTarget.style.background = '#EDE9FE'}
-                               onMouseLeave={e => e.currentTarget.style.background = '#F5F3FF'}
-                             >
-                               View Details
-                             </a>
-                             <button 
-                               onClick={() => {
-                                 if (userRole === 'other_college') {
-                                   setShowPremiumModal(true)
-                                 } else {
-                                   setSelectedJob(job)
-                                   setReferralConfirmOpen(true)
-                                 }
-                               }}
-                               style={{ 
-                                 flex: 1, 
-                                 background: 'linear-gradient(135deg, #7C3AED, #06B6D4)', 
-                                 color: 'white', 
-                                 border: 'none', 
-                                 padding: '12px', 
-                                 borderRadius: 14, 
-                                 fontSize: 13, 
-                                 fontWeight: 800, 
-                                 cursor: 'pointer', 
-                                 boxShadow: '0 8px 16px rgba(124, 58, 237, 0.15)', 
-                                 transition: 'transform 0.2s',
-                                 display: currentUser?.id === job.posted_by ? 'none' : 'block'
-                               }}
-                               onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
-                               onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
-                             >
-                               Get Referral
-                             </button>
+                            <a
+                              href={job.description}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              style={{ flex: 1, textAlign: 'center', background: '#F5F3FF', color: '#7C3AED', textDecoration: 'none', padding: '12px', borderRadius: 14, fontSize: 13, fontWeight: 800, transition: 'all 0.2s' }}
+                              onMouseEnter={e => e.currentTarget.style.background = '#EDE9FE'}
+                              onMouseLeave={e => e.currentTarget.style.background = '#F5F3FF'}
+                            >
+                              View Details
+                            </a>
+                            <button
+                              onClick={() => {
+                                if (userRole === 'other_college') {
+                                  setShowPremiumModal(true)
+                                } else {
+                                  setSelectedJob(job)
+                                  setReferralConfirmOpen(true)
+                                }
+                              }}
+                              style={{
+                                flex: 1,
+                                background: 'linear-gradient(135deg, #7C3AED, #06B6D4)',
+                                color: 'white',
+                                border: 'none',
+                                padding: '12px',
+                                borderRadius: 14,
+                                fontSize: 13,
+                                fontWeight: 800,
+                                cursor: 'pointer',
+                                boxShadow: '0 8px 16px rgba(124, 58, 237, 0.15)',
+                                transition: 'transform 0.2s',
+                                display: currentUser?.id === job.posted_by ? 'none' : 'block'
+                              }}
+                              onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
+                              onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+                            >
+                              Get Referral
+                            </button>
                           </div>
                         </div>
                       ))}
@@ -678,7 +679,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
 
         {/* ── PREMIUM SIDEBAR ── */}
         <div className="right-sidebar" style={{ position: 'sticky', top: 90, height: 'fit-content', display: 'flex', flexDirection: 'column', gap: 20 }}>
-          
+
           {/* Stats Insight Card */}
           <div className="glass-card" style={{ padding: 16, borderRadius: 20, border: '1px solid rgba(124, 58, 237, 0.12)' }}>
             <h4 style={{ fontSize: 9, fontWeight: 800, color: '#7C3AED', marginBottom: 12, textTransform: 'uppercase', letterSpacing: '0.1em', display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -692,9 +693,9 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                 { label: 'Referrals', val: jobs?.length || 0, icon: <Target size={16} color="#10B981" />, bg: '#F0FDF4' }
               ].map((s, i) => (
                 <div key={i} className="stat-card-hover" style={{ padding: 12, borderRadius: 14, background: '#F8FAFC', border: '1px solid #F1F5F9', transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)' }}>
-                   <div style={{ width: 28, height: 28, borderRadius: 8, background: s.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 8 }}>{cloneElement(s.icon as ReactElement<any>, { size: 12 })}</div>
-                   <div style={{ fontSize: 16, fontWeight: 800, color: '#0F172A', fontFamily: 'Instrument Serif, serif' }}>{s.val}</div>
-                   <div style={{ fontSize: 9, fontWeight: 600, color: '#64748B', marginTop: 1 }}>{s.label}</div>
+                  <div style={{ width: 28, height: 28, borderRadius: 8, background: s.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 8 }}>{cloneElement(s.icon as ReactElement<any>, { size: 12 })}</div>
+                  <div style={{ fontSize: 16, fontWeight: 800, color: '#0F172A', fontFamily: 'Instrument Serif, serif' }}>{s.val}</div>
+                  <div style={{ fontSize: 9, fontWeight: 600, color: '#64748B', marginTop: 1 }}>{s.label}</div>
                 </div>
               ))}
             </div>
@@ -702,46 +703,46 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
 
           {/* Leaderboard Card */}
           <div className="glass-card" style={{ padding: 28, borderRadius: 32 }}>
-             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
-                <h4 style={{ fontSize: 12, fontWeight: 800, color: '#0F172A', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Top Contributors</h4>
-                <div style={{ background: '#FFFBEB', padding: '4px 10px', borderRadius: 8, fontSize: 11, fontWeight: 800, color: '#D97706', display: 'flex', alignItems: 'center', gap: 4 }}>
-                  <Star size={12} fill="#D97706" /> Weekly
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
+              <h4 style={{ fontSize: 12, fontWeight: 800, color: '#0F172A', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Top Contributors</h4>
+              <div style={{ background: '#FFFBEB', padding: '4px 10px', borderRadius: 8, fontSize: 11, fontWeight: 800, color: '#D97706', display: 'flex', alignItems: 'center', gap: 4 }}>
+                <Star size={12} fill="#D97706" /> Weekly
+              </div>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              {topContributors.length > 0 ? topContributors.map(([id, c]: any, i) => (
+                <div key={id} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px', borderRadius: 16, background: i === 0 ? 'linear-gradient(to right, #F5F3FF, transparent)' : 'transparent' }}>
+                  <div style={{ position: 'relative' }}>
+                    <div style={{
+                      width: 40, height: 40,
+                      borderRadius: 14,
+                      background: c.avatar_url
+                        ? 'transparent'
+                        : (c.role === 'senior' ? 'linear-gradient(135deg, #10B981, #059669)' : 'linear-gradient(135deg, #7C3AED, #4C1D95)'),
+                      color: 'white',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: 15,
+                      fontWeight: 800,
+                      overflow: 'hidden'
+                    }}>
+                      {c.avatar_url ? (
+                        <img src={c.avatar_url} alt={c.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      ) : (
+                        c.name[0]
+                      )}
+                    </div>
+                    {i < 3 && <div style={{ position: 'absolute', bottom: -4, right: -4, width: 18, height: 18, background: '#fff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, border: '1px solid #F1F5F9' }}>{i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉'}</div>}
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: '#1E293B' }}>{c.name}</div>
+                    <div style={{ fontSize: 11, fontWeight: 600, color: '#94A3B8' }}>{c.count} platform points</div>
+                  </div>
+                  {i === 0 && <Award size={18} color="#F59E0B" />}
                 </div>
-             </div>
-             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-               {topContributors.length > 0 ? topContributors.map(([id, c]: any, i) => (
-                 <div key={id} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px', borderRadius: 16, background: i === 0 ? 'linear-gradient(to right, #F5F3FF, transparent)' : 'transparent' }}>
-                    <div style={{ position: 'relative' }}>
-                       <div style={{ 
-                         width: 40, height: 40, 
-                         borderRadius: 14, 
-                         background: c.avatar_url 
-                           ? 'transparent' 
-                           : (c.role === 'senior' ? 'linear-gradient(135deg, #10B981, #059669)' : 'linear-gradient(135deg, #7C3AED, #4C1D95)'), 
-                         color: 'white', 
-                         display: 'flex', 
-                         alignItems: 'center', 
-                         justifyContent: 'center', 
-                         fontSize: 15, 
-                         fontWeight: 800,
-                         overflow: 'hidden'
-                       }}>
-                         {c.avatar_url ? (
-                           <img src={c.avatar_url} alt={c.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                         ) : (
-                           c.name[0]
-                         )}
-                       </div>
-                       {i < 3 && <div style={{ position: 'absolute', bottom: -4, right: -4, width: 18, height: 18, background: '#fff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, border: '1px solid #F1F5F9' }}>{i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉'}</div>}
-                    </div>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 14, fontWeight: 700, color: '#1E293B' }}>{c.name}</div>
-                      <div style={{ fontSize: 11, fontWeight: 600, color: '#94A3B8' }}>{c.count} platform points</div>
-                    </div>
-                    {i === 0 && <Award size={18} color="#F59E0B" />}
-                 </div>
-               )) : <p style={{ fontSize: 13, color: '#94A3B8', textAlign: 'center' }}>Competition just started!</p>}
-             </div>
+              )) : <p style={{ fontSize: 13, color: '#94A3B8', textAlign: 'center' }}>Competition just started!</p>}
+            </div>
           </div>
 
           {/* Guidelines Card */}
@@ -756,7 +757,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                 { t: 'Verified Guidance', d: 'Follow advice from verified seniors only.' }
               ].map((r, i) => (
                 <div key={i} style={{ display: 'flex', gap: 16 }}>
-                  <div style={{ fontSize: 14, fontWeight: 800, color: '#7C3AED', opacity: 0.3 }}>{i+1}</div>
+                  <div style={{ fontSize: 14, fontWeight: 800, color: '#7C3AED', opacity: 0.3 }}>{i + 1}</div>
                   <div>
                     <div style={{ fontSize: 13, fontWeight: 800, color: '#334155' }}>{r.t}</div>
                     <div style={{ fontSize: 11, color: '#64748B', lineHeight: 1.5, marginTop: 4 }}>{r.d}</div>
@@ -772,41 +773,41 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
       {showDetailsModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(12px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
           <div className="animate-fade" style={{ background: 'white', width: '100%', maxWidth: 440, borderRadius: 28, overflow: 'hidden', boxShadow: '0 40px 80px rgba(0,0,0,0.4)' }}>
-             <div style={{ background: 'linear-gradient(135deg, #0F172A, #1E1B4B)', padding: '24px 24px 32px', position: 'relative', color: 'white' }}>
-               <button onClick={() => setShowDetailsModal(false)} style={{ position: 'absolute', top: 16, right: 16, background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', width: 32, height: 32, borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><X size={18} /></button>
-               <div style={{ width: 48, height: 48, background: 'white', borderRadius: 12, marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 6, boxShadow: '0 15px 30px rgba(0,0,0,0.2)' }}>
-                 <img src="/logo.jpg" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-               </div>
-               <h2 style={{ fontSize: 24, fontFamily: 'Instrument Serif, serif', fontWeight: 400, margin: 0 }}>{community.colleges?.name}</h2>
-               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 12, opacity: 0.7, fontSize: 14 }}>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><MapPin size={16} /> {community.colleges?.city}, {community.colleges?.state}</span>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Globe size={16} /> Official Campus c/{slug}</span>
-               </div>
-             </div>
-              <div style={{ padding: '24px' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }}>
-                  <div style={{ padding: 16, borderRadius: 16, background: '#F8FAFC', border: '1px solid #F1F5F9' }}>
-                    <div style={{ fontSize: 9, fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', marginBottom: 4 }}>STATUS</div>
-                    <div style={{ fontSize: 14, fontWeight: 800, color: '#1E293B', display: 'flex', alignItems: 'center', gap: 6 }}><Award size={14} color="#10B981" /> Verified</div>
-                  </div>
-                  <div style={{ padding: 16, borderRadius: 16, background: '#F8FAFC', border: '1px solid #F1F5F9' }}>
-                    <div style={{ fontSize: 9, fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', marginBottom: 4 }}>MEMBERS</div>
-                    <div style={{ fontSize: 14, fontWeight: 800, color: '#1E293B' }}>{(totalMembers > 0 ? totalMembers : (verifiedJuniors + verifiedSeniors))} Peers</div>
-                  </div>
-                </div>
-                <div style={{ background: '#F5F3FF', borderRadius: 16, padding: 16, border: '1px solid rgba(124, 58, 237, 0.1)' }}>
-                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                     <Building size={14} color="#7C3AED" />
-                     <span style={{ fontSize: 13, fontWeight: 800, color: '#1E293B' }}>Objectives</span>
-                   </div>
-                   <p style={{ fontSize: 12, color: '#475569', lineHeight: 1.5, margin: 0 }}>
-                     The exclusive digital forum for {community.colleges?.name}. Designed for high-impact professional networking and real-time guidance.
-                   </p>
-                </div>
-                <button onClick={() => setShowDetailsModal(false)} style={{ width: '100%', marginTop: 24, background: '#0F172A', color: 'white', border: 'none', padding: '14px', borderRadius: 12, fontSize: 14, fontWeight: 800, cursor: 'pointer', transition: 'transform 0.2s' }} onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'} onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}>
-                  Continue
-                </button>
+            <div style={{ background: 'linear-gradient(135deg, #0F172A, #1E1B4B)', padding: '24px 24px 32px', position: 'relative', color: 'white' }}>
+              <button onClick={() => setShowDetailsModal(false)} style={{ position: 'absolute', top: 16, right: 16, background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', width: 32, height: 32, borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><X size={18} /></button>
+              <div style={{ width: 48, height: 48, background: 'white', borderRadius: 12, marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 6, boxShadow: '0 15px 30px rgba(0,0,0,0.2)' }}>
+                <img src="/logo.jpg" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
               </div>
+              <h2 style={{ fontSize: 24, fontFamily: 'Instrument Serif, serif', fontWeight: 400, margin: 0 }}>{community.colleges?.name}</h2>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 12, opacity: 0.7, fontSize: 14 }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><MapPin size={16} /> {community.colleges?.city}, {community.colleges?.state}</span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Globe size={16} /> Official Campus c/{slug}</span>
+              </div>
+            </div>
+            <div style={{ padding: '24px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }}>
+                <div style={{ padding: 16, borderRadius: 16, background: '#F8FAFC', border: '1px solid #F1F5F9' }}>
+                  <div style={{ fontSize: 9, fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', marginBottom: 4 }}>STATUS</div>
+                  <div style={{ fontSize: 14, fontWeight: 800, color: '#1E293B', display: 'flex', alignItems: 'center', gap: 6 }}><Award size={14} color="#10B981" /> Verified</div>
+                </div>
+                <div style={{ padding: 16, borderRadius: 16, background: '#F8FAFC', border: '1px solid #F1F5F9' }}>
+                  <div style={{ fontSize: 9, fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', marginBottom: 4 }}>MEMBERS</div>
+                  <div style={{ fontSize: 14, fontWeight: 800, color: '#1E293B' }}>{(totalMembers > 0 ? totalMembers : (verifiedJuniors + verifiedSeniors))} Peers</div>
+                </div>
+              </div>
+              <div style={{ background: '#F5F3FF', borderRadius: 16, padding: 16, border: '1px solid rgba(124, 58, 237, 0.1)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                  <Building size={14} color="#7C3AED" />
+                  <span style={{ fontSize: 13, fontWeight: 800, color: '#1E293B' }}>Objectives</span>
+                </div>
+                <p style={{ fontSize: 12, color: '#475569', lineHeight: 1.5, margin: 0 }}>
+                  The exclusive digital forum for {community.colleges?.name}. Designed for high-impact professional networking and real-time guidance.
+                </p>
+              </div>
+              <button onClick={() => setShowDetailsModal(false)} style={{ width: '100%', marginTop: 24, background: '#0F172A', color: 'white', border: 'none', padding: '14px', borderRadius: 12, fontSize: 14, fontWeight: 800, cursor: 'pointer', transition: 'transform 0.2s' }} onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'} onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}>
+                Continue
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -814,8 +815,8 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
       {/* Premium Upgrade Modal */}
       {showPremiumModal && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
-          <div 
-            style={{ position: 'absolute', inset: 0, background: 'rgba(15, 23, 42, 0.6)', backdropFilter: 'blur(8px)' }} 
+          <div
+            style={{ position: 'absolute', inset: 0, background: 'rgba(15, 23, 42, 0.6)', backdropFilter: 'blur(8px)' }}
             onClick={() => setShowPremiumModal(false)}
           />
           <div style={{ position: 'relative', background: 'white', width: '100%', maxWidth: 480, borderRadius: 32, overflow: 'hidden', boxShadow: '0 40px 80px rgba(0,0,0,0.4)', animation: 'fadeIn 0.3s ease-out' }}>
@@ -853,7 +854,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                <button 
+                <button
                   onClick={() => router.push('/pricing')}
                   style={{ width: '100%', background: '#0F172A', color: 'white', border: 'none', padding: '16px', borderRadius: 16, fontSize: 14, fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, transition: 'transform 0.2s' }}
                   onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
@@ -861,7 +862,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                 >
                   Upgrade to Premium <ArrowRight size={16} />
                 </button>
-                <button 
+                <button
                   onClick={() => setShowPremiumModal(false)}
                   style={{ width: '100%', background: 'none', border: 'none', color: '#94A3B8', padding: '12px', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}
                 >
@@ -873,7 +874,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
         </div>
       )}
 
-      <PostModal 
+      <PostModal
         isOpen={showPostModal}
         onClose={() => setShowPostModal(false)}
         communityId={community.id}
@@ -891,18 +892,18 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
             </div>
             <h3 style={{ fontSize: 20, fontWeight: 800, color: '#0F172A', marginBottom: 12 }}>Confirm Referral Request</h3>
             <p style={{ fontSize: 14, color: '#64748B', lineHeight: 1.6, marginBottom: 24 }}>
-              Requesting a referral for <b>{selectedJob?.role}</b> at <b>{selectedJob?.company_name}</b>. 
+              Requesting a referral for <b>{selectedJob?.role}</b> at <b>{selectedJob?.company_name}</b>.
               Your profile will be shared with the senior for review.
             </p>
             <div style={{ display: 'flex', gap: 12 }}>
-              <button 
+              <button
                 onClick={() => setReferralConfirmOpen(false)}
                 disabled={requestLoading}
                 style={{ flex: 1, background: '#F8FAFC', color: '#64748B', border: '1px solid #E2E8F0', padding: '12px', borderRadius: 14, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}
               >
                 Cancel
               </button>
-              <button 
+              <button
                 onClick={handleRequestReferral}
                 disabled={requestLoading}
                 style={{ flex: 2, background: 'linear-gradient(135deg, #7C3AED, #06B6D4)', color: 'white', border: 'none', padding: '12px', borderRadius: 14, fontSize: 13, fontWeight: 800, cursor: 'pointer', opacity: requestLoading ? 0.7 : 1 }}
@@ -914,7 +915,8 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
         </div>
       )}
 
-      <style dangerouslySetInnerHTML={{ __html: `
+      <style dangerouslySetInnerHTML={{
+        __html: `
         @media (max-width: 1024px) {
           .main-layout { grid-template-columns: 1fr !important; gap: 32px !important; }
           .sidebar-desktop { display: none !important; }

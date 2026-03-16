@@ -19,6 +19,11 @@ html, body {
   }
 }
 
+/* Hide BottomNavbar when mobile menu is open */
+body.mobile-menu-active .bottom-navbar {
+  display: none !important;
+}
+
 /* Mobile Menu Animations */
 @keyframes slideInLeft {
   from {

@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -10,6 +10,28 @@ export default function Navbar() {
   const { user, loading, signOut } = useAuth()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false)
+
+  // Sync mobile menu state with body class for BottomNavbar visibility
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.classList.add('mobile-menu-active')
+    } else {
+      document.body.classList.remove('mobile-menu-active')
+    }
+
+    // Dispatch custom event for BottomNavbar and other components
+    window.dispatchEvent(new CustomEvent('claspire:mobileMenuToggle', {
+      detail: { open: mobileMenuOpen }
+    }));
+
+    // Cleanup on unmount
+    return () => {
+      document.body.classList.remove('mobile-menu-active');
+      window.dispatchEvent(new CustomEvent('claspire:mobileMenuToggle', {
+        detail: { open: false }
+      }));
+    };
+  }, [mobileMenuOpen])
 
   return (
     <nav className="fixed top-0 left-0 right-0 h-14 z-[999] bg-white/97 border-b border-gray-200 backdrop-blur-[8px]">

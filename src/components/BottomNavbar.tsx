@@ -64,6 +64,17 @@ const BottomNavbar = () => {
     }
   }, [user?.id])
 
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+
+  useEffect(() => {
+    const handleToggle = (e: any) => {
+      setIsMobileMenuOpen(e.detail.open)
+    }
+
+    window.addEventListener('claspire:mobileMenuToggle', handleToggle)
+    return () => window.removeEventListener('claspire:mobileMenuToggle', handleToggle)
+  }, [])
+
   // Base navigation items
   const navItems = [
     {
@@ -95,8 +106,10 @@ const BottomNavbar = () => {
     },
   ]
 
+  if (pathname === '/' || isMobileMenuOpen) return null
+
   return (
-    <div className="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-sm z-[999]">
+    <div className="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-sm z-[999] bottom-navbar">
       <div className="bg-white/80 backdrop-blur-xl border border-gray-200/50 rounded-[28px] shadow-[0_8px_32px_rgba(0,0,0,0.12)] px-2 py-2">
         <div className="flex items-center justify-between gap-1">
           {navItems.map((item, index) => {
@@ -128,7 +141,7 @@ const BottomNavbar = () => {
               >
                 <div className={`transition-all duration-200 ${isActive ? 'text-purple-600 scale-110' : 'text-gray-400 group-hover:text-gray-600'}`}>
                   <Icon size={22} strokeWidth={isActive ? 2.5 : 2} />
-                  
+
                   {/* Notification Badge */}
                   {item.badge !== undefined && item.badge > 0 && (
                     <span className="absolute -top-1 right-2 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white ring-2 ring-white">
