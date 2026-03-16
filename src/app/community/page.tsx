@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { usePoints } from '@/contexts/PointsContext'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -11,17 +11,20 @@ import {
   ArrowUp, ArrowDown, CheckCircle,
   Eye, ChevronRight, Briefcase,
   Video, Building2, Crown, Zap,
-  Hash, Star, Shield, Globe, Plus,
+  Hash, Star, Shield, Globe,
   BookOpen, Target, Send, X, ChevronDown, ChevronUp, Sparkles, Filter
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
+import NotificationPrompt from '@/components/NotificationPrompt'
+
+export const dynamic = 'force-dynamic';
 
 const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder'
 )
 
-export default function CommunityPage() {
+function CommunityPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const shouldCreate = searchParams.get('create') === 'true'
@@ -588,6 +591,7 @@ export default function CommunityPage() {
           to { transform: rotate(360deg) }
         }
       `}</style>
+      <NotificationPrompt />
     </div>
   )
 
@@ -2169,6 +2173,42 @@ export default function CommunityPage() {
         }
       `}</style>
 
+      <NotificationPrompt />
     </div>
+  )
+}
+
+export default function CommunityPage() {
+  return (
+    <Suspense fallback={
+      <div style={{
+        minHeight: '100vh',
+        background: '#F5F4FF',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexDirection: 'column',
+        gap: 12,
+        fontFamily: 'Plus Jakarta Sans'
+      }}>
+        <div style={{
+          width: 40, height: 40,
+          border: '3px solid #EDE9FE',
+          borderTop: '3px solid #7C3AED',
+          borderRadius: '50%',
+          animation: 'spin 0.8s linear infinite'
+        }} />
+        <p style={{
+          fontSize: 13,
+          color: '#9CA3AF',
+          margin: 0,
+          fontWeight: 500
+        }}>
+          Loading community hub...
+        </p>
+      </div>
+    }>
+      <CommunityPageContent />
+    </Suspense>
   )
 }

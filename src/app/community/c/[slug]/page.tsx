@@ -1,19 +1,21 @@
 'use client'
-import React, { useState, useEffect, useMemo, cloneElement, ReactElement } from 'react'
+import React, { useState, useEffect, useMemo, cloneElement, ReactElement, Suspense } from 'react'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
+
+export const dynamic = 'force-dynamic';
 import { 
   ChevronRight, Users, Star, MapPin, MessageSquare, 
-  Briefcase, Video, Lock, Plus, Shield, 
+  Briefcase, Video, Lock, Shield, 
   Clock, TrendingUp, Calendar,
   Building, Globe, Award, Activity, Target, Zap,
   Info, X, GraduationCap, MessageCircle, Crown,
-  CheckCircle, Search, TrendingDown, MoreHorizontal,
-  Share2, ArrowUp, MessageSquarePlus, Heart, LayoutGrid, DollarSign,
+  CheckCircle, Search, MoreHorizontal,
+  Share2, ArrowUp, MessageSquarePlus, LayoutGrid, DollarSign,
   Sparkles, ArrowRight
 } from 'lucide-react'
 import PostModal from '@/components/PostModal'
 
-export default function CommunityPage({ params }: { params: Promise<{ slug: string }> }) {
+function CommunityPageContent({ params }: { params: Promise<{ slug: string }> }) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const pathname = usePathname()
@@ -431,11 +433,6 @@ export default function CommunityPage({ params }: { params: Promise<{ slug: stri
               </button>
             ))}
           </div>
-          {canPost && activeTab === 'feed' && (
-            <button className="desktop-only-btn" onClick={() => setShowPostModal(true)} style={{ background: '#7C3AED', color: 'white', border: 'none', padding: '12px 24px', borderRadius: 14, fontSize: 14, fontWeight: 800, display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', boxShadow: '0 4px 12px rgba(124,58,237,0.2)' }}>
-              <Plus size={15} /> Start Discussion
-            </button>
-          )}
         </div>
       </div>
 
@@ -814,13 +811,6 @@ export default function CommunityPage({ params }: { params: Promise<{ slug: stri
         </div>
       )}
 
-      {/* Floating Action Mobile */}
-      <div className="mobile-fab" style={{ position: 'fixed', bottom: 32, right: 24, zIndex: 900, display: 'none' }}>
-        <button onClick={() => setShowPostModal(true)} style={{ width: 64, height: 64, borderRadius: '50%', background: 'linear-gradient(135deg, #7C3AED, #06B6D4)', color: 'white', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 12px 32px rgba(124, 58, 237, 0.4)', cursor: 'pointer' }}>
-          <Plus size={24} />
-        </button>
-      </div>
-
       {/* Premium Upgrade Modal */}
       {showPremiumModal && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
@@ -932,5 +922,31 @@ export default function CommunityPage({ params }: { params: Promise<{ slug: stri
         }
       `}} />
     </div>
+  )
+}
+
+export default function CommunityPage({ params }: { params: Promise<{ slug: string }> }) {
+  return (
+    <Suspense fallback={
+      <div style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: '#F8F9FE'
+      }}>
+        <div style={{
+          width: 44,
+          height: 44,
+          border: '4px solid #E2E8F0',
+          borderTopColor: '#7C3AED',
+          borderRadius: '50%',
+          animation: 'spin 1s linear infinite'
+        }} />
+        <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
+      </div>
+    }>
+      <CommunityPageContent params={params} />
+    </Suspense>
   )
 }
