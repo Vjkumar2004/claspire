@@ -1,22 +1,39 @@
 'use client';
 
+import { useState, useEffect, useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
-import { useRef } from 'react';
-
-const colleges = [
-  { short: "SR", name: "SRM University", color: "7C3AED" },
-  { short: "VI", name: "VIT Vellore", color: "06B6D4" },
-  { short: "NI", name: "NIT Trichy", color: "7C3AED" },
-  { short: "AN", name: "Anna University", color: "06B6D4" },
-  { short: "PS", name: "PSG Tech", color: "7C3AED" },
-  { short: "BI", name: "BITS Pilani", color: "06B6D4" },
-  { short: "CO", name: "Coimbatore Institute", color: "7C3AED" },
-  { short: "AM", name: "Amrita University", color: "06B6D4" },
-];
+import { supabase } from '@/lib/supabase';
+import { getCollegeLogo } from '@/lib/college-utils';
 
 export default function CollegeBar() {
+  const [colleges, setColleges] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
+
+  useEffect(() => {
+    const fetchColleges = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('colleges')
+          .select('id, name, short_name, slug')
+          .order('name');
+        
+        if (error) throw error;
+        setColleges(data || []);
+      } catch (err) {
+        console.error('Error fetching colleges for bar:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchColleges();
+  }, []);
+
+  // Duplicate items for seamless transition
+  const displayItems = [...colleges, ...colleges];
+
+  if (loading || colleges.length === 0) return null;
 
   return (
     <section className="bg-gray-50 border-t border-gray-200 border-b border-gray-200 py-5 overflow-hidden">
@@ -40,27 +57,40 @@ export default function CollegeBar() {
             initial={{ x: 0 }}
             animate={{ x: "-50%" }}
             transition={{
-              duration: 30,
+              duration: colleges.length * 3, // Dynamic duration based on count
               repeat: Infinity,
               ease: "linear"
             }}
             className="flex gap-4 w-max"
           >
-            {[...colleges, ...colleges].map((college, index) => (
-              <div
-                key={index}
-                className="inline-flex items-center gap-2 whitespace-nowrap bg-white border border-gray-200 rounded-lg px-3.5 py-2 flex-shrink-0"
-              >
-                <img
-                  src={`https://ui-avatars.com/api/?name=${college.short}&background=${college.color}&color=fff&size=28&rounded=true&bold=true`}
-                  alt={college.short}
-                  className="w-7 h-7 rounded-full flex-shrink-0"
-                />
-                <span className="text-sm font-semibold text-gray-700 whitespace-nowrap">
-                  {college.name}
-                </span>
-              </div>
-            ))}
+            {displayItems.map((college, index) => {
+              const logo = getCollegeLogo(college.short_name, college.slug);
+              return (
+                <div
+                  key={`${college.id}-${index}`}
+                  className="inline-flex items-center gap-2 whitespace-nowrap bg-white border border-gray-200 rounded-lg px-3.5 py-2 flex-shrink-0 shadow-sm"
+                >
+                  <div className="w-7 h-7 rounded-full overflow-hidden flex-shrink-0 bg-gray-50 border border-gray-100 flex items-center justify-center">
+                    {logo ? (
+                      <img
+                        src={logo}
+                        alt={college.short_name}
+                        className="w-full h-full object-contain"
+                      />
+                    ) : (
+                      <img
+                        src={`https://ui-avatars.com/api/?name=${college.short_name || college.name}&background=7C3AED&color=fff&size=28&rounded=true&bold=true`}
+                        alt={college.short_name}
+                        className="w-full h-full object-cover"
+                      />
+                    )}
+                  </div>
+                  <span className="text-sm font-semibold text-gray-700 whitespace-nowrap">
+                    {college.name}
+                  </span>
+                </div>
+              );
+            })}
           </motion.div>
         </div>
       </div>

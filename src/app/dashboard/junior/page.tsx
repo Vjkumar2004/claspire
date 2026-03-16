@@ -7,7 +7,7 @@ import {
   CheckCircle, Video, Briefcase,
   GraduationCap, Star, Target,
   BarChart3, Menu, X, Trash2,
-  Handshake, Search, Sparkles,
+  Handshake, Search, Sparkles, MessageSquare,
   ArrowUp, ArrowDown, LogOut, User
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
@@ -17,6 +17,7 @@ import { usePoints } from '@/contexts/PointsContext'
 import { motion, AnimatePresence } from 'framer-motion'
 import NotificationPrompt from '@/components/NotificationPrompt'
 import NotificationBell from '@/components/NotificationBell'
+import DashboardMessages from '@/components/DashboardMessages'
 
 interface DashData {
   user: {
@@ -115,6 +116,15 @@ export default function JuniorDashboard() {
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState('overview')
+
+  // Handle URL parameters for active tab
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const tab = params.get('activeTab')
+    if (tab && ['overview', 'doubts', 'webinars', 'community', 'referrals', 'messages'].includes(tab)) {
+      setActiveTab(tab)
+    }
+  }, [])
   const [doubtSearch, setDoubtSearch] = useState('')
   const [doubtFilter, setDoubtFilter] = useState<'all' | 'answered' | 'pending'>('all')
   const [eventSearch, setEventSearch] = useState('')
@@ -207,6 +217,7 @@ export default function JuniorDashboard() {
     { id: 'events', label: 'Webinars', icon: <Video size={20} /> },
     { id: 'community', label: 'Community', icon: <Users size={20} /> },
     { id: 'referrals', label: 'Referrals', icon: <Handshake size={20} /> },
+    { id: 'messages', label: 'Messages', icon: <MessageSquare size={20} /> },
   ]
 
   return (
@@ -289,7 +300,7 @@ export default function JuniorDashboard() {
       <main className="lg:ml-[280px] min-h-screen">
 
         {/* TOP NAV / DASHBOARD HERO */}
-        <div className="relative z-40 bg-[#0F172A] pt-6 pb-20 px-6 md:px-12 border-b border-white/5">
+        <div className={`relative z-40 bg-[#0F172A] pt-6 px-6 md:px-12 border-b border-white/5 ${activeTab === 'messages' ? 'pb-6' : 'pb-20'}`}>
           <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-[120px] -mr-64 -mt-64" />
           <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-cyan-600/10 rounded-full blur-[100px] -ml-40 -mb-40" />
 
@@ -322,40 +333,42 @@ export default function JuniorDashboard() {
               </div>
             </header>
 
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-              <div>
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-                  className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-[10px] font-black tracking-widest uppercase mb-4"
-                >
-                  <Sparkles size={10} /> Professional Dashboard
-                </motion.div>
-                <h1 className="text-4xl md:text-5xl font-black text-white m-0 font-instrument-serif tracking-tight leading-tight">
-                  Welcome, {u.full_name.split(' ')[0]}
-                </h1>
-                <p className="text-white/50 font-medium text-lg mt-2 m-0 max-w-xl">
-                  Connect with verified seniors from {u.colleges?.short_name || 'your college'}.
-                </p>
+            {activeTab !== 'messages' && (
+              <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                <div>
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+                    className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-[10px] font-black tracking-widest uppercase mb-4"
+                  >
+                    <Sparkles size={10} /> Professional Dashboard
+                  </motion.div>
+                  <h1 className="text-4xl md:text-5xl font-black text-white m-0 font-instrument-serif tracking-tight leading-tight">
+                    Welcome, {u.full_name.split(' ')[0]}
+                  </h1>
+                  <p className="text-white/50 font-medium text-lg mt-2 m-0 max-w-xl">
+                    Connect with verified seniors from {u.colleges?.short_name || 'your college'}.
+                  </p>
+                </div>
+                <div className="flex items-center gap-4">
+                  <button
+                    onClick={() => router.push('/community')}
+                    className="bg-white text-[#0F172A] px-6 py-3.5 rounded-[20px] font-bold text-sm shadow-xl hover:scale-105 transition-transform flex items-center gap-2 cursor-pointer"
+                  >
+                    <Plus size={18} /> Ask a Doubt
+                  </button>
+                </div>
               </div>
-              <div className="flex items-center gap-4">
-                <button
-                  onClick={() => router.push('/community')}
-                  className="bg-white text-[#0F172A] px-6 py-3.5 rounded-[20px] font-bold text-sm shadow-xl hover:scale-105 transition-transform flex items-center gap-2 cursor-pointer"
-                >
-                  <Plus size={18} /> Ask a Doubt
-                </button>
-              </div>
-            </div>
+            )}
           </div>
         </div>
 
         {/* ═══ TAB CONTENT ═══ */}
-        <div className="px-6 md:px-12 -mt-10 relative z-20 pb-20">
+        <div className={`px-6 md:px-12 relative pb-20 ${activeTab === 'messages' ? 'mt-0' : '-mt-10'} z-50`}>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
-            {/* LEFT COLUMN: MAIN FEED (8 COLS) */}
-            <div className="lg:col-span-8 space-y-8">
+            {/* LEFT COLUMN: MAIN FEED (8 COLS or 12 COLS for messages) */}
+            <div className={activeTab === 'messages' ? "lg:col-span-12" : "lg:col-span-8 space-y-8"}>
 
               <AnimatePresence mode="wait">
                 {activeTab === 'overview' && (
@@ -630,12 +643,19 @@ export default function JuniorDashboard() {
                     </div>
                   </motion.div>
                 )}
+
+                {activeTab === 'messages' && (
+                  <motion.div key="messages" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+                    <DashboardMessages currentUserId={u.id} role="junior" />
+                  </motion.div>
+                )}
               </AnimatePresence>
 
             </div>
 
             {/* RIGHT COLUMN: INFO & BADGES (4 COLS) */}
-            <div className="lg:col-span-4 space-y-8">
+            {activeTab !== 'messages' && (
+              <div className="lg:col-span-4 space-y-8">
 
               {/* How to Earn RP Card */}
               <div className="bg-white rounded-[32px] border border-[#E2E8F0] p-8 shadow-sm hover:shadow-xl transition-all overflow-hidden relative group">
@@ -702,14 +722,11 @@ export default function JuniorDashboard() {
                   </div>
                 </div>
               </div>
-
             </div>
-
-          </div>
-
+          )}
         </div>
-
-      </main>
+      </div>
+    </main>
 
       <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');

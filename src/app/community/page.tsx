@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { usePoints } from '@/contexts/PointsContext'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@supabase/supabase-js'
 import Navbar from '@/components/Navbar'
 import {
@@ -23,6 +23,8 @@ const supabase = createClient(
 
 export default function CommunityPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const shouldCreate = searchParams.get('create') === 'true'
   const { user } = useAuth()
   const { showAward } = usePoints()
   const [communities, setCommunities] = useState<any[]>([])
@@ -137,6 +139,13 @@ export default function CommunityPage() {
       getUserCommunity()
     }
   }, [communities])
+  
+  // Handle redirect if create=true is present
+  useEffect(() => {
+    if (shouldCreate && userCommunity) {
+      router.push(`/community/c/${userCommunity.slug}?create=true`)
+    }
+  }, [shouldCreate, userCommunity, router])
 
   // Enhanced vote handler with proper state management
   const handleVote = async (
@@ -2160,68 +2169,6 @@ export default function CommunityPage() {
         }
       `}</style>
 
-      {/* Floating Create Post Button */}
-      <button
-        className="floating-create-btn"
-        onClick={async () => {
-          // Check if user is logged in
-          try {
-            const authRes = await fetch('/api/auth/me')
-            if (!authRes.ok) {
-              router.push('/login')
-              return
-            }
-            const authData = await authRes.json()
-            if (!authData.user) {
-              router.push('/login')
-              return
-            }
-
-            // Check if user has a community
-            if (userCommunity) {
-              // Redirect to user's community with post modal open
-              router.push(`/community/c/${userCommunity.slug}?create=true`)
-            } else {
-              // Scroll to communities section to find their college
-              const element = document.getElementById('communities-section')
-              if (element) {
-                element.scrollIntoView({ behavior: 'smooth' })
-              }
-            }
-          } catch (error) {
-            console.error('Auth check failed:', error)
-            router.push('/login')
-          }
-        }}
-        style={{
-          position: 'fixed',
-          bottom: 20,
-          right: 20,
-          width: 48,
-          height: 48,
-          borderRadius: '50%',
-          background: 'linear-gradient(135deg,#7C3AED,#06B6D4)',
-          border: 'none',
-          color: 'white',
-          cursor: 'pointer',
-          boxShadow: '0 4px 12px rgba(124,58,237,0.4)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 1000,
-          transition: 'all 0.3s ease'
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.transform = 'scale(1.1)'
-          e.currentTarget.style.boxShadow = '0 6px 20px rgba(124,58,237,0.5)'
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.transform = 'scale(1)'
-          e.currentTarget.style.boxShadow = '0 4px 12px rgba(124,58,237,0.4)'
-        }}
-      >
-        <Plus size={20} />
-      </button>
     </div>
   )
 }

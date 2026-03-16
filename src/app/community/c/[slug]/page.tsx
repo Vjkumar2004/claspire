@@ -1,6 +1,6 @@
 'use client'
 import React, { useState, useEffect, useMemo, cloneElement, ReactElement } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { 
   ChevronRight, Users, Star, MapPin, MessageSquare, 
   Briefcase, Video, Lock, Plus, Shield, 
@@ -15,6 +15,9 @@ import PostModal from '@/components/PostModal'
 
 export default function CommunityPage({ params }: { params: Promise<{ slug: string }> }) {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const pathname = usePathname()
+  const shouldCreate = searchParams.get('create') === 'true'
   const [slug, setSlug] = useState('')
   const [data, setData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
@@ -49,6 +52,16 @@ export default function CommunityPage({ params }: { params: Promise<{ slug: stri
       setHasJoined(data.isJoined || data.isAlreadyMember || false)
     }
   }, [data])
+
+  // Handle auto-open post modal
+  useEffect(() => {
+    if (shouldCreate && data?.canPost) {
+      setShowPostModal(true)
+      // Clean up URL to prevent reopening on refresh
+      const newPath = window.location.pathname
+      window.history.replaceState({}, '', newPath)
+    }
+  }, [shouldCreate, data?.canPost, pathname])
 
   async function fetchCommunity() {
     try {
@@ -144,6 +157,8 @@ export default function CommunityPage({ params }: { params: Promise<{ slug: stri
     return 'Just now'
   }
 
+  // No auto-open effect here anymore
+
   const getTypeStyle = (type: string) => {
     switch(type) {
       case 'doubt': return { label: 'Doubt', color: '#2563EB', bg: '#EFF6FF', border: '#BFDBFE', highlight: '#3B82F6' }
@@ -207,6 +222,8 @@ export default function CommunityPage({ params }: { params: Promise<{ slug: stri
     isAlreadyMember,
     totalMembers = 0
   } = data || {}
+
+  // Auto-open logic moved to top
 
   const tabs = [
     { id: 'feed', label: 'Community Feed', icon: <LayoutGrid size={15} />, locked: false },

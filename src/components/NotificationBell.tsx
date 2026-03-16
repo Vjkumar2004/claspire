@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import { useAuth } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
+import { createPortal } from 'react-dom'
 
 interface Notification {
   id: string
@@ -20,15 +21,38 @@ interface Notification {
 
 interface NotificationBellProps {
   align?: 'left' | 'right'
+  dark?: boolean // If true, use dark text (for light backgrounds)
 }
 
-export default function NotificationBell({ align = 'right' }: NotificationBellProps) {
+export default function NotificationBell({ align = 'right', dark = false }: NotificationBellProps) {
   const { user } = useAuth()
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [unreadCount, setUnreadCount] = useState(0)
   const [isOpen, setIsOpen] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [coords, setCoords] = useState({ top: 0, left: 0, right: 0 })
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const buttonRef = useRef<HTMLButtonElement>(null)
+
+  useEffect(() => {
+    if (isOpen && buttonRef.current) {
+      const updateCoords = () => {
+        const rect = buttonRef.current!.getBoundingClientRect()
+        setCoords({
+          top: rect.bottom + 8,
+          left: rect.left,
+          right: window.innerWidth - rect.right
+        })
+      }
+      updateCoords()
+      window.addEventListener('scroll', updateCoords)
+      window.addEventListener('resize', updateCoords)
+      return () => {
+        window.removeEventListener('scroll', updateCoords)
+        window.removeEventListener('resize', updateCoords)
+      }
+    }
+  }, [isOpen])
 
   const fetchNotifications = async () => {
     try {
@@ -76,7 +100,8 @@ export default function NotificationBell({ align = 'right' }: NotificationBellPr
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node) && 
+          buttonRef.current && !buttonRef.current.contains(event.target as Node)) {
         setIsOpen(false)
       }
     }
@@ -117,114 +142,137 @@ export default function NotificationBell({ align = 'right' }: NotificationBellPr
   }
 
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div className="relative">
       <button
+        ref={buttonRef}
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 rounded-full hover:bg-gray-100 transition-colors text-gray-600 focus:outline-none"
+        className={`relative p-2 rounded-full transition-colors focus:outline-none ${
+          dark 
+            ? 'text-gray-600 hover:bg-gray-100' 
+            : 'text-white hover:bg-white/10'
+        }`}
       >
         <Bell size={20} />
         {unreadCount > 0 && (
-          <span className="absolute top-1.5 right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white ring-2 ring-white">
+          <span className={`absolute top-1.5 right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white ring-2 ${
+            dark ? 'ring-white' : 'ring-indigo-900'
+          }`}>
             {unreadCount}
           </span>
         )}
       </button>
 
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: 10, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 10, scale: 0.95 }}
-            transition={{ duration: 0.15, ease: 'easeOut' }}
-            className={`absolute ${align === 'right' ? 'right-0' : 'left-0'} mt-2 w-80 max-h-[480px] bg-white rounded-2xl border border-gray-200 shadow-2xl z-[1000] overflow-hidden flex flex-col`}
-          >
-            {/* Header */}
-            <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-white/50 backdrop-blur-sm sticky top-0 z-10">
-              <h3 className="text-sm font-bold text-gray-900">Notifications</h3>
-              {unreadCount > 0 && (
-                <button
-                  onClick={() => markAsRead()}
-                  className="text-[11px] font-bold text-purple-600 hover:text-purple-700 transition-colors flex items-center gap-1"
-                >
-                  <Check size={12} />
-                  Mark all as read
-                </button>
-              )}
-            </div>
+      {typeof document !== 'undefined' && createPortal(
+        <AnimatePresence>
+          {isOpen && (
+            <motion.div
+              ref={dropdownRef}
+              initial={{ opacity: 0, y: 10, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 10, scale: 0.95 }}
+              transition={{ duration: 0.15, ease: 'easeOut' }}
+              style={{
+                position: 'fixed',
+                top: coords.top,
+                left: align === 'left' ? coords.left : 'auto',
+                right: align === 'right' ? coords.right : 'auto',
+              }}
+              className={`
+                inset-x-4 md:inset-x-auto 
+                w-auto md:w-80 
+                max-h-[calc(100vh-100px)] md:max-h-[480px] 
+                bg-white rounded-2xl border border-gray-200 shadow-2xl z-[9999] 
+                overflow-hidden flex flex-col
+              `}
+            >
+              {/* Header */}
+              <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-white/50 backdrop-blur-sm sticky top-0 z-10">
+                <h3 className="text-sm font-bold text-gray-900">Notifications</h3>
+                {unreadCount > 0 && (
+                  <button
+                    onClick={() => markAsRead()}
+                    className="text-[11px] font-bold text-purple-600 hover:text-purple-700 transition-colors flex items-center gap-1"
+                  >
+                    <Check size={12} />
+                    Mark all as read
+                  </button>
+                )}
+              </div>
 
-            {/* List */}
-            <div className="overflow-y-auto flex-1 custom-scrollbar">
-              {loading ? (
-                <div className="p-8 text-center text-gray-400">
-                  <div className="animate-spin h-6 w-6 border-2 border-purple-500 border-t-transparent rounded-full mx-auto" />
-                </div>
-              ) : notifications.length === 0 ? (
-                <div className="p-12 text-center">
-                  <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <Bell size={24} className="text-gray-300" />
+              {/* List */}
+              <div className="overflow-y-auto flex-1 custom-scrollbar">
+                {loading ? (
+                  <div className="p-8 text-center text-gray-400">
+                    <div className="animate-spin h-6 w-6 border-2 border-purple-500 border-t-transparent rounded-full mx-auto" />
                   </div>
-                  <p className="text-sm font-medium text-gray-500">No notifications yet</p>
-                  <p className="text-xs text-gray-400 mt-1">We'll let you know when something happens</p>
-                </div>
-              ) : (
-                <div className="divide-y divide-gray-50">
-                  {notifications.map((notif) => (
-                    <div
-                      key={notif.id}
-                      onClick={() => !notif.is_read && markAsRead(notif.id)}
-                      className={`p-4 hover:bg-gray-50 transition-all cursor-pointer group relative ${!notif.is_read ? 'bg-purple-50/30' : ''}`}
-                    >
-                      {!notif.is_read && (
-                        <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-purple-500" />
-                      )}
-                      
-                      <div className="flex gap-3">
-                        <div className="flex-1">
-                          <div className="flex items-start justify-between gap-2">
-                             <p className={`text-[13px] leading-tight mb-1 ${!notif.is_read ? 'font-bold text-gray-900' : 'font-semibold text-gray-700'}`}>
-                                {notif.title}
-                             </p>
-                             <span className="text-[10px] text-gray-400 whitespace-nowrap flex items-center gap-1 mt-0.5">
-                               <Clock size={10} />
-                               {getTimeAgo(notif.created_at)}
-                             </span>
+                ) : notifications.length === 0 ? (
+                  <div className="p-12 text-center">
+                    <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3">
+                      <Bell size={24} className="text-gray-300" />
+                    </div>
+                    <p className="text-sm font-medium text-gray-500">No notifications yet</p>
+                    <p className="text-xs text-gray-400 mt-1">We'll let you know when something happens</p>
+                  </div>
+                ) : (
+                  <div className="divide-y divide-gray-50">
+                    {notifications.map((notif) => (
+                      <div
+                        key={notif.id}
+                        onClick={() => !notif.is_read && markAsRead(notif.id)}
+                        className={`p-4 hover:bg-gray-50 transition-all cursor-pointer group relative ${!notif.is_read ? 'bg-purple-50/30' : ''}`}
+                      >
+                        {!notif.is_read && (
+                          <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-purple-500" />
+                        )}
+                        
+                        <div className="flex gap-3">
+                          <div className="flex-1">
+                            <div className="flex items-start justify-between gap-2">
+                               <p className={`text-[13px] leading-tight mb-1 ${!notif.is_read ? 'font-bold text-gray-900' : 'font-semibold text-gray-700'}`}>
+                                  {notif.title}
+                                </p>
+                               <span className="text-[10px] text-gray-400 whitespace-nowrap flex items-center gap-1 mt-0.5">
+                                 <Clock size={10} />
+                                 {getTimeAgo(notif.created_at)}
+                               </span>
+                            </div>
+                            <p className="text-xs text-gray-500 leading-normal line-clamp-2">
+                              {notif.message}
+                            </p>
+                            
+                            {notif.link && (
+                              <Link 
+                                href={notif.link}
+                                onClick={() => setIsOpen(false)}
+                                className="inline-flex items-center gap-1 text-[11px] font-bold text-purple-600 mt-2 hover:underline"
+                              >
+                                View Details
+                                <ExternalLink size={10} />
+                              </Link>
+                            )}
                           </div>
-                          <p className="text-xs text-gray-500 leading-normal line-clamp-2">
-                            {notif.message}
-                          </p>
-                          
-                          {notif.link && (
-                            <Link 
-                              href={notif.link}
-                              onClick={() => setIsOpen(false)}
-                              className="inline-flex items-center gap-1 text-[11px] font-bold text-purple-600 mt-2 hover:underline"
-                            >
-                              View Details
-                              <ExternalLink size={10} />
-                            </Link>
-                          )}
                         </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+                    ))}
+                  </div>
+                )}
+              </div>
 
-            {/* Footer */}
-            <div className="p-3 border-t border-gray-100 bg-gray-50/50 text-center">
-               <Link 
-                  href={user?.role === 'senior' ? '/dashboard/senior' : '/dashboard/junior'}
-                  onClick={() => setIsOpen(false)}
-                  className="text-[11px] font-bold text-gray-400 uppercase tracking-wider hover:text-purple-600 transition-colors no-underline block"
-               >
-                  View All Activity
-               </Link>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+              {/* Footer */}
+              <div className="p-3 border-t border-gray-100 bg-gray-50/50 text-center">
+                 <Link 
+                    href={user?.role === 'senior' ? '/dashboard/senior' : '/dashboard/junior'}
+                    onClick={() => setIsOpen(false)}
+                    className="text-[11px] font-bold text-gray-400 uppercase tracking-wider hover:text-purple-600 transition-colors no-underline block"
+                 >
+                    View All Activity
+                 </Link>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
     </div>
   )
 }

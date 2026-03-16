@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/hooks/useAuth'
 import Navbar from '@/components/Navbar'
+import { getCollegeLogo } from '@/lib/college-utils';
 import { createClient } from '@supabase/supabase-js'
 import { Mail, Phone, Lock, Eye, EyeOff, User, GraduationCap, MapPin, Calendar } from 'lucide-react'
 
@@ -45,6 +46,7 @@ export default function SignupPage() {
   const [seniorData, setSeniorData] = useState({
     full_name: '',
     college_id: '',
+    college_name: '',
     work_email: '',
     company: '',
     designation: '',
@@ -132,6 +134,7 @@ export default function SignupPage() {
   const getEmailPlaceholder = () => {
     return 'yourname@gmail.com'
   }
+  
 
   // Send OTP function
   const sendOTP = async () => {
@@ -473,17 +476,27 @@ export default function SignupPage() {
                                 <div
                                   key={college.id}
                                   onClick={() => {
-                                    setStudentData({...studentData, college_id: college.id, college_name: college.short_name});
+                                    setStudentData({...studentData, college_id: college.id, college_name: college.name});
                                     setShowStudentCollegeDropdown(false);
                                   }}
                                   className="flex items-center gap-2.5 p-3.5 hover:bg-gray-50 cursor-pointer"
                                 >
-                                  <div className="w-7 h-7 rounded bg-purple-100 flex items-center justify-center text-xs font-black text-purple-600">
-                                    {college.short_name.slice(0, 2).toUpperCase()}
+                                        <div className="w-9 h-9 rounded-lg bg-gray-50 border border-gray-100 flex items-center justify-center overflow-hidden flex-shrink-0">
+                                          {getCollegeLogo(college.short_name, college.slug) ? (
+                                            <img 
+                                              src={getCollegeLogo(college.short_name, college.slug)!} 
+                                              alt={college.short_name} 
+                                              className="w-full h-full object-contain"
+                                            />
+                                          ) : (
+                                      <div className="text-[10px] font-black text-purple-600">
+                                        {college.short_name.toUpperCase()}
+                                      </div>
+                                    )}
                                   </div>
                                   <div>
-                                    <div className="text-sm font-bold text-black">{college.short_name}</div>
-                                    <div className="text-xs text-gray-400">{college.location}, {college.state}</div>
+                                    <div className="text-[13px] font-bold text-black leading-tight">{college.name}</div>
+                                    <div className="text-[11px] text-gray-400 mt-0.5">{college.location}, {college.state}</div>
                                   </div>
                                 </div>
                               ))
@@ -650,14 +663,63 @@ export default function SignupPage() {
 
                           <div>
                             <label className="block text-sm font-semibold text-gray-700 mb-1.5">College graduated from</label>
-                            <select
-                              value={seniorData.college_id}
-                              onChange={e => setSeniorData({...seniorData, college_id: e.target.value})}
-                              className="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm outline-none focus:border-purple-600"
-                            >
-                              <option value="">Select College</option>
-                              {colleges.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                            </select>
+                            <div className="relative">
+                              <input
+                                type="text"
+                                placeholder="Search your college..."
+                                value={seniorData.college_name}
+                                onChange={(e) => {
+                                  setSeniorData({...seniorData, college_name: e.target.value, college_id: ''});
+                                  setShowSeniorCollegeDropdown(true);
+                                }}
+                                onFocus={() => setShowSeniorCollegeDropdown(true)}
+                                className="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm outline-none focus:border-purple-600"
+                              />
+                              {showSeniorCollegeDropdown && seniorData.college_name && (
+                                <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-lg mt-1 max-h-48 overflow-y-auto z-10">
+                                  {collegesLoading ? (
+                                    <div className="p-3.5 text-center text-sm text-gray-400">Loading...</div>
+                                  ) : colleges.filter(c => 
+                                    c.short_name.toLowerCase().includes(seniorData.college_name.toLowerCase()) ||
+                                    c.name.toLowerCase().includes(seniorData.college_name.toLowerCase())
+                                  ).length > 0 ? (
+                                    colleges.filter(c => 
+                                      c.short_name.toLowerCase().includes(seniorData.college_name.toLowerCase()) ||
+                                      c.name.toLowerCase().includes(seniorData.college_name.toLowerCase())
+                                    ).map(college => (
+                                      <div
+                                        key={college.id}
+                                        onClick={() => {
+                                          setSeniorData({...seniorData, college_id: college.id, college_name: college.name});
+                                          setShowSeniorCollegeDropdown(false);
+                                        }}
+                                        className="flex items-center gap-2.5 p-3.5 hover:bg-gray-50 cursor-pointer"
+                                      >
+                                        <div className="w-9 h-9 rounded-lg bg-gray-50 border border-gray-100 flex items-center justify-center overflow-hidden flex-shrink-0">
+                                          {getCollegeLogo(college.short_name, college.slug) ? (
+                                            <img 
+                                              src={getCollegeLogo(college.short_name, college.slug)!} 
+                                              alt={college.short_name} 
+                                              className="w-full h-full object-contain"
+                                            />
+                                          ) : (
+                                            <div className="text-[10px] font-black text-purple-600">
+                                              {college.short_name.toUpperCase()}
+                                            </div>
+                                          )}
+                                        </div>
+                                        <div>
+                                          <div className="text-[13px] font-bold text-black leading-tight">{college.name}</div>
+                                          <div className="text-[11px] text-gray-400 mt-0.5">{college.location}, {college.state}</div>
+                                        </div>
+                                      </div>
+                                    ))
+                                  ) : (
+                                    <div className="p-3.5 text-center text-sm text-gray-400">No college found</div>
+                                  )}
+                                </div>
+                              )}
+                            </div>
                           </div>
 
                           <div className="grid grid-cols-2 gap-3">

@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePoints } from '@/contexts/PointsContext';
 import { useRouter } from 'next/navigation';
-import { HelpCircle, Briefcase, Handshake, Mic, DollarSign, BarChart3, Star, Trophy, User, CheckCircle, Settings, Zap, TrendingUp, LayoutDashboard } from 'lucide-react';
+import { HelpCircle, Briefcase, Handshake, Mic, DollarSign, BarChart3, Star, Trophy, User, CheckCircle, Settings, Zap, TrendingUp, LayoutDashboard, MessageSquare } from 'lucide-react';
+import DashboardMessages from '@/components/DashboardMessages';
 import NotificationPrompt from '@/components/NotificationPrompt';
 import NotificationBell from '@/components/NotificationBell';
 
@@ -31,6 +32,15 @@ export default function SeniorDashboardPage() {
   // Move ALL useState hooks to the top - Rules of Hooks compliance
   const { showAward } = usePoints();
   const [activeNav, setActiveNav] = useState("overview");
+
+  // Handle URL parameters for active tab
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const tab = params.get('activeTab');
+    if (tab && ["overview", "jobs", "referrals", "messages"].includes(tab)) {
+      setActiveNav(tab);
+    }
+  }, []);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [dashData, setDashData] = useState<any>(null)
   const [dataLoading, setDataLoading] = useState(true)
@@ -168,7 +178,7 @@ export default function SeniorDashboardPage() {
                 Clas<span style={{ color: '#7C3AED' }}>pire</span>
               </span>
             </Link>
-            <NotificationBell align="left" />
+            <NotificationBell align="left" dark />
         </div>
 
         {/* Scrollable Content Container */}
@@ -215,8 +225,8 @@ export default function SeniorDashboardPage() {
                 {getRPLevel(dashData?.user?.rise_points || 0).label}
               </span>
               <span className="text-[9px]">
-                {getRPLevel(dashData?.user?.rise_points || 0).next 
-                  ? `${getRPLevel(dashData?.user?.rise_points || 0).next! - (dashData?.user?.rise_points || 0)} RP to Next` 
+                {getRPLevel(dashData?.user?.rise_points || 0).next
+                  ? `${getRPLevel(dashData?.user?.rise_points || 0).next! - (dashData?.user?.rise_points || 0)} RP to Next`
                   : 'Legend Status'}
               </span>
             </div>
@@ -228,27 +238,25 @@ export default function SeniorDashboardPage() {
             <div className="text-[10px] font-black tracking-wider uppercase text-gray-400 px-2 mb-1.5 mt-0">
               MAIN
             </div>
-          <div className="space-y-0.5 mb-4">
+            <div className="space-y-0.5 mb-4">
+              <div
+                onClick={() => setActiveNav("messages")}
+                className={`flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold transition-colors ${activeNav === "messages"
+                    ? "bg-purple-50 text-purple-600"
+                    : "text-gray-500 hover:bg-gray-50 hover:text-gray-700"
+                  }`}
+              >
+                <MessageSquare size={16} />
+                Messages
+              </div>
+            </div>
+
             <div
               onClick={() => setActiveNav("overview")}
               className={`flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold transition-colors ${activeNav === "overview"
                   ? "bg-purple-50 text-purple-600"
                   : "text-gray-500 hover:bg-gray-50 hover:text-gray-700"
                 }`}
-            >
-              <span className="text-sm w-5 text-center">🏠</span>
-              Overview
-            </div>
-          </div>
-
-          {/* Community Section */}
-          <div className="text-[10px] font-black tracking-wider uppercase text-gray-400 px-2 mb-1.5">
-            COMMUNITY
-          </div>
-          <div className="space-y-0.5 mb-4">
-            <div
-              onClick={() => setActiveNav("overview")}
-              className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors"
             >
               <HelpCircle size={16} className="flex-shrink-0" />
               <span>Doubts to Answer</span>
@@ -275,79 +283,8 @@ export default function SeniorDashboardPage() {
               )}
             </div>
           </div>
-
-          {/* Earnings Section */}
-          <div className="text-[10px] font-black tracking-wider uppercase text-gray-400 px-2 mb-1.5">
-            EARNINGS
-          </div>
-          <div className="space-y-0.5 mb-4">
-            <div className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
-              <Mic size={16} className="flex-shrink-0" />
-              <span>My Webinars</span>
-            </div>
-            <div className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
-              <DollarSign size={16} className="flex-shrink-0" />
-              <span>Earnings & Payouts</span>
-            </div>
-            <div className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
-              <BarChart3 size={16} className="flex-shrink-0" />
-              <span>Analytics</span>
-            </div>
-          </div>
-
-          {/* Impact Section */}
-          <div className="text-[10px] font-black tracking-wider uppercase text-gray-400 px-2 mb-1.5">
-            IMPACT
-          </div>
-          <div className="space-y-0.5 mb-4">
-            <div className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
-              <TrendingUp size={16} className="flex-shrink-0" />
-              <span>Students Placed</span>
-            </div>
-            <div className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
-              <Star size={16} className="flex-shrink-0" />
-              <span>My Reputation</span>
-            </div>
-            <div className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
-              <Trophy size={16} className="flex-shrink-0" />
-              <span>Leaderboard</span>
-            </div>
-          </div>
-
-          {/* Account Section */}
-          <div className="text-[10px] font-black tracking-wider uppercase text-gray-400 px-2 mb-1.5">
-            ACCOUNT
-          </div>
-          <div className="space-y-0.5">
-            <div className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
-              <User size={16} className="flex-shrink-0" />
-              <span>My Profile</span>
-            </div>
-            <div className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
-              <CheckCircle size={16} className="flex-shrink-0" />
-              <span>Verification</span>
-            </div>
-            <div className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
-              <Settings size={16} className="flex-shrink-0" />
-              <span>Settings</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Host Webinar CTA */}
-        <div className="m-3 bg-green-50 border border-green-200 rounded-xl p-3">
-          <div className="text-xs font-black text-green-800 mb-1">
-            🎤 Host a Webinar
-          </div>
-          <div className="text-xs text-green-600 mb-2.5">
-            Earn 80% of ticket price
-          </div>
-          <button className="w-full bg-green-600 text-white border-none rounded-lg py-1.5 text-xs font-black cursor-pointer hover:bg-green-700 transition-colors">
-            + Create Webinar
-          </button>
         </div>
       </div>
-    </div>
 
     {/* Main Content Area */}
       <div className="flex-1 overflow-y-auto p-7 lg:p-8">
@@ -360,7 +297,7 @@ export default function SeniorDashboardPage() {
             >
               ☰
             </button>
-            <NotificationBell align="left" />
+            <NotificationBell align="left" dark />
           </div>
           <div className="bg-gray-100 border border-gray-200 rounded-lg px-3 py-1.5 text-xs font-black text-gray-600 font-mono">
             {dashData?.user?.unique_id || '#CLS-S-2022-00234'}
@@ -383,69 +320,10 @@ export default function SeniorDashboardPage() {
           </div>
         </div>
 
-        {/* Impact Banner */}
-        <div className="bg-gradient-to-br from-slate-900 to-indigo-900 rounded-2xl p-6 mb-6 relative overflow-hidden">
-          {/* Background decoration */}
-          <div className="absolute right-[-20px] top-[-20px] w-[200px] h-[200px] bg-purple-600/20 rounded-full pointer-events-none"></div>
-
-          <div className="relative z-10">
-            <div className="flex justify-between items-start">
-              <div>
-                <div className="text-[10px] font-black tracking-wider text-purple-300 mb-2">
-                  🌟 YOUR IMPACT
-                </div>
-                <div className="font-instrument-serif text-2xl text-white leading-tight mb-1">
-                  {dashData?.user?.answer_count > 0 ? `${dashData.user.answer_count * 2} students impacted` : '0 students impacted'}
-                </div>
-                <div className="text-sm text-white/60">
-                  from your community interactions
-                </div>
-
-                {/* Stats Row */}
-                <div className="flex gap-8 mt-5">
-                  <div>
-                    <div className="font-instrument-serif text-2xl text-white">
-                      {dashData?.user?.answer_count || 0}
-                    </div>
-                    <div className="text-xs text-white/50 mt-0.5">Doubts Answered</div>
-                  </div>
-                  <div>
-                    <div className="font-instrument-serif text-2xl text-white">
-                      {dashData?.user?.referral_count || 0}
-                    </div>
-                    <div className="text-xs text-white/50 mt-0.5">Referrals Approved</div>
-                  </div>
-                  <div>
-                    <div className="font-instrument-serif text-2xl text-white">
-                      {dashData?.user?.rise_points || 0}
-                    </div>
-                    <div className="text-xs text-white/50 mt-0.5">Rise Points</div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Student Avatars */}
-              <div className="flex items-center">
-                <div className="w-9 h-9 rounded-full bg-purple-600 border-2 border-indigo-900 text-white text-[11px] font-black flex items-center justify-center">AK</div>
-                <div className="w-9 h-9 rounded-full bg-cyan-500 border-2 border-indigo-900 text-white text-[11px] font-black flex items-center justify-center -ml-2.5">PR</div>
-                <div className="w-9 h-9 rounded-full bg-green-500 border-2 border-indigo-900 text-white text-[11px] font-black flex items-center justify-center -ml-2.5">SK</div>
-                <div className="w-9 h-9 rounded-full bg-orange-500 border-2 border-indigo-900 text-white text-[11px] font-black flex items-center justify-center -ml-2.5">DK</div>
-                <div className="w-9 h-9 rounded-full bg-pink-500 border-2 border-indigo-900 text-white text-[11px] font-black flex items-center justify-center -ml-2.5">RV</div>
-                <div className="w-9 h-9 rounded-full bg-white/10 border-2 border-indigo-900 text-white text-[11px] font-black flex items-center justify-center -ml-2.5">+7</div>
-              </div>
-            </div>
-
-            {/* Bottom Actions */}
-            <div className="flex justify-between items-center pt-4 mt-4 border-t border-white/10">
-              <button className="text-sm text-purple-300 font-semibold hover:text-purple-200 transition-colors">
-                View Impact Wall →
-              </button>
-              <button className="bg-white/10 text-white border-none rounded-lg px-3.5 py-1.5 text-xs font-semibold hover:bg-white/15 transition-colors">
-                Share on LinkedIn →
-              </button>
-            </div>
-          </div>
-        </div>
+        {activeNav === "messages" ? (
+          <DashboardMessages currentUserId={dashData?.user?.id} role="senior" />
+        ) : (
+          <div className="max-w-5xl">
 
         {/* Action Needed Section */}
         <div className="mb-8">
@@ -574,294 +452,43 @@ export default function SeniorDashboardPage() {
           </div>
         </div>
 
-        {/* Main Grid */}
-        <div className="grid grid-cols-1 xl:grid-cols-[1fr_320px] gap-5">
-          {/* Left Column */}
-          <div className="space-y-5">
-            {/* Webinar Manager */}
-            <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-              <div className="p-5 border-b border-gray-100 flex justify-between items-center">
-                <h2 className="text-sm font-black text-black">🎤 My Webinars</h2>
-                <button className="bg-purple-600 text-white rounded-lg px-3.5 py-1.5 text-xs font-semibold hover:bg-purple-700 transition-colors">
-                  + Create New
-                </button>
-              </div>
-
-              <div className="p-10 text-center text-gray-400 text-xs">
-                <div style={{ fontSize: 24, marginBottom: 8 }}>🎤</div>
-                No webinars scheduled.
-              </div>
-            </div>
-
+        {/* Main Content Grid - Adjusted to full width */}
+        <div className="w-full">
+          {/* Activity Column */}
+          <div className="max-w-5xl space-y-5">
             {/* Recent Activity */}
-            <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-              <div className="p-5 border-b border-gray-100">
+            <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+              <div className="p-5 border-b border-gray-100 flex justify-between items-center">
                 <h2 className="text-sm font-black text-black">Recent Activity</h2>
+                <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">REAL-TIME</div>
               </div>
 
               <div className="divide-y divide-gray-50">
                 {dashData?.rpLog?.length > 0 ? (
                   dashData.rpLog.map((log: any, i: number) => (
-                    <div key={log.id || i} className="flex gap-3 p-5 items-start">
-                      <div className="w-9 h-9 bg-purple-50 rounded-full flex items-center justify-center text-base flex-shrink-0">
+                    <div key={log.id || i} className="flex gap-4 p-5 items-start hover:bg-gray-50 transition-colors">
+                      <div className="w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center text-lg flex-shrink-0">
                         {log.reason?.includes('Posted') ? '✍️' : log.reason?.includes('Answering') || log.reason?.includes('Answered') ? '✅' : log.reason?.includes('Approved') || log.reason?.includes('referral') ? '🤝' : '🌟'}
                       </div>
-                      <div className="flex-1">
-                        <div className="text-xs font-semibold text-black">{log.reason}</div>
-                        <div className="text-xs text-gray-400 mt-0.5">Interaction logged in community</div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-xs font-bold text-black truncate">{log.reason}</div>
+                        <div className="text-[10px] text-gray-400 mt-0.5">Community Interaction</div>
                       </div>
-                      <div className="text-right">
-                        <div className="text-xs text-gray-400">{timeAgo(log.created_at)}</div>
-                        <div className="bg-purple-50 text-purple-600 rounded-full px-2 py-0.5 text-[10px] font-black mt-1">
+                      <div className="text-right flex-shrink-0">
+                        <div className="text-[10px] text-gray-400">{timeAgo(log.created_at)}</div>
+                        <div className="bg-purple-100/50 text-purple-700 rounded-full px-2 py-0.5 text-[9px] font-black mt-1 inline-block">
                           +{log.points} RP
                         </div>
                       </div>
                     </div>
                   ))
                 ) : (
-                  <div className="p-10 text-center text-gray-400 text-xs">
-                    No recent activity yet.
+                  <div className="p-16 text-center text-gray-400 text-xs italic">
+                    <div className="text-2xl mb-2 opacity-50">🌱</div>
+                    No recent activity yet. Help students to earn Rise Points!
                   </div>
                 )}
               </div>
-            </div>
-          </div>
-
-          {/* Right Column */}
-          <div className="space-y-4">
-            {/* Earnings Card */}
-            <div className="bg-white border border-gray-200 rounded-xl p-5">
-              <h3 className="text-sm font-black text-black mb-4">💰 Earnings</h3>
-
-              <div className="font-instrument-serif text-[36px] text-black my-2">
-                ₹0
-              </div>
-
-              <div className="flex items-center gap-1.5 text-xs text-gray-400 font-semibold">
-                <span>-</span>
-                <span>No earnings yet</span>
-              </div>
-
-              {/* Progress Bar */}
-              <div className="my-3 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                <div className="bg-gradient-to-r from-purple-600 to-cyan-500 h-full rounded-full transition-all duration-1000" style={{ width: '72%' }}></div>
-              </div>
-
-              {/* Breakdown */}
-              <div className="mt-4">
-                <div className="text-[11px] font-black tracking-wider text-gray-400 uppercase mb-2.5">
-                  BREAKDOWN
-                </div>
-                <div className="space-y-2">
-                  <div className="flex justify-between py-2 border-b border-gray-50">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm">🎤</span>
-                      <span className="text-xs font-semibold text-gray-700">Webinars</span>
-                    </div>
-                    <span className="text-xs font-black text-black">₹3,960</span>
-                  </div>
-                  <div className="flex justify-between py-2">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm">💬</span>
-                      <span className="text-xs font-semibold text-gray-700">DM Sessions</span>
-                    </div>
-                    <span className="text-xs font-black text-black">₹360</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Payout Section */}
-              <div className="mt-4 p-3 bg-gray-50 rounded-lg">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <div className="text-xs text-gray-400">Pending payout</div>
-                    <div className="text-base font-black text-black">₹2,100</div>
-                  </div>
-                  <button className="bg-black text-white rounded-lg px-4 py-2 text-xs font-semibold hover:bg-gray-800 transition-colors">
-                    Withdraw →
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Rise Points Card */}
-            <div className="bg-white border border-gray-200 rounded-xl p-5">
-              <h3 className="text-sm font-black text-black mb-4">⚡ Rise Points</h3>
-
-              <div className="flex justify-between items-center mb-3">
-                <div className="text-base font-black text-purple-600">{getRPLevel(dashData?.user?.rise_points || 0).label} {getRPLevel(dashData?.user?.rise_points || 0).emoji}</div>
-                <div className="text-xs font-black text-black">{dashData?.user?.rise_points || 0} RP</div>
-              </div>
-
-              <div className="text-xs text-gray-400 mb-2">
-                {getRPLevel(dashData?.user?.rise_points || 0).next 
-                  ? `${dashData?.user?.rise_points || 0}/${getRPLevel(dashData?.user?.rise_points || 0).next} to ${getRPLevel(dashData?.user?.rise_points || 0).label === 'Champion' ? 'Legend' : 'Next Level'}`
-                  : 'Legend Status Achieved'}
-              </div>
-              <div className="bg-gray-100 rounded-full h-1.5 overflow-hidden mb-4">
-                <div className="bg-gradient-to-r from-purple-600 to-cyan-500 h-full rounded-full" style={{ width: `${Math.min((dashData?.user?.rise_points || 0) / (getRPLevel(dashData?.user?.rise_points || 0).next || dashData?.user?.rise_points || 1) * 100, 100)}%` }}></div>
-              </div>
-
-              {/* RP Sources */}
-              <div className="mb-4">
-                <div className="text-[11px] font-black tracking-wider text-gray-400 uppercase mb-2.5">
-                  HOW YOU EARNED RP
-                </div>
-                <div className="space-y-2">
-                  <div className="flex justify-between py-2 border-b border-gray-50">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm">⚡</span>
-                      <span className="text-xs font-semibold text-gray-700">Total Points</span>
-                    </div>
-                    <span className="text-xs font-black text-purple-600">+{dashData?.user?.rise_points || 0} RP</span>
-                  </div>
-                  <div className="p-4 text-center text-[10px] text-gray-400 italic">
-                    Earn more by helping students!
-                  </div>
-                </div>
-              </div>
-
-              {/* Levels */}
-              <div className="pt-3.5 border-t border-gray-100">
-                <div className="text-[11px] font-black tracking-wider text-gray-400 uppercase mb-2.5">
-                  LEVELS
-                </div>
-                <div className="space-y-1.5">
-                  <div className="flex items-center gap-2 py-1">
-                    <span className="bg-gray-100 text-gray-600 rounded-full px-2 py-0.5 text-[10px] font-black">✅</span>
-                    <span className="text-xs text-gray-500">Contributor (0-500)</span>
-                  </div>
-                  <div className="flex items-center gap-2 py-1">
-                    <span className="bg-blue-100 text-blue-600 rounded-full px-2 py-0.5 text-[10px] font-black">✅</span>
-                    <span className="text-xs text-gray-500">Mentor (500-2000)</span>
-                  </div>
-                  <div className="flex items-center gap-2 py-1">
-                    <span className="bg-purple-100 text-purple-600 rounded-full px-2 py-0.5 text-[10px] font-black">🟡</span>
-                    <span className="text-xs text-gray-500">Champion (2000-5000)</span>
-                  </div>
-                  <div className="flex items-center gap-2 py-1">
-                    <span className="bg-gray-100 text-gray-400 rounded-full px-2 py-0.5 text-[10px] font-black">🔒</span>
-                    <span className="text-xs text-gray-500">Legend (5000+)</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Reputation Card */}
-            <div className="bg-white border border-gray-200 rounded-xl p-5">
-              <h3 className="text-sm font-black text-black mb-4">⭐ Reputation</h3>
-
-              <div className="flex items-center gap-3 mb-3">
-                <div className="font-instrument-serif text-[40px] text-black">4.9</div>
-                <div>
-                  <div className="text-amber-500 text-lg">★★★★★</div>
-                  <div className="text-xs text-gray-400 mt-0.5">Based on 47 ratings</div>
-                </div>
-              </div>
-
-              {/* Stats Grid */}
-              <div className="grid grid-cols-2 gap-2.5 mb-3.5">
-                <div className="bg-gray-50 rounded-lg p-2.5 text-center">
-                  <div className="text-base font-black text-black">87%</div>
-                  <div className="text-xs text-gray-400">Response Rate</div>
-                </div>
-                <div className="bg-gray-50 rounded-lg p-2.5 text-center">
-                  <div className="text-base font-black text-black">1.2h</div>
-                  <div className="text-xs text-gray-400">Avg Response</div>
-                </div>
-                <div className="bg-gray-50 rounded-lg p-2.5 text-center">
-                  <div className="text-base font-black text-black">23</div>
-                  <div className="text-xs text-gray-400">Answers</div>
-                </div>
-                <div className="bg-gray-50 rounded-lg p-2.5 text-center">
-                  <div className="text-base font-black text-black">8</div>
-                  <div className="text-xs text-gray-400">Referrals</div>
-                </div>
-              </div>
-
-              {/* Reviews */}
-              <div className="pt-3 border-t border-gray-100">
-                <div className="space-y-3">
-                  <div className="pb-3 border-b border-gray-50">
-                    <div className="text-amber-500 text-xs">★★★★★</div>
-                    <div className="text-xs text-gray-700 italic mt-1 leading-relaxed">
-                      "Got Swiggy offer after his referral!"
-                    </div>
-                    <div className="text-xs text-gray-400 mt-1">— Arun K, SRM CSE 2024</div>
-                  </div>
-
-                  <div className="pb-3 border-b border-gray-50">
-                    <div className="text-amber-500 text-xs">★★★★★</div>
-                    <div className="text-xs text-gray-700 italic mt-1 leading-relaxed">
-                      "Replied within 30 mins. Very detailed!"
-                    </div>
-                    <div className="text-xs text-gray-400 mt-1">— Sneha R, SRM IT 2024</div>
-                  </div>
-
-                  <div>
-                    <div className="text-amber-500 text-xs">★★★★★</div>
-                    <div className="text-xs text-gray-700 italic mt-1 leading-relaxed">
-                      "Webinar was worth every rupee ₹99"
-                    </div>
-                    <div className="text-xs text-gray-400 mt-1">— Priya M, SRM CSE 2024</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Impact Wall Card */}
-            <div className="bg-slate-900 rounded-xl p-5">
-              <div className="text-[11px] font-black tracking-wider text-purple-300 mb-1">
-                🏆 IMPACT WALL
-              </div>
-              <div className="text-sm text-white/60 mb-3">
-                Students you helped place
-              </div>
-
-              {/* Student Grid */}
-              <div className="grid grid-cols-3 gap-2 mb-3">
-                <div className="bg-white/5 rounded-lg p-2.5 text-center">
-                  <div className="w-8 h-8 rounded-full bg-purple-600 text-white text-[10px] font-black flex items-center justify-center mx-auto mb-1.5">AK</div>
-                  <div className="text-xs font-black text-white mb-0.5">Arun K</div>
-                  <div className="text-xs text-purple-300">Swiggy</div>
-                </div>
-
-                <div className="bg-white/5 rounded-lg p-2.5 text-center">
-                  <div className="w-8 h-8 rounded-full bg-cyan-500 text-white text-[10px] font-black flex items-center justify-center mx-auto mb-1.5">PR</div>
-                  <div className="text-xs font-black text-white mb-0.5">Priya R</div>
-                  <div className="text-xs text-purple-300">Flipkart</div>
-                </div>
-
-                <div className="bg-white/5 rounded-lg p-2.5 text-center">
-                  <div className="w-8 h-8 rounded-full bg-green-500 text-white text-[10px] font-black flex items-center justify-center mx-auto mb-1.5">SK</div>
-                  <div className="text-xs font-black text-white mb-0.5">Sneha K</div>
-                  <div className="text-xs text-purple-300">Amazon</div>
-                </div>
-
-                <div className="bg-white/5 rounded-lg p-2.5 text-center">
-                  <div className="w-8 h-8 rounded-full bg-orange-500 text-white text-[10px] font-black flex items-center justify-center mx-auto mb-1.5">DK</div>
-                  <div className="text-xs font-black text-white mb-0.5">Divya K</div>
-                  <div className="text-xs text-purple-300">Zoho</div>
-                </div>
-
-                <div className="bg-white/5 rounded-lg p-2.5 text-center">
-                  <div className="w-8 h-8 rounded-full bg-pink-500 text-white text-[10px] font-black flex items-center justify-center mx-auto mb-1.5">RV</div>
-                  <div className="text-xs font-black text-white mb-0.5">Rohit V</div>
-                  <div className="text-xs text-purple-300">TCS</div>
-                </div>
-
-                <div className="bg-white/5 rounded-lg p-2.5 text-center">
-                  <div className="w-8 h-8 rounded-full bg-indigo-500 text-white text-[10px] font-black flex items-center justify-center mx-auto mb-1.5">MP</div>
-                  <div className="text-xs font-black text-white mb-0.5">Meera P</div>
-                  <div className="text-xs text-purple-300">Infosys</div>
-                </div>
-              </div>
-
-              <div className="text-center text-xs text-gray-400 mb-3">+ 6 more</div>
-
-              <button className="w-full bg-white/10 text-white border-none rounded-lg py-2.5 text-xs font-semibold hover:bg-white/15 transition-colors">
-                Share on LinkedIn 🔗
-              </button>
             </div>
           </div>
         </div>
@@ -1081,6 +708,8 @@ export default function SeniorDashboardPage() {
                 </div>
               </div>
             </div>
+          </div>
+        )}
           </div>
         )}
       </div>

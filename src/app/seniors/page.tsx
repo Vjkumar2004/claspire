@@ -65,8 +65,9 @@ export default function SeniorsPage() {
     }
 
     // Gating Logic: Direct messaging requires Premium
-    if (user.is_premium) {
-      setSelectedSenior(senior)
+    if (user.is_premium || user.premium_plan === 'premium') {
+      const dashboardPath = user.role === 'senior' ? '/dashboard/senior' : '/dashboard/junior'
+      router.push(`${dashboardPath}?activeTab=messages&messageUser=${senior.id}`)
     } else {
       setShowPremiumModal(true)
     }
@@ -255,66 +256,7 @@ export default function SeniorsPage() {
         )}
       </div>
 
-      {/* Message Modal */}
-      {selectedSenior && (
-        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-6">
-          <div 
-            className="absolute inset-0 bg-black/40 backdrop-blur-sm" 
-            onClick={() => setSelectedSenior(null)}
-          />
-          <div className="relative bg-white w-full max-w-md rounded-3xl p-8 shadow-2xl animate-in zoom-in-95 duration-200">
-            {messageSuccess ? (
-              <div className="text-center py-6">
-                <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <CheckCircle2 size={32} className="text-green-500" />
-                </div>
-                <h3 className="text-xl font-bold text-black mb-2">Message Sent!</h3>
-                <p className="text-gray-500 text-sm">
-                  {selectedSenior.full_name.split(' ')[0]} will receive a notification and can reply to your email.
-                </p>
-              </div>
-            ) : (
-              <>
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-12 h-12 bg-cyan-50 rounded-2xl flex items-center justify-center text-cyan-600">
-                    <MessageSquare size={24} />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-bold text-black leading-tight">Message {selectedSenior.full_name.split(' ')[0]}</h3>
-                    <p className="text-sm text-gray-500">{selectedSenior.designation} @ {selectedSenior.company}</p>
-                  </div>
-                </div>
 
-                <div className="mb-6">
-                  <textarea
-                    value={messageText}
-                    onChange={(e) => setMessageText(e.target.value)}
-                    placeholder={`Hi ${selectedSenior.full_name.split(' ')[0]}, I would love to ask you about...`}
-                    className="w-full border border-gray-200 rounded-xl p-4 text-sm min-h-[120px] outline-none focus:border-cyan-500 focus:ring-4 focus:ring-cyan-500/10 resize-none"
-                  />
-                </div>
-
-                <div className="flex gap-3">
-                  <button 
-                    onClick={() => setSelectedSenior(null)}
-                    disabled={messaging}
-                    className="flex-1 py-3 text-sm font-bold text-gray-500 hover:bg-gray-100 rounded-xl transition-colors"
-                  >
-                    Cancel
-                  </button>
-                  <button 
-                    onClick={confirmMessage}
-                    disabled={messaging || !messageText.trim()}
-                    className="flex-1 bg-cyan-600 text-white py-3 rounded-xl font-bold text-sm hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
-                  >
-                    {messaging ? 'Sending...' : 'Send Message'}
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-      )}
 
       {/* Premium Upgrade Modal */}
       {showPremiumModal && (

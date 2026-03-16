@@ -66,7 +66,7 @@ export default function Navbar() {
             }} />
           ) : user ? (
             <div className="flex items-center gap-4">
-              <NotificationBell />
+              <NotificationBell dark />
               <div style={{ position: 'relative' }}>
                 <button
                   onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
@@ -262,7 +262,7 @@ export default function Navbar() {
             <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#F3F4F6', animation: 'pulse 1.5s infinite' }} />
           ) : user ? (
             <div className="flex items-center gap-3">
-              <NotificationBell />
+              <NotificationBell dark />
               <button
                 onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
                 className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-600 to-cyan-500 text-white text-xs font-black flex items-center justify-center overflow-hidden"
