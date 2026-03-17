@@ -370,9 +370,17 @@ export default function SignupPage() {
             </Link>
             
             <h1 className="font-instrument-serif font-normal text-[28px] text-black mb-1.5">Create your account</h1>
-            <p className="text-sm text-gray-400 mb-7">
+            <p className="text-sm text-gray-400 mb-4">
               Already have an account? <Link href="/login" className="text-purple-600 font-semibold">Sign in</Link>
             </p>
+            
+            {/* Browse Colleges Button */}
+            <button 
+              onClick={() => router.push('/colleges')}
+              className="w-full bg-gray-50 text-gray-700 py-2.5 rounded-xl font-medium text-sm hover:bg-gray-100 transition-colors mb-5 border border-gray-200"
+            >
+              🏫 Browse Colleges First
+            </button>
 
             {/* Student/Senior Toggle */}
             <div className="flex bg-gray-100 rounded-xl p-1 mb-7 gap-1">

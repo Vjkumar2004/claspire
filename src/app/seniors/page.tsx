@@ -61,9 +61,8 @@ export default function SeniorsPage() {
       return
     }
 
-    // Direct messaging is now free for everyone
-    const dashboardPath = user.role === 'senior' ? '/dashboard/senior' : '/dashboard/junior'
-    router.push(`${dashboardPath}?activeTab=messages&messageUser=${senior.id}`)
+    // Direct messaging is now free for everyone - redirect to messages page
+    router.push(`/messages?user=${senior.id}`)
   }
 
   const confirmMessage = async () => {
