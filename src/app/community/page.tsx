@@ -929,65 +929,6 @@ function CommunityPageContent() {
               </div>
             ))}
           </div>
-
-          {/* Quick Links Card */}
-          <div style={{
-            background: 'linear-gradient(135deg, #7C3AED 0%, #4F46E5 100%)',
-            borderRadius: '20px',
-            padding: '24px',
-            color: 'white',
-            marginTop: 12,
-            position: 'relative',
-            overflow: 'hidden'
-          }}>
-            <div style={{
-              position: 'absolute',
-              top: '-20%',
-              right: '-20%',
-              width: '100px',
-              height: '100px',
-              background: 'rgba(255,255,255,0.1)',
-              borderRadius: '50%',
-              filter: 'blur(20px)'
-            }} />
-            <p style={{
-              fontSize: '18px',
-              fontFamily: 'var(--font-instrument-serif)',
-              margin: '0 0 12px',
-              position: 'relative'
-            }}>
-              Premium Access
-            </p>
-            <p style={{
-              fontSize: '12px',
-              opacity: 0.8,
-              lineHeight: 1.5,
-              margin: '0 0 20px',
-              position: 'relative'
-            }}>
-              Unlock placement guides & senior mock interviews.
-            </p>
-            <button
-              onClick={() => router.push('/pricing')}
-              style={{
-                width: '100%',
-                padding: '10px',
-                borderRadius: '12px',
-                background: 'white',
-                color: '#7C3AED',
-                border: 'none',
-                fontSize: '13px',
-                fontWeight: 700,
-                cursor: 'pointer',
-                transition: 'transform 0.2s ease',
-                position: 'relative'
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
-              onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-            >
-              Explore Plans
-            </button>
-          </div>
         </div>
 
         {/* ════ CENTER FEED ════ */}

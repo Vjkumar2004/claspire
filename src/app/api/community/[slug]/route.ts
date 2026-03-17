@@ -205,22 +205,21 @@ export async function GET(
     let userRole = 'guest'
 
     if (currentUser) {
-      // Fetch latest user data from DB to ensure premium status is synced
+      // Fetch latest user data from DB to ensure user status is synced
       const { data: dbUser } = await supabase
         .from('users')
-        .select('is_premium, is_verified, role, college_id')
+        .select('is_verified, role, college_id')
         .eq('id', currentUser.id)
         .single()
 
       const userToUse = dbUser || currentUser
       const isSenior = userToUse.role === 'senior'
       const isVerified = userToUse.is_verified
-      const isPremium = userToUse.is_premium
       const userCollegeId = userToUse.college_id
 
       isOwnCollege = userCollegeId === community.colleges.id
 
-      console.log('User permissions refreshed from DB:', { isPremium, isOwnCollege })
+      console.log('User permissions refreshed from DB:', { isVerified, isOwnCollege })
 
       if (isOwnCollege && isVerified && isSenior) {
         userRole = 'own_senior'
@@ -230,8 +229,9 @@ export async function GET(
         userRole = 'own_junior'
         // If user is from own college and verified, they're automatically a member
         isAlreadyMember = true
-      } else if (isPremium) {
-        userRole = 'premium'
+      } else if (isSenior) {
+        userRole = 'senior'
+        // Seniors can view all communities
       } else {
         userRole = 'other_college'
       }
@@ -267,7 +267,7 @@ export async function GET(
     // 6. Fetch jobs only if permitted
     let jobs = null
     const canViewJobs = [
-      'own_junior', 'own_senior', 'premium'
+      'own_junior', 'own_senior', 'senior'
     ].includes(userRole) || (userRole === 'other_college' && isAlreadyMember)
 
     if (canViewJobs) {
@@ -275,16 +275,16 @@ export async function GET(
         .from('jobs')
         .select('*')
         .eq('community_id', community.id)
-        .eq('is_active', true)
         .order('created_at', { ascending: false })
-        .limit(10)
+        .limit(50)
+
       jobs = data || []
     }
 
     // 7. Fetch webinars only if permitted
     let webinars = null
     const canViewWebinars = [
-      'own_junior', 'own_senior', 'premium'
+      'own_junior', 'own_senior', 'senior'
     ].includes(userRole) || (userRole === 'other_college' && isAlreadyMember)
 
     if (canViewWebinars) {

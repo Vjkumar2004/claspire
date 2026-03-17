@@ -195,7 +195,7 @@ export default function ChatWindow({
       {/* Messages */}
       <div
         ref={scrollRef}
-        className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar bg-gray-50/30"
+        className="flex-1 overflow-y-auto p-4 pb-24 md:pb-4 space-y-3 custom-scrollbar bg-gray-50/30"
       >
         {loading ? (
           <div className="flex items-center justify-center h-full">

@@ -10,7 +10,8 @@ export const getCollegeLogo = (shortName: string, slug?: string): string | null 
     'KCET': '/kamaraj.jpg',
     'SFR': '/sfr.jpg',
     'SKC': '/skc.jpg',
-    'VVVC': '/vvvclogo.png'
+    'VVVC': '/vvvclogo.png',
+    'VHNSN': '/vhnsn_college.jpg'
   }
   
   // Try exact short name match

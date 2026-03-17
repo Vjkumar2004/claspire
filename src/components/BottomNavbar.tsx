@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Users, Search, Plus, MessageSquare, User } from 'lucide-react'
+import { Users, Search, Plus, MessageSquare, User, Briefcase, GraduationCap } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
 
@@ -88,10 +88,20 @@ const BottomNavbar = () => {
       href: '/colleges',
     },
     {
+      label: 'Jobs',
+      icon: Briefcase,
+      href: '/jobs',
+    },
+    {
       label: 'Ask',
       icon: Plus,
       href: '/community?create=true', // Center button
       isCenter: true,
+    },
+    {
+      label: 'Seniors',
+      icon: GraduationCap,
+      href: '/seniors',
     },
     {
       label: 'Messages',
@@ -106,10 +116,10 @@ const BottomNavbar = () => {
     },
   ]
 
-  if (pathname === '/' || isMobileMenuOpen) return null
+  if (pathname === '/' || pathname === '/login' || pathname === '/signup' || pathname === '/dashboard/senior/messages' || pathname === '/dashboard/junior/messages' || isMobileMenuOpen) return null
 
   return (
-    <div className="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-sm z-[999] bottom-navbar">
+    <div className="md:hidden fixed bottom-0 left-0 w-full z-[999] bottom-navbar">
       <div className="bg-white/80 backdrop-blur-xl border border-gray-200/50 rounded-[28px] shadow-[0_8px_32px_rgba(0,0,0,0.12)] px-2 py-2">
         <div className="flex items-center justify-between gap-1">
           {navItems.map((item, index) => {

@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import Link from 'next/link'
-import Navbar from '@/components/Navbar'
 import { Eye, EyeOff, Mail, Lock, User, GraduationCap } from 'lucide-react'
 
 export default function LoginPage() {
@@ -97,7 +96,6 @@ export default function LoginPage() {
       background: '#F9FAFB',
       fontFamily: 'Plus Jakarta Sans, sans-serif'
     }}>
-      <Navbar />
       <div style={{
         display: 'flex',
         height: 'calc(100vh - 56px)',

@@ -4,7 +4,6 @@ import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/hooks/useAuth'
-import Navbar from '@/components/Navbar'
 import { getCollegeLogo } from '@/lib/college-utils';
 import { createClient } from '@supabase/supabase-js'
 import { Mail, Phone, Lock, Eye, EyeOff, User, GraduationCap, MapPin, Calendar } from 'lucide-react'
@@ -303,25 +302,8 @@ export default function SignupPage() {
         return
       }
 
-      setStep('success')
-      
-      setTimeout(async () => {
-        try {
-          const res = await fetch('/api/auth/me')
-          if (res.ok) {
-            const data = await res.json()
-            if (data.user) {
-              if (activeRole === 'senior') {
-                router.push('/dashboard/senior')
-              } else {
-                router.push('/dashboard/junior')
-              }
-            }
-          }
-        } catch (error) {
-          console.error('Session check error:', error)
-        }
-      }, 3000)
+      // Direct redirect to dashboard instead of showing success page
+      router.push(activeRole === 'senior' ? '/dashboard/senior' : '/dashboard/junior')
 
     } catch (err) {
       console.error('Verify error:', err)
@@ -348,27 +330,8 @@ export default function SignupPage() {
     }
   }
 
-  if (step === 'success') {
-    return (
-      <div className="min-h-screen bg-white flex items-center justify-center p-8">
-        <div className="text-center max-w-md">
-          <div className="text-5xl mb-4">🎉</div>
-          <h1 className="font-instrument-serif font-normal text-2xl text-black mb-4">Welcome to Claspire!</h1>
-          <p className="text-green-600 text-sm mb-6">✅ Account created successfully! Redirecting you to your dashboard...</p>
-          <button 
-            onClick={() => router.push(activeRole === 'senior' ? '/dashboard/senior' : '/dashboard/junior')}
-            className="w-full bg-gradient-to-r from-purple-600 to-cyan-500 text-white py-3.5 rounded-xl font-bold text-sm hover:opacity-90 transition-opacity"
-          >
-            Go to Dashboard →
-          </button>
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar />
       <div className="flex pt-14" style={{ minHeight: 'calc(100vh - 56px)' }}>
         {/* Left Panel - Desktop Only */}
         <div className="hidden lg:block lg:w-2/5 bg-gradient-to-br from-purple-600 to-cyan-500 relative overflow-hidden">
@@ -514,14 +477,28 @@ export default function SignupPage() {
                         className="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm text-black outline-none focus:border-purple-600 focus:shadow-[0_0_0_3px_rgba(124,58,237,0.09)] mb-4"
                       >
                         <option value="">Select Branch</option>
-                        <option value="CSE">CSE</option>
-                        <option value="IT">IT</option>
-                        <option value="ECE">ECE</option>
-                        <option value="EEE">EEE</option>
-                        <option value="Mechanical">Mechanical</option>
-                        <option value="Civil">Civil</option>
-                        <option value="AIDS">AIDS</option>
-                        <option value="AIML">AIML</option>
+                        <optgroup label="Engineering">
+                          <option value="CSE">CSE</option>
+                          <option value="IT">IT</option>
+                          <option value="ECE">ECE</option>
+                          <option value="EEE">EEE</option>
+                          <option value="Mechanical">Mechanical</option>
+                          <option value="Civil">Civil</option>
+                          <option value="AIDS">AIDS</option>
+                          <option value="AIML">AIML</option>
+                        </optgroup>
+                        <optgroup label="Arts & Science">
+                          <option value="BA">BA - Bachelor of Arts</option>
+                          <option value="B.Com">B.Com - Bachelor of Commerce</option>
+                          <option value="B.Sc">B.Sc - Bachelor of Science</option>
+                          <option value="BBA">BBA - Bachelor of Business Administration</option>
+                          <option value="BCA">BCA - Bachelor of Computer Applications</option>
+                          <option value="BHM">BHM - Bachelor of Hotel Management</option>
+                          <option value="BFA">BFA - Bachelor of Fine Arts</option>
+                          <option value="BSW">BSW - Bachelor of Social Work</option>
+                          <option value="B.Ed">B.Ed - Bachelor of Education</option>
+                          <option value="LLB">LLB - Bachelor of Law</option>
+                        </optgroup>
                       </select>
 
                       <div className="grid grid-cols-2 gap-4 mb-4">
@@ -547,7 +524,7 @@ export default function SignupPage() {
                             className="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm text-black outline-none focus:border-purple-600"
                           >
                             <option value="">Year</option>
-                            {[2025, 2026, 2027, 2028].map(y => <option key={y} value={y}>{y}</option>)}
+                            {[2026, 2027, 2028, 2029, 2030].map(y => <option key={y} value={y}>{y}</option>)}
                           </select>
                         </div>
                       </div>
@@ -754,7 +731,7 @@ export default function SignupPage() {
                               <label className="block text-sm font-semibold text-gray-700 mb-1.5">Branch</label>
                               <input
                                 type="text"
-                                placeholder="CSE, etc."
+                                placeholder="CSE, BA, B.Com, B.Sc, etc."
                                 value={seniorData.branch}
                                 onChange={e => setSeniorData({...seniorData, branch: e.target.value})}
                                 className="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm outline-none focus:border-purple-600"
@@ -768,7 +745,7 @@ export default function SignupPage() {
                                 className="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm outline-none focus:border-purple-600"
                               >
                                 <option value="">Year</option>
-                                {[2024, 2023, 2022, 2021, 2020, 2019, 2018].map(y => <option key={y} value={y}>{y}</option>)}
+                                {[2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018].map(y => <option key={y} value={y}>{y}</option>)}
                               </select>
                             </div>
                           </div>

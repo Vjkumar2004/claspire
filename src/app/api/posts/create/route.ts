@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
       // Get user and community details for role checking
       const { data: userData } = await supabase
         .from('users')
-        .select('college_id, is_verified, role, is_premium')
+        .select('college_id, is_verified, role')
         .eq('id', userId)
         .single()
 
@@ -76,10 +76,9 @@ export async function POST(req: NextRequest) {
         const isOwnCollege = userData.college_id === communityData.college_id
         const isVerified = userData.is_verified
         const isSenior = userData.role === 'senior'
-        const isPremium = userData.is_premium
 
-        // Same logic as community API
-        if ((isOwnCollege && isVerified) || isPremium) {
+        // Free access for all verified users or seniors or same college
+        if ((isOwnCollege && isVerified) || isSenior) {
           isMember = true
         } else {
           // Check explicit membership for other cases

@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
 
     // Fetch sender and receiver info
     const [senderResult, receiverResult] = await Promise.all([
-      supabase.from('users').select('role, is_premium, full_name').eq('id', userId).single(),
+      supabase.from('users').select('role, full_name').eq('id', userId).single(),
       supabase.from('users').select('role, full_name').eq('id', receiverId).single()
     ]);
 
@@ -36,11 +36,6 @@ export async function POST(req: NextRequest) {
 
     if (!senderData || !receiverData) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
-    }
-
-    // Premium Gating: Junior -> Senior requires Premium
-    if (senderData.role === 'junior' && receiverData.role === 'senior' && !senderData.is_premium) {
-      return NextResponse.json({ error: 'Upgrade to Premium to message seniors' }, { status: 403 });
     }
 
     const conversationId = getConversationId(userId, receiverId);

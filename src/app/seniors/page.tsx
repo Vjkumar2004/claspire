@@ -5,11 +5,9 @@ import { useAuth } from '@/hooks/useAuth'
 import Navbar from '@/components/Navbar'
 import { 
   Users, MapPin, Building2, Search, 
-  MessageSquare, Lock, Sparkles, CheckCircle2,
-  ArrowRight, Globe, Award, Briefcase, GraduationCap
+  MessageSquare, Award, Briefcase, GraduationCap
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
 
 interface Senior {
   id: string
@@ -35,7 +33,6 @@ export default function SeniorsPage() {
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedSenior, setSelectedSenior] = useState<Senior | null>(null)
-  const [showPremiumModal, setShowPremiumModal] = useState(false)
   const [messaging, setMessaging] = useState(false)
   const [messageSuccess, setMessageSuccess] = useState(false)
   const [messageText, setMessageText] = useState('')
@@ -64,13 +61,9 @@ export default function SeniorsPage() {
       return
     }
 
-    // Gating Logic: Direct messaging requires Premium
-    if (user.is_premium || user.premium_plan === 'premium') {
-      const dashboardPath = user.role === 'senior' ? '/dashboard/senior' : '/dashboard/junior'
-      router.push(`${dashboardPath}?activeTab=messages&messageUser=${senior.id}`)
-    } else {
-      setShowPremiumModal(true)
-    }
+    // Direct messaging is now free for everyone
+    const dashboardPath = user.role === 'senior' ? '/dashboard/senior' : '/dashboard/junior'
+    router.push(`${dashboardPath}?activeTab=messages&messageUser=${senior.id}`)
   }
 
   const confirmMessage = async () => {
@@ -234,7 +227,7 @@ export default function SeniorsPage() {
                       onClick={() => handleMessageClick(senior)}
                       className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-sm font-bold transition-all bg-black text-white hover:bg-gray-800"
                     >
-                      {user?.is_premium || user?.premium_plan === 'premium' ? <MessageSquare size={16} /> : <Lock size={16} />}
+                      <MessageSquare size={16} />
                       Message {senior.full_name.split(' ')[0]}
                     </button>
                   </div>
@@ -255,70 +248,6 @@ export default function SeniorsPage() {
           </div>
         )}
       </div>
-
-
-
-      {/* Premium Upgrade Modal */}
-      {showPremiumModal && (
-        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-6">
-          <div 
-            className="absolute inset-0 bg-black/60 backdrop-blur-md" 
-            onClick={() => setShowPremiumModal(false)}
-          />
-          <div className="relative bg-white w-full max-w-lg rounded-[32px] overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-200">
-            {/* Modal Header/Banner */}
-            <div className="bg-gradient-to-br from-[#1A1A1A] to-[#333333] p-10 text-center relative">
-              <div className="absolute top-4 right-4 text-white/20">
-                <Globe size={120} />
-              </div>
-              <div className="relative z-10">
-                <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 rounded-full border border-white/20 mb-6">
-                  <Sparkles size={14} className="text-cyan-400" />
-                  <span className="text-[10px] font-bold text-white uppercase tracking-widest">Premium Feature</span>
-                </div>
-                <h3 className="text-2xl font-bold text-white mb-2">Direct Mentorship</h3>
-                <p className="text-white/60 text-sm max-w-[280px] mx-auto">
-                  Message verified alumni working at top companies to get 1:1 guidance and referrals.
-                </p>
-              </div>
-            </div>
-
-            {/* Modal Content */}
-            <div className="p-10">
-              <div className="space-y-4 mb-8">
-                {[
-                  'Direct messaging with 10,000+ verified experts',
-                  'Request mock interviews and resume reviews',
-                  'Unlimited cross-college referrals',
-                  'Priority placement in senior inboxes'
-                ].map((feature, i) => (
-                  <div key={i} className="flex items-center gap-3">
-                    <div className="w-5 h-5 bg-green-50 rounded-full flex items-center justify-center">
-                      <CheckCircle2 size={12} className="text-green-500" />
-                    </div>
-                    <span className="text-sm font-semibold text-gray-700">{feature}</span>
-                  </div>
-                ))}
-              </div>
-
-              <div className="flex flex-col gap-3">
-                <Link href="/pricing" className="no-underline">
-                  <button className="w-full bg-black text-white py-4 rounded-2xl font-bold text-sm hover:bg-gray-900 transition-all flex items-center justify-center gap-2 group">
-                    Upgrade to Premium
-                    <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-                  </button>
-                </Link>
-                <button 
-                  onClick={() => setShowPremiumModal(false)}
-                  className="w-full py-3 text-sm font-bold text-gray-400 hover:text-gray-600 transition-colors"
-                >
-                  Maybe Later
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }

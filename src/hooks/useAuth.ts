@@ -10,8 +10,6 @@ interface User {
   full_name: string
   college_id: string | null
   avatar_url?: string
-  is_premium?: boolean
-  premium_plan?: string
 }
 
 export function useAuth() {

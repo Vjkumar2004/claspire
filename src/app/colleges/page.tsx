@@ -147,13 +147,13 @@ export default function CollegesPage() {
                     width: '64px',
                     height: '64px',
                     borderRadius: '16px',
-                    background: (c.slug === 'aaacet' || c.slug === 'vvvclg' || c.slug === 'vvv' || c.slug === 'anjac' || c.slug === 'sfr' || c.slug === 'skc' || c.slug === 'kamaraj' || c.slug === 'agpc') ? '#F8FAFC' : 'linear-gradient(135deg, #7C3AED, #4F46E5)',
-                    border: (c.slug === 'aaacet' || c.slug === 'vvvclg' || c.slug === 'vvv' || c.slug === 'anjac' || c.slug === 'sfr' || c.slug === 'skc' || c.slug === 'kamaraj' || c.slug === 'agpc') ? '1px solid #F1F5F9' : 'none',
+                    background: (c.slug === 'aaacet' || c.slug === 'vvvclg' || c.slug === 'vvv' || c.slug === 'anjac' || c.slug === 'sfr' || c.slug === 'skc' || c.slug === 'kamaraj' || c.slug === 'agpc' || c.slug === 'vhnsn') ? '#F8FAFC' : 'linear-gradient(135deg, #7C3AED, #4F46E5)',
+                    border: (c.slug === 'aaacet' || c.slug === 'vvvclg' || c.slug === 'vvv' || c.slug === 'anjac' || c.slug === 'sfr' || c.slug === 'skc' || c.slug === 'kamaraj' || c.slug === 'agpc' || c.slug === 'vhnsn') ? '1px solid #F1F5F9' : 'none',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     overflow: 'hidden',
-                    padding: (c.slug === 'aaacet' || c.slug === 'vvvclg' || c.slug === 'vvv' || c.slug === 'anjac' || c.slug === 'sfr' || c.slug === 'skc' || c.slug === 'kamaraj' || c.slug === 'agpc') ? '8px' : '0',
+                    padding: (c.slug === 'aaacet' || c.slug === 'vvvclg' || c.slug === 'vvv' || c.slug === 'anjac' || c.slug === 'sfr' || c.slug === 'skc' || c.slug === 'kamaraj' || c.slug === 'agpc' || c.slug === 'vhnsn') ? '8px' : '0',
                     flexShrink: 0,
                     color: 'white',
                     fontSize: '24px',
@@ -175,6 +175,8 @@ export default function CollegesPage() {
                       <img src="/kamaraj.jpg" alt="Kamaraj" style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '4px' }} />
                     ) : c.slug === 'agpc' ? (
                       <img src="/agpc.jpg" alt="AGPC" style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '4px' }} />
+                    ) : c.slug === 'vhnsn' ? (
+                      <img src="/vhnsn_college.jpg" alt="VHNSN" style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '4px' }} />
                     ) : (
                       c.colleges?.short_name?.[0] || c.slug?.[0]?.toUpperCase() || 'C'
                     )}

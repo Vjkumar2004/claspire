@@ -46,7 +46,7 @@ export default function SeniorMessagesPage() {
   )
 
   return (
-    <div className="flex h-[calc(100vh-140px)] gap-0 md:gap-6 antialiased pb-24 md:pb-0">
+    <div className="flex w-full h-screen gap-0 md:gap-6 antialiased">
       {/* Sidebar: Conversation List */}
       <div className={`w-full md:w-80 flex flex-col bg-white border border-gray-100 rounded-3xl shadow-sm overflow-hidden ${selectedChat ? 'hidden md:flex' : 'flex'}`}>
         <div className="p-4 border-b border-gray-100">
