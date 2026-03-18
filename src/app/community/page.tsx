@@ -123,6 +123,7 @@ function CommunityPageContent() {
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState('all')
   const [userCommunity, setUserCommunity] = useState<any>(null)
+  const [selectedCommunity, setSelectedCommunity] = useState<string | null>(null)
 
   // Inline answer section state
   const [expandedPost, setExpandedPost] = useState<string | null>(null)
@@ -134,12 +135,28 @@ function CommunityPageContent() {
   // Content expansion state
   const [expandedContent, setExpandedContent] = useState<Record<string, boolean>>({})
 
+  // Image modal state
+  const [showImageModal, setShowImageModal] = useState(false)
+  const [selectedImage, setSelectedImage] = useState('')
+
   // Toggle content expansion
   const toggleContentExpansion = (postId: string) => {
     setExpandedContent(prev => ({
       ...prev,
       [postId]: !prev[postId]
     }))
+  }
+
+  // Handle image click
+  const handleImageClick = (imageUrl: string) => {
+    setSelectedImage(imageUrl)
+    setShowImageModal(true)
+  }
+
+  // Close image modal
+  const closeImageModal = () => {
+    setShowImageModal(false)
+    setSelectedImage('')
   }
 
   // Add state for each post's vote status
@@ -1403,7 +1420,7 @@ function CommunityPageContent() {
                           }}
                           onClick={e => {
                             e.stopPropagation()
-                            window.open(post.image_url, '_blank')
+                            handleImageClick(post.image_url)
                           }}
                         />
                       </div>
@@ -2379,6 +2396,133 @@ function CommunityPageContent() {
           }
         }
       `}</style>
+
+      {/* Image Preview Modal */}
+      <AnimatePresence>
+        {showImageModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: 'rgba(0, 0, 0, 0.9)',
+              zIndex: 9999,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '20px'
+            }}
+            onClick={closeImageModal}
+          >
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
+              style={{
+                position: 'relative',
+                maxWidth: '90vw',
+                maxHeight: '90vh',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <img
+                src={selectedImage}
+                alt="Preview"
+                style={{
+                  maxWidth: '100%',
+                  maxHeight: '90vh',
+                  objectFit: 'contain',
+                  borderRadius: '12px',
+                  boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)'
+                }}
+              />
+              
+              {/* Close button */}
+              <button
+                onClick={closeImageModal}
+                style={{
+                  position: 'absolute',
+                  top: '-40px',
+                  right: '-40px',
+                  width: '40px',
+                  height: '40px',
+                  borderRadius: '50%',
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  color: 'white',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  backdropFilter: 'blur(10px)'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.2)'
+                  e.currentTarget.style.transform = 'scale(1.1)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'
+                  e.currentTarget.style.transform = 'scale(1)'
+                }}
+              >
+                <X size={20} />
+              </button>
+
+              {/* Download button */}
+              <a
+                href={selectedImage}
+                download
+                style={{
+                  position: 'absolute',
+                  bottom: '-40px',
+                  right: '0px',
+                  padding: '8px 16px',
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  color: 'white',
+                  borderRadius: '8px',
+                  textDecoration: 'none',
+                  fontSize: '14px',
+                  fontWeight: 500,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  backdropFilter: 'blur(10px)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.2)'
+                  e.currentTarget.style.transform = 'translateY(-2px)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'
+                  e.currentTarget.style.transform = 'translateY(0)'
+                }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="7,10 12,15 17,10"/>
+                  <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                Download
+              </a>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
