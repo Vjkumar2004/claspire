@@ -159,6 +159,12 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
     return 'Just now'
   }
 
+  const handlePostSuccess = () => {
+    fetchCommunity()
+    // Set flag to refresh profile page if user came from there
+    localStorage.setItem('profile_refresh_needed', 'true')
+  }
+
   // No auto-open effect here anymore
 
   const getTypeStyle = (type: string) => {
@@ -879,7 +885,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
         onClose={() => setShowPostModal(false)}
         communityId={community.id}
         communitySlug={community.slug}
-        onSuccess={fetchCommunity}
+        onSuccess={handlePostSuccess}
         userRole={userRole}
       />
 

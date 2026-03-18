@@ -221,9 +221,6 @@ export default function JobsPage() {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="flex-1 py-3 text-black outline-none bg-transparent"
               />
-              <button className="bg-black text-white px-6 py-3 rounded-xl font-bold text-sm hover:opacity-90 transition-opacity">
-                Search
-              </button>
             </div>
           </div>
         </div>

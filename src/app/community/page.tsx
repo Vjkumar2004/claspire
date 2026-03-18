@@ -135,6 +135,11 @@ function CommunityPageContent() {
   // Content expansion state
   const [expandedContent, setExpandedContent] = useState<Record<string, boolean>>({})
 
+  // Performance optimization states
+  const [page, setPage] = useState(1)
+  const [hasMore, setHasMore] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
+
   // Image modal state
   const [showImageModal, setShowImageModal] = useState(false)
   const [selectedImage, setSelectedImage] = useState('')
@@ -426,7 +431,7 @@ function CommunityPageContent() {
     }
   }
 
-  // Fetch answers for a post
+  // Fetch answers for a post with performance optimizations
   const fetchPostAnswers = async (postId: string) => {
     if (postAnswers[postId]) return // Already cached
     
@@ -435,21 +440,26 @@ function CommunityPageContent() {
       const { data, error } = await supabase
         .from('answers')
         .select(`
-          *,
+          id,
+          content,
+          created_at,
+          is_accepted,
+          upvote_count,
+          author_id,
           users!answers_author_id_fkey (
             id, full_name, unique_id,
             role, is_verified, avatar_url
           )
         `)
         .eq('post_id', postId)
-        .order('is_accepted', { ascending: false })
-        .order('upvote_count', { ascending: false })
         .order('created_at', { ascending: true })
-      
-      setPostAnswers(prev => ({ ...prev, [postId]: data || [] }))
+        .limit(10) // Limit answers to improve performance
+
+      if (!error && data) {
+        setPostAnswers(prev => ({ ...prev, [postId]: data }))
+      }
     } catch (err) {
-      console.error('Failed to fetch answers:', err)
-      setPostAnswers(prev => ({ ...prev, [postId]: [] }))
+      console.error('Error fetching answers:', err)
     } finally {
       setAnswersLoading(prev => ({ ...prev, [postId]: false }))
     }
@@ -525,42 +535,73 @@ function CommunityPageContent() {
     }
   }
 
-  const fetchCommunities = async () => {
-    setLoading(true)
+  const fetchCommunities = async (loadMore = false) => {
+    if (loadMore) {
+      setLoadingMore(true)
+    } else {
+      setLoading(true)
+      setPage(1)
+    }
+    
     try {
-      console.log('Fetching communities and posts...')
+      console.log('Fetching communities and posts...', { page, loadMore })
 
-      // Fetch communities
-      const { data: communitiesData, error: communitiesError } = await supabase
-        .from('communities')
-        .select(`
-          id,
-          slug,
-          display_name,
-          description,
-          member_count,
-          senior_count,
-          doubt_count,
-          colleges (
+      // Fetch communities with optimized query (only on initial load)
+      if (!loadMore) {
+        const { data: communitiesData, error: communitiesError } = await supabase
+          .from('communities')
+          .select(`
             id,
-            name,
-            short_name,
-            location,
-            state,
-            type,
-            email_domain
-          )
-        `)
-        .order('member_count', { ascending: false })
+            slug,
+            display_name,
+            description,
+            member_count,
+            senior_count,
+            doubt_count,
+            colleges (
+              id,
+              name,
+              short_name,
+              location,
+              state,
+              type,
+              email_domain
+            )
+          `)
+          .order('member_count', { ascending: false })
+          .limit(20) // Limit communities to improve performance
+        
+        if (!communitiesError && communitiesData) {
+          setCommunities(communitiesData)
+        }
+      }
 
-      // Fetch posts
+      // Fetch posts with pagination
+      const currentPage = loadMore ? page : 1
+      const limit = 20
+      const offset = (currentPage - 1) * limit
+
       const { data: postsData, error: postsError } = await supabase
         .from('posts')
         .select(`
-          *,
+          id,
+          title,
+          content,
+          type,
+          created_at,
+          upvote_count,
+          downvote_count,
+          answer_count,
+          is_answered,
+          tags,
+          image_url,
+          author_id,
           users!posts_author_id_fkey (
-            full_name, unique_id,
-            role, is_verified, avatar_url
+            full_name, 
+            unique_id,
+            role, 
+            is_verified, 
+            avatar_url
           ),
           communities (
             slug,
@@ -569,25 +610,66 @@ function CommunityPageContent() {
         `)
         .eq('visibility', 'public')
         .order('created_at', { ascending: false })
-        .limit(50)
-
-      if (!communitiesError && communitiesData) {
-        setCommunities(communitiesData)
-      }
+        .range(offset, offset + limit - 1)
 
       if (!postsError && postsData) {
-        setPosts(postsData)
+        if (loadMore) {
+          setPosts(prev => [...prev, ...postsData])
+        } else {
+          setPosts(postsData)
+        }
+        
+        // Check if there are more posts to load
+        setHasMore(postsData.length === limit)
+        if (loadMore) {
+          setPage(prev => prev + 1)
+        } else {
+          setPage(2)
+        }
       }
     } catch (err) {
       console.error('Fetch error:', err)
     } finally {
-      setLoading(false)
+      if (loadMore) {
+        setLoadingMore(false)
+      } else {
+        setLoading(false)
+      }
     }
   }
 
   useEffect(() => {
     fetchCommunities()
   }, [])
+
+  // Infinite scroll implementation
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!hasMore || loadingMore || loading) return
+
+      const scrollHeight = document.documentElement.scrollHeight
+      const scrollTop = document.documentElement.scrollTop
+      const clientHeight = document.documentElement.clientHeight
+
+      // Load more when user is 500px from bottom
+      if (scrollTop + clientHeight >= scrollHeight - 500) {
+        fetchCommunities(true)
+      }
+    }
+
+    // Add scroll listener with throttling
+    let timeoutId: NodeJS.Timeout
+    const throttledHandleScroll = () => {
+      if (timeoutId) clearTimeout(timeoutId)
+      timeoutId = setTimeout(handleScroll, 200)
+    }
+
+    window.addEventListener('scroll', throttledHandleScroll, { passive: true })
+    return () => {
+      window.removeEventListener('scroll', throttledHandleScroll)
+      if (timeoutId) clearTimeout(timeoutId)
+    }
+  }, [hasMore, loadingMore, loading, page])
 
   // Filter posts
   const filteredPosts = posts.filter((p: any) => {
@@ -1218,10 +1300,11 @@ function CommunityPageContent() {
               </p>
             </div>
           ) : (
-          <AnimatePresence mode="popLayout">
-            {filteredPosts.map((post: any) => {
-              const ts = getTypeStyle(post.type)
-              return (
+          <div>
+            <AnimatePresence mode="popLayout">
+              {filteredPosts.map((post: any) => {
+                const ts = getTypeStyle(post.type)
+                return (
                 <motion.div
                   key={post.id}
                   layout
@@ -1934,6 +2017,47 @@ function CommunityPageContent() {
               )
             })}
           </AnimatePresence>
+          
+          {/* Infinite Scroll Loading Indicator */}
+          {loadingMore && (
+            <div style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              padding: '20px',
+              gap: '8px'
+            }}>
+              <div style={{
+                width: 20,
+                height: 20,
+                border: '2px solid #E5E7EB',
+                borderTop: '2px solid #7C3AED',
+                borderRadius: '50%',
+                animation: 'spin 0.8s linear infinite'
+              }} />
+              <span style={{
+                fontSize: '12px',
+                color: '#6B7280',
+                fontWeight: 500
+              }}>
+                Loading more posts...
+              </span>
+            </div>
+          )}
+          
+          {/* End of posts indicator */}
+          {!hasMore && posts.length > 0 && (
+            <div style={{
+              textAlign: 'center',
+              padding: '20px',
+              color: '#9CA3AF',
+              fontSize: '12px',
+              fontWeight: 500
+            }}>
+              You've reached the end! 🎉
+            </div>
+          )}
+          </div>
         )}
       </div>
 

@@ -19,6 +19,7 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false)
   const [user, setUser] = useState<any>(null)
   const [posts, setPosts] = useState<any[]>([])
+  const [joinedCommunities, setJoinedCommunities] = useState<any[]>([])
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [activeTab, setActiveTab] = useState<'info' | 'activity' | 'professional'>('info')
@@ -41,6 +42,40 @@ export default function ProfilePage() {
     fetchUserData()
   }, [])
 
+  // Check if user is returning from community page after creating a post
+  useEffect(() => {
+    const checkForNewPost = () => {
+      // Check URL parameters or localStorage to see if we need to refresh
+      const urlParams = new URLSearchParams(window.location.search)
+      const refreshNeeded = urlParams.get('refresh') === 'true' || 
+                           localStorage.getItem('profile_refresh_needed') === 'true'
+      
+      if (refreshNeeded && !loading) {
+        fetchUserData()
+        // Clean up the flag
+        localStorage.removeItem('profile_refresh_needed')
+        // Clean URL
+        if (urlParams.get('refresh') === 'true') {
+          const newUrl = window.location.pathname
+          window.history.replaceState({}, '', newUrl)
+        }
+      }
+    }
+    
+    checkForNewPost()
+  }, [loading])
+
+  const handleStartDiscussion = () => {
+    if (joinedCommunities.length > 0) {
+      // Use the first joined community
+      const community = joinedCommunities[0].communities
+      router.push(`/community/c/${community.slug}?create=true`)
+    } else {
+      // If no joined communities, redirect to main community page
+      router.push('/community?create=true')
+    }
+  }
+
   const fetchUserData = async () => {
     try {
       const res = await fetch('/api/dashboard/me')
@@ -48,6 +83,7 @@ export default function ProfilePage() {
       if (data.user) {
         setUser(data.user)
         setPosts(data.myPosts || [])
+        setJoinedCommunities(data.joinedCommunities || [])
         setFormData({
           bio: data.user.bio || '',
           branch: data.user.branch || '',
@@ -520,7 +556,12 @@ export default function ProfilePage() {
                                 </div>
                                 <h3 className="text-lg font-bold text-[#0F172A] mb-2">No activity yet</h3>
                                 <p className="text-sm text-[#64748B] font-medium max-w-xs mx-auto">Start asking doubts or sharing knowledge with your community to build your profile.</p>
-                                <button className="mt-8 px-8 py-3 rounded-2xl bg-purple-600 text-white font-bold text-sm shadow-xl shadow-purple-100 cursor-pointer">Start a Discussion</button>
+                                <button 
+                                  onClick={handleStartDiscussion}
+                                  className="mt-8 px-8 py-3 rounded-2xl bg-purple-600 text-white font-bold text-sm shadow-xl shadow-purple-100 cursor-pointer hover:bg-purple-700 transition-colors"
+                                >
+                                  Start a Discussion
+                                </button>
                              </div>
                           )}
                        </div>
