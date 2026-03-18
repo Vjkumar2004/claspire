@@ -1142,7 +1142,7 @@ function CommunityPageContent() {
                   background: 'white',
                   borderRadius: 16,
                   border: '1px solid #EEEBFF',
-                  padding: '20px',
+                  padding: '20px 20px 0px', // Removed bottom padding
                   animation: 'pulse 1.5s ease infinite'
                 }}>
                   <div style={{
@@ -1212,7 +1212,6 @@ function CommunityPageContent() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-                  onClick={() => router.push(`/community/c/${post.communities?.slug}/p/${post.id}`)}
                   className="post-card"
                 >
                   {/* Top Header: Community & Type */}
@@ -1281,21 +1280,36 @@ function CommunityPageContent() {
 
                   {/* Title & Content */}
                   <div style={{ marginBottom: 20 }}>
-                    <h3 style={{
-                      fontSize: '20px',
-                      fontWeight: 400,
-                      color: '#0F172A',
-                      margin: '0 0 8px',
-                      lineHeight: 1.3,
-                      fontFamily: 'var(--font-instrument-serif)',
-                      letterSpacing: '-0.01em',
-                      position: 'relative',
-                      zIndex: 1,
-                      textAlign: 'left',
-                      wordWrap: 'break-word'
-                    }}>
-                      {convertUrlsToLinks(post.title)}
-                    </h3>
+                    <div
+                      onClick={() => router.push(`/community/c/${post.communities?.slug}/p/${post.id}`)}
+                      style={{
+                        cursor: 'pointer',
+                        display: 'inline-block'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.opacity = '0.8'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.opacity = '1'
+                      }}
+                    >
+                      <h3 style={{
+                        fontSize: '20px',
+                        fontWeight: 400,
+                        color: '#0F172A',
+                        margin: '0 0 8px',
+                        lineHeight: 1.3,
+                        fontFamily: 'var(--font-instrument-serif)',
+                        letterSpacing: '-0.01em',
+                        position: 'relative',
+                        zIndex: 1,
+                        textAlign: 'left',
+                        wordWrap: 'break-word',
+                        transition: 'opacity 0.2s ease'
+                      }}>
+                        {convertUrlsToLinks(post.title)}
+                      </h3>
+                    </div>
 
                     <p style={{
                       color: '#475569',
