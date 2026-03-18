@@ -12,7 +12,7 @@ import {
   Eye, ChevronRight, Briefcase,
   Video, Building2, Crown, Zap,
   Hash, Star, Shield, Globe,
-  BookOpen, Target, Send, X, ChevronDown, ChevronUp, Sparkles, Filter
+  BookOpen, Target, Send, X, ChevronDown, ChevronUp, Sparkles, Filter, Plus
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import NotificationPrompt from '@/components/NotificationPrompt'
@@ -23,6 +23,93 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder'
 )
+
+// Utility function to convert URLs to clickable links
+const convertUrlsToLinks = (text: string) => {
+  if (!text) return text
+  
+  // Improved URL regex pattern - more precise matching
+  const urlPattern = /(https?:\/\/[^\s\)]+)/g
+  
+  // Find all matches first
+  const matches = text.match(urlPattern) || []
+  
+  if (matches.length === 0) {
+    return <span>{text}</span>
+  }
+  
+  // Create result array with text and links
+  const result: React.ReactNode[] = []
+  let lastIndex = 0
+  
+  matches.forEach((match, index) => {
+    // Add text before the URL
+    const textBefore = text.substring(lastIndex, text.indexOf(match))
+    if (textBefore) {
+      result.push(
+        <span key={`text-${index}`} style={{ 
+          display: 'inline',
+          verticalAlign: 'baseline',
+          lineHeight: 'inherit'
+        }}>
+          {textBefore}
+        </span>
+      )
+    }
+    
+    // Add the link
+    result.push(
+      <a
+        key={`link-${index}`}
+        href={match}
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          color: '#7C3AED',
+          textDecoration: 'underline',
+          cursor: 'pointer',
+          fontWeight: 500,
+          position: 'relative',
+          zIndex: 10,
+          display: 'inline',
+          verticalAlign: 'baseline',
+          lineHeight: 'inherit',
+          margin: '0 2px'
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.color = '#6D28D9'
+          e.currentTarget.style.textDecoration = 'none'
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.color = '#7C3AED'
+          e.currentTarget.style.textDecoration = 'underline'
+        }}
+      >
+        {match}
+      </a>
+    )
+    
+    // Update last index
+    lastIndex = text.indexOf(match) + match.length
+  })
+  
+  // Add remaining text after last URL
+  const textAfter = text.substring(lastIndex)
+  if (textAfter) {
+    result.push(
+      <span key={`text-final`} style={{ 
+        display: 'inline',
+        verticalAlign: 'baseline',
+        lineHeight: 'inherit'
+      }}>
+        {textAfter}
+      </span>
+    )
+  }
+  
+  return result
+}
 
 function CommunityPageContent() {
   const router = useRouter()
@@ -43,6 +130,17 @@ function CommunityPageContent() {
   const [answersLoading, setAnswersLoading] = useState<Record<string, boolean>>({})
   const [newAnswerText, setNewAnswerText] = useState<Record<string, string>>({})
   const [answerSubmitting, setAnswerSubmitting] = useState<Record<string, boolean>>({})
+
+  // Content expansion state
+  const [expandedContent, setExpandedContent] = useState<Record<string, boolean>>({})
+
+  // Toggle content expansion
+  const toggleContentExpansion = (postId: string) => {
+    setExpandedContent(prev => ({
+      ...prev,
+      [postId]: !prev[postId]
+    }))
+  }
 
   // Add state for each post's vote status
   const [votes, setVotes] = useState<Record<string, {
@@ -70,6 +168,26 @@ function CommunityPageContent() {
         console.error('Failed to get user for votes:', error)
       }
 
+      // Initialize votes state for all posts
+      const v: Record<string, {
+        userVote: 'upvote' | 'downvote' | null
+        upvotes: number
+        downvotes: number
+        isLoading: boolean
+        error: string | null
+      }> = {}
+
+      posts.forEach((p: any) => {
+        v[p.id] = {
+          userVote: null,
+          upvotes: p.upvote_count || 0,
+          downvotes: p.downvote_count || 0,
+          isLoading: false,
+          error: null
+        }
+      })
+      setVotes(v)
+
       if (!userId) return
 
       try {
@@ -95,26 +213,6 @@ function CommunityPageContent() {
       }
     }
 
-    const v: Record<string, {
-      userVote: 'upvote' | 'downvote' | null
-      upvotes: number
-      downvotes: number
-      isLoading: boolean
-      error: string | null
-    }> = {}
-
-    posts.forEach((p: any) => {
-      v[p.id] = {
-        userVote: null,
-        upvotes: p.upvote_count || 0,
-        downvotes: p.downvote_count || 0,
-        isLoading: false,
-        error: null
-      }
-    })
-    setVotes(v)
-
-    // Fetch user's existing votes
     fetchUserVotes()
   }, [posts])
 
@@ -1190,24 +1288,89 @@ function CommunityPageContent() {
                       margin: '0 0 8px',
                       lineHeight: 1.3,
                       fontFamily: 'var(--font-instrument-serif)',
-                      letterSpacing: '-0.01em'
+                      letterSpacing: '-0.01em',
+                      position: 'relative',
+                      zIndex: 1,
+                      textAlign: 'left',
+                      wordWrap: 'break-word'
                     }}>
-                      {post.title}
+                      {convertUrlsToLinks(post.title)}
                     </h3>
 
                     <p style={{
-                      fontSize: '14px',
                       color: '#475569',
-                      margin: 0,
+                      fontSize: '14px',
                       lineHeight: 1.6,
-                      display: '-webkit-box',
-                      WebkitLineClamp: 3,
+                      margin: 0,
+                      display: expandedContent[post.id] ? 'block' : '-webkit-box',
+                      WebkitLineClamp: expandedContent[post.id] ? 'unset' : 3,
                       WebkitBoxOrient: 'vertical',
                       overflow: 'hidden',
-                      fontWeight: 450
+                      fontWeight: 450,
+                      position: 'relative',
+                      zIndex: 1,
+                      textAlign: 'left',
+                      wordWrap: 'break-word',
+                      whiteSpace: 'pre-wrap'
                     }}>
-                      {post.content}
+                      {convertUrlsToLinks(post.content)}
                     </p>
+                    
+                    {/* Show "more" button if content is long and not expanded */}
+                    {!expandedContent[post.id] && post.content && post.content.length > 150 && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          toggleContentExpansion(post.id)
+                        }}
+                        style={{
+                          color: '#7C3AED',
+                          fontSize: '14px',
+                          fontWeight: 500,
+                          background: 'none',
+                          border: 'none',
+                          cursor: 'pointer',
+                          padding: '4px 0',
+                          marginTop: '4px'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.textDecoration = 'underline'
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.textDecoration = 'none'
+                        }}
+                      >
+                        ...more
+                      </button>
+                    )}
+                    
+                    {/* Show "less" button if content is expanded */}
+                    {expandedContent[post.id] && post.content && post.content.length > 150 && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          toggleContentExpansion(post.id)
+                        }}
+                        style={{
+                          color: '#7C3AED',
+                          fontSize: '14px',
+                          fontWeight: 500,
+                          background: 'none',
+                          border: 'none',
+                          cursor: 'pointer',
+                          padding: '4px 0',
+                          marginTop: '4px'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.textDecoration = 'underline'
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.textDecoration = 'none'
+                        }}
+                      >
+                        ...less
+                      </button>
+                    )}
                     {post.image_url && (
                       <div style={{
                         borderRadius: 12,
@@ -1271,6 +1434,7 @@ function CommunityPageContent() {
                       gap: 8
                     }}>
                       {/* Author Info */}
+                      {post.users && (
                       <div style={{
                         display: 'flex',
                         alignItems: 'center',
@@ -1298,7 +1462,7 @@ function CommunityPageContent() {
                           {post.users?.avatar_url ? (
                             <img 
                               src={post.users.avatar_url} 
-                              alt={post.users.full_name} 
+                              alt={post.users?.full_name || 'User'} 
                               style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
                             />
                           ) : (
@@ -1306,14 +1470,34 @@ function CommunityPageContent() {
                           )}
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column' }}>
-                          <span style={{
-                            fontSize: '12px',
-                            fontWeight: 700,
-                            color: '#1E293B',
-                            lineHeight: 1.2
-                          }}>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              router.push(`/u/${post.users?.unique_id}`)
+                            }}
+                            style={{
+                              fontSize: '12px',
+                              fontWeight: 700,
+                              color: '#1E293B',
+                              lineHeight: 1.2,
+                              background: 'none',
+                              border: 'none',
+                              padding: 0,
+                              cursor: 'pointer',
+                              textAlign: 'left',
+                              textDecoration: 'none'
+                            }}
+                            onMouseEnter={(e) => {
+                              e.target.style.color = '#7C3AED'
+                              e.target.style.textDecoration = 'underline'
+                            }}
+                            onMouseLeave={(e) => {
+                              e.target.style.color = '#1E293B'
+                              e.target.style.textDecoration = 'none'
+                            }}
+                          >
                             {post.users?.full_name}
-                          </span>
+                          </button>
                           <span style={{
                             fontSize: '10px',
                             color: '#94A3B8',
@@ -1323,6 +1507,7 @@ function CommunityPageContent() {
                           </span>
                         </div>
                       </div>
+                      )}
                     </div>
 
                     <div style={{
@@ -1562,13 +1747,33 @@ function CommunityPageContent() {
                               marginBottom: 3,
                               flexWrap: 'wrap'
                             }}>
-                              <span style={{
-                                fontSize: 11,
-                                fontWeight: 700,
-                                color: '#1F2937'
-                              }}>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  router.push(`/u/${answer.users?.unique_id}`)
+                                }}
+                                style={{
+                                  fontSize: 11,
+                                  fontWeight: 700,
+                                  color: '#1F2937',
+                                  background: 'none',
+                                  border: 'none',
+                                  padding: 0,
+                                  cursor: 'pointer',
+                                  textAlign: 'left',
+                                  textDecoration: 'none'
+                                }}
+                                onMouseEnter={(e) => {
+                                  e.target.style.color = '#7C3AED'
+                                  e.target.style.textDecoration = 'underline'
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.target.style.color = '#1F2937'
+                                  e.target.style.textDecoration = 'none'
+                                }}
+                              >
                                 {answer.users?.full_name}
-                              </span>
+                              </button>
                               {answer.users?.role === 'senior' && (
                                 <span style={{
                                   fontSize: 8,
@@ -2115,6 +2320,51 @@ function CommunityPageContent() {
       `}</style>
 
       <NotificationPrompt />
+      
+      {/* Floating Action Button for Desktop */}
+      <button
+        onClick={() => router.push('?create=true')}
+        style={{
+          position: 'fixed',
+          bottom: '30px',
+          right: '30px',
+          width: '60px',
+          height: '60px',
+          borderRadius: '50%',
+          background: 'linear-gradient(135deg, #7C3AED, #06B6D4)',
+          border: 'none',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          boxShadow: '0 4px 20px rgba(124, 58, 237, 0.4)',
+          transition: 'all 0.3s ease',
+          zIndex: 1000
+        }}
+        className="desktop-fab"
+        onMouseEnter={(e) => {
+          e.currentTarget.style.transform = 'scale(1.1)'
+          e.currentTarget.style.boxShadow = '0 6px 25px rgba(124, 58, 237, 0.5)'
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = 'scale(1)'
+          e.currentTarget.style.boxShadow = '0 4px 20px rgba(124, 58, 237, 0.4)'
+        }}
+      >
+        <Plus size={28} color="white" strokeWidth={3} />
+      </button>
+      
+      <style>{`
+        .desktop-fab {
+          display: flex !important;
+        }
+        
+        @media (max-width: 768px) {
+          .desktop-fab {
+            display: none !important;
+          }
+        }
+      `}</style>
     </div>
   )
 }
