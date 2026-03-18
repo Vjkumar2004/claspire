@@ -58,6 +58,7 @@ export default function CTA() {
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           transition={{ duration: 0.15 }}
+          onClick={() => window.location.href = '/colleges'}
           className="bg-white text-black px-8 py-3.5 rounded-lg text-sm font-bold border-none cursor-pointer mx-auto w-full max-w-[320px] md:w-auto"
         >
           Find your college →

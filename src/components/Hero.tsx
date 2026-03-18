@@ -78,7 +78,13 @@ export default function Hero() {
                   Find your college →
                 </button>
               </a>
-                <button className="bg-white border-[1.5px] border-gray-200 text-gray-700 px-6 py-3 rounded-lg text-sm font-semibold cursor-pointer hover:border-gray-400 transition-colors w-full sm:w-auto">
+                <button 
+                  onClick={() => {
+                    const element = document.getElementById('the-process');
+                    element?.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                  className="bg-white border-[1.5px] border-gray-200 text-gray-700 px-6 py-3 rounded-lg text-sm font-semibold cursor-pointer hover:border-gray-400 transition-colors w-full sm:w-auto"
+                >
                   See how it works
                 </button>
               </motion.div>

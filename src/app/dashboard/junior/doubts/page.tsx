@@ -224,19 +224,28 @@ export default function JuniorDoubtsPage() {
               My Doubts History
             </h1>
             <button
-              onClick={() => router.push('/community')}
+              onClick={() => router.push('/community?create=true')}
               style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6,
-                padding: '8px 16px',
-                borderRadius: 8,
-                background: '#7C3AED',
+                background: 'linear-gradient(135deg, #7C3AED, #06B6D4)',
                 color: 'white',
                 border: 'none',
+                borderRadius: 12,
+                padding: '12px 20px',
                 fontSize: 14,
-                fontWeight: 600,
-                cursor: 'pointer'
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'scale(1.05)'
+                e.currentTarget.style.boxShadow = '0 8px 25px rgba(124, 58, 237, 0.3)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'scale(1)'
+                e.currentTarget.style.boxShadow = 'none'
               }}
             >
               <HelpCircle size={16} />
@@ -348,7 +357,7 @@ export default function JuniorDoubtsPage() {
               </p>
               {!searchTerm && filter === 'all' && (
                 <button
-                  onClick={() => router.push('/community')}
+                  onClick={() => router.push('/community?create=true')}
                   style={{
                     padding: '10px 20px',
                     borderRadius: 8,

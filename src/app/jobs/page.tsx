@@ -1,13 +1,13 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import Navbar from '@/components/Navbar'
 import { 
   Briefcase, MapPin, Building2, Search, 
   ChevronRight, Filter, Globe, Sparkles,
   Zap, ArrowRight, Lock, CheckCircle2,
-  Calendar, DollarSign, Users
+  Calendar, Users
 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -50,6 +50,26 @@ export default function JobsPage() {
   const [showPremiumModal, setShowPremiumModal] = useState(false)
   const [referring, setReferring] = useState(false)
   const [referralSuccess, setReferralSuccess] = useState(false)
+  
+  // Filter states
+  const [showFilterDropdown, setShowFilterDropdown] = useState(false)
+  const [selectedJobType, setSelectedJobType] = useState<string>('all')
+  const [selectedLocation, setSelectedLocation] = useState<string>('all')
+  const [selectedSalaryRange, setSelectedSalaryRange] = useState<string>('all')
+  const [remoteOnly, setRemoteOnly] = useState(false)
+  const filterDropdownRef = useRef<HTMLDivElement>(null)
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (filterDropdownRef.current && !filterDropdownRef.current.contains(event.target as Node)) {
+        setShowFilterDropdown(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   useEffect(() => {
     fetchJobs()
@@ -76,10 +96,10 @@ export default function JobsPage() {
     }
 
     // Gating Logic: Same college OR Premium user
-    const isSameCollege = user.college_id === job.senior.college_id
-    const isPremium = user.is_premium === true
+    const isSameCollege = user?.college_id === job.senior.college_id
+    const isPremiumUser = (user as any)?.is_premium || (user as any)?.premium_plan === 'premium'
 
-    if (isSameCollege || isPremium) {
+    if (isSameCollege || isPremiumUser) {
       setSelectedJob(job)
     } else {
       setShowPremiumModal(true)
@@ -114,11 +134,52 @@ export default function JobsPage() {
     }
   }
 
-  const filteredJobs = jobs.filter(job => 
-    job.company_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    job.role.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    job.location.toLowerCase().includes(searchQuery.toLowerCase())
-  )
+  const filteredJobs = jobs.filter(job => {
+    // Search query filter
+    const matchesSearch = 
+      job.company_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      job.role.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      job.location.toLowerCase().includes(searchQuery.toLowerCase())
+    
+    // Job type filter
+    const matchesJobType = selectedJobType === 'all' || job.job_type.toLowerCase() === selectedJobType.toLowerCase()
+    
+    // Location filter
+    const matchesLocation = selectedLocation === 'all' || 
+      job.location.toLowerCase().includes(selectedLocation.toLowerCase())
+    
+    // Salary range filter
+    const matchesSalary = selectedSalaryRange === 'all' || 
+      (selectedSalaryRange === '0-5' && job.salary_range.includes('LPA')) ||
+      (selectedSalaryRange === '5-10' && (job.salary_range.includes('5') || job.salary_range.includes('6') || job.salary_range.includes('7') || job.salary_range.includes('8') || job.salary_range.includes('9'))) ||
+      (selectedSalaryRange === '10+' && (job.salary_range.includes('10') || job.salary_range.includes('15') || job.salary_range.includes('20') || job.salary_range.includes('25')))
+    
+    // Remote only filter
+    const matchesRemote = !remoteOnly || job.location.toLowerCase().includes('remote') || job.job_type.toLowerCase().includes('remote')
+    
+    return matchesSearch && matchesJobType && matchesLocation && matchesSalary && matchesRemote
+  })
+
+  // Get unique values for filter options
+  const getJobTypes = () => {
+    const types = [...new Set(jobs.map(job => job.job_type))]
+    return types.filter(Boolean)
+  }
+
+  const getLocations = () => {
+    const locations = [...new Set(jobs.map(job => job.location))]
+    return locations.filter(Boolean).slice(0, 10) // Limit to top 10 locations
+  }
+
+  const clearFilters = () => {
+    setSelectedJobType('all')
+    setSelectedLocation('all')
+    setSelectedSalaryRange('all')
+    setRemoteOnly(false)
+  }
+
+  const hasActiveFilters = selectedJobType !== 'all' || selectedLocation !== 'all' || 
+    selectedSalaryRange !== 'all' || remoteOnly
 
   return (
     <div className="min-h-screen bg-[#FDFDFF]">
@@ -181,11 +242,115 @@ export default function JobsPage() {
           </div>
           
           <div className="flex gap-3">
-            <button className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-xl text-sm font-bold text-gray-600 hover:bg-gray-50 transition-colors">
-              <Filter size={16} />
-              Filters
-            </button>
-            <button className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-xl text-sm font-bold text-gray-600 hover:bg-gray-50 transition-colors">
+            <div className="relative" ref={filterDropdownRef}>
+              <button 
+                onClick={() => setShowFilterDropdown(!showFilterDropdown)}
+                className={`flex items-center gap-2 px-4 py-2 border rounded-xl text-sm font-bold transition-colors ${
+                  hasActiveFilters 
+                    ? 'border-purple-300 bg-purple-50 text-purple-700' 
+                    : 'border-gray-200 text-gray-600 hover:bg-gray-50'
+                }`}
+              >
+                <Filter size={16} />
+                Filters
+                {hasActiveFilters && (
+                  <span className="bg-purple-600 text-white text-xs rounded-full px-1.5 py-0">
+                    {[selectedJobType, selectedLocation, selectedSalaryRange, remoteOnly ? 'remote' : null].filter(f => f && f !== 'all').length}
+                  </span>
+                )}
+              </button>
+              
+              {/* Filter Dropdown */}
+              {showFilterDropdown && (
+                <div className="absolute top-full right-0 mt-2 w-80 bg-white border border-gray-200 rounded-xl shadow-lg z-50 p-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-bold text-black">Filter Jobs</h3>
+                    {hasActiveFilters && (
+                      <button 
+                        onClick={clearFilters}
+                        className="text-xs text-purple-600 hover:text-purple-700 font-medium"
+                      >
+                        Clear All
+                      </button>
+                    )}
+                  </div>
+                  
+                  {/* Job Type Filter */}
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Job Type</label>
+                    <select 
+                      value={selectedJobType}
+                      onChange={(e) => setSelectedJobType(e.target.value)}
+                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-purple-600"
+                    >
+                      <option value="all">All Types</option>
+                      {getJobTypes().map(type => (
+                        <option key={type} value={type}>{type}</option>
+                      ))}
+                    </select>
+                  </div>
+                  
+                  {/* Location Filter */}
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
+                    <select 
+                      value={selectedLocation}
+                      onChange={(e) => setSelectedLocation(e.target.value)}
+                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-purple-600"
+                    >
+                      <option value="all">All Locations</option>
+                      {getLocations().map(location => (
+                        <option key={location} value={location}>{location}</option>
+                      ))}
+                    </select>
+                  </div>
+                  
+                  {/* Salary Range Filter */}
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Salary Range</label>
+                    <select 
+                      value={selectedSalaryRange}
+                      onChange={(e) => setSelectedSalaryRange(e.target.value)}
+                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-purple-600"
+                    >
+                      <option value="all">All Salaries</option>
+                      <option value="0-5">0-5 LPA</option>
+                      <option value="5-10">5-10 LPA</option>
+                      <option value="10+">10+ LPA</option>
+                    </select>
+                  </div>
+                  
+                  {/* Remote Only Filter */}
+                  <div className="mb-4">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input 
+                        type="checkbox"
+                        checked={remoteOnly}
+                        onChange={(e) => setRemoteOnly(e.target.checked)}
+                        className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                      />
+                      <span className="text-sm font-medium text-gray-700">Remote jobs only</span>
+                    </label>
+                  </div>
+                  
+                  <button 
+                    onClick={() => setShowFilterDropdown(false)}
+                    className="w-full bg-purple-600 text-white py-2 rounded-lg font-medium text-sm hover:bg-purple-700 transition-colors"
+                  >
+                    Apply Filters
+                  </button>
+                </div>
+              )}
+            </div>
+            
+            <button 
+              onClick={() => setRemoteOnly(!remoteOnly)}
+              className={`flex items-center gap-2 px-4 py-2 border rounded-xl text-sm font-bold transition-colors ${
+                remoteOnly 
+                  ? 'border-purple-300 bg-purple-50 text-purple-700' 
+                  : 'border-gray-200 text-gray-600 hover:bg-gray-50'
+              }`}
+            >
               <Globe size={16} />
               Remote First
             </button>
@@ -236,7 +401,7 @@ export default function JobsPage() {
                       {job.location}
                     </div>
                     <div className="flex items-center gap-2 text-sm text-gray-500">
-                      <DollarSign size={14} className="text-gray-400" />
+                      <span className="text-gray-400 font-bold">₹</span>
                       {job.salary_range}
                     </div>
                     <div className="flex items-center gap-2 text-sm text-gray-500">
@@ -256,17 +421,45 @@ export default function JobsPage() {
                       </span>
                     </div>
                     
-                    <button 
-                      onClick={() => handleReferralClick(job)}
-                      className={`flex items-center gap-1.5 py-1.5 px-3 rounded-xl text-[12px] font-bold transition-all ${
-                        isOwnCollege 
-                          ? 'bg-purple-600 text-white hover:opacity-90' 
-                          : 'bg-black text-white hover:bg-gray-800'
-                      }`}
-                    >
-                      {isOwnCollege ? <Zap size={14} /> : (user?.is_premium || user?.premium_plan === 'premium' ? <Sparkles size={14} /> : <Lock size={14} />)}
-                      Get Referral
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button 
+                        onClick={() => {
+                          // Use description field as the job application link
+                          const jobLink = job.description || '#'
+                          if (user?.id === job.senior.id) {
+                            // Senior who posted the job - redirect to job link
+                            window.open(jobLink, '_blank')
+                          } else {
+                            // Regular user - apply to job
+                            window.open(jobLink, '_blank')
+                          }
+                        }}
+                        className="flex items-center gap-1.5 py-1.5 px-3 rounded-xl text-[12px] font-bold bg-green-600 text-white hover:bg-green-700 transition-all"
+                      >
+                        <ArrowRight size={14} />
+                        {user?.id === job.senior.id ? 'View Job' : 'Apply'}
+                      </button>
+                      
+                      <button 
+                        onClick={() => job.referral_available && handleReferralClick(job)}
+                        disabled={!job.referral_available}
+                        className={`flex items-center gap-1.5 py-1.5 px-3 rounded-xl text-[12px] font-bold transition-all relative ${
+                          !job.referral_available
+                            ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                            : isOwnCollege 
+                              ? 'bg-purple-600 text-white hover:opacity-90' 
+                              : 'bg-black text-white hover:bg-gray-800'
+                        }`}
+                        title={!job.referral_available ? 'Referral not available for this job' : ''}
+                      >
+                        {job.referral_available ? (
+                          isOwnCollege ? <Zap size={14} /> : ((user as any)?.is_premium || (user as any)?.premium_plan === 'premium' ? <Sparkles size={14} /> : <Lock size={14} />)
+                        ) : (
+                          <Lock size={14} />
+                        )}
+                        Get Referral
+                      </button>
+                    </div>
                   </div>
 
                   {/* Hover Accent */}

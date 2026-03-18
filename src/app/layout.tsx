@@ -24,6 +24,11 @@ export const metadata: Metadata = {
   title: "Claspire - India's College Senior Community Platform",
   description: "Connect with verified seniors from your college — get real answers, job referrals, and paid mentorship. Free to start.",
   keywords: ["college seniors", "placement", "mentorship", "job referrals", "indian colleges"],
+  icons: {
+    icon: "/claspire-logo.jpeg",
+    shortcut: "/claspire-logo.jpeg",
+    apple: "/claspire-logo.jpeg",
+  },
   openGraph: {
     title: "Claspire - India's College Senior Community Platform",
     description: "Connect with verified seniors from your college — get real answers, job referrals, and paid mentorship.",

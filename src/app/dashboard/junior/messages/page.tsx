@@ -1,8 +1,10 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/useAuth'
+import { useSearchParams } from 'next/navigation'
 import ChatWindow from '@/components/ChatWindow'
-import { MessageSquare, Search, User as UserIcon, Loader2, ArrowLeft } from 'lucide-react'
+import { MessageSquare, Search, User as UserIcon, Loader2, ArrowLeft, Wifi, WifiOff } from 'lucide-react'
+import { useRealtimeMessages } from '@/hooks/useRealtimeMessages'
 
 interface Conversation {
   id: string
@@ -13,31 +15,109 @@ interface Conversation {
     avatar_url?: string
   }
   otherUserId: string
+  otherUserUniqueId?: string
   unread: boolean
 }
 
 export default function JuniorMessagesPage() {
   const { user } = useAuth()
-  const [conversations, setConversations] = useState<Conversation[]>([])
+  const searchParams = useSearchParams()
+  const targetUserUniqueId = searchParams.get('user')
   const [selectedChat, setSelectedChat] = useState<Conversation | null>(null)
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
 
-  useEffect(() => {
-    fetchConversations()
-  }, [])
+  // Use real-time messaging hook
+  const {
+    conversations,
+    isConnected,
+    initializeRealtime,
+    fetchConversations,
+    markAsRead,
+    setConversations
+  } = useRealtimeMessages()
 
-  const fetchConversations = async () => {
-    try {
-      const res = await fetch('/api/messages/list')
-      const data = await res.json()
-      if (data.conversations) {
-        setConversations(data.conversations)
-      }
-    } catch (err) {
-      console.error('Failed to fetch conversations:', err)
-    } finally {
+  useEffect(() => {
+    if (user?.id) {
+      // Initialize real-time connection
+      const cleanup = initializeRealtime(user.id)
+      
+      // Fetch initial conversations
+      fetchConversations().finally(() => {
+        setLoading(false)
+      })
+
+      return cleanup
+    } else {
       setLoading(false)
+    }
+  }, [user?.id])
+
+  // Auto-select conversation when target user is specified
+  useEffect(() => {
+    if (targetUserUniqueId && conversations.length > 0 && !selectedChat) {
+      const targetConversation = conversations.find(conv => conv.otherUserUniqueId === targetUserUniqueId)
+      if (targetConversation) {
+        setSelectedChat(targetConversation)
+        // Mark messages as read when opening conversation
+        markAsRead(targetConversation.id, user?.id || '')
+      } else {
+        // If no existing conversation, create one with the target user
+        createConversationWithUser(targetUserUniqueId)
+      }
+    }
+  }, [targetUserUniqueId, conversations, selectedChat, user])
+
+  const createConversationWithUser = async (userUniqueId: string) => {
+    try {
+      // Get user info from unique_id
+      const { createClient } = await import('@supabase/supabase-js')
+      const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      )
+
+      const { data: targetUser, error } = await supabase
+        .from('users')
+        .select('id, full_name, avatar_url, unique_id')
+        .eq('unique_id', userUniqueId)
+        .single()
+
+      if (error || !targetUser) {
+        console.error('User not found:', userUniqueId)
+        return
+      }
+
+      // Create a temporary conversation object
+      const newConversation: Conversation = {
+        id: `new-${targetUser.id}`,
+        lastMessage: 'Start a conversation...',
+        timestamp: new Date().toISOString(),
+        otherUser: {
+          full_name: targetUser.full_name,
+          avatar_url: targetUser.avatar_url
+        },
+        otherUserId: targetUser.id,
+        otherUserUniqueId: targetUser.unique_id,
+        unread: false
+      }
+
+      setSelectedChat(newConversation)
+    } catch (error) {
+      console.error('Error creating conversation:', error)
+    }
+  }
+
+  const handleMessageSent = () => {
+    // Real-time hook will automatically update conversations
+    console.log('Message sent - real-time update will handle conversation list')
+  }
+
+  const handleConversationClick = (conversation: Conversation) => {
+    setSelectedChat(conversation)
+    // Mark messages as read when opening conversation
+    if (user) {
+      markAsRead(conversation.id, user.id)
     }
   }
 
@@ -50,10 +130,25 @@ export default function JuniorMessagesPage() {
       {/* Sidebar: Conversation List */}
       <div className={`w-full md:w-80 flex flex-col bg-white border border-gray-100 rounded-3xl shadow-sm overflow-hidden ${selectedChat ? 'hidden md:flex' : 'flex'}`}>
         <div className="p-4 border-b border-gray-100">
-          <h2 className="text-lg font-black text-black mb-4 flex items-center gap-2">
-            <MessageSquare size={20} className="text-purple-600" />
-            My Mentors
-          </h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-black text-black flex items-center gap-2">
+              <MessageSquare size={20} className="text-purple-600" />
+              My Mentors
+            </h2>
+            <div className="flex items-center gap-1">
+              {isConnected ? (
+                <>
+                  <Wifi size={14} className="text-green-500" />
+                  <span className="text-xs text-green-500">Live</span>
+                </>
+              ) : (
+                <>
+                  <WifiOff size={14} className="text-gray-400" />
+                  <span className="text-xs text-gray-400">Offline</span>
+                </>
+              )}
+            </div>
+          </div>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
             <input
@@ -80,7 +175,7 @@ export default function JuniorMessagesPage() {
               {filteredConversations.map((conv) => (
                 <div
                   key={conv.id}
-                  onClick={() => setSelectedChat(conv)}
+                  onClick={() => handleConversationClick(conv)}
                   className={`p-4 cursor-pointer hover:bg-gray-50 transition-colors flex gap-3 relative ${selectedChat?.id === conv.id ? 'bg-purple-50/50' : ''}`}
                 >
                   {conv.unread && (
@@ -130,6 +225,8 @@ export default function JuniorMessagesPage() {
                 currentUserId={user.id}
                 otherUserId={selectedChat.otherUserId}
                 otherUserName={selectedChat.otherUser.full_name}
+                otherUserAvatar={selectedChat.otherUser.avatar_url}
+                onMessageSent={handleMessageSent}
               />
             </div>
           </div>

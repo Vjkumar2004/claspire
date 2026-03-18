@@ -141,11 +141,19 @@ export default function NotificationBell({ align = 'right', dark = false }: Noti
     return 'Just now'
   }
 
+  const handleBellClick = () => {
+  if (!isOpen && unreadCount > 0) {
+    // Mark all as read when opening notifications
+    markAsRead()
+  }
+  setIsOpen(!isOpen)
+}
+
   return (
     <div className="relative">
       <button
         ref={buttonRef}
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={handleBellClick}
         className={`relative p-2 rounded-full transition-colors focus:outline-none ${
           dark 
             ? 'text-gray-600 hover:bg-gray-100' 

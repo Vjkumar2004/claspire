@@ -797,10 +797,13 @@ export default function SignupPage() {
               {otpSent && step === 'form' && (
                 <div className="text-center pt-4">
                   <h2 className="font-instrument-serif text-2xl mb-2">Check your email 📧</h2>
-                  <p className="text-sm text-gray-500 mb-8">
+                  <p className="text-sm text-gray-500 mb-2">
                     Enter the code sent to <span className="font-bold text-purple-600">
                       {activeRole === 'student' ? studentData.email : seniorData.work_email}
                     </span>
+                  </p>
+                  <p className="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mb-6 inline-block">
+                    ⚠️ Don't forget to check your spam folder too!
                   </p>
 
                   <div className="flex justify-center gap-2 mb-8">

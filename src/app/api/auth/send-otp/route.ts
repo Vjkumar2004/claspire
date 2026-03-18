@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Mailjet from 'node-mailjet'
 import { createClient } from '@supabase/supabase-js'
+import { rateLimit, getClientIdentifier } from '@/lib/rateLimit'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -20,6 +21,24 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         { error: 'Email is required' },
         { status: 400 }
+      )
+    }
+
+    // Rate limiting: 5 OTP requests per 15 minutes per IP
+    const identifier = getClientIdentifier(req);
+    const rateLimitResult = rateLimit({
+      identifier: `otp:${identifier}:${email}`,
+      windowMs: 15 * 60 * 1000, // 15 minutes
+      maxAttempts: 5,
+    });
+
+    if (!rateLimitResult.success) {
+      return NextResponse.json(
+        { 
+          error: 'Too many OTP requests. Please try again later.',
+          resetTime: rateLimitResult.resetTime 
+        },
+        { status: 429 }
       )
     }
 

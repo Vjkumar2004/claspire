@@ -61,8 +61,8 @@ export default function SeniorsPage() {
       return
     }
 
-    // Direct messaging is now free for everyone - redirect to messages page
-    router.push(`/messages?user=${senior.id}`)
+    // Direct messaging is now free for everyone - redirect to messages page with unique_id
+    router.push(`/dashboard/junior/messages?user=${senior.unique_id}`)
   }
 
   const confirmMessage = async () => {
@@ -90,7 +90,7 @@ export default function SeniorsPage() {
     senior.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     senior.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
     senior.designation.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    senior.college.short_name.toLowerCase().includes(searchQuery.toLowerCase())
+    (senior.college?.short_name || '').toLowerCase().includes(searchQuery.toLowerCase())
   )
 
   return (
@@ -215,7 +215,9 @@ export default function SeniorsPage() {
                       <GraduationCap size={16} className="text-gray-400 mt-0.5" />
                       <div>
                         <p className="text-sm font-bold text-gray-800">Class of {senior.graduation_year}</p>
-                        <p className="text-sm text-gray-500">{senior.college.name}</p>
+                        <p className="text-sm text-gray-500">
+                          {senior.college?.name || 'College not specified'}
+                        </p>
                       </div>
                     </div>
                   </div>

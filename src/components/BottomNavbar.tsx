@@ -112,7 +112,7 @@ const BottomNavbar = () => {
     {
       label: 'Profile',
       icon: User,
-      href: user?.role === 'senior' ? '/dashboard/senior' : '/dashboard/junior',
+      href: '/profile',
     },
   ]
 

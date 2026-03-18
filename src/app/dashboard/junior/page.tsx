@@ -351,7 +351,7 @@ export default function JuniorDashboard() {
                 </div>
                 <div className="flex items-center gap-4">
                   <button
-                    onClick={() => router.push('/community')}
+                    onClick={() => router.push('/community?create=true')}
                     className="bg-white text-[#0F172A] px-6 py-3.5 rounded-[20px] font-bold text-sm shadow-xl hover:scale-105 transition-transform flex items-center gap-2 cursor-pointer"
                   >
                     <Plus size={18} /> Ask a Doubt

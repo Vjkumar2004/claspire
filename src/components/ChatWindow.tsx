@@ -33,6 +33,7 @@ export default function ChatWindow({
   const [sending, setSending] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
   const messagesRef = useRef<Message[]>([])
+  const channelRef = useRef<any>(null)
 
   // Keep ref in sync
   useEffect(() => {
@@ -68,7 +69,7 @@ export default function ChatWindow({
         setLoading(false)
       }
 
-      // 2. Subscribe to realtime
+      // 2. Subscribe to realtime - listen for both sender and receiver
       channel = supabase
         .channel(`dm-${conversationId}`)
         .on(
@@ -81,25 +82,34 @@ export default function ChatWindow({
           },
           (payload) => {
             const newMsg = payload.new as Message
-            // Avoid duplicates: check if message already exists (from optimistic update)
-            setMessages(prev => {
-              const exists = prev.some(m => m.id === newMsg.id)
-              if (exists) {
-                // Replace the optimistic version with the real one
-                return prev.map(m => m.id === newMsg.id ? newMsg : m)
-              }
-              return [...prev, newMsg]
-            })
+            
+            // Check if message belongs to this conversation
+            if ((newMsg.sender_id === currentUserId && newMsg.receiver_id === otherUserId) ||
+                (newMsg.sender_id === otherUserId && newMsg.receiver_id === currentUserId)) {
+              
+              setMessages(prev => {
+                const exists = prev.some(m => m.id === newMsg.id)
+                if (exists) {
+                  // Replace the optimistic version with the real one
+                  return prev.map(m => m.id === newMsg.id ? newMsg : m)
+                }
+                // Add new message if it doesn't exist
+                return [...prev, newMsg]
+              })
+            }
           }
         )
         .subscribe()
+
+      channelRef.current = channel
     }
 
     init()
 
     return () => {
-      if (channel) {
-        supabase.removeChannel(channel)
+      if (channelRef.current) {
+        supabase.removeChannel(channelRef.current)
+        channelRef.current = null
       }
     }
   }, [otherUserId, currentUserId, conversationId])
@@ -118,13 +128,14 @@ export default function ChatWindow({
 
     // Optimistic update: show message immediately
     const optimisticMsg: Message = {
-      id: `temp-${Date.now()}`,
+      id: `temp-${Date.now()}-${Math.random()}`,
       sender_id: currentUserId,
       receiver_id: otherUserId,
       content,
       created_at: new Date().toISOString(),
       conversation_id: conversationId
     }
+    
     setMessages(prev => [...prev, optimisticMsg])
 
     try {
@@ -139,6 +150,7 @@ export default function ChatWindow({
 
       if (res.ok) {
         const data = await res.json()
+        
         // Replace the optimistic message with the real one from DB
         if (data.message) {
           setMessages(prev =>
@@ -149,6 +161,7 @@ export default function ChatWindow({
         onMessageSent?.()
       } else {
         const error = await res.json()
+        console.error('Send message error:', error)
         // Remove optimistic message on failure
         setMessages(prev => prev.filter(m => m.id !== optimisticMsg.id))
         alert(error.error || 'Failed to send message')

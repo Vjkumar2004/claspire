@@ -23,8 +23,6 @@ export default function OneSignalInit() {
         // Get player ID
         const playerId = OneSignal.User.PushSubscription.id
 
-        console.log('OneSignal Player ID:', playerId)
-
         if (playerId) {
           // Save to DB
           const res = await fetch('/api/profile/update', {
@@ -37,13 +35,11 @@ export default function OneSignalInit() {
             })
           })
           const data = await res.json()
-          console.log('Player ID saved:', data)
         }
 
         // Listen for subscription changes
         OneSignal.User.PushSubscription.addEventListener('change', async (event: any) => {
           const newId = event.current.id
-          console.log('Subscription changed:', newId)
           if (newId) {
             await fetch('/api/profile/update', {
               method: 'PATCH',

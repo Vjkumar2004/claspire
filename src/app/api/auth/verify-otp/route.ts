@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { rateLimit, getClientIdentifier } from '@/lib/rateLimit'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -12,8 +13,26 @@ export async function POST(req: NextRequest) {
 
     if (!email || !otp) {
       return NextResponse.json(
-        { error: 'Email and OTP required' },
+        { error: 'Email and OTP are required' },
         { status: 400 }
+      )
+    }
+
+    // Rate limiting: 10 verification attempts per 15 minutes per IP
+    const identifier = getClientIdentifier(req);
+    const rateLimitResult = rateLimit({
+      identifier: `verify:${identifier}:${email}`,
+      windowMs: 15 * 60 * 1000, // 15 minutes
+      maxAttempts: 10,
+    });
+
+    if (!rateLimitResult.success) {
+      return NextResponse.json(
+        { 
+          error: 'Too many verification attempts. Please try again later.',
+          resetTime: rateLimitResult.resetTime 
+        },
+        { status: 429 }
       )
     }
 
