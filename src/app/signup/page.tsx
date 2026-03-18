@@ -485,27 +485,178 @@ export default function SignupPage() {
                         className="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm text-black outline-none focus:border-purple-600 focus:shadow-[0_0_0_3px_rgba(124,58,237,0.09)] mb-4"
                       >
                         <option value="">Select Branch</option>
-                        <optgroup label="Engineering">
-                          <option value="CSE">CSE</option>
-                          <option value="IT">IT</option>
-                          <option value="ECE">ECE</option>
-                          <option value="EEE">EEE</option>
-                          <option value="Mechanical">Mechanical</option>
-                          <option value="Civil">Civil</option>
-                          <option value="AIDS">AIDS</option>
-                          <option value="AIML">AIML</option>
+                        <optgroup label="Engineering & Technology">
+                          <option value="CSE">CSE - Computer Science Engineering</option>
+                          <option value="IT">IT - Information Technology</option>
+                          <option value="ECE">ECE - Electronics & Communication</option>
+                          <option value="EEE">EEE - Electrical & Electronics</option>
+                          <option value="Mechanical">Mechanical Engineering</option>
+                          <option value="Civil">Civil Engineering</option>
+                          <option value="AIDS">AIDS - Artificial Intelligence & Data Science</option>
+                          <option value="AIML">AIML - Artificial Intelligence & Machine Learning</option>
+                          <option value="Chemical">Chemical Engineering</option>
+                          <option value="Biotechnology">Biotechnology Engineering</option>
+                          <option value="Aeronautical">Aeronautical Engineering</option>
+                          <option value="Automobile">Automobile Engineering</option>
+                          <option value="Marine">Marine Engineering</option>
+                          <option value="Petroleum">Petroleum Engineering</option>
+                          <option value="Mining">Mining Engineering</option>
+                          <option value="Textile">Textile Engineering</option>
+                          <option value="Production">Production Engineering</option>
+                          <option value="Industrial">Industrial Engineering</option>
+                          <option value="Instrumentation">Instrumentation Engineering</option>
+                          <option value="Food Technology">Food Technology</option>
                         </optgroup>
-                        <optgroup label="Arts & Science">
-                          <option value="BA">BA - Bachelor of Arts</option>
+                        <optgroup label="Science & Mathematics">
+                          <option value="Physics">Physics</option>
+                          <option value="Chemistry">Chemistry</option>
+                          <option value="Mathematics">Mathematics</option>
+                          <option value="Statistics">Statistics</option>
+                          <option value="Botany">Botany</option>
+                          <option value="Zoology">Zoology</option>
+                          <option value="Geology">Geology</option>
+                          <option value="Environmental Science">Environmental Science</option>
+                          <option value="Computer Science">Computer Science</option>
+                          <option value="Biochemistry">Biochemistry</option>
+                          <option value="Microbiology">Microbiology</option>
+                          <option value="Biotechnology">Biotechnology</option>
+                          <option value="Forensic Science">Forensic Science</option>
+                        </optgroup>
+                        <optgroup label="Arts & Humanities">
+                          <option value="English">English Literature</option>
+                          <option value="History">History</option>
+                          <option value="Economics">Economics</option>
+                          <option value="Political Science">Political Science</option>
+                          <option value="Sociology">Sociology</option>
+                          <option value="Psychology">Psychology</option>
+                          <option value="Philosophy">Philosophy</option>
+                          <option value="Geography">Geography</option>
+                          <option value="Anthropology">Anthropology</option>
+                          <option value="Archaeology">Archaeology</option>
+                          <option value="Linguistics">Linguistics</option>
+                          <option value="Music">Music</option>
+                          <option value="Fine Arts">Fine Arts</option>
+                          <option value="Performing Arts">Performing Arts</option>
+                        </optgroup>
+                        <optgroup label="Commerce & Management">
                           <option value="B.Com">B.Com - Bachelor of Commerce</option>
-                          <option value="B.Sc">B.Sc - Bachelor of Science</option>
                           <option value="BBA">BBA - Bachelor of Business Administration</option>
                           <option value="BCA">BCA - Bachelor of Computer Applications</option>
                           <option value="BHM">BHM - Bachelor of Hotel Management</option>
-                          <option value="BFA">BFA - Bachelor of Fine Arts</option>
-                          <option value="BSW">BSW - Bachelor of Social Work</option>
-                          <option value="B.Ed">B.Ed - Bachelor of Education</option>
+                          <option value="Accounting">Accounting & Finance</option>
+                          <option value="Banking">Banking & Insurance</option>
+                          <option value="Marketing">Marketing Management</option>
+                          <option value="HR">Human Resource Management</option>
+                          <option value="International Business">International Business</option>
+                          <option value="Supply Chain">Supply Chain Management</option>
+                          <option value="Retail Management">Retail Management</option>
+                          <option value="Event Management">Event Management</option>
+                        </optgroup>
+                        <optgroup label="Medical & Healthcare">
+                          <option value="MBBS">MBBS - Bachelor of Medicine</option>
+                          <option value="BDS">BDS - Bachelor of Dental Surgery</option>
+                          <option value="BAMS">BAMS - Ayurvedic Medicine</option>
+                          <option value="BHMS">BHMS - Homeopathic Medicine</option>
+                          <option value="Nursing">Nursing</option>
+                          <option value="Pharmacy">Pharmacy</option>
+                          <option value="Physiotherapy">Physiotherapy</option>
+                          <option value="Occupational Therapy">Occupational Therapy</option>
+                          <option value="Medical Lab Technology">Medical Lab Technology</option>
+                          <option value="Radiology">Radiology</option>
+                          <option value="Optometry">Optometry</option>
+                          <option value="Public Health">Public Health</option>
+                          <option value="Nutrition">Nutrition & Dietetics</option>
+                        </optgroup>
+                        <optgroup label="Law & Legal Studies">
                           <option value="LLB">LLB - Bachelor of Law</option>
+                          <option value="BA LLB">BA LLB - Integrated Law</option>
+                          <option value="BBA LLB">BBA LLB - Integrated Law</option>
+                          <option value="Corporate Law">Corporate Law</option>
+                          <option value="Criminal Law">Criminal Law</option>
+                          <option value="International Law">International Law</option>
+                          <option value="Constitutional Law">Constitutional Law</option>
+                        </optgroup>
+                        <optgroup label="Education & Teaching">
+                          <option value="B.Ed">B.Ed - Bachelor of Education</option>
+                          <option value="D.El.Ed">D.El.Ed - Diploma in Elementary Education</option>
+                          <option value="Early Childhood">Early Childhood Education</option>
+                          <option value="Special Education">Special Education</option>
+                          <option value="Educational Technology">Educational Technology</option>
+                          <option value="Educational Psychology">Educational Psychology</option>
+                        </optgroup>
+                        <optgroup label="Agriculture & Forestry">
+                          <option value="Agriculture">Agriculture</option>
+                          <option value="Horticulture">Horticulture</option>
+                          <option value="Forestry">Forestry</option>
+                          <option value="Fisheries">Fisheries</option>
+                          <option value="Dairy Technology">Dairy Technology</option>
+                          <option value="Food Processing">Food Processing</option>
+                          <option value="Agricultural Engineering">Agricultural Engineering</option>
+                        </optgroup>
+                        <optgroup label="Design & Architecture">
+                          <option value="BFA">BFA - Bachelor of Fine Arts</option>
+                          <option value="B.Des">B.Des - Bachelor of Design</option>
+                          <option value="Architecture">Architecture</option>
+                          <option value="Interior Design">Interior Design</option>
+                          <option value="Fashion Design">Fashion Design</option>
+                          <option value="Graphic Design">Graphic Design</option>
+                          <option value="Industrial Design">Industrial Design</option>
+                          <option value="Product Design">Product Design</option>
+                          <option value="Urban Planning">Urban Planning</option>
+                        </optgroup>
+                        <optgroup label="Mass Communication & Media">
+                          <option value="Journalism">Journalism</option>
+                          <option value="Mass Communication">Mass Communication</option>
+                          <option value="Advertising">Advertising</option>
+                          <option value="Public Relations">Public Relations</option>
+                          <option value="Film Making">Film Making</option>
+                          <option value="Photography">Photography</option>
+                          <option value="Digital Media">Digital Media</option>
+                        </optgroup>
+                        <optgroup label="Social Work & Community Service">
+                          <option value="BSW">BSW - Bachelor of Social Work</option>
+                          <option value="Community Development">Community Development</option>
+                          <option value="Rural Development">Rural Development</option>
+                          <option value="Social Policy">Social Policy</option>
+                        </optgroup>
+                        <optgroup label="Vocational & Professional">
+                          <option value="Hotel Management">Hotel Management</option>
+                          <option value="Tourism">Tourism Management</option>
+                          <option value="Aviation">Aviation Management</option>
+                          <option value="Logistics">Logistics Management</option>
+                          <option value="Entrepreneurship">Entrepreneurship Development</option>
+                        </optgroup>
+                        <optgroup label="Masters Programs">
+                          <option value="M.Tech">M.Tech - Master of Technology</option>
+                          <option value="M.E">M.E - Master of Engineering</option>
+                          <option value="MCA">MCA - Master of Computer Applications</option>
+                          <option value="MBA">MBA - Master of Business Administration</option>
+                          <option value="M.Com">M.Com - Master of Commerce</option>
+                          <option value="M.Sc">M.Sc - Master of Science</option>
+                          <option value="MA">MA - Master of Arts</option>
+                          <option value="MSW">MSW - Master of Social Work</option>
+                          <option value="M.Ed">M.Ed - Master of Education</option>
+                          <option value="LLM">LLM - Master of Law</option>
+                          <option value="M.Arch">M.Arch - Master of Architecture</option>
+                          <option value="M.Des">M.Des - Master of Design</option>
+                          <option value="M.Plan">M.Plan - Master of Planning</option>
+                          <option value="M.Pharm">M.Pharm - Master of Pharmacy</option>
+                          <option value="MPT">MPT - Master of Physiotherapy</option>
+                        </optgroup>
+                        <optgroup label="PhD Programs">
+                          <option value="PhD Engineering">PhD - Engineering</option>
+                          <option value="PhD Computer Science">PhD - Computer Science</option>
+                          <option value="PhD Management">PhD - Management</option>
+                          <option value="PhD Commerce">PhD - Commerce</option>
+                          <option value="PhD Science">PhD - Science</option>
+                          <option value="PhD Arts">PhD - Arts</option>
+                          <option value="PhD Education">PhD - Education</option>
+                          <option value="PhD Law">PhD - Law</option>
+                          <option value="PhD Social Work">PhD - Social Work</option>
+                          <option value="PhD Medicine">PhD - Medicine</option>
+                          <option value="PhD Agriculture">PhD - Agriculture</option>
+                          <option value="PhD Architecture">PhD - Architecture</option>
+                          <option value="PhD Design">PhD - Design</option>
                         </optgroup>
                       </select>
 
@@ -518,10 +669,26 @@ export default function SignupPage() {
                             className="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm text-black outline-none focus:border-purple-600"
                           >
                             <option value="">Select Year</option>
-                            <option value="1">1st Year</option>
-                            <option value="2">2nd Year</option>
-                            <option value="3">3rd Year</option>
-                            <option value="4">4th Year</option>
+                            <optgroup label="Bachelor's">
+                              <option value="1">1st Year</option>
+                              <option value="2">2nd Year</option>
+                              <option value="3">3rd Year</option>
+                              <option value="4">4th Year</option>
+                              <option value="5">5th Year</option>
+                            </optgroup>
+                            <optgroup label="Master's">
+                              <option value="M1">1st Year Masters</option>
+                              <option value="M2">2nd Year Masters</option>
+                              <option value="M3">3rd Year Masters</option>
+                            </optgroup>
+                            <optgroup label="PhD">
+                              <option value="PhD1">1st Year PhD</option>
+                              <option value="PhD2">2nd Year PhD</option>
+                              <option value="PhD3">3rd Year PhD</option>
+                              <option value="PhD4">4th Year PhD</option>
+                              <option value="PhD5">5th Year PhD</option>
+                              <option value="PhD6">6th Year PhD</option>
+                            </optgroup>
                           </select>
                         </div>
                         <div>
@@ -532,7 +699,7 @@ export default function SignupPage() {
                             className="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm text-black outline-none focus:border-purple-600"
                           >
                             <option value="">Year</option>
-                            {[2026, 2027, 2028, 2029, 2030].map(y => <option key={y} value={y}>{y}</option>)}
+                            {[2025, 2026, 2027, 2028, 2029, 2030, 2031, 2032, 2033, 2034, 2035].map(y => <option key={y} value={y}>{y}</option>)}
                           </select>
                         </div>
                       </div>
