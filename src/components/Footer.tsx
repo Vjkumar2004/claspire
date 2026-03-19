@@ -1,6 +1,18 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
+
 export default function Footer() {
+  const router = useRouter();
+
+  const handleNavigation = (path: string) => {
+    router.push(path);
+  };
+
+  const handleExternalLink = (url: string) => {
+    window.open(url, '_blank');
+  };
+
   return (
     <footer className="bg-black border-t border-gray-800 overflow-hidden">
       {/* Main Grid */}
@@ -19,13 +31,25 @@ export default function Footer() {
           
           {/* Social Row */}
           <div className="flex gap-2 justify-center md:justify-start">
-            <button className="w-9 h-9 bg-gray-800 rounded-lg text-gray-400 text-sm font-normal flex items-center justify-center hover:bg-gray-700 transition-colors">
+            <button 
+              onClick={() => handleExternalLink('https://twitter.com/claspire')}
+              className="w-9 h-9 bg-gray-800 rounded-lg text-gray-400 text-sm font-normal flex items-center justify-center hover:bg-gray-700 transition-colors"
+              title="Twitter"
+            >
               Tw
             </button>
-            <button className="w-9 h-9 bg-gray-800 rounded-lg text-gray-400 text-sm font-normal flex items-center justify-center hover:bg-gray-700 transition-colors">
+            <button 
+              onClick={() => handleExternalLink('https://linkedin.com/company/claspire')}
+              className="w-9 h-9 bg-gray-800 rounded-lg text-gray-400 text-sm font-normal flex items-center justify-center hover:bg-gray-700 transition-colors"
+              title="LinkedIn"
+            >
               Li
             </button>
-            <button className="w-9 h-9 bg-gray-800 rounded-lg text-gray-400 text-sm font-normal flex items-center justify-center hover:bg-gray-700 transition-colors">
+            <button 
+              onClick={() => handleExternalLink('https://instagram.com/claspire')}
+              className="w-9 h-9 bg-gray-800 rounded-lg text-gray-400 text-sm font-normal flex items-center justify-center hover:bg-gray-700 transition-colors"
+              title="Instagram"
+            >
               In
             </button>
           </div>
@@ -37,18 +61,30 @@ export default function Footer() {
             Product
           </div>
           <div className="space-y-1">
-            <a href="#" className="block text-sm text-gray-400 leading-8 hover:text-white transition-colors no-underline p-0">
+            <button 
+              onClick={() => handleNavigation('/community')}
+              className="block text-sm text-gray-400 leading-8 hover:text-white transition-colors text-left w-full bg-transparent border-none cursor-pointer"
+            >
               Community
-            </a>
-            <a href="#" className="block text-sm text-gray-400 leading-8 hover:text-white transition-colors no-underline p-0">
+            </button>
+            <button 
+              onClick={() => handleNavigation('/seniors')}
+              className="block text-sm text-gray-400 leading-8 hover:text-white transition-colors text-left w-full bg-transparent border-none cursor-pointer"
+            >
               Seniors
-            </a>
-            <a href="#" className="block text-sm text-gray-400 leading-8 hover:text-white transition-colors no-underline p-0">
+            </button>
+            <button 
+              onClick={() => handleNavigation('/colleges')}
+              className="block text-sm text-gray-400 leading-8 hover:text-white transition-colors text-left w-full bg-transparent border-none cursor-pointer"
+            >
               Colleges
-            </a>
-            <a href="#" className="block text-sm text-gray-400 leading-8 hover:text-white transition-colors no-underline p-0">
-              Pricing
-            </a>
+            </button>
+            <button 
+              onClick={() => handleNavigation('/jobs')}
+              className="block text-sm text-gray-400 leading-8 hover:text-white transition-colors text-left w-full bg-transparent border-none cursor-pointer"
+            >
+              Jobs
+            </button>
           </div>
         </div>
 
@@ -58,18 +94,30 @@ export default function Footer() {
             Company
           </div>
           <div className="space-y-1">
-            <a href="#" className="block text-sm text-gray-400 leading-8 hover:text-white transition-colors no-underline p-0">
+            <button 
+              onClick={() => handleNavigation('/about')}
+              className="block text-sm text-gray-400 leading-8 hover:text-white transition-colors text-left w-full bg-transparent border-none cursor-pointer"
+            >
               About
-            </a>
-            <a href="#" className="block text-sm text-gray-400 leading-8 hover:text-white transition-colors no-underline p-0">
+            </button>
+            <button 
+              onClick={() => handleExternalLink('https://blog.claspire.in')}
+              className="block text-sm text-gray-400 leading-8 hover:text-white transition-colors text-left w-full bg-transparent border-none cursor-pointer"
+            >
               Blog
-            </a>
-            <a href="#" className="block text-sm text-gray-400 leading-8 hover:text-white transition-colors no-underline p-0">
+            </button>
+            <button 
+              onClick={() => handleNavigation('/careers')}
+              className="block text-sm text-gray-400 leading-8 hover:text-white transition-colors text-left w-full bg-transparent border-none cursor-pointer"
+            >
               Careers
-            </a>
-            <a href="#" className="block text-sm text-gray-400 leading-8 hover:text-white transition-colors no-underline p-0">
+            </button>
+            <button 
+              onClick={() => handleNavigation('/contact')}
+              className="block text-sm text-gray-400 leading-8 hover:text-white transition-colors text-left w-full bg-transparent border-none cursor-pointer"
+            >
               Contact
-            </a>
+            </button>
           </div>
         </div>
 
@@ -79,15 +127,24 @@ export default function Footer() {
             Legal
           </div>
           <div className="space-y-1">
-            <a href="#" className="block text-sm text-gray-400 leading-[2.2] hover:text-white transition-colors">
+            <button 
+              onClick={() => handleNavigation('/privacy')}
+              className="block text-sm text-gray-400 leading-[2.2] hover:text-white transition-colors text-left w-full bg-transparent border-none cursor-pointer"
+            >
               Privacy Policy
-            </a>
-            <a href="#" className="block text-sm text-gray-400 leading-[2.2] hover:text-white transition-colors">
+            </button>
+            <button 
+              onClick={() => handleNavigation('/terms')}
+              className="block text-sm text-gray-400 leading-[2.2] hover:text-white transition-colors text-left w-full bg-transparent border-none cursor-pointer"
+            >
               Terms
-            </a>
-            <a href="#" className="block text-sm text-gray-400 leading-[2.2] hover:text-white transition-colors">
+            </button>
+            <button 
+              onClick={() => handleNavigation('/help')}
+              className="block text-sm text-gray-400 leading-[2.2] hover:text-white transition-colors text-left w-full bg-transparent border-none cursor-pointer"
+            >
               Help Center
-            </a>
+            </button>
           </div>
         </div>
       </div>
@@ -101,12 +158,18 @@ export default function Footer() {
           © 2025 Claspire. Made with ❤️ in India
         </div>
         <div className="flex gap-4 justify-center md:justify-start">
-          <a href="#" className="hover:text-white transition-colors">
+          <button 
+            onClick={() => handleNavigation('/privacy')}
+            className="hover:text-white transition-colors bg-transparent border-none cursor-pointer text-gray-500"
+          >
             Privacy
-          </a>
-          <a href="#" className="hover:text-white transition-colors">
+          </button>
+          <button 
+            onClick={() => handleNavigation('/terms')}
+            className="hover:text-white transition-colors bg-transparent border-none cursor-pointer text-gray-500"
+          >
             Terms
-          </a>
+          </button>
         </div>
       </div>
     </footer>
