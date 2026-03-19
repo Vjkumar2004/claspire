@@ -25,9 +25,9 @@ export const metadata: Metadata = {
   description: "Connect with verified seniors from your college — get real answers, job referrals, and paid mentorship. Free to start.",
   keywords: ["college seniors", "placement", "mentorship", "job referrals", "indian colleges"],
   icons: {
-    icon: "/claspire-logo.jpeg",
-    shortcut: "/claspire-logo.jpeg",
-    apple: "/claspire-logo.jpeg",
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
   },
   openGraph: {
     title: "Claspire - India's College Senior Community Platform",
@@ -43,6 +43,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png" />
+        <link rel="icon" href="/favicon-16x16.png" sizes="16x16" type="image/png" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="manifest" href="/site.webmanifest" />
+      </head>
       <body
         className={`${instrumentSerif.variable} ${plusJakartaSans.variable} antialiased`}
       >
