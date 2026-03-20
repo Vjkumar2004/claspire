@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Navbar from '@/components/Navbar';
-import { Search, MapPin, Users, GraduationCap, Building2, ChevronRight, MessageSquare } from 'lucide-react';
+import { Search, MapPin, Users, GraduationCap, Building2, ChevronRight, MessageSquare, Star } from 'lucide-react';
 
 export default function CollegesPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -52,16 +52,16 @@ export default function CollegesPage() {
         <div className="max-w-7xl mx-auto px-6 text-center">
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-purple-50 rounded-full border border-purple-100 mb-6">
             <Building2 size={14} className="text-purple-600" />
-            <span className="text-[12px] font-bold text-purple-600 uppercase tracking-wider">Campus Networks</span>
+            <span className="text-[12px] font-bold text-purple-600 uppercase tracking-wider">Tamil Nadu Colleges</span>
           </div>
           
           <h1 className="font-instrument-serif text-5xl md:text-6xl text-black mb-6 leading-[1.1]">
-            Find your <em className="text-purple-600">college community</em>
+            Connect with your <em className="text-purple-600">college seniors</em>
           </h1>
           
           <p className="text-gray-500 max-w-2xl mx-auto text-lg mb-10">
-            Search and join your college. Connect with verified seniors, get 
-            mentorship, and track campus events all in one place.
+            Join students from AAACET, Kamaraj, ANJAC, VVV and more. Get real guidance, 
+            placement help, and referrals from verified seniors in your area.
           </p>
 
           {/* Search Bar */}
@@ -75,7 +75,7 @@ export default function CollegesPage() {
                 type="text" 
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search college name... e.g. AAACET, VVV College"
+                placeholder="Search your college... e.g. AAACET, Kamaraj, ANJAC"
                 className="flex-1 py-3 text-black outline-none bg-transparent"
               />
             </div>
@@ -205,7 +205,7 @@ export default function CollegesPage() {
                     </div>
 
                     {/* Stats Row */}
-                    <div className="flex items-center gap-5 flex-wrap">
+                    <div className="flex items-center gap-5 flex-wrap mb-4">
                       <div className="flex items-center gap-2 text-sm text-gray-500 font-medium">
                         <Users size={16} className="text-blue-500" />
                         <span className="text-black font-bold">{c.member_count?.toLocaleString() || 0}</span> students
@@ -217,6 +217,171 @@ export default function CollegesPage() {
                       <div className="flex items-center gap-2 text-sm text-gray-500 font-medium">
                         <MessageSquare size={16} className="text-purple-500" />
                         <span className="text-black font-bold">{c.doubt_count || 0}</span> doubts
+                      </div>
+                    </div>
+
+                    {/* Reviews Section */}
+                    <div className="bg-gray-50 rounded-xl p-4 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-bold text-gray-700">Reviews</span>
+                        <div className="flex items-center gap-1">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <Star
+                              key={star}
+                              size={14}
+                              className={star <= (c.slug === 'aaacet' ? 5 : c.slug === 'kamaraj' ? 4 : c.slug === 'anjac' ? 4 : 3) ? "fill-yellow-400 text-yellow-400" : "text-gray-300"}
+                            />
+                          ))}
+                          <span className="text-sm font-bold text-gray-700 ml-1">{c.slug === 'aaacet' ? '4.8' : c.slug === 'kamaraj' ? '4.2' : c.slug === 'anjac' ? '4.1' : '3.5'}</span>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        {c.slug === 'aaacet' ? (
+                          <>
+                            <div className="bg-white rounded-lg p-3 border border-gray-100">
+                              <div className="flex items-center gap-2 mb-1">
+                                <div className="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center">
+                                  <span className="text-[10px] font-bold text-purple-600">R</span>
+                                </div>
+                                <span className="text-xs font-bold text-gray-700">Rahul - CSE</span>
+                                <div className="flex items-center gap-0.5 ml-auto">
+                                  {[1, 2, 3, 4, 5].map((star) => (
+                                    <Star key={star} size={10} className="fill-yellow-400 text-yellow-400" />
+                                  ))}
+                                </div>
+                              </div>
+                              <p className="text-xs text-gray-600 leading-relaxed">
+                                "AAACET has amazing placement records! Got placed in TCS through campus placement. Faculty is very supportive especially in final year."
+                              </p>
+                            </div>
+                            
+                            <div className="bg-white rounded-lg p-3 border border-gray-100">
+                              <div className="flex items-center gap-2 mb-1">
+                                <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
+                                  <span className="text-[10px] font-bold text-blue-600">P</span>
+                                </div>
+                                <span className="text-xs font-bold text-gray-700">Priya - ECE</span>
+                                <div className="flex items-center gap-0.5 ml-auto">
+                                  {[1, 2, 3, 4, 5].map((star) => (
+                                    <Star key={star} size={10} className={star <= 4 ? "fill-yellow-400 text-yellow-400" : "text-gray-300"} />
+                                  ))}
+                                </div>
+                              </div>
+                              <p className="text-xs text-gray-600 leading-relaxed">
+                                "Good infrastructure and lab facilities. Cultural festivals are great here. Could improve on industry connections."
+                              </p>
+                            </div>
+                          </>
+                        ) : c.slug === 'kamaraj' ? (
+                          <>
+                            <div className="bg-white rounded-lg p-3 border border-gray-100">
+                              <div className="flex items-center gap-2 mb-1">
+                                <div className="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center">
+                                  <span className="text-[10px] font-bold text-purple-600">M</span>
+                                </div>
+                                <span className="text-xs font-bold text-gray-700">Mani - Mech</span>
+                                <div className="flex items-center gap-0.5 ml-auto">
+                                  {[1, 2, 3, 4, 5].map((star) => (
+                                    <Star key={star} size={10} className={star <= 4 ? "fill-yellow-400 text-yellow-400" : "text-gray-300"} />
+                                  ))}
+                                </div>
+                              </div>
+                              <p className="text-xs text-gray-600 leading-relaxed">
+                                "Kamaraj College provides quality education at affordable fees. Mechanical department has excellent workshop facilities."
+                              </p>
+                            </div>
+                            
+                            <div className="bg-white rounded-lg p-3 border border-gray-100">
+                              <div className="flex items-center gap-2 mb-1">
+                                <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
+                                  <span className="text-[10px] font-bold text-blue-600">S</span>
+                                </div>
+                                <span className="text-xs font-bold text-gray-700">Siva - Alumni</span>
+                                <div className="flex items-center gap-0.5 ml-auto">
+                                  {[1, 2, 3, 4, 5].map((star) => (
+                                    <Star key={star} size={10} className={star <= 4 ? "fill-yellow-400 text-yellow-400" : "text-gray-300"} />
+                                  ))}
+                                </div>
+                              </div>
+                              <p className="text-xs text-gray-600 leading-relaxed">
+                                "Alumni network is strong here. Teachers are very approachable. Campus life is vibrant with many activities."
+                              </p>
+                            </div>
+                          </>
+                        ) : c.slug === 'anjac' ? (
+                          <>
+                            <div className="bg-white rounded-lg p-3 border border-gray-100">
+                              <div className="flex items-center gap-2 mb-1">
+                                <div className="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center">
+                                  <span className="text-[10px] font-bold text-purple-600">A</span>
+                                </div>
+                                <span className="text-xs font-bold text-gray-700">Anand - IT</span>
+                                <div className="flex items-center gap-0.5 ml-auto">
+                                  {[1, 2, 3, 4, 5].map((star) => (
+                                    <Star key={star} size={10} className="fill-yellow-400 text-yellow-400" />
+                                  ))}
+                                </div>
+                              </div>
+                              <p className="text-xs text-gray-600 leading-relaxed">
+                                "ANJAC has outstanding infrastructure! Smart classrooms and modern labs. Placement training is really good."
+                              </p>
+                            </div>
+                            
+                            <div className="bg-white rounded-lg p-3 border border-gray-100">
+                              <div className="flex items-center gap-2 mb-1">
+                                <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
+                                  <span className="text-[10px] font-bold text-blue-600">K</span>
+                                </div>
+                                <span className="text-xs font-bold text-gray-700">Kavitha - BBA</span>
+                                <div className="flex items-center gap-0.5 ml-auto">
+                                  {[1, 2, 3, 4, 5].map((star) => (
+                                    <Star key={star} size={10} className={star <= 4 ? "fill-yellow-400 text-yellow-400" : "text-gray-300"} />
+                                  ))}
+                                </div>
+                              </div>
+                              <p className="text-xs text-gray-600 leading-relaxed">
+                                "Management department is excellent. Guest lectures and industrial visits are regularly arranged."
+                              </p>
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <div className="bg-white rounded-lg p-3 border border-gray-100">
+                              <div className="flex items-center gap-2 mb-1">
+                                <div className="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center">
+                                  <span className="text-[10px] font-bold text-purple-600">S</span>
+                                </div>
+                                <span className="text-xs font-bold text-gray-700">Student</span>
+                                <div className="flex items-center gap-0.5 ml-auto">
+                                  {[1, 2, 3, 4, 5].map((star) => (
+                                    <Star key={star} size={10} className="fill-yellow-400 text-yellow-400" />
+                                  ))}
+                                </div>
+                              </div>
+                              <p className="text-xs text-gray-600 leading-relaxed">
+                                "Great campus with excellent faculty and placement opportunities. The senior community here is very helpful!"
+                              </p>
+                            </div>
+                            
+                            <div className="bg-white rounded-lg p-3 border border-gray-100">
+                              <div className="flex items-center gap-2 mb-1">
+                                <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
+                                  <span className="text-[10px] font-bold text-blue-600">A</span>
+                                </div>
+                                <span className="text-xs font-bold text-gray-700">Alumni</span>
+                                <div className="flex items-center gap-0.5 ml-auto">
+                                  {[1, 2, 3, 4, 5].map((star) => (
+                                    <Star key={star} size={10} className={star <= 4 ? "fill-yellow-400 text-yellow-400" : "text-gray-300"} />
+                                  ))}
+                                </div>
+                              </div>
+                              <p className="text-xs text-gray-600 leading-relaxed">
+                                "Good infrastructure and supportive environment. Could improve on industry connections though."
+                              </p>
+                            </div>
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>

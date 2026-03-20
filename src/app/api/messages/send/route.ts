@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { getConversationId } from '@/lib/messages';
 import { createNotification } from '@/lib/notifications';
+import { canUsersMessage } from '@/middleware/checkCanMessage';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -23,6 +24,23 @@ export async function POST(req: NextRequest) {
 
     if (!receiverId || !content?.trim()) {
       return NextResponse.json({ error: 'Receiver ID and content are required' }, { status: 400 });
+    }
+
+    // At the top after auth check, add block check
+    const { data: blockData } = await supabase
+      .from('blocked_users')
+      .select('id')
+      .or(`and(blocker_id.eq.${userId},blocked_id.eq.${receiverId}),and(blocker_id.eq.${receiverId},blocked_id.eq.${userId})`)
+      .maybeSingle()
+
+    if (blockData) {
+      return NextResponse.json({ error: 'Cannot message this user' }, { status: 403 })
+    }
+
+    // Check if users can message each other (accepted request exists)
+    const canMessage = await canUsersMessage(userId, receiverId);
+    if (!canMessage) {
+      return NextResponse.json({ error: 'not_connected' }, { status: 403 });
     }
 
     // Fetch sender and receiver info

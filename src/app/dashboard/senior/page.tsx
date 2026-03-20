@@ -4,10 +4,12 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePoints } from '@/contexts/PointsContext';
 import { useRouter } from 'next/navigation';
-import { HelpCircle, Briefcase, Handshake, Mic, DollarSign, BarChart3, Star, Trophy, User, CheckCircle, Settings, Zap, TrendingUp, LayoutDashboard, MessageSquare } from 'lucide-react';
+import { HelpCircle, Briefcase, Handshake, Mic, DollarSign, BarChart3, Star, Trophy, User, CheckCircle, Settings, Zap, TrendingUp, LayoutDashboard, MessageSquare, Trash2 } from 'lucide-react';
 import DashboardMessages from '@/components/DashboardMessages';
 import NotificationPrompt from '@/components/NotificationPrompt';
 import NotificationBell from '@/components/NotificationBell';
+import DeleteAccountModal from '@/components/DeleteAccountModal';
+import MessageRequestsSection from '@/components/senior/MessageRequestsSection';
 
 // Helper functions
 const timeAgo = (dateStr: string) => {
@@ -60,6 +62,8 @@ export default function SeniorDashboardPage() {
   const [selectedReferral, setSelectedReferral] = useState<any>(null)
   const [reviewModalOpen, setReviewModalOpen] = useState(false)
   const [referralActionLoading, setReferralActionLoading] = useState(false)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   useEffect(() => {
     fetchDashboardData()
@@ -141,6 +145,26 @@ export default function SeniorDashboardPage() {
       alert('Network error')
     } finally {
       setReferralActionLoading(false)
+    }
+  }
+
+  const handleDeleteAccount = async () => {
+    setIsDeleting(true)
+    try {
+      const res = await fetch('/api/user/delete-account', { method: 'DELETE' })
+      const data = await res.json()
+      if (data.success) {
+        // Clear localStorage
+        localStorage.clear()
+        // Redirect to home
+        window.location.href = '/'
+      } else {
+        alert('Failed to delete account. Please try again.')
+        setIsDeleting(false)
+      }
+    } catch (err) {
+      alert('Something went wrong. Please try again.')
+      setIsDeleting(false)
     }
   }
 
@@ -281,6 +305,36 @@ export default function SeniorDashboardPage() {
                   {dashData.pendingReferrals.length}
                 </span>
               )}
+            </div>
+          </div>
+
+          {/* Account Settings Section */}
+          <div className="p-2 mt-4 border-t border-gray-100">
+            <div className="text-[10px] font-black tracking-wider uppercase text-gray-400 px-2 mb-1.5">
+              ACCOUNT
+            </div>
+            <div className="space-y-0.5">
+              <div className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
+                <User size={16} className="flex-shrink-0" />
+                <span>My Profile</span>
+              </div>
+              <div className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
+                <Settings size={16} className="flex-shrink-0" />
+                <span>Preferences</span>
+              </div>
+            </div>
+            
+            <div className="mt-4 pt-4 border-t border-gray-100">
+              <div className="text-[10px] font-black tracking-wider uppercase text-red-400 px-2 mb-1.5">
+                DANGER ZONE
+              </div>
+              <button
+                onClick={() => setShowDeleteModal(true)}
+                className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold text-red-400 hover:bg-red-50 hover:text-red-600 transition-colors w-full"
+              >
+                <Trash2 size={16} className="flex-shrink-0" />
+                <span>Delete Account</span>
+              </button>
             </div>
           </div>
         </div>
@@ -451,6 +505,9 @@ export default function SeniorDashboardPage() {
             </div>
           </div>
         </div>
+
+        {/* Message Requests Section */}
+        <MessageRequestsSection />
 
         {/* Main Content Grid - Adjusted to full width */}
         <div className="w-full">
@@ -713,6 +770,12 @@ export default function SeniorDashboardPage() {
           </div>
         )}
       </div>
+      <DeleteAccountModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={handleDeleteAccount}
+        isLoading={isDeleting}
+      />
       <NotificationPrompt />
     </div>
   );

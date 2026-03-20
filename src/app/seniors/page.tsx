@@ -3,9 +3,10 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import Navbar from '@/components/Navbar'
+import MessageRequestButton from '@/components/MessageRequestButton'
 import { 
   Users, MapPin, Building2, Search, 
-  MessageSquare, Award, Briefcase, GraduationCap
+  Award, Briefcase, GraduationCap
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
@@ -32,10 +33,6 @@ export default function SeniorsPage() {
   const [seniors, setSeniors] = useState<Senior[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
-  const [selectedSenior, setSelectedSenior] = useState<Senior | null>(null)
-  const [messaging, setMessaging] = useState(false)
-  const [messageSuccess, setMessageSuccess] = useState(false)
-  const [messageText, setMessageText] = useState('')
 
   useEffect(() => {
     fetchSeniors()
@@ -52,37 +49,6 @@ export default function SeniorsPage() {
       console.error('Error fetching seniors:', err)
     } finally {
       setLoading(false)
-    }
-  }
-
-  const handleMessageClick = (senior: Senior) => {
-    if (!user) {
-      window.location.href = '/login'
-      return
-    }
-
-    // Direct messaging is now free for everyone - redirect to messages page with unique_id
-    router.push(`/dashboard/junior/messages?user=${senior.unique_id}`)
-  }
-
-  const confirmMessage = async () => {
-    if (!selectedSenior || !user || !messageText.trim()) return
-    
-    setMessaging(true)
-    try {
-      // In a real app, this would hit an API endpoint to send a message
-      // For now, we simulate a successful send
-      await new Promise(resolve => setTimeout(resolve, 1000))
-
-      setMessageSuccess(true)
-      setTimeout(() => {
-        setMessageSuccess(false)
-        setSelectedSenior(null)
-      }, 2000)
-    } catch (err) {
-      console.error('Messaging error:', err)
-    } finally {
-      setMessaging(false)
     }
   }
 
@@ -221,13 +187,7 @@ export default function SeniorsPage() {
 
                   {/* College/Community context & Action */}
                   <div className="pt-4 border-t border-gray-50 mt-auto">
-                    <button 
-                      onClick={() => handleMessageClick(senior)}
-                      className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-sm font-bold transition-all bg-black text-white hover:bg-gray-800"
-                    >
-                      <MessageSquare size={16} />
-                      Message {senior.full_name.split(' ')[0]}
-                    </button>
+                    <MessageRequestButton seniorId={senior.id} seniorName={senior.full_name} />
                   </div>
 
                   {/* Hover Accent */}

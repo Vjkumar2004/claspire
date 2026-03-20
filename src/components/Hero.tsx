@@ -129,7 +129,7 @@ export default function Hero() {
               {/* Header */}
               <div className="flex justify-between items-center mb-4">
                 <div className="text-[11px] font-bold tracking-[0.08em] uppercase text-gray-400">
-                  LIVE FROM SRM CHENNAI
+                  LIVE FROM LOCAL COLLEGES
                 </div>
                 <div className="flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-green-500 inline-block animate-pulse"></span>
@@ -143,19 +143,19 @@ export default function Hero() {
                 <motion.div variants={feedItemVariants} className="bg-white border border-gray-200 rounded-lg p-4">
                   <div className="flex items-center gap-3 mb-2.5">
                     <div className="w-8 h-8 rounded-full bg-[#7C3AED] flex items-center justify-center text-white text-[10px] font-bold">
-                      AK
+                      VK
                     </div>
                     <div>
-                      <div className="text-sm font-bold text-black">Arun Kumar</div>
-                      <div className="text-xs text-gray-400">3rd Year · CSE · SRM Chennai</div>
+                      <div className="text-sm font-bold text-black">Vijayalakshmi K.</div>
+                      <div className="text-xs text-gray-400">4th Year · CSE · KARE</div>
                     </div>
                   </div>
                   <div className="text-sm text-gray-900 font-medium mb-2">
-                    How competitive is Swiggy's off-campus for CSE 2025 batch? My CGPA is 7.8
+                    How tough is Zoho off-campus for 2025 batch? CGPA 7.8 here
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="text-xs text-gray-500">
-                      💬 4 answers · 2 hours ago
+                      💬 2 answers · 3 hours ago
                     </div>
                     <div className="bg-green-50 border border-green-300 rounded-full px-2.5 py-1 text-xs font-semibold text-green-700">
                       ✓ Senior answered
@@ -167,20 +167,20 @@ export default function Hero() {
                 <motion.div variants={feedItemVariants} className="bg-[#FAFAFE] border-l-[3px] border-[#7C3AED] border border-gray-200 rounded-lg p-4">
                   <div className="flex items-center gap-3 mb-2.5">
                     <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#7C3AED] to-[#06B6D4] flex items-center justify-center text-white text-[10px] font-bold">
-                      RS
+                      SA
                     </div>
                     <div>
-                      <div className="text-sm font-bold text-black">Rahul Sharma</div>
+                      <div className="text-sm font-bold text-black">Santhosh A.</div>
                       <div className="bg-[#F3F0FF] rounded px-2 py-0.5 text-[10px] font-bold text-[#7C3AED] inline-block">
-                        SDE-2 @ Swiggy · 2022 Passout
+                        SDE-1 @ TCS · 2023 Passout
                       </div>
                     </div>
                   </div>
                   <div className="text-sm text-gray-700 leading-relaxed">
-                    7.8 is fine. Swiggy looks more at projects and problem-solving. OA has 2 DSA questions — medium level. DM me your resume...
+                    7.8 is good! Zoho focuses on problem-solving and communication. Prepare DSA well and be clear on projects. DM me for tips!
                   </div>
                   <div className="text-xs text-gray-500 mt-2">
-                    👍 23 helpful · <span className="text-[#7C3AED] font-bold">Verified Senior</span>
+                    👍 18 helpful · <span className="text-[#7C3AED] font-bold">Verified Senior</span>
                   </div>
                 </motion.div>
 
@@ -191,15 +191,15 @@ export default function Hero() {
                       MP
                     </div>
                     <div>
-                      <div className="text-sm font-bold text-black">Meera Priya</div>
-                      <div className="text-xs text-gray-400">SDE-1 @ Flipkart · SRM 2023</div>
+                      <div className="text-sm font-bold text-black">Manikandan P.</div>
+                      <div className="text-xs text-gray-400">SDE @ Infosys · ANJAC 2022</div>
                     </div>
                   </div>
                   <div className="text-sm font-bold text-black mb-1">
-                    Flipkart — SDE Intern (6 months)
+                    Infosys — System Engineer Trainee
                   </div>
                   <div className="text-sm text-gray-500 mb-3">
-                    ₹60,000/mo · Chennai/Bangalore · Deadline: 15 Jan
+                    ₹3.5 LPA · Chennai · Training: 6 months
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="bg-blue-50 text-blue-700 rounded-full px-2.5 py-1 text-xs font-semibold">

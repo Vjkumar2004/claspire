@@ -1,10 +1,9 @@
 'use client'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { Bell, Check, ExternalLink, Clock } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import { useAuth } from '@/hooks/useAuth'
-import { supabase } from '@/lib/supabase'
 import { createPortal } from 'react-dom'
 
 interface Notification {
@@ -31,8 +30,11 @@ export default function NotificationBell({ align = 'right', dark = false }: Noti
   const [isOpen, setIsOpen] = useState(false)
   const [loading, setLoading] = useState(true)
   const [coords, setCoords] = useState({ top: 0, left: 0, right: 0 })
+  const [isClearing, setIsClearing] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
+  const pollingRef = useRef<NodeJS.Timeout | null>(null)
+  const lastNotificationTimeRef = useRef<string>('')
 
   useEffect(() => {
     if (isOpen && buttonRef.current) {
@@ -54,49 +56,71 @@ export default function NotificationBell({ align = 'right', dark = false }: Noti
     }
   }, [isOpen])
 
-  const fetchNotifications = async () => {
+  const fetchNotifications = useCallback(async (isPolling = false) => {
     try {
-      const res = await fetch('/api/notifications')
+      const url = isPolling && lastNotificationTimeRef.current 
+        ? `/api/notifications?after=${encodeURIComponent(lastNotificationTimeRef.current)}`
+        : '/api/notifications'
+      
+      const res = await fetch(url)
       const data = await res.json()
+      
       if (data.notifications) {
-        setNotifications(data.notifications)
-        setUnreadCount(data.notifications.filter((n: Notification) => !n.is_read).length)
+        if (isPolling) {
+          // For polling, only add new notifications
+          const existingIds = new Set(notifications.map(n => n.id))
+          const newNotifications = data.notifications.filter(
+            (n: Notification) => !existingIds.has(n.id)
+          )
+          
+          if (newNotifications.length > 0) {
+            setNotifications(prev => [...newNotifications, ...prev])
+            setUnreadCount(prev => prev + newNotifications.filter((n: Notification) => !n.is_read).length)
+            
+            // Update last notification time
+            const latest = newNotifications[0]
+            if (latest?.created_at) {
+              lastNotificationTimeRef.current = latest.created_at
+            }
+          }
+        } else {
+          // Initial load
+          setNotifications(data.notifications)
+          setUnreadCount(data.notifications.filter((n: Notification) => !n.is_read).length)
+          
+          // Set initial last notification time
+          if (data.notifications.length > 0) {
+            lastNotificationTimeRef.current = data.notifications[0].created_at
+          }
+        }
       }
     } catch (err) {
       console.error('Failed to fetch notifications:', err)
     } finally {
-      setLoading(false)
+      if (!isPolling) {
+        setLoading(false)
+      }
     }
-  }
+  }, [notifications])
 
   useEffect(() => {
-    fetchNotifications()
-
     if (!user?.id) return
 
-    // Subscribe to real-time notifications
-    const channel = supabase
-      .channel(`notifications-${user.id}`)
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'notifications',
-          filter: `receiver_id=eq.${user.id}`
-        },
-        (payload) => {
-          const newNotif = payload.new as Notification
-          setNotifications(prev => [newNotif, ...prev])
-          setUnreadCount(prev => prev + 1)
-        }
-      )
-      .subscribe()
+    // Initial fetch
+    fetchNotifications()
+
+    // Start polling every 5 seconds for notifications
+    pollingRef.current = setInterval(() => {
+      fetchNotifications(true)
+    }, 5000)
 
     return () => {
-      supabase.removeChannel(channel)
+      if (pollingRef.current) {
+        clearInterval(pollingRef.current)
+        pollingRef.current = null
+      }
     }
-  }, [user?.id])
+  }, [user?.id, fetchNotifications])
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -124,6 +148,23 @@ export default function NotificationBell({ align = 'right', dark = false }: Noti
       }
     } catch (err) {
       console.error('Failed to mark read:', err)
+    }
+  }
+
+  const clearAllNotifications = async () => {
+    setIsClearing(true)
+    try {
+      const res = await fetch('/api/notifications/clear', {
+        method: 'DELETE'
+      })
+      if (res.ok) {
+        setNotifications([])
+        setUnreadCount(0)
+      }
+    } catch (err) {
+      console.error('Failed to clear notifications:', err)
+    } finally {
+      setIsClearing(false)
     }
   }
 
@@ -196,15 +237,36 @@ export default function NotificationBell({ align = 'right', dark = false }: Noti
               {/* Header */}
               <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-white/50 backdrop-blur-sm sticky top-0 z-10">
                 <h3 className="text-sm font-bold text-gray-900">Notifications</h3>
-                {unreadCount > 0 && (
-                  <button
-                    onClick={() => markAsRead()}
-                    className="text-[11px] font-bold text-purple-600 hover:text-purple-700 transition-colors flex items-center gap-1"
-                  >
-                    <Check size={12} />
-                    Mark all as read
-                  </button>
-                )}
+                <div className="flex items-center gap-2">
+                  {unreadCount > 0 && (
+                    <button
+                      onClick={() => markAsRead()}
+                      className="text-[11px] font-bold text-purple-600 hover:text-purple-700 transition-colors flex items-center gap-1"
+                    >
+                      <Check size={12} />
+                      Mark all read
+                    </button>
+                  )}
+                  {notifications.length > 0 && (
+                    <button
+                      onClick={clearAllNotifications}
+                      disabled={isClearing}
+                      className="text-[11px] font-bold text-red-400 hover:text-red-500 transition-colors flex items-center gap-1 disabled:opacity-50"
+                    >
+                      {isClearing ? (
+                        <div className="h-3 w-3 border border-red-400 border-t-transparent rounded-full animate-spin" />
+                      ) : (
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                          <polyline points="3 6 5 6 21 6" />
+                          <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
+                          <path d="M10 11v6M14 11v6" />
+                          <path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" />
+                        </svg>
+                      )}
+                      Clear all
+                    </button>
+                  )}
+                </div>
               </div>
 
               {/* List */}

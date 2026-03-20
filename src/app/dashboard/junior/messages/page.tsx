@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { useSearchParams } from 'next/navigation'
 import ChatWindow from '@/components/ChatWindow'
+import BlockUserButton from '@/components/BlockUserButton'
 import { MessageSquare, Search, User as UserIcon, Loader2, ArrowLeft, Wifi, WifiOff } from 'lucide-react'
 import { useRealtimeMessages } from '@/hooks/useRealtimeMessages'
 
@@ -26,6 +27,7 @@ export default function JuniorMessagesPage() {
   const [selectedChat, setSelectedChat] = useState<Conversation | null>(null)
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
+  const [showChatMenu, setShowChatMenu] = useState(false)
 
   // Use real-time messaging hook
   const {
@@ -55,40 +57,54 @@ export default function JuniorMessagesPage() {
 
   // Auto-select conversation when target user is specified
   useEffect(() => {
-    if (targetUserUniqueId && conversations.length > 0 && !selectedChat) {
-      const targetConversation = conversations.find(conv => conv.otherUserUniqueId === targetUserUniqueId)
+    if (!targetUserUniqueId || selectedChat) return
+
+    if (conversations.length > 0) {
+      // Match by both otherUserId (UUID) and otherUserUniqueId
+      const targetConversation = conversations.find(conv =>
+        conv.otherUserId === targetUserUniqueId ||
+        conv.otherUserUniqueId === targetUserUniqueId
+      )
       if (targetConversation) {
         setSelectedChat(targetConversation)
-        // Mark messages as read when opening conversation
         markAsRead(targetConversation.id, user?.id || '')
       } else {
-        // If no existing conversation, create one with the target user
         createConversationWithUser(targetUserUniqueId)
       }
+    } else if (!loading) {
+      // No conversations yet, create new one directly
+      createConversationWithUser(targetUserUniqueId)
     }
-  }, [targetUserUniqueId, conversations, selectedChat, user])
+  }, [targetUserUniqueId, conversations, loading, selectedChat, user])
 
-  const createConversationWithUser = async (userUniqueId: string) => {
+  const createConversationWithUser = async (userIdOrUniqueId: string) => {
     try {
-      // Get user info from unique_id
       const { createClient } = await import('@supabase/supabase-js')
       const supabase = createClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
       )
 
-      const { data: targetUser, error } = await supabase
+      // Detect if UUID or unique_id
+      const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userIdOrUniqueId)
+
+      let query = supabase
         .from('users')
         .select('id, full_name, avatar_url, unique_id')
-        .eq('unique_id', userUniqueId)
-        .single()
+
+      if (isUUID) {
+        query = query.eq('id', userIdOrUniqueId)
+      } else {
+        query = query.eq('unique_id', userIdOrUniqueId)
+      }
+
+      const { data: targetUser, error } = await query.single()
 
       if (error || !targetUser) {
-        console.error('User not found:', userUniqueId)
+        console.error('User not found:', userIdOrUniqueId)
         return
       }
 
-      // Create a temporary conversation object
       const newConversation: Conversation = {
         id: `new-${targetUser.id}`,
         lastMessage: 'Start a conversation...',
@@ -203,24 +219,94 @@ export default function JuniorMessagesPage() {
       {/* Main: Chat Window */}
       <div className={`flex-1 h-full ${!selectedChat ? 'hidden md:block' : 'block'}`}>
         {selectedChat && user ? (
-          <div className="flex flex-col h-full bg-white border border-gray-100 rounded-3xl shadow-sm overflow-hidden">
+          <div className="flex flex-col h-full">
             {/* Mobile Header with Back Button */}
-            <div className="md:hidden flex items-center p-4 border-b border-gray-100 bg-white">
-              <button 
-                onClick={() => setSelectedChat(null)}
-                className="p-2 -ml-2 text-gray-500 hover:text-purple-600 transition-colors"
-              >
-                <ArrowLeft size={20} />
-              </button>
-              <div className="ml-2 flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-600">
-                  <UserIcon size={16} />
+            <div className="md:hidden flex-shrink-0 flex items-center justify-between p-4 border-b border-gray-100 bg-white">
+              <div className="flex items-center gap-3">
+                <button 
+                  onClick={() => setSelectedChat(null)}
+                  className="p-2 -ml-2 text-gray-500 hover:text-purple-600 transition-colors"
+                >
+                  <ArrowLeft size={20} />
+                </button>
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-600">
+                    <UserIcon size={16} />
+                  </div>
+                  <h3 className="text-sm font-bold text-gray-900">{selectedChat.otherUser.full_name}</h3>
                 </div>
-                <h3 className="text-sm font-bold text-gray-900">{selectedChat.otherUser.full_name}</h3>
+              </div>
+              
+              {/* 3-dot menu */}
+              <div className="relative">
+                <button
+                  onClick={() => setShowChatMenu(!showChatMenu)}
+                  className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"
+                >
+                  ⋮
+                </button>
+                
+                {showChatMenu && (
+                  <div className="absolute right-0 top-10 bg-gray-900 border border-gray-800 rounded-xl shadow-xl z-50 min-w-[180px] py-1"
+                    onMouseLeave={() => setShowChatMenu(false)}
+                  >
+                    <BlockUserButton
+                      userId={selectedChat.otherUserId}
+                      userName={selectedChat.otherUser.full_name}
+                      onBlocked={() => {
+                        setShowChatMenu(false)
+                        setSelectedChat(null)
+                        // Remove from conversations list
+                        setConversations(prev => 
+                          prev.filter(c => c.otherUserId !== selectedChat.otherUserId)
+                        )
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Desktop Header */}
+            <div className="hidden md:flex-shrink-0 md:flex items-center justify-between p-4 border-b border-gray-100 bg-white">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600">
+                  <UserIcon size={20} />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900">{selectedChat.otherUser.full_name}</h3>
+              </div>
+              
+              {/* 3-dot menu */}
+              <div className="relative">
+                <button
+                  onClick={() => setShowChatMenu(!showChatMenu)}
+                  className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"
+                >
+                  ⋮
+                </button>
+                
+                {showChatMenu && (
+                  <div className="absolute right-0 top-10 bg-gray-900 border border-gray-800 rounded-xl shadow-xl z-50 min-w-[180px] py-1"
+                    onMouseLeave={() => setShowChatMenu(false)}
+                  >
+                    <BlockUserButton
+                      userId={selectedChat.otherUserId}
+                      userName={selectedChat.otherUser.full_name}
+                      onBlocked={() => {
+                        setShowChatMenu(false)
+                        setSelectedChat(null)
+                        // Remove from conversations list
+                        setConversations(prev => 
+                          prev.filter(c => c.otherUserId !== selectedChat.otherUserId)
+                        )
+                      }}
+                    />
+                  </div>
+                )}
               </div>
             </div>
             
-            <div className="flex-1">
+            <div className="flex-1 h-full">
               <ChatWindow
                 currentUserId={user.id}
                 otherUserId={selectedChat.otherUserId}

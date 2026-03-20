@@ -8,6 +8,11 @@ const supabase = createClient(
 
 export async function GET(req: NextRequest) {
   try {
+    const cookie = req.cookies.get('claspire_session')
+    if (!cookie?.value) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const { data: jobs, error } = await supabase
       .from('jobs')
       .select(`

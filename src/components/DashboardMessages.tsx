@@ -77,6 +77,22 @@ export default function DashboardMessages({ currentUserId, role }: { currentUser
         // Fetch user details to start new chat
         const fetchNewUser = async () => {
           try {
+            // First check if we can message this user
+            const canMessageRes = await fetch(`/api/message-requests/can-message?other_user_id=${targetUserId}`)
+            const canMessageData = await canMessageRes.json()
+            
+            if (!canMessageData.canMessage) {
+              alert('You need an accepted message request to chat with this user.')
+              // Clean URL and redirect to dashboard
+              window.history.replaceState({}, '', window.location.pathname)
+              if (role === 'junior') {
+                window.location.href = '/dashboard/junior'
+              } else {
+                window.location.href = '/dashboard/senior'
+              }
+              return
+            }
+
             const res = await fetch(`/api/messages/search-users?userId=${targetUserId}`)
             const data = await res.json()
             if (data.users && data.users[0]) {
@@ -86,6 +102,7 @@ export default function DashboardMessages({ currentUserId, role }: { currentUser
             }
           } catch (err) {
             console.error('Failed to auto-start chat:', err)
+            alert('Failed to start chat. Please try again.')
           }
         }
         fetchNewUser()
@@ -125,7 +142,22 @@ export default function DashboardMessages({ currentUserId, role }: { currentUser
   }, [userSearchQuery, role])
 
   // When user selects someone from search to chat with
-  const startNewChat = (user: SearchUser) => {
+  const startNewChat = async (user: SearchUser) => {
+    // Check if users can message each other
+    try {
+      const res = await fetch(`/api/message-requests/can-message?other_user_id=${user.id}`)
+      const data = await res.json()
+      
+      if (!data.canMessage) {
+        alert('You need an accepted message request to chat with this user.')
+        return
+      }
+    } catch (error) {
+      console.error('Failed to check messaging permission:', error)
+      alert('Failed to check messaging permission. Please try again.')
+      return
+    }
+
     const newConv: Conversation = {
       id: `new-${user.id}`,
       lastMessage: '',

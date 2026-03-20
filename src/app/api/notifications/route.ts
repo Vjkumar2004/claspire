@@ -8,6 +8,11 @@ const supabase = createClient(
 
 export async function GET(req: NextRequest) {
   try {
+    const { searchParams } = new URL(req.url)
+    const afterRaw = searchParams.get('after')
+    // Fix: '+' in timestamp gets decoded as space, restore it
+    const after = afterRaw ? afterRaw.replace(/ /g, '+') : null
+
     const cookie = req.cookies.get('claspire_session')
     if (!cookie) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
@@ -16,18 +21,32 @@ export async function GET(req: NextRequest) {
     const session = JSON.parse(cookie.value)
     const userId = session.id
 
-    const { data, error } = await supabase
+    let query = supabase
       .from('notifications')
       .select('*')
       .eq('receiver_id', userId)
       .order('created_at', { ascending: false })
       .limit(50)
 
+    if (after) {
+      try {
+        // Validate it's a proper date before querying
+        const afterDate = new Date(after)
+        if (!isNaN(afterDate.getTime())) {
+          query = query.gt('created_at', afterDate.toISOString())
+        }
+      } catch {
+        // Invalid date — skip filter, return all notifications
+      }
+    }
+
+    const { data, error } = await query
+
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    return NextResponse.json({ notifications: data })
+    return NextResponse.json({ notifications: data || [] })
 
   } catch (err) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

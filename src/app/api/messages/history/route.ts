@@ -11,6 +11,9 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const otherUserId = searchParams.get('userId');
+    const afterRaw = searchParams.get('after');
+    // Fix: '+' in timestamp gets decoded as space, restore it
+    const after = afterRaw ? afterRaw.replace(/ /g, '+') : null;
 
     if (!otherUserId) {
       return NextResponse.json({ error: 'userId query parameter is required' }, { status: 400 });
@@ -26,27 +29,44 @@ export async function GET(req: NextRequest) {
 
     const conversationId = getConversationId(userId, otherUserId);
 
-    const { data: messages, error } = await supabase
+    let query = supabase
       .from('direct_messages')
       .select('id, sender_id, receiver_id, content, created_at, conversation_id')
       .eq('conversation_id', conversationId)
-      .order('created_at', { ascending: true });
+      .order('created_at', { ascending: true })
+      .limit(100)
+
+    if (after) {
+      try {
+        // Validate it's a proper date before querying
+        const afterDate = new Date(after)
+        if (!isNaN(afterDate.getTime())) {
+          query = query.gt('created_at', afterDate.toISOString())
+        }
+      } catch {
+        // Invalid date — skip filter, return all messages
+      }
+    }
+
+    const { data: messages, error } = await query;
 
     if (error) {
       console.error('History query error:', error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    // Mark messages as read (where current user is the receiver)
-    supabase
-      .from('direct_messages')
-      .update({ is_read: true })
-      .eq('conversation_id', conversationId)
-      .eq('receiver_id', userId)
-      .eq('is_read', false)
-      .then(({ error: readError }) => {
-        if (readError) console.error('Mark read error:', readError);
-      });
+    // Mark messages as read (where current user is the receiver) - only for initial load
+    if (!after) {
+      supabase
+        .from('direct_messages')
+        .update({ is_read: true })
+        .eq('conversation_id', conversationId)
+        .eq('receiver_id', userId)
+        .eq('is_read', false)
+        .then(({ error: readError }) => {
+          if (readError) console.error('Mark read error:', readError);
+        });
+    }
 
     return NextResponse.json({ messages: messages || [] });
   } catch (err: any) {

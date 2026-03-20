@@ -1,7 +1,6 @@
 'use client'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { Send, User as UserIcon, Loader2 } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
 
 interface Message {
   id: string
@@ -31,9 +30,12 @@ export default function ChatWindow({
   const [newMessage, setNewMessage] = useState('')
   const [loading, setLoading] = useState(true)
   const [sending, setSending] = useState(false)
+  const [blockStatus, setBlockStatus] = useState<'loading' | 'none' | 'blocked'>('loading')
   const scrollRef = useRef<HTMLDivElement>(null)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
   const messagesRef = useRef<Message[]>([])
-  const channelRef = useRef<any>(null)
+  const pollingRef = useRef<NodeJS.Timeout | null>(null)
+  const lastMessageIdRef = useRef<string>('')
 
   // Keep ref in sync
   useEffect(() => {
@@ -48,20 +50,60 @@ export default function ChatWindow({
 
   const conversationId = [currentUserId, otherUserId].sort().join('_')
 
-  // Fetch history + subscribe to realtime
+  const fetchNewMessages = useCallback(async () => {
+    try {
+      const res = await fetch(
+        `/api/messages/history?userId=${otherUserId}&after=${encodeURIComponent(lastMessageIdRef.current)}` 
+      )
+      if (!res.ok) return
+      const data = await res.json()
+      
+      if (data.messages && Array.isArray(data.messages) && data.messages.length > 0) {
+        setMessages(prev => {
+          // Filter out duplicates and temp messages that were replaced
+          const existingIds = new Set(prev.map(m => m.id))
+          const newMsgs = data.messages.filter(
+            (m: Message) => !existingIds.has(m.id) && !m.id.startsWith('temp-')
+          )
+          if (newMsgs.length === 0) return prev
+          
+          // Update lastMessageId
+          const lastMsg = newMsgs[newMsgs.length - 1]
+          lastMessageIdRef.current = lastMsg.created_at
+          
+          return [...prev, ...newMsgs]
+        })
+      }
+    } catch (err) {
+      // Silent fail — don't show error for background polling
+    }
+  }, [otherUserId])
+
+  // Fetch history + polling
   useEffect(() => {
-    let channel: any = null
+    if (!currentUserId || !otherUserId) return
 
     const init = async () => {
       setLoading(true)
       setMessages([])
+      lastMessageIdRef.current = ''
 
-      // 1. Fetch history
+      // Stop any existing polling
+      if (pollingRef.current) {
+        clearInterval(pollingRef.current)
+        pollingRef.current = null
+      }
+
+      // Fetch initial history
       try {
         const res = await fetch(`/api/messages/history?userId=${otherUserId}`)
         const data = await res.json()
         if (data.messages && Array.isArray(data.messages)) {
           setMessages(data.messages)
+          // Set last message timestamp for polling
+          if (data.messages.length > 0) {
+            lastMessageIdRef.current = data.messages[data.messages.length - 1].created_at
+          }
         }
       } catch (err) {
         console.error('Failed to fetch chat history:', err)
@@ -69,55 +111,44 @@ export default function ChatWindow({
         setLoading(false)
       }
 
-      // 2. Subscribe to realtime - listen for both sender and receiver
-      channel = supabase
-        .channel(`dm-${conversationId}`)
-        .on(
-          'postgres_changes',
-          {
-            event: 'INSERT',
-            schema: 'public',
-            table: 'direct_messages',
-            filter: `conversation_id=eq.${conversationId}`
-          },
-          (payload) => {
-            const newMsg = payload.new as Message
-            
-            // Check if message belongs to this conversation
-            if ((newMsg.sender_id === currentUserId && newMsg.receiver_id === otherUserId) ||
-                (newMsg.sender_id === otherUserId && newMsg.receiver_id === currentUserId)) {
-              
-              setMessages(prev => {
-                const exists = prev.some(m => m.id === newMsg.id)
-                if (exists) {
-                  // Replace the optimistic version with the real one
-                  return prev.map(m => m.id === newMsg.id ? newMsg : m)
-                }
-                // Add new message if it doesn't exist
-                return [...prev, newMsg]
-              })
-            }
-          }
-        )
-        .subscribe()
-
-      channelRef.current = channel
+      // Start polling every 2 seconds
+      pollingRef.current = setInterval(() => {
+        fetchNewMessages()
+      }, 2000)
     }
 
     init()
 
     return () => {
-      if (channelRef.current) {
-        supabase.removeChannel(channelRef.current)
-        channelRef.current = null
+      if (pollingRef.current) {
+        clearInterval(pollingRef.current)
+        pollingRef.current = null
       }
     }
-  }, [otherUserId, currentUserId, conversationId])
+  }, [otherUserId, currentUserId, fetchNewMessages])
 
   // Auto-scroll on new messages
   useEffect(() => {
     scrollToBottom()
   }, [messages, scrollToBottom])
+
+  // Check block status
+  useEffect(() => {
+    const fetchBlockStatus = async () => {
+      try {
+        const res = await fetch(`/api/block/status?user_id=${otherUserId}`)
+        if (res.ok) {
+          const data = await res.json()
+          setBlockStatus(data.they_blocked_me ? 'blocked' : 'none')
+        }
+      } catch (error) {
+        console.error('Failed to fetch block status:', error)
+        setBlockStatus('none')
+      }
+    }
+
+    fetchBlockStatus()
+  }, [otherUserId])
 
   const sendMessage = async () => {
     const content = newMessage.trim()
@@ -179,7 +210,7 @@ export default function ChatWindow({
   return (
     <div className="flex flex-col h-full bg-white border border-gray-100 rounded-3xl shadow-sm overflow-hidden">
       {/* Header */}
-      <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-white/50 backdrop-blur-sm">
+      <div className="flex-shrink-0 p-4 border-b border-gray-100 flex items-center justify-between bg-white/50 backdrop-blur-sm">
         <div className="flex items-center gap-3">
           <div className={`w-10 h-10 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0 ${otherUserAvatar ? 'bg-transparent shadow-sm' : 'bg-red-500 text-white'}`}>
             {otherUserAvatar ? (
@@ -205,10 +236,10 @@ export default function ChatWindow({
         </div>
       </div>
 
-      {/* Messages */}
+      {/* Messages - Scrollable area */}
       <div
         ref={scrollRef}
-        className="flex-1 overflow-y-auto p-4 pb-24 md:pb-4 space-y-3 custom-scrollbar bg-gray-50/30"
+        className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar bg-gray-50/30"
       >
         {loading ? (
           <div className="flex items-center justify-center h-full">
@@ -245,27 +276,34 @@ export default function ChatWindow({
             )
           })
         )}
+        <div ref={messagesEndRef} />
       </div>
 
-      {/* Input */}
-      <div className="p-4 bg-white border-t border-gray-100">
-        <div className="relative flex items-center gap-2">
-          <input
-            type="text"
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && sendMessage()}
-            placeholder="Type a message..."
-            className="flex-1 bg-gray-50 border border-gray-100 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-purple-600 transition-colors"
-          />
-          <button
-            onClick={sendMessage}
-            disabled={!newMessage.trim() || sending}
-            className="p-3 bg-purple-600 text-white rounded-2xl hover:bg-purple-700 transition-all disabled:opacity-50 active:scale-95 flex-shrink-0"
-          >
-            {sending ? <Loader2 className="animate-spin" size={20} /> : <Send size={20} />}
-          </button>
-        </div>
+      {/* Input - Sticky at bottom */}
+      <div className="flex-shrink-0 p-4 bg-white border-t border-gray-100">
+        {blockStatus === 'blocked' ? (
+          <div className="p-4 text-center text-gray-500 text-sm bg-gray-900 rounded-xl mx-4 mb-4">
+            You can't send messages to this user.
+          </div>
+        ) : (
+          <div className="relative flex items-center gap-2">
+            <input
+              type="text"
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && sendMessage()}
+              placeholder="Type a message..."
+              className="flex-1 bg-gray-50 border border-gray-100 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-purple-600 transition-colors"
+            />
+            <button
+              onClick={sendMessage}
+              disabled={!newMessage.trim() || sending}
+              className="p-3 bg-purple-600 text-white rounded-2xl hover:bg-purple-700 transition-all disabled:opacity-50 active:scale-95 flex-shrink-0"
+            >
+              {sending ? <Loader2 className="animate-spin" size={20} /> : <Send size={20} />}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )

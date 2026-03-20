@@ -18,6 +18,8 @@ import { motion, AnimatePresence } from 'framer-motion'
 import NotificationPrompt from '@/components/NotificationPrompt'
 import NotificationBell from '@/components/NotificationBell'
 import DashboardMessages from '@/components/DashboardMessages'
+import DeleteAccountModal from '@/components/DeleteAccountModal'
+import AcceptedSeniorsSection from '@/components/junior/AcceptedSeniorsSection'
 
 interface DashData {
   user: {
@@ -128,6 +130,8 @@ export default function JuniorDashboard() {
   const [doubtSearch, setDoubtSearch] = useState('')
   const [doubtFilter, setDoubtFilter] = useState<'all' | 'answered' | 'pending'>('all')
   const [eventSearch, setEventSearch] = useState('')
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   useEffect(() => {
     init()
@@ -196,6 +200,26 @@ export default function JuniorDashboard() {
         setShowDeleteConfirm(null)
       }
     } catch (err) { console.error(err) } finally { setDeletingId(null) }
+  }
+
+  const handleDeleteAccount = async () => {
+    setIsDeleting(true)
+    try {
+      const res = await fetch('/api/user/delete-account', { method: 'DELETE' })
+      const data = await res.json()
+      if (data.success) {
+        // Clear localStorage
+        localStorage.clear()
+        // Redirect to home
+        window.location.href = '/'
+      } else {
+        alert('Failed to delete account. Please try again.')
+        setIsDeleting(false)
+      }
+    } catch (err) {
+      alert('Something went wrong. Please try again.')
+      setIsDeleting(false)
+    }
   }
 
   if (loading || !authChecked || !dashData) {
@@ -426,6 +450,9 @@ export default function JuniorDashboard() {
                         )}
                       </div>
                     </div>
+
+                    {/* Accepted Seniors Section */}
+                    <AcceptedSeniorsSection />
                   </motion.div>
                 )}
 
@@ -707,6 +734,21 @@ export default function JuniorDashboard() {
                   </div>
                 </div>
 
+                <div className="mt-12 border-t border-gray-800 pt-8">
+                  <h3 className="text-red-400 font-semibold text-sm uppercase tracking-wider mb-1">
+                    Danger Zone
+                  </h3>
+                  <p className="text-gray-500 text-sm mb-4">
+                    Once you delete your account, there is no going back.
+                  </p>
+                  <button
+                    onClick={() => setShowDeleteModal(true)}
+                    className="border border-red-800 text-red-400 hover:bg-red-950/30 rounded-xl px-5 py-2.5 text-sm font-medium transition-colors"
+                  >
+                    Delete My Account
+                  </button>
+                </div>
+
                 <div className="pt-8 border-t border-white/5">
                   <div className="flex items-center justify-between mb-4">
                     <h4 className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Platform Status</h4>
@@ -753,6 +795,12 @@ export default function JuniorDashboard() {
           scrollbar-width: none;
         }
       `}</style>
+      <DeleteAccountModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={handleDeleteAccount}
+        isLoading={isDeleting}
+      />
       <NotificationPrompt />
     </div>
   )

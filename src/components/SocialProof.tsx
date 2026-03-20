@@ -5,21 +5,21 @@ import { useRef } from 'react';
 
 const quotes = [
   {
-    text: "I was rejected from 5 companies before a senior from SRM told me exactly what Swiggy looks for. Got the offer in 2 weeks.",
-    author: "Arun K.",
-    details: "SRM CSE 2024 → Swiggy",
+    text: "I was struggling with campus placements at AAACET. A senior from Kamaraj College shared exact interview questions. Got placed in Wipro!",
+    author: "Vijayakumar S.",
+    details: "AAACET ECE 2024 → Wipro",
     color: "#7C3AED"
   },
   {
-    text: "Posted a doubt at 11pm about Amazon's interview process. Got a detailed reply from a senior at midnight. This platform is insane.",
-    author: "Sneha R.",
-    details: "VIT ECE 2024 → Amazon",
+    text: "Posted doubt about TCS interview at midnight. Got reply from ANJAC senior immediately. Cleared the interview next week!",
+    author: "Kavitha R.",
+    details: "VVV College IT 2024 → TCS",
     color: "#06B6D4"
   },
   {
-    text: "The referral feature alone is worth it. Senior approved my request in 10 minutes. Interview call came 3 days later.",
-    author: "Priya M.",
-    details: "NIT Trichy 2024 → Flipkart",
+    text: "Got referral from Kamaraj alumni for Infosys. The platform connected me with seniors who actually work there!",
+    author: "Manikandan P.",
+    details: "ANJAC CSE 2024 → Infosys",
     color: "#7C3AED"
   }
 ];
@@ -55,11 +55,11 @@ export default function SocialProof() {
           className="text-center"
         >
           <div className="text-xs font-bold tracking-[0.08em] uppercase text-gray-400 mb-3">
-            REAL STORIES
+            SUCCESS STORIES
           </div>
           <h2 className="font-instrument-serif font-normal text-[clamp(32px,4vw,40px)] leading-[1.15] text-black">
-            Students who asked.<br />
-            Students who got placed.
+            Local students who asked.<br />
+            Local students who got placed.
           </h2>
         </motion.div>
 

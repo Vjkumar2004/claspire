@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import ChatWindow from '@/components/ChatWindow'
+import BlockUserButton from '@/components/BlockUserButton'
 import { MessageSquare, Search, User as UserIcon, Loader2, ArrowLeft } from 'lucide-react'
 
 interface Conversation {
@@ -22,6 +23,7 @@ export default function SeniorMessagesPage() {
   const [selectedChat, setSelectedChat] = useState<Conversation | null>(null)
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
+  const [showChatMenu, setShowChatMenu] = useState(false)
 
   useEffect(() => {
     fetchConversations()
@@ -108,24 +110,94 @@ export default function SeniorMessagesPage() {
       {/* Main: Chat Window */}
       <div className={`flex-1 h-full ${!selectedChat ? 'hidden md:block' : 'block'}`}>
         {selectedChat && user ? (
-          <div className="flex flex-col h-full bg-white border border-gray-100 rounded-3xl shadow-sm overflow-hidden">
+          <div className="flex flex-col h-full">
             {/* Mobile Header with Back Button */}
-            <div className="md:hidden flex items-center p-4 border-b border-gray-100 bg-white">
-              <button 
-                onClick={() => setSelectedChat(null)}
-                className="p-2 -ml-2 text-gray-500 hover:text-purple-600 transition-colors"
-              >
-                <ArrowLeft size={20} />
-              </button>
-              <div className="ml-2 flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-600">
-                  <UserIcon size={16} />
+            <div className="md:hidden flex-shrink-0 flex items-center justify-between p-4 border-b border-gray-100 bg-white">
+              <div className="flex items-center gap-3">
+                <button 
+                  onClick={() => setSelectedChat(null)}
+                  className="p-2 -ml-2 text-gray-500 hover:text-purple-600 transition-colors"
+                >
+                  <ArrowLeft size={20} />
+                </button>
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-600">
+                    <UserIcon size={16} />
+                  </div>
+                  <h3 className="text-sm font-bold text-gray-900">{selectedChat.otherUser.full_name}</h3>
                 </div>
-                <h3 className="text-sm font-bold text-gray-900">{selectedChat.otherUser.full_name}</h3>
+              </div>
+              
+              {/* 3-dot menu */}
+              <div className="relative">
+                <button
+                  onClick={() => setShowChatMenu(!showChatMenu)}
+                  className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"
+                >
+                  ⋮
+                </button>
+                
+                {showChatMenu && (
+                  <div className="absolute right-0 top-10 bg-gray-900 border border-gray-800 rounded-xl shadow-xl z-50 min-w-[180px] py-1"
+                    onMouseLeave={() => setShowChatMenu(false)}
+                  >
+                    <BlockUserButton
+                      userId={selectedChat.otherUserId}
+                      userName={selectedChat.otherUser.full_name}
+                      onBlocked={() => {
+                        setShowChatMenu(false)
+                        setSelectedChat(null)
+                        // Remove from conversations list
+                        setConversations(prev => 
+                          prev.filter(c => c.otherUserId !== selectedChat.otherUserId)
+                        )
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Desktop Header */}
+            <div className="hidden md:flex-shrink-0 md:flex items-center justify-between p-4 border-b border-gray-100 bg-white">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600">
+                  <UserIcon size={20} />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900">{selectedChat.otherUser.full_name}</h3>
+              </div>
+              
+              {/* 3-dot menu */}
+              <div className="relative">
+                <button
+                  onClick={() => setShowChatMenu(!showChatMenu)}
+                  className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"
+                >
+                  ⋮
+                </button>
+                
+                {showChatMenu && (
+                  <div className="absolute right-0 top-10 bg-gray-900 border border-gray-800 rounded-xl shadow-xl z-50 min-w-[180px] py-1"
+                    onMouseLeave={() => setShowChatMenu(false)}
+                  >
+                    <BlockUserButton
+                      userId={selectedChat.otherUserId}
+                      userName={selectedChat.otherUser.full_name}
+                      onBlocked={() => {
+                        setShowChatMenu(false)
+                        setSelectedChat(null)
+                        // Remove from conversations list
+                        setConversations(prev => 
+                          prev.filter(c => c.otherUserId !== selectedChat.otherUserId)
+                        )
+                      }}
+                    />
+                  </div>
+                )}
               </div>
             </div>
             
-            <div className="flex-1">
+            <div className="flex-1 h-full">
               <ChatWindow
                 currentUserId={user.id}
                 otherUserId={selectedChat.otherUserId}
