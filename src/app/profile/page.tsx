@@ -38,8 +38,14 @@ export default function ProfilePage() {
     graduation_year: ''
   })
 
+  const [doubtCount, setDoubtCount] = useState(0)
+  const [answerCount, setAnswerCount] = useState(0)
+
   useEffect(() => {
     fetchUserData()
+    // Set up real-time updates every 30 seconds
+    const interval = setInterval(fetchUserData, 30000)
+    return () => clearInterval(interval)
   }, [])
 
   // Check if user is returning from community page after creating a post
@@ -84,6 +90,8 @@ export default function ProfilePage() {
         setUser(data.user)
         setPosts(data.myPosts || [])
         setJoinedCommunities(data.joinedCommunities || [])
+        setDoubtCount(data.user.doubt_count || 0)
+        setAnswerCount(data.user.answer_count || 0)
         setFormData({
           bio: data.user.bio || '',
           branch: data.user.branch || '',
@@ -634,10 +642,10 @@ export default function ProfilePage() {
                         <div className="flex-1">
                            <div className="flex justify-between items-center mb-1">
                               <span className="text-xs font-bold text-[#64748B]">Doubts Asked</span>
-                              <span className="text-xs font-black text-[#0F172A]">{user.doubt_count || 0}</span>
+                              <span className="text-xs font-black text-[#0F172A]">{doubtCount}</span>
                            </div>
                            <div className="w-full bg-gray-50 h-1.5 rounded-full overflow-hidden">
-                              <div className="bg-orange-500 h-full rounded-full" style={{ width: '45%' }} />
+                              <div className="bg-orange-500 h-full rounded-full transition-all duration-500" style={{ width: `${Math.min((doubtCount / Math.max(doubtCount + answerCount, 1)) * 100, 100)}%` }} />
                            </div>
                         </div>
                      </div>
@@ -649,10 +657,10 @@ export default function ProfilePage() {
                         <div className="flex-1">
                            <div className="flex justify-between items-center mb-1">
                               <span className="text-xs font-bold text-[#64748B]">Answers Shared</span>
-                              <span className="text-xs font-black text-[#0F172A]">{user.answer_count || 0}</span>
+                              <span className="text-xs font-black text-[#0F172A]">{answerCount}</span>
                            </div>
                            <div className="w-full bg-gray-50 h-1.5 rounded-full overflow-hidden">
-                              <div className="bg-blue-500 h-full rounded-full" style={{ width: '30%' }} />
+                              <div className="bg-blue-500 h-full rounded-full transition-all duration-500" style={{ width: `${Math.min((answerCount / Math.max(doubtCount + answerCount, 1)) * 100, 100)}%` }} />
                            </div>
                         </div>
                      </div>
