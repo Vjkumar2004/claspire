@@ -34,6 +34,9 @@ export const metadata: Metadata = {
     description: "Connect with verified seniors from your college — get real answers, job referrals, and paid mentorship.",
     type: "website",
   },
+  verification: {
+    google: 'IOVKErCFX8A3eEZWlSVPpO-TDKxbIQap9sY-NILpRaE',
+  },
 };
 
 export default function RootLayout({
