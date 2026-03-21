@@ -146,6 +146,30 @@ export default function SignupPage() {
       return
     }
 
+    // Validate student fields first
+    if (activeRole === 'student') {
+      if (!studentData.full_name.trim()) {
+        setError('Full name is required')
+        return
+      }
+      if (!studentData.college_id) {
+        setError('Please select your college')
+        return
+      }
+      if (!studentData.branch.trim()) {
+        setError('Branch is required')
+        return
+      }
+      if (!studentData.year) {
+        setError('Current year is required')
+        return
+      }
+      if (!studentData.passout_year) {
+        setError('Passout year is required')
+        return
+      }
+    }
+
     // Validate senior fields first
     if (activeRole === 'senior') {
       if (!seniorData.full_name.trim()) {
