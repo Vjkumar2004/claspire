@@ -259,7 +259,7 @@ export default function JobsPage() {
               
               {/* Filter Dropdown */}
               {showFilterDropdown && (
-                <div className="absolute top-full right-0 mt-2 w-80 bg-white border border-gray-200 rounded-xl shadow-lg z-50 p-4">
+                <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 bg-white border border-gray-200 rounded-xl shadow-lg z-50 p-4">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="font-bold text-black">Filter Jobs</h3>
                     {hasActiveFilters && (
@@ -330,12 +330,20 @@ export default function JobsPage() {
                     </label>
                   </div>
                   
-                  <button 
-                    onClick={() => setShowFilterDropdown(false)}
-                    className="w-full bg-purple-600 text-white py-2 rounded-lg font-medium text-sm hover:bg-purple-700 transition-colors"
-                  >
-                    Apply Filters
-                  </button>
+                  <div className="flex gap-2">
+                    <button 
+                      onClick={() => setShowFilterDropdown(false)}
+                      className="flex-1 bg-gray-200 text-gray-700 py-2 rounded-lg font-medium text-sm hover:bg-gray-300 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button 
+                      onClick={() => setShowFilterDropdown(false)}
+                      className="flex-1 bg-purple-600 text-white py-2 rounded-lg font-medium text-sm hover:bg-purple-700 transition-colors"
+                    >
+                      Apply Filters
+                    </button>
+                  </div>
                 </div>
               )}
             </div>

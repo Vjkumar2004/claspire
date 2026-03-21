@@ -66,7 +66,7 @@ export default function MessageRequestButton({ seniorId, seniorName }: MessageRe
   }
 
   const handleMessage = () => {
-    router.push(`/dashboard/junior/messages?user=${seniorId}`)
+    router.push(`/dashboard/junior?activeTab=messages&user=${seniorId}`)
   }
 
   // Loading state

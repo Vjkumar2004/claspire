@@ -26,7 +26,13 @@ interface SearchUser {
   is_verified?: boolean
 }
 
-export default function DashboardMessages({ currentUserId, role }: { currentUserId: string, role: 'senior' | 'junior' }) {
+interface DashboardMessagesProps {
+  currentUserId: string
+  role: 'junior' | 'senior'
+  initialUserId?: string  // ADD THIS
+}
+
+export default function DashboardMessages({ currentUserId, role, initialUserId }: DashboardMessagesProps) {
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [selectedChat, setSelectedChat] = useState<Conversation | null>(null)
   const [loading, setLoading] = useState(true)
@@ -59,7 +65,52 @@ export default function DashboardMessages({ currentUserId, role }: { currentUser
     }
   }, [currentUserId, fetchConversations])
 
-  // Handle auto-starting chat from URL parameter ?messageUser=ID
+  // Create conversation with initial user if provided
+  const createConversationWithUser = useCallback(async (userId: string) => {
+    if (!currentUserId || conversations.length === 0 && loading) return
+
+    // Check if we already have a conversation with this user
+    const existing = conversations.find(c => c.otherUserId === userId)
+    if (existing) {
+      setSelectedChat(existing)
+      return
+    }
+
+    // Detect if UUID or unique_id using regex
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId)
+    
+    try {
+      // First check if we can message this user
+      const canMessageRes = await fetch(`/api/message-requests/can-message?other_user_id=${userId}`)
+      const canMessageData = await canMessageRes.json()
+      
+      if (!canMessageData.canMessage) {
+        alert('You need an accepted message request to chat with this user.')
+        return
+      }
+
+      // Fetch user details
+      const searchParam = isUUID ? `userId=${userId}` : `uniqueId=${userId}`
+      const res = await fetch(`/api/messages/search-users?${searchParam}`)
+      const data = await res.json()
+      
+      if (data.users && data.users[0]) {
+        startNewChat(data.users[0])
+      }
+    } catch (err) {
+      console.error('Failed to create conversation:', err)
+      alert('Failed to start chat. Please try again.')
+    }
+  }, [currentUserId, conversations, loading])
+
+  // Handle initialUserId prop
+  useEffect(() => {
+    if (initialUserId) {
+      createConversationWithUser(initialUserId)
+    }
+  }, [initialUserId, createConversationWithUser])
+
+  // Handle auto-starting chat from URL parameter ?messageUser=ID (legacy support)
   useEffect(() => {
     if (!currentUserId || conversations.length === 0 && loading) return
 
@@ -67,48 +118,11 @@ export default function DashboardMessages({ currentUserId, role }: { currentUser
     const targetUserId = params.get('messageUser')
     
     if (targetUserId) {
-      // Check if we already have a conversation with this user
-      const existing = conversations.find(c => c.otherUserId === targetUserId)
-      if (existing) {
-        setSelectedChat(existing)
-        // Clean URL
-        window.history.replaceState({}, '', window.location.pathname)
-      } else {
-        // Fetch user details to start new chat
-        const fetchNewUser = async () => {
-          try {
-            // First check if we can message this user
-            const canMessageRes = await fetch(`/api/message-requests/can-message?other_user_id=${targetUserId}`)
-            const canMessageData = await canMessageRes.json()
-            
-            if (!canMessageData.canMessage) {
-              alert('You need an accepted message request to chat with this user.')
-              // Clean URL and redirect to dashboard
-              window.history.replaceState({}, '', window.location.pathname)
-              if (role === 'junior') {
-                window.location.href = '/dashboard/junior'
-              } else {
-                window.location.href = '/dashboard/senior'
-              }
-              return
-            }
-
-            const res = await fetch(`/api/messages/search-users?userId=${targetUserId}`)
-            const data = await res.json()
-            if (data.users && data.users[0]) {
-              startNewChat(data.users[0])
-              // Clean URL
-              window.history.replaceState({}, '', window.location.pathname)
-            }
-          } catch (err) {
-            console.error('Failed to auto-start chat:', err)
-            alert('Failed to start chat. Please try again.')
-          }
-        }
-        fetchNewUser()
-      }
+      createConversationWithUser(targetUserId)
+      // Clean URL
+      window.history.replaceState({}, '', window.location.pathname)
     }
-  }, [currentUserId, conversations, loading])
+  }, [currentUserId, conversations, loading, createConversationWithUser])
 
   // Debounced user search
   useEffect(() => {
@@ -192,11 +206,11 @@ export default function DashboardMessages({ currentUserId, role }: { currentUser
   }
 
   return (
-    <div className="flex h-[calc(100vh-200px)] gap-6 antialiased">
+    <div className="flex flex-row w-full h-[calc(100dvh-140px)] md:h-[600px] gap-0 md:gap-6 antialiased">
       {/* Sidebar: Conversation List */}
       <div className={`
-        ${selectedChat ? 'hidden lg:flex' : 'flex'}
-        w-full lg:w-80 flex-col bg-white border border-gray-100 rounded-3xl shadow-sm overflow-hidden
+        ${selectedChat ? 'hidden md:flex' : 'flex'}
+        w-full md:w-80 flex-shrink-0 flex-col bg-white border border-gray-100 rounded-3xl shadow-sm overflow-hidden
       `}>
         <div className="p-4 border-b border-gray-100">
           <div className="flex items-center justify-between mb-4">
@@ -370,22 +384,53 @@ export default function DashboardMessages({ currentUserId, role }: { currentUser
       </div>
 
       {/* Main: Chat Window */}
-      <div className={`flex-1 h-full ${!selectedChat ? 'hidden lg:flex' : 'flex'}`}>
+      <div className={`flex-1 min-w-0 h-full flex-col ${!selectedChat ? 'hidden md:flex' : 'flex'}`}>
         {selectedChat ? (
           <div className="flex flex-col w-full h-full">
-            <button
-              onClick={() => setSelectedChat(null)}
-              className="lg:hidden flex items-center gap-2 text-xs font-bold text-gray-500 mb-4 bg-white p-2 rounded-xl shadow-sm border border-gray-100 w-fit"
-            >
-              <ArrowLeft size={14} /> Back to List
-            </button>
-            <ChatWindow
-              currentUserId={currentUserId}
-              otherUserId={selectedChat.otherUserId}
-              otherUserName={selectedChat.otherUser.full_name}
-              otherUserAvatar={selectedChat.otherUser.avatar_url}
-              onMessageSent={handleMessageSent}
-            />
+            {/* Mobile Chat Header — shows instead of app navbar */}
+            <div className="md:hidden flex-shrink-0 flex items-center gap-3 px-4 py-3 bg-white border-b border-gray-100 shadow-sm">
+              {/* Back button */}
+              <button 
+                onClick={() => setSelectedChat(null)}
+                className="p-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-600 transition-colors flex-shrink-0"
+              >
+                <ArrowLeft size={18} />
+              </button>
+              
+              {/* Avatar */}
+              <div className="w-9 h-9 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-bold text-sm overflow-hidden flex-shrink-0">
+                {selectedChat.otherUser.avatar_url ? (
+                  <img 
+                    src={selectedChat.otherUser.avatar_url}
+                    alt={selectedChat.otherUser.full_name}
+                    className="w-full h-full object-cover" 
+                  />
+                ) : (
+                  selectedChat.otherUser.full_name?.[0]?.toUpperCase()
+                )}
+              </div>
+              
+              {/* Name + Online */}
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-bold text-gray-900 truncate">
+                  {selectedChat.otherUser.full_name}
+                </p>
+                <p className="text-xs text-green-500 font-semibold">
+                  Online
+                </p>
+              </div>
+            </div>
+
+            {/* ChatWindow */}
+            <div className="flex-1 min-h-0">
+              <ChatWindow
+                currentUserId={currentUserId}
+                otherUserId={selectedChat.otherUserId}
+                otherUserName={selectedChat.otherUser.full_name}
+                otherUserAvatar={selectedChat.otherUser.avatar_url}
+                onMessageSent={handleMessageSent}
+              />
+            </div>
           </div>
         ) : (
           <div className="h-full w-full flex flex-col items-center justify-center bg-white border border-gray-100 rounded-3xl shadow-sm text-center p-8">

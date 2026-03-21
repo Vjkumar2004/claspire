@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import Navbar from '@/components/Navbar'
 import MessageRequestButton from '@/components/MessageRequestButton'
+import SeniorMessageRequestButton from '@/components/SeniorMessageRequestButton'
 import { 
   Users, MapPin, Building2, Search, 
   Award, Briefcase, GraduationCap
@@ -187,7 +188,17 @@ export default function SeniorsPage() {
 
                   {/* College/Community context & Action */}
                   <div className="pt-4 border-t border-gray-50 mt-auto">
-                    <MessageRequestButton seniorId={senior.id} seniorName={senior.full_name} />
+                    {user?.role === 'senior' ? (
+                      <SeniorMessageRequestButton 
+                        targetSeniorId={senior.id} 
+                        targetSeniorName={senior.full_name} 
+                      />
+                    ) : (
+                      <MessageRequestButton 
+                        seniorId={senior.id} 
+                        seniorName={senior.full_name} 
+                      />
+                    )}
                   </div>
 
                   {/* Hover Accent */}

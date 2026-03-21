@@ -3,13 +3,34 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { X, Menu, Users, GraduationCap, Briefcase, DollarSign, LayoutDashboard, User, LogOut, ChevronRight } from 'lucide-react'
+import { X, Menu, Users, GraduationCap, Briefcase, DollarSign, LayoutDashboard, User, LogOut, ChevronRight, MessageSquare } from 'lucide-react'
 import NotificationBell from './NotificationBell'
 
 export default function Navbar() {
   const { user, loading, signOut } = useAuth()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false)
+  const [unreadMessageCount, setUnreadMessageCount] = useState(0)
+
+  // Fetch unread message count
+  useEffect(() => {
+    if (!user?.id) return
+
+    const fetchUnreadCount = async () => {
+      try {
+        const res = await fetch('/api/messages/unread-count')
+        const data = await res.json()
+        setUnreadMessageCount(data.count || 0)
+      } catch (err) {
+        console.error('Failed to fetch unread count:', err)
+      }
+    }
+
+    fetchUnreadCount()
+    // Poll every 30 seconds for new messages
+    const interval = setInterval(fetchUnreadCount, 30000)
+    return () => clearInterval(interval)
+  }, [user?.id])
 
   // Sync mobile menu state with body class for BottomNavbar visibility
   useEffect(() => {
@@ -78,6 +99,17 @@ export default function Navbar() {
           ) : user ? (
             <div className="flex items-center gap-4">
               <NotificationBell dark />
+              <Link 
+                href={user?.role === 'senior' ? '/dashboard/senior?activeTab=messages' : '/dashboard/junior?activeTab=messages'}
+                className="relative p-2 rounded-full text-gray-600 hover:text-black hover:bg-gray-100 transition-colors"
+              >
+                <MessageSquare size={20} />
+                {unreadMessageCount > 0 && (
+                  <span className="absolute top-1.5 right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white ring-2 ring-white">
+                    {unreadMessageCount}
+                  </span>
+                )}
+              </Link>
               <div style={{ position: 'relative' }}>
                 <button
                   onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
@@ -274,6 +306,17 @@ export default function Navbar() {
           ) : user ? (
             <div className="flex items-center gap-3">
               <NotificationBell dark />
+              <Link 
+                href={user?.role === 'senior' ? '/dashboard/senior?activeTab=messages' : '/dashboard/junior?activeTab=messages'}
+                className="relative p-2 rounded-full text-gray-600 hover:text-black hover:bg-gray-100 transition-colors"
+              >
+                <MessageSquare size={18} />
+                {unreadMessageCount > 0 && (
+                  <span className="absolute top-1 right-1 flex h-3 w-3 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white ring-2 ring-white">
+                    {unreadMessageCount}
+                  </span>
+                )}
+              </Link>
               <button
                 onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
                 className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-600 to-cyan-500 text-white text-xs font-black flex items-center justify-center overflow-hidden"

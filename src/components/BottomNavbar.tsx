@@ -3,9 +3,26 @@
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Users, Search, Plus, MessageSquare, User, Briefcase, GraduationCap } from 'lucide-react'
+import { Users, Search, Plus, User, Briefcase, GraduationCap, LayoutDashboard } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
+
+// Type definitions for navigation items
+type RegularNavItem = {
+  label: string
+  icon: React.ComponentType<any>
+  href: string
+  badge?: number
+}
+
+type CenterNavItem = {
+  label: string
+  icon: React.ComponentType<any>
+  href: string
+  isCenter: true
+}
+
+type NavItem = RegularNavItem | CenterNavItem
 
 const BottomNavbar = () => {
   const pathname = usePathname()
@@ -124,7 +141,7 @@ const BottomNavbar = () => {
   }, [])
 
   // Base navigation items
-  const navItems = [
+  const navItems: NavItem[] = [
     {
       label: 'Community',
       icon: Users,
@@ -152,10 +169,9 @@ const BottomNavbar = () => {
       href: '/seniors',
     },
     {
-      label: 'Messages',
-      icon: MessageSquare,
-      href: user?.role === 'senior' ? '/dashboard/senior/messages' : '/dashboard/junior/messages',
-      badge: unreadMessageCount
+      label: 'Dashboard',
+      icon: LayoutDashboard,
+      href: user?.role === 'senior' ? '/dashboard/senior' : '/dashboard/junior',
     },
     {
       label: 'Profile',
@@ -175,10 +191,16 @@ const BottomNavbar = () => {
       <div className="bg-white/80 backdrop-blur-xl border border-gray-200/50 rounded-[28px] shadow-[0_8px_32px_rgba(0,0,0,0.12)] px-2 py-2">
         <div className="flex items-center justify-between gap-1">
           {navItems.map((item, index) => {
-            const isActive = pathname === item.href
-            const Icon = item.icon
+            // Type guard functions
+            const isCenterItem = (navItem: NavItem): navItem is CenterNavItem => 
+              'isCenter' in navItem && navItem.isCenter === true
+            
+            const isRegularItem = (navItem: NavItem): navItem is RegularNavItem => 
+              !('isCenter' in navItem)
 
-            if (item.isCenter) {
+            // Handle center button (Ask)
+            if (isCenterItem(item)) {
+              const Icon = item.icon
               return (
                 <Link
                   key={index}
@@ -195,27 +217,34 @@ const BottomNavbar = () => {
               )
             }
 
-            return (
-              <Link
-                key={index}
-                href={item.href}
-                className="flex-1 flex flex-col items-center py-2 no-underline group relative"
-              >
-                <div className={`transition-all duration-200 ${isActive ? 'text-purple-600 scale-110' : 'text-gray-400 group-hover:text-gray-600'}`}>
-                  <Icon size={22} strokeWidth={isActive ? 2.5 : 2} />
+            // Handle regular navigation items
+            if (isRegularItem(item)) {
+              const isActive = pathname === item.href
+              const Icon = item.icon
+              return (
+                <Link
+                  key={index}
+                  href={item.href}
+                  className="flex-1 flex flex-col items-center py-2 no-underline group relative"
+                >
+                  <div className={`transition-all duration-200 ${isActive ? 'text-purple-600 scale-110' : 'text-gray-400 group-hover:text-gray-600'}`}>
+                    <Icon size={22} strokeWidth={isActive ? 2.5 : 2} />
 
-                  {/* Notification Badge */}
-                  {item.badge !== undefined && item.badge > 0 && (
-                    <span className="absolute -top-1 right-2 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white ring-2 ring-white">
-                      {item.badge}
-                    </span>
-                  )}
-                </div>
-                <span className={`text-[10px] mt-1 font-bold tracking-tight transition-colors duration-200 ${isActive ? 'text-purple-600' : 'text-gray-400 group-hover:text-gray-600'}`}>
-                  {item.label}
-                </span>
-              </Link>
-            )
+                    {/* Notification Badge */}
+                    {item.badge !== undefined && item.badge > 0 && (
+                      <span className="absolute -top-1 right-2 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white ring-2 ring-white">
+                        {item.badge}
+                      </span>
+                    )}
+                  </div>
+                  <span className={`text-[10px] mt-1 font-bold tracking-tight transition-colors duration-200 ${isActive ? 'text-purple-600' : 'text-gray-400 group-hover:text-gray-600'}`}>
+                    {item.label}
+                  </span>
+                </Link>
+              )
+            }
+
+            return null
           })}
         </div>
       </div>

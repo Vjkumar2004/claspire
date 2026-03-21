@@ -118,13 +118,22 @@ export default function JuniorDashboard() {
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState('overview')
+  const [initialMessageUser, setInitialMessageUser] = useState<string | undefined>(undefined)
 
   // Handle URL parameters for active tab
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     const tab = params.get('activeTab')
+    const targetUser = params.get('user')
+    
     if (tab && ['overview', 'doubts', 'webinars', 'community', 'referrals', 'messages'].includes(tab)) {
       setActiveTab(tab)
+    }
+    
+    // If user param exists, switch to messages tab
+    if (targetUser) {
+      setActiveTab('messages')
+      setInitialMessageUser(targetUser)
     }
   }, [])
   const [doubtSearch, setDoubtSearch] = useState('')
@@ -673,7 +682,11 @@ export default function JuniorDashboard() {
 
                 {activeTab === 'messages' && (
                   <motion.div key="messages" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-                    <DashboardMessages currentUserId={u.id} role="junior" />
+                    <DashboardMessages 
+                      currentUserId={u.id} 
+                      role="junior"
+                      initialUserId={initialMessageUser}
+                    />
                   </motion.div>
                 )}
               </AnimatePresence>

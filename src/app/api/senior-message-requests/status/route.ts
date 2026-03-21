@@ -1,0 +1,72 @@
+import { NextResponse } from 'next/server'
+import { supabase } from '@/lib/supabase'
+
+export async function GET(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url)
+    const receiverId = searchParams.get('receiver_id')
+    
+    if (!receiverId) {
+      return NextResponse.json({ error: 'Receiver ID is required' }, { status: 400 })
+    }
+
+    // Get current user from cookie (same as /api/auth/me)
+    const cookieStore = require('next/headers').cookies()
+    const session = cookieStore.get('claspire_session')
+    
+    if (!session?.value) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    let user
+    try {
+      user = JSON.parse(session.value)
+    } catch (parseError) {
+      console.error('Failed to parse session:', parseError)
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Check if current user is a senior - separate query
+    const { data: currentUser, error: userError } = await supabase
+      .from('users')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+
+    if (userError || currentUser?.role !== 'senior') {
+      return NextResponse.json({ error: 'Only seniors can make senior-to-senior requests' }, { status: 403 })
+    }
+
+    // Check if receiver is a senior - separate query
+    const { data: receiverUser, error: receiverError } = await supabase
+      .from('users')
+      .select('role')
+      .eq('id', receiverId)
+      .single()
+
+    if (receiverError || receiverUser?.role !== 'senior') {
+      return NextResponse.json({ error: 'Receiver is not a senior' }, { status: 403 })
+    }
+
+    // Check if there's an existing request
+    const { data: existingRequest, error: requestError } = await supabase
+      .from('senior_message_requests')
+      .select('status')
+      .eq('sender_id', user.id)
+      .eq('receiver_id', receiverId)
+      .single()
+
+    if (requestError && requestError.code !== 'PGRST116') {
+      // PGRST116 means no rows found, which is expected
+      console.error('Error checking request status:', requestError)
+      return NextResponse.json({ error: 'Failed to check request status' }, { status: 500 })
+    }
+
+    const status = existingRequest?.status || 'none'
+
+    return NextResponse.json({ status })
+  } catch (error) {
+    console.error('Error in status check:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
+}

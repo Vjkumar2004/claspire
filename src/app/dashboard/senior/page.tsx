@@ -10,6 +10,7 @@ import NotificationPrompt from '@/components/NotificationPrompt';
 import NotificationBell from '@/components/NotificationBell';
 import DeleteAccountModal from '@/components/DeleteAccountModal';
 import MessageRequestsSection from '@/components/senior/MessageRequestsSection';
+import SeniorConnectionRequestsSection from '@/components/SeniorConnectionRequestsSection';
 
 // Helper functions
 const timeAgo = (dateStr: string) => {
@@ -34,13 +35,22 @@ export default function SeniorDashboardPage() {
   // Move ALL useState hooks to the top - Rules of Hooks compliance
   const { showAward } = usePoints();
   const [activeNav, setActiveNav] = useState("overview");
+  const [initialMessageUser, setInitialMessageUser] = useState<string | undefined>(undefined);
 
   // Handle URL parameters for active tab
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const tab = params.get('activeTab');
+    const targetUser = params.get('user');
+    
     if (tab && ["overview", "jobs", "referrals", "messages"].includes(tab)) {
       setActiveNav(tab);
+    }
+    
+    // If user param exists, switch to messages tab
+    if (targetUser) {
+      setActiveNav('messages');
+      setInitialMessageUser(targetUser);
     }
   }, []);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
@@ -375,7 +385,11 @@ export default function SeniorDashboardPage() {
         </div>
 
         {activeNav === "messages" ? (
-          <DashboardMessages currentUserId={dashData?.user?.id} role="senior" />
+          <DashboardMessages 
+            currentUserId={dashData?.user?.id} 
+            role="senior"
+            initialUserId={initialMessageUser}
+          />
         ) : (
           <div className="max-w-5xl">
 
@@ -508,6 +522,9 @@ export default function SeniorDashboardPage() {
 
         {/* Message Requests Section */}
         <MessageRequestsSection />
+
+        {/* Senior Connection Requests Section */}
+        <SeniorConnectionRequestsSection />
 
         {/* Main Content Grid - Adjusted to full width */}
         <div className="w-full">

@@ -209,8 +209,8 @@ export default function ChatWindow({
 
   return (
     <div className="flex flex-col h-full bg-white border border-gray-100 rounded-3xl shadow-sm overflow-hidden">
-      {/* Header */}
-      <div className="flex-shrink-0 p-4 border-b border-gray-100 flex items-center justify-between bg-white/50 backdrop-blur-sm">
+      {/* Header - Hidden on mobile */}
+      <div className="hidden md:flex flex-shrink-0 p-4 border-b border-gray-100 items-center justify-between bg-white/50 backdrop-blur-sm">
         <div className="flex items-center gap-3">
           <div className={`w-10 h-10 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0 ${otherUserAvatar ? 'bg-transparent shadow-sm' : 'bg-red-500 text-white'}`}>
             {otherUserAvatar ? (
