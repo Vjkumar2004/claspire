@@ -121,7 +121,10 @@ function CommunityPageContent() {
   const [posts, setPosts] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
+  const [showSearch, setShowSearch] = useState(false)
   const [filter, setFilter] = useState('all')
+  const [hideHeader, setHideHeader] = useState(false)
+  const [lastScrollY, setLastScrollY] = useState(0)
   const [userCommunity, setUserCommunity] = useState<any>(null)
   const [selectedCommunity, setSelectedCommunity] = useState<string | null>(null)
 
@@ -671,6 +674,26 @@ function CommunityPageContent() {
     }
   }, [hasMore, loadingMore, loading, page])
 
+  // Hide header on scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY
+      
+      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        // Scrolling down and past 100px
+        setHideHeader(true)
+      } else if (currentScrollY < lastScrollY) {
+        // Scrolling up
+        setHideHeader(false)
+      }
+      
+      setLastScrollY(currentScrollY)
+    }
+
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [lastScrollY])
+
   // Filter posts
   const filteredPosts = posts.filter((p: any) => {
     const matchSearch =
@@ -688,6 +711,15 @@ function CommunityPageContent() {
             : p.type === filter
 
     return matchSearch && matchFilter
+  })
+
+  // Debug logging
+  console.log('Community Debug:', { 
+    loading, 
+    postsLength: posts.length, 
+    filteredPostsLength: filteredPosts.length, 
+    filter, 
+    search 
   })
 
   // Helper functions
@@ -803,147 +835,59 @@ function CommunityPageContent() {
     }}>
       <Navbar />
 
-      {/* ── PREMIUM HERO BANNER ── */}
-      <div style={{
-        position: 'relative',
-        background: 'linear-gradient(135deg, #1A1A2E 0%, #16213E 50%, #0F3460 100%)',
-        padding: '60px 20px 48px',
-        color: 'white',
-        overflow: 'hidden',
-        borderBottom: '1px solid rgba(124, 58, 237, 0.2)'
-      }}>
-        {/* Animated Background Elements */}
-        <div style={{
-          position: 'absolute',
-          top: '-10%',
-          right: '-5%',
-          width: '400px',
-          height: '400px',
-          background: 'radial-gradient(circle, rgba(124, 58, 237, 0.15) 0%, transparent 70%)',
-          borderRadius: '50%',
-          filter: 'blur(60px)',
-          pointerEvents: 'none'
-        }} />
-        <div style={{
-          position: 'absolute',
-          bottom: '-20%',
-          left: '-5%',
-          width: '500px',
-          height: '500px',
-          background: 'radial-gradient(circle, rgba(6, 182, 212, 0.1) 0%, transparent 70%)',
-          borderRadius: '50%',
-          filter: 'blur(80px)',
-          pointerEvents: 'none'
-        }} />
-
-        <div style={{
-          maxWidth: 1200,
-          margin: '0 auto',
-          position: 'relative',
-          zIndex: 1
-        }}>
-          <div style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 8,
-            background: 'rgba(255, 255, 255, 0.05)',
-            backdropFilter: 'blur(8px)',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
-            borderRadius: '100px',
-            padding: '6px 16px',
-            fontSize: '11px',
-            fontWeight: 800,
-            marginBottom: 20,
-            letterSpacing: '0.1em',
-            color: '#A78BFA',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-          }}>
-            <Sparkles size={12} />
-            CLASPIRE COMMUNITY
-          </div>
-          
-          <h1 style={{
-            fontSize: 'clamp(32px, 8vw, 48px)',
-            fontWeight: 400,
-            margin: '0 0 12px',
-            fontFamily: 'var(--font-instrument-serif)',
-            lineHeight: 1.1,
-            background: 'linear-gradient(to bottom, #FFFFFF, #D1D5DB)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            letterSpacing: '-0.02em'
-          }}>
-            The Heart of College <br /> Conversations
-          </h1>
-          
-          <p style={{
-            fontSize: '16px',
-            opacity: 0.8,
-            margin: '0 0 32px',
-            fontWeight: 400,
-            lineHeight: 1.6,
-            maxWidth: '600px',
-            color: '#94A3B8'
-          }}>
-            Connect with {communities.length}+ college communities. Ask doubts, share experiences, and find career opportunities in a verified senior network.
-          </p>
-
-          {/* Search Bar in Hero */}
-          <div style={{
-            maxWidth: '700px',
-            position: 'relative'
-          }}>
-            <Search
-              size={20}
-              style={{
-                position: 'absolute',
-                left: 18,
-                top: '50%',
-                transform: 'translateY(-50%)',
-                color: '#94A3B8',
-                zIndex: 2
-              }}
-            />
-            <input
-              type="text"
-              placeholder="Search posts, doubts, or @seniors..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '18px 24px 18px 54px',
-                borderRadius: '16px',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                fontSize: '15px',
-                fontFamily: 'Plus Jakarta Sans',
-                outline: 'none',
-                background: 'rgba(255, 255, 255, 0.03)',
-                backdropFilter: 'blur(20px)',
-                color: 'white',
-                boxSizing: 'border-box',
-                boxShadow: '0 20px 40px rgba(0,0,0,0.3), inset 0 1px 1px rgba(255,255,255,0.05)',
-                transition: 'all 0.3s ease'
-              }}
-              onFocus={(e) => {
-                e.target.style.background = 'rgba(255, 255, 255, 0.06)';
-                e.target.style.borderColor = 'rgba(124, 58, 237, 0.5)';
-                e.target.style.boxShadow = '0 20px 40px rgba(124, 58, 237, 0.2), inset 0 1px 1px rgba(255,255,255,0.1)';
-              }}
-              onBlur={(e) => {
-                e.target.style.background = 'rgba(255, 255, 255, 0.03)';
-                e.target.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-                e.target.style.boxShadow = '0 20px 40px rgba(0,0,0,0.3), inset 0 1px 1px rgba(255,255,255,0.05)';
-              }}
-            />
+      {/* Search overlay — opens when icon clicked */}
+      {showSearch && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-start justify-center pt-20 px-4"
+          onClick={() => setShowSearch(false)}
+        >
+          <div 
+            className="w-full max-w-2xl bg-white rounded-2xl shadow-2xl overflow-hidden"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-3 p-4">
+              <Search size={20} className="text-gray-400 flex-shrink-0" />
+              <input
+                type="text"
+                placeholder="Search posts, doubts, or @seniors..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                autoFocus
+                className="flex-1 text-sm outline-none text-gray-900 placeholder-gray-400"
+              />
+              <button 
+                onClick={() => setShowSearch(false)}
+                className="text-xs font-bold text-purple-600"
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
-      {/* ── 3 COLUMN LAYOUT ── */}
-      <div className="feed-grid">
+      {/* ── REDDIT-STYLE FIXED LAYOUT ── */}
+      <div className="feed-grid" style={{
+        position: 'relative',
+        maxWidth: '1280px',
+        margin: '0 auto',
+        padding: '32px 16px 0',
+        minHeight: 'calc(100vh - 96px)',
+        display: 'grid',
+        gridTemplateColumns: '240px minmax(0, 1fr) 320px',
+        gap: '24px',
+        alignItems: 'start',
+        boxSizing: 'border-box',
+        width: '100%',
+        zIndex: 1,
+        marginTop: '30px'
+      }}>
 
         {/* ════ LEFT SIDEBAR ════ */}
-        <div className="left-sidebar">
+        <div style={{
+          position: 'relative',
+          paddingRight: '8px'
+        }}
+        className="left-sidebar">
           {/* My Community Section */}
           <div style={{
             background: 'white',
@@ -1128,106 +1072,20 @@ function CommunityPageContent() {
           </div>
         </div>
 
-        {/* ════ CENTER FEED ════ */}
-        <div className="feed-wrapper">
-
-          {/* Filter Pills */}
-          <div style={{
-            position: 'relative',
-            marginTop: 16,
-            marginBottom: 16
-          }}>
-            <div
-              className="custom-scrollbar"
-              style={{
-                display: 'flex',
-                gap: 8,
-                overflowX: 'auto',
-                paddingBottom: 12,
-                WebkitOverflowScrolling: 'touch'
-              }}
-            >
-              {[
-                {
-                  key: 'all',
-                  label: 'All'
-                },
-                {
-                  key: 'doubt',
-                  label: '❓ Doubts'
-                },
-                {
-                  key: 'discussion',
-                  label: '💬 Discussions'
-                },
-                {
-                  key: 'experience',
-                  label: '⭐ Experiences'
-                },
-                {
-                  key: 'referral_hunt',
-                  label: '🎯 Referrals'
-                },
-                {
-                  key: 'resource',
-                  label: '📚 Resources'
-                },
-                {
-                  key: 'unanswered',
-                  label: '🔔 Unanswered'
-                },
-                {
-                  key: 'trending',
-                  label: '🔥 Trending'
-                }
-              ].map(f => (
-                <button
-                  key={f.key}
-                  onClick={() =>
-                    setFilter(f.key as any)}
-                  style={{
-                    fontSize: 12,
-                    fontWeight: 700,
-                    padding: '8px 16px',
-                    borderRadius: 100,
-                    border: filter === f.key
-                      ? 'none'
-                      : '1.5px solid #E5E7EB',
-                    background: filter === f.key
-                      ? 'linear-gradient(135deg,#7C3AED,#06B6D4)'
-                      : 'white',
-                    color: filter === f.key
-                      ? 'white' : '#6B7280',
-                    cursor: 'pointer',
-                    fontFamily: 'Plus Jakarta Sans',
-                    whiteSpace: 'nowrap',
-                    flexShrink: 0,
-                    boxShadow: filter === f.key
-                      ? '0 2px 8px rgba(124,58,237,0.3)'
-                      : 'none',
-                    transition: 'all 0.15s'
-                  }}
-                >
-                  {f.label}
-                </button>
-              ))}
-            </div>
-
-            {/* Right fade gradient 
-      shows more pills exist */}
-            <div style={{
-              position: 'absolute',
-              right: 0,
-              top: 0,
-              bottom: 4,
-              width: 40,
-              background:
-                'linear-gradient(to left, #F5F4FF, transparent)',
-              pointerEvents: 'none'
-            }}
-              className="pills-fade"
-            />
-          </div>
+        {/* ════ CENTER FEED - SCROLLABLE ════ */}
+        <div style={{
+          minWidth: 0,
+          overflowY: 'auto',
+          maxHeight: 'calc(100vh - 96px)',
+          paddingRight: '8px',
+          paddingTop: '0',
+          boxSizing: 'border-box',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '16px',
+          position: 'relative',
+          zIndex: 2
+        }}>
 
           {/* Posts */}
           {loading ? (
@@ -1300,9 +1158,9 @@ function CommunityPageContent() {
               </p>
             </div>
           ) : (
-          <div>
-            <AnimatePresence mode="popLayout">
-              {filteredPosts.map((post: any) => {
+            <div>
+              <AnimatePresence mode="popLayout">
+                {filteredPosts.map((post: any) => {
                 const ts = getTypeStyle(post.type)
                 return (
                 <motion.div
@@ -2062,7 +1920,11 @@ function CommunityPageContent() {
       </div>
 
         {/* ════ RIGHT SIDEBAR ════ */}
-        <div className="right-sidebar">
+        <div style={{
+          position: 'relative',
+          paddingLeft: '8px'
+        }}
+        className="right-sidebar">
           {/* Top Communities Hub */}
           <div style={{
             background: 'white',
@@ -2267,13 +2129,14 @@ function CommunityPageContent() {
           }}>
              <div style={{
               position: 'absolute',
-              top: '-10%',
-              right: '-10%',
-              width: '120px',
-              height: '120px',
-              background: 'rgba(124, 58, 237, 0.15)',
+              top: '-5%',
+              right: '-5%',
+              width: '80px',
+              height: '80px',
+              background: 'rgba(124, 58, 237, 0.1)',
               borderRadius: '50%',
-              filter: 'blur(30px)'
+              filter: 'blur(20px)',
+              zIndex: 0
             }} />
 
             <h4 style={{
@@ -2281,12 +2144,13 @@ function CommunityPageContent() {
               fontFamily: 'var(--font-instrument-serif)',
               margin: '0 0 20px',
               letterSpacing: '0.01em',
-              position: 'relative'
+              position: 'relative',
+              zIndex: 1
             }}>
               Platform Ecosystem
             </h4>
             
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16, position: 'relative' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16, position: 'relative', zIndex: 1 }}>
               {[
                 { label: 'Verified Communities', value: communities.length, icon: <Building2 size={14} /> },
                 { label: 'Active Members', value: communities.reduce((a, c) => a + (c.member_count || 0), 0), icon: <Globe size={14} /> },
@@ -2432,6 +2296,40 @@ function CommunityPageContent() {
         .nav-item.active {
             background: #F5F3FF;
             color: #7C3AED;
+        }
+
+        /* Custom scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #CBD5E1;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94A3B8;
+        }
+
+        /* Hide scrollbar for right sidebar */
+        .right-sidebar::-webkit-scrollbar {
+            display: none !important;
+            width: 0 !important;
+        }
+
+        .right-sidebar {
+            scrollbar-width: none !important;
+            -ms-overflow-style: none !important;
+        }
+
+        /* Additional scrollbar hiding */
+        .right-sidebar *::-webkit-scrollbar {
+            display: none !important;
         }
 
         /* Desktop: 3 columns */

@@ -65,6 +65,9 @@ export default function SignupPage() {
   // Colleges from database
   const [colleges, setColleges] = useState<any[]>([])
   const [collegesLoading, setCollegesLoading] = useState(false)
+  
+  // Terms agreement state
+  const [agreedToTerms, setAgreedToTerms] = useState(false)
 
   // Dropdown visibility states
   const [showStudentCollegeDropdown, setShowStudentCollegeDropdown] = useState(false)
@@ -143,6 +146,11 @@ export default function SignupPage() {
 
     if (!emailToUse) {
       setError(activeRole === 'senior' ? 'Work email is required' : 'Email is required')
+      return
+    }
+
+    if (!agreedToTerms) {
+      setError('Please agree to Terms of Service and Privacy Policy to continue')
       return
     }
 
@@ -409,7 +417,7 @@ export default function SignupPage() {
             {/* Student/Senior Toggle */}
             <div className="flex bg-gray-100 rounded-xl p-1 mb-7 gap-1">
               <button
-                onClick={() => { setActiveRole("student"); setOtpSent(false); }}
+                onClick={() => { setActiveRole("student"); setOtpSent(false); setAgreedToTerms(false); }}
                 className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-semibold transition-all ${
                   activeRole === "student" ? "bg-white text-black shadow-sm" : "bg-transparent text-gray-400"
                 }`}
@@ -417,7 +425,7 @@ export default function SignupPage() {
                 🎓 Student
               </button>
               <button
-                onClick={() => { setActiveRole("senior"); setOtpSent(false); }}
+                onClick={() => { setActiveRole("senior"); setOtpSent(false); setAgreedToTerms(false); }}
                 className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-semibold transition-all ${
                   activeRole === "senior" ? "bg-white text-black shadow-sm" : "bg-transparent text-gray-400"
                 }`}
@@ -755,10 +763,43 @@ export default function SignupPage() {
 
                       {error && <p className="text-red-500 text-xs mb-4">{error}</p>}
 
+                      {/* Terms Checkbox */}
+                      <div className="flex items-start gap-3 mb-4">
+                        <input
+                          type="checkbox"
+                          id="terms-student"
+                          checked={agreedToTerms}
+                          onChange={(e) => setAgreedToTerms(e.target.checked)}
+                          className="w-4 h-4 mt-0.5 rounded border-gray-300 text-purple-600 focus:ring-purple-500 accent-purple-600 flex-shrink-0 cursor-pointer"
+                        />
+                        <label 
+                          htmlFor="terms-student" 
+                          className="text-xs text-gray-500 leading-relaxed cursor-pointer"
+                        >
+                          I agree to Claspire's{' '}
+                          <Link 
+                            href="/terms" 
+                            className="text-purple-600 font-semibold hover:underline"
+                            target="_blank"
+                          >
+                            Terms of Service
+                          </Link>
+                          {' '}and{' '}
+                          <Link 
+                            href="/privacy-policy" 
+                            className="text-purple-600 font-semibold hover:underline"
+                            target="_blank"
+                          >
+                            Privacy Policy
+                          </Link>
+                          . I confirm that I am a college student.
+                        </label>
+                      </div>
+
                       <button
                         type="button"
                         onClick={sendOTP}
-                        disabled={loading}
+                        disabled={loading || !agreedToTerms}
                         className="w-full bg-gradient-to-r from-purple-600 to-cyan-500 text-white py-3.5 rounded-xl font-bold text-sm hover:opacity-90 transition-opacity disabled:opacity-50"
                       >
                         {loading ? 'Sending...' : 'Create Student Account →'}
@@ -969,10 +1010,43 @@ export default function SignupPage() {
 
                           {error && <p className="text-red-500 text-xs">{error}</p>}
 
+                          {/* Terms Checkbox */}
+                          <div className="flex items-start gap-3 mb-4">
+                            <input
+                              type="checkbox"
+                              id="terms-senior"
+                              checked={agreedToTerms}
+                              onChange={(e) => setAgreedToTerms(e.target.checked)}
+                              className="w-4 h-4 mt-0.5 rounded border-gray-300 text-purple-600 focus:ring-purple-500 accent-purple-600 flex-shrink-0 cursor-pointer"
+                            />
+                            <label 
+                              htmlFor="terms-senior" 
+                              className="text-xs text-gray-500 leading-relaxed cursor-pointer"
+                            >
+                              I agree to Claspire's{' '}
+                              <Link 
+                                href="/terms" 
+                                className="text-purple-600 font-semibold hover:underline"
+                                target="_blank"
+                              >
+                                Terms of Service
+                              </Link>
+                              {' '}and{' '}
+                              <Link 
+                                href="/privacy-policy" 
+                                className="text-purple-600 font-semibold hover:underline"
+                                target="_blank"
+                              >
+                                Privacy Policy
+                              </Link>
+                              . I confirm that I am a verified senior/alumni.
+                            </label>
+                          </div>
+
                           <button
                             type="button"
                             onClick={sendOTP}
-                            disabled={loading || !verifyMethod}
+                            disabled={loading || !verifyMethod || !agreedToTerms}
                             className="w-full bg-gradient-to-r from-purple-600 to-cyan-500 text-white py-3.5 rounded-xl font-bold text-sm hover:opacity-90 transition-opacity disabled:opacity-50 mt-2"
                           >
                             {loading ? 'Processing...' : 'Verify & Continue →'}
@@ -1034,9 +1108,7 @@ export default function SignupPage() {
               )}
 
               {/* Terms */}
-              <p className="text-[11px] text-gray-400 text-center mt-12 leading-relaxed">
-                By joining Claspire, you agree to our <Link href="#" className="underline">Terms</Link> and <Link href="#" className="underline">Privacy Policy</Link>.
-              </p>
+              <div className="mt-6" />
             </div>
           </div>
         </div>
