@@ -21,23 +21,61 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Claspire - India's College Senior Community Platform",
+  metadataBase: new URL('https://claspire.in'),
+  title: {
+    default: "Claspire - India's College Senior Community Platform",
+    template: "%s | Claspire"
+  },
   description: "Connect with verified seniors from your college — get real answers, job referrals, and paid mentorship. Free to start.",
-  keywords: ["college seniors", "placement", "mentorship", "job referrals", "indian colleges"],
-  icons: {
-    icon: "/favicon.ico",
-    shortcut: "/favicon.ico",
-    apple: "/apple-touch-icon.png",
+  keywords: [
+    "college seniors", 
+    "placement help", 
+    "mentorship india",
+    "job referrals college",
+    "indian colleges community",
+    "tamil nadu colleges",
+    "senior student connect",
+    "college placement guidance",
+    "engineering college community",
+    "college doubts answers"
+  ],
+  alternates: {
+    canonical: '/',
   },
   openGraph: {
-    title: "Claspire - India's College Senior Community Platform",
-    description: "Connect with verified seniors from your college — get real answers, job referrals, and paid mentorship.",
-    type: "website",
+    title: "Claspire - India's College Senior Community",
+    description: "Connect with verified seniors from your college for placement help, referrals and mentorship. Free to start.",
+    url: 'https://claspire.in',
+    siteName: 'Claspire',
+    type: 'website',
+    locale: 'en_IN',
+    images: [{
+      url: '/og-image.png',
+      width: 1200,
+      height: 630,
+      alt: 'Claspire - College Senior Community'
+    }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: "Claspire - India's College Senior Community",
+    description: "Connect with verified seniors from your college for placement help and referrals.",
+    images: ['/og-image.png'],
   },
   verification: {
     google: 'IOVKErCFX8A3eEZWlSVPpO-TDKxbIQap9sY-NILpRaE',
   },
-};
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+}
 
 export default function RootLayout({
   children,
@@ -52,6 +90,24 @@ export default function RootLayout({
         <link rel="icon" href="/favicon-16x16.png" sizes="16x16" type="image/png" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="manifest" href="/site.webmanifest" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              "name": "Claspire",
+              "url": "https://claspire.in",
+              "logo": "https://claspire.in/favicon.ico",
+              "description": "India's college senior-student community platform connecting students with verified seniors for placement guidance and mentorship.",
+              "sameAs": [
+                "https://x.com/claspire",
+                "https://linkedin.com/company/claspire",
+                "https://instagram.com/claspire"
+              ]
+            })
+          }}
+        />
       </head>
       <body
         className={`${instrumentSerif.variable} ${plusJakartaSans.variable} antialiased`}

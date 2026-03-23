@@ -45,7 +45,7 @@ export default function Footer() {
             Product
           </div>
           <div className="space-y-1">
-            <Link href="/communities" className="block text-sm text-gray-400 leading-8 hover:text-white transition-colors no-underline p-0">
+            <Link href="/community" className="block text-sm text-gray-400 leading-8 hover:text-white transition-colors no-underline p-0">
               Community
             </Link>
             <Link href="/seniors" className="block text-sm text-gray-400 leading-8 hover:text-white transition-colors no-underline p-0">
