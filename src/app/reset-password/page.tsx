@@ -4,6 +4,9 @@ import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Eye, EyeOff, Lock, CheckCircle, AlertCircle } from 'lucide-react'
 
+// Force dynamic rendering to prevent build-time errors with searchParams
+export const dynamic = 'force-dynamic'
+
 export default function ResetPasswordPage() {
   const searchParams = useSearchParams()
   const router = useRouter()
