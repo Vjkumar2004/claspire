@@ -11,7 +11,7 @@ export default function Footer() {
         <div className="col-span-2 md:col-span-2 lg:col-span-1 text-center md:text-left mb-2 md:mb-0">
           {/* Logo */}
           <div className="font-plus-jakarta-sans font-bold text-lg text-white mb-2">
-            Clas<span style={{ color: '#A78BFA' }}>pire</span>
+            cl<span style={{ color: '#7C3AED' }}>aspire</span>
           </div>
           
           {/* Tagline */}

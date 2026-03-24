@@ -123,14 +123,9 @@ export default function LoginPage() {
             textDecoration: 'none'
           }}
         >
-          <h1 style={{
-            fontSize: 20,
-            fontWeight: 800,
-            color: '#0A0A0A',
-            margin: 0
-          }}>
-            Clas<span style={{ color: '#7C3AED' }}>pire</span>
-          </h1>
+          <Link href="/" className="font-plus-jakarta-sans font-bold text-lg text-black no-underline hover:no-underline">
+            cl<span style={{ color: '#7C3AED' }}>aspire</span>
+          </Link>
         </Link>
 
         {/* Heading */}

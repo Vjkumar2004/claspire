@@ -1072,11 +1072,9 @@ function CommunityPageContent() {
           </div>
         </div>
 
-        {/* ════ CENTER FEED - SCROLLABLE ════ */}
+        {/* ════ CENTER FEED ════ */}
         <div style={{
           minWidth: 0,
-          overflowY: 'auto',
-          maxHeight: 'calc(100vh - 96px)',
           paddingRight: '8px',
           paddingTop: '0',
           boxSizing: 'border-box',
@@ -2356,11 +2354,23 @@ function CommunityPageContent() {
 
         /* Mobile Responsive */
         @media (max-width: 768px) {
+          html, body {
+            overflow-x: hidden !important;
+            max-width: 100vw !important;
+            width: 100vw !important;
+          }
+          * {
+            box-sizing: border-box !important;
+          }
           .feed-grid {
             grid-template-columns: 1fr !important;
-            padding: 16px !important;
+            padding: 0 !important;
             margin: 0 !important;
-            gap: 16px !important;
+            gap: 0 !important;
+            max-width: 100vw !important;
+            width: 100vw !important;
+            overflow-x: hidden !important;
+            margin-top: 60px !important;
           }
           .left-sidebar, .right-sidebar { 
             display: none !important; 
@@ -2368,6 +2378,7 @@ function CommunityPageContent() {
           .post-card {
             padding: 20px !important;
             border-radius: 16px !important;
+            margin: 0 16px 16px !important;
           }
         }
       `}</style>

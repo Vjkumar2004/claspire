@@ -165,7 +165,7 @@ export default function JuniorEventsPage() {
               fontWeight: 800,
               color: '#0A0A0A'
             }}>
-              Clas<span style={{ color: '#7C3AED' }}>pire</span>
+              cl<span style={{ color: '#7C3AED' }}>aspire</span>
             </span>
           </div>
         </div>

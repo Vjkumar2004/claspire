@@ -271,8 +271,8 @@ export default function JuniorDashboard() {
       <aside className={`fixed top-0 left-0 h-full w-[280px] bg-white border-r border-[#E2E8F0] z-[101] transition-all duration-300 transform lg:translate-x-0 ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="p-8 pb-4">
           <Link href="/" className="inline-block mb-10 no-underline">
-            <span className="text-xl font-bold tracking-tight text-black font-plus-jakarta-sans">
-              Clas<span className="text-[#7C3AED]">pire</span>
+            <span className="font-plus-jakarta-sans font-bold text-lg text-black">
+              cl<span style={{ color: '#7C3AED' }}>aspire</span>
             </span>
           </Link>
 

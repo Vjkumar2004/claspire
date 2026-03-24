@@ -195,22 +195,8 @@ export default function SeniorDashboardPage() {
         {/* Logo + Notifications (Always visible) */}
         <div className="p-4 border-b border-gray-100 flex items-center justify-between">
             {/* Logo */}
-            <Link
-              href="/"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 2,
-                textDecoration: 'none'
-              }}
-            >
-              <span style={{
-                fontSize: 18,
-                fontWeight: 800,
-                color: '#0A0A0A'
-              }}>
-                Clas<span style={{ color: '#7C3AED' }}>pire</span>
-              </span>
+            <Link href="/" className="font-plus-jakarta-sans font-bold text-lg text-black no-underline hover:no-underline">
+              cl<span style={{ color: '#7C3AED' }}>aspire</span>
             </Link>
             <NotificationBell align="left" dark />
         </div>

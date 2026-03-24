@@ -59,7 +59,7 @@ export default function Navbar() {
       <div className="flex items-center justify-between h-full px-6">
         <div className="flex items-center gap-3">
           <Link href="/" className="font-plus-jakarta-sans font-bold text-lg text-black no-underline hover:no-underline">
-            Clas<span style={{ color: '#7C3AED' }}>pire</span>
+            cl<span style={{ color: '#7C3AED' }}>aspire</span>
           </Link>
         </div>
 
@@ -409,7 +409,7 @@ export default function Navbar() {
                 fontFamily: 'Plus Jakarta Sans, sans-serif'
               }}
             >
-              Clas<span style={{ color: '#7C3AED' }}>pire</span>
+              cl<span style={{ color: '#7C3AED' }}>aspire</span>
             </Link>
 
             {/* Close button */}

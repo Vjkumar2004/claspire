@@ -256,7 +256,23 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
         .stat-card-hover:hover { background: #FFFFFF !important; transform: scale(1.02); box-shadow: 0 10px 30px rgba(0,0,0,0.03); }
 
         @media (max-width: 768px) {
-          .main-layout { grid-template-columns: 1fr !important; gap: 24px !important; margin: 24px auto !important; }
+          html, body { 
+            overflow-x: hidden !important; 
+            max-width: 100vw !important;
+            width: 100vw !important;
+          }
+          * {
+            box-sizing: border-box !important;
+          }
+          .main-layout { 
+            grid-template-columns: 1fr !important; 
+            gap: 0 !important; 
+            margin: 0 !important; 
+            padding: 0 !important; 
+            max-width: 100vw !important; 
+            width: 100vw !important;
+            overflow-x: hidden !important;
+          }
           .right-sidebar { display: none !important; }
           .hero-content { flex-direction: column !important; gap: 32px !important; text-align: center !important; }
           .hero-stats { justify-content: center !important; }
@@ -265,8 +281,14 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
           .hero-logo-box { width: 100px !important; height: 100px !important; }
           .tab-container { overflow-x: auto !important; padding: 0 !important; }
           .tab-btn { padding: 16px 20px !important; white-space: nowrap !important; }
-          .post-card { padding: 16px !important; border-radius: 20px !important; }
+          .post-card { padding: 16px !important; border-radius: 20px !important; margin: 0 16px 16px !important; }
           .desktop-only-btn { display: none !important; }
+          .animate-fade { 
+            width: 100vw !important; 
+            padding: 0 !important;
+            margin: 0 !important;
+            overflow-x: hidden !important;
+          }
         }
       `}} />
 

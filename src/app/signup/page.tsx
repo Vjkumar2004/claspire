@@ -370,7 +370,7 @@ export default function SignupPage() {
           <div className="absolute top-[-100px] right-[-100px] w-[300px] h-[300px] bg-white rounded-full opacity-15"></div>
           <div className="absolute bottom-[-50px] left-[-50px] w-[200px] h-[200px] bg-white rounded-full opacity-15"></div>
           <div className="relative z-10 h-full flex flex-col justify-center p-12">
-            <Link href="/" className="text-white text-2xl font-bold mb-12 no-underline inline-block">Claspire</Link>
+            <Link href="/" className="text-white text-2xl font-bold mb-12 no-underline inline-block font-plus-jakarta-sans">cl<span style={{ color: '#E9D5FF' }}>aspire</span></Link>
             <h2 className="font-instrument-serif font-normal text-[36px] text-white leading-tight mb-4">
               Your senior is<br />already here.<br /><em className="text-white/90">"Are you?"</em>
             </h2>
@@ -398,7 +398,7 @@ export default function SignupPage() {
         <div className="lg:w-3/5 bg-white min-h-screen flex items-center justify-center p-6 lg:p-12">
           <div className="w-full max-w-[440px] mx-auto">
             <Link href="/" className="lg:hidden text-black text-xl font-bold mb-8 text-center block no-underline">
-              Clas<span style={{ color: '#7C3AED' }}>pire</span>
+              cl<span style={{ color: '#7C3AED' }}>aspire</span>
             </Link>
             
             <h1 className="font-instrument-serif font-normal text-[28px] text-black mb-1.5">Create your account</h1>

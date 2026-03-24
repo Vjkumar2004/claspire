@@ -55,7 +55,7 @@ export default function Hero() {
               className="py-12 lg:py-20 px-4 lg:px-0"
             >
               {/* Top Label */}
-              <motion.div variants={itemVariants} className="inline-flex items-center gap-2 bg-[#F3F0FF] border border-[#DDD6FE] rounded-md px-3 py-1.5 text-xs font-bold text-[#7C3AED] tracking-widest uppercase lg:inline-flex">
+              <motion.div variants={itemVariants} className="inline-flex items-center gap-2 bg-[#F3F0FF] border border-[#DDD6FE] rounded-md px-3 py-1.5 text-xs font-bold text-[#7C3AED] tracking-widest uppercase lg:inline-flex justify-center w-full lg:w-auto lg:justify-start">
                 INDIA'S COLLEGE SENIOR NETWORK
               </motion.div>
 
