@@ -6,6 +6,8 @@ import { Eye, EyeOff, Lock, CheckCircle, AlertCircle } from 'lucide-react'
 
 // Force dynamic rendering to prevent build-time errors with searchParams
 export const dynamic = 'force-dynamic'
+export const revalidate = 0
+export const fetchCache = 'force-no-store'
 
 export default function ResetPasswordPage() {
   const searchParams = useSearchParams()
@@ -23,6 +25,12 @@ export default function ResetPasswordPage() {
   const [tokenValid, setTokenValid] = useState<boolean | null>(null)
 
   useEffect(() => {
+    // Handle case where searchParams is not available (build time)
+    if (typeof window === 'undefined' || !searchParams) {
+      // During build time, just return without doing anything
+      return
+    }
+
     const tokenParam = searchParams.get('token')
     const emailParam = searchParams.get('email')
     
