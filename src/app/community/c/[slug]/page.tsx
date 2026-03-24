@@ -2,7 +2,6 @@
 import React, { useState, useEffect, useMemo, cloneElement, ReactElement, Suspense } from 'react'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 
-export const dynamic = 'force-dynamic';
 import {
   ChevronRight, Users, Star, MapPin, MessageSquare,
   Briefcase, Video, Lock, Shield,

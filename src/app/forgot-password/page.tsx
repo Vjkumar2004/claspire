@@ -4,10 +4,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Mail, ArrowLeft, CheckCircle, Key } from 'lucide-react'
 
-// Force dynamic rendering to prevent build-time errors
-export const dynamic = 'force-dynamic'
-export const revalidate = 0
-export const fetchCache = 'force-no-store'
+// Note: This is a client component, so we don't export Next.js routing config
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('')
