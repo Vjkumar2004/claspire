@@ -116,6 +116,7 @@ export default function LoginPage() {
         {/* Logo */}
         <Link 
           href="/"
+          className="font-plus-jakarta-sans font-bold text-lg text-black no-underline hover:no-underline"
           style={{
             display: 'block',
             textAlign: 'center',
@@ -123,9 +124,7 @@ export default function LoginPage() {
             textDecoration: 'none'
           }}
         >
-          <Link href="/" className="font-plus-jakarta-sans font-bold text-lg text-black no-underline hover:no-underline">
-            cl<span style={{ color: '#7C3AED' }}>aspire</span>
-          </Link>
+          cl<span style={{ color: '#7C3AED' }}>aspire</span>
         </Link>
 
         {/* Heading */}
@@ -384,6 +383,33 @@ export default function LoginPage() {
             } →`
           )}
         </button>
+
+        {/* Forgot Password Link */}
+        <div style={{
+          textAlign: 'center',
+          marginTop: 16
+        }}>
+          <Link 
+            href="/forgot-password"
+            style={{
+              fontSize: 13,
+              color: '#7C3AED',
+              textDecoration: 'none',
+              fontWeight: 600,
+              transition: 'color 0.2s'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = '#6D28D9'
+              e.currentTarget.style.textDecoration = 'underline'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = '#7C3AED'
+              e.currentTarget.style.textDecoration = 'none'
+            }}
+          >
+            Forgot your password?
+          </Link>
+        </div>
 
         <style>{`
           @keyframes spin {
