@@ -25,15 +25,16 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Find user with matching OTP and email
-    const { data: user, error: userError } = await supabase
-      .from('users')
-      .select('reset_otp, reset_otp_expiry')
+    // Find OTP in otp_store table
+    const { data: otpRecord, error: otpError } = await supabase
+      .from('otp_store')
+      .select('otp, expires_at, verified')
       .eq('email', email.toLowerCase())
-      .eq('reset_otp', otp)
+      .eq('otp', otp)
+      .eq('verified', false)
       .single()
 
-    if (userError || !user) {
+    if (otpError || !otpRecord) {
       return NextResponse.json(
         { error: 'Invalid OTP' },
         { status: 400 }
@@ -41,25 +42,23 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if OTP has expired
-    if (!user.reset_otp_expiry) {
+    if (!otpRecord.expires_at) {
       return NextResponse.json(
         { error: 'Invalid OTP' },
         { status: 400 }
       )
     }
 
-    const expiryTime = new Date(user.reset_otp_expiry)
+    const expiryTime = new Date(otpRecord.expires_at)
     const currentTime = new Date()
 
     if (currentTime > expiryTime) {
       // Clear expired OTP
       await supabase
-        .from('users')
-        .update({
-          reset_otp: null,
-          reset_otp_expiry: null
-        })
+        .from('otp_store')
+        .delete()
         .eq('email', email.toLowerCase())
+        .eq('otp', otp)
 
       return NextResponse.json(
         { error: 'OTP has expired' },
@@ -67,25 +66,16 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // OTP is valid - generate a temporary session token for password reset
-    const resetToken = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
-    const resetTokenExpiry = new Date(Date.now() + 900000) // 15 minutes from now
-
-    // Store reset token and clear OTP
+    // Mark OTP as verified
     await supabase
-      .from('users')
-      .update({
-        reset_token: resetToken,
-        reset_token_expiry: resetTokenExpiry.toISOString(),
-        reset_otp: null,
-        reset_otp_expiry: null
-      })
+      .from('otp_store')
+      .update({ verified: true })
       .eq('email', email.toLowerCase())
+      .eq('otp', otp)
 
     return NextResponse.json({
       success: true,
-      message: 'OTP verified successfully',
-      resetToken
+      message: 'OTP verified successfully'
     })
 
   } catch (error) {
