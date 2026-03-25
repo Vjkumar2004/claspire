@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard/
+Disallow: /api/
+Disallow: /login
+Disallow: /signup
+Disallow: /u/
+
+Sitemap: https://claspire.in/sitemap.xml

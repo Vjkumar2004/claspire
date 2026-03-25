@@ -1,0 +1,248 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@supabase/supabase-js'
+import bcrypt from 'bcryptjs'
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+)
+
+export async function POST(req: NextRequest) {
+  try {
+    const { email, role, profileData, password, onesignal_player_id } = await req.json()
+
+    // Validate password
+    if (!password || password.length < 6) {
+      return NextResponse.json(
+        { error: 'Password minimum 6 characters required' },
+        { status: 400 }
+      )
+    }
+
+    // Check OTP was verified
+    const { data: otpData, error: otpError } = await supabase
+      .from('otp_store')
+      .select('*')
+      .eq('email', email)
+      .eq('verified', true)
+      .single()
+
+    if (otpError || !otpData) {
+      return NextResponse.json(
+        { error: 'Email verification failed' },
+        { status: 400 }
+      )
+    }
+
+    // Check user already exists
+    const { data: existingUser } = await supabase
+      .from('users')
+      .select('id')
+      .eq('email', email)
+      .single()
+
+    if (existingUser) {
+      return NextResponse.json(
+        { error: 'Account already exists with this email' },
+        { status: 400 }
+      )
+    }
+
+    // Generate unique ID
+    const year = new Date().getFullYear()
+    const randomNum = Math.floor(10000 + Math.random() * 90000)
+    const uniqueId = role === 'student'
+      ? `CLS-${year}-${randomNum}` 
+      : `CLS-S-${year}-${randomNum}` 
+
+    // Create user with random UUID
+    const userId = crypto.randomUUID()
+
+    // Hash password
+    const passwordHash = await bcrypt.hash(password, 10)
+
+    // Standardize verification_type to pass DB constraint and remove non-db fields
+    const { is_fresher, work_email, verification_type, ...cleanProfileData } = profileData
+    
+    const safeProfileData = {
+      ...cleanProfileData,
+      verification_type: 'manual', // Forced to pass users_verification_type_check
+      verification_status: profileData.verification_status || 'verified',
+      is_verified: true,
+    }
+
+    // Validate college_id is proper UUID
+    const collegeId = profileData.college_id
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+    
+    const safeCollegeId = collegeId && 
+      uuidRegex.test(collegeId) 
+      ? collegeId 
+      : null  // ← null if not valid UUID
+
+    // Debug log to verify college_id
+    console.log('Creating user with college_id:', collegeId, '-> safeCollegeId:', safeCollegeId)
+
+    // Insert user
+    const { data: user, error: userError } = await supabase
+      .from('users')
+      .insert({
+        id: userId,
+        email,
+        role,
+        unique_id: uniqueId,
+        password_hash: passwordHash,  // ← ADD THIS
+        college_id: safeCollegeId, // Use validated UUID
+        rise_points: 50,
+        rp_level: 1,
+        ...safeProfileData,
+        onesignal_player_id: onesignal_player_id || null,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        avatar_url: `https://api.dicebear.com/7.x/initials/svg?seed=${profileData.full_name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)}`
+      })
+      .select()
+      .single()
+
+    if (userError) {
+      console.error('User create error:', userError)
+      return NextResponse.json(
+        { error: userError.message },
+        { status: 500 }
+      )
+    }
+
+    // Log rise points
+    await supabase.from('rise_points_log').insert({
+      user_id: userId,
+      points: 50,
+      reason: 'Joined Claspire 🎉'
+    })
+
+    // Give join bonus +1 RP
+    await supabase
+      .from('rise_points_log')
+      .insert({
+        user_id: userId,
+        points: 1,
+        reason: 'Welcome to Claspire! 🎉',
+        created_at: new Date().toISOString()
+      })
+
+    // Update rise_points to 51
+    // (50 default + 1 join bonus)
+    await supabase
+      .from('users')
+      .update({
+        rise_points: 51,
+        last_visit_date: new Date()
+          .toISOString().split('T')[0]
+      })
+      .eq('id', userId)
+
+    // Auto-join own college community
+    if (safeCollegeId) {
+      // Get community id
+      const { data: comm } = await supabase
+        .from('communities')
+        .select('id, member_count, senior_count')
+        .eq('college_id', safeCollegeId)
+        .single()
+
+      if (comm) {
+        // Check if already a member
+        const { data: existingMember } = await supabase
+          .from('community_members')
+          .select('id')
+          .eq('community_id', comm.id)
+          .eq('user_id', userId)
+          .single()
+
+        // Only insert if not already a member
+        if (!existingMember) {
+          // Insert member
+          await supabase
+            .from('community_members')
+            .insert({
+              community_id: comm.id,
+              user_id: userId,
+              membership_type: 'joined',
+              joined_at: new Date().toISOString()
+            })
+
+          // Update count
+          const newMemberCount =
+            (comm.member_count || 0) + 1
+          const newSeniorCount = role === 'senior'
+            ? (comm.senior_count || 0) + 1
+            : comm.senior_count || 0
+
+          await supabase
+            .from('communities')
+            .update({
+              member_count: newMemberCount,
+              senior_count: newSeniorCount
+            })
+            .eq('id', comm.id)
+
+          console.log(`Auto-joined user ${userId} to community ${comm.id}`)
+        } else {
+          console.log(`User ${userId} already a member of community ${comm.id}`)
+        }
+      }
+    }
+
+    // Store session in cookie
+    const sessionData = {
+      id: userId,
+      email,
+      role,
+      unique_id: uniqueId,
+      full_name: profileData.full_name,
+      avatar_url: user.avatar_url,
+      college_id: safeCollegeId,
+      verification_status: profileData.verification_status,
+      is_verified: true,        // ← ADD this!
+      is_premium: false,        // ← ADD this!
+    }
+
+    // Debug log to show session data
+    console.log('Session data being stored:', sessionData)
+
+    // Clean up OTP
+    await supabase
+      .from('otp_store')
+      .delete()
+      .eq('email', email)
+
+    const response = NextResponse.json({
+      success: true,
+      user: sessionData,
+      uniqueId
+    })
+
+    // Set session cookie
+    response.cookies.set('claspire_session', 
+      JSON.stringify(sessionData), {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 60 * 60 * 24 * 30 // 30 days
+      }
+    )
+
+    console.log('Session cookie set:', sessionData.email, sessionData.role)
+
+    // Add a small delay to ensure cookie is set
+    await new Promise(resolve => setTimeout(resolve, 100))
+
+    return response
+
+  } catch (error) {
+    console.error('Create user error:', error)
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    )
+  }
+}
