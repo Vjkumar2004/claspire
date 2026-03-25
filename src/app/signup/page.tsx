@@ -154,6 +154,16 @@ export default function SignupPage() {
       return
     }
 
+    // Password validation before sending OTP
+    if (!password || password.length < 6) {
+      setError('Password must be at least 6 characters long')
+      return
+    }
+    if (password !== confirmPassword) {
+      setError('Passwords do not match')
+      return
+    }
+
     // Validate student fields first
     if (activeRole === 'student') {
       if (!studentData.full_name.trim()) {
@@ -266,16 +276,6 @@ export default function SignupPage() {
 
     if (token.length !== 6) {
       setError('Enter 6 digit OTP')
-      return
-    }
-
-    // Password validation
-    if (!password || password.length < 6) {
-      setError('Password minimum 6 characters required')
-      return
-    }
-    if (password !== confirmPassword) {
-      setError('Passwords do not match')
       return
     }
 
