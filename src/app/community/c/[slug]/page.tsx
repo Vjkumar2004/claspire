@@ -13,6 +13,7 @@ import {
   Sparkles, ArrowRight
 } from 'lucide-react'
 import PostModal from '@/components/PostModal'
+import CreateGroupModal from '@/components/CreateGroupModal'
 
 function CommunityPageContent({ params }: { params: Promise<{ slug: string }> }) {
   const router = useRouter()
@@ -32,6 +33,12 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
   const [joining, setJoining] = useState(false)
   const [hasJoined, setHasJoined] = useState(false)
   const [showPremiumModal, setShowPremiumModal] = useState(false)
+  const [studentGroups, setStudentGroups] = useState<any[]>([])
+  const [groupsLoading, setGroupsLoading] = useState(true)
+  const [showMembersModal, setShowMembersModal] = useState(false)
+  const [members, setMembers] = useState<any[]>([])
+  const [membersLoading, setMembersLoading] = useState(false)
+  const [showCreateGroupModal, setShowCreateGroupModal] = useState(false)
 
   useEffect(() => {
     const getSlug = async () => {
@@ -45,6 +52,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
     if (slug) {
       fetchCommunity()
       fetchCurrentUser()
+      fetchStudentGroups()
     }
   }, [slug])
 
@@ -90,6 +98,36 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
       }
     } catch {
       // User not logged in
+    }
+  }
+
+  async function fetchStudentGroups() {
+    try {
+      const res = await fetch(`/api/community/${slug}/student-groups`, { cache: 'no-store' })
+      if (res.ok) {
+        const json = await res.json()
+        setStudentGroups(json.groups || [])
+      }
+    } catch {
+      console.error('Failed to fetch student groups')
+    } finally {
+      setGroupsLoading(false)
+    }
+  }
+
+  async function fetchCommunityMembers() {
+    if (!slug) return
+    setMembersLoading(true)
+    try {
+      const res = await fetch(`/api/community/${slug}/members`, { cache: 'no-store' })
+      if (res.ok) {
+        const json = await res.json()
+        setMembers(json.members || [])
+      }
+    } catch {
+      console.error('Failed to fetch community members')
+    } finally {
+      setMembersLoading(false)
     }
   }
 
@@ -358,6 +396,9 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
               <div className="hero-actions" style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
                 <button onClick={() => setShowDetailsModal(true)} style={{ background: 'rgba(255,255,255,0.08)', color: 'white', border: '1px solid rgba(255,255,255,0.15)', padding: '10px 20px', borderRadius: 14, fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, transition: 'all 0.2s' }} onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'} onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}>
                   <Info size={14} /> Community Insight
+                </button>
+                <button onClick={() => { fetchCommunityMembers(); setShowMembersModal(true) }} style={{ background: 'rgba(255,255,255,0.08)', color: 'white', border: '1px solid rgba(255,255,255,0.15)', padding: '10px 20px', borderRadius: 14, fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, transition: 'all 0.2s' }} onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'} onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}>
+                  <Users size={14} /> View Members
                 </button>
                 {userRole === 'guest' ? (
                   <button
@@ -702,6 +743,302 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
               )}
             </div>
           )}
+
+          {/* ── STUDENT GROUPS SECTION ── */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 24, padding: '0 16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div>
+                <h2 style={{ fontSize: 24, fontWeight: 800, color: '#0F172A', margin: 0, fontFamily: 'Instrument Serif, serif' }}>Student Groups</h2>
+                <p style={{ color: '#64748B', fontSize: 14, margin: '4px 0 0' }}>Join student-created groups for focused discussions</p>
+              </div>
+              {currentUser && (
+                <button
+                  onClick={() => setShowCreateGroupModal(true)}
+                  style={{
+                    background: 'linear-gradient(135deg, #7C3AED, #06B6D4)',
+                    color: 'white',
+                    border: 'none',
+                    padding: '10px 20px',
+                    borderRadius: 14,
+                    fontSize: 12,
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    boxShadow: '0 8px 16px rgba(124, 58, 237, 0.25)',
+                    transition: 'transform 0.2s',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
+                  onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+                >
+                  <Users size={16} />
+                  Create Group
+                </button>
+              )}
+            </div>
+
+            {groupsLoading ? (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 20 }}>
+                {[1, 2, 3].map((i) => (
+                  <div key={i} style={{ background: 'white', borderRadius: 24, border: '1px solid #F1F5F9', padding: 20 }}>
+                    <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
+                      <div style={{ width: 40, height: 40, background: '#F1F5F9', borderRadius: 12, animation: 'pulse 2s infinite' }} />
+                      <div style={{ flex: 1 }}>
+                        <div style={{ width: '60%', height: 16, background: '#F1F5F9', borderRadius: 8, marginBottom: 8, animation: 'pulse 2s infinite' }} />
+                        <div style={{ width: '40%', height: 12, background: '#F1F5F9', borderRadius: 6, animation: 'pulse 2s infinite' }} />
+                      </div>
+                    </div>
+                    <div style={{ width: '100%', height: 12, background: '#F1F5F9', borderRadius: 6, marginBottom: 12, animation: 'pulse 2s infinite' }} />
+                    <div style={{ width: '80%', height: 12, background: '#F1F5F9', borderRadius: 6, animation: 'pulse 2s infinite' }} />
+                  </div>
+                ))}
+              </div>
+            ) : studentGroups.length > 0 ? (
+              <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', 
+                gap: '16px'
+              }}>
+                {studentGroups.map((group: any) => (
+                  <div key={group.id} className="glass-card post-card-hover" style={{ 
+                    padding: '16px', 
+                    borderRadius: '20px', 
+                    background: 'linear-gradient(to right, #F8FAFC, #FFFFFF)', 
+                    border: '1px solid #F1F5F9', 
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)', 
+                    cursor: 'pointer'
+                  }} onClick={() => router.push(`/community/c/${slug}/${group.slug}`)}>
+                    {/* Creator Profile Section */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '14px' }}>
+                      <div style={{ position: 'relative', flexShrink: 0 }}>
+                        <div style={{
+                          width: '44px',
+                          height: '44px',
+                          borderRadius: '50%',
+                          background: 'linear-gradient(135deg, #7C3AED, #06B6D4)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: 'white',
+                          fontSize: '14px',
+                          fontWeight: 800,
+                          overflow: 'hidden'
+                        }}>
+                          {group.creator?.avatar_url ? (
+                            <img 
+                              src={group.creator.avatar_url} 
+                              alt={group.creator.full_name || 'Creator'} 
+                              style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                            />
+                          ) : (
+                            group.creator?.full_name?.[0] || 'C'
+                          )}
+                        </div>
+                        {group.creator?.role === 'senior' && (
+                          <div style={{
+                            position: 'absolute',
+                            bottom: '-2px',
+                            right: '-2px',
+                            width: '14px',
+                            height: '14px',
+                            background: '#F59E0B',
+                            borderRadius: '50%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                          }}>
+                            <Crown size={8} color="white" />
+                          </div>
+                        )}
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
+                          <p style={{ 
+                            fontSize: '13px', 
+                            fontWeight: 600, 
+                            color: '#0F172A', 
+                            margin: 0, 
+                            whiteSpace: 'nowrap', 
+                            overflow: 'hidden', 
+                            textOverflow: 'ellipsis'
+                          }}>
+                            {group.creator?.full_name || 'Group Creator'}
+                          </p>
+                          <span style={{ 
+                            fontSize: '9px', 
+                            background: group.creator?.role === 'senior' ? '#FEF3C7' : '#F5F3FF', 
+                            color: group.creator?.role === 'senior' ? '#D97706' : '#7C3AED',
+                            padding: '2px 4px',
+                            borderRadius: '3px',
+                            fontWeight: 600,
+                            textTransform: 'uppercase'
+                          }}>
+                            {group.creator?.role || 'student'}
+                          </span>
+                        </div>
+                        <p style={{ 
+                          fontSize: '10px', 
+                          color: '#64748B', 
+                          margin: 0
+                        }}>
+                          Created {new Date(group.created_at).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Group Content */}
+                    <div style={{ marginBottom: '12px' }}>
+                      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '8px', gap: '8px' }}>
+                        <h3 style={{ 
+                          fontSize: '16px', 
+                          fontWeight: 800, 
+                          color: '#0F172A', 
+                          margin: 0, 
+                          lineHeight: 1.2,
+                          flex: 1
+                        }}>
+                          {group.name}
+                        </h3>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexShrink: 0 }}>
+                          {group.is_private ? (
+                            <Lock size={14} style={{ color: '#D97706' }} />
+                          ) : (
+                            <Globe size={14} style={{ color: '#10B981' }} />
+                          )}
+                        </div>
+                      </div>
+                      <p style={{ 
+                        fontSize: '12px', 
+                        color: '#475569', 
+                        lineHeight: 1.4, 
+                        margin: 0, 
+                        display: '-webkit-box', 
+                        WebkitLineClamp: 2, 
+                        WebkitBoxOrient: 'vertical', 
+                        overflow: 'hidden'
+                      }}>
+                        {group.description || 'No description provided'}
+                      </p>
+                    </div>
+
+                    {/* Stats and Tags */}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px', flexWrap: 'wrap', gap: '8px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11px', color: '#64748B' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                          <Users size={12} />
+                          <span style={{ fontWeight: 500 }}>{group.member_count} members</span>
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+                        {group.is_private && (
+                          <span style={{ 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            gap: '3px', 
+                            fontSize: '9px', 
+                            color: '#D97706', 
+                            background: '#FEF3C7', 
+                            padding: '3px 6px', 
+                            borderRadius: '6px', 
+                            fontWeight: 600
+                          }}>
+                            <Lock size={8} /> Private
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Join Button */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        router.push(`/community/c/${slug}/${group.slug}`)
+                      }}
+                      style={{
+                        width: '100%',
+                        background: 'linear-gradient(135deg, #7C3AED, #06B6D4)',
+                        color: 'white',
+                        border: 'none',
+                        padding: '10px',
+                        borderRadius: '10px',
+                        fontSize: '12px',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                        boxShadow: '0 4px 12px rgba(124, 58, 237, 0.2)'
+                      }}
+                      onMouseEnter={e => {
+                        e.currentTarget.style.transform = 'translateY(-2px)'
+                        e.currentTarget.style.boxShadow = '0 6px 20px rgba(124, 58, 237, 0.3)'
+                      }}
+                      onMouseLeave={e => {
+                        e.currentTarget.style.transform = 'translateY(0)'
+                        e.currentTarget.style.boxShadow = '0 4px 12px rgba(124, 58, 237, 0.2)'
+                      }}
+                    >
+                      Join Group
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div style={{ textAlign: 'center', padding: '80px 32px', background: 'white', borderRadius: 32, border: '1px solid #F1F5F9' }}>
+                <div style={{ width: 80, height: 80, background: '#F5F3FF', borderRadius: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px', color: '#7C3AED' }}>
+                  <Users size={40} />
+                </div>
+                <h3 style={{ fontSize: 20, fontWeight: 800, color: '#0F172A', marginBottom: 12 }}>No Groups Yet</h3>
+                <p style={{ color: '#64748B', maxWidth: 300, margin: '0 auto 24px', fontSize: 15, lineHeight: 1.5 }}>
+                  Be the first to create a student group in your community!
+                </p>
+                {currentUser ? (
+                  <button
+                    onClick={() => router.push('/dashboard?activeTab=community')}
+                    style={{
+                      background: 'linear-gradient(135deg, #7C3AED, #06B6D4)',
+                      color: 'white',
+                      border: 'none',
+                      padding: '12px 24px',
+                      borderRadius: 16,
+                      fontSize: 13,
+                      fontWeight: 800,
+                      cursor: 'pointer',
+                      boxShadow: '0 8px 16px rgba(124, 58, 237, 0.25)',
+                      transition: 'transform 0.2s',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 8
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
+                    onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+                  >
+                    <Users size={16} />
+                    Create First Group
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => router.push('/signup')}
+                    style={{
+                      background: 'linear-gradient(135deg, #7C3AED, #06B6D4)',
+                      color: 'white',
+                      border: 'none',
+                      padding: '12px 24px',
+                      borderRadius: 16,
+                      fontSize: 13,
+                      fontWeight: 800,
+                      cursor: 'pointer',
+                      boxShadow: '0 8px 16px rgba(124, 58, 237, 0.25)',
+                      transition: 'transform 0.2s'
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
+                    onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+                  >
+                    Sign Up to Create Groups
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* ── PREMIUM SIDEBAR ── */}
@@ -940,6 +1277,178 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
             </div>
           </div>
         </div>
+      )}
+
+      {/* Members Modal */}
+      {showMembersModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(12px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
+          <div className="animate-fade" style={{ background: 'white', width: '100%', maxWidth: 600, maxHeight: '80vh', borderRadius: 28, overflow: 'hidden', boxShadow: '0 40px 80px rgba(0,0,0,0.4)', display: 'flex', flexDirection: 'column' }}>
+            {/* Header */}
+            <div style={{ padding: '24px 24px 16px', borderBottom: '1px solid #F1F5F9' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div>
+                  <h3 style={{ fontSize: 20, fontWeight: 800, color: '#0F172A', margin: 0, marginBottom: 4 }}>Community Members</h3>
+                  <p style={{ fontSize: 14, color: '#64748B', margin: 0 }}>{members.length} total members</p>
+                </div>
+                <button
+                  onClick={() => setShowMembersModal(false)}
+                  style={{ background: 'transparent', border: 'none', color: '#64748B', cursor: 'pointer', padding: 8, borderRadius: 8, transition: 'all 0.2s' }}
+                  onMouseEnter={e => e.currentTarget.style.background = '#F8FAFC'}
+                  onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                >
+                  <X size={20} />
+                </button>
+              </div>
+            </div>
+
+            {/* Content */}
+            <div style={{ flex: 1, overflow: 'auto', padding: '16px 24px 24px' }}>
+              {membersLoading ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 12, background: '#F8FAFC', borderRadius: 12 }}>
+                      <div style={{ width: 40, height: 40, background: '#E2E8F0', borderRadius: '50%', animation: 'pulse 2s infinite' }} />
+                      <div style={{ flex: 1 }}>
+                        <div style={{ width: '60%', height: 12, background: '#E2E8F0', borderRadius: 6, marginBottom: 6, animation: 'pulse 2s infinite' }} />
+                        <div style={{ width: '40%', height: 10, background: '#E2E8F0', borderRadius: 6, animation: 'pulse 2s infinite' }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  {/* Seniors Section */}
+                  {members.filter(m => m.role === 'senior').length > 0 && (
+                    <div>
+                      <h4 style={{ fontSize: 14, fontWeight: 700, color: '#0F172A', margin: '0 0 12px', display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <Crown size={16} style={{ color: '#F59E0B' }} />
+                        Seniors ({members.filter(m => m.role === 'senior').length})
+                      </h4>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        {members.filter(m => m.role === 'senior').map((member: any) => (
+                          <div key={member.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 12, background: '#FEF3C7', border: '1px solid #FDE68A', borderRadius: 12, transition: 'all 0.2s' }} onMouseEnter={e => e.currentTarget.style.transform = 'translateX(4px)'} onMouseLeave={e => e.currentTarget.style.transform = 'translateX(0)'}>
+                            <div style={{
+                              width: 40,
+                              height: 40,
+                              borderRadius: '50%',
+                              background: member.avatar_url ? 'transparent' : 'linear-gradient(135deg, #10B981, #34D399)',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              color: 'white',
+                              fontSize: 14,
+                              fontWeight: 800,
+                              overflow: 'hidden',
+                              flexShrink: 0
+                            }}>
+                              {member.avatar_url ? (
+                                <img src={member.avatar_url} alt={member.full_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                              ) : (
+                                member.full_name?.[0] || 'S'
+                              )}
+                            </div>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
+                                <p style={{ fontSize: 14, fontWeight: 600, color: '#0F172A', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                  {member.full_name}
+                                </p>
+                                {member.is_verified && (
+                                  <div style={{ width: 16, height: 16, background: '#10B981', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <span style={{ color: 'white', fontSize: 10, fontWeight: 800 }}>✓</span>
+                                  </div>
+                                )}
+                              </div>
+                              <p style={{ fontSize: 12, color: '#64748B', margin: 0 }}>
+                                {member.department || 'Computer Science'} • {member.passout_year || '2024'}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Juniors Section */}
+                  {members.filter(m => m.role === 'student').length > 0 && (
+                    <div>
+                      <h4 style={{ fontSize: 14, fontWeight: 700, color: '#0F172A', margin: '20px 0 12px', display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <GraduationCap size={16} style={{ color: '#7C3AED' }} />
+                        Juniors ({members.filter(m => m.role === 'student').length})
+                      </h4>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        {members.filter(m => m.role === 'student').map((member: any) => (
+                          <div key={member.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 12, background: '#F5F3FF', border: '1px solid #DDD6FE', borderRadius: 12, transition: 'all 0.2s' }} onMouseEnter={e => e.currentTarget.style.transform = 'translateX(4px)'} onMouseLeave={e => e.currentTarget.style.transform = 'translateX(0)'}>
+                            <div style={{
+                              width: 40,
+                              height: 40,
+                              borderRadius: '50%',
+                              background: member.avatar_url ? 'transparent' : 'linear-gradient(135deg, #7C3AED, #06B6D4)',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              color: 'white',
+                              fontSize: 14,
+                              fontWeight: 800,
+                              overflow: 'hidden',
+                              flexShrink: 0
+                            }}>
+                              {member.avatar_url ? (
+                                <img src={member.avatar_url} alt={member.full_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                              ) : (
+                                member.full_name?.[0] || 'J'
+                              )}
+                            </div>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
+                                <p style={{ fontSize: 14, fontWeight: 600, color: '#0F172A', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                  {member.full_name}
+                                </p>
+                                {member.is_verified && (
+                                  <div style={{ width: 16, height: 16, background: '#10B981', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <span style={{ color: 'white', fontSize: 10, fontWeight: 800 }}>✓</span>
+                                  </div>
+                                )}
+                              </div>
+                              <p style={{ fontSize: 12, color: '#64748B', margin: 0 }}>
+                                {member.department || 'Computer Science'} • {member.passout_year || '2025'}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {members.length === 0 && !membersLoading && (
+                    <div style={{ textAlign: 'center', padding: '40px 20px' }}>
+                      <Users size={48} style={{ color: '#CBD5E1', margin: '0 auto 16px' }} />
+                      <p style={{ fontSize: 16, color: '#64748B', margin: 0 }}>No members found</p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Create Group Modal */}
+      {showCreateGroupModal && currentUser && (
+        <CreateGroupModal
+          isOpen={showCreateGroupModal}
+          onClose={() => setShowCreateGroupModal(false)}
+          onSuccess={() => {
+            setShowCreateGroupModal(false)
+            fetchStudentGroups() // Refresh the groups list
+          }}
+          currentUser={{
+            id: currentUser.id,
+            is_premium: currentUser.is_premium || false,
+            role: currentUser.role || 'student',
+            college_id: currentUser.college_id
+          }}
+          communityId={data?.community?.college_id}
+        />
       )}
 
       <style dangerouslySetInnerHTML={{

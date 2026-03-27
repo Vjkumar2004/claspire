@@ -5,12 +5,14 @@ import Link from 'next/link';
 import { usePoints } from '@/contexts/PointsContext';
 import { useRouter } from 'next/navigation';
 import { HelpCircle, Briefcase, Handshake, Mic, DollarSign, BarChart3, Star, Trophy, User, CheckCircle, Settings, Zap, TrendingUp, LayoutDashboard, MessageSquare, Trash2 } from 'lucide-react';
-import DashboardMessages from '@/components/DashboardMessages';
+import CreateGroupModal from '@/components/CreateGroupModal'
+import MyGroupsList from '@/components/MyGroupsList'
 import NotificationPrompt from '@/components/NotificationPrompt';
 import NotificationBell from '@/components/NotificationBell';
 import DeleteAccountModal from '@/components/DeleteAccountModal';
 import MessageRequestsSection from '@/components/senior/MessageRequestsSection';
 import SeniorConnectionRequestsSection from '@/components/SeniorConnectionRequestsSection';
+import DashboardMessages from '@/components/DashboardMessages';
 
 // Helper functions
 const timeAgo = (dateStr: string) => {
@@ -74,10 +76,29 @@ export default function SeniorDashboardPage() {
   const [referralActionLoading, setReferralActionLoading] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [showCreateGroupModal, setShowCreateGroupModal] = useState(false)
+  const [userCollegeCommunityId, setUserCollegeCommunityId] = useState<string>('')
 
   useEffect(() => {
     fetchDashboardData()
+    fetchUserCollegeCommunity()
   }, [])
+
+  const fetchUserCollegeCommunity = async () => {
+    try {
+      console.log('Fetching user college community...')
+      const res = await fetch('/api/community/my-college')
+      if (res.ok) {
+        const data = await res.json()
+        console.log('College community data:', data)
+        setUserCollegeCommunityId(data.communityId || '')
+      } else {
+        console.error('Failed to fetch college community:', res.status, res.statusText)
+      }
+    } catch (err) {
+      console.error('Failed to fetch college community:', err)
+    }
+  }
 
   const fetchDashboardData = async () => {
     try {
@@ -365,9 +386,27 @@ export default function SeniorDashboardPage() {
             </p>
           </div>
 
-          <div className="hidden lg:block bg-gray-100 border border-gray-200 rounded-lg px-3 py-1.5 text-xs font-black text-gray-600 font-mono" title="Your unique Claspire ID">
-            {dashData?.user?.unique_id || '#CLS-S-2022-00234'}
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setShowCreateGroupModal(true)}
+              className="hidden sm:flex items-center gap-2 bg-gradient-to-r from-purple-600 to-cyan-500 text-white px-4 py-2 rounded-xl text-xs font-black hover:shadow-lg transition-all"
+            >
+              Create Group
+            </button>
+            <div className="hidden lg:block bg-gray-100 border border-gray-200 rounded-lg px-3 py-1.5 text-xs font-black text-gray-600 font-mono" title="Your unique Claspire ID">
+              {dashData?.user?.unique_id || '#CLS-S-2022-00234'}
+            </div>
           </div>
+        </div>
+
+        {/* Mobile Create Group Button */}
+        <div className="lg:hidden mb-6">
+          <button
+            onClick={() => setShowCreateGroupModal(true)}
+            className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-cyan-500 text-white px-4 py-3 rounded-xl text-xs font-black hover:shadow-lg transition-all"
+          >
+            Create Student Group
+          </button>
         </div>
 
         {activeNav === "messages" ? (
@@ -550,6 +589,9 @@ export default function SeniorDashboardPage() {
                 )}
               </div>
             </div>
+
+            {/* My Student Groups */}
+            <MyGroupsList />
           </div>
         </div>
         {/* Job Posting Modal */}
@@ -778,6 +820,21 @@ export default function SeniorDashboardPage() {
         onClose={() => setShowDeleteModal(false)}
         onConfirm={handleDeleteAccount}
         isLoading={isDeleting}
+      />
+      <CreateGroupModal
+        isOpen={showCreateGroupModal}
+        onClose={() => setShowCreateGroupModal(false)}
+        onSuccess={() => {
+          setShowCreateGroupModal(false)
+          // Refresh or navigate as needed
+        }}
+        currentUser={{
+          id: dashData?.user?.id || '',
+          is_premium: dashData?.user?.is_premium || false,
+          role: 'senior',
+          college_id: dashData?.user?.college_id || ''
+        }}
+        communityId={userCollegeCommunityId || undefined}  // Pass as optional prop
       />
       <NotificationPrompt />
     </div>

@@ -22,8 +22,11 @@ export async function GET(
       } catch {}
     }
 
-    // 2. Fetch community + college
-    const { data: community } = await supabase
+    // 2. Fetch community + college (check both communities and student_groups tables)
+    let community = null
+    
+    // First try communities table
+    const { data: mainCommunity } = await supabase
       .from('communities')
       .select(`
         *,
@@ -34,6 +37,36 @@ export async function GET(
       `)
       .eq('slug', slug)
       .single()
+
+    if (mainCommunity) {
+      community = mainCommunity
+    } else {
+      // If not found, try student_groups table
+      const { data: studentGroup } = await supabase
+        .from('student_groups')
+        .select(`
+          *,
+          parent_community:communities(
+            *,
+            colleges (
+              id, name, short_name, slug,
+              type, location, state
+            )
+          )
+        `)
+        .eq('slug', slug)
+        .single()
+
+      if (studentGroup) {
+        // Transform student group to community format
+        community = {
+          ...studentGroup,
+          display_name: studentGroup.name,
+          colleges: studentGroup.parent_community?.colleges || null,
+          is_student_group: true
+        }
+      }
+    }
 
     // If community not found and it's aaacet, return mock data for testing
     if (!community && slug === 'aaacet') {

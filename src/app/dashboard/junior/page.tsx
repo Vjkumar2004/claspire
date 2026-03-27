@@ -20,6 +20,8 @@ import NotificationBell from '@/components/NotificationBell'
 import DashboardMessages from '@/components/DashboardMessages'
 import DeleteAccountModal from '@/components/DeleteAccountModal'
 import AcceptedSeniorsSection from '@/components/junior/AcceptedSeniorsSection'
+import CreateGroupModal from '@/components/CreateGroupModal'
+import MyGroupsList from '@/components/MyGroupsList'
 
 interface DashData {
   user: {
@@ -34,12 +36,15 @@ interface DashData {
     webinar_count: number
     is_verified: boolean
     avatar_url?: string
+    is_premium?: boolean
+    role?: 'student' | 'senior'
     colleges: {
+      id: string
       name: string
       short_name: string
       slug: string
-    } | null
-  }
+    }
+  } | null
   rpLog: Array<{
     id: string
     points: number
@@ -141,10 +146,29 @@ export default function JuniorDashboard() {
   const [eventSearch, setEventSearch] = useState('')
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [showCreateGroupModal, setShowCreateGroupModal] = useState(false)
+  const [userCollegeCommunityId, setUserCollegeCommunityId] = useState<string>('')
 
   useEffect(() => {
     init()
+    fetchUserCollegeCommunity()
   }, [])
+
+  const fetchUserCollegeCommunity = async () => {
+    try {
+      console.log('Fetching user college community...')
+      const res = await fetch('/api/community/my-college')
+      if (res.ok) {
+        const data = await res.json()
+        console.log('College community data:', data)
+        setUserCollegeCommunityId(data.communityId || '')
+      } else {
+        console.error('Failed to fetch college community:', res.status, res.statusText)
+      }
+    } catch (err) {
+      console.error('Failed to fetch college community:', err)
+    }
+  }
 
   useEffect(() => {
     const handleClick = () => setShowDeleteConfirm(null)
@@ -231,7 +255,7 @@ export default function JuniorDashboard() {
     }
   }
 
-  if (loading || !authChecked || !dashData) {
+  if (loading || !authChecked || !dashData || !dashData.user) {
     return (
       <div className="flex items-center justify-center h-screen bg-[#F8F9FA] flex-col gap-4 font-plus-jakarta-sans">
         <div className="w-12 h-12 border-[3px] border-purple-100 border-t-purple-600 rounded-full animate-spin" />
@@ -240,7 +264,7 @@ export default function JuniorDashboard() {
     )
   }
 
-  const u = dashData.user
+  const u = dashData.user! // Non-null assertion since we checked above
   const rp = getRPLevel(u.rise_points)
   const rpProgress = rp.next ? Math.min((u.rise_points / rp.next) * 100, 100) : 100
 
@@ -409,7 +433,8 @@ export default function JuniorDashboard() {
                     key="overview" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
                     className="space-y-8"
                   >
-                    {/* Stats Grid */}
+                    {/* My Student Groups */}
+                    <MyGroupsList />
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       {[
                         { label: 'Doubts Asked', value: u.doubt_count, icon: <HelpCircle size={22} />, color: '#7C3AED', trend: '+1 this week' },
@@ -605,14 +630,32 @@ export default function JuniorDashboard() {
                       <div className="relative z-10">
                         <h2 className="text-4xl font-black font-instrument-serif tracking-tight mb-4">Inside {u.colleges?.short_name || 'Your College'} Hub</h2>
                         <p className="text-white/60 font-medium text-lg max-w-lg mb-8">Access private discussions and exclusive resources limited to your college members.</p>
-                        <Link href={u.colleges?.slug ? `/community/c/${u.colleges.slug}` : '/community'} className="inline-flex items-center gap-3 bg-white text-[#0F172A] px-8 py-4 rounded-2xl font-black text-sm hover:scale-105 transition-transform no-underline cursor-pointer">
-                          Enter College Hub <ChevronRight size={18} />
-                        </Link>
+                        <div className="flex flex-col sm:flex-row gap-4">
+                          <Link href={u.colleges?.slug ? `/community/c/${u.colleges.slug}` : '/community'} className="inline-flex items-center gap-3 bg-white text-[#0F172A] px-8 py-4 rounded-2xl font-black text-sm hover:scale-105 transition-transform no-underline cursor-pointer">
+                            Enter College Hub <ChevronRight size={18} />
+                          </Link>
+                          <button
+                            onClick={() => setShowCreateGroupModal(true)}
+                            className="inline-flex items-center gap-3 bg-white/20 backdrop-blur-sm text-white px-8 py-4 rounded-2xl font-black text-sm hover:bg-white/30 transition-all border border-white/20"
+                          >
+                            <Plus size={18} />
+                            Create Group
+                          </button>
+                        </div>
                       </div>
                     </div>
 
                     <div>
-                      <h3 className="text-[11px] font-black text-[#94A3B8] uppercase tracking-[0.2em] mb-6 ml-4">Subscription Overview</h3>
+                      <div className="flex items-center justify-between mb-6">
+                        <h3 className="text-[11px] font-black text-[#94A3B8] uppercase tracking-[0.2em] ml-4">Subscription Overview</h3>
+                        <button
+                          onClick={() => setShowCreateGroupModal(true)}
+                          className="px-4 py-2 bg-[#7C3AED] text-white rounded-xl font-black text-xs hover:bg-purple-700 transition-colors flex items-center gap-2"
+                        >
+                          <Plus size={14} />
+                          Create Group
+                        </button>
+                      </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {dashData.joinedCommunities.map((item, i) => (
                           <div key={i} className="bg-white p-5 rounded-[28px] border border-[#E2E8F0] flex items-center justify-between group hover:shadow-xl transition-all cursor-pointer">
@@ -813,6 +856,21 @@ export default function JuniorDashboard() {
         onClose={() => setShowDeleteModal(false)}
         onConfirm={handleDeleteAccount}
         isLoading={isDeleting}
+      />
+      <CreateGroupModal
+        isOpen={showCreateGroupModal}
+        onClose={() => setShowCreateGroupModal(false)}
+        onSuccess={() => {
+          setShowCreateGroupModal(false)
+          // Refresh or navigate as needed
+        }}
+        currentUser={{
+          id: u.id,
+          is_premium: u.is_premium || false,
+          role: u.role || 'student',
+          college_id: u.colleges?.id || ''
+        }}
+        communityId={userCollegeCommunityId || undefined}  // Pass as optional prop
       />
       <NotificationPrompt />
     </div>
