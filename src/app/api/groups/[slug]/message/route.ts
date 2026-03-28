@@ -34,6 +34,27 @@ export async function POST(
       return NextResponse.json({ error: 'Group not found' }, { status: 404 })
     }
 
+    // Check if sender is a member and not blocked
+    const { data: membership, error: membershipError } = await supabase
+      .from('student_group_members')
+      .select('is_blocked')
+      .eq('group_id', group.id)
+      .eq('user_id', sender_id)
+      .single()
+
+    if (membershipError) {
+      console.error('Membership check error:', membershipError)
+      
+      // If the error is about is_blocked column, allow the message (no blocking feature yet)
+      if (membershipError.message?.includes('is_blocked')) {
+        // Continue without blocking check
+      } else {
+        return NextResponse.json({ error: 'You are not a member of this group' }, { status: 403 })
+      }
+    } else if (membership && membership.is_blocked) {
+      return NextResponse.json({ error: 'You are blocked from sending messages in this group' }, { status: 403 })
+    }
+
     // Insert message
     const { data: message, error: insertError } = await supabase
       .from('student_group_messages')

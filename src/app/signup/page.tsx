@@ -149,18 +149,59 @@ export default function SignupPage() {
       return
     }
 
+    // Check if account already exists before sending OTP
+    setLoading(true)
+    setError('')
+    
+    try {
+      const checkRes = await fetch('/api/auth/check-account', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          email: emailToUse,
+          role: activeRole 
+        })
+      })
+
+      const checkData = await checkRes.json()
+      
+      if (checkRes.status === 409) {
+        // Account already exists
+        setError(checkData.message || 'An account with this email already exists. Please login instead.')
+        setLoading(false)
+        return
+      }
+      
+      if (!checkRes.ok) {
+        setError(checkData.error || 'Failed to check account. Please try again.')
+        setLoading(false)
+        return
+      }
+      
+      // Account doesn't exist, proceed with OTP sending
+      console.log('Account check passed, proceeding with OTP sending')
+      
+    } catch (error) {
+      setError('Network error. Please check your connection and try again.')
+      setLoading(false)
+      return
+    }
+
     if (!agreedToTerms) {
       setError('Please agree to Terms of Service and Privacy Policy to continue')
+      setLoading(false)
       return
     }
 
     // Password validation before sending OTP
     if (!password || password.length < 6) {
       setError('Password must be at least 6 characters long')
+      setLoading(false)
       return
     }
     if (password !== confirmPassword) {
       setError('Passwords do not match')
+      setLoading(false)
       return
     }
 
@@ -168,22 +209,27 @@ export default function SignupPage() {
     if (activeRole === 'student') {
       if (!studentData.full_name.trim()) {
         setError('Full name is required')
+        setLoading(false)
         return
       }
       if (!studentData.college_id) {
         setError('Please select your college')
+        setLoading(false)
         return
       }
       if (!studentData.branch.trim()) {
         setError('Branch is required')
+        setLoading(false)
         return
       }
       if (!studentData.year) {
         setError('Current year is required')
+        setLoading(false)
         return
       }
       if (!studentData.passout_year) {
         setError('Passout year is required')
+        setLoading(false)
         return
       }
     }
@@ -192,30 +238,27 @@ export default function SignupPage() {
     if (activeRole === 'senior') {
       if (!seniorData.full_name.trim()) {
         setError('Full name is required')
+        setLoading(false)
         return
       }
       if (!seniorData.college_id) {
         setError('Please select your college')
-        return
-      }
-      if (!seniorData.is_fresher && !seniorData.company.trim()) {
-        setError('Company name is required')
-        return
-      }
-      if (!seniorData.is_fresher && !seniorData.designation.trim()) {
-        setError('Designation is required')
+        setLoading(false)
         return
       }
       if (!seniorData.branch.trim()) {
         setError('Branch is required')
+        setLoading(false)
         return
       }
       if (!seniorData.passout_year) {
         setError('Passout year is required')
+        setLoading(false)
         return
       }
       if (!seniorData.work_email.trim()) {
         setError('Work email is required')
+        setLoading(false)
         return
       }
       // Basic work email validation
@@ -223,12 +266,10 @@ export default function SignupPage() {
       const personalDomains = ['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com']
       if (!seniorData.is_fresher && personalDomains.includes(workEmailDomain?.toLowerCase())) {
         setError('Please use your work/company email, not personal email')
+        setLoading(false)
         return
       }
     }
-
-    setLoading(true)
-    setError('')
 
     try {
       const res = await fetch('/api/auth/send-otp', {

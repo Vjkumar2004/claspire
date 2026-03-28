@@ -808,7 +808,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                     border: '1px solid #F1F5F9', 
                     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)', 
                     cursor: 'pointer'
-                  }} onClick={() => router.push(`/community/c/${slug}/${group.slug}`)}>
+                  }} onClick={() => router.push(`/community/c/${slug}/group/${group.slug}`)}>
                     {/* Creator Profile Section */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '14px' }}>
                       <div style={{ position: 'relative', flexShrink: 0 }}>
@@ -953,7 +953,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                     <button
                       onClick={(e) => {
                         e.stopPropagation()
-                        router.push(`/community/c/${slug}/${group.slug}`)
+                        router.push(`/community/c/${slug}/group/${group.slug}`)
                       }}
                       style={{
                         width: '100%',
@@ -1440,6 +1440,8 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
           onSuccess={() => {
             setShowCreateGroupModal(false)
             fetchStudentGroups() // Refresh the groups list
+            // Redirect to groups page with created parameter
+            router.push('/groups?created=true')
           }}
           currentUser={{
             id: currentUser.id,

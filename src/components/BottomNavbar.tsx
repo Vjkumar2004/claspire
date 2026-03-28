@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Users, Search, Plus, User, Briefcase, GraduationCap, LayoutDashboard } from 'lucide-react'
+import { Users, Search, Plus, User, Users as Groups, GraduationCap, LayoutDashboard } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
 
@@ -153,9 +153,9 @@ const BottomNavbar = () => {
       href: '/colleges',
     },
     {
-      label: 'Jobs',
-      icon: Briefcase,
-      href: '/jobs',
+      label: 'Groups',
+      icon: Groups,
+      href: '/groups',
     },
     {
       label: 'Ask',
@@ -180,7 +180,7 @@ const BottomNavbar = () => {
     },
   ]
 
-  if (pathname === '/' || pathname === '/login' || pathname === '/signup' || pathname === '/dashboard/senior/messages' || pathname === '/dashboard/junior/messages' || isMobileMenuOpen) return null
+  if (pathname === '/' || pathname === '/login' || pathname === '/signup' || pathname === '/dashboard/senior/messages' || pathname === '/dashboard/junior/messages' || pathname.includes('/community/c/') && pathname.includes('/group/') || isMobileMenuOpen) return null
 
   return (
     <div 
