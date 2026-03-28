@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
     // Check if user already exists with this email
     const { data: existingUser, error: userError } = await supabase
       .from('users')
-      .select('id, email, role, full_name, is_active')
+      .select('id, email, role, full_name')
       .eq('email', email.toLowerCase())
       .single()
 
@@ -33,24 +33,13 @@ export async function POST(request: NextRequest) {
     }
 
     if (existingUser) {
-      // User exists, check if they're active
-      if (existingUser.is_active) {
-        return NextResponse.json({
-          exists: true,
-          isActive: true,
-          role: existingUser.role,
-          fullName: existingUser.full_name,
-          message: `An account with this email already exists as a ${existingUser.role}. Please login instead.`
-        }, { status: 409 })
-      } else {
-        return NextResponse.json({
-          exists: true,
-          isActive: false,
-          role: existingUser.role,
-          fullName: existingUser.full_name,
-          message: 'An account with this email exists but is not active. Please contact support.'
-        }, { status: 409 })
-      }
+      // User exists, they can proceed to login
+      return NextResponse.json({
+        exists: true,
+        role: existingUser.role,
+        fullName: existingUser.full_name,
+        message: `An account with this email already exists as a ${existingUser.role}. Please login instead.`
+      }, { status: 409 })
     }
 
     // No account found, user can proceed

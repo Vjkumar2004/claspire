@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Users, Search, Plus, User, Users as Groups, GraduationCap, LayoutDashboard } from 'lucide-react'
+import { Users, Search, Plus, User, Users as Groups, GraduationCap, LayoutDashboard, Building2 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
 
@@ -144,7 +144,7 @@ const BottomNavbar = () => {
   const navItems: NavItem[] = [
     {
       label: 'Community',
-      icon: Users,
+      icon: Building2,
       href: '/community',
     },
     {
@@ -154,7 +154,7 @@ const BottomNavbar = () => {
     },
     {
       label: 'Groups',
-      icon: Groups,
+      icon: Users,
       href: '/groups',
     },
     {
