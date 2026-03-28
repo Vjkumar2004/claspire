@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { X, Menu, Users, GraduationCap, Briefcase, DollarSign, LayoutDashboard, User, LogOut, ChevronRight, MessageSquare } from 'lucide-react'
+import { X, Menu, Users, GraduationCap, Briefcase, DollarSign, LayoutDashboard, User, LogOut, ChevronRight, MessageSquare, Building2 } from 'lucide-react'
 import NotificationBell from './NotificationBell'
 
 export default function Navbar() {
@@ -68,6 +68,10 @@ export default function Navbar() {
           <Link href="/community" className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-black transition-colors">
             <Users size={16} />
             Community
+          </Link>
+          <Link href="/groups" className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-black transition-colors">
+            <Building2 size={16} />
+            Groups
           </Link>
           <Link href={user?.role === 'senior' ? '/dashboard/senior' : '/dashboard/junior'} className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-black transition-colors">
             <LayoutDashboard size={16} />
