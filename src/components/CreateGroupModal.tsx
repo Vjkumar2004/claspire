@@ -26,7 +26,7 @@ export default function CreateGroupModal({ isOpen, onClose, onSuccess, currentUs
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    is_private: false,
+    scope: 'college' as 'college' | 'public' | 'private',
     is_ephemeral: true
   })
 
@@ -45,7 +45,7 @@ export default function CreateGroupModal({ isOpen, onClose, onSuccess, currentUs
       setFormData({
         name: '',
         description: '',
-        is_private: false,
+        scope: 'college',
         is_ephemeral: true
       })
       fetchExistingGroups()
@@ -106,7 +106,7 @@ export default function CreateGroupModal({ isOpen, onClose, onSuccess, currentUs
     // Debug: Log the values being sent
     console.log('Creating group with data:', {
       name: formData.name,
-      type: formData.is_private ? 'private' : 'public',
+      scope: formData.scope,
       community_id: communityId
     })
 
@@ -123,8 +123,9 @@ export default function CreateGroupModal({ isOpen, onClose, onSuccess, currentUs
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: formData.name,
-          type: formData.is_private ? 'private' : 'public',
-          community_id: communityId  // ADD THIS - Pass community ID to API
+          description: formData.description,
+          scope: formData.scope,
+          community_id: communityId
         })
       })
 
@@ -144,7 +145,9 @@ export default function CreateGroupModal({ isOpen, onClose, onSuccess, currentUs
   }
 
   const canCreatePublic = currentUser.is_premium || existingGroups.publicCount === 0
-  const canCreatePrivate = currentUser.is_premium && existingGroups.privateCount === 0
+  const canCreatePrivate = currentUser.is_premium
+  const totalGroupsCreated = existingGroups.publicCount + existingGroups.privateCount
+  const canCreateCollege = currentUser.is_premium || totalGroupsCreated === 0
 
   return (
     <>
@@ -275,29 +278,71 @@ export default function CreateGroupModal({ isOpen, onClose, onSuccess, currentUs
                         <label className="text-xs font-black text-gray-500 uppercase tracking-wider">
                           Visibility
                         </label>
-                        
+
                         <div className="space-y-2">
+                          {/* College-only Option */}
+                          <label className={`relative block p-4 rounded-2xl border-2 transition-all cursor-pointer ${
+                            formData.scope === 'college'
+                              ? 'border-purple-500 bg-purple-50'
+                              : 'border-gray-200 hover:border-gray-300'
+                          } ${!canCreateCollege ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                            <div className="flex items-center gap-3">
+                              <input
+                                type="radio"
+                                name="visibility"
+                                checked={formData.scope === 'college'}
+                                onChange={() => setFormData({ ...formData, scope: 'college' })}
+                                disabled={!canCreateCollege || loading}
+                                className="sr-only"
+                              />
+                              <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                                formData.scope === 'college'
+                                  ? 'border-purple-500 bg-purple-500'
+                                  : 'border-gray-300'
+                              }`}>
+                                {formData.scope === 'college' && (
+                                  <div className="w-2 h-2 bg-white rounded-full" />
+                                )}
+                              </div>
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2">
+                                  <Users size={16} className="text-purple-600" />
+                                  <span className="font-bold text-sm">College Only</span>
+                                  <span className="text-xs text-gray-500">• Only your college students</span>
+                                </div>
+                              </div>
+                            </div>
+                            {!canCreateCollege && (
+                              <div className="absolute inset-0 bg-white/80 rounded-2xl flex items-center justify-center">
+                                <div className="text-center">
+                                  <Lock size={16} className="text-gray-400 mx-auto mb-1" />
+                                  <p className="text-xs text-gray-600">Free limit reached</p>
+                                </div>
+                              </div>
+                            )}
+                          </label>
+
                           {/* Public Option */}
                           <label className={`relative block p-4 rounded-2xl border-2 transition-all cursor-pointer ${
-                            !formData.is_private 
-                              ? 'border-purple-500 bg-purple-50' 
+                            formData.scope === 'public'
+                              ? 'border-purple-500 bg-purple-50'
                               : 'border-gray-200 hover:border-gray-300'
                           } ${!canCreatePublic ? 'opacity-50 cursor-not-allowed' : ''}`}>
                             <div className="flex items-center gap-3">
                               <input
                                 type="radio"
                                 name="visibility"
-                checked={!formData.is_private}
-                                onChange={() => setFormData({ ...formData, is_private: false })}
+                                checked={formData.scope === 'public'}
+                                onChange={() => setFormData({ ...formData, scope: 'public' })}
                                 disabled={!canCreatePublic || loading}
                                 className="sr-only"
                               />
                               <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                                !formData.is_private 
-                                  ? 'border-purple-500 bg-purple-500' 
+                                formData.scope === 'public'
+                                  ? 'border-purple-500 bg-purple-500'
                                   : 'border-gray-300'
                               }`}>
-                                {!formData.is_private && (
+                                {formData.scope === 'public' && (
                                   <div className="w-2 h-2 bg-white rounded-full" />
                                 )}
                               </div>
@@ -305,7 +350,7 @@ export default function CreateGroupModal({ isOpen, onClose, onSuccess, currentUs
                                 <div className="flex items-center gap-2">
                                   <Users size={16} className="text-gray-600" />
                                   <span className="font-bold text-sm">Public</span>
-                                  <span className="text-xs text-gray-500">• Anyone can join</span>
+                                  <span className="text-xs text-gray-500">• Any college can join</span>
                                 </div>
                               </div>
                             </div>
@@ -321,25 +366,25 @@ export default function CreateGroupModal({ isOpen, onClose, onSuccess, currentUs
 
                           {/* Private Option */}
                           <label className={`relative block p-4 rounded-2xl border-2 transition-all cursor-pointer ${
-                            formData.is_private 
-                              ? 'border-purple-500 bg-purple-50' 
+                            formData.scope === 'private'
+                              ? 'border-purple-500 bg-purple-50'
                               : 'border-gray-200 hover:border-gray-300'
                           } ${!canCreatePrivate ? 'opacity-50 cursor-not-allowed' : ''}`}>
                             <div className="flex items-center gap-3">
                               <input
                                 type="radio"
                                 name="visibility"
-                                checked={formData.is_private}
-                                onChange={() => setFormData({ ...formData, is_private: true })}
+                                checked={formData.scope === 'private'}
+                                onChange={() => setFormData({ ...formData, scope: 'private' })}
                                 disabled={!canCreatePrivate || loading}
                                 className="sr-only"
                               />
                               <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                                formData.is_private 
-                                  ? 'border-purple-500 bg-purple-500' 
+                                formData.scope === 'private'
+                                  ? 'border-purple-500 bg-purple-500'
                                   : 'border-gray-300'
                               }`}>
-                                {formData.is_private && (
+                                {formData.scope === 'private' && (
                                   <div className="w-2 h-2 bg-white rounded-full" />
                                 )}
                               </div>

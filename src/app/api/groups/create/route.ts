@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid JSON in request body' }, { status: 400 })
     }
 
-    const { name, community_id, type, description } = body
+    const { name, community_id, scope, description } = body
 
     // Validate required fields
     if (!name?.trim()) {
@@ -39,8 +39,8 @@ export async function POST(request: NextRequest) {
     if (!community_id) {
       return NextResponse.json({ error: 'Community ID is required' }, { status: 400 })
     }
-    if (!type || !['public', 'private'].includes(type)) {
-      return NextResponse.json({ error: 'Group type must be "public" or "private"' }, { status: 400 })
+    if (!scope || !['college', 'public', 'private'].includes(scope)) {
+      return NextResponse.json({ error: 'Group scope must be "college", "public", or "private"' }, { status: 400 })
     }
 
     // Get user details including role and college info
@@ -118,15 +118,15 @@ export async function POST(request: NextRequest) {
     const privateCount = existingGroups?.filter((g: any) => g.is_private).length || 0
     const isPremium = userData.role === 'senior' // Assuming seniors are premium
 
-    if (!isPremium && publicCount >= 1) {
+    if (!isPremium && scope === 'private') {
       return NextResponse.json({ 
-        error: 'Free users can only create 1 public group. Upgrade to premium to create unlimited groups.' 
+        error: 'Private groups are available for Premium users only' 
       }, { status: 400 })
     }
 
-    if (!isPremium && type === 'private') {
+    if (!isPremium && scope === 'public' && publicCount >= 1) {
       return NextResponse.json({ 
-        error: 'Private groups are available for Premium users only' 
+        error: 'Free users can only create 1 public group. Upgrade to premium for unlimited groups.' 
       }, { status: 400 })
     }
 
@@ -155,7 +155,8 @@ export async function POST(request: NextRequest) {
       name: name.trim(),
       slug,
       description: description || '',
-      is_private: type === 'private',
+      is_private: scope === 'private',
+      scope: scope,
       college_id: userData.college_id,
       parent_community_id: community_id, // Link to main college community
       created_by: userData.id,
@@ -177,6 +178,7 @@ export async function POST(request: NextRequest) {
 
     console.log('createdGroup:', createdGroup)
     console.log('insertError:', insertError)
+    console.log('Group created successfully:', !!createdGroup && !insertError)
 
     if (insertError) {
       // Handle other database errors
@@ -213,7 +215,7 @@ export async function POST(request: NextRequest) {
         name: createdGroup.name,
         slug: createdGroup.slug,
         community_id: createdGroup.parent_community_id,
-        type: createdGroup.is_private ? 'private' : 'public',
+        scope: createdGroup.scope,
         created_by_role: createdGroup.creator_role,
         member_count: createdGroup.member_count,
         is_ephemeral: createdGroup.is_ephemeral,

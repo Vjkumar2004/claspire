@@ -1,10 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+import { cookies } from 'next/headers'
 
 export async function GET(
   request: NextRequest,
@@ -12,37 +8,62 @@ export async function GET(
 ) {
   try {
     const { slug } = await params
-    
-    console.log('API: Fetching group with slug:', slug)
 
     if (!slug) {
       return NextResponse.json({ error: 'Group slug is required' }, { status: 400 })
     }
 
+    // Create admin client for DB queries
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
+
+    let currentUserId: string | null = null
+
+    const cookieStore = await cookies()
+    const sessionCookie = cookieStore.get('claspire_session')
+
+    if (sessionCookie?.value) {
+      try {
+        const cookieUser = JSON.parse(sessionCookie.value)
+        currentUserId = cookieUser.id ?? null
+      } catch {
+        currentUserId = null
+      }
+    }
+
     // Get group details
     const { data: group, error: groupError } = await supabase
       .from('student_groups')
-      .select(`
-        *,
-        colleges (
-          id,
-          slug,
-          name
-        )
-      `)
+      .select(`*, colleges (id, slug, name)`)
       .eq('slug', slug)
       .single()
 
-    console.log('API: Group data:', group)
-    console.log('API: Group error:', groupError)
-
     if (groupError || !group) {
-      console.log('API: Group not found, returning 404')
       return NextResponse.json({ error: 'Group not found' }, { status: 404 })
     }
 
-    // Get group members - try proper user join
-    const { data: members, error: membersError } = await supabase
+    // Check membership
+    let isMember = false
+    let isAdmin = false
+    let isBlocked = false
+
+    if (currentUserId) {
+      const { data: membership } = await supabase
+        .from('student_group_members')
+        .select('role, is_blocked')
+        .eq('group_id', group.id)
+        .eq('user_id', currentUserId)
+        .single()
+
+      isMember = !!membership
+      isAdmin = membership?.role === 'admin' || group.created_by === currentUserId
+      isBlocked = membership?.is_blocked || false
+    }
+
+    // Get members with user details
+    const { data: membersData } = await supabase
       .from('student_group_members')
       .select(`
         id,
@@ -59,53 +80,43 @@ export async function GET(
       .eq('group_id', group.id)
       .order('joined_at', { ascending: true })
 
-    console.log('API: Members data with user join:', members)
-    console.log('API: Members error:', membersError)
-
-    // Flatten user data into member object for frontend compatibility
-    const flattenedMembers = (members || []).map((member: any) => ({
-      id: member.id,
-      role: member.role,
-      joined_at: member.joined_at,
-      membership_role: member.role,
-      full_name: member.users?.full_name || 'Unknown User',
-      avatar_url: member.users?.avatar_url,
-      user_role: member.users?.role,
-      is_verified: member.users?.is_verified
+    const formattedMembers = (membersData ?? []).map((m: any) => ({
+      id: m.users?.id || m.id,
+      full_name: m.users?.full_name || 'Unknown User',
+      avatar_url: m.users?.avatar_url || null,
+      role: m.users?.role || 'student',
+      is_verified: m.users?.is_verified || false,
+      membership_role: m.role,
+      joined_at: m.joined_at
     }))
 
-    console.log('API: Flattened members:', flattenedMembers)
-
-    // Get messages
-    const { data: messages, error: messagesError } = await supabase
+    // Get messages with sender details
+    const { data: messagesData } = await supabase
       .from('student_group_messages')
       .select(`
-        *,
-        sender:users!student_group_messages_sender_id_fkey(id, full_name, avatar_url, role, unique_id)
+        id,
+        content,
+        created_at,
+        sender_id,
+        users!student_group_messages_sender_id_fkey (
+          id,
+          full_name,
+          avatar_url,
+          role,
+          unique_id
+        )
       `)
       .eq('group_id', group.id)
       .eq('is_deleted', false)
       .order('created_at', { ascending: true })
       .limit(50)
 
-    if (messagesError) {
-      console.error('Messages error:', messagesError)
-      // Don't fail the request
-    }
-
-    console.log('API: Messages data:', messages)
-
-    // Check user membership and permissions
-    let isMember = false
-    let isAdmin = false
-    let canMessage = false
-
-    // For now, we'll set isMember to true if there are members
-    // TODO: Proper authentication check
-    if (members && members.length > 0) {
-      isMember = true
-      canMessage = true
-    }
+    const formattedMessages = (messagesData ?? []).map((m: any) => ({
+      id: m.id,
+      content: m.content,
+      created_at: m.created_at,
+      sender: m.users
+    }))
 
     return NextResponse.json({
       group: {
@@ -120,15 +131,16 @@ export async function GET(
         created_at: group.created_at,
         created_by: group.created_by,
         auto_delete_at: group.auto_delete_at,
-        creator: null, // Will be populated on frontend
+        creator: null,
         creator_role: null,
         college: group.colleges
       },
-      members: flattenedMembers ?? [],
-      messages: messages || [],
+      members: formattedMembers,
+      messages: formattedMessages,
       isMember,
       isAdmin,
-      canMessage
+      isBlocked,
+      canMessage: isMember && !isBlocked
     })
 
   } catch (error) {
