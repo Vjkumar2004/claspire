@@ -34,6 +34,7 @@ export async function GET(
         slug,
         description,
         is_private,
+        scope,
         member_count,
         created_at,
         created_by,
@@ -48,20 +49,29 @@ export async function GET(
       return NextResponse.json({ error: 'Failed to fetch groups' }, { status: 500 })
     }
 
+    console.log('Raw groups data:', groups)
+
     // Format groups
-    const formattedGroups = (groups || []).map(group => ({
-      id: group.id,
-      name: group.name,
-      display_name: group.name, // Use name as display_name for student groups
-      slug: group.slug,
-      description: group.description,
-      is_private: group.is_private,
-      is_ephemeral: false, // Student groups are not ephemeral
-      member_count: group.member_count,
-      created_at: group.created_at,
-      creator_role: group.creator?.[0]?.role || 'student', // Get role from creator array
-      creator: group.creator?.[0] || null // Get first creator from array
-    }))
+    const formattedGroups = (groups || []).map(group => {
+      console.log('Processing group:', group.name, 'Creator:', group.creator)
+      const creator = Array.isArray(group.creator) ? group.creator[0] : group.creator
+      return {
+        id: group.id,
+        name: group.name,
+        display_name: group.name, // Use name as display_name for student groups
+        slug: group.slug,
+        description: group.description,
+        is_private: group.is_private,
+        scope: group.scope,
+        is_ephemeral: false, // Student groups are not ephemeral
+        member_count: group.member_count,
+        created_at: group.created_at,
+        creator_role: creator?.role || 'student',
+        creator: creator || null
+      }
+    })
+
+    console.log('Formatted groups:', formattedGroups)
 
     return NextResponse.json({
       groups: formattedGroups,

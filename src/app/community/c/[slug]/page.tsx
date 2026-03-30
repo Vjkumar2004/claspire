@@ -823,16 +823,17 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                           color: 'white',
                           fontSize: '14px',
                           fontWeight: 800,
-                          overflow: 'hidden'
+                          overflow: 'hidden',
+                          border: '2px solid #F1F5F9'
                         }}>
                           {group.creator?.avatar_url ? (
                             <img 
                               src={group.creator.avatar_url} 
-                              alt={group.creator.full_name || 'Creator'} 
+                              alt={group.creator.full_name || 'Admin'} 
                               style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
                             />
                           ) : (
-                            group.creator?.full_name?.[0] || 'C'
+                            group.creator?.full_name?.[0] || 'A'
                           )}
                         </div>
                         {group.creator?.role === 'senior' && (
@@ -846,7 +847,8 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                             borderRadius: '50%',
                             display: 'flex',
                             alignItems: 'center',
-                            justifyContent: 'center'
+                            justifyContent: 'center',
+                            border: '2px solid white'
                           }}>
                             <Crown size={8} color="white" />
                           </div>
@@ -856,14 +858,14 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
                           <p style={{ 
                             fontSize: '13px', 
-                            fontWeight: 600, 
+                            fontWeight: 700, 
                             color: '#0F172A', 
                             margin: 0, 
                             whiteSpace: 'nowrap', 
                             overflow: 'hidden', 
                             textOverflow: 'ellipsis'
                           }}>
-                            {group.creator?.full_name || 'Group Creator'}
+                            {group.creator?.full_name || 'Group Admin'}
                           </p>
                           <span style={{ 
                             fontSize: '9px', 
@@ -874,15 +876,20 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                             fontWeight: 600,
                             textTransform: 'uppercase'
                           }}>
-                            {group.creator?.role || 'student'}
+                            {group.creator?.role === 'senior' ? 'Senior' : 'Admin'}
                           </span>
                         </div>
                         <p style={{ 
                           fontSize: '10px', 
                           color: '#64748B', 
-                          margin: 0
+                          margin: 0,
+                          fontWeight: 500
                         }}>
-                          Created {new Date(group.created_at).toLocaleDateString()}
+                          Created {new Date(group.created_at).toLocaleDateString('en-US', { 
+                            month: 'short', 
+                            day: 'numeric', 
+                            year: 'numeric' 
+                          })}
                         </p>
                       </div>
                     </div>
@@ -901,8 +908,10 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                           {group.name}
                         </h3>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexShrink: 0 }}>
-                          {group.is_private ? (
+                          {group.scope === 'private' || group.is_private ? (
                             <Lock size={14} style={{ color: '#D97706' }} />
+                          ) : group.scope === 'college' ? (
+                            <GraduationCap size={14} style={{ color: '#6366F1' }} />
                           ) : (
                             <Globe size={14} style={{ color: '#10B981' }} />
                           )}
@@ -931,7 +940,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                         </div>
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
-                        {group.is_private && (
+                        {(group.scope === 'private' || group.is_private) ? (
                           <span style={{ 
                             display: 'flex', 
                             alignItems: 'center', 
@@ -944,6 +953,34 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                             fontWeight: 600
                           }}>
                             <Lock size={8} /> Private
+                          </span>
+                        ) : group.scope === 'college' ? (
+                          <span style={{ 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            gap: '3px', 
+                            fontSize: '9px', 
+                            color: '#6366F1', 
+                            background: '#EEF2FF', 
+                            padding: '3px 6px', 
+                            borderRadius: '6px', 
+                            fontWeight: 600
+                          }}>
+                            <GraduationCap size={8} /> College Only
+                          </span>
+                        ) : (
+                          <span style={{ 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            gap: '3px', 
+                            fontSize: '9px', 
+                            color: '#10B981', 
+                            background: '#ECFDF5', 
+                            padding: '3px 6px', 
+                            borderRadius: '6px', 
+                            fontWeight: 600
+                          }}>
+                            <Globe size={8} /> Public
                           </span>
                         )}
                       </div>

@@ -46,6 +46,7 @@ interface GroupData {
   isMember: boolean
   isAdmin: boolean
   canMessage: boolean
+  requestPending?: boolean
 }
 
 export default function GroupChatPage() {
@@ -99,6 +100,23 @@ useEffect(() => {
       const res = await fetch(`/api/groups/${groupSlug}`)
       if (res.ok) {
         const data = await res.json()
+        
+        // Check if user has pending request
+        if (!data.isMember && data.group?.is_private) {
+          const reqRes = await fetch(`/api/groups/${groupSlug}/my-request`)
+          if (reqRes.ok) {
+            const reqData = await reqRes.json()
+            if (reqData.status === 'pending') {
+              setGroupData({ ...data, requestPending: true })
+              setIsBlocked(data.isBlocked || false)
+              const msgs = data.messages || []
+              setMessages(msgs)
+              setLoading(false)
+              return
+            }
+          }
+        }
+        
         setGroupData(data)
         setIsBlocked(data.isBlocked || false)
         const msgs = data.messages || []
@@ -173,8 +191,13 @@ useEffect(() => {
       const res = await fetch(`/api/groups/${groupSlug}/join`, { method: 'POST' })
       const data = await res.json()
       if (res.ok) {
-        if (data.joined) fetchGroupData()
-        else if (data.requested) alert('Join request sent! Waiting for admin approval.')
+        if (data.joined) {
+          fetchGroupData()
+        } else if (data.requested) {
+          // Show waiting state
+          setGroupData(prev => prev ? { ...prev, isMember: false, canMessage: false, isAdmin: false } : prev)
+          alert('✅ Join request sent! Waiting for admin approval.')
+        }
       } else {
         if (data.collegeRestricted) {
           // Show college restriction modal
@@ -335,9 +358,16 @@ useEffect(() => {
     <div className="flex-shrink-0 bg-[#111118] border-t border-white/5 px-4 py-3 pb-safe">
       {!isMember ? (
         <div className="flex justify-center">
-          <button onClick={handleJoin} disabled={joining} className="bg-violet-600 hover:bg-violet-700 text-white px-6 py-2.5 rounded-2xl font-bold text-sm transition-colors disabled:opacity-50">
-            {joining ? 'Joining...' : '✦ Join to Participate'}
-          </button>
+          {groupData?.requestPending ? (
+            <div className="flex items-center gap-2 text-sm text-white/50 bg-white/5 px-4 py-2.5 rounded-2xl">
+              <Clock size={14} />
+              Waiting for admin approval...
+            </div>
+          ) : (
+            <button onClick={handleJoin} disabled={joining} className="bg-violet-600 hover:bg-violet-700 text-white px-6 py-2.5 rounded-2xl font-bold text-sm transition-colors disabled:opacity-50">
+              {joining ? 'Joining...' : group?.is_private ? '🔒 Request to Join' : '✦ Join to Participate'}
+            </button>
+          )}
         </div>
       ) : isBlocked ? (
         <div className="flex items-center justify-center gap-3 py-2">

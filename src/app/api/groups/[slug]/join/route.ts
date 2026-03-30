@@ -33,7 +33,7 @@ export async function POST(
     // Get group details by slug
     const { data: group, error: groupError } = await supabase
       .from('student_groups')
-      .select('id, is_active, member_count, college_id')
+      .select('id, is_active, member_count, college_id, scope, is_private')
       .eq('slug', slug)
       .single()
 
@@ -56,8 +56,8 @@ export async function POST(
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
-    // Check if user's college matches group's college
-    if (userData.college_id !== group.college_id) {
+    // Only restrict for college-only groups
+    if (group.scope === 'college' && userData.college_id !== group.college_id) {
       return NextResponse.json({ 
         error: 'This group is only available for students from your college',
         collegeRestricted: true 
@@ -74,6 +74,24 @@ export async function POST(
 
     if (existingMember) {
       return NextResponse.json({ joined: true, alreadyMember: true })
+    }
+
+    // If private group, send join request instead
+    if (group.is_private || group.scope === 'private') {
+      const { error: requestError } = await supabase
+        .from('student_group_join_requests')
+        .upsert({
+          group_id: group.id,
+          user_id: userId,
+          status: 'pending',
+          requested_at: new Date().toISOString()
+        })
+
+      if (requestError) {
+        return NextResponse.json({ error: 'Failed to send request' }, { status: 500 })
+      }
+
+      return NextResponse.json({ requested: true })
     }
 
     // Add user to group
