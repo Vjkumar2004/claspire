@@ -39,9 +39,6 @@ export const metadata: Metadata = {
     "engineering college community",
     "college doubts answers"
   ],
-  alternates: {
-    canonical: '/',
-  },
   openGraph: {
     title: "Claspire - India's College Senior Community",
     description: "Connect with verified seniors from your college for placement help, referrals and mentorship. Free to start.",

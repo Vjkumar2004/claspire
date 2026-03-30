@@ -10,6 +10,13 @@ import {
   Award, Briefcase, GraduationCap
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  alternates: {
+    canonical: "https://claspire.in/seniors",
+  },
+}
 
 interface Senior {
   id: string

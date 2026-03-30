@@ -16,6 +16,13 @@ import {
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import NotificationPrompt from '@/components/NotificationPrompt'
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  alternates: {
+    canonical: "https://claspire.in/community",
+  },
+}
 
 
 const supabase = createClient(
@@ -63,7 +70,22 @@ const convertUrlsToLinks = (text: string) => {
         href={match}
         target="_blank"
         rel="noopener noreferrer"
-        onClick={(e) => e.stopPropagation()}
+        onClick={(e) => {
+          e.stopPropagation()
+          const target = e.currentTarget as HTMLElement
+          target.style.color = '#6D28D9'
+          target.style.textDecoration = 'underline'
+        }}
+        onMouseEnter={(e) => {
+          const target = e.currentTarget as HTMLElement
+          target.style.color = '#7C3AED'
+          target.style.textDecoration = 'none'
+        }}
+        onMouseLeave={(e) => {
+          const target = e.currentTarget as HTMLElement
+          target.style.color = '#7C3AED'
+          target.style.textDecoration = 'underline'
+        }}
         style={{
           color: '#7C3AED',
           textDecoration: 'underline',
@@ -75,14 +97,6 @@ const convertUrlsToLinks = (text: string) => {
           verticalAlign: 'baseline',
           lineHeight: 'inherit',
           margin: '0 2px'
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.color = '#6D28D9'
-          e.currentTarget.style.textDecoration = 'none'
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.color = '#7C3AED'
-          e.currentTarget.style.textDecoration = 'underline'
         }}
       >
         {match}
@@ -924,8 +938,14 @@ function CommunityPageContent() {
                   borderRadius: '12px',
                   transition: 'background 0.2s ease'
                 }}
-                onMouseEnter={e => e.currentTarget.style.background = '#F8FAFC'}
-                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                onMouseEnter={(e) => {
+                  const target = e.currentTarget as HTMLElement
+                  target.style.background = '#F8FAFC'
+                }}
+                onMouseLeave={(e) => {
+                  const target = e.currentTarget as HTMLElement
+                  target.style.background = 'transparent'
+                }}
               >
                 <div style={{
                   width: 32, height: 32,
@@ -993,15 +1013,16 @@ function CommunityPageContent() {
                     width: '100%',
                     fontSize: 11,
                     fontWeight: 700,
-                    color: 'white',
-                    background: 'linear-gradient(135deg, #7C3AED, #06B6D4)',
-                    border: 'none',
-                    borderRadius: 8,
-                    padding: '8px',
-                    cursor: 'pointer'
+                    color: '#94A3B8',
+                    margin: '0 0 10px',
+                    padding: '12px 24px 12px',
+                    borderRadius: '8px',
+                    background: 'linear-gradient(135deg, #1E293B, #06B6D4)',
+                    border: '1px solid #1E293B',
+                    transition: 'all 0.3s ease'
                   }}
                 >
-                  Get Started →
+                  Sign Up
                 </button>
               </div>
             )}

@@ -10,6 +10,13 @@ import {
   Calendar, Users
 } from 'lucide-react'
 import Link from 'next/link'
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  alternates: {
+    canonical: "https://claspire.in/jobs",
+  },
+}
 
 interface Job {
   id: string

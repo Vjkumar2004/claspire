@@ -6,6 +6,13 @@ import HowItWorks from '@/components/HowItWorks';
 import SocialProof from '@/components/SocialProof';
 import CTA from '@/components/CTA';
 import Footer from '@/components/Footer';
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  alternates: {
+    canonical: "https://claspire.in",
+  },
+}
 
 export default function Home() {
   return (

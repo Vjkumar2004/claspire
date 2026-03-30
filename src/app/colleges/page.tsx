@@ -3,6 +3,13 @@
 import { useState, useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import { Search, MapPin, Users, GraduationCap, Building2, ChevronRight, MessageSquare } from 'lucide-react';
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  alternates: {
+    canonical: "https://claspire.in/colleges",
+  },
+}
 
 export default function CollegesPage() {
   const [searchQuery, setSearchQuery] = useState("");
