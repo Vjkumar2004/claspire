@@ -1,33 +1,29 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useAuth } from '@/hooks/useAuth'
+import { useRouter } from 'next/navigation'
 import Navbar from '@/components/Navbar'
+import { Search, Users, Briefcase, Building2, MapPin, Star, MessageCircle, ChevronRight, Filter, GraduationCap, Award, CheckCircle, Clock } from 'lucide-react'
+import { createClient } from '@supabase/supabase-js'
+import { useAuth } from '@/hooks/useAuth'
 import MessageRequestButton from '@/components/MessageRequestButton'
 import SeniorMessageRequestButton from '@/components/SeniorMessageRequestButton'
-import { 
-  Users, MapPin, Building2, Search, 
-  Award, Briefcase, GraduationCap
-} from 'lucide-react'
-import { useRouter } from 'next/navigation'
-import type { Metadata } from "next";
 
-export const metadata: Metadata = {
-  alternates: {
-    canonical: "https://claspire.in/seniors",
-  },
-}
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder'
+)
 
 interface Senior {
   id: string
   full_name: string
   unique_id: string
-  company: string
   designation: string
-  college_id: string
+  company: string
   graduation_year: number
-  rise_points: number
   avatar_url?: string
+  rise_points: number
+  college_id: string
   college: {
     name: string
     short_name: string

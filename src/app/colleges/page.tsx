@@ -1,17 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import { Search, MapPin, Users, GraduationCap, Building2, ChevronRight, MessageSquare } from 'lucide-react';
-import type { Metadata } from "next";
-
-export const metadata: Metadata = {
-  alternates: {
-    canonical: "https://claspire.in/colleges",
-  },
-}
 
 export default function CollegesPage() {
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState("All");
   const [communities, setCommunities] = useState<any[]>([]);
@@ -41,7 +36,8 @@ export default function CollegesPage() {
   const filtered = communities.filter(c =>
     c.colleges?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     c.slug?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    c.colleges?.short_name?.toLowerCase().includes(searchQuery.toLowerCase())
+    c.colleges?.short_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    c.display_name?.toLowerCase().includes(searchQuery.toLowerCase())
   ).filter(c =>
     activeFilter === "All" ? true : c.colleges?.type === activeFilter
   );
@@ -143,7 +139,7 @@ export default function CollegesPage() {
               <div 
                 key={c.id}
                 className="group bg-white border border-gray-100 rounded-3xl p-6 hover:border-purple-200 hover:shadow-[0_20px_40px_-12px_rgba(124,58,237,0.08)] transition-all duration-300 cursor-pointer relative overflow-hidden"
-                onClick={() => window.location.href = `/community/c/${c.slug}`}
+                onClick={() => router.push(`/colleges/${c.slug}`)}
               >
                 <div className="flex items-start gap-5">
                   {/* Avatar */}

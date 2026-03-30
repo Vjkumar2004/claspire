@@ -1,35 +1,32 @@
 'use client'
-
 import { useState, useEffect, useRef } from 'react'
-import { useAuth } from '@/hooks/useAuth'
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import Navbar from '@/components/Navbar'
 import { 
   Briefcase, MapPin, Building2, Search, 
   ChevronRight, Filter, Globe, Sparkles,
   Zap, ArrowRight, Lock, CheckCircle2,
-  Calendar, Users
+  Calendar, Users, Clock, ExternalLink, Star, CheckCircle, AlertCircle, TrendingUp, DollarSign
 } from 'lucide-react'
-import Link from 'next/link'
-import type { Metadata } from "next";
+import { createClient } from '@supabase/supabase-js'
+import { useAuth } from '@/hooks/useAuth'
 
-export const metadata: Metadata = {
-  alternates: {
-    canonical: "https://claspire.in/jobs",
-  },
-}
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder'
+)
 
 interface Job {
   id: string
   company_name: string
   role: string
-  salary_range: string
   location: string
   job_type: string
+  salary_range: string
   description: string
   requirements: string
-  deadline: string
-  referral_available: boolean
-  created_at: string
+  posted_date: string
   senior: {
     id: string
     full_name: string

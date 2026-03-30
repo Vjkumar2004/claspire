@@ -8,13 +8,6 @@ import {
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import CreateGroupModal from '@/components/CreateGroupModal'
-import type { Metadata } from "next";
-
-export const metadata: Metadata = {
-  alternates: {
-    canonical: "https://claspire.in/groups",
-  },
-}
 
 interface Group {
   id: string
