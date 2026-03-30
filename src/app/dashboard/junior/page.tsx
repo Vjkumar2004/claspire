@@ -434,7 +434,104 @@ export default function JuniorDashboard() {
                     className="space-y-8"
                   >
                     {/* My Student Groups */}
-                    <MyGroupsList />
+                    <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-sm">
+                      <h2 className="text-xl font-bold text-gray-900 mb-4 sm:mb-6">My Student Groups</h2>
+                      <div className="space-y-3 sm:space-y-4">
+                        {userGroups.length > 0 ? (
+                          userGroups.map((group, index) => (
+                            <motion.div
+                              key={group.id}
+                              initial={{ opacity: 0, y: 20 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ duration: 0.3, delay: index * 0.1 }}
+                              className="bg-gradient-to-r from-gray-50 to-white border border-gray-200 rounded-xl sm:rounded-2xl p-4 sm:p-5 hover:shadow-lg transition-all hover:border-purple-200"
+                            >
+                              <div className="flex flex-col sm:flex-row sm:items-start gap-4">
+                                {/* Creator */}
+                                <div className="flex items-center gap-3">
+                                  <div className="relative">
+                                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white font-bold overflow-hidden flex-shrink-0">
+                                      {group.creator?.avatar_url
+                                        ? <img src={group.creator.avatar_url} className="w-full h-full object-cover" />
+                                        : group.creator?.full_name?.[0] || 'A'}
+                                    </div>
+                                    {group.creator?.is_verified && (
+                                      <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center">
+                                        <span className="text-white text-xs">✓</span>
+                                      </div>
+                                    )}
+                                  </div>
+                                  <div>
+                                    <div className="flex items-center gap-2">
+                                      <p className="font-semibold text-gray-900 text-sm">{group.creator?.full_name || 'Admin'}</p>
+                                      <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full font-medium">Admin</span>
+                                    </div>
+                                    <p className="text-xs text-gray-500">Created {new Date(group.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
+                                  </div>
+                                </div>
+
+                                {/* Group Content */}
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-start justify-between gap-3 mb-3">
+                                    <div className="flex-1 min-w-0">
+                                      <h3 className="font-bold text-gray-900 text-base mb-1 truncate">{group.name}</h3>
+                                      <p className="text-gray-600 text-sm line-clamp-2">{group.description || 'No description provided'}</p>
+                                    </div>
+                                    <div className="flex-shrink-0">
+                                      {group.scope === 'college' ? (
+                                        <GraduationCap size={16} className="text-indigo-500" />
+                                      ) : group.is_private || group.scope === 'private' ? (
+                                        <Lock size={16} className="text-amber-500" />
+                                      ) : (
+                                        <Globe size={16} className="text-green-500" />
+                                      )}
+                                    </div>
+                                  </div>
+                                  
+                                  <div className="flex flex-wrap items-center gap-4 text-xs text-gray-500 mb-3">
+                                    <div className="flex items-center gap-1">
+                                      <Users size={12} />
+                                      <span>{group.member_count} members</span>
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                      <MessageCircle size={12} />
+                                      <span>{group.message_count || 0} messages</span>
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                      <Clock size={12} />
+                                      <span>Active {group.is_active ? 'now' : 'ago'}</span>
+                                    </div>
+                                  </div>
+
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex flex-wrap gap-1">
+                                      {(group.tags || []).slice(0, 3).map((tag: string, i: number) => (
+                                        <span key={i} className="text-xs bg-purple-50 text-purple-700 px-2 py-1 rounded-full">
+                                          #{tag}
+                                        </span>
+                                      ))}
+                                    </div>
+                                    <button
+                                      onClick={() => router.push(`/groups/${group.slug}`)}
+                                      className="text-purple-600 hover:text-purple-700 text-xs font-medium flex items-center gap-1"
+                                    >
+                                      View Group <ChevronRight size={12} />
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            </motion.div>
+                          ))
+                        ) : (
+                          <div className="text-center py-8">
+                            <Users size={40} className="text-gray-300 mx-auto mb-3" />
+                            <h3 className="font-semibold text-gray-900 mb-1">No Groups Yet</h3>
+                            <p className="text-gray-500 text-sm">You haven't joined any student groups yet.</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       {[
                         { label: 'Doubts Asked', value: u.doubt_count, icon: <HelpCircle size={22} />, color: '#7C3AED', trend: '+1 this week' },
