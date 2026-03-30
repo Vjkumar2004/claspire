@@ -14,6 +14,7 @@ export type NotificationType =
   | 'post_in_community'
   | 'post_upvoted'
   | 'new_job'
+  | 'group_created'
 
 interface CreateNotificationParams {
   receiver_id: string
@@ -208,5 +209,91 @@ export async function sendPushToUsers(
     })
   } catch (err) {
     console.error('Push send error:', err)
+  }
+}
+
+export async function notifyGroupCreated({
+  groupId,
+  groupSlug,
+  groupName,
+  groupDescription,
+  creatorId,
+  creatorName,
+  collegeId,
+  scope
+}: {
+  groupId: string
+  groupSlug: string
+  groupName: string
+  groupDescription: string
+  creatorId: string
+  creatorName: string
+  collegeId: string
+  scope: string
+}) {
+  try {
+    // Get all users from the same college except the creator
+    const { data: collegeUsers } = await supabase
+      .from('users')
+      .select('id, onesignal_player_id')
+      .eq('college_id', collegeId)
+      .neq('id', creatorId)
+      .eq('role', 'student') // Only notify students
+      .not('onesignal_player_id', 'is', null)
+
+    if (!collegeUsers?.length) return
+
+    const title = `New Group: ${groupName}`
+    const scopeText = scope === 'private' ? 'Private' : scope === 'college' ? 'College Only' : 'Public'
+    const message = `${creatorName} created a ${scopeText.toLowerCase()} group. Join now!`
+    const link = `/groups/${groupSlug}`
+
+    // Create in-app notifications
+    const notifications = collegeUsers.map(user => ({
+      type: 'group_created' as const,
+      title,
+      message,
+      receiver_id: user.id,
+      sender_id: creatorId,
+      link,
+      is_read: false,
+      created_at: new Date().toISOString()
+    }))
+
+    // Bulk insert notifications in chunks
+    for (let i = 0; i < notifications.length; i += 50) {
+      await supabase
+        .from('notifications')
+        .insert(notifications.slice(i, i + 50))
+    }
+
+    // Send push notifications
+    const playerIds = collegeUsers.map(u => u.onesignal_player_id).filter(Boolean)
+    
+    if (playerIds.length) {
+      await fetch('https://onesignal.com/api/v1/notifications', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Basic ${process.env.ONESIGNAL_REST_API_KEY}`
+        },
+        body: JSON.stringify({
+          app_id: process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID,
+          include_player_ids: playerIds,
+          headings: { en: title },
+          contents: { en: message },
+          url: `${process.env.NEXT_PUBLIC_APP_URL}${link}`,
+          data: {
+            type: 'group_created',
+            groupId,
+            groupSlug
+          }
+        })
+      })
+    }
+
+    console.log(`Group creation notification sent to ${collegeUsers.length} users`)
+  } catch (err) {
+    console.error('Group creation notification error:', err)
   }
 }

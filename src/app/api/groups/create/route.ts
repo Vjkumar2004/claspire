@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
+import { notifyGroupCreated } from '@/lib/notifications'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -203,6 +204,25 @@ export async function POST(request: NextRequest) {
 
     if (memberError) {
       console.error('Add member error:', memberError)
+      // Don't fail the request, but log it for debugging
+    }
+
+    // Send OneSignal notifications to college students
+    try {
+      console.log('Sending group creation notifications...')
+      await notifyGroupCreated({
+        groupId: createdGroup.id,
+        groupSlug: createdGroup.slug,
+        groupName: createdGroup.name,
+        groupDescription: createdGroup.description || '',
+        creatorId: userData.id,
+        creatorName: userData.full_name || 'A student',
+        collegeId: userData.college_id,
+        scope: createdGroup.scope
+      })
+      console.log('Group creation notifications sent successfully')
+    } catch (notifError) {
+      console.error('Failed to send group creation notifications:', notifError)
       // Don't fail the request, but log it for debugging
     }
 
