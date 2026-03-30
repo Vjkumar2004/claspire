@@ -102,6 +102,16 @@ h1, h2, h3, h4, h5, h6 {
   animation: pulse 2s infinite;
 }
 
+/* Scrollbar utilities */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 /* MOBILE */
 @media (max-width: 767px) {
   .container {

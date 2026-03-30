@@ -4,8 +4,9 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePoints } from '@/contexts/PointsContext';
 import { useRouter } from 'next/navigation';
-import { HelpCircle, Briefcase, Handshake, Mic, DollarSign, BarChart3, Star, Trophy, User, CheckCircle, Settings, Zap, TrendingUp, LayoutDashboard, MessageSquare, Trash2 } from 'lucide-react';
+import { HelpCircle, Briefcase, Handshake, Mic, DollarSign, BarChart3, Star, Trophy, User, CheckCircle, Settings, Zap, TrendingUp, LayoutDashboard, MessageSquare, Trash2, Users, Plus, Eye, Lock, Globe, GraduationCap } from 'lucide-react';
 import CreateGroupModal from '@/components/CreateGroupModal'
+import MyGroupsModal from '@/components/MyGroupsModal'
 import MyGroupsList from '@/components/MyGroupsList'
 import NotificationPrompt from '@/components/NotificationPrompt';
 import NotificationBell from '@/components/NotificationBell';
@@ -78,10 +79,14 @@ export default function SeniorDashboardPage() {
   const [isDeleting, setIsDeleting] = useState(false)
   const [showCreateGroupModal, setShowCreateGroupModal] = useState(false)
   const [userCollegeCommunityId, setUserCollegeCommunityId] = useState<string>('')
+  const [userGroups, setUserGroups] = useState<any[]>([])
+  const [groupsLoading, setGroupsLoading] = useState(false)
+  const [showMyGroupsModal, setShowMyGroupsModal] = useState(false)
 
   useEffect(() => {
     fetchDashboardData()
     fetchUserCollegeCommunity()
+    fetchUserGroups()
   }, [])
 
   const fetchUserCollegeCommunity = async () => {
@@ -116,6 +121,36 @@ export default function SeniorDashboardPage() {
       console.error('Dashboard data error:', err)
     } finally {
       setDataLoading(false)
+    }
+  }
+
+  const fetchUserGroups = async () => {
+    try {
+      setGroupsLoading(true)
+      const res = await fetch('/api/groups/my-groups')
+      if (res.ok) {
+        const data = await res.json()
+        setUserGroups(data.groups || [])
+      }
+    } catch (err) {
+      console.error('Failed to fetch user groups:', err)
+    } finally {
+      setGroupsLoading(false)
+    }
+  }
+
+  const deleteGroup = async (groupSlug: string) => {
+    if (!confirm('Are you sure you want to delete this group? This action cannot be undone.')) return
+    try {
+      const res = await fetch(`/api/groups/${groupSlug}/delete`, { method: 'DELETE' })
+      if (res.ok) {
+        setUserGroups(userGroups.filter(g => g.slug !== groupSlug))
+      } else {
+        const error = await res.json()
+        alert(error.error || 'Failed to delete group')
+      }
+    } catch { 
+      alert('Something went wrong') 
     }
   }
 
@@ -322,6 +357,27 @@ export default function SeniorDashboardPage() {
                   {dashData.pendingReferrals.length}
                 </span>
               )}
+            </div>
+          </div>
+
+          {/* My Groups Section */}
+          <div className="p-2 mt-4 border-t border-gray-100">
+            <div className="text-[10px] font-black tracking-wider uppercase text-gray-400 px-2 mb-1.5">
+              MY GROUPS
+            </div>
+            <div className="space-y-0.5">
+              <div
+                onClick={() => setShowMyGroupsModal(true)}
+                className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors"
+              >
+                <Users size={16} className="flex-shrink-0" />
+                <span>My Created Groups</span>
+                {userGroups.length > 0 && (
+                  <span className="ml-auto bg-amber-500 text-white rounded-full px-1.5 py-0 text-[10px] font-black">
+                    {userGroups.length}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
 
@@ -589,11 +645,98 @@ export default function SeniorDashboardPage() {
                 )}
               </div>
             </div>
-
-            {/* My Student Groups */}
-            <MyGroupsList />
           </div>
         </div>
+
+        {/* My Groups Section */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <div className="text-[11px] font-black tracking-wider text-gray-400 uppercase">
+                MY GROUPS
+              </div>
+              <span className="bg-purple-50 text-purple-600 rounded-full px-2 py-0.5 text-[10px] font-black">
+                {userGroups.length} created
+              </span>
+            </div>
+            <button
+              onClick={() => setShowCreateGroupModal(true)}
+              className="flex items-center gap-2 px-3 py-1.5 bg-purple-600 text-white rounded-lg text-xs font-black hover:bg-purple-700 transition-colors"
+            >
+              <Plus size={12} />
+              Create New Group
+            </button>
+          </div>
+
+          <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+            {groupsLoading ? (
+              <div className="p-10 text-center text-gray-400 text-xs">Loading groups...</div>
+            ) : userGroups.length > 0 ? (
+              <div className="divide-y divide-gray-50">
+                {userGroups.map((group) => (
+                  <div key={group.id} className="p-4 hover:bg-gray-50 transition-colors">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h3 className="font-semibold text-gray-900 text-sm truncate">{group.name}</h3>
+                          {group.is_private || group.scope === 'private' ? (
+                            <span className="flex items-center gap-1 text-amber-600">
+                              <Lock size={10} />
+                              <span className="text-xs">Private</span>
+                            </span>
+                          ) : group.scope === 'college' ? (
+                            <span className="flex items-center gap-1 text-indigo-600">
+                              <GraduationCap size={10} />
+                              <span className="text-xs">College</span>
+                            </span>
+                          ) : (
+                            <span className="flex items-center gap-1 text-green-600">
+                              <Globe size={10} />
+                              <span className="text-xs">Public</span>
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-gray-600 text-xs mb-2 line-clamp-2">{group.description || 'No description'}</p>
+                        <div className="flex items-center gap-3 text-xs text-gray-500">
+                          <span className="flex items-center gap-1">
+                            <Users size={10} />
+                            {group.member_count || 0} members
+                          </span>
+                          <span>Created {new Date(group.created_at).toLocaleDateString()}</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <button
+                          onClick={() => window.open(`/community/c/${group.college?.name?.toLowerCase().replace(/\s+/g, '-') || 'college'}/group/${group.slug}`, '_blank')}
+                          className="p-2 bg-purple-50 text-purple-600 hover:bg-purple-100 rounded-lg transition-colors"
+                          title="View Group"
+                        >
+                          <Eye size={14} />
+                        </button>
+                        <button
+                          onClick={() => deleteGroup(group.slug)}
+                          className="p-2 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
+                          title="Delete Group"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="p-16 text-center text-gray-400 text-xs">
+                <div className="text-2xl mb-2 opacity-50">👥</div>
+                No groups created yet. Create your first group to start building your community!
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* My Student Groups */}
+        <MyGroupsList />
+        
         {/* Job Posting Modal */}
         {jobModalOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
@@ -836,6 +979,18 @@ export default function SeniorDashboardPage() {
         }}
         communityId={userCollegeCommunityId || undefined}  // Pass as optional prop
       />
+
+      <MyGroupsModal
+        isOpen={showMyGroupsModal}
+        onClose={() => setShowMyGroupsModal(false)}
+        currentUser={{
+          id: dashData?.user?.id || '',
+          is_premium: dashData?.user?.is_premium || false,
+          role: 'senior',
+          college_id: dashData?.user?.college_id || ''
+        }}
+      />
+      
       <NotificationPrompt />
     </div>
   );

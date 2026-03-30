@@ -8,6 +8,7 @@ interface Group {
   slug: string
   description: string
   is_private: boolean
+  scope?: string
   member_count: number
   created_at: string
   created_by: string
@@ -21,6 +22,7 @@ interface DatabaseGroup {
   slug: string
   description: string
   is_private: boolean
+  scope?: string
   member_count: number
   created_at: string
   created_by: string
@@ -60,6 +62,7 @@ export async function GET(request: NextRequest) {
         slug,
         description,
         is_private,
+        scope,
         member_count,
         created_at,
         created_by,
@@ -140,6 +143,7 @@ export async function GET(request: NextRequest) {
     // Add is_joined status to each group
     const groupsWithJoinStatus = groupsWithDetails.map(group => ({
       ...group,
+      scope: group.scope || (!group.is_private ? 'public' : 'private'),
       is_joined: joinedGroupIds.includes(group.id)
     }))
 

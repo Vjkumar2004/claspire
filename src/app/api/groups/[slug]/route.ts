@@ -126,6 +126,7 @@ export async function GET(
         slug: group.slug,
         description: group.description,
         is_private: group.is_private,
+        scope: group.scope || 'college',
         is_ephemeral: false,
         member_count: group.member_count,
         created_at: group.created_at,

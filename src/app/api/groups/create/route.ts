@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
     // Get user details including role and college info
     const { data: userData, error: userError } = await supabase
       .from('users')
-      .select('id, role, unique_id, full_name, college_id, colleges!inner(id, name)')
+      .select('id, role, unique_id, full_name, college_id, is_premium, colleges!inner(id, name)')
       .eq('id', cookieUser.id)
       .single()
 
@@ -116,7 +116,7 @@ export async function POST(request: NextRequest) {
     // Apply group creation limits (free users: 1 public group, premium: unlimited)
     const publicCount = existingGroups?.filter((g: any) => !g.is_private).length || 0
     const privateCount = existingGroups?.filter((g: any) => g.is_private).length || 0
-    const isPremium = userData.role === 'senior' // Assuming seniors are premium
+    const isPremium = userData.is_premium === true || userData.role === 'senior' // Check both is_premium flag and senior role
 
     if (!isPremium && scope === 'private') {
       return NextResponse.json({ 
