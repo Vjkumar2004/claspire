@@ -35,8 +35,16 @@ async function getCollegeBySlug(slug: string) {
 
 async function getCollegeSeniors(collegeId: string) {
   try {
-    // Use the existing API endpoint
-    const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/seniors`)
+    console.log('Fetching seniors for college ID:', collegeId)
+    console.log('NEXT_PUBLIC_APP_URL:', process.env.NEXT_PUBLIC_APP_URL)
+    console.log('NEXT_PUBLIC_SITE_URL:', process.env.NEXT_PUBLIC_SITE_URL)
+    console.log('Using base URL:', process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || 'https://claspire.in')
+    
+    // Use the existing API endpoint with fallback to production URL
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || 'https://claspire.in'
+    const response = await fetch(`${baseUrl}/api/seniors`)
+    
+    console.log('Seniors API response status:', response.status)
     
     if (!response.ok) {
       console.error('Error fetching seniors from API:', response.status)
@@ -44,6 +52,7 @@ async function getCollegeSeniors(collegeId: string) {
     }
     
     const data = await response.json()
+    console.log('Seniors API data length:', data?.length || 0)
     
     // Filter seniors by college ID and only verified ones
     const collegeSeniors = data.filter((senior: any) => 
@@ -51,6 +60,8 @@ async function getCollegeSeniors(collegeId: string) {
       senior.role === 'senior' && 
       senior.rise_points > 0 // Use rise_points as verification proxy
     )
+    
+    console.log('Filtered seniors for college:', collegeSeniors.length)
     
     // Map to expected format
     return collegeSeniors.slice(0, 12).map((senior: any) => ({
@@ -156,10 +167,20 @@ export default async function CollegePage({ params }: { params: Promise<{ slug: 
 
   const collegeName = community.colleges?.name || community.display_name
 
+  // Debug logging
+  console.log('Community data:', community)
+  console.log('College ID from communities:', community.colleges?.id)
+  console.log('Community ID:', community.id)
+  console.log('College name:', collegeName)
+
   const [seniors, posts] = await Promise.all([
     getCollegeSeniors(community.colleges?.id || community.id),
     getCollegePosts(community.id)
   ])
+
+  // Debug logging for results
+  console.log('Seniors found:', seniors.length)
+  console.log('Posts found:', posts.length)
 
   const jsonLd = {
     "@context": "https://schema.org",
