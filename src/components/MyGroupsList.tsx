@@ -1,6 +1,6 @@
 'use client'
 import { useState, useEffect } from 'react'
-import { Users, Lock, Globe, Trash2, Eye, Settings, Shield, Ban, UserX, UserPlus, Check, X, GraduationCap, Clock, RefreshCw } from 'lucide-react'
+import { Users, Lock, Globe, Trash2, Eye, Settings, Shield, Ban, UserX, UserPlus, Check, X, GraduationCap, Clock, RefreshCw, Share2 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 interface Group {
@@ -208,6 +208,53 @@ export default function MyGroupsList() {
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24))
   }
 
+  const handleShareGroup = async (group: Group) => {
+    const groupUrl = `${window.location.origin}/community/c/${group.communities?.slug || 'kamaraj'}/group/${group.slug}`
+    
+    // Check if Web Share API is available (mobile devices)
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `${group.name} - Claspire Group`,
+          text: `${group.description || 'Join this amazing group on Claspire!'}`,
+          url: groupUrl
+        })
+        return
+      } catch (err) {
+        // User cancelled or error, fallback to clipboard
+      }
+    }
+    
+    // Fallback: Copy to clipboard with notification
+    try {
+      await navigator.clipboard.writeText(groupUrl)
+      
+      // Create a nice shareable text
+      const shareText = `🎯 ${group.name}\n\n${group.description || 'Join this amazing group on Claspire!'}\n\n🔗 Join here: ${groupUrl}\n\n📱 Download Claspire: ${window.location.origin}`
+      
+      // Copy the enhanced share text
+      await navigator.clipboard.writeText(shareText)
+      
+      // Show success notification
+      const notification = document.createElement('div')
+      notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 flex items-center gap-2'
+      notification.innerHTML = `
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 6L9 17l-5-5"/>
+        </svg>
+        Group link copied to clipboard!
+      `
+      document.body.appendChild(notification)
+      
+      setTimeout(() => {
+        notification.remove()
+      }, 3000)
+    } catch (err) {
+      console.error('Failed to copy:', err)
+      alert('Failed to copy link. Please try again.')
+    }
+  }
+
   const timeAgo = (dateStr: string) => {
     const diff = Date.now() - new Date(dateStr).getTime()
     const mins = Math.floor(diff / 60000)
@@ -336,6 +383,13 @@ export default function MyGroupsList() {
                       title="View Group"
                     >
                       <Eye size={16} />
+                    </button>
+                    <button
+                      onClick={() => handleShareGroup(group)}
+                      className="p-2 bg-green-50 text-green-600 hover:bg-green-100 rounded-lg transition-colors"
+                      title="Share Group"
+                    >
+                      <Share2 size={16} />
                     </button>
                     <button
                       onClick={() => handleManageMembers(group)}

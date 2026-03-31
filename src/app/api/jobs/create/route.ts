@@ -101,27 +101,28 @@ export async function POST(req: NextRequest) {
       .update({ rise_points: (seniorUser?.rise_points || 0) + 20 })
       .eq('id', userId)
 
-    // Get community slug + members
+    // Get community slug + college info
     const { data: comm } = await supabase
       .from('communities')
-      .select('slug')
+      .select('slug, college_id')
       .eq('id', community_id)
       .single()
 
-    // Notify all community members
-    const { data: members } = await supabase
-      .from('community_members')
-      .select('user_id')
-      .eq('community_id', community_id)
-      .neq('user_id', userId)
+    // Notify ALL students from the same college (not just community members)
+    const { data: collegeStudents } = await supabase
+      .from('users')
+      .select('id')
+      .eq('college_id', comm?.college_id)
+      .eq('role', 'student')
+      .neq('id', userId) // Exclude the senior who posted the job
 
-    if (members?.length) {
+    if (collegeStudents?.length) {
       // In-app notifications
-      const notifs = members.map(m => ({
+      const notifs = collegeStudents.map(student => ({
         type: 'new_job',
         title: `💼 New Job at ${company_name}!`,
         message: `${seniorUser?.full_name} posted ${jobRole} at ${company_name}${referral_available ? ' — Referral Available! 🎯' : ''}`,
-        receiver_id: m.user_id,
+        receiver_id: student.id,
         sender_id: userId,
         link: `/community/c/${comm?.slug}?tab=jobs`,
         is_read: false,
@@ -138,7 +139,7 @@ export async function POST(req: NextRequest) {
       const { data: pushUsers } = await supabase
         .from('users')
         .select('onesignal_player_id')
-        .in('id', members.map(m => m.user_id))
+        .in('id', collegeStudents.map(s => s.id))
         .not('onesignal_player_id', 'is', null)
 
       if (pushUsers?.length) {

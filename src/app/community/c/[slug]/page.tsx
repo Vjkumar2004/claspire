@@ -40,6 +40,9 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
   const [membersLoading, setMembersLoading] = useState(false)
   const [showCreateGroupModal, setShowCreateGroupModal] = useState(false)
 
+  // Check if current user belongs to this college
+  const isUserCollege = currentUser?.college_id === data?.community?.college_id
+
   useEffect(() => {
     const getSlug = async () => {
       const { slug: resolvedSlug } = await params
@@ -751,7 +754,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                 <h2 style={{ fontSize: 24, fontWeight: 800, color: '#0F172A', margin: 0, fontFamily: 'Instrument Serif, serif' }}>Student Groups</h2>
                 <p style={{ color: '#64748B', fontSize: 14, margin: '4px 0 0' }}>Join student-created groups for focused discussions</p>
               </div>
-              {currentUser && (
+              {currentUser && isUserCollege && (
                 <button
                   onClick={() => setShowCreateGroupModal(true)}
                   style={{
@@ -1028,9 +1031,9 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                 <p style={{ color: '#64748B', maxWidth: 300, margin: '0 auto 24px', fontSize: 15, lineHeight: 1.5 }}>
                   Be the first to create a student group in your community!
                 </p>
-                {currentUser ? (
+                {currentUser && isUserCollege ? (
                   <button
-                    onClick={() => router.push('/dashboard?activeTab=community')}
+                    onClick={() => setShowCreateGroupModal(true)}
                     style={{
                       background: 'linear-gradient(135deg, #7C3AED, #06B6D4)',
                       color: 'white',
@@ -1052,6 +1055,12 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                     <Users size={16} />
                     Create First Group
                   </button>
+                ) : currentUser ? (
+                  <div style={{ textAlign: 'center', padding: '20px', background: '#F8FAFC', borderRadius: 12, border: '1px solid #E2E8F0' }}>
+                    <p style={{ color: '#64748B', fontSize: 14, margin: 0 }}>
+                      Only students from {data?.community?.colleges?.name || 'this college'} can create groups here.
+                    </p>
+                  </div>
                 ) : (
                   <button
                     onClick={() => router.push('/signup')}
