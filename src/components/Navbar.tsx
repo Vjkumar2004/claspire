@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { X, Menu, Users, GraduationCap, Briefcase, DollarSign, LayoutDashboard, User, LogOut, ChevronRight, MessageSquare, Building2 } from 'lucide-react'
 import NotificationBell from './NotificationBell'
 
@@ -11,6 +11,7 @@ export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false)
   const [unreadMessageCount, setUnreadMessageCount] = useState(0)
+  const pathname = usePathname()
 
   // Fetch unread message count
   useEffect(() => {
@@ -65,27 +66,51 @@ export default function Navbar() {
 
         {/* Desktop Center Links */}
         <div className="hidden md:flex items-center gap-6">
-          <Link href="/community" className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-black transition-colors">
+          <Link href="/community" className={`flex items-center gap-2 text-sm font-medium transition-colors ${
+            pathname === '/community' 
+              ? 'text-black border-b-2 border-blue-500' 
+              : 'text-gray-600 hover:text-black'
+          }`}>
             <Users size={16} />
             Community
           </Link>
-          <Link href="/groups" className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-black transition-colors">
+          <Link href="/groups" className={`flex items-center gap-2 text-sm font-medium transition-colors ${
+            pathname === '/groups' 
+              ? 'text-black border-b-2 border-blue-500' 
+              : 'text-gray-600 hover:text-black'
+          }`}>
             <Building2 size={16} />
             Groups
           </Link>
-          <Link href={user?.role === 'senior' ? '/dashboard/senior' : '/dashboard/junior'} className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-black transition-colors">
+          <Link href={user?.role === 'senior' ? '/dashboard/senior' : '/dashboard/junior'} className={`flex items-center gap-2 text-sm font-medium transition-colors ${
+            pathname === '/dashboard/senior' || pathname === '/dashboard/junior'
+              ? 'text-black border-b-2 border-blue-500' 
+              : 'text-gray-600 hover:text-black'
+          }`}>
             <LayoutDashboard size={16} />
             Dashboard
           </Link>
-          <Link href="/seniors" className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-black transition-colors">
+          <Link href="/seniors" className={`flex items-center gap-2 text-sm font-medium transition-colors ${
+            pathname === '/seniors' 
+              ? 'text-black border-b-2 border-blue-500' 
+              : 'text-gray-600 hover:text-black'
+          }`}>
             <Users size={16} />
             Seniors
           </Link>
-          <Link href="/jobs" className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-black transition-colors">
+          <Link href="/jobs" className={`flex items-center gap-2 text-sm font-medium transition-colors ${
+            pathname === '/jobs' 
+              ? 'text-black border-b-2 border-blue-500' 
+              : 'text-gray-600 hover:text-black'
+          }`}>
             <Briefcase size={16} />
             Jobs
           </Link>
-          <Link href="/colleges" className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-black transition-colors">
+          <Link href="/colleges" className={`flex items-center gap-2 text-sm font-medium transition-colors ${
+            pathname === '/colleges' 
+              ? 'text-black border-b-2 border-blue-500' 
+              : 'text-gray-600 hover:text-black'
+          }`}>
             <GraduationCap size={16} />
             Colleges
           </Link>

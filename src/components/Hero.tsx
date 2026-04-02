@@ -66,6 +66,11 @@ export default function Hero() {
                 <em className="text-[#7C3AED]">You just need to ask.</em>
               </motion.h1>
 
+              {/* H2 - SEO Subheading */}
+              <motion.h2 variants={itemVariants} className="text-lg font-semibold text-gray-600 mt-4 mb-0 text-center lg:text-left">
+                India's College Community Platform — connecting juniors with verified seniors
+              </motion.h2>
+
               {/* Subtext */}
               <motion.p variants={itemVariants} className="text-base font-normal text-gray-600 leading-relaxed max-w-[460px] mt-5 mb-0 text-center lg:text-left mx-auto lg:mx-0">
                 Connect with verified seniors from your own college. Real answers to real questions — placements, referrals, career paths.

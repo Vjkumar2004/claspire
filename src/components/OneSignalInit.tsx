@@ -15,6 +15,24 @@ export default function OneSignalInit() {
             showCredit: false,
             text: {}
           } as any,
+          promptOptions: {
+            slidedown: {
+              prompts: [
+                {
+                  type: "push",
+                  autoPrompt: false,
+                  delay: {
+                    timeDelay: 0
+                  },
+                  text: {
+                    actionMessage: "We'd like to show you notifications for important updates.",
+                    acceptButton: "Allow",
+                    cancelButton: "No Thanks"
+                  }
+                }
+              ]
+            }
+          }
         })
 
         // Wait for subscription

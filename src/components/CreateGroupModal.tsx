@@ -1,8 +1,9 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Users, Lock, Clock, Crown, Sparkles, Loader2 } from 'lucide-react'
+import { X, Users, Lock, Clock, Sparkles, Loader2 } from 'lucide-react'
 import GroupWarningModal from './GroupWarningModal'
+import { showToast } from './Toast'
 
 interface CreateGroupModalProps {
   isOpen: boolean
@@ -132,22 +133,38 @@ export default function CreateGroupModal({ isOpen, onClose, onSuccess, currentUs
       const data = await res.json()
       
       if (res.ok) {
+        showToast({
+          type: 'success',
+          title: 'Group created successfully!',
+          message: `"${formData.name}" is ready for members to join`,
+          duration: 5000
+        })
         onSuccess()
         onClose()
       } else {
-        alert(data.error || 'Failed to create group')
+        showToast({
+          type: 'error',
+          title: 'Failed to create group',
+          message: data.error || 'Please try again',
+          duration: 5000
+        })
       }
     } catch (err) {
-      alert('Something went wrong. Please try again.')
+      showToast({
+        type: 'error',
+        title: 'Something went wrong',
+        message: 'Please try again later',
+        duration: 5000
+      })
     } finally {
       setLoading(false)
     }
   }
 
-  const canCreatePublic = currentUser.is_premium || existingGroups.publicCount === 0
-  const canCreatePrivate = currentUser.is_premium
+  const canCreatePublic = true
+  const canCreatePrivate = true
   const totalGroupsCreated = existingGroups.publicCount + existingGroups.privateCount
-  const canCreateCollege = currentUser.is_premium || totalGroupsCreated === 0
+  const canCreateCollege = true
 
   return (
     <>
@@ -190,7 +207,7 @@ export default function CreateGroupModal({ isOpen, onClose, onSuccess, currentUs
                             Create Student Group
                           </h2>
                           <p className="text-xs text-gray-600 mt-1">
-                            {currentUser.role === 'student' ? 'Student' : 'Senior'} • {currentUser.is_premium ? 'Premium' : 'Free'} Plan
+                            {currentUser.role === 'student' ? 'Student' : 'Senior'}
                           </p>
                         </div>
                       </div>
@@ -399,23 +416,13 @@ export default function CreateGroupModal({ isOpen, onClose, onSuccess, currentUs
                             {!canCreatePrivate && (
                               <div className="absolute inset-0 bg-white/80 rounded-2xl flex items-center justify-center">
                                 <div className="text-center">
-                                  <Crown size={16} className="text-amber-500 mx-auto mb-1" />
-                                  <p className="text-xs text-gray-600">
-                                    {currentUser.is_premium ? 'Max 1 private group' : 'Premium only'}
-                                  </p>
+                                  <Lock size={16} className="text-gray-400 mx-auto mb-1" />
+                                  <p className="text-xs text-gray-600">Not available</p>
                                 </div>
                               </div>
                             )}
                           </label>
                         </div>
-
-                        {!currentUser.is_premium && existingGroups.publicCount > 0 && (
-                          <div className="bg-amber-50 border border-amber-200 rounded-xl p-3">
-                            <p className="text-xs text-amber-800">
-                              <strong>Free Plan Limit:</strong> You've created your 1 free public group. Upgrade to Premium for unlimited groups!
-                            </p>
-                          </div>
-                        )}
                       </div>
 
                       {/* Auto-delete Messages */}
@@ -428,18 +435,18 @@ export default function CreateGroupModal({ isOpen, onClose, onSuccess, currentUs
                           formData.is_ephemeral 
                             ? 'border-purple-500 bg-purple-50' 
                             : 'border-gray-200 hover:border-gray-300'
-                        } ${!currentUser.is_premium ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                        }`}>
                           <div className="flex items-center gap-3">
                             <input
                               type="checkbox"
                               checked={formData.is_ephemeral}
                               onChange={(e) => setFormData({ ...formData, is_ephemeral: e.target.checked })}
-                              disabled={!currentUser.is_premium || loading}
+                              disabled={loading}
                               className="sr-only"
                             />
                             <div className={`w-12 h-6 rounded-full transition-colors ${
                               formData.is_ephemeral ? 'bg-purple-500' : 'bg-gray-300'
-                            } ${!currentUser.is_premium ? 'opacity-50' : ''}`}>
+                            }`}>
                               <div className={`w-5 h-5 bg-white rounded-full shadow-sm transition-transform ${
                                 formData.is_ephemeral ? 'translate-x-6' : 'translate-x-0.5'
                               }`} />
@@ -453,18 +460,7 @@ export default function CreateGroupModal({ isOpen, onClose, onSuccess, currentUs
                                 Messages delete after 24 hours
                               </p>
                             </div>
-                            {!currentUser.is_premium && (
-                              <Lock size={14} className="text-gray-400" />
-                            )}
                           </div>
-                          {!currentUser.is_premium && (
-                            <div className="absolute inset-0 bg-white/80 rounded-2xl flex items-center justify-center">
-                              <div className="text-center">
-                                <Lock size={16} className="text-gray-400 mx-auto mb-1" />
-                                <p className="text-xs text-gray-600">Free plan: Always on</p>
-                              </div>
-                            </div>
-                          )}
                         </label>
                       </div>
 
