@@ -68,6 +68,58 @@ export async function GET(
       }
     }
 
+    if (!community) {
+      const { data: college } = await supabase
+        .from('colleges')
+        .select('id, name, short_name, slug, type, location, state')
+        .eq('slug', slug)
+        .single()
+
+      if (college) {
+        const { data: collegeUsers } = await supabase
+          .from('users')
+          .select('role, is_verified')
+          .eq('college_id', college.id)
+
+        const { data: createdCommunity } = await supabase
+          .from('communities')
+          .insert({
+            display_name: college.short_name || college.name,
+            slug: college.slug,
+            description: `${college.name} community on Claspire`,
+            college_id: college.id,
+            parent_community_id: null,
+            is_private: false,
+            is_ephemeral: false,
+            member_count: collegeUsers?.length || 0,
+            senior_count: collegeUsers?.filter((user: any) => user.role === 'senior').length || 0,
+            doubt_count: 0,
+            updated_at: new Date().toISOString()
+          })
+          .select(`
+            *,
+            colleges (
+              id, name, short_name, slug,
+              type, location, state
+            )
+          `)
+          .single()
+
+        community = createdCommunity || {
+            id: college.id,
+            slug: college.slug,
+            display_name: college.short_name || college.name,
+            description: `${college.name} community on Claspire`,
+            member_count: collegeUsers?.length || 0,
+            senior_count: collegeUsers?.filter((user: any) => user.role === 'senior').length || 0,
+            doubt_count: 0,
+            college_id: college.id,
+            colleges: college,
+            is_college_fallback: true
+          }
+      }
+    }
+
     // If community not found and it's aaacet, return mock data for testing
     if (!community && slug === 'aaacet') {
       const mockCommunity = {

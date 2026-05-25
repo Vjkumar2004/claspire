@@ -578,8 +578,27 @@ function CommunityPageContent() {
           .order('member_count', { ascending: false })
           .limit(20) // Limit communities to improve performance
         
-        if (!communitiesError && communitiesData) {
+        if (!communitiesError && communitiesData && communitiesData.length > 0) {
           setCommunities(communitiesData)
+        } else {
+          const { data: collegesData, error: collegesError } = await supabase
+            .from('colleges')
+            .select('id, name, short_name, slug, location, state, type, email_domain')
+            .order('name', { ascending: true })
+            .limit(20)
+
+          if (!collegesError && collegesData) {
+            setCommunities(collegesData.map((college: any) => ({
+              id: college.id,
+              slug: college.slug,
+              display_name: college.short_name || college.name,
+              description: `${college.name} community on Claspire`,
+              member_count: 0,
+              senior_count: 0,
+              doubt_count: 0,
+              colleges: college
+            })))
+          }
         }
       }
 

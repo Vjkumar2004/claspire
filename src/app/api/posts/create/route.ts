@@ -56,6 +56,9 @@ export async function POST(req: NextRequest) {
       )
     }
 
+    let resolvedCommunityId = community_id
+    let resolvedCommunitySlug = ''
+
     // Check user is member of community (same logic as community API)
     let isMember = false
     if (currentUser) {
@@ -68,12 +71,51 @@ export async function POST(req: NextRequest) {
 
       const { data: communityData } = await supabase
         .from('communities')
-        .select('college_id')
+        .select('id, college_id, slug')
         .eq('id', community_id)
         .single()
 
-      if (userData && communityData) {
-        const isOwnCollege = userData.college_id === communityData.college_id
+      let effectiveCommunity = communityData
+
+      if (userData && !effectiveCommunity) {
+        const { data: collegeData } = await supabase
+          .from('colleges')
+          .select('id, name, short_name, slug')
+          .eq('id', community_id)
+          .single()
+
+        if (collegeData) {
+          const { data: existingCommunity } = await supabase
+            .from('communities')
+            .select('id, college_id, slug')
+            .eq('slug', collegeData.slug)
+            .is('parent_community_id', null)
+            .single()
+
+          const { data: createdCommunity } = existingCommunity
+            ? { data: existingCommunity }
+            : await supabase
+            .from('communities')
+            .insert({
+              display_name: collegeData.short_name || collegeData.name,
+              slug: collegeData.slug,
+              description: `${collegeData.name} community on Claspire`,
+              college_id: collegeData.id,
+              parent_community_id: null,
+              is_private: false,
+              is_ephemeral: false
+            })
+            .select('id, college_id, slug')
+            .single()
+
+          effectiveCommunity = createdCommunity
+        }
+      }
+
+      if (userData && effectiveCommunity) {
+        resolvedCommunityId = effectiveCommunity.id
+        resolvedCommunitySlug = effectiveCommunity.slug
+        const isOwnCollege = userData.college_id === effectiveCommunity.college_id
         const isVerified = userData.is_verified
         const isSenior = userData.role === 'senior'
 
@@ -85,7 +127,7 @@ export async function POST(req: NextRequest) {
           const { data: member } = await supabase
             .from('community_members')
             .select('id, membership_type')
-            .eq('community_id', community_id)
+            .eq('community_id', resolvedCommunityId)
             .eq('user_id', userId)
             .eq('membership_type', 'joined')
             .single()
@@ -106,7 +148,7 @@ export async function POST(req: NextRequest) {
     const { data: post, error } = await supabase
       .from('posts')
       .insert({
-        community_id,
+        community_id: resolvedCommunityId,
         author_id: userId,
         title: title.trim(),
         content: contentStr,
@@ -172,7 +214,7 @@ export async function POST(req: NextRequest) {
     await supabase.rpc('increment', {
       table_name: 'communities',
       column_name: 'post_count',
-      row_id: community_id
+      row_id: resolvedCommunityId
     })
 
     // --- NOTIFICATION LOGIC ---
@@ -181,7 +223,7 @@ export async function POST(req: NextRequest) {
       const { data: comm } = await supabase
         .from('communities')
         .select('display_name, slug')
-        .eq('id', community_id)
+        .eq('id', resolvedCommunityId)
         .single()
 
       // Post type based messages
@@ -200,8 +242,8 @@ export async function POST(req: NextRequest) {
 
       // Pass to notifyNewPost
       await notifyNewPost({
-        communityId: community_id,
-        communitySlug: comm?.slug || '',
+        communityId: resolvedCommunityId,
+        communitySlug: comm?.slug || resolvedCommunitySlug,
         postId: post.id,
         postTitle: title,
         postType: type,

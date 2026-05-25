@@ -26,7 +26,22 @@ export async function GET(
     console.log('community:', community)
     console.log('communityError:', communityError)
 
-    if (communityError || !community) {
+    let collegeId = community?.college_id
+
+    if (!collegeId) {
+      const { data: college, error: collegeError } = await supabase
+        .from('colleges')
+        .select('id')
+        .eq('slug', slug)
+        .single()
+
+      console.log('college fallback:', college)
+      console.log('collegeError:', collegeError)
+
+      collegeId = college?.id
+    }
+
+    if (!collegeId) {
       console.log('Community not found')
       return NextResponse.json({ error: 'Community not found' }, { status: 404 })
     }
@@ -43,7 +58,7 @@ export async function GET(
         is_verified,
         created_at
       `)
-      .eq('college_id', community.college_id)
+      .eq('college_id', collegeId)
       .order('created_at', { ascending: false })
 
     console.log('users:', users)

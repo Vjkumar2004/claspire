@@ -8,7 +8,7 @@ const supabase = createClient(
 
 export async function GET() {
   try {
-    const { data: communities, error } = await supabase
+    const { data: communities, error: communitiesError } = await supabase
       .from('communities')
       .select(`
         id,
@@ -28,11 +28,78 @@ export async function GET() {
       `)
       .order('member_count', { ascending: false })
 
-    if (error) throw error
+    if (communitiesError) throw communitiesError
+
+    const { data: colleges, error: collegesError } = await supabase
+      .from('colleges')
+      .select('id, name, short_name, slug, location, state, type')
+      .order('name', { ascending: true })
+
+    if (collegesError) throw collegesError
+
+    const collegeIds = (colleges || []).map((college) => college.id)
+
+    const usersResult = collegeIds.length > 0
+      ? await supabase
+          .from('users')
+          .select('college_id, role')
+          .in('college_id', collegeIds)
+      : { data: [], error: null }
+
+    if (usersResult.error) throw usersResult.error
+
+    const statsByCollege = new Map<string, { member_count: number; senior_count: number; doubt_count: number }>()
+
+    for (const college of colleges || []) {
+      statsByCollege.set(college.id, {
+        member_count: 0,
+        senior_count: 0,
+        doubt_count: 0
+      })
+    }
+
+    for (const user of usersResult.data || []) {
+      if (!user.college_id) continue
+
+      const stats = statsByCollege.get(user.college_id)
+      if (!stats) continue
+
+      stats.member_count += 1
+      if (user.role === 'senior') {
+        stats.senior_count += 1
+      }
+    }
+
+    const existingByCollegeId = new Map(
+      (communities || [])
+        .filter((community: any) => community.colleges?.id)
+        .map((community: any) => [community.colleges.id, community])
+    )
+
+    const mergedCommunities = (colleges || []).map((college) => {
+      const existingCommunity = existingByCollegeId.get(college.id)
+      if (existingCommunity) {
+        return existingCommunity
+      }
+
+      const stats = statsByCollege.get(college.id) || {
+        member_count: 0,
+        senior_count: 0,
+        doubt_count: 0
+      }
+
+      return {
+        id: college.id,
+        slug: college.slug,
+        display_name: college.short_name || college.name,
+        ...stats,
+        colleges: college
+      }
+    })
 
     return NextResponse.json({
       success: true,
-      communities: communities || []
+      communities: mergedCommunities
     })
 
   } catch (err: any) {

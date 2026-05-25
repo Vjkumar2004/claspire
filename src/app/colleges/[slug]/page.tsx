@@ -22,11 +22,37 @@ async function getCollegeBySlug(slug: string) {
       .eq('slug', slug)
       .single()
 
-    if (error || !data) {
+    if (data) {
+      return data
+    }
+
+    const { data: college, error: collegeError } = await supabase
+      .from('colleges')
+      .select('*')
+      .eq('slug', slug)
+      .single()
+
+    if (collegeError || !college) {
       return null
     }
 
-    return data
+    const { data: users } = await supabase
+      .from('users')
+      .select('role')
+      .eq('college_id', college.id)
+
+    const seniorCount = users?.filter((user: any) => user.role === 'senior').length || 0
+
+    return {
+      id: college.id,
+      slug: college.slug,
+      display_name: college.short_name || college.name,
+      description: `${college.name} community on Claspire`,
+      member_count: users?.length || 0,
+      senior_count: seniorCount,
+      doubt_count: 0,
+      colleges: college
+    }
   } catch (error) {
     console.error('Error fetching college:', error)
     return null

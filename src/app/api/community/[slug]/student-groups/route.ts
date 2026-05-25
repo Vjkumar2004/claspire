@@ -21,7 +21,37 @@ export async function GET(
       .is('parent_community_id', null)
       .single()
 
-    if (communityError || !community) {
+    let communityId = community?.id
+    let collegeId = community?.college_id
+
+    if (!communityId) {
+      const { data: college } = await supabase
+        .from('colleges')
+        .select('id, name, short_name, slug')
+        .eq('slug', slug)
+        .single()
+
+      if (college) {
+        const { data: createdCommunity } = await supabase
+          .from('communities')
+          .insert({
+            display_name: college.short_name || college.name,
+            slug: college.slug,
+            description: `${college.name} community on Claspire`,
+            college_id: college.id,
+            parent_community_id: null,
+            is_private: false,
+            is_ephemeral: false
+          })
+          .select('id, college_id')
+          .single()
+
+        communityId = createdCommunity?.id
+        collegeId = createdCommunity?.college_id || college.id
+      }
+    }
+
+    if (!communityId) {
       return NextResponse.json({ error: 'Community not found' }, { status: 404 })
     }
 
@@ -40,7 +70,7 @@ export async function GET(
         created_by,
         creator:users!student_groups_created_by_fkey(id, full_name, avatar_url, role, unique_id)
       `)
-      .eq('parent_community_id', community.id)
+      .eq('parent_community_id', communityId)
       .is('is_active', true)
       .order('created_at', { ascending: false })
 
