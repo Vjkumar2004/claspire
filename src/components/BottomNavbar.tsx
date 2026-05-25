@@ -30,7 +30,6 @@ const BottomNavbar = () => {
   const [unreadMessageCount, setUnreadMessageCount] = useState(0)
   const [isVisible, setIsVisible] = useState(true)
   const [lastScrollY, setLastScrollY] = useState(0)
-  const [isScrolling, setIsScrolling] = useState(false)
 
   useEffect(() => {
     if (!user?.id) return
@@ -90,37 +89,23 @@ const BottomNavbar = () => {
 
     const handleScroll = () => {
       const currentScrollY = window.scrollY
-      
-      // Clear existing timeout
+
       if (scrollTimeout) {
         clearTimeout(scrollTimeout)
       }
 
-      // Set scrolling state
-      setIsScrolling(true)
-
-      // Hide when scrolling down, show when scrolling up
       if (currentScrollY > lastScrollY && currentScrollY > 100) {
-        // Scrolling down and past 100px
         setIsVisible(false)
       } else if (currentScrollY < lastScrollY) {
-        // Scrolling up
         setIsVisible(true)
       }
 
-      // Update last scroll position
       setLastScrollY(currentScrollY)
-
-      // Reset scrolling state after scroll ends
-      scrollTimeout = setTimeout(() => {
-        setIsScrolling(false)
-      }, 150)
+      scrollTimeout = setTimeout(() => {}, 150)
     }
 
-    // Add scroll listener
     window.addEventListener('scroll', handleScroll, { passive: true })
 
-    // Cleanup
     return () => {
       window.removeEventListener('scroll', handleScroll)
       if (scrollTimeout) {

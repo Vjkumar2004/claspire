@@ -56,7 +56,7 @@ export default function Navbar() {
   }, [mobileMenuOpen])
 
   return (
-    <nav className="fixed top-0 left-0 right-0 h-14 z-[999] bg-white/97 border-b border-gray-200 backdrop-blur-[8px]">
+    <nav className="sticky top-0 left-0 right-0 h-14 z-[999] bg-white/97 border-b border-gray-200 backdrop-blur-[8px]">
       <div className="flex items-center justify-between h-full px-6">
         <div className="flex items-center gap-3">
           <Link href="/" className="font-plus-jakarta-sans font-bold text-lg text-black no-underline hover:no-underline">

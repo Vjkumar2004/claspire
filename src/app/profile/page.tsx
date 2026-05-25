@@ -10,7 +10,6 @@ import {
   ArrowUpCircle, Star, Sparkles, LogOut, Bell, Menu, X, 
   Settings, Award, Zap, Globe, Github, Info
 } from 'lucide-react'
-import Navbar from '@/components/Navbar'
 import AvatarUpload from '@/components/AvatarUpload'
 
 export default function ProfilePage() {
@@ -192,7 +191,6 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
-      <Navbar />
       
       {/* ── Desktop Sidebar ── */}
       <aside className="fixed left-6 top-24 bottom-6 w-72 bg-white rounded-[32px] border border-[#E2E8F0] shadow-sm hidden lg:flex flex-col p-6 z-40">

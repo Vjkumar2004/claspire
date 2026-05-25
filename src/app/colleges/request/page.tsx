@@ -6,7 +6,6 @@ import {
   Send, Clock, CheckCircle2, 
   Plus, Sparkles, Check, Info, Upload, ArrowRight
 } from 'lucide-react'
-import Navbar from '@/components/Navbar'
 
 export default function CollegeRequestPage() {
   const [loading, setLoading] = useState(false)
@@ -109,7 +108,6 @@ export default function CollegeRequestPage() {
   if (isSubmitted) {
     return (
       <div className="min-h-screen bg-[#F5F4FF] font-plus-jakarta-sans">
-        <Navbar />
         <div className="flex items-center justify-center min-h-[80vh] px-4">
            <motion.div 
              initial={{ opacity: 0, scale: 0.9 }}
@@ -159,7 +157,6 @@ export default function CollegeRequestPage() {
 
   return (
     <div className="min-h-screen bg-[#F5F4FF] font-plus-jakarta-sans pb-20">
-      <Navbar />
 
       {/* ── Hero ── */}
       <div className="relative pt-24 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden bg-gradient-to-br from-[#0F172A] to-[#1E293B]">

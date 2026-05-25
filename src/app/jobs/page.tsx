@@ -2,7 +2,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import Navbar from '@/components/Navbar'
 import { 
   Briefcase, MapPin, Building2, Search, 
   ChevronRight, Filter, Globe, Sparkles,
@@ -187,7 +186,6 @@ export default function JobsPage() {
 
   return (
     <div className="min-h-screen bg-[#FDFDFF]">
-      <Navbar />
 
       {/* Hero Section */}
       <div className="relative pt-28 pb-20 overflow-hidden">

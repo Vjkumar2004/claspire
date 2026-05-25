@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import Navbar from '@/components/Navbar'
 import { Search, Users, Briefcase, Building2, MapPin, Star, MessageCircle, ChevronRight, Filter, GraduationCap, Award, CheckCircle, Clock } from 'lucide-react'
 import { createClient } from '@supabase/supabase-js'
 import { useAuth } from '@/hooks/useAuth'
@@ -65,7 +64,6 @@ export default function SeniorsPage() {
 
   return (
     <div className="min-h-screen bg-[#FDFDFF]">
-      <Navbar />
 
       {/* Hero Section */}
       <div className="relative pt-28 pb-20 overflow-hidden">

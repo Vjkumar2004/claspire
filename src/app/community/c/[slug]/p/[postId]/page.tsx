@@ -2,7 +2,6 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@supabase/supabase-js'
-import Navbar from '@/components/Navbar'
 import {
   ArrowLeft, ArrowUp, ArrowDown, MessageCircle,
   CheckCircle, Clock, Eye, Shield, Send,
@@ -303,7 +302,6 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
       fontFamily: 'Plus Jakarta Sans, sans-serif',
       overflowX: 'hidden'
     }}>
-      <Navbar />
 
       {/* Breadcrumb */}
       <div style={{

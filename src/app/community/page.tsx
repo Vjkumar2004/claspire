@@ -4,7 +4,6 @@ import { useAuth } from '@/hooks/useAuth'
 import { usePoints } from '@/contexts/PointsContext'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@supabase/supabase-js'
-import Navbar from '@/components/Navbar'
 import {
   Search, LayoutGrid, HelpCircle,
   MessageCircle, Clock, TrendingUp,
@@ -838,7 +837,6 @@ function CommunityPageContent() {
       width: '100%',
       maxWidth: '100vw'
     }}>
-      <Navbar />
 
       {/* Search overlay — opens when icon clicked */}
       {showSearch && (

@@ -10,7 +10,6 @@ import {
   MapPin, ShieldCheck, ArrowUpCircle, ExternalLink,
   Users, Crown, Calendar, Clock
 } from 'lucide-react'
-import Navbar from '@/components/Navbar'
 
 export default function PublicProfilePage() {
   const params = useParams()
@@ -91,7 +90,6 @@ export default function PublicProfilePage() {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
-      <Navbar />
       
       <main className="pt-24 pb-20 px-4 max-w-5xl mx-auto">
         

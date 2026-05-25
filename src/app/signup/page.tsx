@@ -405,7 +405,7 @@ export default function SignupPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="flex pt-14" style={{ minHeight: 'calc(100vh - 56px)' }}>
+      <div className="flex" style={{ minHeight: 'calc(100vh - 56px)' }}>
         {/* Left Panel - Desktop Only */}
         <div className="hidden lg:block lg:w-2/5 bg-gradient-to-br from-purple-600 to-cyan-500 relative overflow-hidden">
           <div className="absolute top-[-100px] right-[-100px] w-[300px] h-[300px] bg-white rounded-full opacity-15"></div>

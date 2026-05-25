@@ -7,6 +7,7 @@ import { PointsProvider } from "@/contexts/PointsContext";
 import RPNotification from "@/components/RPNotification";
 import OneSignalInit from "@/components/OneSignalInit";
 import NotificationPrompt from "@/components/NotificationPrompt";
+import Navbar from "@/components/Navbar";
 import BottomNavbar from "@/components/BottomNavbar";
 import { ToastContainer } from "@/components/Toast";
 
@@ -119,21 +120,24 @@ export default function RootLayout({
             })
           }}
         />
-      </head>
-      <body
-        className={`${instrumentSerif.variable} ${plusJakartaSans.variable} antialiased`}
-      >
-        <AuthProvider>
-          <PointsProvider>
-            <OneSignalInit />
-            <NotificationPrompt />
-            <RPNotification />
-            <ToastContainer />
-            {children}
-            <BottomNavbar />
-          </PointsProvider>
-        </AuthProvider>
-      </body>
+       </head>
+       <body
+         className={`${instrumentSerif.variable} ${plusJakartaSans.variable} antialiased`}
+       >
+         <AuthProvider>
+           <PointsProvider>
+             <OneSignalInit />
+             <NotificationPrompt />
+             <RPNotification />
+             <Navbar />
+             <ToastContainer />
+             <main className="min-h-screen">
+               {children}
+             </main>
+             <BottomNavbar />
+           </PointsProvider>
+         </AuthProvider>
+       </body>
     </html>
   );
 }
