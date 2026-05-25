@@ -66,9 +66,14 @@ export default function PostModal({
     if (!file) return
 
     // Validate
-    const allowed = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
+    const allowed = [
+      'image/jpeg', 'image/jpg', 'image/png', 'image/webp',
+      'image/gif', 'image/bmp', 'image/tiff', 'image/x-tiff',
+      'image/svg+xml', 'image/heic', 'image/heif', 'image/x-icon',
+      'image/vnd.microsoft.icon'
+    ]
     if (!allowed.includes(file.type)) {
-      setError('Only JPG, PNG, WebP allowed')
+      setError('Please upload a valid image format (JPG, PNG, GIF, WebP, BMP, SVG, etc.)')
       return
     }
     if (file.size > 5 * 1024 * 1024) {
@@ -585,7 +590,7 @@ export default function PostModal({
             <input
               ref={imageRef}
               type="file"
-              accept="image/jpeg,image/jpg,image/png,image/webp"
+              accept="image/*"
               onChange={handleImageSelect}
               style={{ display: 'none' }}
             />

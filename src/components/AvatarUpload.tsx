@@ -162,7 +162,7 @@ export default function AvatarUpload({
       <input
         ref={fileRef}
         type="file"
-        accept="image/jpeg,image/jpg,image/png,image/webp"
+        accept="image/*"
         onChange={handleFileChange}
         className="hidden"
       />

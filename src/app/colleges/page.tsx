@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Navbar from '@/components/Navbar';
 import { Search, MapPin, Users, GraduationCap, Building2, ChevronRight, MessageSquare } from 'lucide-react';
 
 export default function CollegesPage() {
@@ -44,7 +43,6 @@ export default function CollegesPage() {
 
   return (
     <div className="min-h-screen bg-[#FDFDFF]">
-      <Navbar />
       
       {/* Hero Section */}
       <div className="relative pt-28 pb-16 overflow-hidden">

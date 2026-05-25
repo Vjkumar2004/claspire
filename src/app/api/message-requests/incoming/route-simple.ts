@@ -109,7 +109,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ requests: formattedRequests })
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('💥 Get incoming requests error:', error)
     console.error('💥 Error stack:', error?.stack)
     return NextResponse.json({ error: 'Internal server error', details: error?.message }, { status: 500 })

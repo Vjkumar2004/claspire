@@ -36,6 +36,7 @@ export async function POST(
       .from('student_group_members')
       .select(`
         group_id,
+        user_id,
         role,
         student_groups!inner(
           created_by

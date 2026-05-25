@@ -17,11 +17,16 @@ export interface ValidationResult {
 export async function validateImageFile(file: File): Promise<ValidationResult> {
   try {
     // 1. Basic MIME type check
-    const allowedMimeTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
+    const allowedMimeTypes = [
+      'image/jpeg', 'image/jpg', 'image/png', 'image/webp',
+      'image/gif', 'image/bmp', 'image/tiff', 'image/x-tiff',
+      'image/svg+xml', 'image/heic', 'image/heif', 'image/x-icon',
+      'image/vnd.microsoft.icon'
+    ]
     if (!allowedMimeTypes.includes(file.type)) {
       return {
         isValid: false,
-        error: `Invalid file type: ${file.type}. Only JPG, PNG, WebP allowed`
+        error: `Invalid file type: ${file.type}. Please upload a valid image file`
       }
     }
 
@@ -106,14 +111,26 @@ export async function validateImageFile(file: File): Promise<ValidationResult> {
       'jpeg': 'image/jpeg',
       'jpg': 'image/jpeg', 
       'png': 'image/png',
-      'webp': 'image/webp'
+      'webp': 'image/webp',
+      'gif': 'image/gif',
+      'bmp': 'image/bmp',
+      'tiff': 'image/tiff',
+      'svg': 'image/svg+xml',
+      'heic': 'image/heic',
+      'heif': 'image/heif',
+      'ico': 'image/x-icon'
     }
 
     const expectedMime = mimeMapping[detectedType]
-    if (file.type !== expectedMime) {
-      return {
-        isValid: false,
-        error: `File type mismatch: Expected ${expectedMime}, but detected ${detectedType}`
+    if (expectedMime && file.type !== expectedMime) {
+      // For HEIC/HEIF which might have multiple MIME types, allow both
+      if (detectedType === 'heic' && ['image/heic', 'image/heif'].includes(file.type)) {
+        // Allow HEIC/HEIF variants
+      } else if (file.type !== expectedMime) {
+        return {
+          isValid: false,
+          error: `File type mismatch: Expected ${expectedMime}, but detected ${detectedType}`
+        }
       }
     }
 
@@ -123,10 +140,15 @@ export async function validateImageFile(file: File): Promise<ValidationResult> {
       const metadata = await sharp(imageBuffer).metadata()
       
       // Additional validation using Sharp
-      if (!metadata.format || !['jpeg', 'png', 'webp'].includes(metadata.format)) {
-        return {
-          isValid: false,
-          error: `Invalid image format: ${metadata.format || 'unknown'}`
+      // Note: Sharp supports jpeg, png, webp, gif, tiff, heif
+      const supportedFormats = ['jpeg', 'png', 'webp', 'gif', 'tiff', 'heif', 'bmp']
+      if (!metadata.format || !supportedFormats.includes(metadata.format)) {
+        // SVG and ICO files won't process through Sharp, but that's okay - we accept them
+        if (detectedType !== 'svg' && detectedType !== 'ico') {
+          return {
+            isValid: false,
+            error: `Invalid image format: ${metadata.format || 'unknown'}`
+          }
         }
       }
 
@@ -207,6 +229,88 @@ function detectImageType(bytes: Uint8Array): string | null {
     return 'webp'
   }
 
+  // Check for GIF (GIF87a or GIF89a)
+  if (bytes.length >= 6 &&
+      bytes[0] === 0x47 && 
+      bytes[1] === 0x49 && 
+      bytes[2] === 0x46) {
+    return 'gif'
+  }
+
+  // Check for BMP
+  if (bytes.length >= 2 &&
+      bytes[0] === 0x42 && 
+      bytes[1] === 0x4D) {
+    return 'bmp'
+  }
+
+  // Check for TIFF (little-endian: II*\0)
+  if (bytes.length >= 4 &&
+      bytes[0] === 0x49 && 
+      bytes[1] === 0x49 && 
+      bytes[2] === 0x2A && 
+      bytes[3] === 0x00) {
+    return 'tiff'
+  }
+
+  // Check for TIFF (big-endian: MM\0*)
+  if (bytes.length >= 4 &&
+      bytes[0] === 0x4D && 
+      bytes[1] === 0x4D && 
+      bytes[2] === 0x00 && 
+      bytes[3] === 0x2A) {
+    return 'tiff'
+  }
+
+  // Check for HEIC/HEIF (ftyp...heic or ftyp...mif1)
+  if (bytes.length >= 12 &&
+      bytes[4] === 0x66 && 
+      bytes[5] === 0x74 && 
+      bytes[6] === 0x79 && 
+      bytes[7] === 0x70) {
+    // Check for heic brand
+    if (bytes.length >= 8 &&
+        bytes[8] === 0x68 && 
+        bytes[9] === 0x65 && 
+        bytes[10] === 0x69 && 
+        bytes[11] === 0x63) {
+      return 'heic'
+    }
+    // Check for mif1 brand (also HEIF)
+    if (bytes.length >= 8 &&
+        bytes[8] === 0x6D && 
+        bytes[9] === 0x69 && 
+        bytes[10] === 0x66 && 
+        bytes[11] === 0x31) {
+      return 'heif'
+    }
+  }
+
+  // Check for ICO (icon files)
+  if (bytes.length >= 4 &&
+      bytes[0] === 0x00 && 
+      bytes[1] === 0x00 && 
+      bytes[2] === 0x01 && 
+      bytes[3] === 0x00) {
+    return 'ico'
+  }
+
+  // Check for SVG (XML text starting with < or BOM)
+  if (bytes.length >= 4) {
+    // Check for UTF-8 BOM + <
+    if (bytes[0] === 0xEF && bytes[1] === 0xBB && bytes[2] === 0xBF && bytes[3] === 0x3C) {
+      return 'svg'
+    }
+    // Check for plain <
+    if (bytes[0] === 0x3C) {
+      // Could be SVG, check for common SVG indicators
+      const text = new TextDecoder().decode(bytes.slice(0, Math.min(100, bytes.length)))
+      if (text.includes('svg') || text.includes('<')) {
+        return 'svg'
+      }
+    }
+  }
+
   return null
 }
 
@@ -227,7 +331,7 @@ export function generateSafeFilename(originalName: string, userId: string, type:
   const baseName = parts.slice(0, -1).join('_')
   
   // Only allow image extensions
-  const allowedExtensions = ['jpg', 'jpeg', 'png', 'webp']
+  const allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp', 'tif', 'tiff', 'svg', 'heic', 'heif', 'ico']
   if (!allowedExtensions.includes(extension)) {
     throw new Error(`Invalid extension: .${extension}`)
   }

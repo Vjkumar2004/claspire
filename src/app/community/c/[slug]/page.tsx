@@ -1495,7 +1495,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
             role: currentUser.role || 'student',
             college_id: currentUser.college_id
           }}
-          communityId={data?.community?.college_id}
+          communityId={data?.id}
         />
       )}
 

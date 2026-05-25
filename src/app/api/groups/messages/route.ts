@@ -6,14 +6,9 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 )
 
-export async function POST(
-  request: NextRequest,
-  { params }: { params: Promise<{ slug: string }> }
-) {
+export async function POST(request: NextRequest) {
   try {
-    const { slug } = await params
-
-    const { content, sender_id } = await request.json()
+    const { content, sender_id, slug } = await request.json()
 
     if (!content?.trim()) {
       return NextResponse.json({ error: 'Content is required' }, { status: 400 })

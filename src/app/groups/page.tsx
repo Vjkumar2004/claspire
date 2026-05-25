@@ -190,7 +190,7 @@ function GroupsPageContent() {
           </div>
           <div className="flex items-center gap-2">
             <button
-              onClick={() => setIsCreateModalOpen(true)}
+              onClick={handleCreateGroup}
               className="px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl text-sm font-medium hover:from-indigo-600 hover:to-purple-700 transition-all duration-200 shadow-sm"
             >
               + Create
@@ -398,13 +398,20 @@ function GroupsPageContent() {
       
       
       {/* Create Group Modal */}
-      {isCreateModalOpen && (
+      {isCreateModalOpen && currentUser && (
         <CreateGroupModal
+          isOpen={isCreateModalOpen}
           onClose={() => setIsCreateModalOpen(false)}
           onSuccess={() => {
             setIsCreateModalOpen(false)
             setRefreshKey(prev => prev + 1)
             router.push('/groups?created=true')
+          }}
+          currentUser={{
+            id: currentUser.id,
+            is_premium: currentUser.is_premium || false,
+            role: currentUser.role || 'student',
+            college_id: currentUser.college_id
           }}
         />
       )}
