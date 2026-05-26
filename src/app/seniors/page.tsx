@@ -63,34 +63,34 @@ export default function SeniorsPage() {
   )
 
   return (
-    <div className="min-h-screen bg-[#FDFDFF]">
+    <div className="min-h-screen bg-[#F8FAFC]">
 
       {/* Hero Section */}
-      <div className="relative pt-28 pb-20 overflow-hidden">
+      <div className="relative pt-28 pb-16 overflow-hidden">
         {/* Animated Background Gradients */}
-        <div className="absolute top-0 right-1/4 w-[600px] h-[600px] bg-cyan-100/40 rounded-full blur-[120px] -z-10 animate-pulse" />
-        <div className="absolute bottom-0 left-1/4 w-[500px] h-[500px] bg-purple-50/40 rounded-full blur-[100px] -z-10" />
+        <div className="absolute top-0 right-1/4 w-[600px] h-[600px] bg-purple-100/30 rounded-full blur-[120px] -z-10 animate-pulse" />
+        <div className="absolute bottom-0 left-1/4 w-[500px] h-[500px] bg-purple-50/30 rounded-full blur-[100px] -z-10" />
 
         <div className="max-w-7xl mx-auto px-6 text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-cyan-50 rounded-full border border-cyan-100 mb-6">
-            <Award size={14} className="text-cyan-600" />
-            <span className="text-[12px] font-bold text-cyan-600 uppercase tracking-wider">Verified Experts</span>
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-purple-50 rounded-full border border-purple-100 mb-6">
+            <Award size={14} className="text-[#7C3AED]" />
+            <span className="text-[12px] font-bold text-[#7C3AED] uppercase tracking-wider">Verified Experts</span>
           </div>
           
-          <h1 className="font-instrument-serif text-5xl md:text-6xl text-black mb-6 leading-[1.1]">
+          <h1 className="font-extrabold text-4xl md:text-5xl text-gray-900 mb-6 leading-[1.2] tracking-tight">
             Connect with seniors who<br />
-            have <em className="text-cyan-600">walked the path</em>.
+            have <span className="text-[#7C3AED]">walked the path</span>.
           </h1>
           
-          <p className="text-gray-500 max-w-2xl mx-auto text-lg mb-10">
+          <p className="text-gray-500 max-w-2xl mx-auto text-base md:text-lg mb-10 font-medium">
             Get 1:1 mentorship, career advice, and industry insights from 
             verified alumni working at top companies worldwide.
           </p>
 
           {/* Search Bar */}
           <div className="max-w-2xl mx-auto relative group">
-            <div className="absolute inset-0 bg-cyan-600/5 rounded-2xl blur-xl group-hover:bg-cyan-600/10 transition-all" />
-            <div className="relative bg-white border border-gray-200 rounded-2xl p-2 flex items-center shadow-sm">
+            <div className="absolute inset-0 bg-[#7C3AED]/5 rounded-xl blur-xl group-hover:bg-[#7C3AED]/10 transition-all" />
+            <div className="relative bg-white border border-gray-200 rounded-lg p-2 flex items-center shadow-sm">
               <div className="pl-4 pr-2 text-gray-400">
                 <Search size={20} />
               </div>
@@ -110,9 +110,9 @@ export default function SeniorsPage() {
       <div className="max-w-7xl mx-auto px-6 pb-32">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h2 className="text-xl font-bold text-black flex items-center gap-2">
+            <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2 tracking-tight">
               Platform Mentors
-              <span className="text-sm font-medium text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
+              <span className="text-xs font-semibold text-gray-500 bg-gray-200 px-2 py-0.5 rounded-full">
                 {filteredSeniors.length}
               </span>
             </h2>
@@ -122,7 +122,7 @@ export default function SeniorsPage() {
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[1, 2, 3, 4, 5, 6].map(i => (
-              <div key={i} className="h-[280px] bg-gray-100 rounded-3xl animate-pulse" />
+              <div key={i} className="h-[280px] bg-gray-100 rounded-md border border-gray-200 animate-pulse" />
             ))}
           </div>
         ) : filteredSeniors.length > 0 ? (
@@ -133,13 +133,13 @@ export default function SeniorsPage() {
               return (
                 <div 
                   key={senior.id}
-                  className="group bg-white border border-gray-100 rounded-3xl p-6 hover:border-cyan-200 hover:shadow-[0_20px_40px_-12px_rgba(6,182,212,0.08)] transition-all duration-300 relative overflow-hidden flex flex-col h-full"
+                  className="group bg-white border border-gray-200 rounded-md p-6 hover:border-purple-300 hover:shadow-md transition-all duration-200 relative overflow-hidden flex flex-col h-full shadow-[0_1px_3px_rgba(0,0,0,0.05)]"
                 >
                   <div className="flex items-start gap-4 mb-6">
                     {/* Avatar */}
                     <div 
                       onClick={() => router.push(`/u/${senior.unique_id}`)}
-                      className={`w-14 h-14 rounded-[18px] ${senior.avatar_url ? 'bg-transparent' : 'bg-gradient-to-br from-gray-100 to-gray-50'} flex items-center justify-center text-xl font-black text-gray-400 border border-gray-200 group-hover:border-cyan-200 group-hover:text-cyan-600 transition-all shadow-sm overflow-hidden cursor-pointer hover:scale-105 active:scale-95`}
+                      className={`w-12 h-12 rounded-md ${senior.avatar_url ? 'bg-transparent' : 'bg-gray-100'} flex items-center justify-center text-sm font-black text-gray-500 border border-gray-200 group-hover:border-purple-300 group-hover:text-[#7C3AED] transition-all shadow-sm overflow-hidden cursor-pointer flex-shrink-0`}
                     >
                       {senior.avatar_url ? (
                         <img src={senior.avatar_url} alt={senior.full_name} className="w-full h-full object-cover" />
@@ -148,39 +148,39 @@ export default function SeniorsPage() {
                       )}
                     </div>
                     
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2">
                         <h3 
                           onClick={() => router.push(`/u/${senior.unique_id}`)}
-                          className="text-lg font-bold text-black group-hover:text-cyan-600 transition-colors cursor-pointer"
+                          className="text-base font-bold text-gray-900 group-hover:text-[#7C3AED] transition-colors cursor-pointer truncate tracking-tight"
                         >
                           {senior.full_name}
                         </h3>
                         {senior.rise_points > 50 && (
-                          <div className="flex items-center gap-1 bg-amber-50 text-amber-600 px-2 py-0.5 rounded-md text-xs font-bold border border-amber-100" title="Top Contributor">
-                            <Award size={12} />
-                            Top
+                          <div className="flex items-center gap-1 bg-amber-50 text-amber-600 px-2 py-0.5 rounded border border-amber-100 text-[10px] font-bold flex-shrink-0" title="Top Contributor">
+                            <Award size={10} />
+                            Verified
                           </div>
                         )}
                       </div>
-                      <p className="text-sm text-gray-500 font-medium">@{senior.unique_id}</p>
+                      <p className="text-xs text-gray-500 font-medium truncate">@{senior.unique_id}</p>
                     </div>
                   </div>
 
                   <div className="space-y-3 mb-6 flex-1">
                     <div className="flex items-start gap-3">
-                      <Briefcase size={16} className="text-gray-400 mt-0.5" />
-                      <div>
-                        <p className="text-sm font-bold text-gray-800">{senior.designation}</p>
-                        <p className="text-sm text-gray-500">{senior.company}</p>
+                      <Briefcase size={15} className="text-gray-400 mt-0.5 flex-shrink-0" />
+                      <div className="min-w-0">
+                        <p className="text-sm font-bold text-gray-800 truncate leading-snug">{senior.designation}</p>
+                        <p className="text-xs text-gray-500 truncate leading-snug">{senior.company}</p>
                       </div>
                     </div>
                     
                     <div className="flex items-start gap-3">
-                      <GraduationCap size={16} className="text-gray-400 mt-0.5" />
-                      <div>
-                        <p className="text-sm font-bold text-gray-800">Class of {senior.graduation_year}</p>
-                        <p className="text-sm text-gray-500">
+                      <GraduationCap size={15} className="text-gray-400 mt-0.5 flex-shrink-0" />
+                      <div className="min-w-0">
+                        <p className="text-sm font-bold text-gray-800 leading-snug">Class of {senior.graduation_year}</p>
+                        <p className="text-xs text-gray-500 truncate leading-snug">
                           {senior.college?.name || 'College not specified'}
                         </p>
                       </div>
@@ -188,7 +188,7 @@ export default function SeniorsPage() {
                   </div>
 
                   {/* College/Community context & Action */}
-                  <div className="pt-4 border-t border-gray-50 mt-auto">
+                  <div className="pt-4 border-t border-gray-100 mt-auto">
                     {user?.role === 'senior' ? (
                       <SeniorMessageRequestButton 
                         targetSeniorId={senior.id} 
@@ -201,19 +201,16 @@ export default function SeniorsPage() {
                       />
                     )}
                   </div>
-
-                  {/* Hover Accent */}
-                  <div className="absolute top-0 left-0 bottom-0 w-1 bg-gradient-to-b from-cyan-400 to-blue-500 opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
               )
             })}
           </div>
         ) : (
-          <div className="text-center py-20 bg-white border border-dashed border-gray-200 rounded-3xl">
-            <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="text-center py-20 bg-white border border-dashed border-gray-200 rounded-md">
+            <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-gray-100">
               <Users size={24} className="text-gray-300" />
             </div>
-            <h3 className="text-lg font-bold text-black mb-2">No seniors matched your search</h3>
+            <h3 className="text-base font-bold text-gray-900 mb-2">No seniors matched your search</h3>
             <p className="text-gray-500 text-sm">Try exploring other colleges or roles</p>
           </div>
         )}

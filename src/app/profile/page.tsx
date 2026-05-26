@@ -23,7 +23,6 @@ export default function ProfilePage() {
   const [success, setSuccess] = useState('')
   const [activeTab, setActiveTab] = useState<'info' | 'activity' | 'professional'>('info')
   const [avatarUrl, setAvatarUrl] = useState('')
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const [formData, setFormData] = useState({
     bio: '',
@@ -42,24 +41,19 @@ export default function ProfilePage() {
 
   useEffect(() => {
     fetchUserData()
-    // Set up real-time updates every 30 seconds
     const interval = setInterval(fetchUserData, 30000)
     return () => clearInterval(interval)
   }, [])
 
-  // Check if user is returning from community page after creating a post
   useEffect(() => {
     const checkForNewPost = () => {
-      // Check URL parameters or localStorage to see if we need to refresh
       const urlParams = new URLSearchParams(window.location.search)
       const refreshNeeded = urlParams.get('refresh') === 'true' || 
                            localStorage.getItem('profile_refresh_needed') === 'true'
       
       if (refreshNeeded && !loading) {
         fetchUserData()
-        // Clean up the flag
         localStorage.removeItem('profile_refresh_needed')
-        // Clean URL
         if (urlParams.get('refresh') === 'true') {
           const newUrl = window.location.pathname
           window.history.replaceState({}, '', newUrl)
@@ -72,11 +66,9 @@ export default function ProfilePage() {
 
   const handleStartDiscussion = () => {
     if (joinedCommunities.length > 0) {
-      // Use the first joined community
       const community = joinedCommunities[0].communities
       router.push(`/community/c/${community.slug}?create=true`)
     } else {
-      // If no joined communities, redirect to main community page
       router.push('/community?create=true')
     }
   }
@@ -114,8 +106,8 @@ export default function ProfilePage() {
     }
   }
 
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSave = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault()
 
     if (
       formData.linkedin_url && 
@@ -162,19 +154,14 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0F172A] flex items-center justify-center">
+      <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center font-plus-jakarta-sans">
         <motion.div 
-          initial={{ opacity: 0, scale: 0.9 }}
+          initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="flex flex-col items-center gap-6"
+          className="flex flex-col items-center gap-4"
         >
-           <div className="relative">
-              <div className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin" />
-              <div className="absolute inset-0 flex items-center justify-center">
-                 <div className="w-8 h-8 bg-purple-500/20 rounded-full animate-pulse" />
-              </div>
-           </div>
-           <p className="text-white font-black font-instrument-serif text-xl tracking-wide animate-pulse uppercase">Syncing Profile...</p>
+          <div className="w-10 h-10 border-3 border-[#7C3AED] border-t-transparent rounded-full animate-spin" />
+          <p className="text-slate-400 font-extrabold tracking-widest text-[10px] uppercase">Retrieving Profile...</p>
         </motion.div>
       </div>
     )
@@ -184,42 +171,42 @@ export default function ProfilePage() {
   const collegeName = user.colleges?.short_name || 'Claspire Student'
 
   const navItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard size={20} />, href: user.role === 'senior' ? '/dashboard/senior' : '/dashboard/junior' },
-    { id: 'community', label: 'Community', icon: <Users size={20} />, href: '/community' },
-    { id: 'profile', label: 'Settings', icon: <Settings size={20} />, active: true },
+    { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard size={16} />, href: user.role === 'senior' ? '/dashboard/senior' : '/dashboard/junior' },
+    { id: 'community', label: 'Community', icon: <Users size={16} />, href: '/community' },
+    { id: 'profile', label: 'Settings', icon: <Settings size={16} />, active: true },
   ]
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC]">
+    <div className="min-h-screen bg-[#F8FAFC] font-plus-jakarta-sans text-xs">
       
       {/* ── Desktop Sidebar ── */}
-      <aside className="fixed left-6 top-24 bottom-6 w-72 bg-white rounded-[32px] border border-[#E2E8F0] shadow-sm hidden lg:flex flex-col p-6 z-40">
-        <div className="flex items-center gap-3 px-4 mb-10">
-          <div className={`w-10 h-10 rounded-xl ${avatarUrl ? 'bg-transparent' : 'bg-purple-600'} flex items-center justify-center text-white font-black text-xl shadow-lg shadow-purple-200 overflow-hidden`}>
+      <aside className="fixed left-6 top-24 bottom-6 w-64 bg-white rounded-2xl border border-slate-200/80 shadow-sm hidden lg:flex flex-col p-5 z-40">
+        <div className="flex items-center gap-3 px-2 mb-8">
+          <div className={`w-9 h-9 rounded-lg ${avatarUrl ? 'bg-transparent' : 'bg-[#7C3AED]'} flex items-center justify-center text-white font-extrabold text-sm overflow-hidden flex-shrink-0`}>
             {avatarUrl ? (
               <img src={avatarUrl} alt={user.full_name} className="w-full h-full object-cover" />
             ) : (
               initials
             )}
           </div>
-          <div>
-            <p className="text-sm font-black text-[#0F172A] m-0">{user.full_name}</p>
-            <p className="text-[10px] font-bold text-purple-600 uppercase tracking-widest mt-0.5">{user.role}</p>
+          <div className="min-w-0">
+            <p className="text-xs font-bold text-[#0F172A] truncate m-0">{user.full_name}</p>
+            <p className="text-[9px] font-bold text-[#7C3AED] uppercase tracking-wider mt-0.5">{user.role}</p>
           </div>
         </div>
 
-        <nav className="flex-1 space-y-2">
+        <nav className="flex-1 space-y-1.5">
            {navItems.map(item => (
               <button
                 key={item.id}
                 onClick={() => item.href && router.push(item.href)}
-                className={`w-full flex items-center gap-3.5 px-4 py-4 rounded-2xl text-sm font-bold transition-all group cursor-pointer ${
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer border-none bg-transparent ${
                   item.active 
-                    ? 'bg-[#F5F3FF] text-[#7C3AED] shadow-sm shadow-purple-500/5' 
-                    : 'text-[#64748B] hover:bg-[#F8FAFC] hover:text-[#0F172A]'
+                    ? 'bg-purple-50 text-[#7C3AED]' 
+                    : 'text-slate-500 hover:bg-slate-50 hover:text-[#0F172A]'
                 }`}
               >
-                <div className={`transition-transform group-hover:scale-110 ${item.active ? 'text-[#7C3AED]' : 'text-gray-400 group-hover:text-[#0F172A]'}`}>
+                <div className={`transition-transform ${item.active ? 'text-[#7C3AED]' : 'text-slate-400'}`}>
                   {item.icon}
                 </div>
                 {item.label}
@@ -233,26 +220,26 @@ export default function ProfilePage() {
             try { await fetch('/api/auth/signout', { method: 'POST' }) } catch {} 
             router.push('/login'); 
           }}
-          className="mt-auto w-full flex items-center gap-3 px-4 py-4 rounded-2xl text-sm font-bold text-red-500 hover:bg-red-50 transition-all group cursor-pointer border-none bg-transparent"
+          className="mt-auto w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold text-red-500 hover:bg-red-50 transition-all cursor-pointer border-none bg-transparent"
         >
-           <LogOut size={20} className="group-hover:-translate-x-1 transition-transform" />
+           <LogOut size={16} />
            Sign Out
         </button>
       </aside>
 
       {/* ── Main Content Area ── */}
-      <main className="lg:ml-[320px] pt-24 px-4 lg:px-8 max-w-7xl mx-auto pb-20">
+      <main className="lg:ml-72 pt-24 px-4 lg:px-8 max-w-5xl mx-auto pb-20">
          
          {/* ── Profile Cover & Header ── */}
-         <div className="bg-white rounded-[40px] border border-[#E2E8F0] shadow-sm overflow-hidden mb-8">
+         <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden mb-8">
             {/* Cover Area */}
-            <div className="h-48 md:h-64 bg-gradient-to-br from-[#7C3AED] via-[#4F46E5] to-[#06B6D4] relative">
-               <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]" />
-               <div className="absolute -bottom-16 left-8 md:left-12">
+            <div className="h-44 md:h-56 bg-gradient-to-r from-slate-100 via-indigo-50 to-purple-50 relative border-b border-slate-200/60">
+               <div className="absolute inset-0 opacity-[0.4] bg-[radial-gradient(#c7d2fe_1px,transparent_1px)] [background-size:16px_16px]" />
+               <div className="absolute -bottom-16 left-6 md:left-10 z-10">
                   <AvatarUpload
                     currentUrl={avatarUrl}
                     userName={user?.full_name || ''}
-                    size={144}
+                    size={120}
                     onUploadSuccess={(url) => {
                       setAvatarUrl(url)
                       setUser({ ...user, avatar_url: url })
@@ -262,52 +249,58 @@ export default function ProfilePage() {
             </div>
 
             {/* Header Content */}
-            <div className="pt-20 pb-8 px-8 md:px-12">
-               <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <div className="pt-20 pb-8 px-6 md:px-10">
+               <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
                   <div>
-                     <div className="flex items-center gap-3 mb-2">
-                        <h1 className="text-3xl md:text-4xl font-black text-[#0F172A] m-0 font-instrument-serif">{user.full_name}</h1>
-                        {user.is_verified && <ShieldCheck size={24} className="text-blue-500" fill="currentColor" fillOpacity={0.1} />}
+                     <div className="flex items-center flex-wrap gap-2.5 mb-2.5">
+                        <h1 className="text-2xl md:text-3xl font-extrabold text-[#0F172A] tracking-tight">{user.full_name}</h1>
+                        {user.is_verified && (
+                          <span className="flex items-center gap-1 text-[10px] font-bold text-blue-700 bg-blue-50 border border-blue-100 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                            <ShieldCheck size={12} fill="currentColor" fillOpacity={0.1} /> Verified
+                          </span>
+                        )}
                      </div>
-                     <div className="flex flex-wrap items-center gap-4 text-sm font-semibold text-[#64748B]">
-                        <span className="flex items-center gap-1.5"><Building2 size={16} className="text-purple-600" /> {collegeName}</span>
+                     <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs font-semibold text-[#475569]">
+                        <span className="flex items-center gap-1.5"><Building2 size={14} className="text-indigo-600" /> {collegeName}</span>
                          {user.role === 'senior' && user.company ? (
                             <>
-                               <span className="w-1.5 h-1.5 rounded-full bg-gray-300 hidden md:block" />
-                               <span className="flex items-center gap-1.5"><Briefcase size={16} className="text-blue-600" /> {user.designation} at {user.company}</span>
-                               <span className="w-1.5 h-1.5 rounded-full bg-gray-300 hidden md:block" />
+                               <span className="w-1 h-1 rounded-full bg-slate-300 hidden md:block" />
+                               <span className="flex items-center gap-1.5"><Briefcase size={14} className="text-blue-600" /> {user.designation} at {user.company}</span>
                             </>
-                         ) : (
-                            <span className="w-1.5 h-1.5 rounded-full bg-gray-300 hidden md:block" />
-                         )}
-                        <span className="flex items-center gap-1.5 uppercase tracking-widest text-[11px] font-black text-purple-600">{user.unique_id}</span>
+                         ) : null}
+                        <span className="w-1 h-1 rounded-full bg-slate-300 hidden md:block" />
+                        <span className="text-[10px] font-bold tracking-wider text-purple-600 bg-purple-50 border border-purple-100 px-2 py-0.5 rounded uppercase">ID: {user.unique_id}</span>
                      </div>
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex flex-wrap items-center gap-3">
                      <button 
                         onClick={() => router.push(`/u/${user.unique_id}`)}
-                        className="px-6 py-3 rounded-2xl bg-white border border-[#E2E8F0] text-sm font-bold text-[#0F172A] hover:bg-gray-50 transition-colors cursor-pointer"
+                        className="px-4 py-2.5 rounded-lg bg-white border border-slate-200 text-xs font-bold text-[#334155] hover:bg-slate-50 hover:border-slate-300 shadow-sm active:scale-[0.98] transition-all cursor-pointer"
                      >
                         View Public Profile
                      </button>
-                     <button onClick={handleSave} disabled={saving} className="px-8 py-3 rounded-2xl bg-[#0F172A] text-white text-sm font-bold hover:bg-black transition-all cursor-pointer disabled:opacity-50 shadow-xl shadow-gray-200">
+                     <button 
+                        onClick={() => handleSave()} 
+                        disabled={saving} 
+                        className="px-5 py-2.5 rounded-lg bg-[#7C3AED] hover:bg-[#6D28D9] text-white text-xs font-bold shadow-sm active:scale-[0.98] transition-all cursor-pointer disabled:opacity-50"
+                     >
                         {saving ? 'Saving...' : 'Save Updates'}
                      </button>
                   </div>
                </div>
 
                {/* Tabs Navigation */}
-               <div className="flex items-center gap-8 mt-12 border-b border-[#F1F5F9]">
+               <div className="flex items-center gap-6 mt-10 border-b border-slate-200/80">
                   {[
-                    { id: 'info', label: 'Account Info', icon: <User size={16} /> },
-                    { id: 'professional', label: 'Professional', icon: <Briefcase size={16} /> },
-                    { id: 'activity', label: 'Post Activity', icon: <MessageSquare size={16} /> },
+                    { id: 'info', label: 'Account Info', icon: <User size={14} /> },
+                    { id: 'professional', label: 'Professional', icon: <Briefcase size={14} /> },
+                    { id: 'activity', label: 'Post Activity', icon: <MessageSquare size={14} /> },
                   ].map(tab => (
                     <button
                       key={tab.id}
                       onClick={() => setActiveTab(tab.id as any)}
-                      className={`pb-4 text-sm font-black flex items-center gap-2 transition-all relative border-none bg-transparent cursor-pointer ${
-                        activeTab === tab.id ? 'text-[#0F172A]' : 'text-[#94A3B8] hover:text-[#475569]'
+                      className={`pb-3.5 text-xs font-bold flex items-center gap-2 transition-all relative border-none bg-transparent cursor-pointer ${
+                        activeTab === tab.id ? 'text-[#7C3AED]' : 'text-slate-500 hover:text-slate-800'
                       }`}
                     >
                       {tab.icon} {tab.label}
@@ -329,53 +322,53 @@ export default function ProfilePage() {
                   {activeTab === 'info' && (
                     <motion.div 
                       key="info-tab"
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: 20 }}
-                      className="bg-white rounded-[32px] border border-[#E2E8F0] p-8 shadow-sm"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="bg-white rounded-2xl border border-slate-200/80 p-6 md:p-8 shadow-sm"
                     >
-                       <h2 className="text-xl font-black text-[#0F172A] font-instrument-serif mb-8 flex items-center gap-3">
-                          <Zap size={20} className="text-purple-600" /> General Information
+                       <h2 className="text-sm font-extrabold text-[#0F172A] mb-6 flex items-center gap-2 tracking-tight">
+                          <Zap size={16} className="text-purple-600" /> General Information
                        </h2>
-                       <div className="space-y-6">
+                       <div className="space-y-5">
                           <div>
-                             <label className="block text-[10px] font-black text-[#94A3B8] uppercase tracking-[0.2em] mb-2 px-1">Your Bio / One-liner</label>
+                             <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-2 px-0.5">Your Bio / Professional One-liner</label>
                              <textarea 
                                 value={formData.bio}
                                 onChange={(e) => setFormData({...formData, bio: e.target.value.slice(0, 200)})}
-                                placeholder="Write a short intro about yourself..."
-                                className="w-full bg-gray-50 border border-transparent rounded-2xl px-5 py-4 text-sm text-[#0F172A] outline-none focus:bg-white focus:border-purple-600 transition-all h-28 resize-none font-medium"
+                                placeholder="Write a highly professional professional summary..."
+                                className="w-full bg-[#F8FAFC] border border-slate-200 focus:border-purple-500 focus:bg-white rounded-xl px-4 py-3 text-xs text-[#0F172A] outline-none transition-all h-24 resize-none font-medium shadow-inner"
                              />
                           </div>
 
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                             <div className="group">
-                                <label className="block text-[10px] font-black text-[#94A3B8] uppercase tracking-[0.2em] mb-2 px-1">Email Address</label>
-                                <div className="w-full bg-gray-50 border border-transparent rounded-2xl px-5 py-4 text-sm text-[#94A3B8] flex items-center justify-between font-bold">
-                                   {user.email} <Lock size={14} className="opacity-40" />
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                             <div>
+                                <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-2 px-0.5">Email Address</label>
+                                <div className="w-full bg-[#F8FAFC] border border-slate-200/60 rounded-xl px-4 py-3 text-xs text-slate-400 flex items-center justify-between font-bold">
+                                   {user.email} <Lock size={12} className="opacity-40" />
                                 </div>
                              </div>
 
                              <div>
-                                <label className="block text-[10px] font-black text-[#94A3B8] uppercase tracking-[0.2em] mb-2 px-1">LinkedIn Profile</label>
+                                <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-2 px-0.5">LinkedIn Profile</label>
                                 <div className="relative">
                                    <input 
                                       type="text" value={formData.linkedin_url}
                                       onChange={(e) => setFormData({...formData, linkedin_url: e.target.value})}
                                       placeholder="https://linkedin.com/in/..."
-                                      className="w-full bg-gray-50 border border-transparent rounded-2xl px-5 py-4 pl-12 text-sm text-[#0F172A] outline-none focus:bg-white focus:border-purple-600 transition-all font-bold"
+                                      className="w-full bg-[#F8FAFC] border border-slate-200 focus:border-purple-500 focus:bg-white rounded-xl px-4 py-3 pl-10 text-xs text-[#0F172A] outline-none transition-all font-semibold"
                                    />
-                                   <Linkedin size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-purple-600" />
+                                   <Linkedin size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-purple-600" />
                                 </div>
                              </div>
 
                              {user.role !== 'senior' && (
                                <div>
-                                  <label className="block text-[10px] font-black text-[#94A3B8] uppercase tracking-[0.2em] mb-2 px-1">Academic Year</label>
+                                  <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-2 px-0.5">Academic Year</label>
                                   <select 
                                      value={formData.year}
                                      onChange={(e) => setFormData({...formData, year: e.target.value})}
-                                     className="w-full bg-gray-50 border border-transparent rounded-2xl px-5 py-4 text-sm text-[#0F172A] outline-none focus:bg-white focus:border-purple-600 transition-all font-bold appearance-none cursor-pointer"
+                                     className="w-full bg-[#F8FAFC] border border-slate-200 focus:border-purple-500 focus:bg-white rounded-xl px-4 py-3 text-xs text-[#0F172A] outline-none transition-all font-bold appearance-none cursor-pointer"
                                   >
                                      <option value="1">1st Year</option>
                                      <option value="2">2nd Year</option>
@@ -387,25 +380,25 @@ export default function ProfilePage() {
 
                              {user.role !== 'senior' && (
                                <div>
-                                  <label className="block text-[10px] font-black text-[#94A3B8] uppercase tracking-[0.2em] mb-2 px-1">Academic CGPA</label>
+                                  <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-2 px-0.5">Academic CGPA</label>
                                   <input 
                                      type="number" step="0.01" max="10"
                                      value={formData.cgpa}
                                      onChange={(e) => setFormData({...formData, cgpa: e.target.value})}
                                      placeholder="Current CGPA"
-                                     className="w-full bg-gray-50 border border-transparent rounded-2xl px-5 py-4 text-sm text-[#0F172A] outline-none focus:bg-white focus:border-purple-600 transition-all font-bold"
+                                     className="w-full bg-[#F8FAFC] border border-slate-200 focus:border-purple-500 focus:bg-white rounded-xl px-4 py-3 text-xs text-[#0F172A] outline-none transition-all font-bold"
                                   />
                                </div>
                              )}
                           </div>
                           
                           {error && (
-                             <div className="bg-red-50 text-red-500 p-4 rounded-2xl text-xs font-bold border border-red-100">
+                             <div className="bg-red-50 text-red-600 p-4 rounded-xl text-xs font-bold border border-red-100">
                                 ⚠️ {error}
                              </div>
                           )}
                           {success && (
-                             <div className="bg-green-50 text-green-600 p-4 rounded-2xl text-xs font-bold border border-green-100">
+                             <div className="bg-green-50 text-green-600 p-4 rounded-xl text-xs font-bold border border-green-100">
                                 ✨ {success}
                              </div>
                           )}
@@ -416,34 +409,34 @@ export default function ProfilePage() {
                   {activeTab === 'professional' && (
                     <motion.div 
                       key="pro-tab"
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: 20 }}
-                      className="bg-white rounded-[32px] border border-[#E2E8F0] p-8 shadow-sm"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="bg-white rounded-2xl border border-slate-200/80 p-6 md:p-8 shadow-sm"
                     >
-                       <h2 className="text-xl font-black text-[#0F172A] font-instrument-serif mb-8 flex items-center gap-3">
-                          <Building2 size={20} className="text-blue-500" /> Career & Education
+                       <h2 className="text-sm font-extrabold text-[#0F172A] mb-6 flex items-center gap-2 tracking-tight">
+                          <Building2 size={16} className="text-blue-500" /> Career & Education
                        </h2>
                        
-                       <div className="space-y-8">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                       <div className="space-y-6">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                              <div>
-                                <label className="block text-[10px] font-black text-[#94A3B8] uppercase tracking-[0.2em] mb-2 px-1">Academic Branch</label>
+                                <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-2 px-0.5">Academic Branch</label>
                                 <input 
                                    type="text" value={formData.branch}
                                    onChange={(e) => setFormData({...formData, branch: e.target.value})}
                                    placeholder="e.g. Computer Science"
-                                   className="w-full bg-gray-50 border border-transparent rounded-2xl px-5 py-4 text-sm text-[#0F172A] outline-none focus:bg-white focus:border-purple-600 transition-all font-bold"
+                                   className="w-full bg-[#F8FAFC] border border-slate-200 focus:border-purple-500 focus:bg-white rounded-xl px-4 py-3 text-xs text-[#0F172A] outline-none transition-all font-bold"
                                 />
                              </div>
 
                              {user.role !== 'senior' && (
                                <div>
-                                  <label className="block text-[10px] font-black text-[#94A3B8] uppercase tracking-[0.2em] mb-2 px-1">Passout Year</label>
+                                  <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-2 px-0.5">Passout Year</label>
                                   <select 
                                      value={formData.passout_year}
                                      onChange={(e) => setFormData({...formData, passout_year: e.target.value})}
-                                     className="w-full bg-gray-50 border border-transparent rounded-2xl px-5 py-4 text-sm text-[#0F172A] outline-none focus:bg-white focus:border-purple-600 transition-all font-bold appearance-none cursor-pointer"
+                                     className="w-full bg-[#F8FAFC] border border-slate-200 focus:border-purple-500 focus:bg-white rounded-xl px-4 py-3 text-xs text-[#0F172A] outline-none transition-all font-bold appearance-none cursor-pointer"
                                   >
                                      {[2024, 2025, 2026, 2027, 2028, 2029, 2030].map(y => (
                                         <option key={y} value={y}>{y}</option>
@@ -454,44 +447,44 @@ export default function ProfilePage() {
 
                              {user.role === 'senior' && (
                                <div>
-                                  <label className="block text-[10px] font-black text-[#94A3B8] uppercase tracking-[0.2em] mb-2 px-1">Graduation Year</label>
+                                  <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-2 px-0.5">Graduation Year</label>
                                   <select 
                                      value={formData.graduation_year}
                                      onChange={(e) => setFormData({...formData, graduation_year: e.target.value})}
-                                     className="w-full bg-gray-50 border border-transparent rounded-2xl px-5 py-4 text-sm text-[#0F172A] outline-none focus:bg-white focus:border-purple-600 transition-all font-bold appearance-none cursor-pointer"
+                                     className="w-full bg-[#F8FAFC] border border-slate-200 focus:border-purple-500 focus:bg-white rounded-xl px-4 py-3 text-xs text-[#0F172A] outline-none transition-all font-bold appearance-none cursor-pointer"
                                   >
                                      {[2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025].map(y => (
                                         <option key={y} value={y}>{y}</option>
                                      ))}
                                   </select>
-                               </div>
+                                </div>
                              )}
                           </div>
 
                           {user.role === 'senior' && (
-                             <div className="pt-8 border-t border-[#F1F5F9] space-y-6">
-                                <div className="bg-purple-50 p-6 rounded-3xl border border-purple-100">
+                             <div className="pt-6 border-t border-slate-100 space-y-4">
+                                <div className="bg-slate-50/60 p-5 rounded-xl border border-slate-200/60">
                                    <div className="flex items-center gap-2 mb-4">
-                                      <Award className="text-purple-600" size={18} />
-                                      <h3 className="text-sm font-black text-purple-900 uppercase tracking-widest">Senior Verification Info</h3>
+                                      <Award className="text-purple-600" size={16} />
+                                      <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider">Senior Verification Credentials</h3>
                                    </div>
-                                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                                       <div>
-                                         <label className="block text-[10px] font-black text-purple-400 uppercase tracking-[0.2em] mb-2 px-1">Current Organization</label>
+                                         <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-2 px-0.5">Current Organization</label>
                                          <input 
                                             type="text" value={formData.company}
                                             onChange={(e) => setFormData({...formData, company: e.target.value})}
                                             placeholder="Where do you work?"
-                                            className="w-full bg-white border border-purple-100 rounded-2xl px-5 py-4 text-sm text-[#0F172A] outline-none focus:border-purple-600 transition-all font-bold"
+                                            className="w-full bg-white border border-slate-200 focus:border-purple-600 rounded-xl px-4 py-3 text-xs text-[#0F172A] outline-none transition-all font-semibold"
                                          />
                                       </div>
                                       <div>
-                                         <label className="block text-[10px] font-black text-purple-400 uppercase tracking-[0.2em] mb-2 px-1">Job Designation</label>
+                                         <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-2 px-0.5">Job Designation</label>
                                          <input 
                                             type="text" value={formData.designation}
                                             onChange={(e) => setFormData({...formData, designation: e.target.value})}
                                             placeholder="Your role"
-                                            className="w-full bg-white border border-purple-100 rounded-2xl px-5 py-4 text-sm text-[#0F172A] outline-none focus:border-purple-600 transition-all font-bold"
+                                            className="w-full bg-white border border-slate-200 focus:border-purple-600 rounded-xl px-4 py-3 text-xs text-[#0F172A] outline-none transition-all font-semibold"
                                          />
                                       </div>
                                    </div>
@@ -505,66 +498,68 @@ export default function ProfilePage() {
                   {activeTab === 'activity' && (
                     <motion.div 
                       key="activity-tab"
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: 20 }}
-                      className="bg-white rounded-[32px] border border-[#E2E8F0] shadow-sm overflow-hidden"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden"
                     >
-                       <div className="p-8 border-b border-[#F1F5F9]">
-                          <h2 className="text-xl font-black text-[#0F172A] font-instrument-serif m-0">Platform Contributions</h2>
-                          <p className="text-[10px] font-black text-[#94A3B8] uppercase tracking-[0.2em] mt-2">Manage your doubts and community posts</p>
+                       <div className="p-6 border-b border-slate-100 flex items-center justify-between">
+                          <div>
+                             <h2 className="text-sm font-extrabold text-[#0F172A] m-0">Platform Activity Feed</h2>
+                             <p className="text-[9px] font-bold text-[#94A3B8] uppercase tracking-wider mt-1.5">Manage your platform questions, experiences, and community updates</p>
+                          </div>
                        </div>
                        
-                       <div className="divide-y divide-[#F1F5F9]">
+                       <div className="divide-y divide-slate-100">
                           {posts.length > 0 ? posts.map(post => (
-                             <div key={post.id} className="p-8 hover:bg-gray-50 flex items-start justify-between group transition-colors cursor-pointer">
+                             <div key={post.id} className="p-6 hover:bg-slate-50/50 flex items-start justify-between group transition-colors cursor-pointer">
                                 <div className="flex gap-4 flex-1">
-                                   <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center text-purple-600 font-bold text-xs overflow-hidden flex-shrink-0 mt-1 shadow-sm">
+                                   <div className="w-9 h-9 rounded-lg bg-purple-50 border border-purple-100 flex items-center justify-center text-purple-600 font-bold text-xs overflow-hidden flex-shrink-0 mt-0.5 shadow-sm">
                                       {post.users?.avatar_url ? (
                                          <img src={post.users.avatar_url} alt={post.users.full_name} className="w-full h-full object-cover" />
                                       ) : (
                                          post.users?.full_name?.[0] || 'U'
                                       )}
                                    </div>
-                                   <div className="space-y-2 flex-1">
-                                      <div className="flex items-center gap-3">
-                                         <span className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest border ${
+                                   <div className="space-y-1.5 flex-1">
+                                      <div className="flex items-center gap-2">
+                                         <span className={`px-2 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider border ${
                                             post.type === 'doubt' ? 'bg-orange-50 text-orange-600 border-orange-100' : 'bg-blue-50 text-blue-600 border-blue-100'
                                          }`}>
                                             {post.type}
                                          </span>
-                                         <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">{new Date(post.created_at).toLocaleDateString()}</span>
+                                         <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">{new Date(post.created_at).toLocaleDateString()}</span>
                                       </div>
-                                      <h3 className="text-md font-bold text-[#0F172A] group-hover:text-purple-600 transition-colors">{post.title}</h3>
+                                      <h3 className="text-sm font-bold text-[#0F172A] group-hover:text-[#7C3AED] transition-colors">{post.title}</h3>
                                       
                                       {post.image_url && (
-                                         <div className="mt-4 rounded-2xl overflow-hidden border border-gray-100 max-w-sm shadow-sm group-hover:shadow-md transition-shadow">
-                                            <img src={post.image_url} alt="Post content" className="w-full h-auto object-cover max-h-72" />
+                                         <div className="mt-3 rounded-lg overflow-hidden border border-slate-150 max-w-xs shadow-sm">
+                                            <img src={post.image_url} alt="Post content" className="w-full h-auto object-cover max-h-48" />
                                          </div>
                                       )}
 
-                                      <div className="flex items-center gap-6">
-                                         <div className="flex items-center gap-1.5 text-xs text-green-600 font-bold">
-                                            <ArrowUpCircle size={14} /> {post.upvote_count} Upvotes
+                                      <div className="flex items-center gap-4 pt-1">
+                                         <div className="flex items-center gap-1 text-[10px] text-emerald-600 font-bold">
+                                            <ArrowUpCircle size={12} /> {post.upvote_count} Upvotes
                                          </div>
-                                         <div className="flex items-center gap-1.5 text-xs text-purple-600 font-bold">
-                                            <Star size={14} /> {post.answer_count} Answers
+                                         <div className="flex items-center gap-1 text-[10px] text-[#7C3AED] font-bold">
+                                            <Star size={12} /> {post.answer_count} Answers
                                          </div>
                                       </div>
                                    </div>
                                 </div>
-                                <ChevronRight className="text-gray-300 group-hover:text-purple-600 group-hover:translate-x-1 transition-all" size={20} />
+                                <ChevronRight className="text-slate-300 group-hover:text-[#7C3AED] group-hover:translate-x-0.5 transition-all self-center" size={16} />
                              </div>
                           )) : (
-                             <div className="p-20 text-center">
-                                <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                                   <MessageSquare size={32} className="text-gray-300" />
+                             <div className="p-16 text-center">
+                                <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-300">
+                                   <MessageSquare size={24} />
                                 </div>
-                                <h3 className="text-lg font-bold text-[#0F172A] mb-2">No activity yet</h3>
-                                <p className="text-sm text-[#64748B] font-medium max-w-xs mx-auto">Start asking doubts or sharing knowledge with your community to build your profile.</p>
+                                <h3 className="text-sm font-bold text-[#0F172A] mb-1">No activity yet</h3>
+                                <p className="text-xs text-slate-400 font-semibold max-w-xs mx-auto mb-6">Ask questions or share platform updates with your college community to level up your professional ranking.</p>
                                 <button 
                                   onClick={handleStartDiscussion}
-                                  className="mt-8 px-8 py-3 rounded-2xl bg-purple-600 text-white font-bold text-sm shadow-xl shadow-purple-100 cursor-pointer hover:bg-purple-700 transition-colors"
+                                  className="px-6 py-2.5 rounded-lg bg-[#7C3AED] hover:bg-[#6D28D9] text-white font-bold text-xs shadow-sm cursor-pointer transition-colors border-none"
                                 >
                                   Start a Discussion
                                 </button>
@@ -579,96 +574,98 @@ export default function ProfilePage() {
             {/* Right Column: Identity Card */}
             <div className="lg:col-span-4 space-y-8">
                
-               {/* Digital ID Card */}
+               {/* Verified Digital ID Card */}
                <motion.div 
-                 initial={{ opacity: 0, y: 20 }}
+                 initial={{ opacity: 0, y: 15 }}
                  animate={{ opacity: 1, y: 0 }}
-                 transition={{ delay: 0.2 }}
-                 className="bg-[#0F172A] p-8 rounded-[40px] shadow-2xl relative overflow-hidden text-white"
+                 transition={{ delay: 0.1 }}
+                 className="bg-[#0B0F19] p-6 rounded-2xl border border-slate-800 shadow-lg relative overflow-hidden text-white"
                >
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-purple-600/20 rounded-full blur-[60px] -mr-16 -mt-16" />
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-purple-600/10 rounded-full blur-[40px] -mr-8 -mt-8" />
                   
                   <div className="relative z-10">
-                     <div className="flex justify-between items-start mb-10">
-                        <div className="p-3 bg-white/5 border border-white/10 rounded-2xl">
-                           <ShieldCheck className="text-blue-400" size={24} />
+                     <div className="flex justify-between items-start mb-6">
+                        <div className="p-2 bg-white/5 border border-white/10 rounded-xl">
+                           <ShieldCheck className="text-blue-400" size={20} />
                         </div>
                         <div className="text-right">
-                           <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Verified Student ID</p>
-                           <p className="text-sm font-black text-purple-400 tracking-wider">#{user.unique_id?.split('-').pop()}</p>
+                           <p className="text-[9px] font-bold text-white/40 uppercase tracking-widest">Digital Portfolio ID</p>
+                           <p className="text-xs font-extrabold text-purple-400 tracking-wider">#{user.unique_id?.split('-').pop()}</p>
                         </div>
                      </div>
 
-                      <div className="space-y-6 mb-10">
+                      <div className="space-y-4 mb-6">
                          <div>
-                            <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-1">Claspire Badge</p>
-                            <p className="text-lg font-bold">Standard Member</p>
+                            <p className="text-[9px] font-bold text-white/40 uppercase tracking-widest mb-0.5">Claspire Badge</p>
+                            <p className="text-sm font-extrabold text-white">Standard Member</p>
                          </div>
                          {user.role === 'senior' ? (
                             <div>
-                               <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-1">Graduation Year</p>
-                               <p className="text-lg font-bold">{formData.graduation_year || '2024'}</p>
+                               <p className="text-[9px] font-bold text-white/40 uppercase tracking-widest mb-0.5">Graduation Year</p>
+                               <p className="text-sm font-extrabold text-white">{formData.graduation_year || '2024'}</p>
                             </div>
                          ) : (
                             <div>
-                               <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-1">Passout Class</p>
-                               <p className="text-lg font-bold">{formData.passout_year || '2025'}</p>
+                               <p className="text-[9px] font-bold text-white/40 uppercase tracking-widest mb-0.5">Passout Class</p>
+                               <p className="text-sm font-extrabold text-white">{formData.passout_year || '2025'}</p>
                             </div>
                          )}
                       </div>
 
-                     <div className="pt-8 border-t border-white/10 flex items-center justify-between">
+                     <div className="pt-5 border-t border-white/10 flex items-center justify-between">
                         <div>
-                           <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-1">Rise Points (RP)</p>
-                           <p className="text-2xl font-black text-purple-400">{user.rise_points || 0}</p>
+                           <p className="text-[9px] font-bold text-white/40 uppercase tracking-widest mb-0.5">Rise Points (RP)</p>
+                           <p className="text-xl font-extrabold text-purple-400">{user.rise_points || 0}</p>
                         </div>
-                        <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center">
-                           <Sparkles className="text-[#0F172A]" size={24} />
+                        <div className="w-9 h-9 bg-white/10 rounded-xl flex items-center justify-center border border-white/10">
+                           <Sparkles className="text-purple-400" size={16} />
                         </div>
                      </div>
                   </div>
                </motion.div>
 
                {/* Growth Tracker */}
-               <div className="bg-white p-8 rounded-[40px] border border-[#E2E8F0] shadow-sm">
-                  <h3 className="text-lg font-black text-[#0F172A] font-instrument-serif mb-6">Growth Activity</h3>
-                  <div className="space-y-6">
-                     <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-2xl bg-orange-50 flex items-center justify-center text-orange-500">
-                           <MessageSquare size={20} />
+               <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
+                  <h3 className="text-sm font-extrabold text-[#0F172A] mb-5 tracking-tight flex items-center gap-2">
+                     <Award size={16} className="text-purple-600" /> Professional Metrics
+                  </h3>
+                  <div className="space-y-4">
+                     <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-lg bg-orange-50 flex items-center justify-center text-orange-500 border border-orange-100 flex-shrink-0">
+                           <MessageSquare size={16} />
                         </div>
-                        <div className="flex-1">
+                        <div className="flex-1 min-w-0">
                            <div className="flex justify-between items-center mb-1">
-                              <span className="text-xs font-bold text-[#64748B]">Doubts Asked</span>
-                              <span className="text-xs font-black text-[#0F172A]">{doubtCount}</span>
+                              <span className="text-xs font-semibold text-slate-500 truncate">Doubts Asked</span>
+                              <span className="text-xs font-bold text-[#0f172a]">{doubtCount}</span>
                            </div>
-                           <div className="w-full bg-gray-50 h-1.5 rounded-full overflow-hidden">
+                           <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
                               <div className="bg-orange-500 h-full rounded-full transition-all duration-500" style={{ width: `${Math.min((doubtCount / Math.max(doubtCount + answerCount, 1)) * 100, 100)}%` }} />
                            </div>
                         </div>
                      </div>
 
-                     <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-500">
-                           <Zap size={20} />
+                     <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center text-blue-500 border border-blue-100 flex-shrink-0">
+                           <Zap size={16} />
                         </div>
-                        <div className="flex-1">
+                        <div className="flex-1 min-w-0">
                            <div className="flex justify-between items-center mb-1">
-                              <span className="text-xs font-bold text-[#64748B]">Answers Shared</span>
-                              <span className="text-xs font-black text-[#0F172A]">{answerCount}</span>
+                              <span className="text-xs font-semibold text-slate-500 truncate">Answers Shared</span>
+                              <span className="text-xs font-bold text-[#0f172a]">{answerCount}</span>
                            </div>
-                           <div className="w-full bg-gray-50 h-1.5 rounded-full overflow-hidden">
-                              <div className="bg-blue-500 h-full rounded-full transition-all duration-500" style={{ width: `${Math.min((answerCount / Math.max(doubtCount + answerCount, 1)) * 100, 100)}%` }} />
+                           <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                              <div className="bg-blue-50 h-full rounded-full transition-all duration-500" style={{ width: `${Math.min((answerCount / Math.max(doubtCount + answerCount, 1)) * 100, 100)}%` }} />
                            </div>
                         </div>
                      </div>
 
-                     <div className="pt-6 border-t border-[#F1F5F9]">
+                     <div className="pt-4 border-t border-slate-100">
                         <button 
                            onClick={() => router.push(user.role === 'senior' ? '/dashboard/senior' : '/dashboard/junior')}
-                           className="w-full py-4 rounded-2xl bg-[#0F172A] text-white text-[11px] font-black uppercase tracking-[0.2em] hover:bg-black transition-all cursor-pointer flex items-center justify-center gap-2"
+                           className="w-full py-3 rounded-lg bg-[#0F172A] text-white text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all cursor-pointer flex items-center justify-center gap-1.5 border-none"
                         >
-                           Go to Dashboard <ArrowRight size={14} />
+                           Go to Dashboard <ArrowRight size={12} />
                         </button>
                      </div>
                   </div>
@@ -676,6 +673,11 @@ export default function ProfilePage() {
             </div>
          </div>
       </main>
+
+      <style dangerouslySetInnerHTML={{ __html: `
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+      `}} />
     </div>
   )
 }

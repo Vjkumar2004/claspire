@@ -25,7 +25,7 @@ export default function CTA() {
   };
 
   return (
-    <section className="bg-black py-24 px-6 text-center overflow-hidden">
+    <section className="bg-[#0F172A] py-24 px-6 text-center overflow-hidden border-t border-gray-900">
       <motion.div
         ref={ref}
         variants={containerVariants}
@@ -36,18 +36,16 @@ export default function CTA() {
         {/* H2 */}
         <motion.h2
           variants={itemVariants}
-          className="font-instrument-serif font-normal text-[clamp(32px,5vw,56px)] leading-[1.1] text-white"
+          className="font-extrabold text-[clamp(32px,5vw,52px)] leading-[1.15] text-white tracking-tight"
         >
           Your senior is already here.<br />
-          <em className="text-[#A78BFA]" style={{ color: '#A78BFA' }}>
-            Are you?
-          </em>
+          <span className="text-[#A78BFA]">Are you?</span>
         </motion.h2>
 
         {/* Subtext */}
         <motion.p
           variants={itemVariants}
-          className="text-base text-white/60 mt-4 mb-8"
+          className="text-base text-gray-300 font-medium mt-5 mb-8"
         >
           Join free. Find your college. Start asking the right questions.
         </motion.p>
@@ -55,11 +53,11 @@ export default function CTA() {
         {/* Button */}
         <motion.button
           variants={itemVariants}
-          whileHover={{ scale: 1.02 }}
+          whileHover={{ y: -2 }}
           whileTap={{ scale: 0.98 }}
           transition={{ duration: 0.15 }}
           onClick={() => window.location.href = '/colleges'}
-          className="bg-white text-black px-8 py-3.5 rounded-lg text-sm font-bold border-none cursor-pointer mx-auto w-full max-w-[320px] md:w-auto"
+          className="bg-white text-gray-900 px-8 py-3.5 rounded-md text-sm font-bold border-none cursor-pointer mx-auto w-full max-w-[320px] md:w-auto hover:bg-gray-100 transition-all shadow-sm"
         >
           Find your college →
         </motion.button>

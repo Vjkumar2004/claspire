@@ -44,7 +44,7 @@ export default function SocialProof() {
   };
 
   return (
-    <section className="bg-white py-24 overflow-hidden">
+    <section className="bg-white py-24 overflow-hidden border-b border-gray-100">
       <div className="container">
         {/* Header */}
         <motion.div
@@ -54,10 +54,10 @@ export default function SocialProof() {
           transition={{ duration: 0.6 }}
           className="text-center"
         >
-          <div className="text-xs font-bold tracking-[0.08em] uppercase text-gray-400 mb-3">
+          <div className="text-xs font-semibold tracking-wider uppercase text-[#7C3AED] mb-3">
             SUCCESS STORIES
           </div>
-          <h2 className="font-instrument-serif font-normal text-[clamp(32px,4vw,40px)] leading-[1.15] text-black">
+          <h2 className="font-extrabold text-[clamp(28px,3.5vw,40px)] leading-[1.2] text-gray-900 tracking-tight">
             Local students who asked.<br />
             Local students who got placed.
           </h2>
@@ -68,37 +68,41 @@ export default function SocialProof() {
           variants={containerVariants}
           initial="hidden"
           animate={isInView ? "visible" : "hidden"}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-[1000px] mx-auto mt-12"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-[1000px] mx-auto mt-14"
         >
           {quotes.map((quote, index) => (
             <motion.div
               key={index}
               variants={itemVariants}
-              className="bg-white border border-gray-200 rounded-xl p-6 h-full"
+              whileHover={{ y: -4, borderColor: '#D1D5DB', boxShadow: '0 10px 25px rgba(0, 0, 0, 0.04)' }}
+              transition={{ duration: 0.2 }}
+              className="bg-white border border-gray-200 rounded-xl p-6 h-full shadow-[0_1px_3px_rgba(0,0,0,0.05)] transition-all flex flex-col justify-between"
             >
-              {/* Quote Mark */}
-              <div className="font-instrument-serif font-normal text-[48px] text-gray-200 leading-none mb-2">
-                "
-              </div>
-              
-              {/* Quote Text */}
-              <div className="text-sm text-gray-700 leading-relaxed mb-5">
-                {quote.text}
+              <div>
+                {/* Quote Mark */}
+                <div className="text-3xl text-[#7C3AED] leading-none mb-3 font-extrabold font-plus-jakarta-sans">
+                  “
+                </div>
+                
+                {/* Quote Text */}
+                <div className="text-[13px] text-gray-600 leading-relaxed mb-6 font-medium">
+                  {quote.text}
+                </div>
               </div>
               
               {/* Author Row */}
               <div className="flex items-center gap-3 border-t border-gray-100 pt-4">
                 <div 
-                  className="w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-bold"
+                  className="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-sm flex-shrink-0"
                   style={{ backgroundColor: quote.color }}
                 >
                   {quote.author.split(' ').map(n => n[0]).join('')}
                 </div>
                 <div>
-                  <div className="text-sm font-bold text-black">
+                  <div className="text-sm font-bold text-gray-900 tracking-tight">
                     {quote.author}
                   </div>
-                  <div className="text-xs text-gray-400">
+                  <div className="text-xs text-gray-500 font-medium">
                     {quote.details}
                   </div>
                 </div>

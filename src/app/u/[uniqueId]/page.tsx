@@ -19,7 +19,6 @@ export default function PublicProfilePage() {
   const [loading, setLoading] = useState(true)
   const [data, setData] = useState<any>(null)
   const [error, setError] = useState('')
-  const [activeTab, setActiveTab] = useState<'posts' | 'about'>('posts')
 
   useEffect(() => {
     if (uniqueId) {
@@ -56,10 +55,10 @@ export default function PublicProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center">
+      <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center font-plus-jakarta-sans">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-purple-600 border-t-transparent rounded-full animate-spin" />
-          <p className="text-gray-500 font-bold animate-pulse uppercase tracking-widest text-xs">Loading Profile...</p>
+          <div className="w-10 h-10 border-3 border-[#7C3AED] border-t-transparent rounded-full animate-spin" />
+          <p className="text-slate-400 font-extrabold animate-pulse uppercase tracking-widest text-[9px]">Loading Public Identity...</p>
         </div>
       </div>
     )
@@ -67,15 +66,15 @@ export default function PublicProfilePage() {
 
   if (error || !data) {
     return (
-      <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center p-6 text-center">
-        <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mb-6 text-red-500">
-          <Info size={40} />
+      <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center p-6 text-center font-plus-jakarta-sans text-xs">
+        <div className="w-16 h-16 bg-red-50 border border-red-100 rounded-full flex items-center justify-center mb-5 text-red-500">
+          <Info size={30} />
         </div>
-        <h1 className="text-2xl font-black text-gray-900 mb-2">Profile Not Found</h1>
-        <p className="text-gray-500 max-w-sm mb-8">The profile you're looking for doesn't exist or has been moved.</p>
+        <h1 className="text-xl font-extrabold text-gray-900 mb-1">Identity Profile Not Found</h1>
+        <p className="text-slate-400 max-w-xs mb-6">The professional profile you're looking for doesn't exist or is currently restricted.</p>
         <button 
           onClick={() => router.push('/')}
-          className="px-8 py-3 bg-purple-600 text-white rounded-2xl font-bold shadow-lg shadow-purple-100"
+          className="px-6 py-2.5 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-lg font-bold shadow-sm cursor-pointer border-none"
         >
           Go Home
         </button>
@@ -89,18 +88,18 @@ export default function PublicProfilePage() {
   const college = user.colleges
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC]">
+    <div className="min-h-screen bg-[#F8FAFC] font-plus-jakarta-sans text-xs">
       
       <main className="pt-24 pb-20 px-4 max-w-5xl mx-auto">
         
         {/* ── Professional Header Card ── */}
-        <div className="bg-white rounded-[40px] border border-[#E2E8F0] shadow-sm overflow-hidden mb-8">
+        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden mb-8">
           {/* Professional Cover */}
-          <div className="h-48 md:h-64 bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#334155] relative">
-            <div className="absolute inset-0 opacity-[0.03] bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]" />
-            <div className="absolute -bottom-16 left-8 md:left-12">
+          <div className="h-44 md:h-56 bg-gradient-to-r from-slate-100 via-indigo-50/60 to-purple-50 relative border-b border-slate-200/60">
+            <div className="absolute inset-0 opacity-[0.4] bg-[radial-gradient(#c7d2fe_1px,transparent_1px)] [background-size:16px_16px]" />
+            <div className="absolute -bottom-16 left-6 md:left-10 z-10">
                <div className="relative group">
-                  <div className={`w-36 h-36 rounded-[32px] overflow-hidden border-4 border-white shadow-2xl bg-white ${!avatarUrl ? 'bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center text-white text-4xl font-black' : ''}`}>
+                  <div className={`w-32 h-32 rounded-2xl overflow-hidden border-4 border-white shadow-md bg-white ${!avatarUrl ? 'bg-gradient-to-br from-[#7C3AED] to-[#4F46E5] flex items-center justify-center text-white text-3xl font-black' : ''}`}>
                     {avatarUrl ? (
                       <img src={avatarUrl} alt={user.full_name} className="w-full h-full object-cover" />
                     ) : (
@@ -108,70 +107,67 @@ export default function PublicProfilePage() {
                     )}
                   </div>
                   {user.is_verified && (
-                    <div className="absolute -right-2 -bottom-2 w-10 h-10 bg-white rounded-2xl shadow-xl flex items-center justify-center text-blue-500 border border-blue-50">
-                      <ShieldCheck size={24} fill="currentColor" fillOpacity={0.1} />
+                    <div className="absolute -right-2 -bottom-2 w-8 h-8 bg-white rounded-xl shadow-md flex items-center justify-center text-blue-500 border border-blue-50">
+                      <ShieldCheck size={18} fill="currentColor" fillOpacity={0.1} />
                     </div>
                   )}
                </div>
             </div>
           </div>
 
-          <div className="pt-20 pb-10 px-8 md:px-12">
-            <div className="flex flex-col md:flex-row md:items-start justify-between gap-8">
-              <div className="flex-1">
-                <div className="flex items-center gap-4 mb-4">
-                  <h1 className="text-3xl md:text-5xl font-black text-[#0F172A] font-instrument-serif tracking-tight m-0 uppercase italic">
+          <div className="pt-20 pb-8 px-6 md:px-10">
+            <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-3 mb-3">
+                  <h1 className="text-2xl md:text-3xl font-extrabold text-[#0F172A] tracking-tight m-0">
                     {user.full_name}
                   </h1>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-y-3 gap-x-6">
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs font-semibold text-[#475569]">
                   {college && (
-                    <div className="flex items-center gap-2 text-sm font-bold text-[#64748B]">
-                      <div className="p-2 bg-purple-50 rounded-lg">
-                        <Building2 size={16} className="text-purple-600" />
-                      </div>
+                    <div className="flex items-center gap-1.5 text-slate-500">
+                      <Building2 size={14} className="text-[#7C3AED]" />
                       {college.name}
                     </div>
                   )}
                   {user.role === 'senior' && user.company && (
-                    <div className="flex items-center gap-2 text-sm font-bold text-[#64748B]">
-                      <div className="p-2 bg-blue-50 rounded-lg">
-                        <Briefcase size={16} className="text-blue-600" />
-                      </div>
+                    <div className="flex items-center gap-1.5 text-slate-500">
+                      <Briefcase size={14} className="text-blue-500" />
                       {user.designation} at {user.company}
                     </div>
                   )}
-                  <div className="flex items-center gap-2 text-[11px] font-black text-orange-600 uppercase tracking-widest bg-orange-50 px-3 py-1.5 rounded-lg border border-orange-100">
-                    <Crown size={14} /> {user.role === 'senior' ? 'Campus Alumnus' : 'Verified Student'}
+                  <span className="w-1 h-1 rounded-full bg-slate-300 hidden md:block" />
+                  <div className="flex items-center gap-1 text-[9px] font-bold text-orange-700 bg-orange-50 px-2 py-0.5 rounded border border-orange-100 uppercase tracking-wider">
+                    <Crown size={11} /> {user.role === 'senior' ? 'Campus Alumnus' : 'Verified Student'}
                   </div>
                 </div>
 
                 {user.bio && (
-                  <p className="mt-8 text-lg font-medium text-[#475569] leading-relaxed max-w-2xl bg-gray-50/50 p-6 rounded-3xl border border-gray-100/50 italic">
+                  <p className="mt-6 text-xs font-semibold text-slate-500 leading-relaxed max-w-xl bg-slate-50/50 p-4 rounded-xl border border-slate-100 italic">
                     "{user.bio}"
                   </p>
                 )}
               </div>
 
-              <div className="flex flex-col gap-4 min-w-[200px]">
+              <div className="flex flex-col gap-3 min-w-[200px]">
                 {user.linkedin_url && (
                   <a 
                     href={user.linkedin_url} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-[#0A66C2] text-white rounded-2xl font-black text-sm hover:opacity-90 transition-all shadow-lg shadow-blue-100 no-underline"
+                    className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[#0A66C2] hover:bg-[#004182] text-white rounded-lg font-bold text-xs shadow-sm transition-colors no-underline cursor-pointer"
                   >
-                    <Linkedin size={20} /> LinkedIn Profile
+                    <Linkedin size={16} /> LinkedIn Profile
                   </a>
                 )}
-                <div className="p-6 bg-[#0F172A] rounded-3xl text-white relative overflow-hidden shadow-xl shadow-gray-200">
-                  <div className="absolute top-0 right-0 w-24 h-24 bg-purple-600/20 rounded-full blur-3xl -mr-12 -mt-12" />
+                <div className="p-4 bg-[#0B0F19] rounded-xl text-white relative overflow-hidden shadow-sm border border-slate-800">
+                  <div className="absolute top-0 right-0 w-20 h-20 bg-purple-600/10 rounded-full blur-2xl -mr-10 -mt-10" />
                   <div className="relative z-10">
-                    <p className="text-[10px] font-black opacity-40 uppercase tracking-[0.2em] mb-3">Claspire Score</p>
+                    <p className="text-[8px] font-bold text-white/40 uppercase tracking-wider mb-2">Claspire Score</p>
                     <div className="flex items-end justify-between">
-                      <span className="text-4xl font-black font-instrument-serif text-purple-400">{user.rise_points || 0}</span>
-                      <Sparkles className="text-purple-400 mb-1" size={20} />
+                      <span className="text-2xl font-extrabold text-purple-400 leading-none">{user.rise_points || 0}</span>
+                      <Sparkles className="text-purple-400" size={16} />
                     </div>
                   </div>
                 </div>
@@ -185,42 +181,40 @@ export default function PublicProfilePage() {
           {/* Left Column: Stats & Info */}
           <div className="lg:col-span-4 space-y-6">
             {/* Academic Card */}
-            <div className="bg-white p-8 rounded-[40px] border border-[#E2E8F0] shadow-sm">
-              <h3 className="text-sm font-black text-[#0F172A] uppercase tracking-[0.2em] mb-8 flex items-center gap-3">
-                <GraduationCap size={18} className="text-purple-600" /> Academic Path
+            <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
+              <h3 className="text-xs font-extrabold text-[#0F172A] uppercase tracking-wider mb-6 flex items-center gap-2 border-b border-slate-100 pb-3">
+                <GraduationCap size={14} className="text-[#7C3AED]" /> Academic Profile
               </h3>
-              <div className="space-y-6">
+              <div className="space-y-4">
                 <div>
-                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Branch of Study</p>
-                  <p className="text-md font-bold text-gray-900">{user.branch || 'General Science'}</p>
+                  <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Branch of Study</p>
+                  <p className="text-xs font-bold text-slate-700">{user.branch || 'General Science'}</p>
                 </div>
                 {user.role === 'senior' ? (
                   <div>
-                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Graduation Class</p>
-                    <p className="text-md font-bold text-gray-900">{user.graduation_year || '2024'}</p>
+                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Graduation Class</p>
+                    <p className="text-xs font-bold text-slate-700">{user.graduation_year || '2024'}</p>
                   </div>
                 ) : (
-                  <>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Current Year</p>
-                        <p className="text-md font-bold text-gray-900">{user.year || '1'}st Year</p>
-                      </div>
-                      <div>
-                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Passout</p>
-                        <p className="text-md font-bold text-gray-900">{user.passout_year || '2025'}</p>
-                      </div>
-                    </div>
-                  </>
-                )}
-                {college && (
-                  <div className="pt-6 border-t border-gray-100 flex items-start gap-3">
-                    <div className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center text-gray-400 flex-shrink-0">
-                      <MapPin size={18} />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Current Year</p>
+                      <p className="text-xs font-bold text-slate-700">{user.year || '1'}st Year</p>
                     </div>
                     <div>
-                      <p className="text-xs font-bold text-gray-900">{college.location}</p>
-                      <p className="text-[10px] font-medium text-gray-400 uppercase tracking-tight">{college.state}</p>
+                      <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Passout Class</p>
+                      <p className="text-xs font-bold text-slate-700">{user.passout_year || '2025'}</p>
+                    </div>
+                  </div>
+                )}
+                {college && (
+                  <div className="pt-4 border-t border-slate-100 flex items-start gap-2.5">
+                    <div className="w-8 h-8 bg-slate-50 border border-slate-150 rounded-lg flex items-center justify-center text-slate-400 flex-shrink-0">
+                      <MapPin size={14} />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-slate-700">{college.location}</p>
+                      <p className="text-[9px] font-medium text-slate-400 uppercase tracking-tight">{college.state}</p>
                     </div>
                   </div>
                 )}
@@ -228,85 +222,85 @@ export default function PublicProfilePage() {
             </div>
 
             {/* Impact Card */}
-            <div className="bg-white p-8 rounded-[40px] border border-[#E2E8F0] shadow-sm">
-              <h3 className="text-sm font-black text-[#0F172A] uppercase tracking-[0.2em] mb-8 flex items-center gap-3">
-                <Zap size={18} className="text-orange-500" /> Community Impact
+            <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
+              <h3 className="text-xs font-extrabold text-[#0F172A] uppercase tracking-wider mb-6 flex items-center gap-2 border-b border-slate-100 pb-3">
+                <Zap size={14} className="text-orange-500" /> Platform Impact
               </h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="p-5 bg-orange-50 rounded-3xl border border-orange-100 text-center">
-                  <p className="text-3xl font-black text-orange-600 mb-1">{user.doubt_count || 0}</p>
-                  <p className="text-[10px] font-black text-orange-400 uppercase tracking-tighter">Doubts Asked</p>
+              <div className="grid grid-cols-2 gap-3.5">
+                <div className="p-4 bg-orange-50/50 rounded-xl border border-orange-100 text-center">
+                  <p className="text-2xl font-extrabold text-orange-600 mb-0.5">{user.doubt_count || 0}</p>
+                  <p className="text-[8px] font-bold text-orange-400 uppercase tracking-tight">Doubts Asked</p>
                 </div>
-                <div className="p-5 bg-blue-50 rounded-3xl border border-blue-100 text-center">
-                  <p className="text-3xl font-black text-blue-600 mb-1">{user.answer_count || 0}</p>
-                  <p className="text-[10px] font-black text-blue-400 uppercase tracking-tighter">Answers Shared</p>
+                <div className="p-4 bg-blue-50/50 rounded-xl border border-blue-100 text-center">
+                  <p className="text-2xl font-extrabold text-blue-600 mb-0.5">{user.answer_count || 0}</p>
+                  <p className="text-[8px] font-bold text-blue-400 uppercase tracking-tight">Answers Shared</p>
                 </div>
               </div>
-              <div className="mt-4 p-5 bg-green-50 rounded-3xl border border-green-100 text-center">
-                <p className="text-3xl font-black text-green-600 mb-1">{user.referral_count || 0}</p>
-                <p className="text-[10px] font-black text-green-400 uppercase tracking-tighter">Referrals Facilitated</p>
+              <div className="mt-3.5 p-4 bg-green-50/50 rounded-xl border border-green-100 text-center">
+                <p className="text-2xl font-extrabold text-green-600 mb-0.5">{user.referral_count || 0}</p>
+                <p className="text-[8px] font-bold text-green-400 uppercase tracking-tight">Referrals Facilitated</p>
               </div>
             </div>
           </div>
 
           {/* Right Column: Activity Feed */}
           <div className="lg:col-span-8 flex flex-col gap-6">
-            <div className="bg-white rounded-[40px] border border-[#E2E8F0] shadow-sm overflow-hidden flex-1">
-              <div className="px-10 py-8 border-b border-[#F1F5F9] flex items-center justify-between">
+            <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden flex-1">
+              <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
                 <div>
-                  <h2 className="text-2xl font-black text-[#0F172A] font-instrument-serif m-0">Recent Contributions</h2>
-                  <p className="text-[10px] font-black text-[#94A3B8] uppercase tracking-[0.2em] mt-2">Latest posts and discussions</p>
+                  <h2 className="text-sm font-extrabold text-[#0F172A] m-0">Recent Contributions</h2>
+                  <p className="text-[9px] font-bold text-[#94A3B8] uppercase tracking-wider mt-1">Latest verified posts and discussions</p>
                 </div>
-                <div className="w-12 h-12 bg-gray-50 rounded-2xl flex items-center justify-center text-gray-400">
-                  <MessageSquare size={24} />
+                <div className="w-9 h-9 bg-slate-50 border border-slate-150 rounded-lg flex items-center justify-center text-slate-400">
+                  <MessageSquare size={16} />
                 </div>
               </div>
 
-              <div className="divide-y divide-[#F1F5F9]">
+              <div className="divide-y divide-slate-100">
                 {posts && posts.length > 0 ? (
                   posts.map((post: any) => (
                     <div 
                       key={post.id} 
                       onClick={() => router.push(`/community/c/${post.communities.slug}/p/${post.id}`)}
-                      className="p-10 hover:bg-gray-50/50 transition-all cursor-pointer group"
+                      className="p-6 hover:bg-slate-50/40 transition-all cursor-pointer group"
                     >
-                      <div className="flex items-center gap-4 mb-4">
-                        <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border transition-colors ${
+                      <div className="flex items-center gap-3 mb-3">
+                        <span className={`px-2 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider border transition-colors ${
                           post.type === 'doubt' 
                             ? 'bg-orange-50 text-orange-600 border-orange-100 group-hover:bg-orange-100' 
                             : 'bg-indigo-50 text-indigo-600 border-indigo-100 group-hover:bg-indigo-100'
                         }`}>
                           {post.type}
                         </span>
-                        <span className="flex items-center gap-1.5 text-[10px] font-bold text-gray-300 uppercase tracking-widest">
-                          <Clock size={12} /> {timeAgo(post.created_at)}
+                        <span className="flex items-center gap-1 text-[9px] font-semibold text-slate-400 uppercase tracking-wider">
+                          <Clock size={11} /> {timeAgo(post.created_at)}
                         </span>
                       </div>
                       
-                      <h3 className="text-xl font-black text-[#0F172A] group-hover:text-purple-600 transition-colors mb-4 leading-tight">
+                      <h3 className="text-sm font-bold text-[#0F172A] group-hover:text-[#7C3AED] transition-colors mb-2 leading-tight">
                         {post.title}
                       </h3>
                       
-                      <p className="text-gray-500 text-md font-medium leading-relaxed line-clamp-2 mb-6">
+                      <p className="text-slate-500 text-xs font-medium leading-relaxed line-clamp-2 mb-4">
                         {post.content}
                       </p>
 
                       {post.image_url && (
-                        <div className="rounded-[32px] overflow-hidden border border-gray-100 shadow-sm mb-6 max-h-[400px]">
+                        <div className="rounded-xl overflow-hidden border border-slate-150 shadow-sm mb-4 max-h-[300px]">
                           <img src={post.image_url} alt="Post content" className="w-full h-full object-cover" />
                         </div>
                       )}
 
-                      <div className="flex items-center gap-10">
-                        <div className="flex items-center gap-2 text-xs font-black text-gray-400">
-                          <div className="w-8 h-8 rounded-xl bg-gray-50 flex items-center justify-center">
-                            <ArrowUpCircle size={16} className="text-green-500" />
+                      <div className="flex items-center gap-6">
+                        <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400">
+                          <div className="w-6 h-6 rounded bg-slate-50 flex items-center justify-center border border-slate-150">
+                            <ArrowUpCircle size={12} className="text-green-500" />
                           </div>
                           {post.upvote_count} Upvotes
                         </div>
-                        <div className="flex items-center gap-2 text-xs font-black text-gray-400">
-                          <div className="w-8 h-8 rounded-xl bg-gray-50 flex items-center justify-center">
-                            <Star size={16} className="text-purple-500" />
+                        <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400">
+                          <div className="w-6 h-6 rounded bg-slate-50 flex items-center justify-center border border-slate-150">
+                            <Star size={12} className="text-[#7C3AED]" />
                           </div>
                           {post.answer_count} Answers
                         </div>
@@ -314,12 +308,12 @@ export default function PublicProfilePage() {
                     </div>
                   ))
                 ) : (
-                  <div className="py-32 text-center">
-                    <div className="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-8 text-gray-300">
-                      <Zap size={40} />
+                  <div className="py-24 text-center">
+                    <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-350">
+                      <Zap size={24} />
                     </div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">Passive Contributor</h3>
-                    <p className="text-gray-400 max-w-xs mx-auto text-sm font-medium">This user hasn't made any public contributions to the community yet.</p>
+                    <h3 className="text-sm font-bold text-gray-900 mb-1">Passive Contributor</h3>
+                    <p className="text-slate-400 max-w-xs mx-auto text-xs font-semibold">This user hasn't made any public contributions to the community yet.</p>
                   </div>
                 )}
               </div>
@@ -328,23 +322,23 @@ export default function PublicProfilePage() {
         </div>
 
         {/* Footer Area */}
-        <div className="mt-20 border-t border-gray-200 pt-10 flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-3">
-             <div className="w-10 h-10 bg-[#0F172A] rounded-xl flex items-center justify-center text-white font-black">
+        <div className="mt-20 border-t border-slate-200 pt-8 flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-2">
+             <div className="w-8 h-8 bg-[#0F172A] rounded-lg flex items-center justify-center text-white font-extrabold text-xs">
                 C
              </div>
-             <p className="text-sm text-gray-500 font-bold">Claspire Digital Portfolio · 2024</p>
+             <p className="text-xs text-slate-500 font-bold">Claspire Digital Portfolio · 2026</p>
           </div>
-          <div className="flex gap-8">
-            <a href="#" className="text-xs font-black text-gray-400 uppercase tracking-widest no-underline hover:text-purple-600 transition-colors">Privacy</a>
-            <a href="#" className="text-xs font-black text-gray-400 uppercase tracking-widest no-underline hover:text-purple-600 transition-colors">Community Guidelines</a>
-            <a href="#" className="text-xs font-black text-gray-400 uppercase tracking-widest no-underline hover:text-purple-600 transition-colors">Support</a>
+          <div className="flex gap-6">
+            <a href="#" className="text-[10px] font-bold text-slate-400 uppercase tracking-wider no-underline hover:text-[#7C3AED] transition-colors">Privacy</a>
+            <a href="#" className="text-[10px] font-bold text-slate-400 uppercase tracking-wider no-underline hover:text-[#7C3AED] transition-colors">Community Guidelines</a>
+            <a href="#" className="text-[10px] font-bold text-slate-400 uppercase tracking-wider no-underline hover:text-[#7C3AED] transition-colors">Support</a>
           </div>
         </div>
       </main>
 
       <style dangerouslySetInnerHTML={{ __html: `
-        @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
       `}} />
     </div>

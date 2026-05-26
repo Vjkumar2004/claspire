@@ -3,14 +3,16 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import Link from 'next/link'
 import { useRouter, usePathname } from 'next/navigation'
-import { X, Menu, Users, GraduationCap, Briefcase, DollarSign, LayoutDashboard, User, LogOut, ChevronRight, MessageSquare, Building2 } from 'lucide-react'
+import { X, Menu, Users, GraduationCap, Briefcase, DollarSign, LayoutDashboard, User, LogOut, ChevronRight, MessageSquare, Building2, Search, ArrowLeft } from 'lucide-react'
 import NotificationBell from './NotificationBell'
+import SearchBar from './search/SearchBar'
 
 export default function Navbar() {
   const { user, loading, signOut } = useAuth()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false)
   const [unreadMessageCount, setUnreadMessageCount] = useState(0)
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false)
   const pathname = usePathname()
 
   // Fetch unread message count
@@ -56,60 +58,65 @@ export default function Navbar() {
   }, [mobileMenuOpen])
 
   return (
-    <nav className="sticky top-0 left-0 right-0 h-14 z-[999] bg-white/97 border-b border-gray-200 backdrop-blur-[8px]">
-      <div className="flex items-center justify-between h-full px-6">
-        <div className="flex items-center gap-3">
-          <Link href="/" className="font-plus-jakarta-sans font-bold text-lg text-black no-underline hover:no-underline">
-            cl<span style={{ color: '#7C3AED' }}>aspire</span>
+    <nav className="sticky top-0 left-0 right-0 h-14 z-[999] bg-white/90 border-b border-gray-200 backdrop-blur-[12px]">
+      <div className="flex items-center justify-between h-full px-6 max-w-7xl mx-auto w-full">
+        <div className="flex items-center gap-3 flex-shrink-0">
+          <Link href="/" className="font-plus-jakarta-sans font-extrabold text-xl text-black no-underline hover:no-underline tracking-tight flex items-center">
+            cl<span className="text-[#7C3AED]">aspire</span>
           </Link>
         </div>
 
+        {/* Desktop Sticky Navbar Search Bar (Transitions width smoothly on focus to prevent overlapping menu links) */}
+        <div className="hidden md:flex items-center gap-3 w-56 focus-within:w-72 lg:w-64 lg:focus-within:w-[320px] transition-all duration-300 ease-in-out ml-4 mr-auto flex-shrink-0">
+          <SearchBar />
+        </div>
+
         {/* Desktop Center Links */}
-        <div className="hidden md:flex items-center gap-6">
-          <Link href="/community" className={`flex items-center gap-2 text-sm font-medium transition-colors ${
+        <div className="hidden md:flex items-center gap-1 lg:gap-3 h-full">
+          <Link href="/community" className={`flex items-center gap-2 px-3 h-full text-[13px] font-semibold transition-all border-b-2 ${
             pathname === '/community' 
-              ? 'text-black border-b-2 border-blue-500' 
-              : 'text-gray-600 hover:text-black'
+              ? 'text-[#7C3AED] border-[#7C3AED]' 
+              : 'text-gray-500 border-transparent hover:text-black hover:border-gray-200'
           }`}>
             <Users size={16} />
             Community
           </Link>
-          <Link href="/groups" className={`flex items-center gap-2 text-sm font-medium transition-colors ${
+          <Link href="/groups" className={`flex items-center gap-2 px-3 h-full text-[13px] font-semibold transition-all border-b-2 ${
             pathname === '/groups' 
-              ? 'text-black border-b-2 border-blue-500' 
-              : 'text-gray-600 hover:text-black'
+              ? 'text-[#7C3AED] border-[#7C3AED]' 
+              : 'text-gray-500 border-transparent hover:text-black hover:border-gray-200'
           }`}>
             <Building2 size={16} />
             Groups
           </Link>
-          <Link href={user?.role === 'senior' ? '/dashboard/senior' : '/dashboard/junior'} className={`flex items-center gap-2 text-sm font-medium transition-colors ${
+          <Link href={user?.role === 'senior' ? '/dashboard/senior' : '/dashboard/junior'} className={`flex items-center gap-2 px-3 h-full text-[13px] font-semibold transition-all border-b-2 ${
             pathname === '/dashboard/senior' || pathname === '/dashboard/junior'
-              ? 'text-black border-b-2 border-blue-500' 
-              : 'text-gray-600 hover:text-black'
+              ? 'text-[#7C3AED] border-[#7C3AED]' 
+              : 'text-gray-500 border-transparent hover:text-black hover:border-gray-200'
           }`}>
             <LayoutDashboard size={16} />
             Dashboard
           </Link>
-          <Link href="/seniors" className={`flex items-center gap-2 text-sm font-medium transition-colors ${
+          <Link href="/seniors" className={`flex items-center gap-2 px-3 h-full text-[13px] font-semibold transition-all border-b-2 ${
             pathname === '/seniors' 
-              ? 'text-black border-b-2 border-blue-500' 
-              : 'text-gray-600 hover:text-black'
+              ? 'text-[#7C3AED] border-[#7C3AED]' 
+              : 'text-gray-500 border-transparent hover:text-black hover:border-gray-200'
           }`}>
             <Users size={16} />
             Seniors
           </Link>
-          <Link href="/jobs" className={`flex items-center gap-2 text-sm font-medium transition-colors ${
+          <Link href="/jobs" className={`flex items-center gap-2 px-3 h-full text-[13px] font-semibold transition-all border-b-2 ${
             pathname === '/jobs' 
-              ? 'text-black border-b-2 border-blue-500' 
-              : 'text-gray-600 hover:text-black'
+              ? 'text-[#7C3AED] border-[#7C3AED]' 
+              : 'text-gray-500 border-transparent hover:text-black hover:border-gray-200'
           }`}>
             <Briefcase size={16} />
             Jobs
           </Link>
-          <Link href="/colleges" className={`flex items-center gap-2 text-sm font-medium transition-colors ${
+          <Link href="/colleges" className={`flex items-center gap-2 px-3 h-full text-[13px] font-semibold transition-all border-b-2 ${
             pathname === '/colleges' 
-              ? 'text-black border-b-2 border-blue-500' 
-              : 'text-gray-600 hover:text-black'
+              ? 'text-[#7C3AED] border-[#7C3AED]' 
+              : 'text-gray-500 border-transparent hover:text-black hover:border-gray-200'
           }`}>
             <GraduationCap size={16} />
             Colleges
@@ -295,32 +302,36 @@ export default function Navbar() {
               </div>
             </div>
           ) : (
-            <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
               <Link href="/login">
                 <button style={{
-                  background: 'transparent',
-                  color: '#7C3AED',
-                  border: '1.5px solid #7C3AED',
-                  borderRadius: 8,
-                  padding: '10px 20px',
-                  fontSize: 14,
-                  fontWeight: 700,
-                  cursor: 'pointer'
-                }}>
+                  background: 'white',
+                  color: '#374151',
+                  border: '1px solid #D1D5DB',
+                  borderRadius: '6px',
+                  padding: '8px 16px',
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+                  transition: 'all 0.15s ease'
+                }} className="hover:bg-gray-50 hover:border-gray-400">
                   Sign In
                 </button>
               </Link>
               <Link href="/signup">
                 <button style={{
-                  background: 'linear-gradient(135deg, #7C3AED, #06B6D4)',
+                  background: '#7C3AED',
                   color: 'white',
                   border: 'none',
-                  borderRadius: 8,
-                  padding: '10px 20px',
-                  fontSize: 14,
-                  fontWeight: 700,
-                  cursor: 'pointer'
-                }}>
+                  borderRadius: '6px',
+                  padding: '8px 16px',
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+                  transition: 'background-color 0.15s ease'
+                }} className="hover:bg-[#6D28D9]">
                   Join Free
                 </button>
               </Link>
@@ -329,7 +340,13 @@ export default function Navbar() {
         </div>
 
         {/* Mobile Right */}
-        <div className="md:hidden flex items-center gap-3">
+        <div className="md:hidden flex items-center gap-2">
+          <button
+            onClick={() => setMobileSearchOpen(true)}
+            className="p-1.5 text-gray-500 hover:text-black rounded-full hover:bg-gray-100 transition-colors cursor-pointer"
+          >
+            <Search size={20} />
+          </button>
           {loading ? (
             <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#F3F4F6', animation: 'pulse 1.5s infinite' }} />
           ) : user ? (
@@ -777,6 +794,23 @@ export default function Navbar() {
                 </a>
               </div>
             )}
+          </div>
+        </div>
+      )}
+      {/* Fullscreen Mobile Search Overlay */}
+      {mobileSearchOpen && (
+        <div className="fixed inset-0 bg-white z-[99999] flex flex-col p-4">
+          {/* Header row with back icon */}
+          <div className="flex items-center gap-3 mb-4">
+            <button
+              onClick={() => setMobileSearchOpen(false)}
+              className="p-1.5 text-gray-500 hover:text-black rounded-full hover:bg-gray-100 transition-colors cursor-pointer"
+            >
+              <ArrowLeft size={20} />
+            </button>
+            <div className="flex-1">
+              <SearchBar isMobileOverlay={true} onCloseMobile={() => setMobileSearchOpen(false)} />
+            </div>
           </div>
         </div>
       )}

@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { Instrument_Serif } from "next/font/google";
-import { Plus_Jakarta_Sans } from "next/font/google";
+import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { PointsProvider } from "@/contexts/PointsContext";
@@ -11,10 +10,10 @@ import Navbar from "@/components/Navbar";
 import BottomNavbar from "@/components/BottomNavbar";
 import { ToastContainer } from "@/components/Toast";
 
-const instrumentSerif = Instrument_Serif({
-  variable: "--font-instrument-serif",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
-  weight: "400",
+  weight: ["300", "400", "500", "600", "700"],
 });
 
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -122,7 +121,7 @@ export default function RootLayout({
         />
        </head>
        <body
-         className={`${instrumentSerif.variable} ${plusJakartaSans.variable} antialiased`}
+         className={`${inter.variable} ${plusJakartaSans.variable} antialiased`}
        >
          <AuthProvider>
            <PointsProvider>

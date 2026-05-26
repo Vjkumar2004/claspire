@@ -850,7 +850,7 @@ function CommunityPageContent() {
   return (
     <div style={{
       minHeight: '100vh',
-      background: '#F5F4FF',
+      background: '#F8FAFC',
       fontFamily: 'Plus Jakarta Sans, sans-serif',
       overflowX: 'hidden',
       width: '100%',
@@ -913,10 +913,10 @@ function CommunityPageContent() {
           {/* My Community Section */}
           <div style={{
             background: 'white',
-            borderRadius: '20px',
-            border: '1px solid rgba(124, 58, 237, 0.08)',
+            borderRadius: '8px',
+            border: '1px solid #E2E8F0',
             padding: '8px',
-            boxShadow: '0 4px 20px rgba(0,0,0,0.02)',
+            boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
             marginBottom: '16px'
           }}>
             <div style={{
@@ -1039,10 +1039,10 @@ function CommunityPageContent() {
           {/* Main Navigation */}
           <div style={{
             background: 'white',
-            borderRadius: '20px',
-            border: '1px solid rgba(124, 58, 237, 0.08)',
+            borderRadius: '8px',
+            border: '1px solid #E2E8F0',
             padding: '8px',
-            boxShadow: '0 4px 20px rgba(0,0,0,0.02)'
+            boxShadow: '0 1px 2px rgba(0,0,0,0.04)'
           }}>
             {[
               { key: 'all', label: 'Feed Home', icon: <Globe size={18} /> },
@@ -1487,12 +1487,12 @@ function CommunityPageContent() {
                               textDecoration: 'none'
                             }}
                             onMouseEnter={(e) => {
-                              e.target.style.color = '#7C3AED'
-                              e.target.style.textDecoration = 'underline'
+                              (e.currentTarget as HTMLElement).style.color = '#7C3AED';
+                              (e.currentTarget as HTMLElement).style.textDecoration = 'underline';
                             }}
                             onMouseLeave={(e) => {
-                              e.target.style.color = '#1E293B'
-                              e.target.style.textDecoration = 'none'
+                              (e.currentTarget as HTMLElement).style.color = '#1E293B';
+                              (e.currentTarget as HTMLElement).style.textDecoration = 'none';
                             }}
                           >
                             {post.users?.full_name}
@@ -1763,12 +1763,12 @@ function CommunityPageContent() {
                                   textDecoration: 'none'
                                 }}
                                 onMouseEnter={(e) => {
-                                  e.target.style.color = '#7C3AED'
-                                  e.target.style.textDecoration = 'underline'
+                                  (e.currentTarget as HTMLElement).style.color = '#7C3AED';
+                                  (e.currentTarget as HTMLElement).style.textDecoration = 'underline';
                                 }}
                                 onMouseLeave={(e) => {
-                                  e.target.style.color = '#1F2937'
-                                  e.target.style.textDecoration = 'none'
+                                  (e.currentTarget as HTMLElement).style.color = '#1F2937';
+                                  (e.currentTarget as HTMLElement).style.textDecoration = 'none';
                                 }}
                               >
                                 {answer.users?.full_name}
@@ -2070,10 +2070,10 @@ function CommunityPageContent() {
           {/* Suggested For You */}
           <div style={{
             background: 'white',
-            borderRadius: '24px',
-            border: '1px solid rgba(124, 58, 237, 0.08)',
+            borderRadius: '8px',
+            border: '1px solid #E2E8F0',
             padding: '24px',
-            boxShadow: '0 4px 20px rgba(0,0,0,0.02)'
+            boxShadow: '0 1px 2px rgba(0,0,0,0.04)'
           }}>
             <h4 style={{
               fontSize: '14px',
@@ -2148,7 +2148,7 @@ function CommunityPageContent() {
           {/* Stats Card */}
           <div style={{
             background: 'linear-gradient(135deg, #0F172A 0%, #1E293B 100%)',
-            borderRadius: '24px',
+            borderRadius: '8px',
             padding: '24px',
             color: 'white',
             position: 'relative',
@@ -2167,8 +2167,8 @@ function CommunityPageContent() {
             }} />
 
             <h4 style={{
-              fontSize: '18px',
-              fontFamily: 'var(--font-instrument-serif)',
+              fontSize: '15px',
+              fontWeight: 700,
               margin: '0 0 20px',
               letterSpacing: '0.01em',
               position: 'relative',
@@ -2199,7 +2199,7 @@ function CommunityPageContent() {
                     {stat.icon}
                     {stat.label}
                   </div>
-                  <span style={{ fontSize: '16px', fontWeight: 400, fontFamily: 'var(--font-instrument-serif)' }}>
+                  <span style={{ fontSize: '14px', fontWeight: 700 }}>
                     {stat.value}
                   </span>
                 </div>
@@ -2286,20 +2286,19 @@ function CommunityPageContent() {
 
         .post-card {
             background: white;
-            border-radius: 20px;
-            border: 1px solid rgba(124, 58, 237, 0.08);
+            border-radius: 8px;
+            border: 1px solid #E2E8F0;
             padding: 24px;
             cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+            transition: all 0.15s ease-in-out;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.04);
             position: relative;
             z-index: 1;
         }
 
         .post-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 20px 40px rgba(124, 58, 237, 0.06);
-            border-color: rgba(124, 58, 237, 0.2);
+            border-color: #CBD5E1;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
         }
 
         .nav-item {
@@ -2406,7 +2405,7 @@ function CommunityPageContent() {
           }
           .post-card {
             padding: 20px !important;
-            border-radius: 16px !important;
+            border-radius: 8px !important;
             margin: 0 16px 16px !important;
           }
         }
