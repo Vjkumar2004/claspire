@@ -77,15 +77,19 @@ export async function GET() {
     )
 
     const mergedCommunities = (colleges || []).map((college) => {
-      const existingCommunity = existingByCollegeId.get(college.id)
-      if (existingCommunity) {
-        return existingCommunity
-      }
-
       const stats = statsByCollege.get(college.id) || {
         member_count: 0,
         senior_count: 0,
         doubt_count: 0
+      }
+
+      const existingCommunity = existingByCollegeId.get(college.id)
+      if (existingCommunity) {
+        return {
+          ...existingCommunity,
+          member_count: Math.max(existingCommunity.member_count || 0, stats.member_count),
+          senior_count: Math.max(existingCommunity.senior_count || 0, stats.senior_count),
+        }
       }
 
       return {

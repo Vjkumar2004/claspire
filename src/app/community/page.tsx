@@ -542,6 +542,39 @@ function CommunityPageContent() {
     }
   }
 
+  const enrichCommunitiesWithLiveCounts = async (list: any[]) => {
+    if (!list.length) return list
+    try {
+      const res = await fetch('/api/colleges')
+      const data = await res.json()
+      if (!data.success || !data.communities?.length) return list
+
+      const countsBySlug = new Map(
+        data.communities.map((c: any) => [c.slug, c.member_count || 0])
+      )
+      const seniorsBySlug = new Map(
+        data.communities.map((c: any) => [c.slug, c.senior_count || 0])
+      )
+
+      return [...list]
+        .map((c) => ({
+          ...c,
+          member_count: Math.max(
+            c.member_count || 0,
+            countsBySlug.get(c.slug) || 0
+          ),
+          senior_count: Math.max(
+            c.senior_count || 0,
+            seniorsBySlug.get(c.slug) || 0
+          ),
+        }))
+        .sort((a, b) => (b.member_count || 0) - (a.member_count || 0))
+    } catch (err) {
+      console.error('Failed to enrich community member counts:', err)
+      return list
+    }
+  }
+
   const fetchCommunities = async (loadMore = false) => {
     if (loadMore) {
       setLoadingMore(true)
@@ -579,7 +612,7 @@ function CommunityPageContent() {
           .limit(20) // Limit communities to improve performance
         
         if (!communitiesError && communitiesData && communitiesData.length > 0) {
-          setCommunities(communitiesData)
+          setCommunities(await enrichCommunitiesWithLiveCounts(communitiesData))
         } else {
           const { data: collegesData, error: collegesError } = await supabase
             .from('colleges')
@@ -588,7 +621,7 @@ function CommunityPageContent() {
             .limit(20)
 
           if (!collegesError && collegesData) {
-            setCommunities(collegesData.map((college: any) => ({
+            const fallback = collegesData.map((college: any) => ({
               id: college.id,
               slug: college.slug,
               display_name: college.short_name || college.name,
@@ -597,7 +630,8 @@ function CommunityPageContent() {
               senior_count: 0,
               doubt_count: 0,
               colleges: college
-            })))
+            }))
+            setCommunities(await enrichCommunitiesWithLiveCounts(fallback))
           }
         }
       }

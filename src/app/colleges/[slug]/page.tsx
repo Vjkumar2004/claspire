@@ -11,6 +11,27 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder'
 )
 
+async function getLiveStatsForCollege(collegeId: string, communityId?: string) {
+  const { data: users } = await supabase
+    .from('users')
+    .select('role')
+    .eq('college_id', collegeId)
+
+  const memberCount = users?.length || 0
+  const seniorCount = users?.filter((user: any) => user.role === 'senior').length || 0
+
+  let postCount = 0
+  if (communityId) {
+    const { count } = await supabase
+      .from('posts')
+      .select('*', { count: 'exact', head: true })
+      .eq('community_id', communityId)
+    postCount = count || 0
+  }
+
+  return { memberCount, seniorCount, postCount }
+}
+
 async function getCollegeBySlug(slug: string) {
   try {
     const { data, error } = await supabase
@@ -23,6 +44,19 @@ async function getCollegeBySlug(slug: string) {
       .single()
 
     if (data) {
+      const collegeId = data.college_id || data.colleges?.id
+      if (collegeId) {
+        const { memberCount, seniorCount, postCount } = await getLiveStatsForCollege(
+          collegeId,
+          data.id
+        )
+        return {
+          ...data,
+          member_count: Math.max(data.member_count || 0, memberCount),
+          senior_count: Math.max(data.senior_count || 0, seniorCount),
+          doubt_count: Math.max(data.doubt_count || 0, postCount),
+        }
+      }
       return data
     }
 
@@ -36,21 +70,16 @@ async function getCollegeBySlug(slug: string) {
       return null
     }
 
-    const { data: users } = await supabase
-      .from('users')
-      .select('role')
-      .eq('college_id', college.id)
-
-    const seniorCount = users?.filter((user: any) => user.role === 'senior').length || 0
+    const { memberCount, seniorCount, postCount } = await getLiveStatsForCollege(college.id)
 
     return {
       id: college.id,
       slug: college.slug,
       display_name: college.short_name || college.name,
       description: `${college.name} community on Claspire`,
-      member_count: users?.length || 0,
+      member_count: memberCount,
       senior_count: seniorCount,
-      doubt_count: 0,
+      doubt_count: postCount,
       colleges: college
     }
   } catch (error) {

@@ -253,17 +253,56 @@ export async function GET(
     ).length || 0
     const verifiedSeniors = members?.filter((m: any) => m.users?.role === 'senior').length || 0
 
-    // Get all verified users in this college (fallback)
-    const { count: collegeVerifiedCount } = await supabase
-      .from('users')
+    // Live counts from users table (communities.member_count is often stale)
+    const collegeId = community.colleges?.id || community.college_id
+    const { count: collegeUserCount } = collegeId
+      ? await supabase
+          .from('users')
+          .select('*', { count: 'exact', head: true })
+          .eq('college_id', collegeId)
+      : { count: 0 }
+
+    const { count: collegeSeniorCount } = collegeId
+      ? await supabase
+          .from('users')
+          .select('*', { count: 'exact', head: true })
+          .eq('college_id', collegeId)
+          .eq('role', 'senior')
+      : { count: 0 }
+
+    const { count: collegeVerifiedCount } = collegeId
+      ? await supabase
+          .from('users')
+          .select('*', { count: 'exact', head: true })
+          .eq('college_id', collegeId)
+          .eq('is_verified', true)
+      : { count: 0 }
+
+    const { count: communityPostCount } = await supabase
+      .from('posts')
       .select('*', { count: 'exact', head: true })
-      .eq('college_id', community.colleges.id)
-      .eq('is_verified', true)
+      .eq('community_id', community.id)
 
     // Final display counts
     const finalJuniorsCount = verifiedJuniors > 0 ? verifiedJuniors : (collegeVerifiedCount || 0)
-    const finalSeniorsCount = verifiedSeniors > 0 ? verifiedSeniors : 0
-    const totalMembers = totalMembersCount || 0
+    const finalSeniorsCount = Math.max(
+      verifiedSeniors,
+      seniorMembersCount || 0,
+      community.senior_count || 0,
+      collegeSeniorCount || 0
+    )
+    const totalMembers = Math.max(
+      totalMembersCount || 0,
+      community.member_count || 0,
+      collegeUserCount || 0
+    )
+
+    community = {
+      ...community,
+      member_count: totalMembers,
+      senior_count: finalSeniorsCount,
+      doubt_count: Math.max(community.doubt_count || 0, communityPostCount || 0),
+    }
 
     // Check if current user is already a member of this community
     let isAlreadyMember = false
