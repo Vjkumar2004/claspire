@@ -53,7 +53,6 @@ export async function GET(request: NextRequest) {
     // Fetch all active groups with creator and college details
     console.log('Fetching all groups...')
     
-    // Simplified query to avoid relationship issues
     const { data: groups, error: groupsError } = await supabase
       .from('student_groups')
       .select(`
@@ -66,7 +65,14 @@ export async function GET(request: NextRequest) {
         member_count,
         created_at,
         created_by,
-        college_id
+        college_id,
+        colleges (
+          id,
+          name,
+          short_name,
+          location,
+          slug
+        )
       `)
       .eq('is_active', true)
       .order('member_count', { ascending: false })
@@ -80,7 +86,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to fetch groups', details: groupsError.message }, { status: 500 })
     }
 
-    // If we got groups, try to fetch creator and college info separately
+    // If we got groups, try to fetch creator info separately
     let groupsWithDetails: Group[] = (groups || []).map((group: any) => ({
       ...group,
       parent_community_id: group.parent_community_id || ''
@@ -96,29 +102,20 @@ export async function GET(request: NextRequest) {
           .select('id, full_name, avatar_url, role, unique_id')
           .in('id', creatorIds)
         
-        // Get community info to get college details
-        const communityIds = [...new Set(groupsWithDetails.map(g => g.parent_community_id).filter(Boolean))]
-        
-        const { data: communities, error: communitiesError } = await supabase
-          .from('communities')
-          .select('id, display_name, slug, college_id')
-          .in('id', communityIds)
-        
         // Combine the data
-        groupsWithDetails = groupsWithDetails.map(group => {
+        groupsWithDetails = groupsWithDetails.map((group: any) => {
           const creator = creators?.find(c => c.id === group.created_by) || null
-          const community = communities?.find(c => c.id === group.parent_community_id) || null
           
-          // Use community display_name or slug as college name
-          const collegeName = community?.display_name || community?.slug || 'ANJAC'
+          const college = Array.isArray(group.colleges) ? group.colleges[0] : group.colleges
+          const collegeName = college?.short_name || college?.name || 'Community'
           
           return {
             ...group,
             creator,
             college: { 
               name: collegeName, 
-              city: community?.slug || 'Sivakasi', 
-              state: 'Tamil Nadu' 
+              city: college?.city || 'Sivakasi', 
+              state: college?.state || 'Tamil Nadu' 
             }
           }
         })

@@ -26,6 +26,7 @@ interface SearchResult {
   href: string
   score: number
   collegeId?: string
+  is_joined?: boolean
 }
 
 // Levenshtein distance string metrics for fuzzy tolerance
@@ -97,21 +98,21 @@ export async function GET(req: NextRequest) {
 
     // 1. Live NLP Search Intent Classification (Support prefix search like "aaa colleg")
     let searchIntent: 'institution' | 'person' | 'job' | 'general' = 'general'
-    
+
     const institutionKeywords = ['college', 'university', 'univ', 'school', 'institute', 'aaacet', 'mepco', 'kare', 'vhr', 'rit', 'sfr', 'anjac', 'agpc', 'skc', 'kamaraj', 'education', 'campus', 'clg', 'engineering', 'science', 'arts']
     const jobKeywords = ['developer', 'sde', 'engineer', 'react', 'frontend', 'backend', 'fullstack', 'intern', 'placement', 'analyst', 'tech', 'job', 'hiring', 'referral', 'vacancy']
-    
+
     const queryWords = query.split(/\s+/)
-    
+
     // Check if query word starts with or matches any institution keywords to detect prefix intent
-    const hasInstitutionKeyword = queryWords.some(w => 
+    const hasInstitutionKeyword = queryWords.some(w =>
       institutionKeywords.some(kw => kw.startsWith(w) || w.startsWith(kw))
     )
-    
-    const hasJobKeyword = queryWords.some(w => 
+
+    const hasJobKeyword = queryWords.some(w =>
       jobKeywords.some(kw => kw.startsWith(w) || w.startsWith(kw))
     )
-    
+
     // If query matches a college in the database, it's NOT a person intent
     const isLikelyPerson = !hasInstitutionKeyword && !hasJobKeyword && query.length >= 3 && matchedCollegeIds.length === 0
 
@@ -140,7 +141,7 @@ export async function GET(req: NextRequest) {
     // 1. Search People (Seniors & Students + Related Network Seniors)
     if (filterType === 'all' || filterType === 'people') {
       let peopleOr = `full_name.ilike.%${query}%,company.ilike.%${query}%,designation.ilike.%${query}%`
-      
+
       // Also fetch based on fuzzy name initials/fragments to support typo tolerance in the database layer
       if (query.length >= 3) {
         const queryFragment = query.substring(0, Math.min(query.length, 4))
@@ -188,7 +189,7 @@ export async function GET(req: NextRequest) {
           let score = 0
           const nameLower = u.full_name.toLowerCase()
           const similarity = getSimilarity(nameLower, query)
-          
+
           if (nameLower === query) score += 150
           else if (nameLower.startsWith(query)) score += 80
           else if (nameLower.includes(query)) score += 40
@@ -217,7 +218,7 @@ export async function GET(req: NextRequest) {
             id: u.id,
             type: u.role === 'senior' ? 'senior' : 'student',
             title: u.full_name,
-            subtitle: u.role === 'senior' 
+            subtitle: u.role === 'senior'
               ? `${u.designation || 'Senior'} at ${u.company || 'Top Company'}`
               : `Student • Class of ${u.graduation_year || 'N/A'}`,
             metadata: {
@@ -245,6 +246,9 @@ export async function GET(req: NextRequest) {
         jobOr += `,company_name.ilike.%${cs}%,role.ilike.%${cs}%,description.ilike.%${cs}%`
       })
 
+      const twoDaysAgo = new Date()
+      twoDaysAgo.setDate(twoDaysAgo.getDate() - 2)
+
       const { data: jobs, error } = await supabase
         .from('jobs')
         .select(`
@@ -258,6 +262,7 @@ export async function GET(req: NextRequest) {
           created_at
         `)
         .eq('is_active', true)
+        .gte('created_at', twoDaysAgo.toISOString()) // Auto-expire after 2 days
         .or(jobOr)
         .limit(30)
 
@@ -339,7 +344,7 @@ export async function GET(req: NextRequest) {
           else if (nameLower.startsWith(query)) score += 130
           else if (nameLower.includes(query)) score += 80
           else if (similarity > 0.65) score += similarity * 80
-          
+
           // Boost if exact matching college community slug
           if (matchedCollegeSlugs.includes(c.slug)) {
             score += 100
@@ -424,6 +429,19 @@ export async function GET(req: NextRequest) {
         groupOr += `,slug.ilike.%${slug}%`
       })
 
+      // Get current user session for membership check
+      const cookiesStoreFromSearch = req.cookies
+      let searchCurrentUserId: string | null = null
+      const searchSessionCookie = cookiesStoreFromSearch.get('claspire_session')
+      if (searchSessionCookie?.value) {
+        try {
+          const cookieUser = JSON.parse(searchSessionCookie.value)
+          searchCurrentUserId = cookieUser.id
+        } catch {
+          // Invalid cookie
+        }
+      }
+
       const { data: groups, error } = await supabase
         .from('student_groups')
         .select(`
@@ -439,10 +457,23 @@ export async function GET(req: NextRequest) {
         .limit(20)
 
       if (groups && !error) {
+        // Check which groups the current user has joined
+        let joinedGroupIds: string[] = []
+        if (searchCurrentUserId) {
+          const { data: memberships } = await supabase
+            .from('student_group_members')
+            .select('group_id')
+            .eq('user_id', searchCurrentUserId)
+            .in('group_id', groups.map(g => g.id))
+
+          joinedGroupIds = memberships?.map(m => m.group_id) || []
+        }
+
         groups.forEach((g) => {
           let score = 20
           const nameLower = g.name.toLowerCase()
           const similarity = getSimilarity(nameLower, query)
+          const isJoined = joinedGroupIds.includes(g.id)
 
           if (nameLower === query) score += 180
           else if (nameLower.startsWith(query)) score += 120
@@ -469,8 +500,10 @@ export async function GET(req: NextRequest) {
             },
             description: g.description || 'Public study, career, or interest group.',
             imageUrl: null,
-            href: `/groups`,
-            score
+            href: isJoined ? `/groups` : `/groups`,
+            score,
+            collegeId: '',
+            is_joined: isJoined
           })
         })
       }
@@ -479,7 +512,7 @@ export async function GET(req: NextRequest) {
     // 6. Search Discussions/Posts (Strict Backend Security: visibility = public)
     if (filterType === 'all' || filterType === 'posts') {
       let postOr = `title.ilike.%${query}%,content.ilike.%${query}%,type.ilike.%${query}%`
-      
+
       matchedCollegeShortNames.forEach(cs => {
         postOr += `,title.ilike.%${cs}%,content.ilike.%${cs}%`
       })

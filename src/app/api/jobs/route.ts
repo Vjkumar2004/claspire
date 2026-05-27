@@ -13,6 +13,15 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    // Auto-delete jobs older than 2 days (lazy cleanup)
+    const twoDaysAgo = new Date()
+    twoDaysAgo.setDate(twoDaysAgo.getDate() - 2)
+    
+    await supabase
+      .from('jobs')
+      .delete()
+      .lt('created_at', twoDaysAgo.toISOString())
+
     const { data: jobs, error } = await supabase
       .from('jobs')
       .select(`

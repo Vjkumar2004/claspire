@@ -989,7 +989,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                       </div>
                     </div>
 
-                    {/* Join Button */}
+                    {/* Join/Visit Button */}
                     <button
                       onClick={(e) => {
                         e.stopPropagation()
@@ -997,7 +997,9 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                       }}
                       style={{
                         width: '100%',
-                        background: 'linear-gradient(135deg, #7C3AED, #06B6D4)',
+                        background: group.is_joined
+                          ? 'linear-gradient(135deg, #10B981, #059669)'
+                          : 'linear-gradient(135deg, #7C3AED, #06B6D4)',
                         color: 'white',
                         border: 'none',
                         padding: '10px',
@@ -1006,18 +1008,32 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                         fontWeight: 700,
                         cursor: 'pointer',
                         transition: 'all 0.2s',
-                        boxShadow: '0 4px 12px rgba(124, 58, 237, 0.2)'
+                        boxShadow: group.is_joined
+                          ? '0 4px 12px rgba(16, 185, 129, 0.2)'
+                          : '0 4px 12px rgba(124, 58, 237, 0.2)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '6px'
                       }}
                       onMouseEnter={e => {
                         e.currentTarget.style.transform = 'translateY(-2px)'
-                        e.currentTarget.style.boxShadow = '0 6px 20px rgba(124, 58, 237, 0.3)'
+                        e.currentTarget.style.boxShadow = group.is_joined
+                          ? '0 6px 20px rgba(16, 185, 129, 0.3)'
+                          : '0 6px 20px rgba(124, 58, 237, 0.3)'
                       }}
                       onMouseLeave={e => {
                         e.currentTarget.style.transform = 'translateY(0)'
-                        e.currentTarget.style.boxShadow = '0 4px 12px rgba(124, 58, 237, 0.2)'
+                        e.currentTarget.style.boxShadow = group.is_joined
+                          ? '0 4px 12px rgba(16, 185, 129, 0.2)'
+                          : '0 4px 12px rgba(124, 58, 237, 0.2)'
                       }}
                     >
-                      Join Group
+                      {group.is_joined ? (
+                        <><CheckCircle size={14} /> Visit Group</>
+                      ) : (
+                        'Join Group'
+                      )}
                     </button>
                   </div>
                 ))}

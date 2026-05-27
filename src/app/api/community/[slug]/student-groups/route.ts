@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
+import { cookies } from 'next/headers'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -12,6 +13,20 @@ export async function GET(
 ) {
   try {
     const { slug } = await params
+
+    // Get current user if logged in
+    const cookiesStore = await cookies()
+    const sessionCookie = cookiesStore.get('claspire_session')
+    let currentUserId: string | null = null
+
+    if (sessionCookie?.value) {
+      try {
+        const cookieUser = JSON.parse(sessionCookie.value)
+        currentUserId = cookieUser.id
+      } catch (parseError) {
+        // Invalid cookie, continue without user
+      }
+    }
 
     // Get the main community (college)
     const { data: community, error: communityError } = await supabase
@@ -79,29 +94,37 @@ export async function GET(
       return NextResponse.json({ error: 'Failed to fetch groups' }, { status: 500 })
     }
 
-    console.log('Raw groups data:', groups)
+    // Check which groups the current user has joined
+    let joinedGroupIds: string[] = []
+    if (currentUserId && groups && groups.length > 0) {
+      const { data: memberships } = await supabase
+        .from('student_group_members')
+        .select('group_id')
+        .eq('user_id', currentUserId)
+        .in('group_id', groups.map(g => g.id))
+
+      joinedGroupIds = memberships?.map(m => m.group_id) || []
+    }
 
     // Format groups
     const formattedGroups = (groups || []).map(group => {
-      console.log('Processing group:', group.name, 'Creator:', group.creator)
       const creator = Array.isArray(group.creator) ? group.creator[0] : group.creator
       return {
         id: group.id,
         name: group.name,
-        display_name: group.name, // Use name as display_name for student groups
+        display_name: group.name,
         slug: group.slug,
         description: group.description,
         is_private: group.is_private,
         scope: group.scope,
-        is_ephemeral: false, // Student groups are not ephemeral
+        is_ephemeral: false,
         member_count: group.member_count,
         created_at: group.created_at,
         creator_role: creator?.role || 'student',
-        creator: creator || null
+        creator: creator || null,
+        is_joined: joinedGroupIds.includes(group.id)
       }
     })
-
-    console.log('Formatted groups:', formattedGroups)
 
     return NextResponse.json({
       groups: formattedGroups,

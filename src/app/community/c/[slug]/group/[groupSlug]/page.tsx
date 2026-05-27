@@ -355,47 +355,22 @@ useEffect(() => {
     </div>
 
     {/* Input - Sticky Bottom */}
-    <div className="flex-shrink-0 bg-[#111118] border-t border-white/5 px-4 py-3 pb-safe">
-      {!isMember ? (
-        <div className="flex justify-center">
-          {groupData?.requestPending ? (
-            <div className="flex items-center gap-2 text-sm text-white/50 bg-white/5 px-4 py-2.5 rounded-2xl">
-              <Clock size={14} />
-              Waiting for admin approval...
-            </div>
-          ) : (
-            <button onClick={handleJoin} disabled={joining} className="bg-violet-600 hover:bg-violet-700 text-white px-6 py-2.5 rounded-2xl font-bold text-sm transition-colors disabled:opacity-50">
-              {joining ? 'Joining...' : group?.is_private ? '🔒 Request to Join' : '✦ Join to Participate'}
-            </button>
-          )}
-        </div>
-      ) : isBlocked ? (
-        <div className="flex items-center justify-center gap-3 py-2">
-          <Ban size={16} className="text-red-400" />
-          <p className="text-center text-sm text-red-400 font-medium">You are blocked from sending messages in this group</p>
-          <Ban size={16} className="text-red-400" />
-        </div>
-      ) : canMessage ? (
-        <form onSubmit={handleSendMessage} className="flex items-center gap-2">
-          <input
-            type="text"
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            placeholder="Message..."
-            className="flex-1 bg-[#1E1E2E] border border-white/10 text-white placeholder-white/25 px-4 py-2.5 rounded-2xl text-sm focus:outline-none focus:border-violet-500/50 transition-colors"
-            disabled={sending}
-          />
-          <button
-            type="submit"
-            disabled={!newMessage.trim() || sending}
-            className="w-10 h-10 bg-violet-600 hover:bg-violet-700 disabled:opacity-30 text-white rounded-2xl flex items-center justify-center transition-colors flex-shrink-0"
-          >
-            <Send size={16} />
-          </button>
-        </form>
-      ) : (
-        <p className="text-center text-xs text-white/30">You cannot send messages in this group</p>
-      )}
+    <div className="flex-shrink-0 bg-[#111118] border-t border-white/5 px-4 py-3 pb-safe">{isMember ? (
+  <div className="flex justify-center">
+    <span className="text-sm text-white/70 bg-white/10 px-4 py-2.5 rounded-2xl">
+      You are a member
+    </span>
+  </div>
+) : groupData?.requestPending ? (
+    <div className="flex items-center gap-2 text-sm text-white/50 bg-white/5 px-4 py-2.5 rounded-2xl">
+      <Clock size={14} />
+      Waiting for admin approval...
+    </div>
+  ) : (
+    <button onClick={handleJoin} disabled={joining} className="bg-violet-600 hover:bg-violet-700 text-white px-6 py-2.5 rounded-2xl font-bold text-sm transition-colors disabled:opacity-50">
+      {joining ? 'Joining...' : group?.is_private ? '🔒 Request to Join' : '✦ Join to Participate'}
+    </button>
+  )}
     </div>
 
     {/* Terms Modal */}

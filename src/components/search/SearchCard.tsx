@@ -41,6 +41,7 @@ export interface SearchCardProps {
   imageUrl: string | null
   href: string
   query: string
+  is_joined?: boolean
 }
 
 export default function SearchCard({ card, query }: { card: SearchCardProps; query: string }) {
@@ -61,15 +62,15 @@ export default function SearchCard({ card, query }: { card: SearchCardProps; que
       case 'post':
         const postType = card.subtitle.split(' • ')[1] || 'Post'
         const capitalizedType = postType.charAt(0).toUpperCase() + postType.slice(1)
-        return { 
-          bg: capitalizedType === 'Doubt' 
-            ? 'bg-red-50 border-red-100 text-red-700' 
+        return {
+          bg: capitalizedType === 'Doubt'
+            ? 'bg-red-50 border-red-100 text-red-700'
             : capitalizedType === 'Experience'
-            ? 'bg-amber-50 border-amber-100 text-amber-700'
-            : capitalizedType === 'Note'
-            ? 'bg-blue-50 border-blue-100 text-blue-700'
-            : 'bg-gray-50 border-gray-100 text-gray-700', 
-          label: capitalizedType 
+              ? 'bg-amber-50 border-amber-100 text-amber-700'
+              : capitalizedType === 'Note'
+                ? 'bg-blue-50 border-blue-100 text-blue-700'
+                : 'bg-gray-50 border-gray-100 text-gray-700',
+          label: capitalizedType
         }
       default:
         return { bg: 'bg-gray-50 border-gray-100 text-gray-700', label: 'General' }
@@ -111,7 +112,7 @@ export default function SearchCard({ card, query }: { card: SearchCardProps; que
       case 'college':
         return { text: 'Visit Page', primary: false }
       case 'group':
-        return { text: 'Join Group', primary: true }
+        return card.is_joined ? { text: 'Visit Group', primary: true } : { text: 'Join Group', primary: true }
       case 'post':
         return { text: 'Read Post', primary: false }
       default:
@@ -126,7 +127,7 @@ export default function SearchCard({ card, query }: { card: SearchCardProps; que
     try {
       const saved = localStorage.getItem('claspire_recent_searches')
       const currentList: any[] = saved ? JSON.parse(saved) : []
-      
+
       const newItem = {
         id: `${card.type}-${card.id}`,
         type: card.type,
@@ -135,7 +136,7 @@ export default function SearchCard({ card, query }: { card: SearchCardProps; que
         imageUrl: card.imageUrl,
         href: card.href
       }
-      
+
       // Filter out duplicate entries and prepend the clicked item
       const updated = [newItem, ...currentList.filter((item: any) => item.id !== newItem.id)].slice(0, 5)
       localStorage.setItem('claspire_recent_searches', JSON.stringify(updated))
@@ -150,12 +151,11 @@ export default function SearchCard({ card, query }: { card: SearchCardProps; que
         {/* Avatar/Initial Icon Container with perfect alignment, object-fit containment for college logos */}
         <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-md bg-white border border-gray-200/80 flex items-center justify-center flex-shrink-0 overflow-hidden shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
           {card.imageUrl ? (
-            <img 
-              src={card.imageUrl} 
-              alt={card.title} 
-              className={`w-full h-full ${
-                card.type === 'college' || card.type === 'community' ? 'object-contain p-1' : 'object-cover'
-              }`} 
+            <img
+              src={card.imageUrl}
+              alt={card.title}
+              className={`w-full h-full ${card.type === 'college' || card.type === 'community' ? 'object-contain p-1' : 'object-cover'
+                }`}
             />
           ) : (
             getIcon()
@@ -220,11 +220,10 @@ export default function SearchCard({ card, query }: { card: SearchCardProps; que
       <div className="w-full sm:w-auto flex justify-end flex-shrink-0 mt-2.5 sm:mt-0">
         <Link href={card.href} onClick={handleCardClick} className="w-full sm:w-auto no-underline">
           <button
-            className={`w-full sm:w-auto px-3.5 sm:px-4 py-1.5 sm:py-2 text-[11px] sm:text-xs font-bold rounded-md transition-all duration-150 cursor-pointer ${
-              action.primary
-                ? 'bg-[#7C3AED] hover:bg-[#6D28D9] text-white shadow-sm border border-transparent'
-                : 'bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 hover:border-gray-400 shadow-sm'
-            }`}
+            className={`w-full sm:w-auto px-3.5 sm:px-4 py-1.5 sm:py-2 text-[11px] sm:text-xs font-bold rounded-md transition-all duration-150 cursor-pointer ${action.primary
+              ? 'bg-[#7C3AED] hover:bg-[#6D28D9] text-white shadow-sm border border-transparent'
+              : 'bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 hover:border-gray-400 shadow-sm'
+              }`}
           >
             {action.text}
           </button>

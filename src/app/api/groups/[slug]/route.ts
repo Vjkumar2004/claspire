@@ -90,6 +90,16 @@ export async function GET(
       joined_at: m.joined_at
     }))
 
+    // Auto-delete messages older than 1 day (lazy cleanup)
+    const oneDayAgo = new Date()
+    oneDayAgo.setDate(oneDayAgo.getDate() - 1)
+    
+    await supabase
+      .from('student_group_messages')
+      .delete()
+      .eq('group_id', group.id)
+      .lt('created_at', oneDayAgo.toISOString())
+
     // Get messages with sender details
     const { data: messagesData } = await supabase
       .from('student_group_messages')
