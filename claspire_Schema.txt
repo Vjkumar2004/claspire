@@ -1,0 +1,436 @@
+-- WARNING: This schema is for context only and is not meant to be run.
+-- Table order and constraints may not be valid for execution.
+
+CREATE TABLE public.answers (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  post_id uuid,
+  author_id uuid,
+  content text NOT NULL,
+  upvote_count integer DEFAULT 0,
+  helpful_count integer DEFAULT 0,
+  is_senior_answer boolean DEFAULT false,
+  is_ai_answer boolean DEFAULT false,
+  is_accepted boolean DEFAULT false,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT answers_pkey PRIMARY KEY (id),
+  CONSTRAINT answers_post_id_fkey FOREIGN KEY (post_id) REFERENCES public.posts(id),
+  CONSTRAINT answers_author_id_fkey FOREIGN KEY (author_id) REFERENCES public.users(id)
+);
+CREATE TABLE public.blocked_users (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  blocker_id uuid NOT NULL,
+  blocked_id uuid NOT NULL,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT blocked_users_pkey PRIMARY KEY (id),
+  CONSTRAINT blocked_users_blocker_id_fkey FOREIGN KEY (blocker_id) REFERENCES public.users(id),
+  CONSTRAINT blocked_users_blocked_id_fkey FOREIGN KEY (blocked_id) REFERENCES public.users(id)
+);
+CREATE TABLE public.college_requests (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  college_name text NOT NULL,
+  short_name text,
+  location text,
+  state text,
+  college_type text,
+  email_domain text,
+  website_url text,
+  additional_info text,
+  requested_by uuid,
+  status text DEFAULT 'pending'::text CHECK (status = ANY (ARRAY['pending'::text, 'approved'::text, 'rejected'::text])),
+  admin_note text,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT college_requests_pkey PRIMARY KEY (id),
+  CONSTRAINT college_requests_requested_by_fkey FOREIGN KEY (requested_by) REFERENCES public.users(id)
+);
+CREATE TABLE public.colleges (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  name text NOT NULL,
+  short_name text NOT NULL,
+  slug text NOT NULL UNIQUE,
+  type text CHECK (type = ANY (ARRAY['IIT'::text, 'NIT'::text, 'Private'::text, 'Deemed'::text, 'Central'::text, 'Government'::text, 'Autonomous'::text, 'Polytechnic'::text])),
+  location text,
+  state text,
+  email_domain text,
+  logo_url text,
+  member_count integer DEFAULT 0,
+  senior_count integer DEFAULT 0,
+  doubt_count integer DEFAULT 0,
+  avg_package numeric,
+  is_active boolean DEFAULT true,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT colleges_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.communities (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  college_id uuid UNIQUE,
+  slug text NOT NULL UNIQUE,
+  display_name text NOT NULL,
+  description text,
+  member_count integer DEFAULT 0,
+  senior_count integer DEFAULT 0,
+  doubt_count integer DEFAULT 0,
+  answer_rate numeric DEFAULT 0,
+  is_active boolean DEFAULT true,
+  created_at timestamp with time zone DEFAULT now(),
+  created_by uuid,
+  is_private boolean DEFAULT false,
+  is_ephemeral boolean DEFAULT true,
+  last_activity_at timestamp with time zone DEFAULT now(),
+  auto_delete_at timestamp with time zone DEFAULT (now() + '14 days'::interval),
+  max_members integer DEFAULT 100,
+  performance_score integer DEFAULT 0,
+  parent_community_id uuid,
+  CONSTRAINT communities_pkey PRIMARY KEY (id),
+  CONSTRAINT communities_college_id_fkey FOREIGN KEY (college_id) REFERENCES public.colleges(id),
+  CONSTRAINT communities_created_by_fkey FOREIGN KEY (created_by) REFERENCES public.users(id),
+  CONSTRAINT communities_parent_community_id_fkey FOREIGN KEY (parent_community_id) REFERENCES public.communities(id)
+);
+CREATE TABLE public.community_members (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  community_id uuid,
+  user_id uuid,
+  membership_type text DEFAULT 'following'::text CHECK (membership_type = ANY (ARRAY['joined'::text, 'following'::text])),
+  is_verified boolean DEFAULT false,
+  role text DEFAULT 'member'::text CHECK (role = ANY (ARRAY['member'::text, 'senior'::text, 'moderator'::text])),
+  joined_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT community_members_pkey PRIMARY KEY (id),
+  CONSTRAINT community_members_community_id_fkey FOREIGN KEY (community_id) REFERENCES public.communities(id),
+  CONSTRAINT community_members_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id)
+);
+CREATE TABLE public.direct_messages (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  sender_id uuid NOT NULL,
+  receiver_id uuid NOT NULL,
+  content text NOT NULL,
+  is_read boolean DEFAULT false,
+  conversation_id text,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT direct_messages_pkey PRIMARY KEY (id),
+  CONSTRAINT direct_messages_receiver_id_fkey FOREIGN KEY (receiver_id) REFERENCES public.users(id),
+  CONSTRAINT direct_messages_sender_id_fkey FOREIGN KEY (sender_id) REFERENCES public.users(id)
+);
+CREATE TABLE public.group_members (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  group_id uuid NOT NULL,
+  user_id uuid NOT NULL,
+  role text DEFAULT 'member'::text CHECK (role = ANY (ARRAY['admin'::text, 'member'::text])),
+  joined_at timestamp without time zone DEFAULT now(),
+  CONSTRAINT group_members_pkey PRIMARY KEY (id),
+  CONSTRAINT group_members_group_id_fkey FOREIGN KEY (group_id) REFERENCES public.groups(id),
+  CONSTRAINT group_members_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id)
+);
+CREATE TABLE public.group_messages (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  group_id uuid NOT NULL,
+  sender_id uuid NOT NULL,
+  content text NOT NULL,
+  created_at timestamp without time zone DEFAULT now(),
+  CONSTRAINT group_messages_pkey PRIMARY KEY (id),
+  CONSTRAINT group_messages_group_id_fkey FOREIGN KEY (group_id) REFERENCES public.groups(id),
+  CONSTRAINT group_messages_sender_id_fkey FOREIGN KEY (sender_id) REFERENCES public.users(id)
+);
+CREATE TABLE public.groups (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  community_id uuid NOT NULL,
+  name text NOT NULL,
+  slug text NOT NULL,
+  created_by uuid,
+  created_by_role text NOT NULL CHECK (created_by_role = ANY (ARRAY['student'::text, 'senior'::text])),
+  type text NOT NULL CHECK (type = ANY (ARRAY['public'::text, 'private'::text])),
+  member_count integer DEFAULT 1,
+  is_active boolean DEFAULT true,
+  auto_delete boolean DEFAULT true,
+  expires_at timestamp without time zone,
+  last_activity_at timestamp without time zone DEFAULT now(),
+  created_at timestamp without time zone DEFAULT now(),
+  CONSTRAINT groups_pkey PRIMARY KEY (id),
+  CONSTRAINT groups_community_id_fkey FOREIGN KEY (community_id) REFERENCES public.communities(id),
+  CONSTRAINT groups_created_by_fkey FOREIGN KEY (created_by) REFERENCES public.users(id)
+);
+CREATE TABLE public.job_applications (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  job_id uuid,
+  applicant_id uuid,
+  status text DEFAULT 'applied'::text CHECK (status = ANY (ARRAY['applied'::text, 'referral_requested'::text, 'referral_approved'::text, 'referral_sent'::text, 'rejected'::text])),
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT job_applications_pkey PRIMARY KEY (id),
+  CONSTRAINT job_applications_job_id_fkey FOREIGN KEY (job_id) REFERENCES public.jobs(id),
+  CONSTRAINT job_applications_applicant_id_fkey FOREIGN KEY (applicant_id) REFERENCES public.users(id)
+);
+CREATE TABLE public.jobs (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  posted_by uuid,
+  community_id uuid,
+  company_name text NOT NULL,
+  role text NOT NULL,
+  salary_range text,
+  location text,
+  job_type text CHECK (job_type = ANY (ARRAY['full_time'::text, 'internship'::text, 'contract'::text])),
+  description text,
+  requirements text,
+  deadline timestamp with time zone,
+  referral_available boolean DEFAULT false,
+  applicant_count integer DEFAULT 0,
+  view_count integer DEFAULT 0,
+  is_active boolean DEFAULT true,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT jobs_pkey PRIMARY KEY (id),
+  CONSTRAINT jobs_posted_by_fkey FOREIGN KEY (posted_by) REFERENCES public.users(id),
+  CONSTRAINT jobs_community_id_fkey FOREIGN KEY (community_id) REFERENCES public.communities(id)
+);
+CREATE TABLE public.message_requests (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  student_id uuid NOT NULL,
+  senior_id uuid NOT NULL,
+  status character varying NOT NULL DEFAULT 'pending'::character varying,
+  created_at timestamp with time zone DEFAULT now(),
+  responded_at timestamp with time zone,
+  CONSTRAINT message_requests_pkey PRIMARY KEY (id),
+  CONSTRAINT message_requests_student_id_fkey FOREIGN KEY (student_id) REFERENCES public.users(id),
+  CONSTRAINT message_requests_senior_id_fkey FOREIGN KEY (senior_id) REFERENCES public.users(id)
+);
+CREATE TABLE public.notifications (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  user_id uuid,
+  type text CHECK (type = ANY (ARRAY['post_like'::text, 'post_answered'::text, 'job_post'::text, 'referral_approved'::text, 'referral_request'::text, 'post_in_community'::text, 'post_upvoted'::text, 'new_job'::text, 'message_request'::text, 'message_request_accepted'::text, 'message_request_rejected'::text])),
+  title text NOT NULL,
+  message text,
+  link text,
+  is_read boolean DEFAULT false,
+  created_at timestamp with time zone DEFAULT now(),
+  sender_id uuid,
+  receiver_id uuid,
+  post_id uuid,
+  CONSTRAINT notifications_pkey PRIMARY KEY (id),
+  CONSTRAINT notifications_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id),
+  CONSTRAINT notifications_sender_id_fkey FOREIGN KEY (sender_id) REFERENCES public.users(id),
+  CONSTRAINT notifications_receiver_id_fkey FOREIGN KEY (receiver_id) REFERENCES public.users(id),
+  CONSTRAINT notifications_post_id_fkey FOREIGN KEY (post_id) REFERENCES public.posts(id)
+);
+CREATE TABLE public.otp_store (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  email text NOT NULL,
+  otp text NOT NULL,
+  expires_at timestamp with time zone NOT NULL,
+  verified boolean DEFAULT false,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT otp_store_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.posts (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  community_id uuid,
+  author_id uuid,
+  type text DEFAULT 'doubt'::text CHECK (type = ANY (ARRAY['doubt'::text, 'discussion'::text, 'experience'::text, 'referral_hunt'::text, 'resource'::text])),
+  title text,
+  content text NOT NULL,
+  tags ARRAY DEFAULT '{}'::text[],
+  upvote_count integer DEFAULT 0,
+  downvote_count integer DEFAULT 0,
+  answer_count integer DEFAULT 0,
+  view_count integer DEFAULT 0,
+  is_answered boolean DEFAULT false,
+  is_pinned boolean DEFAULT false,
+  is_active boolean DEFAULT true,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  visibility text DEFAULT 'public'::text CHECK (visibility = ANY (ARRAY['public'::text, 'private'::text])),
+  image_url text,
+  CONSTRAINT posts_pkey PRIMARY KEY (id),
+  CONSTRAINT posts_community_id_fkey FOREIGN KEY (community_id) REFERENCES public.communities(id),
+  CONSTRAINT posts_author_id_fkey FOREIGN KEY (author_id) REFERENCES public.users(id)
+);
+CREATE TABLE public.referral_requests (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  job_id uuid,
+  requester_id uuid,
+  senior_id uuid,
+  ai_drafted_email text,
+  final_email text,
+  status text DEFAULT 'pending'::text CHECK (status = ANY (ARRAY['pending'::text, 'approved'::text, 'rejected'::text, 'sent'::text])),
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT referral_requests_pkey PRIMARY KEY (id),
+  CONSTRAINT referral_requests_job_id_fkey FOREIGN KEY (job_id) REFERENCES public.jobs(id),
+  CONSTRAINT referral_requests_requester_id_fkey FOREIGN KEY (requester_id) REFERENCES public.users(id),
+  CONSTRAINT referral_requests_senior_id_fkey FOREIGN KEY (senior_id) REFERENCES public.users(id)
+);
+CREATE TABLE public.rise_points_log (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  user_id uuid,
+  points integer NOT NULL,
+  reason text NOT NULL,
+  reference_id uuid,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT rise_points_log_pkey PRIMARY KEY (id),
+  CONSTRAINT rise_points_log_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id)
+);
+CREATE TABLE public.senior_message_requests (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  sender_id uuid NOT NULL,
+  receiver_id uuid NOT NULL,
+  message text,
+  status character varying NOT NULL DEFAULT 'pending'::character varying,
+  created_at timestamp with time zone DEFAULT now(),
+  responded_at timestamp with time zone,
+  CONSTRAINT senior_message_requests_pkey PRIMARY KEY (id),
+  CONSTRAINT senior_message_requests_sender_id_fkey FOREIGN KEY (sender_id) REFERENCES public.users(id),
+  CONSTRAINT senior_message_requests_receiver_id_fkey FOREIGN KEY (receiver_id) REFERENCES public.users(id)
+);
+CREATE TABLE public.senior_verifications (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  senior_id uuid,
+  confirmed_by uuid,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT senior_verifications_pkey PRIMARY KEY (id),
+  CONSTRAINT senior_verifications_senior_id_fkey FOREIGN KEY (senior_id) REFERENCES public.users(id),
+  CONSTRAINT senior_verifications_confirmed_by_fkey FOREIGN KEY (confirmed_by) REFERENCES public.users(id)
+);
+CREATE TABLE public.student_group_join_requests (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  group_id uuid NOT NULL,
+  user_id uuid NOT NULL,
+  status text NOT NULL DEFAULT 'pending'::text CHECK (status = ANY (ARRAY['pending'::text, 'accepted'::text, 'rejected'::text])),
+  requested_at timestamp with time zone DEFAULT now(),
+  reviewed_at timestamp with time zone,
+  reviewed_by uuid,
+  CONSTRAINT student_group_join_requests_pkey PRIMARY KEY (id),
+  CONSTRAINT student_group_join_requests_group_id_fkey FOREIGN KEY (group_id) REFERENCES public.student_groups(id),
+  CONSTRAINT student_group_join_requests_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id),
+  CONSTRAINT student_group_join_requests_reviewed_by_fkey FOREIGN KEY (reviewed_by) REFERENCES public.users(id)
+);
+CREATE TABLE public.student_group_members (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  group_id uuid,
+  user_id uuid,
+  role text DEFAULT 'member'::text CHECK (role = ANY (ARRAY['member'::text, 'admin'::text])),
+  joined_at timestamp with time zone DEFAULT now(),
+  is_blocked boolean DEFAULT false,
+  CONSTRAINT student_group_members_pkey PRIMARY KEY (id),
+  CONSTRAINT student_group_members_group_id_fkey FOREIGN KEY (group_id) REFERENCES public.student_groups(id),
+  CONSTRAINT student_group_members_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id)
+);
+CREATE TABLE public.student_group_messages (
+  id uuid NOT NULL,
+  group_id uuid,
+  sender_id uuid,
+  content text NOT NULL,
+  is_deleted boolean DEFAULT false,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT student_group_messages_pkey PRIMARY KEY (id),
+  CONSTRAINT student_group_messages_group_id_fkey FOREIGN KEY (group_id) REFERENCES public.student_groups(id),
+  CONSTRAINT student_group_messages_sender_id_fkey FOREIGN KEY (sender_id) REFERENCES public.users(id)
+);
+CREATE TABLE public.student_groups (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  name text NOT NULL,
+  slug text NOT NULL,
+  description text,
+  is_private boolean DEFAULT false,
+  college_id uuid,
+  parent_community_id uuid,
+  created_by uuid,
+  member_count integer DEFAULT 1,
+  is_active boolean DEFAULT true,
+  auto_delete_at timestamp with time zone,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  scope text NOT NULL DEFAULT 'college'::text CHECK (scope = ANY (ARRAY['college'::text, 'public'::text, 'private'::text])),
+  price integer DEFAULT 0,
+  is_premium_group boolean DEFAULT false,
+  CONSTRAINT student_groups_pkey PRIMARY KEY (id),
+  CONSTRAINT student_groups_college_id_fkey FOREIGN KEY (college_id) REFERENCES public.colleges(id),
+  CONSTRAINT student_groups_parent_community_id_fkey FOREIGN KEY (parent_community_id) REFERENCES public.communities(id),
+  CONSTRAINT student_groups_created_by_fkey FOREIGN KEY (created_by) REFERENCES public.users(id)
+);
+CREATE TABLE public.users (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  full_name text NOT NULL,
+  email text NOT NULL UNIQUE,
+  avatar_url text,
+  bio text,
+  role text DEFAULT 'student'::text CHECK (role = ANY (ARRAY['student'::text, 'senior'::text, 'admin'::text])),
+  unique_id text UNIQUE,
+  college_id uuid,
+  branch text,
+  year integer CHECK (year >= 1 AND year <= 4),
+  cgpa numeric,
+  passout_year integer,
+  company text,
+  designation text,
+  graduation_year integer,
+  linkedin_url text,
+  is_verified boolean DEFAULT true,
+  verification_type text DEFAULT 'manual'::text CHECK (verification_type = ANY (ARRAY['college_email'::text, 'linkedin'::text, 'work_email'::text, 'manual'::text, 'community'::text])),
+  verification_status text DEFAULT 'verified'::text CHECK (verification_status = ANY (ARRAY['pending'::text, 'verified'::text, 'rejected'::text])),
+  community_confirmations integer DEFAULT 0,
+  rise_points integer DEFAULT 0,
+  rp_level integer DEFAULT 1,
+  doubt_count integer DEFAULT 0,
+  answer_count integer DEFAULT 0,
+  referral_count integer DEFAULT 0,
+  webinar_count integer DEFAULT 0,
+  is_premium boolean DEFAULT false,
+  premium_plan text DEFAULT 'free'::text CHECK (premium_plan = ANY (ARRAY['free'::text, 'premium'::text, 'placement_pro'::text])),
+  premium_expires_at timestamp with time zone,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  password_hash text,
+  last_visit_date date,
+  onesignal_player_id text,
+  reset_token text,
+  reset_token_expiry timestamp with time zone,
+  reset_otp text,
+  reset_otp_expiry timestamp with time zone,
+  CONSTRAINT users_pkey PRIMARY KEY (id),
+  CONSTRAINT users_college_id_fkey FOREIGN KEY (college_id) REFERENCES public.colleges(id)
+);
+CREATE TABLE public.votes (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  user_id uuid,
+  post_id uuid,
+  answer_id uuid,
+  vote_type text CHECK (vote_type = ANY (ARRAY['upvote'::text, 'downvote'::text])),
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT votes_pkey PRIMARY KEY (id),
+  CONSTRAINT votes_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id),
+  CONSTRAINT votes_post_id_fkey FOREIGN KEY (post_id) REFERENCES public.posts(id),
+  CONSTRAINT votes_answer_id_fkey FOREIGN KEY (answer_id) REFERENCES public.answers(id)
+);
+CREATE TABLE public.webinar_registrations (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  webinar_id uuid,
+  user_id uuid,
+  amount_paid integer,
+  payment_id text,
+  attended boolean DEFAULT false,
+  rating integer CHECK (rating >= 1 AND rating <= 5),
+  review text,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT webinar_registrations_pkey PRIMARY KEY (id),
+  CONSTRAINT webinar_registrations_webinar_id_fkey FOREIGN KEY (webinar_id) REFERENCES public.webinars(id),
+  CONSTRAINT webinar_registrations_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id)
+);
+CREATE TABLE public.webinars (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  host_id uuid,
+  community_id uuid,
+  title text NOT NULL,
+  description text,
+  scheduled_at timestamp with time zone NOT NULL,
+  duration_mins integer DEFAULT 60,
+  price integer DEFAULT 0,
+  max_seats integer DEFAULT 50,
+  registered_count integer DEFAULT 0,
+  meet_link text,
+  rating numeric,
+  rating_count integer DEFAULT 0,
+  earnings numeric DEFAULT 0,
+  status text DEFAULT 'upcoming'::text CHECK (status = ANY (ARRAY['upcoming'::text, 'live'::text, 'completed'::text, 'cancelled'::text])),
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT webinars_pkey PRIMARY KEY (id),
+  CONSTRAINT webinars_host_id_fkey FOREIGN KEY (host_id) REFERENCES public.users(id),
+  CONSTRAINT webinars_community_id_fkey FOREIGN KEY (community_id) REFERENCES public.communities(id)
+);

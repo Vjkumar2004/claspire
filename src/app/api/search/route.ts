@@ -324,41 +324,48 @@ export async function GET(req: NextRequest) {
           slug,
           description,
           member_count,
-          post_count
+          college_id,
+          colleges ( name, short_name, logo_url )
         `)
+        .eq('is_active', true)
+        .eq('is_private', false)
         .or(commOr)
-        .limit(20)
+        .limit(30)
 
       if (communities && !error) {
-        communities.forEach((c) => {
+        communities.forEach((c: any) => {
           let score = 25
           const nameLower = c.display_name.toLowerCase()
+          const slugLower = c.slug.toLowerCase()
           const similarity = getSimilarity(nameLower, query)
 
-          if (nameLower === query) score += 200 // Higher score for exact matches
-          else if (nameLower.startsWith(query)) score += 130
-          else if (nameLower.includes(query)) score += 80
-          else if (similarity > 0.65) score += similarity * 80
+          if (nameLower === query || slugLower === query) score += 250 // Exact name or slug match
+          else if (nameLower.startsWith(query) || slugLower.startsWith(query)) score += 150
+          else if (nameLower.includes(query) || slugLower.includes(query)) score += 100
+          else if (similarity > 0.65) score += similarity * 100
           
-          // Boost if exact matching college community slug
+          // Boost if exact matching college community
+          if (c.college_id && matchedCollegeIds.includes(c.college_id)) {
+            score += 120
+          }
           if (matchedCollegeSlugs.includes(c.slug)) {
             score += 100
           }
 
           if (searchIntent === 'institution') {
-            score += 100 // Boost extremely high for institution matches
+            score += 120 // Boost extremely high for institution matches
           }
 
           results.push({
             id: c.id,
             type: 'community',
             title: c.display_name,
-            subtitle: `c/${c.slug}`,
+            subtitle: `c/${c.slug} • Community Hub`,
             metadata: {
               member_count: c.member_count || 0
             },
             description: c.description || 'Active hub for mentorship, jobs, and networking.',
-            imageUrl: getCollegeLogo(c.slug),
+            imageUrl: c.colleges?.logo_url || getCollegeLogo(c.slug),
             href: `/community/c/${c.slug}`,
             score
           })
@@ -417,43 +424,55 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    // 5. Search Public Groups (Strict Backend Security: is_private = false & is_active = true)
+    // 5. Search Public Groups (Strict Relational Matching + Both groups & student_groups)
     if (filterType === 'all' || filterType === 'groups') {
-      let groupOr = `name.ilike.%${query}%,description.ilike.%${query}%,slug.ilike.%${query}%`
-      matchedCollegeSlugs.forEach(slug => {
-        groupOr += `,slug.ilike.%${slug}%`
-      })
+      // A. Query student_groups
+      let sgOr = `name.ilike.%${query}%,description.ilike.%${query}%,slug.ilike.%${query}%`
+      if (matchedCollegeIds.length > 0) {
+        sgOr += `,college_id.in.(${matchedCollegeIds.map(id => id).join(',')})`
+      }
+      if (matchedCommunityIds.length > 0) {
+        sgOr += `,parent_community_id.in.(${matchedCommunityIds.map(id => id).join(',')})`
+      }
 
-      const { data: groups, error } = await supabase
+      const { data: studentGroups, error: sgErr } = await supabase
         .from('student_groups')
         .select(`
           id,
           name,
           slug,
           description,
-          member_count
+          member_count,
+          college_id,
+          parent_community_id,
+          colleges ( name, short_name, logo_url, slug ),
+          communities ( display_name, slug )
         `)
-        .eq('is_private', false)
         .eq('is_active', true)
-        .or(groupOr)
-        .limit(20)
+        .eq('is_private', false)
+        .or(sgOr)
+        .limit(30)
 
-      if (groups && !error) {
-        groups.forEach((g) => {
+      if (studentGroups && !sgErr) {
+        studentGroups.forEach((g: any) => {
           let score = 20
           const nameLower = g.name.toLowerCase()
+          const slugLower = g.slug.toLowerCase()
           const similarity = getSimilarity(nameLower, query)
 
-          if (nameLower === query) score += 180
-          else if (nameLower.startsWith(query)) score += 120
-          else if (nameLower.includes(query)) score += 70
+          // Priority 1: Direct name/slug match
+          if (nameLower === query || slugLower === query) score += 180
+          else if (nameLower.startsWith(query) || slugLower.startsWith(query)) score += 120
+          else if (nameLower.includes(query) || slugLower.includes(query)) score += 70
           else if (similarity > 0.65) score += similarity * 80
 
-          matchedCollegeSlugs.forEach(slug => {
-            if (g.slug.toLowerCase().includes(slug.toLowerCase())) {
-              score += 40
-            }
-          })
+          // Priority 2: Community / College Relationship Match
+          if (g.college_id && matchedCollegeIds.includes(g.college_id)) {
+            score += 80
+          }
+          if (g.parent_community_id && matchedCommunityIds.includes(g.parent_community_id)) {
+            score += 90
+          }
 
           if (searchIntent === 'institution') {
             score += 80
@@ -463,13 +482,81 @@ export async function GET(req: NextRequest) {
             id: g.id,
             type: 'group',
             title: g.name,
-            subtitle: `Public Group`,
+            subtitle: g.colleges?.short_name ? `${g.colleges.short_name} Student Group` : 'Student Group',
             metadata: {
               member_count: g.member_count || 0
             },
-            description: g.description || 'Public study, career, or interest group.',
-            imageUrl: null,
-            href: `/groups`,
+            description: g.description || 'Public student, career, or interest group.',
+            imageUrl: g.colleges?.logo_url || getCollegeLogo(g.colleges?.slug || ''),
+            href: `/community/c/${g.communities?.slug || 'general'}/group/${g.slug}`,
+            score
+          })
+        })
+      }
+
+      // B. Query standard groups
+      let gOr = `name.ilike.%${query}%,slug.ilike.%${query}%`
+      if (matchedCommunityIds.length > 0) {
+        gOr += `,community_id.in.(${matchedCommunityIds.map(id => id).join(',')})`
+      }
+
+      const { data: standardGroups, error: gErr } = await supabase
+        .from('groups')
+        .select(`
+          id,
+          name,
+          slug,
+          community_id,
+          member_count,
+          communities (
+            display_name,
+            slug,
+            college_id,
+            colleges ( name, short_name, logo_url, slug )
+          )
+        `)
+        .eq('is_active', true)
+        .eq('type', 'public')
+        .or(gOr)
+        .limit(30)
+
+      if (standardGroups && !gErr) {
+        standardGroups.forEach((g: any) => {
+          let score = 20
+          const nameLower = g.name.toLowerCase()
+          const slugLower = g.slug.toLowerCase()
+          const similarity = getSimilarity(nameLower, query)
+
+          // Priority 1: Direct name/slug match
+          if (nameLower === query || slugLower === query) score += 180
+          else if (nameLower.startsWith(query) || slugLower.startsWith(query)) score += 120
+          else if (nameLower.includes(query) || slugLower.includes(query)) score += 70
+          else if (similarity > 0.65) score += similarity * 80
+
+          // Priority 2: Community / College Relationship Match
+          if (g.community_id && matchedCommunityIds.includes(g.community_id)) {
+            score += 90
+          }
+          const collId = g.communities?.college_id
+          if (collId && matchedCollegeIds.includes(collId)) {
+            score += 80
+          }
+
+          if (searchIntent === 'institution') {
+            score += 80
+          }
+
+          results.push({
+            id: g.id,
+            type: 'group',
+            title: g.name,
+            subtitle: g.communities?.colleges?.short_name ? `${g.communities.colleges.short_name} Placement Group` : 'Public Group',
+            metadata: {
+              member_count: g.member_count || 0
+            },
+            description: `Public group for discussion, placement preparation, and sharing ideas.`,
+            imageUrl: g.communities?.colleges?.logo_url || getCollegeLogo(g.communities?.colleges?.slug || g.communities?.slug || ''),
+            href: `/community/c/${g.communities?.slug || 'general'}/group/${g.slug}`,
             score
           })
         })

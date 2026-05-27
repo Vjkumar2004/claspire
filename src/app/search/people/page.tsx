@@ -2,6 +2,6 @@
 import React from 'react'
 import SearchPageLayout from '@/components/search/SearchPageLayout'
 
-export default function SearchPage() {
-  return <SearchPageLayout activeFilter="all" />
+export default function SearchPeoplePage() {
+  return <SearchPageLayout activeFilter="people" />
 }
