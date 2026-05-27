@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import bcrypt from 'bcryptjs'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder'
+  process.env.SUPABASE_SECRET_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder'
 )
 
 export async function POST(request: NextRequest) {
@@ -37,8 +38,8 @@ export async function POST(request: NextRequest) {
       console.error('Database error:', userError)
       
       // Check if the error is due to missing columns
-      if (userError.message.includes('column "reset_token" does not exist') || 
-          userError.message.includes('column "reset_token_expiry" does not exist')) {
+      if (userError.message?.includes('column "reset_token" does not exist') || 
+          userError.message?.includes('column "reset_token_expiry" does not exist')) {
         return NextResponse.json(
           { 
             error: 'Database schema not updated. Please run the migration to add password reset fields.',
@@ -88,16 +89,14 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Hash the password (you should use a proper hashing library like bcrypt)
-    // For now, we'll store it as-is, but in production, ALWAYS hash passwords
-    // import bcrypt from 'bcryptjs'
-    // const hashedPassword = await bcrypt.hash(password, 12)
+    // Hash the password using bcryptjs to match login route
+    const hashedPassword = await bcrypt.hash(password, 10)
 
     // Update user's password and clear reset token
     const { error: updateError } = await supabase
       .from('users')
       .update({
-        password: password, // In production, use hashed password
+        password_hash: hashedPassword,
         reset_token: null,
         reset_token_expiry: null,
         updated_at: new Date().toISOString()
@@ -107,7 +106,7 @@ export async function POST(request: NextRequest) {
     if (updateError) {
       console.error('Error updating password:', updateError)
       return NextResponse.json(
-        { error: 'Failed to reset password' },
+        { error: updateError.message || 'Failed to reset password', details: updateError },
         { status: 500 }
       )
     }
@@ -117,10 +116,10 @@ export async function POST(request: NextRequest) {
       message: 'Password has been reset successfully'
     })
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Reset password error:', error)
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: error?.message || 'Internal server error', details: error?.stack || error },
       { status: 500 }
     )
   }

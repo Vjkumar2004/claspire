@@ -107,14 +107,14 @@ function ResetPasswordPageContent() {
       if (response.ok) {
         setSuccess(true)
       } else {
-        const errorData = await response.json()
-        if (errorData.requiresMigration) {
+        if (data.requiresMigration) {
           setError('Database setup required. Please contact the administrator to complete the password reset feature setup.')
         } else {
-          setError(errorData.error || 'Failed to reset password')
+          setError(data.error || 'Failed to reset password')
         }
       }
     } catch (err) {
+      console.error(err)
       setError('Something went wrong. Please try again.')
     } finally {
       setLoading(false)

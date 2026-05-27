@@ -26,7 +26,7 @@ export default function ForgotPasswordPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email: email.toLowerCase().trim() }),
       })
 
       const data = await response.json()
@@ -34,11 +34,10 @@ export default function ForgotPasswordPage() {
       if (response.ok) {
         setStep('otp')
       } else {
-        const errorData = await response.json()
-        if (errorData.requiresMigration) {
+        if (data.requiresMigration) {
           setError('Database setup required. Please contact the administrator to complete the password reset feature setup.')
         } else {
-          setError(errorData.error || 'Failed to send OTP')
+          setError(data.error || 'Failed to send OTP')
         }
       }
     } catch (err) {
@@ -59,7 +58,11 @@ export default function ForgotPasswordPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, otp }),
+        body: JSON.stringify({
+          email: email.toLowerCase().trim(),
+          otp,
+          purpose: 'password_reset',
+        }),
       })
 
       const data = await response.json()
