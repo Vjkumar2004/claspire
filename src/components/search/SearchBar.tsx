@@ -10,6 +10,7 @@ interface SuggestionItem {
   subtitle: string
   imageUrl: string | null
   href: string
+  score?: number
 }
 
 export interface RecentSearchItem {

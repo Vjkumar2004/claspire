@@ -549,10 +549,10 @@ function CommunityPageContent() {
       const data = await res.json()
       if (!data.success || !data.communities?.length) return list
 
-      const countsBySlug = new Map(
+      const countsBySlug = new Map<string, number>(
         data.communities.map((c: any) => [c.slug, c.member_count || 0])
       )
-      const seniorsBySlug = new Map(
+      const seniorsBySlug = new Map<string, number>(
         data.communities.map((c: any) => [c.slug, c.senior_count || 0])
       )
 
@@ -561,11 +561,11 @@ function CommunityPageContent() {
           ...c,
           member_count: Math.max(
             c.member_count || 0,
-            countsBySlug.get(c.slug) || 0
+            (countsBySlug.get(c.slug) as number) || 0
           ),
           senior_count: Math.max(
             c.senior_count || 0,
-            seniorsBySlug.get(c.slug) || 0
+            (seniorsBySlug.get(c.slug) as number) || 0
           ),
         }))
         .sort((a, b) => (b.member_count || 0) - (a.member_count || 0))
