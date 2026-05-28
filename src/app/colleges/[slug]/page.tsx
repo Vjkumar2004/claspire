@@ -250,21 +250,7 @@ export default async function CollegePage({ params }: { params: Promise<{ slug: 
     }
   }
 
-  const getCollegeLogo = (collegeSlug: string) => {
-    const logoMap: Record<string, string> = {
-      'aaacet': '/aaaclg_logo.jpg',
-      'vvvclg': '/vvvclogo.png',
-      'vvv': '/vvvclogo.png',
-      'anjac': '/anjac.jpg',
-      'sfr': '/sfr.jpg',
-      'skc': '/skc.jpg',
-      'kamaraj': '/kamaraj.jpg',
-      'agpc': '/agpc.jpg',
-    }
-    return logoMap[collegeSlug] || null
-  }
-
-  const collegeLogo = getCollegeLogo(slug)
+  const collegeLogo = community.colleges?.logo_url || null
 
   return (
     <>

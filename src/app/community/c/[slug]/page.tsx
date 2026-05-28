@@ -6,14 +6,15 @@ import {
   ChevronRight, Users, Star, MapPin, MessageSquare,
   Briefcase, Video, Lock, Shield,
   Clock, TrendingUp, Calendar,
-  Building, Globe, Award, Activity, Target, Zap,
-  Info, X, GraduationCap, MessageCircle, Crown,
+  Globe, Award, Activity, Target, Zap,
+  X, GraduationCap, MessageCircle, Crown,
   CheckCircle, Search, MoreHorizontal,
   Share2, ArrowUp, MessageSquarePlus, LayoutGrid, DollarSign,
   Sparkles, ArrowRight
 } from 'lucide-react'
 import PostModal from '@/components/PostModal'
 import CreateGroupModal from '@/components/CreateGroupModal'
+import { getCollegeLogo, getCollegeInitial } from '@/lib/college-utils'
 
 function CommunityPageContent({ params }: { params: Promise<{ slug: string }> }) {
   const router = useRouter()
@@ -25,7 +26,6 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
   const [loading, setLoading] = useState(true)
   const [currentUser, setCurrentUser] = useState<any>(null)
   const [activeTab, setActiveTab] = useState('feed')
-  const [showDetailsModal, setShowDetailsModal] = useState(false)
   const [showPostModal, setShowPostModal] = useState(false)
   const [referralConfirmOpen, setReferralConfirmOpen] = useState(false)
   const [selectedJob, setSelectedJob] = useState<any>(null)
@@ -37,6 +37,17 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
   const [groupsLoading, setGroupsLoading] = useState(true)
   const [showMembersModal, setShowMembersModal] = useState(false)
   const [members, setMembers] = useState<any[]>([])
+  const [memberGroups, setMemberGroups] = useState({
+    ownStudents: [] as any[],
+    ownSeniors: [] as any[],
+    otherCollege: [] as any[],
+  })
+  const [memberCounts, setMemberCounts] = useState({
+    ownStudents: 0,
+    ownSeniors: 0,
+    otherCollege: 0,
+    total: 0,
+  })
   const [membersLoading, setMembersLoading] = useState(false)
   const [showCreateGroupModal, setShowCreateGroupModal] = useState(false)
 
@@ -84,7 +95,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
       }
       const json = await res.json()
       setData(json)
-      setHasJoined(json.isJoined || false)
+      setHasJoined(json.isJoined || json.isAlreadyMember || false)
     } catch {
       router.push('/community')
     } finally {
@@ -126,6 +137,19 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
       if (res.ok) {
         const json = await res.json()
         setMembers(json.members || [])
+        setMemberGroups({
+          ownStudents: json.groups?.ownStudents || [],
+          ownSeniors: json.groups?.ownSeniors || [],
+          otherCollege: json.groups?.otherCollege || [],
+        })
+        setMemberCounts(
+          json.counts || {
+            ownStudents: 0,
+            ownSeniors: 0,
+            otherCollege: 0,
+            total: (json.members || []).length,
+          }
+        )
       }
     } catch {
       console.error('Failed to fetch community members')
@@ -175,8 +199,25 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
 
       if (result.success) {
         setHasJoined(true)
-        // Refresh community data to update member count
         await fetchCommunity()
+        if (result.memberCount != null) {
+          setData((prev: any) =>
+            prev
+              ? {
+                  ...prev,
+                  isJoined: true,
+                  isAlreadyMember: true,
+                  totalMembers: result.memberCount,
+                  seniorCount: result.seniorCount ?? prev.seniorCount,
+                  community: {
+                    ...prev.community,
+                    member_count: result.memberCount,
+                    senior_count: result.seniorCount ?? prev.community?.senior_count,
+                  },
+                }
+              : prev
+          )
+        }
       } else {
         alert(result.error || 'Failed to join')
         console.error(result.error)
@@ -231,6 +272,109 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
     </div>
   )
 
+  const renderMemberRow = (
+    member: any,
+    style: { bg: string; border: string; avatarBg: string }
+  ) => (
+    <div
+      key={member.id}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 12,
+        padding: 12,
+        background: style.bg,
+        border: `1px solid ${style.border}`,
+        borderRadius: 12,
+        transition: 'all 0.2s',
+      }}
+    >
+      <div
+        style={{
+          width: 40,
+          height: 40,
+          borderRadius: '50%',
+          background: member.avatar_url ? 'transparent' : style.avatarBg,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: 'white',
+          fontSize: 14,
+          fontWeight: 800,
+          overflow: 'hidden',
+          flexShrink: 0,
+        }}
+      >
+        {member.avatar_url ? (
+          <img
+            src={member.avatar_url}
+            alt={member.full_name}
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          />
+        ) : (
+          member.full_name?.[0] || '?'
+        )}
+      </div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2, flexWrap: 'wrap' }}>
+          <p
+            style={{
+              fontSize: 14,
+              fontWeight: 600,
+              color: '#0F172A',
+              margin: 0,
+            }}
+          >
+            {member.full_name}
+          </p>
+          {member.is_verified && (
+            <span
+              style={{
+                fontSize: 9,
+                fontWeight: 800,
+                color: '#059669',
+                background: '#D1FAE5',
+                padding: '2px 6px',
+                borderRadius: 100,
+              }}
+            >
+              Verified
+            </span>
+          )}
+          {member.member_category === 'other_college' && (
+            <span
+              style={{
+                fontSize: 9,
+                fontWeight: 800,
+                color: '#0369A1',
+                background: '#E0F2FE',
+                padding: '2px 6px',
+                borderRadius: 100,
+              }}
+            >
+              Network
+            </span>
+          )}
+        </div>
+        <p style={{ fontSize: 12, color: '#64748B', margin: 0 }}>
+          {member.member_category === 'other_college' ? (
+            <>
+              {member.college_short_name || member.college_name || 'Other college'}
+              {member.role === 'senior' ? ' · Senior' : ' · Student'}
+            </>
+          ) : member.role === 'senior' ? (
+            <>Senior · {community.colleges?.short_name || community.colleges?.name || 'This college'}</>
+          ) : (
+            <>Student · {community.colleges?.short_name || community.colleges?.name || 'This college'}</>
+          )}
+        </p>
+        {member.unique_id && (
+          <p style={{ fontSize: 11, color: '#94A3B8', margin: '2px 0 0' }}>@{member.unique_id}</p>
+        )}
+      </div>
+    </div>
+  )
+
   const topContributors = useMemo(() => {
     if (!data?.posts) return []
     const map: any = {}
@@ -260,6 +404,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
     community,
     verifiedJuniors = 0,
     verifiedSeniors = 0,
+    seniorCount = 0,
     posts = [],
     jobs = [],
     webinars = [],
@@ -270,6 +415,15 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
     isAlreadyMember,
     totalMembers = 0
   } = data || {}
+
+  const displayMemberCount =
+    typeof totalMembers === 'number'
+      ? totalMembers
+      : (community?.member_count ?? 0)
+  const displaySeniorCount =
+    typeof seniorCount === 'number'
+      ? seniorCount
+      : (verifiedSeniors ?? community?.senior_count ?? 0)
 
   // Auto-open logic moved to top
 
@@ -352,9 +506,9 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
               <div style={{
                 width: '100%',
                 height: '100%',
-                background: (community.slug === 'aaacet' || community.slug === 'vvvclg' || community.slug === 'vvv' || community.slug === 'anjac' || community.slug === 'sfr' || community.slug === 'skc' || community.slug === 'kamaraj' || community.slug === 'agpc') ? 'white' : 'linear-gradient(135deg, #7C3AED, #4F46E5)',
+                background: getCollegeLogo(community.colleges) ? 'white' : 'linear-gradient(135deg, #7C3AED, #4F46E5)',
                 borderRadius: 24,
-                padding: (community.slug === 'aaacet' || community.slug === 'vvvclg' || community.slug === 'vvv' || community.slug === 'anjac' || community.slug === 'sfr' || community.slug === 'skc' || community.slug === 'kamaraj' || community.slug === 'agpc') ? 10 : 0,
+                padding: getCollegeLogo(community.colleges) ? 10 : 0,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -363,32 +517,28 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                 fontSize: 48,
                 fontWeight: 800
               }}>
-                {community.slug === 'aaacet' ? (
-                  <img src="/aaaclg_logo.jpg" alt="AAACET" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                ) : (community.slug === 'vvvclg' || community.slug === 'vvv') ? (
-                  <img src="/vvvclogo.png" alt="VVV" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                ) : community.slug === 'anjac' ? (
-                  <img src="/anjac.jpg" alt="ANJAC" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                ) : community.slug === 'sfr' ? (
-                  <img src="/sfr.jpg" alt="SFR" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                ) : community.slug === 'skc' ? (
-                  <img src="/skc.jpg" alt="SKC" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                ) : community.slug === 'kamaraj' ? (
-                  <img src="/kamaraj.jpg" alt="Kamaraj" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                ) : community.slug === 'agpc' ? (
-                  <img src="/agpc.jpg" alt="AGPC" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                {getCollegeLogo(community.colleges) ? (
+                  <img
+                    src={getCollegeLogo(community.colleges)!}
+                    alt={community.colleges?.short_name || community.slug}
+                    style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                  />
                 ) : (
-                  community.colleges?.short_name?.[0] || community.slug?.[0]?.toUpperCase() || 'C'
+                  getCollegeInitial(community.colleges)
                 )}
               </div>
             </div>
 
             <div style={{ flex: 1, minWidth: 320 }}>
-              <div className="hero-stats" style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
+              <div className="hero-stats" style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20, flexWrap: 'wrap' }}>
                 <div style={{ background: 'rgba(124, 58, 237, 0.15)', color: '#A78BFA', padding: '6px 16px', borderRadius: 100, fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', border: '1px solid rgba(124, 58, 237, 0.3)' }}>Official Hub</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'white', fontSize: 13, fontWeight: 600 }}>
-                  <div style={{ width: 6, height: 6, background: '#10B981', borderRadius: '50%', boxShadow: '0 0 10px #10B981' }} />
-                  {(totalMembers || community.member_count || (verifiedJuniors + verifiedSeniors))} Members
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'white', fontSize: 13, fontWeight: 600, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', padding: '6px 14px', borderRadius: 100 }}>
+                  <Users size={14} style={{ color: '#A78BFA' }} />
+                  {displayMemberCount} Members
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'white', fontSize: 13, fontWeight: 600, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', padding: '6px 14px', borderRadius: 100 }}>
+                  <Crown size={14} style={{ color: '#F59E0B' }} />
+                  {displaySeniorCount} Seniors
                 </div>
               </div>
 
@@ -396,13 +546,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                 {community.colleges?.name}
               </h1>
 
-              <div className="hero-actions" style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-                <button onClick={() => setShowDetailsModal(true)} style={{ background: 'rgba(255,255,255,0.08)', color: 'white', border: '1px solid rgba(255,255,255,0.15)', padding: '10px 20px', borderRadius: 14, fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, transition: 'all 0.2s' }} onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'} onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}>
-                  <Info size={14} /> Community Insight
-                </button>
-                <button onClick={() => { fetchCommunityMembers(); setShowMembersModal(true) }} style={{ background: 'rgba(255,255,255,0.08)', color: 'white', border: '1px solid rgba(255,255,255,0.15)', padding: '10px 20px', borderRadius: 14, fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, transition: 'all 0.2s' }} onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'} onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}>
-                  <Users size={14} /> View Members
-                </button>
+              <div className="hero-actions" style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
                 {userRole === 'guest' ? (
                   <button
                     onClick={() => router.push('/signup')}
@@ -421,74 +565,63 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                     onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
                     onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
                   >
-                    Join Free →
+                    Join Community
                   </button>
-                ) : (userRole === 'own_junior' || userRole === 'own_senior') ? (
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 8,
-                    background: 'rgba(16, 185, 129, 0.15)',
-                    border: '1px solid rgba(16, 185, 129, 0.3)',
-                    padding: '10px 20px',
-                    borderRadius: 14,
-                    fontSize: 12,
-                    fontWeight: 700,
-                    color: '#6EE7B7'
-                  }}>
-                    <CheckCircle size={16} />
-                    {userRole === 'own_senior' ? 'Verified Senior ✓' : 'Verified Member ✓'}
-                  </div>
-                ) : userRole === 'other_college' ? (
-                  hasJoined ? (
-                    <div style={{
+                ) : (hasJoined || isAlreadyMember) ? (
+                  <button
+                    disabled
+                    style={{
                       display: 'flex',
                       alignItems: 'center',
                       gap: 8,
-                      background: 'rgba(124, 58, 237, 0.15)',
-                      border: '1px solid rgba(124, 58, 237, 0.3)',
+                      background: 'rgba(16, 185, 129, 0.15)',
+                      border: '1px solid rgba(16, 185, 129, 0.3)',
                       padding: '10px 20px',
                       borderRadius: 14,
                       fontSize: 12,
                       fontWeight: 700,
-                      color: '#C4B5FD'
-                    }}>
-                      <CheckCircle size={16} /> Joined Network ✓
-                    </div>
-                  ) : (
-                    <button
-                      onClick={handleJoin}
-                      disabled={joining}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 8,
-                        background: joining ? 'rgba(255,255,255,0.1)' : 'white',
-                        color: '#4C1D95',
-                        border: 'none',
-                        padding: '11px 24px',
-                        borderRadius: 14,
-                        fontSize: 12,
-                        fontWeight: 800,
-                        cursor: joining ? 'wait' : 'pointer',
-                        boxShadow: '0 8px 16px rgba(0, 0, 0, 0.15)',
-                        transition: 'all 0.2s',
-                        opacity: joining ? 0.7 : 1
-                      }}
-                      onMouseEnter={e => !joining && (e.currentTarget.style.transform = 'translateY(-2px)')}
-                      onMouseLeave={e => !joining && (e.currentTarget.style.transform = 'translateY(0)')}
-                    >
-                      {joining ? (
-                        <>
-                          <div style={{ width: 14, height: 14, border: '2px solid #4C1D95', borderTop: '2px solid transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
-                          Joining...
-                        </>
-                      ) : (
-                        'Join Network →'
-                      )}
-                    </button>
-                  )
-                ) : null}
+                      color: '#6EE7B7',
+                      cursor: 'default'
+                    }}
+                  >
+                    <CheckCircle size={16} /> Joined
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleJoin}
+                    disabled={joining}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8,
+                      background: joining ? 'rgba(255,255,255,0.1)' : 'linear-gradient(135deg, #7C3AED, #06B6D4)',
+                      color: 'white',
+                      border: 'none',
+                      padding: '11px 24px',
+                      borderRadius: 14,
+                      fontSize: 12,
+                      fontWeight: 800,
+                      cursor: joining ? 'wait' : 'pointer',
+                      boxShadow: '0 8px 16px rgba(124, 58, 237, 0.25)',
+                      transition: 'all 0.2s',
+                      opacity: joining ? 0.7 : 1
+                    }}
+                    onMouseEnter={e => !joining && (e.currentTarget.style.transform = 'translateY(-2px)')}
+                    onMouseLeave={e => !joining && (e.currentTarget.style.transform = 'translateY(0)')}
+                  >
+                    {joining ? (
+                      <>
+                        <div style={{ width: 14, height: 14, border: '2px solid white', borderTop: '2px solid transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+                        Joining...
+                      </>
+                    ) : (
+                      'Join Community'
+                    )}
+                  </button>
+                )}
+                <button onClick={() => { fetchCommunityMembers(); setShowMembersModal(true) }} style={{ background: 'rgba(255,255,255,0.08)', color: 'white', border: '1px solid rgba(255,255,255,0.15)', padding: '10px 20px', borderRadius: 14, fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, transition: 'all 0.2s' }} onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'} onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}>
+                  <Users size={14} /> View Members
+                </button>
               </div>
             </div>
           </div>
@@ -515,6 +648,33 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
         <div className="animate-fade">
           {activeTab === 'feed' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+              {canPost && (
+                <button
+                  onClick={() => setShowPostModal(true)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 8,
+                    background: 'linear-gradient(135deg, #7C3AED, #06B6D4)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: 16,
+                    padding: '14px 20px',
+                    fontSize: 13,
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    boxShadow: '0 8px 20px rgba(124, 58, 237, 0.2)'
+                  }}
+                >
+                  <MessageSquarePlus size={16} /> Create Post
+                </button>
+              )}
+              {(hasJoined || isAlreadyMember) && !canPost && userRole !== 'guest' && (
+                <div style={{ padding: '12px 16px', borderRadius: 14, background: '#F5F3FF', border: '1px solid #DDD6FE', fontSize: 12, color: '#5B21B6', fontWeight: 600 }}>
+                  You joined this community as a member. You can view posts and get updates, but only students from this college can post here.
+                </div>
+              )}
               {posts.length > 0 ? (
                 posts.map((post: any) => {
                   const s = getTypeStyle(post.type)
@@ -563,7 +723,10 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                               {post.users?.full_name}
                               {post.users?.role === 'senior' && <Crown size={12} color="#F59E0B" />}
                             </div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 1 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 1, flexWrap: 'wrap' }}>
+                              {post.is_network_post && (
+                                <span style={{ fontSize: 10, fontWeight: 800, color: '#7C3AED', background: '#F5F3FF', padding: '2px 8px', borderRadius: 100, border: '1px solid #DDD6FE', textTransform: 'uppercase' }}>Network</span>
+                              )}
                               <span style={{ fontSize: 10, fontWeight: 800, color: s.color, background: s.bg, padding: '2px 8px', borderRadius: 100, border: `1px solid ${s.border}`, textTransform: 'uppercase' }}>{s.label}</span>
                               <span style={{ fontSize: 10, color: '#94A3B8', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
                                 <Clock size={10} /> {timeAgo(post.created_at)}
@@ -1196,48 +1359,6 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
       </div>
 
       {/* ── MODALS ── */}
-      {showDetailsModal && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(12px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
-          <div className="animate-fade" style={{ background: 'white', width: '100%', maxWidth: 440, borderRadius: 28, overflow: 'hidden', boxShadow: '0 40px 80px rgba(0,0,0,0.4)' }}>
-            <div style={{ background: 'linear-gradient(135deg, #0F172A, #1E1B4B)', padding: '24px 24px 32px', position: 'relative', color: 'white' }}>
-              <button onClick={() => setShowDetailsModal(false)} style={{ position: 'absolute', top: 16, right: 16, background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', width: 32, height: 32, borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><X size={18} /></button>
-              <div style={{ width: 48, height: 48, background: 'white', borderRadius: 12, marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 6, boxShadow: '0 15px 30px rgba(0,0,0,0.2)' }}>
-                <img src="/logo.jpg" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-              </div>
-              <h2 style={{ fontSize: 24, fontFamily: 'Instrument Serif, serif', fontWeight: 400, margin: 0 }}>{community.colleges?.name}</h2>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 12, opacity: 0.7, fontSize: 14 }}>
-                <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><MapPin size={16} /> {community.colleges?.city}, {community.colleges?.state}</span>
-                <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Globe size={16} /> Official Campus c/{slug}</span>
-              </div>
-            </div>
-            <div style={{ padding: '24px' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }}>
-                <div style={{ padding: 16, borderRadius: 16, background: '#F8FAFC', border: '1px solid #F1F5F9' }}>
-                  <div style={{ fontSize: 9, fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', marginBottom: 4 }}>STATUS</div>
-                  <div style={{ fontSize: 14, fontWeight: 800, color: '#1E293B', display: 'flex', alignItems: 'center', gap: 6 }}><Award size={14} color="#10B981" /> Verified</div>
-                </div>
-                <div style={{ padding: 16, borderRadius: 16, background: '#F8FAFC', border: '1px solid #F1F5F9' }}>
-                  <div style={{ fontSize: 9, fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', marginBottom: 4 }}>MEMBERS</div>
-                  <div style={{ fontSize: 14, fontWeight: 800, color: '#1E293B' }}>{(totalMembers > 0 ? totalMembers : (verifiedJuniors + verifiedSeniors))} Peers</div>
-                </div>
-              </div>
-              <div style={{ background: '#F5F3FF', borderRadius: 16, padding: 16, border: '1px solid rgba(124, 58, 237, 0.1)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                  <Building size={14} color="#7C3AED" />
-                  <span style={{ fontSize: 13, fontWeight: 800, color: '#1E293B' }}>Objectives</span>
-                </div>
-                <p style={{ fontSize: 12, color: '#475569', lineHeight: 1.5, margin: 0 }}>
-                  The exclusive digital forum for {community.colleges?.name}. Designed for high-impact professional networking and real-time guidance.
-                </p>
-              </div>
-              <button onClick={() => setShowDetailsModal(false)} style={{ width: '100%', marginTop: 24, background: '#0F172A', color: 'white', border: 'none', padding: '14px', borderRadius: 12, fontSize: 14, fontWeight: 800, cursor: 'pointer', transition: 'transform 0.2s' }} onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'} onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}>
-                Continue
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Premium Upgrade Modal */}
       {showPremiumModal && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
@@ -1350,7 +1471,9 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div>
                   <h3 style={{ fontSize: 20, fontWeight: 800, color: '#0F172A', margin: 0, marginBottom: 4 }}>Community Members</h3>
-                  <p style={{ fontSize: 14, color: '#64748B', margin: 0 }}>{members.length} total members</p>
+                  <p style={{ fontSize: 13, color: '#64748B', margin: 0 }}>
+                    {memberCounts.total} total · {memberCounts.ownStudents} own students · {memberCounts.ownSeniors} seniors · {memberCounts.otherCollege} other colleges
+                  </p>
                 </div>
                 <button
                   onClick={() => setShowMembersModal(false)}
@@ -1378,110 +1501,77 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                   ))}
                 </div>
               ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                  {/* Seniors Section */}
-                  {members.filter(m => m.role === 'senior').length > 0 && (
-                    <div>
-                      <h4 style={{ fontSize: 14, fontWeight: 700, color: '#0F172A', margin: '0 0 12px', display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <Crown size={16} style={{ color: '#F59E0B' }} />
-                        Seniors ({members.filter(m => m.role === 'senior').length})
-                      </h4>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+                  {/* Own college — students */}
+                  <div>
+                    <h4 style={{ fontSize: 13, fontWeight: 800, color: '#5B21B6', margin: '0 0 10px', display: 'flex', alignItems: 'center', gap: 8, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                      <GraduationCap size={15} />
+                      Own College — Students ({memberGroups.ownStudents.length})
+                    </h4>
+                    {memberGroups.ownStudents.length > 0 ? (
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                        {members.filter(m => m.role === 'senior').map((member: any) => (
-                          <div key={member.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 12, background: '#FEF3C7', border: '1px solid #FDE68A', borderRadius: 12, transition: 'all 0.2s' }} onMouseEnter={e => e.currentTarget.style.transform = 'translateX(4px)'} onMouseLeave={e => e.currentTarget.style.transform = 'translateX(0)'}>
-                            <div style={{
-                              width: 40,
-                              height: 40,
-                              borderRadius: '50%',
-                              background: member.avatar_url ? 'transparent' : 'linear-gradient(135deg, #10B981, #34D399)',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              color: 'white',
-                              fontSize: 14,
-                              fontWeight: 800,
-                              overflow: 'hidden',
-                              flexShrink: 0
-                            }}>
-                              {member.avatar_url ? (
-                                <img src={member.avatar_url} alt={member.full_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                              ) : (
-                                member.full_name?.[0] || 'S'
-                              )}
-                            </div>
-                            <div style={{ flex: 1, minWidth: 0 }}>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
-                                <p style={{ fontSize: 14, fontWeight: 600, color: '#0F172A', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                  {member.full_name}
-                                </p>
-                                {member.is_verified && (
-                                  <div style={{ width: 16, height: 16, background: '#10B981', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                    <span style={{ color: 'white', fontSize: 10, fontWeight: 800 }}>✓</span>
-                                  </div>
-                                )}
-                              </div>
-                              <p style={{ fontSize: 12, color: '#64748B', margin: 0 }}>
-                                {member.department || 'Computer Science'} • {member.passout_year || '2024'}
-                              </p>
-                            </div>
-                          </div>
-                        ))}
+                        {memberGroups.ownStudents.map((member) =>
+                          renderMemberRow(member, {
+                            bg: '#F5F3FF',
+                            border: '#DDD6FE',
+                            avatarBg: 'linear-gradient(135deg, #7C3AED, #06B6D4)',
+                          })
+                        )}
                       </div>
-                    </div>
-                  )}
+                    ) : (
+                      <p style={{ fontSize: 12, color: '#94A3B8', margin: 0, padding: '8px 12px', background: '#F8FAFC', borderRadius: 10 }}>
+                        No students from this college yet.
+                      </p>
+                    )}
+                  </div>
 
-                  {/* Juniors Section */}
-                  {members.filter(m => m.role === 'student').length > 0 && (
-                    <div>
-                      <h4 style={{ fontSize: 14, fontWeight: 700, color: '#0F172A', margin: '20px 0 12px', display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <GraduationCap size={16} style={{ color: '#7C3AED' }} />
-                        Juniors ({members.filter(m => m.role === 'student').length})
-                      </h4>
+                  {/* Own college — seniors */}
+                  <div>
+                    <h4 style={{ fontSize: 13, fontWeight: 800, color: '#B45309', margin: '0 0 10px', display: 'flex', alignItems: 'center', gap: 8, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                      <Crown size={15} />
+                      Own College — Seniors ({memberGroups.ownSeniors.length})
+                    </h4>
+                    {memberGroups.ownSeniors.length > 0 ? (
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                        {members.filter(m => m.role === 'student').map((member: any) => (
-                          <div key={member.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 12, background: '#F5F3FF', border: '1px solid #DDD6FE', borderRadius: 12, transition: 'all 0.2s' }} onMouseEnter={e => e.currentTarget.style.transform = 'translateX(4px)'} onMouseLeave={e => e.currentTarget.style.transform = 'translateX(0)'}>
-                            <div style={{
-                              width: 40,
-                              height: 40,
-                              borderRadius: '50%',
-                              background: member.avatar_url ? 'transparent' : 'linear-gradient(135deg, #7C3AED, #06B6D4)',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              color: 'white',
-                              fontSize: 14,
-                              fontWeight: 800,
-                              overflow: 'hidden',
-                              flexShrink: 0
-                            }}>
-                              {member.avatar_url ? (
-                                <img src={member.avatar_url} alt={member.full_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                              ) : (
-                                member.full_name?.[0] || 'J'
-                              )}
-                            </div>
-                            <div style={{ flex: 1, minWidth: 0 }}>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
-                                <p style={{ fontSize: 14, fontWeight: 600, color: '#0F172A', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                  {member.full_name}
-                                </p>
-                                {member.is_verified && (
-                                  <div style={{ width: 16, height: 16, background: '#10B981', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                    <span style={{ color: 'white', fontSize: 10, fontWeight: 800 }}>✓</span>
-                                  </div>
-                                )}
-                              </div>
-                              <p style={{ fontSize: 12, color: '#64748B', margin: 0 }}>
-                                {member.department || 'Computer Science'} • {member.passout_year || '2025'}
-                              </p>
-                            </div>
-                          </div>
-                        ))}
+                        {memberGroups.ownSeniors.map((member) =>
+                          renderMemberRow(member, {
+                            bg: '#FFFBEB',
+                            border: '#FDE68A',
+                            avatarBg: 'linear-gradient(135deg, #F59E0B, #D97706)',
+                          })
+                        )}
                       </div>
-                    </div>
-                  )}
+                    ) : (
+                      <p style={{ fontSize: 12, color: '#94A3B8', margin: 0, padding: '8px 12px', background: '#F8FAFC', borderRadius: 10 }}>
+                        No seniors from this college yet.
+                      </p>
+                    )}
+                  </div>
 
-                  {members.length === 0 && !membersLoading && (
+                  {/* Other colleges — joined network */}
+                  <div>
+                    <h4 style={{ fontSize: 13, fontWeight: 800, color: '#0369A1', margin: '0 0 10px', display: 'flex', alignItems: 'center', gap: 8, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                      <Globe size={15} />
+                      Other Colleges — Joined ({memberGroups.otherCollege.length})
+                    </h4>
+                    {memberGroups.otherCollege.length > 0 ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        {memberGroups.otherCollege.map((member) =>
+                          renderMemberRow(member, {
+                            bg: '#F0F9FF',
+                            border: '#BAE6FD',
+                            avatarBg: 'linear-gradient(135deg, #0EA5E9, #0284C7)',
+                          })
+                        )}
+                      </div>
+                    ) : (
+                      <p style={{ fontSize: 12, color: '#94A3B8', margin: 0, padding: '8px 12px', background: '#F8FAFC', borderRadius: 10 }}>
+                        No members from other colleges have joined yet.
+                      </p>
+                    )}
+                  </div>
+
+                  {memberCounts.total === 0 && !membersLoading && (
                     <div style={{ textAlign: 'center', padding: '40px 20px' }}>
                       <Users size={48} style={{ color: '#CBD5E1', margin: '0 auto 16px' }} />
                       <p style={{ fontSize: 16, color: '#64748B', margin: 0 }}>No members found</p>

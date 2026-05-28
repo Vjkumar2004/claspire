@@ -124,20 +124,6 @@ export async function GET(req: NextRequest) {
       searchIntent = 'person'
     }
 
-    const getCollegeLogo = (collegeSlug: string) => {
-      const logoMap: Record<string, string> = {
-        'aaacet': '/aaaclg_logo.jpg',
-        'vvvclg': '/vvvclogo.png',
-        'vvv': '/vvvclogo.png',
-        'anjac': '/anjac.jpg',
-        'sfr': '/sfr.jpg',
-        'skc': '/skc.jpg',
-        'kamaraj': '/kamaraj.jpg',
-        'agpc': '/agpc.jpg',
-      }
-      return logoMap[collegeSlug] || null
-    }
-
     // 1. Search People (Seniors & Students + Related Network Seniors)
     if (filterType === 'all' || filterType === 'people') {
       let peopleOr = `full_name.ilike.%${query}%,company.ilike.%${query}%,designation.ilike.%${query}%`
@@ -367,7 +353,7 @@ export async function GET(req: NextRequest) {
               member_count: c.member_count || 0
             },
             description: c.description || 'Active hub for mentorship, jobs, and networking.',
-            imageUrl: c.colleges?.logo_url || getCollegeLogo(c.slug),
+            imageUrl: c.colleges?.logo_url || null,
             href: `/community/c/${c.slug}`,
             score
           })
@@ -418,7 +404,7 @@ export async function GET(req: NextRequest) {
               location: col.location
             },
             description: `${col.name} professional community. Connect with alumni and fellow students.`,
-            imageUrl: col.logo_url || getCollegeLogo(col.slug),
+            imageUrl: col.logo_url || null,
             href: `/colleges/${col.slug}`,
             score
           })
@@ -488,7 +474,7 @@ export async function GET(req: NextRequest) {
               member_count: g.member_count || 0
             },
             description: g.description || 'Public student, career, or interest group.',
-            imageUrl: g.colleges?.logo_url || getCollegeLogo(g.colleges?.slug || ''),
+            imageUrl: g.colleges?.logo_url || null,
             href: `/community/c/${g.communities?.slug || 'general'}/group/${g.slug}`,
             score
           })

@@ -23,7 +23,8 @@ export async function GET() {
           short_name,
           location,
           state,
-          type
+          type,
+          logo_url
         )
       `)
       .order('member_count', { ascending: false })
@@ -32,7 +33,7 @@ export async function GET() {
 
     const { data: colleges, error: collegesError } = await supabase
       .from('colleges')
-      .select('id, name, short_name, slug, location, state, type')
+      .select('id, name, short_name, slug, location, state, type, logo_url')
       .order('name', { ascending: true })
 
     if (collegesError) throw collegesError

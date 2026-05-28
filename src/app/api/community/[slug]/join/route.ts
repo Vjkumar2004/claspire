@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import {
+  getCommunityDisplayCounts,
+  resolveCommunityCollegeId,
+  normalizeCollegeRelation,
+} from '@/lib/community-stats'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -36,7 +41,7 @@ export async function POST(
     // Get community
     const { data: community } = await supabase
       .from('communities')
-      .select('id, member_count, college_id')
+      .select('id, member_count, college_id, slug, colleges ( id )')
       .eq('slug', slug)
       .single()
 
@@ -47,6 +52,12 @@ export async function POST(
       )
     }
 
+    const collegeId = await resolveCommunityCollegeId(
+      supabase,
+      community,
+      normalizeCollegeRelation((community as { colleges?: unknown }).colleges)
+    )
+
     // Check already member
     const { data: existing } = await supabase
       .from('community_members')
@@ -56,10 +67,17 @@ export async function POST(
       .maybeSingle()
 
     if (existing) {
+      const { totalMembers, seniorCount } = await getCommunityDisplayCounts(
+        supabase,
+        community.id,
+        collegeId
+      )
       return NextResponse.json({
         success: true,
         message: 'Already a member',
-        alreadyMember: true
+        alreadyMember: true,
+        memberCount: totalMembers,
+        seniorCount,
       })
     }
 
@@ -70,7 +88,7 @@ export async function POST(
       .eq('id', userId)
       .single()
 
-    const isOwnCollege = user?.college_id === community.college_id
+    const isOwnCollege = !!collegeId && user?.college_id === collegeId
 
     // Insert member
     const { error: insertError } = await supabase
@@ -87,29 +105,17 @@ export async function POST(
       return NextResponse.json({ error: 'Failed to join community' }, { status: 500 })
     }
 
-    // Recount members (total network)
-    const { count: totalMembers } = await supabase
-      .from('community_members')
-      .select('*', { count: 'exact', head: true })
-      .eq('community_id', community.id)
-      .in('membership_type', ['joined', 'following'])
+    const { totalMembers, seniorCount } = await getCommunityDisplayCounts(
+      supabase,
+      community.id,
+      collegeId
+    )
 
-    // Recount seniors (must join with users to check role)
-    const { data: seniors } = await supabase
-      .from('community_members')
-      .select('users!inner(role)')
-      .eq('community_id', community.id)
-      .eq('users.role', 'senior')
-      .in('membership_type', ['joined', 'following'])
-    
-    const seniorCount = seniors?.length || 0
-
-    // Update community counts in DB
     const { error: updateError } = await supabase
       .from('communities')
       .update({
-        member_count: totalMembers || 0,
-        senior_count: seniorCount || 0
+        member_count: totalMembers,
+        senior_count: seniorCount
       })
       .eq('id', community.id)
     
@@ -144,8 +150,8 @@ export async function POST(
       success: true,
       message: isOwnCollege ? 'Joined community!' : 'Joined network!',
       isJoined: true,
-      memberCount: totalMembers || 0,
-      seniorCount: seniorCount || 0
+      memberCount: totalMembers,
+      seniorCount
     })
 
   } catch (err: any) {

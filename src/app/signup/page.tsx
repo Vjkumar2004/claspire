@@ -91,7 +91,7 @@ export default function SignupPage() {
       try {
         const { data, error } = await supabase
           .from('colleges')
-          .select('id, name, short_name, slug, location, state')
+          .select('id, name, short_name, slug, location, state, logo_url')
           .order('name')
         
         if (error) {
@@ -526,9 +526,9 @@ export default function SignupPage() {
                                   className="flex items-center gap-2.5 p-3.5 hover:bg-gray-50 cursor-pointer"
                                 >
                                         <div className="w-9 h-9 rounded-lg bg-gray-50 border border-gray-100 flex items-center justify-center overflow-hidden flex-shrink-0">
-                                          {getCollegeLogo(college.short_name, college.slug) ? (
+                                          {getCollegeLogo(college) ? (
                                             <img 
-                                              src={getCollegeLogo(college.short_name, college.slug)!} 
+                                              src={getCollegeLogo(college)!} 
                                               alt={college.short_name} 
                                               className="w-full h-full object-contain"
                                             />
@@ -954,9 +954,9 @@ export default function SignupPage() {
                                         className="flex items-center gap-2.5 p-3.5 hover:bg-gray-50 cursor-pointer"
                                       >
                                         <div className="w-9 h-9 rounded-lg bg-gray-50 border border-gray-100 flex items-center justify-center overflow-hidden flex-shrink-0">
-                                          {getCollegeLogo(college.short_name, college.slug) ? (
+                                          {getCollegeLogo(college) ? (
                                             <img 
-                                              src={getCollegeLogo(college.short_name, college.slug)!} 
+                                              src={getCollegeLogo(college)!} 
                                               alt={college.short_name} 
                                               className="w-full h-full object-contain"
                                             />

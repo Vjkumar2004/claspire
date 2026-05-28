@@ -119,20 +119,11 @@ export async function POST(req: NextRequest) {
         const isVerified = userData.is_verified
         const isSenior = userData.role === 'senior'
 
-        // Free access for all verified users or seniors or same college
-        if ((isOwnCollege && isVerified) || isSenior) {
+        // Only own-college members can post (other colleges may join as followers, read-only)
+        if (isOwnCollege && (isVerified || isSenior)) {
           isMember = true
         } else {
-          // Check explicit membership for other cases
-          const { data: member } = await supabase
-            .from('community_members')
-            .select('id, membership_type')
-            .eq('community_id', resolvedCommunityId)
-            .eq('user_id', userId)
-            .eq('membership_type', 'joined')
-            .single()
-
-          isMember = !!member
+          isMember = false
         }
       }
     }
@@ -240,7 +231,7 @@ export async function POST(req: NextRequest) {
         : type === 'experience' ? `${currentUser?.full_name} shared their experience: "${title.slice(0, 50)}"`
         : `${currentUser?.full_name} posted: "${title.slice(0, 50)}"`
 
-      // Pass to notifyNewPost
+      // Notify home community members
       await notifyNewPost({
         communityId: resolvedCommunityId,
         communitySlug: comm?.slug || resolvedCommunitySlug,
@@ -252,6 +243,30 @@ export async function POST(req: NextRequest) {
         customTitle: notifTitle,
         customMessage: notifMessage
       })
+
+      // Notify communities this author follows (joined from another college)
+      const { data: followedCommunities } = await supabase
+        .from('community_members')
+        .select('community_id, communities ( slug )')
+        .eq('user_id', userId)
+        .eq('membership_type', 'following')
+
+      for (const membership of followedCommunities || []) {
+        const followed = membership.communities as { slug?: string } | null
+        if (!membership.community_id || membership.community_id === resolvedCommunityId) continue
+
+        await notifyNewPost({
+          communityId: membership.community_id,
+          communitySlug: followed?.slug || '',
+          postId: post.id,
+          postTitle: title,
+          postType: type,
+          authorId: userId,
+          authorName: currentUser?.full_name || 'Someone',
+          customTitle: `📣 Network update from c/${comm?.slug || resolvedCommunitySlug}`,
+          customMessage: `${currentUser?.full_name || 'A member'} posted: "${title.slice(0, 50)}"`
+        })
+      }
     } catch (notifErr) {
       console.error('Notification trigger error:', notifErr)
     }

@@ -21,24 +21,50 @@ interface SeniorRequest {
   } | null
 }
 
-export default function SeniorConnectionRequestsSection() {
-  const [requests, setRequests] = useState<SeniorRequest[]>([])
-  const [loading, setLoading] = useState(true)
+interface SeniorConnectionRequestsSectionProps {
+  initialRequests?: SeniorRequest[]
+}
+
+export default function SeniorConnectionRequestsSection({
+  initialRequests,
+}: SeniorConnectionRequestsSectionProps) {
+  const [requests, setRequests] = useState<SeniorRequest[]>(initialRequests ?? [])
+  const [loading, setLoading] = useState(initialRequests === undefined)
+  const [fetchError, setFetchError] = useState<string | null>(null)
   const [processing, setProcessing] = useState<string | null>(null)
 
   useEffect(() => {
+    if (initialRequests !== undefined) {
+      setRequests(initialRequests)
+      setLoading(false)
+    }
+  }, [initialRequests])
+
+  useEffect(() => {
     fetchRequests()
+
+    const onFocus = () => fetchRequests()
+    window.addEventListener('focus', onFocus)
+    return () => window.removeEventListener('focus', onFocus)
   }, [])
 
   const fetchRequests = async () => {
     try {
-      const res = await fetch('/api/senior-message-requests/incoming', { cache: 'no-store' })
+      const res = await fetch('/api/senior-message-requests/incoming', {
+        cache: 'no-store',
+        credentials: 'include',
+      })
       if (res.ok) {
         const data = await res.json()
         setRequests(data.requests || [])
+        setFetchError(null)
+      } else {
+        const data = await res.json().catch(() => ({}))
+        setFetchError(data.error || 'Could not load connection requests')
       }
     } catch (error) {
       console.error('Error fetching requests:', error)
+      setFetchError('Could not load connection requests')
     } finally {
       setLoading(false)
     }
@@ -108,7 +134,7 @@ export default function SeniorConnectionRequestsSection() {
 
   if (requests.length === 0) {
     return (
-      <div className="bg-white rounded-2xl border border-gray-200 p-6">
+      <div className="bg-white rounded-2xl border border-gray-200 p-6 mb-8">
         <div className="flex items-center gap-3 mb-6">
           <Users size={20} className="text-cyan-600" />
           <h3 className="text-lg font-bold text-black">Connection Requests</h3>
@@ -117,15 +143,33 @@ export default function SeniorConnectionRequestsSection() {
           <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
             <Users size={24} className="text-gray-300" />
           </div>
-          <p className="text-gray-500 font-medium">No pending connection requests</p>
-          <p className="text-gray-400 text-sm mt-1">Senior mentors can connect with you here</p>
+          {fetchError ? (
+            <>
+              <p className="text-red-500 font-medium">{fetchError}</p>
+              <button
+                type="button"
+                onClick={() => {
+                  setLoading(true)
+                  fetchRequests()
+                }}
+                className="mt-3 text-sm font-bold text-cyan-600 hover:text-cyan-700"
+              >
+                Retry
+              </button>
+            </>
+          ) : (
+            <>
+              <p className="text-gray-500 font-medium">No pending connection requests</p>
+              <p className="text-gray-400 text-sm mt-1">Other seniors who connect from /seniors appear here</p>
+            </>
+          )}
         </div>
       </div>
     )
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 p-6">
+    <div className="bg-white rounded-2xl border border-gray-200 p-6 mb-8">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <Users size={20} className="text-cyan-600" />

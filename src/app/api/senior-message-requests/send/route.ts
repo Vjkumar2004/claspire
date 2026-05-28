@@ -94,7 +94,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to create request' }, { status: 500 })
     }
 
-    // Create notification — using correct schema columns
     await supabase
       .from('notifications')
       .insert({
@@ -102,8 +101,8 @@ export async function POST(request: NextRequest) {
         sender_id: user.id,
         title: 'New Senior Connect Request',
         message: `${currentUser.full_name} wants to connect with you.`,
-        type: 'senior_connect_request',
-        link: `/dashboard/senior`
+        type: 'message_request',
+        link: `/dashboard/senior`,
       })
 
     return NextResponse.json({

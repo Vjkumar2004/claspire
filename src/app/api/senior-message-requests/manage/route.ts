@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
 const supabase = createClient(
@@ -6,7 +6,7 @@ const supabase = createClient(
   process.env.SUPABASE_SECRET_KEY!
 )
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     const { request_id, action } = await request.json()
     
@@ -14,15 +14,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Request ID and valid action are required' }, { status: 400 })
     }
 
-    // Get current user from cookie (same as /api/auth/me)
-    const cookieStore = require('next/headers').cookies()
-    const session = cookieStore.get('claspire_session')
+    const session = request.cookies.get('claspire_session')
     
     if (!session?.value) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    let user: any
+    let user: { id: string }
     try {
       user = JSON.parse(session.value)
     } catch (parseError) {
@@ -92,16 +90,12 @@ export async function POST(request: Request) {
     const { error: notificationError } = await supabase
       .from('notifications')
       .insert({
-        user_id: messageRequest.sender_id,
+        receiver_id: messageRequest.sender_id,
+        sender_id: user.id,
         title: notificationTitle,
         message: notificationMessage,
-        type: action === 'accept' ? 'senior_connect_accepted' : 'senior_connect_declined',
+        type: action === 'accept' ? 'message_request_accepted' : 'message_request_rejected',
         link: action === 'accept' ? `/dashboard/senior?activeTab=messages&user=${user.id}` : '/seniors',
-        sender_id: user.id,
-        metadata: {
-          request_id: request_id,
-          responder_name: currentUser.full_name
-        }
       })
 
     if (notificationError) {

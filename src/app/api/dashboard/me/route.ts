@@ -6,6 +6,10 @@ export async function GET(req: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   )
+  const supabaseAdmin = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SECRET_KEY!
+  )
   try {
     const cookie = req.cookies.get('claspire_session')
     if (!cookie) {
@@ -106,10 +110,33 @@ export async function GET(req: NextRequest) {
       .eq('receiver_id', userId)
       .eq('is_read', false)
 
-    // ── Pending Doubts & Referrals (for Seniors) ──
+    // ── Pending Doubts, Referrals & Senior Connect Requests (for Seniors) ──
     let pendingDoubts: any[] = []
     let pendingReferrals: any[] = []
+    let pendingSeniorConnections: any[] = []
     const userCollege = Array.isArray(user.colleges) ? user.colleges[0] : user.colleges
+
+    if (user.role === 'senior') {
+      const { data: srReqs } = await supabaseAdmin
+        .from('senior_message_requests')
+        .select('*')
+        .eq('receiver_id', userId)
+        .in('status', ['pending', 'Pending'])
+        .order('created_at', { ascending: false })
+
+      if (srReqs && srReqs.length > 0) {
+        const senderIds = srReqs.map((r) => r.sender_id)
+        const { data: senders } = await supabaseAdmin
+          .from('users')
+          .select('id, full_name, unique_id, avatar_url, company, designation')
+          .in('id', senderIds)
+
+        pendingSeniorConnections = srReqs.map((req) => ({
+          ...req,
+          sender: senders?.find((s) => s.id === req.sender_id) || null,
+        }))
+      }
+    }
 
     if (user.role === 'senior' && userCollege?.id) {
       // Find the community for this college
@@ -200,6 +227,7 @@ export async function GET(req: NextRequest) {
       myPosts: myPosts || [],
       pendingDoubts,
       pendingReferrals,
+      pendingSeniorConnections,
       myReferrals: myReferrals || [],
       joinedCommunities: joinedCommunities || [],
       webinars: upcomingWebinars,

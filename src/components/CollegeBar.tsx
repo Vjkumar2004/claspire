@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { supabase } from '@/lib/supabase';
-import { getCollegeLogo } from '@/lib/college-utils';
+import { getCollegeLogo, getCollegeInitial } from '@/lib/college-utils';
 
 export default function CollegeBar() {
   const [colleges, setColleges] = useState<any[]>([]);
@@ -16,7 +16,7 @@ export default function CollegeBar() {
       try {
         const { data, error } = await supabase
           .from('colleges')
-          .select('id, name, short_name, slug')
+          .select('id, name, short_name, slug, logo_url')
           .order('name');
         
         if (error) throw error;
@@ -64,7 +64,7 @@ export default function CollegeBar() {
             className="flex gap-4 w-max"
           >
             {displayItems.map((college, index) => {
-              const logo = getCollegeLogo(college.short_name, college.slug);
+              const logo = getCollegeLogo(college);
               return (
                 <div
                   key={`${college.id}-${index}`}
@@ -78,11 +78,9 @@ export default function CollegeBar() {
                         className="w-full h-full object-contain"
                       />
                     ) : (
-                      <img
-                        src={`https://ui-avatars.com/api/?name=${college.short_name || college.name}&background=7C3AED&color=fff&size=28&rounded=true&bold=true`}
-                        alt={college.short_name}
-                        className="w-full h-full object-cover"
-                      />
+                      <span className="text-[10px] font-black text-purple-600">
+                        {getCollegeInitial(college)}
+                      </span>
                     )}
                   </div>
                   <span className="text-sm font-semibold text-gray-700 whitespace-nowrap">

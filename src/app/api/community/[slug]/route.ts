@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { getCommunityDisplayCounts, resolveCommunityCollegeId } from '@/lib/community-stats'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -32,7 +33,7 @@ export async function GET(
         *,
         colleges (
           id, name, short_name, slug,
-          type, location, state
+          type, location, state, logo_url
         )
       `)
       .eq('slug', slug)
@@ -50,7 +51,7 @@ export async function GET(
             *,
             colleges (
               id, name, short_name, slug,
-              type, location, state
+              type, location, state, logo_url
             )
           )
         `)
@@ -71,7 +72,7 @@ export async function GET(
     if (!community) {
       const { data: college } = await supabase
         .from('colleges')
-        .select('id, name, short_name, slug, type, location, state')
+        .select('id, name, short_name, slug, type, location, state, logo_url')
         .eq('slug', slug)
         .single()
 
@@ -100,7 +101,7 @@ export async function GET(
             *,
             colleges (
               id, name, short_name, slug,
-              type, location, state
+              type, location, state, logo_url
             )
           `)
           .single()
@@ -225,82 +226,28 @@ export async function GET(
       )
     }
 
-    // 3. Get total member count (joined + following)
-    const { count: totalMembersCount } = await supabase
-      .from('community_members')
-      .select('*', { count: 'exact', head: true })
-      .eq('community_id', community.id)
-      .in('membership_type', ['joined', 'following'])
-
-    // 4. Get senior count specifically
-    const { count: seniorMembersCount } = await supabase
-      .from('community_members')
-      .select('*', { count: 'exact', head: true })
-      .eq('community_id', community.id)
-      .eq('role', 'senior')
-      .in('membership_type', ['joined', 'following'])
-
-    // 5. Get verified stats for display
-    const { data: members } = await supabase
-      .from('community_members')
-      .select('users(role, is_verified)')
-      .eq('community_id', community.id)
-      .eq('is_verified', true)
-      .in('membership_type', ['joined', 'following'])
-
-    const verifiedJuniors = members?.filter((m: any) => 
-      ['student', 'member'].includes(m.users?.role)
-    ).length || 0
-    const verifiedSeniors = members?.filter((m: any) => m.users?.role === 'senior').length || 0
-
-    // Live counts from users table (communities.member_count is often stale)
-    const collegeId = community.colleges?.id || community.college_id
-    const { count: collegeUserCount } = collegeId
-      ? await supabase
-          .from('users')
-          .select('*', { count: 'exact', head: true })
-          .eq('college_id', collegeId)
-      : { count: 0 }
-
-    const { count: collegeSeniorCount } = collegeId
-      ? await supabase
-          .from('users')
-          .select('*', { count: 'exact', head: true })
-          .eq('college_id', collegeId)
-          .eq('role', 'senior')
-      : { count: 0 }
-
-    const { count: collegeVerifiedCount } = collegeId
-      ? await supabase
-          .from('users')
-          .select('*', { count: 'exact', head: true })
-          .eq('college_id', collegeId)
-          .eq('is_verified', true)
-      : { count: 0 }
+    const collegeId = await resolveCommunityCollegeId(
+      supabase,
+      community,
+      community.colleges
+    )
+    const {
+      totalMembers,
+      seniorCount,
+      ownStudentCount,
+      otherCollegeStudentCount,
+      collegeId: resolvedCollegeId,
+    } = await getCommunityDisplayCounts(supabase, community.id, collegeId)
 
     const { count: communityPostCount } = await supabase
       .from('posts')
       .select('*', { count: 'exact', head: true })
       .eq('community_id', community.id)
 
-    // Final display counts
-    const finalJuniorsCount = verifiedJuniors > 0 ? verifiedJuniors : (collegeVerifiedCount || 0)
-    const finalSeniorsCount = Math.max(
-      verifiedSeniors,
-      seniorMembersCount || 0,
-      community.senior_count || 0,
-      collegeSeniorCount || 0
-    )
-    const totalMembers = Math.max(
-      totalMembersCount || 0,
-      community.member_count || 0,
-      collegeUserCount || 0
-    )
-
     community = {
       ...community,
       member_count: totalMembers,
-      senior_count: finalSeniorsCount,
+      senior_count: seniorCount,
       doubt_count: Math.max(community.doubt_count || 0, communityPostCount || 0),
     }
 
@@ -311,8 +258,9 @@ export async function GET(
     if (currentUser) {
       console.log('Checking membership for user:', currentUser.id, 'in community:', community.id)
       
-      isOwnCollege = currentUser.college_id === community.colleges.id
-      
+      isOwnCollege =
+        !!resolvedCollegeId && currentUser.college_id === resolvedCollegeId
+
       const { data: userMembership } = await supabase
         .from('community_members')
         .select('membership_type')
@@ -341,9 +289,10 @@ export async function GET(
       const isVerified = userToUse.is_verified
       const userCollegeId = userToUse.college_id
 
-      isOwnCollege = userCollegeId === community.colleges.id
+      isOwnCollege =
+        !!resolvedCollegeId && userCollegeId === resolvedCollegeId
 
-      console.log('User permissions refreshed from DB:', { isVerified, isOwnCollege })
+      console.log('User permissions refreshed from DB:', { isVerified, isOwnCollege, resolvedCollegeId })
 
       if (isOwnCollege && isVerified && isSenior) {
         userRole = 'own_senior'
@@ -364,10 +313,7 @@ export async function GET(
       console.log('Final isAlreadyMember:', isAlreadyMember)
     }
 
-    // 5. Always fetch posts (all can see feed)
-    const { data: posts } = await supabase
-      .from('posts')
-      .select(`
+    const postSelect = `
         id, title, content, type,
         upvote_count, answer_count,
         view_count, is_answered,
@@ -376,17 +322,91 @@ export async function GET(
           full_name, unique_id,
           role, is_verified, avatar_url
         )
-      `)
+      `
+
+    // 5. Fetch native community posts (all can see feed)
+    const { data: nativePosts } = await supabase
+      .from('posts')
+      .select(postSelect)
       .eq('community_id', community.id)
       .or(
-        // Own college = see all posts
-        // Other college = public only
         isOwnCollege
           ? 'visibility.eq.public,visibility.eq.private'
           : 'visibility.eq.public'
       )
       .order('created_at', { ascending: false })
       .limit(50)
+
+    // Posts from cross-college followers (shown first in feed)
+    const { data: followingMembers } = await supabase
+      .from('community_members')
+      .select('user_id')
+      .eq('community_id', community.id)
+      .eq('membership_type', 'following')
+
+    const followingUserIds = (followingMembers || []).map((m: { user_id: string }) => m.user_id)
+
+    let networkPosts: any[] = []
+    if (followingUserIds.length > 0) {
+      const { data: followingAuthors } = await supabase
+        .from('users')
+        .select('id, college_id')
+        .in('id', followingUserIds)
+
+      const collegeIds = [
+        ...new Set(
+          (followingAuthors || [])
+            .map((a: { college_id?: string }) => a.college_id)
+            .filter(Boolean)
+        ),
+      ] as string[]
+
+      if (collegeIds.length > 0) {
+        const { data: homeCommunities } = await supabase
+          .from('communities')
+          .select('id')
+          .in('college_id', collegeIds)
+
+        const homeCommunityIds = (homeCommunities || []).map((c: { id: string }) => c.id)
+
+        if (homeCommunityIds.length > 0) {
+          const { data: crossPosts } = await supabase
+            .from('posts')
+            .select(postSelect)
+            .in('author_id', followingUserIds)
+            .in('community_id', homeCommunityIds)
+            .eq('visibility', 'public')
+            .order('created_at', { ascending: false })
+            .limit(20)
+
+          networkPosts = (crossPosts || []).map((p: any) => ({
+            ...p,
+            is_network_post: true,
+          }))
+        }
+      }
+    }
+
+    const seenPostIds = new Set<string>()
+    const posts: any[] = []
+
+    for (const p of networkPosts) {
+      if (!seenPostIds.has(p.id)) {
+        posts.push(p)
+        seenPostIds.add(p.id)
+      }
+    }
+
+    const sortedNative = [...(nativePosts || [])].sort(
+      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    )
+
+    for (const p of sortedNative) {
+      if (!seenPostIds.has(p.id)) {
+        posts.push(p)
+        seenPostIds.add(p.id)
+      }
+    }
 
     // 6. Fetch jobs only if permitted
     let jobs = null
@@ -430,9 +450,12 @@ export async function GET(
     return NextResponse.json({
       success: true,
       community,
-      verifiedJuniors: finalJuniorsCount,
-      verifiedSeniors: finalSeniorsCount,
+      verifiedJuniors: ownStudentCount,
+      verifiedSeniors: seniorCount,
       totalMembers,
+      seniorCount,
+      ownStudentCount,
+      otherCollegeStudentCount,
       posts: posts || [],
       jobs,
       webinars,

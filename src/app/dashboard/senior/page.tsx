@@ -502,7 +502,7 @@ export default function SeniorDashboardPage() {
               Action Needed
             </div>
             <span className="bg-red-50 text-red-500 rounded-full px-2 py-0.5 text-[10px] font-black">
-              {(dashData?.pendingDoubts?.length || 0) + (dashData?.pendingReferrals?.length || 0)} total
+              {(dashData?.pendingDoubts?.length || 0) + (dashData?.pendingReferrals?.length || 0) + (dashData?.pendingSeniorConnections?.length || 0)} total
             </span>
           </div>
 
@@ -628,11 +628,13 @@ export default function SeniorDashboardPage() {
           </div>
         </div>
 
-        {/* Message Requests Section */}
-        <MessageRequestsSection />
+        {/* Senior-to-senior connection requests (from /seniors) */}
+        <SeniorConnectionRequestsSection
+          initialRequests={dashData?.pendingSeniorConnections}
+        />
 
-        {/* Senior Connection Requests Section */}
-        <SeniorConnectionRequestsSection />
+        {/* Student message requests */}
+        <MessageRequestsSection />
 
         {/* Main Content Grid - Adjusted to full width */}
         <div className="w-full">

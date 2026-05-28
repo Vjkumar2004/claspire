@@ -623,7 +623,7 @@ function CommunityPageContent() {
           .from('communities')
           .select(`
             id, slug, display_name, description, member_count, senior_count, doubt_count,
-            colleges ( id, name, short_name, location, state, type, email_domain )
+            colleges ( id, name, short_name, location, state, type, email_domain, logo_url )
           `)
           .order('member_count', { ascending: false })
           .limit(20)
@@ -633,7 +633,7 @@ function CommunityPageContent() {
         } else {
           const { data: collegesData, error: collegesError } = await supabase
             .from('colleges')
-            .select('id, name, short_name, slug, location, state, type, email_domain')
+            .select('id, name, short_name, slug, location, state, type, email_domain, logo_url')
             .order('name', { ascending: true })
             .limit(20)
 
@@ -1304,20 +1304,8 @@ function CommunityPageContent() {
                     className="flex items-center gap-2.5 p-2 rounded hover:bg-slate-50 cursor-pointer transition-colors"
                   >
                     <div className="w-7 h-7 rounded bg-purple-50 border border-slate-100 flex items-center justify-center font-bold text-[#7C3AED] overflow-hidden text-[10px] flex-shrink-0">
-                      {c.slug === 'aaacet' ? (
-                        <img src="/aaaclg_logo.jpg" alt="AAACET" className="w-full h-full object-contain" />
-                      ) : (c.slug === 'vvvclg' || c.slug === 'vvv') ? (
-                        <img src="/vvvclogo.png" alt="VVV" className="w-full h-full object-contain" />
-                      ) : c.slug === 'anjac' ? (
-                        <img src="/anjac.jpg" alt="ANJAC" className="w-full h-full object-contain" />
-                      ) : c.slug === 'sfr' ? (
-                        <img src="/sfr.jpg" alt="SFR" className="w-full h-full object-contain" />
-                      ) : c.slug === 'skc' ? (
-                        <img src="/skc.jpg" alt="SKC" className="w-full h-full object-contain" />
-                      ) : c.slug === 'kamaraj' ? (
-                        <img src="/kamaraj.jpg" alt="Kamaraj" className="w-full h-full object-contain" />
-                      ) : c.slug === 'agpc' ? (
-                        <img src="/agpc.jpg" alt="AGPC" className="w-full h-full object-contain" />
+                      {c.colleges?.logo_url ? (
+                        <img src={c.colleges.logo_url} alt={c.colleges?.short_name || c.slug} className="w-full h-full object-contain" />
                       ) : (
                         c.colleges?.short_name?.[0] || 'C'
                       )}

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Search, MapPin, Users, GraduationCap, Building2, ChevronRight, MessageSquare } from 'lucide-react';
+import { getCollegeLogo, getCollegeInitial } from '@/lib/college-utils';
 
 export default function CollegesPage() {
   const router = useRouter();
@@ -133,7 +134,9 @@ export default function CollegesPage() {
               </div>
             ))
           ) : filtered.length > 0 ? (
-            filtered.map((c) => (
+            filtered.map((c) => {
+              const logoUrl = getCollegeLogo(c.colleges)
+              return (
               <div 
                 key={c.id}
                 className="group bg-white border border-gray-200 rounded-md p-6 hover:border-purple-300 hover:shadow-md transition-all duration-200 cursor-pointer relative overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.05)]"
@@ -141,42 +144,33 @@ export default function CollegesPage() {
               >
                 <div className="flex items-start gap-5">
                   {/* Avatar */}
-                  <div style={{
-                    width: '64px',
-                    height: '64px',
-                    borderRadius: '6px',
-                    background: (c.slug === 'aaacet' || c.slug === 'vvvclg' || c.slug === 'vvv' || c.slug === 'anjac' || c.slug === 'sfr' || c.slug === 'skc' || c.slug === 'kamaraj' || c.slug === 'agpc' || c.slug === 'vhnsn') ? '#F8FAFC' : 'linear-gradient(135deg, #7C3AED, #4F46E5)',
-                    border: (c.slug === 'aaacet' || c.slug === 'vvvclg' || c.slug === 'vvv' || c.slug === 'anjac' || c.slug === 'sfr' || c.slug === 'skc' || c.slug === 'kamaraj' || c.slug === 'agpc' || c.slug === 'vhnsn') ? '1px solid #E2E8F0' : 'none',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    overflow: 'hidden',
-                    padding: (c.slug === 'aaacet' || c.slug === 'vvvclg' || c.slug === 'vvv' || c.slug === 'anjac' || c.slug === 'sfr' || c.slug === 'skc' || c.slug === 'kamaraj' || c.slug === 'agpc' || c.slug === 'vhnsn') ? '8px' : '0',
-                    flexShrink: 0,
-                    color: 'white',
-                    fontSize: '24px',
-                    fontWeight: 800
-                  }}
-                  className="shadow-sm"
+                  <div
+                    style={{
+                      width: '64px',
+                      height: '64px',
+                      borderRadius: '6px',
+                      background: logoUrl ? '#F8FAFC' : 'linear-gradient(135deg, #7C3AED, #4F46E5)',
+                      border: logoUrl ? '1px solid #E2E8F0' : 'none',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      overflow: 'hidden',
+                      padding: logoUrl ? '8px' : '0',
+                      flexShrink: 0,
+                      color: 'white',
+                      fontSize: '24px',
+                      fontWeight: 800
+                    }}
+                    className="shadow-sm"
                   >
-                    {c.slug === 'aaacet' ? (
-                      <img src="/aaaclg_logo.jpg" alt="AAACET" style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '4px' }} />
-                    ) : (c.slug === 'vvvclg' || c.slug === 'vvv') ? (
-                      <img src="/vvvclogo.png" alt="VVV" style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '4px' }} />
-                    ) : c.slug === 'anjac' ? (
-                      <img src="/anjac.jpg" alt="ANJAC" style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '4px' }} />
-                    ) : c.slug === 'sfr' ? (
-                      <img src="/sfr.jpg" alt="SFR" style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '4px' }} />
-                    ) : c.slug === 'skc' ? (
-                      <img src="/skc.jpg" alt="SKC" style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '4px' }} />
-                    ) : c.slug === 'kamaraj' ? (
-                      <img src="/kamaraj.jpg" alt="Kamaraj" style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '4px' }} />
-                    ) : c.slug === 'agpc' ? (
-                      <img src="/agpc.jpg" alt="AGPC" style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '4px' }} />
-                    ) : c.slug === 'vhnsn' ? (
-                      <img src="/vhnsn_college.jpg" alt="VHNSN" style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '4px' }} />
+                    {logoUrl ? (
+                      <img
+                        src={logoUrl}
+                        alt={c.colleges?.short_name || c.slug}
+                        style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '4px' }}
+                      />
                     ) : (
-                      c.colleges?.short_name?.[0] || c.slug?.[0]?.toUpperCase() || 'C'
+                      getCollegeInitial(c.colleges)
                     )}
                   </div>
 
@@ -228,7 +222,7 @@ export default function CollegesPage() {
                   </div>
                 </div>
               </div>
-            ))
+            )})
           ) : (
             /* Empty State */
             <div className="text-center py-20 bg-white border border-dashed border-gray-200 rounded-md shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
