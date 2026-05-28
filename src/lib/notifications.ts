@@ -15,6 +15,9 @@ export type NotificationType =
   | 'post_upvoted'
   | 'new_job'
   | 'group_created'
+  | 'senior_connect_request'
+  | 'senior_connect_accepted'
+  | 'senior_connect_declined'
 
 interface CreateNotificationParams {
   receiver_id: string

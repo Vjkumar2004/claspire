@@ -1,5 +1,10 @@
 import { NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@supabase/supabase-js'
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SECRET_KEY!
+)
 
 export async function POST(request: Request) {
   try {
@@ -50,10 +55,12 @@ export async function POST(request: Request) {
     }
 
     // Update the request status
+    const nextStatus = action === 'accept' ? 'accepted' : 'declined'
+
     const { data: updatedRequest, error: updateError } = await supabase
       .from('senior_message_requests')
       .update({
-        status: action,
+        status: nextStatus,
         responded_at: new Date().toISOString()
       })
       .eq('id', request_id)

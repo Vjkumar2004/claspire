@@ -192,9 +192,6 @@ export default function JuniorDashboard() {
       }
       setDashData(data)
       setAuthChecked(true)
-      if (data.dailyRPEarned) {
-        showAward(1, "Daily visit bonus 🌅");
-      }
     } catch {
       router.replace('/login')
     } finally {
@@ -699,7 +696,7 @@ export default function JuniorDashboard() {
                               {req.senior.avatar_url ? (
                                 <img src={req.senior.avatar_url} alt={req.senior.full_name} className="w-full h-full object-cover" />
                               ) : (
-                                '💼'
+                                <Briefcase size={28} className="text-gray-400" />
                               )}
                             </div>
                             <div>

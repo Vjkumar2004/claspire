@@ -32,7 +32,7 @@ export default function SeniorConnectionRequestsSection() {
 
   const fetchRequests = async () => {
     try {
-      const res = await fetch('/api/senior-message-requests/incoming')
+      const res = await fetch('/api/senior-message-requests/incoming', { cache: 'no-store' })
       if (res.ok) {
         const data = await res.json()
         setRequests(data.requests || [])

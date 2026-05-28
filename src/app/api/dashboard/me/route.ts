@@ -45,49 +45,6 @@ export async function GET(req: NextRequest) {
       )
     }
 
-    // ── Daily Visit RP ──
-    let dailyRPEarned = false
-    if (user.last_visit_date !== today) {
-      // Give +1 RP
-      await supabase
-        .from('users')
-        .update({
-          rise_points: (user.rise_points || 0) + 1,
-          last_visit_date: today,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', userId)
-
-      // Log it
-      await supabase
-        .from('rise_points_log')
-        .insert({
-          user_id: userId,
-          points: 1,
-          reason: 'Daily visit bonus 🌅',
-          created_at: new Date().toISOString()
-        })
-
-      // Update local user object
-      user.rise_points = (user.rise_points || 0) + 1
-      user.last_visit_date = today
-      dailyRPEarned = true
-    }
-
-    // ── RP Level Update ──
-    const newLevel = user.rise_points >= 1000 ? 4
-      : user.rise_points >= 500 ? 3
-      : user.rise_points >= 200 ? 2
-      : 1
-
-    if (newLevel !== user.rp_level) {
-      await supabase
-        .from('users')
-        .update({ rp_level: newLevel })
-        .eq('id', userId)
-      user.rp_level = newLevel
-    }
-
     // ── Rise Points Log (last 6) ──
     const { data: rpLog } = await supabase
       .from('rise_points_log')
@@ -246,8 +203,7 @@ export async function GET(req: NextRequest) {
       myReferrals: myReferrals || [],
       joinedCommunities: joinedCommunities || [],
       webinars: upcomingWebinars,
-      unreadCount: unreadCount || 0,
-      dailyRPEarned
+      unreadCount: unreadCount || 0
     })
 
   } catch (err: any) {

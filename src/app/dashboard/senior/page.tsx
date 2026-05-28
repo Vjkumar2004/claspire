@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePoints } from '@/contexts/PointsContext';
 import { useRouter } from 'next/navigation';
-import { HelpCircle, Briefcase, Handshake, Mic, DollarSign, BarChart3, Star, Trophy, User, CheckCircle, Settings, Zap, TrendingUp, LayoutDashboard, MessageSquare, Trash2, Users, Plus, Eye, Lock, Globe, GraduationCap } from 'lucide-react';
+import { HelpCircle, Briefcase, Handshake, Mic, DollarSign, BarChart3, Star, Trophy, User, CheckCircle, Settings, Zap, TrendingUp, LayoutDashboard, MessageSquare, Trash2, Users, Plus, Eye, Lock, Globe, GraduationCap, Sparkles } from 'lucide-react';
 import CreateGroupModal from '@/components/CreateGroupModal'
 import MyGroupsModal from '@/components/MyGroupsModal'
 import MyGroupsList from '@/components/MyGroupsList'
@@ -82,6 +82,7 @@ export default function SeniorDashboardPage() {
   const [userGroups, setUserGroups] = useState<any[]>([])
   const [groupsLoading, setGroupsLoading] = useState(false)
   const [showMyGroupsModal, setShowMyGroupsModal] = useState(false)
+  const referralSectionRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
     fetchDashboardData()
@@ -91,17 +92,14 @@ export default function SeniorDashboardPage() {
 
   const fetchUserCollegeCommunity = async () => {
     try {
-      console.log('Fetching user college community...')
       const res = await fetch('/api/community/my-college')
       if (res.ok) {
         const data = await res.json()
-        console.log('College community data:', data)
         setUserCollegeCommunityId(data.communityId || '')
-      } else {
-        console.error('Failed to fetch college community:', res.status, res.statusText)
       }
+      // Silently ignore 404 — senior may not have a college assigned
     } catch (err) {
-      console.error('Failed to fetch college community:', err)
+      // Network errors — ignore silently
     }
   }
 
@@ -111,11 +109,6 @@ export default function SeniorDashboardPage() {
       if (res.ok) {
         const data = await res.json()
         setDashData(data)
-
-        // Show daily RP award
-        if (data.dailyRPEarned) {
-          showAward(1, "Daily visit bonus 🌅");
-        }
       }
     } catch (err) {
       console.error('Dashboard data error:', err)
@@ -234,6 +227,19 @@ export default function SeniorDashboardPage() {
     }
   }
 
+  const handleOpenReferrals = () => {
+    setActiveNav('overview')
+    setMobileSidebarOpen(false)
+    setTimeout(() => {
+      referralSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, 50)
+  }
+
+  const handleOpenProfile = () => {
+    setMobileSidebarOpen(false)
+    router.push('/profile')
+  }
+
   // Note: Auth checking is handled by the layout.tsx file
   // No need for duplicate auth logic here
 
@@ -276,8 +282,8 @@ export default function SeniorDashboardPage() {
                 {dashData?.user?.unique_id || '#CLS-S-2022-00234'}
               </div>
               <div className="mt-1">
-                <span className="bg-green-50 border border-green-200 rounded-full px-2 py-0.5 text-[9px] font-black text-green-600 block w-fit">
-                  ✅ Verified Senior
+                <span className="bg-green-50 border border-green-200 rounded-full px-2 py-0.5 text-[9px] font-black text-green-600 block w-fit flex items-center gap-1">
+                  <CheckCircle size={10} /> Verified Senior
                 </span>
               </div>
             </div>
@@ -316,7 +322,10 @@ export default function SeniorDashboardPage() {
             </div>
             <div className="space-y-0.5 mb-4">
               <div
-                onClick={() => setActiveNav("messages")}
+                onClick={() => {
+                  setActiveNav("messages")
+                  setMobileSidebarOpen(false)
+                }}
                 className={`flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold transition-colors ${activeNav === "messages"
                     ? "bg-purple-50 text-purple-600"
                     : "text-gray-500 hover:bg-gray-50 hover:text-gray-700"
@@ -328,7 +337,10 @@ export default function SeniorDashboardPage() {
             </div>
 
             <div
-              onClick={() => setActiveNav("overview")}
+              onClick={() => {
+                setActiveNav("overview")
+                setMobileSidebarOpen(false)
+              }}
               className={`flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold transition-colors ${activeNav === "overview"
                   ? "bg-purple-50 text-purple-600"
                   : "text-gray-500 hover:bg-gray-50 hover:text-gray-700"
@@ -349,7 +361,10 @@ export default function SeniorDashboardPage() {
               <Briefcase size={16} className="flex-shrink-0" />
               <span>Post a Job</span>
             </div>
-            <div className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
+            <div
+              onClick={handleOpenReferrals}
+              className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors"
+            >
               <Handshake size={16} className="flex-shrink-0" />
               <span>Referral Requests</span>
               {dashData?.pendingReferrals?.length > 0 && (
@@ -387,11 +402,17 @@ export default function SeniorDashboardPage() {
               ACCOUNT
             </div>
             <div className="space-y-0.5">
-              <div className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
+              <div
+                onClick={handleOpenProfile}
+                className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors"
+              >
                 <User size={16} className="flex-shrink-0" />
                 <span>My Profile</span>
               </div>
-              <div className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
+              <div
+                onClick={handleOpenProfile}
+                className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors"
+              >
                 <Settings size={16} className="flex-shrink-0" />
                 <span>Preferences</span>
               </div>
@@ -489,7 +510,10 @@ export default function SeniorDashboardPage() {
             {/* Unanswered Doubts Card */}
             <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
               <div className="p-4 border-b border-gray-100 flex justify-between items-center">
-                <div className="text-sm font-black text-black">❓ Unanswered Doubts</div>
+                <div className="flex items-center gap-3">
+                  <HelpCircle size={16} className="text-purple-600" />
+                  <div className="text-sm font-black text-black">Unanswered Doubts</div>
+                </div>
                 <div className="text-[10px] font-bold text-gray-400">SYNCED</div>
               </div>
 
@@ -537,18 +561,21 @@ export default function SeniorDashboardPage() {
                     </div>
                   ))
                 ) : (
-                  <div className="p-10 text-center text-gray-400 text-xs">
-                    <div style={{ fontSize: 24, marginBottom: 8 }}>✨</div>
-                    No pending doubts right now!
+                  <div className="flex flex-col items-center justify-center py-12 text-center text-gray-500">
+                    <Sparkles size={24} className="mb-2 text-purple-300" />
+                    <p className="text-sm font-medium">No pending doubts right now!</p>
                   </div>
                 )}
               </div>
             </div>
 
             {/* Referral Requests Card */}
-            <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+            <div ref={referralSectionRef} className="bg-white border border-gray-200 rounded-xl overflow-hidden">
               <div className="p-4 border-b border-gray-100 flex justify-between items-center">
-                <div className="text-sm font-black text-black">🤝 Referral Requests</div>
+                <div className="flex items-center gap-3">
+                  <Handshake size={16} className="text-cyan-600" />
+                  <div className="text-sm font-black text-black">Referral Requests</div>
+                </div>
                 <div className="text-[10px] font-bold text-gray-400">PENDING</div>
               </div>
 
@@ -591,9 +618,9 @@ export default function SeniorDashboardPage() {
                     </div>
                   ))
                 ) : (
-                  <div className="p-10 text-center text-gray-400 text-xs">
-                    <div style={{ fontSize: 24, marginBottom: 8 }}>💼</div>
-                    No pending referrals
+                  <div className="flex flex-col items-center justify-center py-12 text-center text-gray-500">
+                    <Briefcase size={24} className="mb-2 text-cyan-300" />
+                    <p className="text-sm font-medium">No pending referrals.</p>
                   </div>
                 )}
               </div>
@@ -622,8 +649,10 @@ export default function SeniorDashboardPage() {
                 {dashData?.rpLog?.length > 0 ? (
                   dashData.rpLog.map((log: any, i: number) => (
                     <div key={log.id || i} className="flex gap-4 p-5 items-start hover:bg-gray-50 transition-colors">
-                      <div className="w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center text-lg flex-shrink-0">
-                        {log.reason?.includes('Posted') ? '✍️' : log.reason?.includes('Answering') || log.reason?.includes('Answered') ? '✅' : log.reason?.includes('Approved') || log.reason?.includes('referral') ? '🤝' : '🌟'}
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center border border-gray-100">
+                          {log.reason?.includes('Posted') ? <Briefcase size={18} className="text-purple-600" /> : log.reason?.includes('Answering') || log.reason?.includes('Answered') ? <CheckCircle size={18} className="text-green-600" /> : log.reason?.includes('Approved') || log.reason?.includes('referral') ? <Handshake size={18} className="text-cyan-600" /> : <Star size={18} className="text-yellow-500" />}
+                        </div>
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="text-xs font-bold text-black truncate">{log.reason}</div>
@@ -638,9 +667,9 @@ export default function SeniorDashboardPage() {
                     </div>
                   ))
                 ) : (
-                  <div className="p-16 text-center text-gray-400 text-xs italic">
-                    <div className="text-2xl mb-2 opacity-50">🌱</div>
-                    No recent activity yet. Help students to earn Rise Points!
+                  <div className="p-12 text-center">
+                    <BarChart3 size={32} className="mx-auto text-gray-300 mb-4 opacity-50" />
+                    <p className="text-gray-400 font-bold">No recent activity yet</p>
                   </div>
                 )}
               </div>
@@ -726,9 +755,9 @@ export default function SeniorDashboardPage() {
                 ))}
               </div>
             ) : (
-              <div className="p-16 text-center text-gray-400 text-xs">
-                <div className="text-2xl mb-2 opacity-50">👥</div>
-                No groups created yet. Create your first group to start building your community!
+              <div className="text-center py-12">
+                <Users size={32} className="mx-auto text-gray-300 mb-4 opacity-50" />
+                <p className="text-gray-400 text-sm">No groups created yet</p>
               </div>
             )}
           </div>
@@ -746,7 +775,10 @@ export default function SeniorDashboardPage() {
               {/* Header */}
               <div className="p-5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
                 <div>
-                  <h2 className="text-lg font-black text-black">💼 Post a Job Opening</h2>
+                  <div className="flex items-center gap-2 mb-6">
+                    <Briefcase size={20} className="text-black" />
+                    <h2 className="text-lg font-black text-black">Post a Job Opening</h2>
+                  </div>
                   <p className="text-xs text-gray-400 mt-1">Share opportunities and earn 20 Rise Points</p>
                 </div>
                 <button
@@ -909,8 +941,11 @@ export default function SeniorDashboardPage() {
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => !referralActionLoading && setReviewModalOpen(false)} />
 
             <div className="bg-white rounded-2xl w-full max-w-md relative z-10 overflow-hidden shadow-2xl animate-fade">
-              <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-                <h2 className="text-lg font-black text-black">🤝 Review Referral</h2>
+              <div className="flex items-center justify-between p-6 border-b border-gray-100">
+                <div className="flex items-center gap-2">
+                  <Handshake size={20} className="text-black" />
+                  <h2 className="text-lg font-black text-black">Review Referral</h2>
+                </div>
                 <button onClick={() => setReviewModalOpen(false)} className="text-gray-400 hover:text-black">✕</button>
               </div>
 

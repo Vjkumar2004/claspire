@@ -38,10 +38,58 @@ export async function GET(req: NextRequest) {
         ...dbUser
       }
 
-      const response = NextResponse.json({ user })
+      const today = new Date().toISOString().split('T')[0]
+      let sessionUpdated = false
+      let dailyRPEarned = false
 
-      // Check if cookie is stale (e.g. is_premium manually updated in DB)
-      if (dbUser.is_premium !== cookieUser.is_premium || dbUser.role !== cookieUser.role || dbUser.college_id !== cookieUser.college_id) {
+      // ── Global Daily Visit RP ──
+      if (dbUser.last_visit_date !== today) {
+        // Give +1 RP
+        const newPoints = (dbUser.rise_points || 0) + 1
+        await supabase
+          .from('users')
+          .update({
+            rise_points: newPoints,
+            last_visit_date: today,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', cookieUser.id)
+
+        // Log it
+        await supabase
+          .from('rise_points_log')
+          .insert({
+            user_id: cookieUser.id,
+            points: 1,
+            reason: 'Daily visit bonus 🌅',
+            created_at: new Date().toISOString()
+          })
+
+        user.rise_points = newPoints
+        user.last_visit_date = today
+        dailyRPEarned = true
+        sessionUpdated = true
+
+        // ── RP Level Auto-Leveling ──
+        const newLevel = newPoints >= 1000 ? 4
+          : newPoints >= 500 ? 3
+          : newPoints >= 200 ? 2
+          : 1
+
+        if (newLevel !== dbUser.rp_level) {
+          await supabase
+            .from('users')
+            .update({ rp_level: newLevel })
+            .eq('id', cookieUser.id)
+          user.rp_level = newLevel
+        }
+      }
+
+      // We attach dailyRPEarned to the response so the frontend knows to show the toast
+      const response = NextResponse.json({ user, dailyRPEarned })
+
+      // Check if cookie is stale (e.g. is_premium manually updated in DB, or points updated)
+      if (sessionUpdated || dbUser.is_premium !== cookieUser.is_premium || dbUser.role !== cookieUser.role || dbUser.college_id !== cookieUser.college_id) {
         console.log('useAuth - refreshing stale session cookie')
         response.cookies.set('claspire_session', JSON.stringify(user), {
           path: '/',

@@ -1,9 +1,16 @@
-import { NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@supabase/supabase-js'
 
-export async function GET(request: Request) {
+export const dynamic = 'force-dynamic'
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SECRET_KEY!
+)
+
+export async function GET(req: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url)
+    const { searchParams } = new URL(req.url)
     const receiverId = searchParams.get('receiver_id')
     
     if (!receiverId) {
@@ -11,8 +18,7 @@ export async function GET(request: Request) {
     }
 
     // Get current user from cookie (same as /api/auth/me)
-    const cookieStore = require('next/headers').cookies()
-    const session = cookieStore.get('claspire_session')
+    const session = req.cookies.get('claspire_session')
     
     if (!session?.value) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })

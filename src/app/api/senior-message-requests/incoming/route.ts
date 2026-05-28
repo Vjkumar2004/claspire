@@ -1,11 +1,17 @@
-import { NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@supabase/supabase-js'
 
-export async function GET(request: Request) {
+export const dynamic = 'force-dynamic'
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SECRET_KEY!
+)
+
+export async function GET(req: NextRequest) {
   try {
     // Get current user from cookie (same as /api/auth/me)
-    const cookieStore = require('next/headers').cookies()
-    const session = cookieStore.get('claspire_session')
+    const session = req.cookies.get('claspire_session')
     
     if (!session?.value) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -19,23 +25,23 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Check if current user is a senior - separate query
+    // Check current user exists (role guard not required for fetching own inbox)
     const { data: currentUser, error: userError } = await supabase
       .from('users')
-      .select('role')
+      .select('id')
       .eq('id', user.id)
       .single()
 
-    if (userError || currentUser?.role !== 'senior') {
-      return NextResponse.json({ error: 'Only seniors can view senior-to-senior requests' }, { status: 403 })
+    if (userError || !currentUser?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Get incoming requests - separate query first
+    // Get incoming pending requests
     const { data: requests, error: requestsError } = await supabase
       .from('senior_message_requests')
       .select('*')
       .eq('receiver_id', user.id)
-      .eq('status', 'pending')
+      .in('status', ['pending', 'Pending'])
       .order('created_at', { ascending: false })
 
     if (requestsError) {

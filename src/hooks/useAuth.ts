@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { usePoints } from '@/contexts/PointsContext'
 
 interface User {
   id: string
@@ -16,6 +17,7 @@ export function useAuth() {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const router = useRouter()
+  const { showAward } = usePoints()
 
   useEffect(() => {
     fetchUser()
@@ -28,6 +30,11 @@ export function useAuth() {
       if (res.ok) {
         const data = await res.json()
         setUser(data.user || null)
+        
+        // Show daily RP award if earned today
+        if (data.dailyRPEarned) {
+          showAward(1, "Daily visit bonus 🌅")
+        }
       } else if (res.status === 401) {
         // 401 = not logged in, that's ok
         setUser(null)
