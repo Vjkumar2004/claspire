@@ -12,6 +12,8 @@ interface SeniorMessageRequestButtonProps {
 
 type RequestStatus = 'loading' | 'none' | 'pending' | 'accepted' | 'declined'
 
+const STORAGE_KEY_PREFIX = 'senior_req_status_'
+
 export default function SeniorMessageRequestButton({ targetSeniorId, targetSeniorName }: SeniorMessageRequestButtonProps) {
   const [status, setStatus] = useState<RequestStatus>('loading')
   const [sending, setSending] = useState(false)
@@ -21,6 +23,11 @@ export default function SeniorMessageRequestButton({ targetSeniorId, targetSenio
   const { user } = useAuth()
 
   useEffect(() => {
+    // Load cached status immediately to avoid flash
+    const cached = localStorage.getItem(`${STORAGE_KEY_PREFIX}${targetSeniorId}`)
+    if (cached && cached !== 'none') {
+      setStatus(cached as RequestStatus)
+    }
     checkRequestStatus()
   }, [targetSeniorId])
 
@@ -29,13 +36,19 @@ export default function SeniorMessageRequestButton({ targetSeniorId, targetSenio
       const res = await fetch(`/api/senior-message-requests/status?receiver_id=${targetSeniorId}`)
       if (res.ok) {
         const data = await res.json()
-        setStatus(data.status)
+        const serverStatus = data.status as RequestStatus
+        setStatus(serverStatus)
+        localStorage.setItem(`${STORAGE_KEY_PREFIX}${targetSeniorId}`, serverStatus)
       } else {
-        setStatus('none')
+        const cached = localStorage.getItem(`${STORAGE_KEY_PREFIX}${targetSeniorId}`)
+        if (cached) setStatus(cached as RequestStatus)
+        else setStatus('none')
       }
     } catch (error) {
       console.error('Failed to check request status:', error)
-      setStatus('none')
+      const cached = localStorage.getItem(`${STORAGE_KEY_PREFIX}${targetSeniorId}`)
+      if (cached) setStatus(cached as RequestStatus)
+      else setStatus('none')
     }
   }
 
@@ -57,12 +70,15 @@ export default function SeniorMessageRequestButton({ targetSeniorId, targetSenio
       
       if (res.ok && data.success) {
         setStatus('pending')
+        localStorage.setItem(`${STORAGE_KEY_PREFIX}${targetSeniorId}`, 'pending')
         setShowModal(false)
         setMessage('')
-        alert('Message request sent successfully! 🎯')
+        alert('Connection request sent successfully! 🎯')
       } else {
         if (data.error === 'already_requested') {
-          setStatus(data.status)
+          const s = data.status as RequestStatus
+          setStatus(s)
+          localStorage.setItem(`${STORAGE_KEY_PREFIX}${targetSeniorId}`, s)
         } else {
           alert(data.error || 'Failed to send request')
         }

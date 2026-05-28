@@ -329,15 +329,19 @@ export async function GET(req: NextRequest) {
           slug,
           description,
           member_count,
-          post_count
+          college_id,
+          colleges ( name, short_name, logo_url )
         `)
+        .eq('is_active', true)
+        .eq('is_private', false)
         .or(commOr)
-        .limit(20)
+        .limit(30)
 
       if (communities && !error) {
-        communities.forEach((c) => {
+        communities.forEach((c: any) => {
           let score = 25
           const nameLower = c.display_name.toLowerCase()
+          const slugLower = c.slug.toLowerCase()
           const similarity = getSimilarity(nameLower, query)
 
           if (nameLower === query) score += 200 // Higher score for exact matches
@@ -351,19 +355,19 @@ export async function GET(req: NextRequest) {
           }
 
           if (searchIntent === 'institution') {
-            score += 100 // Boost extremely high for institution matches
+            score += 120 // Boost extremely high for institution matches
           }
 
           results.push({
             id: c.id,
             type: 'community',
             title: c.display_name,
-            subtitle: `c/${c.slug}`,
+            subtitle: `c/${c.slug} • Community Hub`,
             metadata: {
               member_count: c.member_count || 0
             },
             description: c.description || 'Active hub for mentorship, jobs, and networking.',
-            imageUrl: getCollegeLogo(c.slug),
+            imageUrl: c.colleges?.logo_url || getCollegeLogo(c.slug),
             href: `/community/c/${c.slug}`,
             score
           })
@@ -422,69 +426,54 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    // 5. Search Public Groups (Strict Backend Security: is_private = false & is_active = true)
+    // 5. Search Public Groups (Strict Relational Matching + Both groups & student_groups)
     if (filterType === 'all' || filterType === 'groups') {
       let groupOr = `name.ilike.%${query}%,description.ilike.%${query}%,slug.ilike.%${query}%`
       matchedCollegeSlugs.forEach(slug => {
         groupOr += `,slug.ilike.%${slug}%`
       })
-
-      // Get current user session for membership check
-      const cookiesStoreFromSearch = req.cookies
-      let searchCurrentUserId: string | null = null
-      const searchSessionCookie = cookiesStoreFromSearch.get('claspire_session')
-      if (searchSessionCookie?.value) {
-        try {
-          const cookieUser = JSON.parse(searchSessionCookie.value)
-          searchCurrentUserId = cookieUser.id
-        } catch {
-          // Invalid cookie
-        }
+      if (matchedCommunityIds.length > 0) {
+        groupOr += `,parent_community_id.in.(${matchedCommunityIds.map(id => `"${id}"`).join(',')})`
       }
 
-      const { data: groups, error } = await supabase
+      const { data: studentGroups, error: sgErr } = await supabase
         .from('student_groups')
         .select(`
           id,
           name,
           slug,
           description,
-          member_count
+          member_count,
+          college_id,
+          parent_community_id,
+          colleges ( name, short_name, logo_url, slug ),
+          communities ( display_name, slug )
         `)
-        .eq('is_private', false)
         .eq('is_active', true)
+        .eq('is_private', false)
         .or(groupOr)
-        .limit(20)
+        .limit(30)
 
-      if (groups && !error) {
-        // Check which groups the current user has joined
-        let joinedGroupIds: string[] = []
-        if (searchCurrentUserId) {
-          const { data: memberships } = await supabase
-            .from('student_group_members')
-            .select('group_id')
-            .eq('user_id', searchCurrentUserId)
-            .in('group_id', groups.map(g => g.id))
-
-          joinedGroupIds = memberships?.map(m => m.group_id) || []
-        }
-
-        groups.forEach((g) => {
+      if (studentGroups && !sgErr) {
+        studentGroups.forEach((g: any) => {
           let score = 20
           const nameLower = g.name.toLowerCase()
+          const slugLower = g.slug.toLowerCase()
           const similarity = getSimilarity(nameLower, query)
-          const isJoined = joinedGroupIds.includes(g.id)
 
-          if (nameLower === query) score += 180
-          else if (nameLower.startsWith(query)) score += 120
-          else if (nameLower.includes(query)) score += 70
+          // Priority 1: Direct name/slug match
+          if (nameLower === query || slugLower === query) score += 180
+          else if (nameLower.startsWith(query) || slugLower.startsWith(query)) score += 120
+          else if (nameLower.includes(query) || slugLower.includes(query)) score += 70
           else if (similarity > 0.65) score += similarity * 80
 
-          matchedCollegeSlugs.forEach(slug => {
-            if (g.slug.toLowerCase().includes(slug.toLowerCase())) {
-              score += 40
-            }
-          })
+          // Priority 2: Community / College Relationship Match
+          if (g.college_id && matchedCollegeIds.includes(g.college_id)) {
+            score += 80
+          }
+          if (g.parent_community_id && matchedCommunityIds.includes(g.parent_community_id)) {
+            score += 90
+          }
 
           if (searchIntent === 'institution') {
             score += 80
@@ -494,16 +483,82 @@ export async function GET(req: NextRequest) {
             id: g.id,
             type: 'group',
             title: g.name,
-            subtitle: `Public Group`,
+            subtitle: g.colleges?.short_name ? `${g.colleges.short_name} Student Group` : 'Student Group',
+            metadata: {
+              member_count: g.member_count || 0
+            },
+            description: g.description || 'Public student, career, or interest group.',
+            imageUrl: g.colleges?.logo_url || getCollegeLogo(g.colleges?.slug || ''),
+            href: `/community/c/${g.communities?.slug || 'general'}/group/${g.slug}`,
+            score
+          })
+        })
+      }
+
+      // B. Query standard groups
+      let gOr = `name.ilike.%${query}%,slug.ilike.%${query}%`
+      if (matchedCommunityIds.length > 0) {
+        gOr += `,community_id.in.(${matchedCommunityIds.map(id => `"${id}"`).join(',')})`
+      }
+
+      const { data: standardGroups, error: gErr } = await supabase
+        .from('groups')
+        .select(`
+          id,
+          name,
+          slug,
+          community_id,
+          member_count,
+          communities (
+            display_name,
+            slug,
+            college_id,
+            colleges ( name, short_name, logo_url, slug )
+          )
+        `)
+        .eq('is_active', true)
+        .eq('type', 'public')
+        .or(gOr)
+        .limit(30)
+
+      if (standardGroups && !gErr) {
+        standardGroups.forEach((g: any) => {
+          let score = 20
+          const nameLower = g.name.toLowerCase()
+          const slugLower = g.slug.toLowerCase()
+          const similarity = getSimilarity(nameLower, query)
+
+          // Priority 1: Direct name/slug match
+          if (nameLower === query || slugLower === query) score += 180
+          else if (nameLower.startsWith(query) || slugLower.startsWith(query)) score += 120
+          else if (nameLower.includes(query) || slugLower.includes(query)) score += 70
+          else if (similarity > 0.65) score += similarity * 80
+
+          // Priority 2: Community / College Relationship Match
+          if (g.community_id && matchedCommunityIds.includes(g.community_id)) {
+            score += 90
+          }
+          const collId = g.communities?.college_id
+          if (collId && matchedCollegeIds.includes(collId)) {
+            score += 80
+          }
+
+          if (searchIntent === 'institution') {
+            score += 80
+          }
+
+          results.push({
+            id: g.id,
+            type: 'group',
+            title: g.name,
+            subtitle: g.communities?.colleges?.short_name ? `${g.communities.colleges.short_name} Placement Group` : 'Public Group',
             metadata: {
               member_count: g.member_count || 0
             },
             description: g.description || 'Public study, career, or interest group.',
             imageUrl: null,
-            href: isJoined ? `/groups` : `/groups`,
-            score,
-            collegeId: '',
-            is_joined: isJoined
+            href: `/groups`,
+            score
           })
         })
       }
@@ -580,6 +635,69 @@ export async function GET(req: NextRequest) {
             description: p.content || '',
             imageUrl: p.author?.avatar_url || null,
             href: commSlug ? `/community/c/${commSlug}/p/${p.id}` : '/community',
+            score
+          })
+        })
+      }
+    }
+
+    // 7. Search Jobs
+    if (filterType === 'all' || filterType === 'jobs') {
+      let jobOr = `company_name.ilike.%${query}%,role.ilike.%${query}%,location.ilike.%${query}%`
+
+      if (matchedCommunityIds.length > 0) {
+        jobOr += `,community_id.in.(${matchedCommunityIds.map(id => `"${id}"`).join(',')})`
+      }
+      
+      if (matchedUserIds.length > 0) {
+        jobOr += `,posted_by.in.(${matchedUserIds.map(id => `"${id}"`).join(',')})`
+      }
+
+      const { data: jobs, error: jErr } = await supabase
+        .from('jobs')
+        .select(`
+          id,
+          company_name,
+          role,
+          location,
+          salary_range,
+          job_type,
+          posted_by,
+          community_id,
+          communities ( slug, display_name ),
+          users ( full_name, avatar_url )
+        `)
+        .eq('is_active', true)
+        .or(jobOr)
+        .limit(30)
+
+      if (jobs && !jErr) {
+        jobs.forEach((j: any) => {
+          let score = 25
+          const companyLower = j.company_name?.toLowerCase() || ''
+          const roleLower = j.role?.toLowerCase() || ''
+
+          if (companyLower === query || roleLower === query) score += 150
+          else if (companyLower.includes(query) || roleLower.includes(query)) score += 80
+
+          if (j.community_id && matchedCommunityIds.includes(j.community_id)) {
+            score += 90
+          }
+          if (j.posted_by && matchedUserIds.includes(j.posted_by)) {
+            score += 80
+          }
+
+          results.push({
+            id: j.id,
+            type: 'job',
+            title: `${j.role} at ${j.company_name}`,
+            subtitle: j.communities?.display_name ? `Posted in ${j.communities.display_name}` : 'Job Placement',
+            metadata: {
+              location: j.location || 'Remote/Anywhere'
+            },
+            description: `Type: ${j.job_type} | Salary: ${j.salary_range || 'Not disclosed'}`,
+            imageUrl: j.users?.avatar_url || null,
+            href: `/careers/${j.id}`,
             score
           })
         })

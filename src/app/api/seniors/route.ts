@@ -120,6 +120,11 @@ export async function GET(req: NextRequest) {
       .eq('role', 'senior')
       .eq('verification_status', 'verified')
 
+    const excludeId = searchParams.get('exclude_id')?.trim()
+    if (excludeId) {
+      query = query.neq('id', excludeId)
+    }
+
     const hasActiveFilters = !!(q || collegeId || location || company)
 
     if (featured && !hasActiveFilters) {

@@ -108,6 +108,7 @@ export default function SeniorsPage() {
     if (filters.college) params.set('college', filters.college)
     if (filters.location) params.set('location', filters.location)
     if (filters.company) params.set('company', filters.company)
+    if (user?.id) params.set('exclude_id', user.id)
     return params.toString()
   }
 
@@ -438,7 +439,9 @@ export default function SeniorsPage() {
         ) : seniors.length > 0 ? (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {seniors.map((senior) => (
+              {seniors
+                .filter((senior) => senior.id !== user?.id)
+                .map((senior) => (
                 <div
                   key={senior.id}
                   className="group bg-white border border-gray-200 rounded-md p-6 hover:border-purple-300 hover:shadow-md transition-all duration-200 relative overflow-hidden flex flex-col h-full shadow-[0_1px_3px_rgba(0,0,0,0.05)]"

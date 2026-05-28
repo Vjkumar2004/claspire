@@ -11,12 +11,20 @@ interface MessageRequestButtonProps {
 
 type RequestStatus = 'loading' | 'none' | 'pending' | 'accepted' | 'declined'
 
+const STORAGE_KEY_PREFIX = 'msg_req_status_'
+
 export default function MessageRequestButton({ seniorId, seniorName }: MessageRequestButtonProps) {
   const [status, setStatus] = useState<RequestStatus>('loading')
   const [sending, setSending] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
+    // Load cached status immediately to avoid flash
+    const cached = localStorage.getItem(`${STORAGE_KEY_PREFIX}${seniorId}`)
+    if (cached && cached !== 'none') {
+      setStatus(cached as RequestStatus)
+    }
+    // Always verify with server
     checkRequestStatus()
   }, [seniorId])
 
@@ -25,13 +33,27 @@ export default function MessageRequestButton({ seniorId, seniorName }: MessageRe
       const res = await fetch(`/api/message-requests/status?senior_id=${seniorId}`)
       if (res.ok) {
         const data = await res.json()
-        setStatus(data.status)
+        const serverStatus = data.status as RequestStatus
+        setStatus(serverStatus)
+        // Persist to localStorage so page reloads don't flash Connect
+        localStorage.setItem(`${STORAGE_KEY_PREFIX}${seniorId}`, serverStatus)
       } else {
-        setStatus('none')
+        // If API fails, fall back to cached value rather than 'none'
+        const cached = localStorage.getItem(`${STORAGE_KEY_PREFIX}${seniorId}`)
+        if (cached) {
+          setStatus(cached as RequestStatus)
+        } else {
+          setStatus('none')
+        }
       }
     } catch (error) {
       console.error('Failed to check request status:', error)
-      setStatus('none')
+      const cached = localStorage.getItem(`${STORAGE_KEY_PREFIX}${seniorId}`)
+      if (cached) {
+        setStatus(cached as RequestStatus)
+      } else {
+        setStatus('none')
+      }
     }
   }
 
@@ -47,12 +69,15 @@ export default function MessageRequestButton({ seniorId, seniorName }: MessageRe
       })
 
       const data = await res.json()
-      
+
       if (res.ok && data.success) {
         setStatus('pending')
+        localStorage.setItem(`${STORAGE_KEY_PREFIX}${seniorId}`, 'pending')
       } else {
         if (data.error === 'already_requested') {
-          setStatus(data.status)
+          const s = data.status as RequestStatus
+          setStatus(s)
+          localStorage.setItem(`${STORAGE_KEY_PREFIX}${seniorId}`, s)
         } else {
           alert(data.error || 'Failed to send request')
         }
@@ -69,12 +94,11 @@ export default function MessageRequestButton({ seniorId, seniorName }: MessageRe
     router.push(`/dashboard/junior?activeTab=messages&user=${seniorId}`)
   }
 
-  // Loading state
   if (status === 'loading') {
     return (
-      <button 
-        disabled 
-        className="bg-gray-300 text-gray-500 rounded-xl px-4 py-2 text-sm font-medium cursor-not-allowed flex items-center gap-2"
+      <button
+        disabled
+        className="w-full bg-gray-100 text-gray-400 rounded-lg px-4 py-2.5 text-sm font-semibold cursor-not-allowed flex items-center justify-center gap-2"
       >
         <Loader2 size={14} className="animate-spin" />
         Checking...
@@ -82,13 +106,12 @@ export default function MessageRequestButton({ seniorId, seniorName }: MessageRe
     )
   }
 
-  // No request sent yet
   if (status === 'none') {
     return (
       <button
         onClick={handleSendRequest}
         disabled={sending}
-        className="bg-[#A78BFA] hover:bg-[#9061F9] text-white rounded-xl px-4 py-2 text-sm font-medium transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm shadow-purple-200/50"
       >
         {sending ? (
           <>
@@ -98,19 +121,18 @@ export default function MessageRequestButton({ seniorId, seniorName }: MessageRe
         ) : (
           <>
             <MessageSquare size={14} />
-            Message Request
+            Connect
           </>
         )}
       </button>
     )
   }
 
-  // Request pending
   if (status === 'pending') {
     return (
-      <button 
-        disabled 
-        className="bg-gray-800 text-gray-400 rounded-xl px-4 py-2 text-sm cursor-not-allowed flex items-center gap-2"
+      <button
+        disabled
+        className="w-full bg-amber-50 text-amber-600 border border-amber-200 rounded-lg px-4 py-2.5 text-sm font-semibold cursor-not-allowed flex items-center justify-center gap-2"
       >
         <Clock size={14} />
         Request Sent
@@ -118,12 +140,11 @@ export default function MessageRequestButton({ seniorId, seniorName }: MessageRe
     )
   }
 
-  // Request accepted
   if (status === 'accepted') {
     return (
       <button
         onClick={handleMessage}
-        className="bg-green-600 hover:bg-green-700 text-white rounded-xl px-4 py-2 text-sm font-medium transition-colors flex items-center gap-2"
+        className="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors flex items-center justify-center gap-2 shadow-sm shadow-emerald-200/50"
       >
         <CheckCircle size={14} />
         Message
@@ -131,12 +152,11 @@ export default function MessageRequestButton({ seniorId, seniorName }: MessageRe
     )
   }
 
-  // Request declined
   if (status === 'declined') {
     return (
-      <button 
-        disabled 
-        className="bg-gray-800 text-red-400 rounded-xl px-4 py-2 text-sm cursor-not-allowed flex items-center gap-2"
+      <button
+        disabled
+        className="w-full bg-red-50 text-red-400 border border-red-200 rounded-lg px-4 py-2.5 text-sm font-semibold cursor-not-allowed flex items-center justify-center gap-2"
       >
         <XCircle size={14} />
         Request Declined

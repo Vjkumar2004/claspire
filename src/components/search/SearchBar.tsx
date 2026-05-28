@@ -236,7 +236,7 @@ export default function SearchBar({ isMobileOverlay = false, onCloseMobile }: { 
   }
 
   // Segment suggestions by logical groups
-  const topMatch = suggestions.length > 0 && suggestions[0].score >= 100 ? suggestions[0] : null
+  const topMatch = suggestions.length > 0 && (suggestions[0].score ?? 0) >= 100 ? suggestions[0] : null
   const remainingSuggestions = topMatch ? suggestions.slice(1) : suggestions
 
   const people = remainingSuggestions.filter((s) => s.type === 'senior' || s.type === 'student')
