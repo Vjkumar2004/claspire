@@ -7,37 +7,35 @@ const supabase = createClient(
 
 export async function canUsersMessage(userId1: string, userId2: string): Promise<boolean> {
   try {
-    // Check junior-to-senior requests - separate query
-    const { data: juniorRequest, error: juniorError } = await supabase
+    const { data: juniorRequests, error: juniorError } = await supabase
       .from('message_requests')
       .select('id')
       .eq('status', 'accepted')
       .or(`and(student_id.eq.${userId1},senior_id.eq.${userId2}),and(student_id.eq.${userId2},senior_id.eq.${userId1})`)
-      .single()
+      .limit(1)
 
-    if (juniorError && juniorError.code !== 'PGRST116') { // PGRST116 is "not found"
+    if (juniorError) {
       console.error('Junior can message check error:', juniorError)
       return false
     }
 
-    if (juniorRequest) {
+    if (juniorRequests && juniorRequests.length > 0) {
       return true
     }
 
-    // Check senior-to-senior requests - separate query
-    const { data: seniorRequest, error: seniorError } = await supabase
+    const { data: seniorRequests, error: seniorError } = await supabase
       .from('senior_message_requests')
       .select('id')
       .eq('status', 'accepted')
       .or(`and(sender_id.eq.${userId1},receiver_id.eq.${userId2}),and(sender_id.eq.${userId2},receiver_id.eq.${userId1})`)
-      .single()
+      .limit(1)
 
-    if (seniorError && seniorError.code !== 'PGRST116') { // PGRST116 is "not found"
+    if (seniorError) {
       console.error('Senior can message check error:', seniorError)
       return false
     }
 
-    return !!seniorRequest
+    return !!(seniorRequests && seniorRequests.length > 0)
   } catch (error) {
     console.error('Can message check error:', error)
     return false
