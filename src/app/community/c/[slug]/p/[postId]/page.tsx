@@ -15,6 +15,44 @@ const supabase = createClient(
 
 import PostImageCarousel from '@/components/PostImageCarousel'
 
+// Utility function to convert URLs to clickable links and preserve line breaks
+const convertUrlsToLinks = (text: string) => {
+  if (!text) return text
+  const urlPattern = /(https?:\/\/[^\s\)]+)/g
+  const lines = text.split('\n')
+
+  return lines.map((line, lineIndex) => {
+    const matches = line.match(urlPattern) || []
+    if (matches.length === 0) {
+      return (
+        <span key={`line-${lineIndex}`}>
+          {line}
+          {lineIndex < lines.length - 1 && <br />}
+        </span>
+      )
+    }
+    const parts: React.ReactNode[] = []
+    let lastIdx = 0
+    matches.forEach((match, matchIndex) => {
+      const matchStart = line.indexOf(match, lastIdx)
+      const before = line.substring(lastIdx, matchStart)
+      if (before) parts.push(<span key={`t-${lineIndex}-${matchIndex}`}>{before}</span>)
+      parts.push(
+        <a key={`l-${lineIndex}-${matchIndex}`} href={match} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ color: '#7C3AED', fontWeight: 600, wordBreak: 'break-all' }}>{match}</a>
+      )
+      lastIdx = matchStart + match.length
+    })
+    const remaining = line.substring(lastIdx)
+    if (remaining) parts.push(<span key={`t-${lineIndex}-end`}>{remaining}</span>)
+    return (
+      <span key={`line-${lineIndex}`}>
+        {parts}
+        {lineIndex < lines.length - 1 && <br />}
+      </span>
+    )
+  })
+}
+
 export default function PostDetailPage({ params }: { params: Promise<{ slug: string; postId: string }> }) {
   const router = useRouter()
   const [slug, setSlug] = useState('')
@@ -508,16 +546,15 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
           </h1>
 
           {/* Content */}
-          <p style={{
+          <div style={{
             fontSize: 14,
             color: '#4B5563',
             margin: '0 0 16px',
             lineHeight: 1.8,
-            whiteSpace: 'pre-wrap',
             wordBreak: 'break-word'
           }}>
-            {post.content}
-          </p>
+            {convertUrlsToLinks(post.content)}
+          </div>
 
           <PostImageCarousel 
             imageUrls={post.image_url} 
@@ -737,13 +774,13 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
                 </div>
 
                 {/* Answer Content */}
-                <p style={{
+                <div style={{
                   fontSize: 13, color: '#4B5563',
                   margin: 0, lineHeight: 1.7,
-                  whiteSpace: 'pre-wrap', wordBreak: 'break-word'
+                  wordBreak: 'break-word'
                 }}>
-                  {answer.content}
-                </p>
+                  {convertUrlsToLinks(answer.content)}
+                </div>
               </div>
             ))
           )}

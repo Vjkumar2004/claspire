@@ -15,6 +15,44 @@ import {
 import PostModal from '@/components/PostModal'
 import CreateGroupModal from '@/components/CreateGroupModal'
 import { getCollegeLogo, getCollegeInitial } from '@/lib/college-utils'
+import PostImageCarousel from '@/components/PostImageCarousel'
+
+// Utility function to convert URLs to clickable links and preserve line breaks
+const convertUrlsToLinks = (text: string) => {
+  if (!text) return text
+  const urlPattern = /(https?:\/\/[^\s\)]+)/g
+  const lines = text.split('\n')
+  return lines.map((line, lineIndex) => {
+    const matches = line.match(urlPattern) || []
+    if (matches.length === 0) {
+      return (
+        <span key={`line-${lineIndex}`}>
+          {line}
+          {lineIndex < lines.length - 1 && <br />}
+        </span>
+      )
+    }
+    const parts: React.ReactNode[] = []
+    let lastIdx = 0
+    matches.forEach((match, matchIndex) => {
+      const matchStart = line.indexOf(match, lastIdx)
+      const before = line.substring(lastIdx, matchStart)
+      if (before) parts.push(<span key={`t-${lineIndex}-${matchIndex}`}>{before}</span>)
+      parts.push(
+        <a key={`l-${lineIndex}-${matchIndex}`} href={match} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ color: '#7C3AED', fontWeight: 600, wordBreak: 'break-all' }}>{match}</a>
+      )
+      lastIdx = matchStart + match.length
+    })
+    const remaining = line.substring(lastIdx)
+    if (remaining) parts.push(<span key={`t-${lineIndex}-end`}>{remaining}</span>)
+    return (
+      <span key={`line-${lineIndex}`}>
+        {parts}
+        {lineIndex < lines.length - 1 && <br />}
+      </span>
+    )
+  })
+}
 
 function CommunityPageContent({ params }: { params: Promise<{ slug: string }> }) {
   const router = useRouter()
@@ -742,30 +780,8 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                         {post.title && (
                           <h2 style={{ fontSize: 18, fontWeight: 800, color: '#0F172A', marginBottom: 10, lineHeight: 1.35, letterSpacing: '-0.01em' }}>{post.title}</h2>
                         )}
-                        <p style={{ fontSize: 14, color: '#475569', lineHeight: 1.6, marginBottom: 20, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{post.content}</p>
-                        {post.image_url && (
-                          <div style={{
-                            borderRadius: 12,
-                            overflow: 'hidden',
-                            marginBottom: 20,
-                            border: '1px solid #F1F5F9'
-                          }}>
-                            <img
-                              src={post.image_url}
-                              alt="Post"
-                              style={{
-                                width: '100%',
-                                maxHeight: 320,
-                                objectFit: 'cover',
-                                display: 'block'
-                              }}
-                              onClick={e => {
-                                e.stopPropagation()
-                                window.open(post.image_url, '_blank')
-                              }}
-                            />
-                          </div>
-                        )}
+                        <div style={{ fontSize: 14, color: '#475569', lineHeight: 1.6, marginBottom: 20, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{convertUrlsToLinks(post.content)}</div>
+                        <PostImageCarousel imageUrls={post.image_url} />
                       </div>
 
                       {/* Engagement Bar */}

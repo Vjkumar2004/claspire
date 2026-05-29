@@ -62,6 +62,7 @@ export async function GET(req: NextRequest) {
       .from('posts')
       .select(`
         id, title, content, type, image_url,
+        visibility, tags, community_id,
         upvote_count, answer_count,
         is_answered, created_at,
         communities ( display_name, slug ),

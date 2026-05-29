@@ -23,46 +23,62 @@ const supabase = createClient(
 import BottomNavbar from '@/components/BottomNavbar'
 import PostImageCarousel from '@/components/PostImageCarousel'
 
-// Utility function to convert URLs to clickable links
+// Utility function to convert URLs to clickable links and preserve line breaks
 const convertUrlsToLinks = (text: string) => {
   if (!text) return text
   const urlPattern = /(https?:\/\/[^\s\)]+)/g
-  const matches = text.match(urlPattern) || []
 
-  if (matches.length === 0) {
-    return <span>{text}</span>
-  }
+  // Split by newlines first to preserve paragraph structure
+  const lines = text.split('\n')
 
-  const result: React.ReactNode[] = []
-  let lastIndex = 0
+  return lines.map((line, lineIndex) => {
+    const matches = line.match(urlPattern) || []
 
-  matches.forEach((match, index) => {
-    const textBefore = text.substring(lastIndex, text.indexOf(match))
-    if (textBefore) {
-      result.push(<span key={`text-${index}`}>{textBefore}</span>)
+    if (matches.length === 0) {
+      return (
+        <span key={`line-${lineIndex}`}>
+          {line}
+          {lineIndex < lines.length - 1 && <br />}
+        </span>
+      )
     }
 
-    result.push(
-      <a
-        key={`link-${index}`}
-        href={match}
-        target="_blank"
-        rel="noopener noreferrer"
-        onClick={(e) => e.stopPropagation()}
-        className="text-[#7C3AED] hover:underline font-semibold"
-      >
-        {match}
-      </a>
+    const parts: React.ReactNode[] = []
+    let lastIdx = 0
+
+    matches.forEach((match, matchIndex) => {
+      const matchStart = line.indexOf(match, lastIdx)
+      const before = line.substring(lastIdx, matchStart)
+      if (before) {
+        parts.push(<span key={`t-${lineIndex}-${matchIndex}`}>{before}</span>)
+      }
+      parts.push(
+        <a
+          key={`l-${lineIndex}-${matchIndex}`}
+          href={match}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={(e) => e.stopPropagation()}
+          className="text-[#7C3AED] hover:underline font-semibold break-all"
+        >
+          {match}
+        </a>
+      )
+      lastIdx = matchStart + match.length
+    })
+
+    const remaining = line.substring(lastIdx)
+    if (remaining) {
+      parts.push(<span key={`t-${lineIndex}-end`}>{remaining}</span>)
+    }
+
+    return (
+      <span key={`line-${lineIndex}`}>
+        {parts}
+        {lineIndex < lines.length - 1 && <br />}
+      </span>
     )
-    lastIndex = text.indexOf(match) + match.length
   })
-
-  const textAfter = text.substring(lastIndex)
-  if (textAfter) {
-    result.push(<span key={`text-final`}>{textAfter}</span>)
-  }
-
-  return result
 }
 
 function CommunityPageContent() {

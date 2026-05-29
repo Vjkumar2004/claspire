@@ -8,7 +8,7 @@ import {
   GraduationCap, Star, Target,
   BarChart3, Menu, X, Trash2,
   Handshake, Search, Sparkles, MessageSquare,
-  ArrowUp, ArrowDown, LogOut, User
+  ArrowUp, ArrowDown, LogOut, User, Pencil
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -216,6 +216,31 @@ export default function JuniorDashboard() {
     if (hours > 0) return `${hours}h ago`
     if (mins > 0) return `${mins}m ago`
     return 'Just now'
+  }
+
+  const parsePostImages = (image_url?: string) => {
+    if (!image_url) return []
+
+    if (typeof image_url !== 'string') {
+      return [String(image_url)]
+    }
+
+    const trimmed = image_url.trim()
+    if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
+      try {
+        const parsed = JSON.parse(trimmed)
+        if (Array.isArray(parsed)) {
+          return parsed.filter((item) => typeof item === 'string') as string[]
+        }
+        if (typeof parsed === 'string') {
+          return [parsed]
+        }
+      } catch {
+        // fallback to raw string
+      }
+    }
+
+    return [trimmed]
   }
 
   const handleDeletePost = async (postId: string) => {
@@ -514,59 +539,82 @@ export default function JuniorDashboard() {
                     </div>
 
                     <div className="grid grid-cols-1 gap-4">
-                      {dashData.myPosts.filter(p => doubtFilter === 'all' || (doubtFilter === 'answered' ? p.is_answered : !p.is_answered)).map(post => (
-                        <div key={post.id} className="group bg-white p-6 rounded-[28px] border border-[#E2E8F0] hover:border-purple-200 transition-all shadow-sm hover:shadow-xl relative overflow-hidden cursor-pointer">
-                          <div className="flex justify-between items-start mb-4">
-                            <span className={`px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${post.is_answered ? 'bg-green-50 text-green-600 border-green-200' : 'bg-amber-50 text-amber-600 border-amber-200'}`}>
-                              {post.is_answered ? '✓ Answered' : '⌛ Pending'}
-                            </span>
-                            <div className="flex gap-2 transition-opacity">
-                              <button
-                                onClick={() => setShowDeleteConfirm(post.id)}
-                                className="p-2 rounded-xl bg-red-50 text-red-400 hover:bg-red-500 hover:text-white transition-all shadow-sm border border-red-100"
-                              >
-                                <Trash2 size={14} />
-                              </button>
+                      {(() => {
+                        const filteredPosts = dashData.myPosts.filter(p => doubtFilter === 'all' || (doubtFilter === 'answered' ? p.is_answered : !p.is_answered))
+                        if (filteredPosts.length === 0) {
+                          return (
+                            <div className="rounded-[28px] border border-dashed border-[#E2E8F0] bg-white p-10 text-center shadow-sm">
+                              <p className="text-lg font-bold text-[#1E293B] mb-2">No doubts found</p>
+                              <p className="text-sm text-[#64748B]">You haven't asked any doubts yet. Start by posting a new doubt from the top button.</p>
                             </div>
-                          </div>
-                          <div className="flex gap-4">
-                            <div className={`w-9 h-9 rounded-xl ${post.users?.avatar_url ? 'bg-transparent' : 'bg-purple-100'} flex items-center justify-center text-purple-600 font-bold text-xs overflow-hidden flex-shrink-0 mt-1 shadow-sm`}>
-                              {post.users?.avatar_url ? (
-                                <img src={post.users.avatar_url} alt={post.users.full_name} className="w-full h-full object-cover" />
-                              ) : (
-                                post.users?.full_name?.[0] || 'U'
-                              )}
-                            </div>
-                            <div className="flex-1">
-                              <h3 className="text-lg font-bold text-[#1E293B] group-hover:text-purple-600 transition-colors mb-2">{post.title}</h3>
-                              <p className="text-sm font-medium text-[#64748B] line-clamp-2 mb-4">{post.content}</p>
-                              {post.image_url && (
-                                <div className="mb-6 rounded-xl overflow-hidden border border-gray-100 max-w-md shadow-sm">
-                                  <img src={post.image_url} alt="Post content" className="w-full h-auto object-cover max-h-60" />
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                          <div className="flex items-center justify-between text-xs font-bold text-[#94A3B8] border-t border-[#F1F5F9] pt-4">
-                            <div className="flex gap-4">
-                              <span className="flex items-center gap-1.5"><ArrowUp size={14} /> {post.upvote_count}</span>
-                              <span className="flex items-center gap-1.5"><HelpCircle size={14} /> {post.answer_count} answers</span>
-                            </div>
-                            <span className="flex items-center gap-1.5"><Clock size={14} /> {timeAgo(post.created_at)}</span>
-                          </div>
+                          )
+                        }
 
-                          {showDeleteConfirm === post.id && (
-                            <div className="absolute inset-0 bg-white/95 backdrop-blur-sm z-10 flex flex-col items-center justify-center p-8 text-center">
-                              <p className="font-black text-[#0F172A] mb-2 text-lg">Delete this doubt?</p>
-                              <p className="text-sm text-[#64748B] mb-6 font-medium">This cannot be undone. All answers will also be removed.</p>
-                              <div className="flex gap-3 w-full max-w-xs">
-                                <button onClick={(e) => { e.stopPropagation(); setShowDeleteConfirm(null) }} className="flex-1 py-3 rounded-2xl border border-gray-200 font-bold text-sm text-[#64748B] hover:bg-gray-50">Cancel</button>
-                                <button onClick={(e) => { e.stopPropagation(); handleDeletePost(post.id) }} className="flex-1 py-3 rounded-2xl bg-red-500 text-white font-bold text-sm hover:bg-red-600">Delete</button>
+                        return filteredPosts.map(post => (
+                          <div key={post.id} className="group bg-white p-6 rounded-[28px] border border-[#E2E8F0] hover:border-purple-200 transition-all shadow-sm hover:shadow-xl relative overflow-hidden cursor-pointer">
+                            <div className="flex justify-between items-start mb-4">
+                              <span className={`px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${post.is_answered ? 'bg-green-50 text-green-600 border-green-200' : 'bg-amber-50 text-amber-600 border-amber-200'}`}>
+                                {post.is_answered ? '✓ Answered' : '⌛ Pending'}
+                              </span>
+                              <div className="flex gap-2 transition-opacity">
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    router.push(`/dashboard/junior/edit-post/${post.id}?activeTab=doubts`)
+                                  }}
+                                  className="p-2 rounded-xl bg-purple-50 text-purple-600 hover:bg-purple-500 hover:text-white transition-all shadow-sm border border-purple-100"
+                                  title="Edit Post"
+                                >
+                                  <Pencil size={14} />
+                                </button>
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); setShowDeleteConfirm(post.id) }}
+                                  className="p-2 rounded-xl bg-red-50 text-red-400 hover:bg-red-500 hover:text-white transition-all shadow-sm border border-red-100"
+                                  title="Delete Post"
+                                >
+                                  <Trash2 size={14} />
+                                </button>
                               </div>
                             </div>
-                          )}
-                        </div>
-                      ))}
+                            <div className="flex gap-4">
+                              <div className={`w-9 h-9 rounded-xl ${post.users?.avatar_url ? 'bg-transparent' : 'bg-purple-100'} flex items-center justify-center text-purple-600 font-bold text-xs overflow-hidden flex-shrink-0 mt-1 shadow-sm`}>
+                                {post.users?.avatar_url ? (
+                                  <img src={post.users.avatar_url} alt={post.users.full_name} className="w-full h-full object-cover" />
+                                ) : (
+                                  post.users?.full_name?.[0] || 'U'
+                                )}
+                              </div>
+                              <div className="flex-1">
+                                <h3 className="text-lg font-bold text-[#1E293B] group-hover:text-purple-600 transition-colors mb-2">{post.title}</h3>
+                                <p className="text-sm font-medium text-[#64748B] line-clamp-2 mb-4">{post.content}</p>
+                                {parsePostImages(post.image_url).length > 0 && (
+                                  <div className="mb-6 rounded-xl overflow-hidden border border-gray-100 max-w-md shadow-sm">
+                                    <img src={parsePostImages(post.image_url)[0]} alt="Post content" className="w-full h-auto object-cover max-h-60" />
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                            <div className="flex items-center justify-between text-xs font-bold text-[#94A3B8] border-t border-[#F1F5F9] pt-4">
+                              <div className="flex gap-4">
+                                <span className="flex items-center gap-1.5"><ArrowUp size={14} /> {post.upvote_count}</span>
+                                <span className="flex items-center gap-1.5"><HelpCircle size={14} /> {post.answer_count} answers</span>
+                              </div>
+                              <span className="flex items-center gap-1.5"><Clock size={14} /> {timeAgo(post.created_at)}</span>
+                            </div>
+
+                            {showDeleteConfirm === post.id && (
+                              <div className="absolute inset-0 bg-white/95 backdrop-blur-sm z-10 flex flex-col items-center justify-center p-8 text-center">
+                                <p className="font-black text-[#0F172A] mb-2 text-lg">Delete this doubt?</p>
+                                <p className="text-sm text-[#64748B] mb-6 font-medium">This cannot be undone. All answers will also be removed.</p>
+                                <div className="flex gap-3 w-full max-w-xs">
+                                  <button onClick={(e) => { e.stopPropagation(); setShowDeleteConfirm(null) }} className="flex-1 py-3 rounded-2xl border border-gray-200 font-bold text-sm text-[#64748B] hover:bg-gray-50">Cancel</button>
+                                  <button onClick={(e) => { e.stopPropagation(); handleDeletePost(post.id) }} className="flex-1 py-3 rounded-2xl bg-red-500 text-white font-bold text-sm hover:bg-red-600">Delete</button>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        ))
+                      })()}
                     </div>
                   </motion.div>
                 )}

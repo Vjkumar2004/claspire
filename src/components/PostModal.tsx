@@ -1,10 +1,9 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import {
   X, Globe, Lock, ChevronDown,
   Loader2, Tag, AlertCircle, ImagePlus
 } from 'lucide-react'
-import { useRef } from 'react'
 import { usePoints } from '@/contexts/PointsContext'
 
 interface PostModalProps {
@@ -14,6 +13,7 @@ interface PostModalProps {
   communitySlug: string
   communityId: string
   userRole: string
+  editData?: any
 }
 
 export default function PostModal({
@@ -22,7 +22,8 @@ export default function PostModal({
   onSuccess,
   communitySlug,
   communityId,
-  userRole
+  userRole,
+  editData
 }: PostModalProps) {
   const { showAward } = usePoints()
   const [title, setTitle] = useState('')
@@ -41,6 +42,40 @@ export default function PostModal({
   const [imageUploading, setImageUploading] = useState(false)
   const [imageUrls, setImageUrls] = useState<string[]>([])
   const imageRef = useRef<HTMLInputElement>(null)
+
+  // Populate data if editing
+  useEffect(() => {
+    if (isOpen && editData) {
+      setTitle(editData.title || '')
+      setContent(editData.content || '')
+      setType(editData.type || 'doubt')
+      setVisibility(editData.visibility || 'public')
+      setTags(editData.tags || [])
+      let parsedUrls: string[] = []
+      if (editData.image_url) {
+        try {
+          parsedUrls = typeof editData.image_url === 'string' && editData.image_url.startsWith('[') 
+            ? JSON.parse(editData.image_url) 
+            : typeof editData.image_url === 'string' ? [editData.image_url] : editData.image_url
+        } catch(e) {
+          parsedUrls = [editData.image_url]
+        }
+      }
+      setImageUrls(parsedUrls)
+      setImagePreviews(parsedUrls)
+    } else if (isOpen) {
+      // reset if creating new
+      setTitle('')
+      setContent('')
+      setType('doubt')
+      setVisibility('public')
+      setTags([])
+      setImages([])
+      setImagePreviews([])
+      setImageUrls([])
+      setError('')
+    }
+  }, [isOpen, editData])
 
   if (!isOpen) return null
 
@@ -154,23 +189,33 @@ export default function PostModal({
     setLoading(true)
 
     try {
+      const isEdit = !!editData
+      const endpoint = isEdit ? '/api/posts/edit' : '/api/posts/create'
+      const method = isEdit ? 'PUT' : 'POST'
+      const bodyParams: any = {
+        title: title.trim(),
+        content: content.trim(),
+        type,
+        visibility,
+        tags,
+        image_url: imageUrls.length > 0 ? JSON.stringify(imageUrls) : null
+      }
+      
+      if (isEdit) {
+        bodyParams.post_id = editData.id
+      } else {
+        bodyParams.community_id = communityId
+        bodyParams.is_pinned = false
+      }
+
       const res = await fetch(
-        '/api/posts/create',
+        endpoint,
         {
-          method: 'POST',
+          method,
           headers: {
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({
-            community_id: communityId,
-            title: title.trim(),
-            content: content.trim(),
-            type,
-            visibility,
-            tags,
-            is_pinned: false,
-            image_url: imageUrls.length > 0 ? JSON.stringify(imageUrls) : null
-          })
+          body: JSON.stringify(bodyParams)
         }
       )
 
@@ -184,14 +229,11 @@ export default function PostModal({
       }
 
       // Show RP Award
-      if (data.rpEarned) {
-        let reason = "New post created! 🚀";
-        if (type === 'doubt') reason = "Doubt posted! ❓";
-        if (type === 'experience') reason = "Experience shared! ⭐";
-        if (type === 'referral_hunt') reason = "Referral hunt posted! 🎯";
-        if (type === 'resource') reason = "Resource shared! 📚";
-        
-        showAward(data.rpEarned, reason);
+      if (data.rpEarned && !isEdit) {
+        if (type === 'doubt') showAward(5, 'Great question! 🌟')
+        else if (type === 'resource') showAward(10, 'Resource shared! 📚')
+        else if (type === 'referral_hunt') showAward(2, 'Good luck with referral! 🎯')
+        else showAward(5, 'Post created! ✨')
       }
 
       // Reset form
@@ -260,15 +302,7 @@ export default function PostModal({
           borderRadius: '20px 20px 0 0'
         }}>
           <div>
-            <h2 style={{
-              fontSize: 16,
-              fontWeight: 800,
-              color: '#111827',
-              margin: '0 0 2px',
-              fontFamily: 'Instrument Serif'
-            }}>
-              Create Post
-            </h2>
+            <h2 className="text-xl font-bold text-gray-900 font-instrument-serif">{editData ? 'Edit Post' : 'Create a Post'}</h2>
             <p style={{
               fontSize: 11,
               color: '#9CA3AF',
