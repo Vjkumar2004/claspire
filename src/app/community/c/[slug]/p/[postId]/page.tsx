@@ -13,6 +13,8 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 )
 
+import PostImageCarousel from '@/components/PostImageCarousel'
+
 export default function PostDetailPage({ params }: { params: Promise<{ slug: string; postId: string }> }) {
   const router = useRouter()
   const [slug, setSlug] = useState('')
@@ -517,23 +519,10 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
             {post.content}
           </p>
 
-          {post.image_url && (
-            <div style={{
-              borderRadius: 16,
-              overflow: 'hidden',
-              marginBottom: 24,
-              border: '1px solid #F3F4F6',
-              cursor: 'pointer'
-            }}
-            onClick={() => window.open(post.image_url, '_blank')}
-            >
-              <img 
-                src={post.image_url} 
-                alt="Post content" 
-                style={{ width: '100%', height: 'auto', display: 'block' }} 
-              />
-            </div>
-          )}
+          <PostImageCarousel 
+            imageUrls={post.image_url} 
+            onImageClick={(url) => window.open(url, '_blank')} 
+          />
 
           {/* Tags */}
           {post.tags?.length > 0 && (

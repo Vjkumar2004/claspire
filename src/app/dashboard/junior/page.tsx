@@ -11,7 +11,7 @@ import {
   ArrowUp, ArrowDown, LogOut, User
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { usePoints } from '@/contexts/PointsContext'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -125,11 +125,12 @@ export default function JuniorDashboard() {
   const [activeTab, setActiveTab] = useState('overview')
   const [initialMessageUser, setInitialMessageUser] = useState<string | undefined>(undefined)
 
+  const searchParams = useSearchParams()
+
   // Handle URL parameters for active tab
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search)
-    const tab = params.get('activeTab')
-    const targetUser = params.get('user')
+    const tab = searchParams.get('activeTab')
+    const targetUser = searchParams.get('user')
     
     if (tab && ['overview', 'doubts', 'webinars', 'community', 'referrals', 'messages'].includes(tab)) {
       setActiveTab(tab)
@@ -140,7 +141,7 @@ export default function JuniorDashboard() {
       setActiveTab('messages')
       setInitialMessageUser(targetUser)
     }
-  }, [])
+  }, [searchParams])
   const [doubtSearch, setDoubtSearch] = useState('')
   const [doubtFilter, setDoubtFilter] = useState<'all' | 'answered' | 'pending'>('all')
   const [eventSearch, setEventSearch] = useState('')
@@ -495,12 +496,12 @@ export default function JuniorDashboard() {
                     key="doubts" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
                     className="space-y-6"
                   >
-                    <div className="flex items-center justify-between bg-white p-6 rounded-[28px] border border-[#E2E8F0] shadow-sm">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-[28px] border border-[#E2E8F0] shadow-sm">
                       <div>
                         <h2 className="text-2xl font-black text-[#0F172A] font-instrument-serif m-0">My Doubts</h2>
                         <p className="text-[#64748B] text-sm font-medium m-0 mt-1">History of all questions asked across communities.</p>
                       </div>
-                      <div className="flex gap-2 bg-gray-50 p-1.5 rounded-2xl border border-gray-100">
+                      <div className="flex flex-wrap gap-2 bg-gray-50 p-1.5 rounded-2xl border border-gray-100 self-start md:self-auto">
                         {['all', 'answered', 'pending'].map(f => (
                           <button
                             key={f} onClick={() => setDoubtFilter(f as any)}
@@ -519,7 +520,7 @@ export default function JuniorDashboard() {
                             <span className={`px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${post.is_answered ? 'bg-green-50 text-green-600 border-green-200' : 'bg-amber-50 text-amber-600 border-amber-200'}`}>
                               {post.is_answered ? '✓ Answered' : '⌛ Pending'}
                             </span>
-                            <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="flex gap-2 transition-opacity">
                               <button
                                 onClick={() => setShowDeleteConfirm(post.id)}
                                 className="p-2 rounded-xl bg-red-50 text-red-400 hover:bg-red-500 hover:text-white transition-all shadow-sm border border-red-100"
@@ -559,8 +560,8 @@ export default function JuniorDashboard() {
                               <p className="font-black text-[#0F172A] mb-2 text-lg">Delete this doubt?</p>
                               <p className="text-sm text-[#64748B] mb-6 font-medium">This cannot be undone. All answers will also be removed.</p>
                               <div className="flex gap-3 w-full max-w-xs">
-                                <button onClick={() => setShowDeleteConfirm(null)} className="flex-1 py-3 rounded-2xl border border-gray-200 font-bold text-sm text-[#64748B] hover:bg-gray-50">Cancel</button>
-                                <button onClick={() => handleDeletePost(post.id)} className="flex-1 py-3 rounded-2xl bg-red-500 text-white font-bold text-sm hover:bg-red-600">Delete</button>
+                                <button onClick={(e) => { e.stopPropagation(); setShowDeleteConfirm(null) }} className="flex-1 py-3 rounded-2xl border border-gray-200 font-bold text-sm text-[#64748B] hover:bg-gray-50">Cancel</button>
+                                <button onClick={(e) => { e.stopPropagation(); handleDeletePost(post.id) }} className="flex-1 py-3 rounded-2xl bg-red-500 text-white font-bold text-sm hover:bg-red-600">Delete</button>
                               </div>
                             </div>
                           )}
@@ -769,19 +770,23 @@ export default function JuniorDashboard() {
                 <div>
                   <h4 className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-6">Account Settings</h4>
                   <div className="space-y-2">
-                    <button className="w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold text-white/70 hover:bg-white/5 hover:text-white transition-all group">
+                    <button onClick={() => router.push(`/u/${u.unique_id}`)} className="w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold text-white/70 hover:bg-white/5 hover:text-white transition-all group cursor-pointer">
                       <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center group-hover:scale-110 transition-transform">
                         <User size={16} />
                       </div>
                       My Profile
                     </button>
-                    <button className="w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold text-white/70 hover:bg-white/5 hover:text-white transition-all group">
+                    <button onClick={() => alert('Preferences page coming soon!')} className="w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold text-white/70 hover:bg-white/5 hover:text-white transition-all group cursor-pointer">
                       <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center group-hover:scale-110 transition-transform">
                         <Settings size={16} />
                       </div>
                       Preferences
                     </button>
-                    <button onClick={() => { localStorage.removeItem('claspire_user'); router.push('/login'); }} className="w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold text-red-400 hover:bg-red-500/10 transition-all group cursor-pointer">
+                    <button onClick={async () => {
+                      try { await fetch('/api/auth/signout', { method: 'POST' }); } catch(e) {}
+                      localStorage.removeItem('claspire_user');
+                      router.push('/login');
+                    }} className="w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold text-red-400 hover:bg-red-500/10 transition-all group cursor-pointer">
                       <div className="w-8 h-8 rounded-xl bg-red-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
                         <LogOut size={16} />
                       </div>
@@ -799,7 +804,7 @@ export default function JuniorDashboard() {
                   </p>
                   <button
                     onClick={() => setShowDeleteModal(true)}
-                    className="border border-red-800 text-red-400 hover:bg-red-950/30 rounded-xl px-5 py-2.5 text-sm font-medium transition-colors"
+                    className="border border-red-800 text-red-400 hover:bg-red-950/30 rounded-xl px-5 py-2.5 text-sm font-medium transition-colors cursor-pointer"
                   >
                     Delete My Account
                   </button>

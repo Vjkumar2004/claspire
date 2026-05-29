@@ -6,7 +6,7 @@ import Link from 'next/link';
 
 export default function PrivacyPage() {
   return (
-    <div className="min-h-screen bg-[#F8FAFC]">
+    <div className="min-h-screen bg-white">
       {/* Header */}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-4xl mx-auto px-6 py-4">
@@ -179,7 +179,7 @@ export default function PrivacyPage() {
                 <li>Data portability (receive your data in a structured format)</li>
               </ul>
               <p>
-                To exercise these rights, please contact us at claspire.campus@gmail.com. We will respond to your 
+                To exercise these rights, please contact us at claspire.community@gmail.com. We will respond to your 
                 request within 30 days.
               </p>
             </div>
@@ -194,7 +194,7 @@ export default function PrivacyPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="flex items-center gap-3">
                 <Mail className="text-blue-600" size={20} />
-                <span className="text-[#0F172A]">claspire.campus@gmail.com</span>
+                <span className="text-[#0F172A]">claspire.community@gmail.com</span>
               </div>
               <div className="flex items-center gap-3">
                 <Phone className="text-green-600" size={20} />

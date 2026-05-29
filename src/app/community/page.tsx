@@ -20,6 +20,9 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder'
 )
 
+import BottomNavbar from '@/components/BottomNavbar'
+import PostImageCarousel from '@/components/PostImageCarousel'
+
 // Utility function to convert URLs to clickable links
 const convertUrlsToLinks = (text: string) => {
   if (!text) return text
@@ -126,6 +129,10 @@ function CommunityPageContent() {
   // Campus Placements (real jobs)
   const [campusJobs, setCampusJobs] = useState<any[]>([])
 
+  // Floating FAB scroll visibility to match bottom nav
+  const [isNavVisible, setIsNavVisible] = useState(true)
+  const [lastScrollY, setLastScrollY] = useState(0)
+
   const toggleContentExpansion = (postId: string) => {
     setExpandedContent(prev => ({
       ...prev,
@@ -142,6 +149,37 @@ function CommunityPageContent() {
     setShowImageModal(false)
     setSelectedImage('')
   }
+
+  // Auto-hide FAB on scroll to sync with bottom navbar
+  useEffect(() => {
+    let scrollTimeout: NodeJS.Timeout
+
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY
+
+      if (scrollTimeout) {
+        clearTimeout(scrollTimeout)
+      }
+
+      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        setIsNavVisible(false)
+      } else if (currentScrollY < lastScrollY) {
+        setIsNavVisible(true)
+      }
+
+      setLastScrollY(currentScrollY)
+      scrollTimeout = setTimeout(() => {}, 150)
+    }
+
+    window.addEventListener('scroll', handleScroll, { passive: true })
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+      if (scrollTimeout) {
+        clearTimeout(scrollTimeout)
+      }
+    }
+  }, [lastScrollY])
 
   // Fetch full details of the authenticated user to render rich profile identity card
   useEffect(() => {
@@ -197,6 +235,7 @@ function CommunityPageContent() {
             if (oId && !threadsMap.has(oId)) {
               threadsMap.set(oId, {
                 id: oId,
+                unread: conv.unread || false,
                 users: {
                   id: oId,
                   full_name: conv.otherUser?.full_name || 'Alumni Partner',
@@ -247,6 +286,17 @@ function CommunityPageContent() {
   // Polling chat messages inside the interactive drawer/bottom sheet
   useEffect(() => {
     if (!activeChatUser || !profileUser?.id) return
+
+    // Mark messages as read
+    const conversationId = [profileUser.id, activeChatUser.id].sort().join('_')
+    fetch('/api/messages/read', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ conversationId })
+    }).catch(console.error)
+    
+    // Clear local unread state immediately
+    setChatThreads(prev => prev.map(t => t.id === activeChatUser.id ? { ...t, unread: false } : t))
 
     let isMounted = true
     setDrawerChatLoading(true)
@@ -1118,17 +1168,11 @@ function CommunityPageContent() {
                           )}
                         </div>
 
-                        {/* Large Attached media inside card */}
-                        {post.image_url && (
-                          <div className="rounded border border-slate-100 mb-2.5 bg-slate-50 overflow-hidden flex items-center justify-center max-h-72">
-                            <img
-                              src={post.image_url}
-                              alt="Attached post attachment illustration"
-                              onClick={() => handleImageClick(post.image_url)}
-                              className="w-full object-cover max-h-72 hover:opacity-95 transition-opacity cursor-zoom-in"
-                            />
-                          </div>
-                        )}
+                        {/* Attached media inside card via Carousel */}
+                        <PostImageCarousel 
+                          imageUrls={post.image_url} 
+                          onImageClick={handleImageClick} 
+                        />
 
                         {/* Tags line */}
                         {post.tags?.length > 0 && (
@@ -1432,24 +1476,22 @@ function CommunityPageContent() {
         </div>
       </div>
 
-      {/* Floating Action Button (Mobile only) */}
-      <button
-        onClick={() => router.push('?create=true')}
-        className="fixed bottom-6 right-6 lg:hidden w-12 h-12 rounded-full bg-gradient-to-r from-[#7C3AED] to-[#06B6D4] flex items-center justify-center shadow-lg text-white font-bold cursor-pointer transition-transform hover:scale-105 active:scale-95 z-50 animate-bounce"
-      >
-        <Plus className="w-6 h-6" />
-      </button>
+
 
       {/* ════ MOBILE DIRECT MESSAGING REDESIGN: Floating Circular FAB ════ */}
       <button
         onClick={() => setMobileDrawerOpen(true)}
-        className="fixed bottom-24 right-6 lg:hidden w-12 h-12 rounded-full bg-[#7C3AED] text-white flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-transform z-50 border border-purple-400"
+        className={`fixed right-6 lg:hidden w-12 h-12 rounded-full bg-[#7C3AED] text-white flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all duration-300 ease-in-out z-50 border border-purple-400 ${
+          isNavVisible ? 'bottom-24' : 'bottom-6'
+        }`}
         title="Open Direct Messages"
       >
         <MessageCircle className="w-6 h-6 animate-pulse" />
-        <span className="absolute -top-1.5 -right-1.5 bg-rose-500 text-[9px] font-black text-white w-5 h-5 rounded-full flex items-center justify-center border-2 border-[#7C3AED]">
-          {chatThreads.length}
-        </span>
+        {chatThreads.filter(t => t.unread).length > 0 && (
+          <span className="absolute -top-1.5 -right-1.5 bg-rose-500 text-[9px] font-black text-white w-5 h-5 rounded-full flex items-center justify-center border-2 border-[#7C3AED]">
+            {chatThreads.filter(t => t.unread).length}
+          </span>
+        )}
       </button>
 
       {/* ════ MOBILE DIRECT MESSAGING BOTTOM SHEET DRAWER ════ */}
@@ -1887,6 +1929,8 @@ function CommunityPageContent() {
     </div>
   )
 }
+
+
 
 export default function CommunityPage() {
   return (

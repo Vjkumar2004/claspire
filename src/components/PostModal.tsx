@@ -35,10 +35,11 @@ export default function PostModal({
   const [error, setError] = useState('')
 
   // Image Upload States
-  const [image, setImage] = useState<File | null>(null)
-  const [imagePreview, setImagePreview] = useState<string | null>(null)
+  // Image Upload States
+  const [images, setImages] = useState<File[]>([])
+  const [imagePreviews, setImagePreviews] = useState<string[]>([])
   const [imageUploading, setImageUploading] = useState(false)
-  const [imageUrl, setImageUrl] = useState<string | null>(null)
+  const [imageUrls, setImageUrls] = useState<string[]>([])
   const imageRef = useRef<HTMLInputElement>(null)
 
   if (!isOpen) return null
@@ -62,70 +63,75 @@ export default function PostModal({
   }
 
   const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
+    const files = Array.from(e.target.files || [])
+    if (!files.length) return
 
-    // Validate
+    if (images.length + files.length > 5) {
+      setError('You can upload a maximum of 5 images.')
+      return
+    }
+
     const allowed = [
       'image/jpeg', 'image/jpg', 'image/png', 'image/webp',
       'image/gif', 'image/bmp', 'image/tiff', 'image/x-tiff',
       'image/svg+xml', 'image/heic', 'image/heif', 'image/x-icon',
       'image/vnd.microsoft.icon'
     ]
-    if (!allowed.includes(file.type)) {
-      setError('Please upload a valid image format (JPG, PNG, GIF, WebP, BMP, SVG, etc.)')
-      return
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      setError('Image max size is 5MB')
-      return
+
+    const validFiles: File[] = []
+    for (const file of files) {
+      if (!allowed.includes(file.type)) {
+        setError('Please upload a valid image format.')
+        return
+      }
+      if (file.size > 2 * 1024 * 1024) {
+        setError('Each image max size is 2MB')
+        return
+      }
+      validFiles.push(file)
     }
 
-    // Preview
-    const reader = new FileReader()
-    reader.onload = () => {
-      setImagePreview(reader.result as string)
-    }
-    reader.readAsDataURL(file)
-    setImage(file)
+    const newPreviews = validFiles.map(f => URL.createObjectURL(f))
+    setImages(prev => [...prev, ...validFiles])
+    setImagePreviews(prev => [...prev, ...newPreviews])
 
-    // Upload
     setImageUploading(true)
     setError('')
     try {
-      const formData = new FormData()
-      formData.append('file', file)
-      formData.append('type', 'post_image')
+      const newUrls: string[] = []
+      for (const file of validFiles) {
+        const formData = new FormData()
+        formData.append('file', file)
+        formData.append('type', 'post_image')
 
-      const res = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData
-      })
-      const data = await res.json()
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData
+        })
+        const data = await res.json()
 
-      if (res.ok && data.url) {
-        setImageUrl(data.url)
-      } else {
-        setError(data.error || 'Image upload failed')
-        setImage(null)
-        setImagePreview(null)
+        if (res.ok && data.url) {
+          newUrls.push(data.url)
+        } else {
+          setError(data.error || 'Upload failed for some images')
+        }
+      }
+      if (newUrls.length > 0) {
+        setImageUrls(prev => [...prev, ...newUrls])
       }
     } catch (err) {
       setError('Image upload failed')
-      setImage(null)
-      setImagePreview(null)
     } finally {
       setImageUploading(false)
+      if (imageRef.current) imageRef.current.value = ''
     }
   }
 
-  const removeImage = () => {
-    setImage(null)
-    setImagePreview(null)
-    setImageUrl(null)
-    if (imageRef.current) {
-      imageRef.current.value = ''
-    }
+  const removeImage = (index: number) => {
+    setImages(prev => prev.filter((_, i) => i !== index))
+    setImagePreviews(prev => prev.filter((_, i) => i !== index))
+    setImageUrls(prev => prev.filter((_, i) => i !== index))
+    if (imageRef.current) imageRef.current.value = ''
   }
 
   const handleSubmit = async () => {
@@ -163,7 +169,7 @@ export default function PostModal({
             visibility,
             tags,
             is_pinned: false,
-            image_url: imageUrl || null
+            image_url: imageUrls.length > 0 ? JSON.stringify(imageUrls) : null
           })
         }
       )
@@ -195,9 +201,9 @@ export default function PostModal({
       setVisibility('public')
       setTags([])
       setTagInput('')
-      setImage(null)
-      setImagePreview(null)
-      setImageUrl(null)
+      setImages([])
+      setImagePreviews([])
+      setImageUrls([])
 
       onSuccess()
       onClose()
@@ -473,7 +479,99 @@ export default function PostModal({
 
           {/* Image Upload Section */}
           <div style={{ marginBottom: 16 }}>
-            {!imagePreview && (
+            {imagePreviews.length > 0 && (
+              <div style={{
+                display: 'flex',
+                gap: 12,
+                overflowX: 'auto',
+                paddingBottom: 8,
+                marginBottom: 12,
+                scrollSnapType: 'x mandatory'
+              }}>
+                {imagePreviews.map((preview, index) => (
+                  <div key={index} style={{
+                    position: 'relative',
+                    borderRadius: 12,
+                    overflow: 'hidden',
+                    border: '1.5px solid #EDE9FE',
+                    flex: '0 0 auto',
+                    width: '160px',
+                    height: '120px',
+                    scrollSnapAlign: 'start'
+                  }}>
+                    <img
+                      src={preview}
+                      alt={`Preview ${index + 1}`}
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                        display: 'block'
+                      }}
+                    />
+
+                    {imageUploading && index >= imageUrls.length && (
+                      <div style={{
+                        position: 'absolute',
+                        inset: 0,
+                        background: 'rgba(0,0,0,0.5)',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: 8
+                      }}>
+                        <Loader2 size={24} color="white" style={{ animation: 'spin 1s linear infinite' }} />
+                      </div>
+                    )}
+
+                    {!imageUploading && index < imageUrls.length && (
+                      <div style={{
+                        position: 'absolute',
+                        bottom: 6,
+                        left: 6,
+                        background: '#ECFDF5',
+                        border: '1px solid #A7F3D0',
+                        borderRadius: 100,
+                        padding: '2px 6px',
+                        fontSize: 9,
+                        fontWeight: 700,
+                        color: '#059669',
+                        display: 'flex',
+                        alignItems: 'center'
+                      }}>
+                        ✓
+                      </div>
+                    )}
+
+                    <button
+                      type="button"
+                      onClick={() => removeImage(index)}
+                      style={{
+                        position: 'absolute',
+                        top: 6,
+                        right: 6,
+                        width: 24,
+                        height: 24,
+                        borderRadius: '50%',
+                        background: 'rgba(0,0,0,0.6)',
+                        border: 'none',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        cursor: 'pointer',
+                        color: 'white',
+                        zIndex: 10
+                      }}
+                    >
+                      <X size={12} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {imagePreviews.length < 5 && (
               <button
                 type="button"
                 onClick={() => imageRef.current?.click()}
@@ -506,91 +604,15 @@ export default function PostModal({
                 }}
               >
                 <ImagePlus size={15} />
-                Add Image (optional)
+                {imagePreviews.length > 0 ? `Add Another Image (${imagePreviews.length}/5)` : 'Add Image (up to 5)'}
               </button>
-            )}
-
-            {imagePreview && (
-              <div style={{
-                position: 'relative',
-                borderRadius: 12,
-                overflow: 'hidden',
-                border: '1.5px solid #EDE9FE'
-              }}>
-                <img
-                  src={imagePreview}
-                  alt="Preview"
-                  style={{
-                    width: '100%',
-                    maxHeight: 240,
-                    objectFit: 'cover',
-                    display: 'block'
-                  }}
-                />
-
-                {imageUploading && (
-                  <div style={{
-                    position: 'absolute',
-                    inset: 0,
-                    background: 'rgba(0,0,0,0.5)',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: 8
-                  }}>
-                    <Loader2 size={28} color="white" style={{ animation: 'spin 1s linear infinite' }} />
-                    <span style={{ fontSize: 12, color: 'white', fontWeight: 600 }}>Uploading...</span>
-                  </div>
-                )}
-
-                {!imageUploading && imageUrl && (
-                  <div style={{
-                    position: 'absolute',
-                    bottom: 8,
-                    left: 8,
-                    background: '#ECFDF5',
-                    border: '1px solid #A7F3D0',
-                    borderRadius: 100,
-                    padding: '3px 10px',
-                    fontSize: 10,
-                    fontWeight: 700,
-                    color: '#059669',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 4
-                  }}>
-                    ✓ Uploaded
-                  </div>
-                )}
-
-                <button
-                  onClick={removeImage}
-                  style={{
-                    position: 'absolute',
-                    top: 8,
-                    right: 8,
-                    width: 28,
-                    height: 28,
-                    borderRadius: '50%',
-                    background: 'rgba(0,0,0,0.6)',
-                    border: 'none',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: 'pointer',
-                    color: 'white'
-                  }}
-                >
-                  <X size={14} />
-                </button>
-              </div>
             )}
 
             <input
               ref={imageRef}
               type="file"
               accept="image/*"
+              multiple
               onChange={handleImageSelect}
               style={{ display: 'none' }}
             />

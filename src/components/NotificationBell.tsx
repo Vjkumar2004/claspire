@@ -126,12 +126,15 @@ export default function NotificationBell({ align = 'right', dark = false }: Noti
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node) && 
           buttonRef.current && !buttonRef.current.contains(event.target as Node)) {
+        if (isOpen && notifications.length > 0) {
+          clearAllNotifications()
+        }
         setIsOpen(false)
       }
     }
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
+  }, [isOpen, notifications.length])
 
   const markAsRead = async (id?: string) => {
     try {
@@ -183,12 +186,15 @@ export default function NotificationBell({ align = 'right', dark = false }: Noti
   }
 
   const handleBellClick = () => {
-  if (!isOpen && unreadCount > 0) {
-    // Mark all as read when opening notifications
-    markAsRead()
+    if (!isOpen && unreadCount > 0) {
+      // Mark all as read when opening notifications
+      markAsRead()
+    } else if (isOpen && notifications.length > 0) {
+      // Clear all when closing
+      clearAllNotifications()
+    }
+    setIsOpen(!isOpen)
   }
-  setIsOpen(!isOpen)
-}
 
   return (
     <div className="relative">
@@ -313,7 +319,10 @@ export default function NotificationBell({ align = 'right', dark = false }: Noti
                             {notif.link && (
                               <Link 
                                 href={notif.link}
-                                onClick={() => setIsOpen(false)}
+                                onClick={() => {
+                                  clearAllNotifications()
+                                  setIsOpen(false)
+                                }}
                                 className="inline-flex items-center gap-1 text-[11px] font-bold text-purple-600 mt-2 hover:underline"
                               >
                                 View Details
@@ -332,7 +341,10 @@ export default function NotificationBell({ align = 'right', dark = false }: Noti
               <div className="p-3 border-t border-gray-100 bg-gray-50/50 text-center">
                  <Link 
                     href={user?.role === 'senior' ? '/dashboard/senior' : '/dashboard/junior'}
-                    onClick={() => setIsOpen(false)}
+                    onClick={() => {
+                      if (notifications.length > 0) clearAllNotifications()
+                      setIsOpen(false)
+                    }}
                     className="text-[11px] font-bold text-gray-400 uppercase tracking-wider hover:text-purple-600 transition-colors no-underline block"
                  >
                     View All Activity

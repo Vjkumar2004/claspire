@@ -68,6 +68,12 @@ export async function DELETE(
       .delete()
       .eq('post_id', post_id)
 
+    // Delete related notifications
+    await supabase
+      .from('notifications')
+      .delete()
+      .eq('post_id', post_id)
+
     // Delete post
     const { error } = await supabase
       .from('posts')
