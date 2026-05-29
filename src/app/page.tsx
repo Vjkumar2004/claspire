@@ -1,4 +1,5 @@
 import Hero from '@/components/Hero';
+import Mission from '@/components/Mission';
 import CollegeBar from '@/components/CollegeBar';
 import Features from '@/components/Features';
 import HowItWorks from '@/components/HowItWorks';
@@ -27,6 +28,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-white">
       <Hero />
+      <Mission />
       <CollegeBar />
       <Features />
       <HowItWorks />

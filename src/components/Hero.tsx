@@ -61,14 +61,13 @@ export default function Hero() {
 
               {/* H1 */}
               <motion.h1 variants={itemVariants} className="font-extrabold text-[clamp(36px,4.5vw,56px)] leading-[1.1] text-gray-900 mt-5 mb-0 text-center lg:text-left tracking-tight">
-                Your senior knows<br />
-                the exact path.<br />
-                <span className="text-[#7C3AED] block sm:inline">You just need to ask.</span>
+                Claspire — India's College<br />
+                <span className="text-[#7C3AED] block sm:inline">Senior-Student Community Platform</span>
               </motion.h1>
 
               {/* H2 - SEO Subheading */}
               <motion.h2 variants={itemVariants} className="text-base sm:text-lg font-semibold text-gray-600 mt-4 mb-0 text-center lg:text-left">
-                India's College Community Platform — connecting juniors with verified seniors
+                Your senior knows the exact path. You just need to ask.
               </motion.h2>
 
               {/* Subtext */}

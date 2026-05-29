@@ -5,7 +5,7 @@ import { useRef } from 'react';
 
 const quotes = [
   {
-    text: "I was struggling with campus placements at AAACET. A senior from Kamaraj College shared exact interview questions. Got placed in Wipro!",
+    text: "Connected with amazing mentors during my final year at AAACET. A senior from Kamaraj College shared exact interview questions. Got placed in Wipro!",
     author: "Vijayakumar S.",
     details: "AAACET ECE 2024 → Wipro",
     color: "#7C3AED"
