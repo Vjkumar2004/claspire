@@ -129,16 +129,9 @@ export default function EditPostPage() {
       return
     }
 
-    const allowed = [
-      'image/jpeg', 'image/jpg', 'image/png', 'image/webp',
-      'image/gif', 'image/bmp', 'image/tiff', 'image/x-tiff',
-      'image/svg+xml', 'image/heic', 'image/heif', 'image/x-icon',
-      'image/vnd.microsoft.icon'
-    ]
-
     const validFiles: File[] = []
     for (const file of files) {
-      if (!allowed.includes(file.type)) {
+      if (!file.type.startsWith('image/')) {
         setError('Please upload a valid image format.')
         return
       }

@@ -15,6 +15,10 @@ export default function Navbar() {
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false)
   const pathname = usePathname()
 
+  const isFullscreenMessages =
+    pathname === '/dashboard/senior/messages' ||
+    pathname === '/dashboard/junior/messages'
+
   // Fetch unread message count
   useEffect(() => {
     if (!user?.id) return
@@ -56,6 +60,8 @@ export default function Navbar() {
       }));
     };
   }, [mobileMenuOpen])
+
+  if (isFullscreenMessages) return null
 
   return (
     <nav className="sticky top-0 left-0 right-0 h-14 z-[999] bg-white/90 border-b border-gray-200 backdrop-blur-[12px]">
@@ -136,7 +142,7 @@ export default function Navbar() {
             <div className="flex items-center gap-4">
               <NotificationBell dark />
               <Link 
-                href={user?.role === 'senior' ? '/dashboard/senior?activeTab=messages' : '/dashboard/junior?activeTab=messages'}
+                href={user?.role === 'senior' ? '/dashboard/senior/messages' : '/dashboard/junior/messages'}
                 className="relative p-2 rounded-full text-gray-600 hover:text-black hover:bg-gray-100 transition-colors"
               >
                 <MessageSquare size={20} />
@@ -353,7 +359,7 @@ export default function Navbar() {
             <div className="flex items-center gap-3">
               <NotificationBell dark />
               <Link 
-                href={user?.role === 'senior' ? '/dashboard/senior?activeTab=messages' : '/dashboard/junior?activeTab=messages'}
+                href={user?.role === 'senior' ? '/dashboard/senior/messages' : '/dashboard/junior/messages'}
                 className="relative p-2 rounded-full text-gray-600 hover:text-black hover:bg-gray-100 transition-colors"
               >
                 <MessageSquare size={18} />

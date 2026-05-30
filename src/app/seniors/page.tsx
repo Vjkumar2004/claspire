@@ -247,12 +247,12 @@ export default function SeniorsPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={handleSearchKeyDown}
-                className="flex-1 py-3 text-black outline-none bg-transparent"
+                className="flex-1 min-w-0 w-full py-3 text-black outline-none bg-transparent"
               />
               <button
                 type="button"
                 onClick={() => setShowFilters((v) => !v)}
-                className={`mr-1 flex items-center gap-1.5 px-3 py-2 rounded-md text-sm font-semibold transition-all border ${
+                className={`mr-1 flex-shrink-0 whitespace-nowrap flex items-center gap-1.5 px-3 py-2 rounded-md text-sm font-semibold transition-all border ${
                   showFilters || hasActiveFilters
                     ? 'bg-purple-50 border-purple-200 text-[#7C3AED]'
                     : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-purple-50 hover:border-purple-200 hover:text-[#7C3AED]'

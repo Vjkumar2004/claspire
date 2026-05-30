@@ -1900,7 +1900,7 @@ function CommunityPageContent() {
 
                 <div className="p-3 text-center bg-white mt-auto border-t border-slate-100 flex-shrink-0">
                   <button
-                    onClick={() => router.push('/dashboard/junior')}
+                    onClick={() => router.push('/dashboard/junior/messages')}
                     className="w-full py-1.5 bg-purple-50 hover:bg-purple-100 text-[#7C3AED] text-[10px] font-bold rounded transition-colors cursor-pointer border border-purple-100"
                   >
                     Full Messaging Console

@@ -17,7 +17,6 @@ import { usePoints } from '@/contexts/PointsContext'
 import { motion, AnimatePresence } from 'framer-motion'
 import NotificationPrompt from '@/components/NotificationPrompt'
 import NotificationBell from '@/components/NotificationBell'
-import DashboardMessages from '@/components/DashboardMessages'
 import DeleteAccountModal from '@/components/DeleteAccountModal'
 import AcceptedSeniorsSection from '@/components/junior/AcceptedSeniorsSection'
 import CreateGroupModal from '@/components/CreateGroupModal'
@@ -123,25 +122,24 @@ export default function JuniorDashboard() {
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState('overview')
-  const [initialMessageUser, setInitialMessageUser] = useState<string | undefined>(undefined)
 
   const searchParams = useSearchParams()
 
-  // Handle URL parameters for active tab
+  // Redirect legacy ?activeTab=messages URLs to full-screen messages page
   useEffect(() => {
     const tab = searchParams.get('activeTab')
     const targetUser = searchParams.get('user')
-    
-    if (tab && ['overview', 'doubts', 'webinars', 'community', 'referrals', 'messages'].includes(tab)) {
-      setActiveTab(tab)
+
+    if (tab === 'messages') {
+      const url = `/dashboard/junior/messages${targetUser ? `?user=${targetUser}` : ''}`
+      router.replace(url)
+      return
     }
-    
-    // If user param exists, switch to messages tab
-    if (targetUser) {
-      setActiveTab('messages')
-      setInitialMessageUser(targetUser)
+
+    if (tab && ['overview', 'doubts', 'webinars', 'community', 'referrals', 'events'].includes(tab)) {
+      setActiveTab(tab === 'webinars' ? 'events' : tab)
     }
-  }, [searchParams])
+  }, [searchParams, router])
   const [doubtSearch, setDoubtSearch] = useState('')
   const [doubtFilter, setDoubtFilter] = useState<'all' | 'answered' | 'pending'>('all')
   const [eventSearch, setEventSearch] = useState('')
@@ -328,7 +326,15 @@ export default function JuniorDashboard() {
             {navItems.map((item) => (
               <button
                 key={item.id}
-                onClick={() => { setActiveTab(item.id); setMobileMenuOpen(false); }}
+                onClick={() => { 
+                  if (item.id === 'messages') {
+                    router.push('/dashboard/junior/messages')
+                  } else {
+                    setActiveTab(item.id); 
+                    router.push('?activeTab=' + item.id, { scroll: false });
+                  }
+                  setMobileMenuOpen(false); 
+                }}
                 className={`w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all group cursor-pointer ${activeTab === item.id
                     ? 'bg-[#F5F3FF] text-[#7C3AED] shadow-sm shadow-purple-500/5'
                     : 'text-[#64748B] hover:bg-[#F8FAFC] hover:text-[#0F172A]'
@@ -380,7 +386,7 @@ export default function JuniorDashboard() {
       <main className="lg:ml-[280px] min-h-screen">
 
         {/* TOP NAV / DASHBOARD HERO */}
-        <div className={`relative z-40 bg-[#0F172A] pt-6 px-6 md:px-12 border-b border-white/5 ${activeTab === 'messages' ? 'pb-6' : 'pb-20'}`}>
+        <div className="relative z-40 bg-[#0F172A] pt-6 px-6 md:px-12 border-b border-white/5 pb-20">
           <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-[120px] -mr-64 -mt-64" />
           <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-cyan-600/10 rounded-full blur-[100px] -ml-40 -mb-40" />
 
@@ -413,8 +419,7 @@ export default function JuniorDashboard() {
               </div>
             </header>
 
-            {activeTab !== 'messages' && (
-              <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                 <div>
                   <motion.div
                     initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
@@ -438,17 +443,16 @@ export default function JuniorDashboard() {
                   </button>
                 </div>
               </div>
-            )}
           </div>
         </div>
 
         {/* ═══ TAB CONTENT ═══ */}
-        <div className={`px-6 md:px-12 relative pb-20 ${activeTab === 'messages' ? 'mt-0' : '-mt-10'} z-50`}>
+        <div className="px-6 md:px-12 relative pb-20 -mt-10 z-50">
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
             {/* LEFT COLUMN: MAIN FEED (8 COLS or 12 COLS for messages) */}
-            <div className={activeTab === 'messages' ? "lg:col-span-12" : "lg:col-span-8 space-y-8"}>
+            <div className="lg:col-span-8 space-y-8">
 
               <AnimatePresence mode="wait">
                 {activeTab === 'overview' && (
@@ -772,22 +776,13 @@ export default function JuniorDashboard() {
                   </motion.div>
                 )}
 
-                {activeTab === 'messages' && (
-                  <motion.div key="messages" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-                    <DashboardMessages 
-                      currentUserId={u.id} 
-                      role="junior"
-                      initialUserId={initialMessageUser}
-                    />
-                  </motion.div>
-                )}
+
               </AnimatePresence>
 
             </div>
 
             {/* RIGHT COLUMN: INFO & BADGES (4 COLS) */}
-            {activeTab !== 'messages' && (
-              <div className="lg:col-span-4 space-y-8">
+            <div className="lg:col-span-4 space-y-8">
 
               {/* How to Earn RP Card */}
               <div className="bg-white rounded-[32px] border border-[#E2E8F0] p-8 shadow-sm hover:shadow-xl transition-all overflow-hidden relative group">
@@ -874,9 +869,8 @@ export default function JuniorDashboard() {
                 </div>
               </div>
             </div>
-          )}
+          </div>
         </div>
-      </div>
     </main>
 
       <style jsx global>{`

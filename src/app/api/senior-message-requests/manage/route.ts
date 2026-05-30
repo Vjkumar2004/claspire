@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
         title: notificationTitle,
         message: notificationMessage,
         type: action === 'accept' ? 'message_request_accepted' : 'message_request_rejected',
-        link: action === 'accept' ? `/dashboard/senior?activeTab=messages&user=${user.id}` : '/seniors',
+        link: action === 'accept' ? `/dashboard/senior/messages?user=${user.id}` : '/seniors',
       })
 
     if (notificationError) {

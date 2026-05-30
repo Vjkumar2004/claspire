@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePoints } from '@/contexts/PointsContext';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { HelpCircle, Briefcase, Handshake, Mic, DollarSign, BarChart3, Star, Trophy, User, CheckCircle, Settings, Zap, TrendingUp, LayoutDashboard, MessageSquare, Trash2, Users, Plus, Eye, Lock, Globe, GraduationCap, Sparkles } from 'lucide-react';
 import CreateGroupModal from '@/components/CreateGroupModal'
 import MyGroupsModal from '@/components/MyGroupsModal'
@@ -13,7 +13,6 @@ import NotificationBell from '@/components/NotificationBell';
 import DeleteAccountModal from '@/components/DeleteAccountModal';
 import MessageRequestsSection from '@/components/senior/MessageRequestsSection';
 import SeniorConnectionRequestsSection from '@/components/SeniorConnectionRequestsSection';
-import DashboardMessages from '@/components/DashboardMessages';
 
 import { Pencil } from 'lucide-react';
 
@@ -37,27 +36,26 @@ const getRPLevel = (points: number) => {
 
 export default function SeniorDashboardPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   // Move ALL useState hooks to the top - Rules of Hooks compliance
   const { showAward } = usePoints();
   const [activeNav, setActiveNav] = useState("overview");
-  const [initialMessageUser, setInitialMessageUser] = useState<string | undefined>(undefined);
 
-  // Handle URL parameters for active tab
+  // Redirect legacy ?activeTab=messages URLs to full-screen messages page
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const tab = params.get('activeTab');
-    const targetUser = params.get('user');
-    
-    if (tab && ["overview", "jobs", "referrals", "messages", "my-posts"].includes(tab)) {
+    const tab = searchParams.get('activeTab');
+    const targetUser = searchParams.get('user');
+
+    if (tab === 'messages') {
+      const url = `/dashboard/senior/messages${targetUser ? `?user=${targetUser}` : ''}`;
+      router.replace(url);
+      return;
+    }
+
+    if (tab && ["overview", "jobs", "referrals", "my-posts"].includes(tab)) {
       setActiveNav(tab);
     }
-    
-    // If user param exists, switch to messages tab
-    if (targetUser) {
-      setActiveNav('messages');
-      setInitialMessageUser(targetUser);
-    }
-  }, []);
+  }, [searchParams, router]);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [dashData, setDashData] = useState<any>(null)
   const [dataLoading, setDataLoading] = useState(true)
@@ -352,13 +350,10 @@ export default function SeniorDashboardPage() {
             <div className="space-y-0.5 mb-4">
               <div
                 onClick={() => {
-                  setActiveNav("messages")
+                  router.push('/dashboard/senior/messages')
                   setMobileSidebarOpen(false)
                 }}
-                className={`flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold transition-colors ${activeNav === "messages"
-                    ? "bg-purple-50 text-purple-600"
-                    : "text-gray-500 hover:bg-gray-50 hover:text-gray-700"
-                  }`}
+                className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold transition-colors text-gray-500 hover:bg-gray-50 hover:text-gray-700"
               >
                 <MessageSquare size={16} />
                 Messages
@@ -368,6 +363,7 @@ export default function SeniorDashboardPage() {
             <div
               onClick={() => {
                 setActiveNav("overview")
+                router.push('?activeTab=overview', { scroll: false })
                 setMobileSidebarOpen(false)
               }}
               className={`flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold transition-colors ${activeNav === "overview"
@@ -406,6 +402,7 @@ export default function SeniorDashboardPage() {
             <div
               onClick={() => {
                 setActiveNav("my-posts")
+                router.push('?activeTab=my-posts', { scroll: false })
                 setMobileSidebarOpen(false)
               }}
               className={`flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold transition-colors ${activeNav === "my-posts"
@@ -529,13 +526,7 @@ export default function SeniorDashboardPage() {
           </button>
         </div>
 
-        {activeNav === "messages" ? (
-          <DashboardMessages 
-            currentUserId={dashData?.user?.id} 
-            role="senior"
-            initialUserId={initialMessageUser}
-          />
-        ) : activeNav === "my-posts" ? (
+        {activeNav === "my-posts" ? (
           <div className="max-w-5xl">
             <div className="flex items-center justify-between mb-8">
               <div>

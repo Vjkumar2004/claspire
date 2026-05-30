@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
     const userId = session.id;
 
     const body = await req.json();
-    const { receiverId, content } = body;
+    const { receiverId, content, replyToId } = body;
 
     if (!receiverId || !content?.trim()) {
       return NextResponse.json({ error: 'Receiver ID and content are required' }, { status: 400 });
@@ -58,6 +58,18 @@ export async function POST(req: NextRequest) {
 
     const conversationId = getConversationId(userId, receiverId);
 
+    if (replyToId) {
+      const { data: parentMsg } = await supabase
+        .from('direct_messages')
+        .select('id, conversation_id')
+        .eq('id', replyToId)
+        .single()
+
+      if (!parentMsg || parentMsg.conversation_id !== conversationId) {
+        return NextResponse.json({ error: 'Invalid reply target' }, { status: 400 })
+      }
+    }
+
     const { data: message, error: sendError } = await supabase
       .from('direct_messages')
       .insert({
@@ -65,12 +77,46 @@ export async function POST(req: NextRequest) {
         sender_id: userId,
         receiver_id: receiverId,
         content: content.trim(),
-        is_read: false
+        is_read: false,
+        ...(replyToId ? { reply_to_id: replyToId } : {}),
       })
       .select('*')
       .single();
 
-    if (sendError) {
+    let savedMessage = message
+
+    if (sendError?.message?.includes('reply_to_id')) {
+      let fallbackContent = content.trim()
+      if (replyToId) {
+        const { data: parentMsg } = await supabase
+          .from('direct_messages')
+          .select('content')
+          .eq('id', replyToId)
+          .single()
+        if (parentMsg?.content) {
+          fallbackContent = `↩ ${parentMsg.content.slice(0, 120)}\n${fallbackContent}`
+        }
+      }
+
+      const { data: retryMessage, error: retryError } = await supabase
+        .from('direct_messages')
+        .insert({
+          conversation_id: conversationId,
+          sender_id: userId,
+          receiver_id: receiverId,
+          content: fallbackContent,
+          is_read: false,
+        })
+        .select('*')
+        .single()
+
+      if (retryError) {
+        console.error('Message insert error:', retryError);
+        return NextResponse.json({ error: retryError.message }, { status: 500 });
+      }
+
+      savedMessage = retryMessage
+    } else if (sendError) {
       console.error('Message insert error:', sendError);
       return NextResponse.json({ error: sendError.message }, { status: 500 });
     }
@@ -82,10 +128,10 @@ export async function POST(req: NextRequest) {
       type: 'referral_request',
       title: `💬 New message from ${senderData.full_name}`,
       message: `${content.slice(0, 80)}${content.length > 80 ? '...' : ''}`,
-      link: receiverData.role === 'senior' ? '/dashboard/senior' : '/dashboard/junior'
+      link: receiverData.role === 'senior' ? '/dashboard/senior/messages' : '/dashboard/junior/messages'
     }).catch(err => console.error('Notification error:', err));
 
-    return NextResponse.json({ success: true, message });
+    return NextResponse.json({ success: true, message: savedMessage });
   } catch (err: any) {
     console.error('Send message error:', err);
     return NextResponse.json({ error: err.message || 'Internal server error' }, { status: 500 });

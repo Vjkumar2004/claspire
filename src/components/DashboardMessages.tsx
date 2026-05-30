@@ -1,7 +1,8 @@
 'use client'
 import { useState, useEffect, useCallback, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 import ChatWindow from '@/components/ChatWindow'
-import { MessageSquare, Search, User as UserIcon, Loader2, ArrowLeft, Plus, X, Building2, ShieldCheck } from 'lucide-react'
+import { MessageSquare, Search, Loader2, ArrowLeft, Plus, X, ShieldCheck } from 'lucide-react'
 
 interface Conversation {
   id: string
@@ -29,10 +30,18 @@ interface SearchUser {
 interface DashboardMessagesProps {
   currentUserId: string
   role: 'junior' | 'senior'
-  initialUserId?: string  // ADD THIS
+  initialUserId?: string
+  fullscreen?: boolean
+  backHref?: string
 }
 
-export default function DashboardMessages({ currentUserId, role, initialUserId }: DashboardMessagesProps) {
+export default function DashboardMessages({
+  currentUserId,
+  role,
+  initialUserId,
+  fullscreen = false,
+  backHref = '/dashboard/senior',
+}: DashboardMessagesProps) {
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [selectedChat, setSelectedChat] = useState<Conversation | null>(null)
   const [loading, setLoading] = useState(true)
@@ -44,6 +53,11 @@ export default function DashboardMessages({ currentUserId, role, initialUserId }
   const [searchResults, setSearchResults] = useState<SearchUser[]>([])
   const [searching, setSearching] = useState(false)
   const searchTimeout = useRef<any>(null)
+  const router = useRouter()
+
+  const goBackToDashboard = () => {
+    router.push(backHref)
+  }
 
   const fetchConversations = useCallback(async () => {
     try {
@@ -78,12 +92,12 @@ export default function DashboardMessages({ currentUserId, role, initialUserId }
 
     // Detect if UUID or unique_id using regex
     const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId)
-    
+
     try {
       // First check if we can message this user
       const canMessageRes = await fetch(`/api/message-requests/can-message?other_user_id=${userId}`)
       const canMessageData = await canMessageRes.json()
-      
+
       if (!canMessageData.canMessage) {
         alert('You need an accepted message request to chat with this user.')
         return
@@ -93,7 +107,7 @@ export default function DashboardMessages({ currentUserId, role, initialUserId }
       const searchParam = isUUID ? `userId=${userId}` : `uniqueId=${userId}`
       const res = await fetch(`/api/messages/search-users?${searchParam}`)
       const data = await res.json()
-      
+
       if (data.users && data.users[0]) {
         startNewChat(data.users[0])
       }
@@ -116,7 +130,7 @@ export default function DashboardMessages({ currentUserId, role, initialUserId }
 
     const params = new URLSearchParams(window.location.search)
     const targetUserId = params.get('messageUser')
-    
+
     if (targetUserId) {
       createConversationWithUser(targetUserId)
       // Clean URL
@@ -161,7 +175,7 @@ export default function DashboardMessages({ currentUserId, role, initialUserId }
     try {
       const res = await fetch(`/api/message-requests/can-message?other_user_id=${user.id}`)
       const data = await res.json()
-      
+
       if (!data.canMessage) {
         alert('You need an accepted message request to chat with this user.')
         return
@@ -199,33 +213,70 @@ export default function DashboardMessages({ currentUserId, role, initialUserId }
 
   if (!currentUserId) {
     return (
-      <div className="flex items-center justify-center h-64">
+      <div className={`flex items-center justify-center ${fullscreen ? 'fixed inset-0 bg-white' : 'h-64'}`}>
         <Loader2 className="animate-spin text-purple-600" size={24} />
       </div>
     )
   }
 
+  const rootClass = fullscreen
+    ? 'fixed inset-0 z-[1000] flex flex-row w-full h-dvh bg-white'
+    : 'flex flex-row w-full h-[calc(100dvh-140px)] md:h-[600px] gap-0 md:gap-6 antialiased'
+
+  const listClass = fullscreen
+    ? `${selectedChat ? 'hidden md:flex' : 'flex'} w-full md:w-[360px] lg:w-[400px] flex-shrink-0 flex-col bg-white border-r border-gray-100 overflow-hidden`
+    : `${selectedChat ? 'hidden md:flex' : 'flex'} w-full md:w-80 flex-shrink-0 flex-col bg-white border border-gray-100 rounded-3xl shadow-sm overflow-hidden`
+
+  const chatPanelClass = fullscreen
+    ? `flex-1 min-w-0 h-full flex-col bg-white ${!selectedChat ? 'hidden md:flex' : 'flex'}`
+    : `flex-1 min-w-0 h-full flex-col ${!selectedChat ? 'hidden md:flex' : 'flex'}`
+
+  const chatHeaderClass = fullscreen
+    ? 'flex flex-shrink-0 items-center gap-3 px-3 py-3 bg-[#f0f2f5] border-b border-gray-200'
+    : 'md:hidden flex-shrink-0 flex items-center gap-3 px-4 py-3 bg-white border-b border-gray-100 shadow-sm'
+
   return (
-    <div className="flex flex-row w-full h-[calc(100dvh-140px)] md:h-[600px] gap-0 md:gap-6 antialiased">
+    <div className={rootClass}>
       {/* Sidebar: Conversation List */}
-      <div className={`
-        ${selectedChat ? 'hidden md:flex' : 'flex'}
-        w-full md:w-80 flex-shrink-0 flex-col bg-white border border-gray-100 rounded-3xl shadow-sm overflow-hidden
-      `}>
-        <div className="p-4 border-b border-gray-100">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-black text-black flex items-center gap-2">
-              <MessageSquare size={20} className="text-purple-600" />
+      <div className={listClass}>
+        {fullscreen && (
+          <div className="flex-shrink-0 flex items-center gap-3 px-3 py-3 bg-[#f0f2f5] border-b border-gray-200">
+            <button
+              onClick={goBackToDashboard}
+              className="p-2 rounded-full hover:bg-black/5 text-gray-700 transition-colors flex-shrink-0"
+              aria-label="Back to dashboard"
+            >
+              <ArrowLeft size={20} />
+            </button>
+            <h2 className="flex-1 text-base font-bold text-gray-900">
               {role === 'senior' ? 'Messages' : 'Mentors'}
             </h2>
             <button
               onClick={() => setShowNewMessage(!showNewMessage)}
-              className="w-8 h-8 rounded-xl bg-purple-600 text-white flex items-center justify-center hover:bg-purple-700 transition-colors"
+              className="p-2 rounded-full hover:bg-black/5 text-gray-700 transition-colors"
               title="New Message"
             >
-              {showNewMessage ? <X size={16} /> : <Plus size={16} />}
+              {showNewMessage ? <X size={20} /> : <Plus size={20} />}
             </button>
           </div>
+        )}
+
+        <div className={`${fullscreen ? 'p-3' : 'p-4'} border-b border-gray-100`}>
+          {!fullscreen && (
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-black text-black flex items-center gap-2">
+                <MessageSquare size={20} className="text-purple-600" />
+                {role === 'senior' ? 'Messages' : 'Mentors'}
+              </h2>
+              <button
+                onClick={() => setShowNewMessage(!showNewMessage)}
+                className="w-8 h-8 rounded-xl bg-purple-600 text-white flex items-center justify-center hover:bg-purple-700 transition-colors"
+                title="New Message"
+              >
+                {showNewMessage ? <X size={16} /> : <Plus size={16} />}
+              </button>
+            </div>
+          )}
 
           {/* New Message Search */}
           {showNewMessage ? (
@@ -283,9 +334,8 @@ export default function DashboardMessages({ currentUserId, role, initialUserId }
                       onClick={() => startNewChat(user)}
                       className="p-4 cursor-pointer hover:bg-purple-50 transition-colors flex gap-3"
                     >
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden ${
-                        user.avatar_url ? 'bg-transparent shadow-sm' : 'bg-red-500 text-white'
-                      }`}>
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden ${user.avatar_url ? 'bg-transparent shadow-sm' : 'bg-red-500 text-white'
+                        }`}>
                         {user.avatar_url ? (
                           <img src={user.avatar_url} alt={user.full_name} className="w-full h-full object-cover" />
                         ) : (
@@ -304,11 +354,10 @@ export default function DashboardMessages({ currentUserId, role, initialUserId }
                           }
                         </p>
                       </div>
-                      <span className={`text-[9px] font-black uppercase tracking-wider px-2 py-1 rounded-lg self-center flex-shrink-0 ${
-                        user.role === 'senior'
+                      <span className={`text-[9px] font-black uppercase tracking-wider px-2 py-1 rounded-lg self-center flex-shrink-0 ${user.role === 'senior'
                           ? 'bg-orange-50 text-orange-600'
                           : 'bg-blue-50 text-blue-600'
-                      }`}>
+                        }`}>
                         {user.role}
                       </span>
                     </div>
@@ -352,9 +401,8 @@ export default function DashboardMessages({ currentUserId, role, initialUserId }
                       {conv.unread && (
                         <div className="absolute left-0 top-0 bottom-0 w-1 bg-purple-600 rounded-r" />
                       )}
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden ${
-                        conv.otherUser.avatar_url ? 'bg-transparent shadow-sm' : 'bg-red-500 text-white'
-                      }`}>
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden ${conv.otherUser.avatar_url ? 'bg-transparent shadow-sm' : 'bg-red-500 text-white'
+                        }`}>
                         {conv.otherUser.avatar_url ? (
                           <img src={conv.otherUser.avatar_url} alt={conv.otherUser.full_name} className="w-full h-full object-cover" />
                         ) : (
@@ -384,44 +432,38 @@ export default function DashboardMessages({ currentUserId, role, initialUserId }
       </div>
 
       {/* Main: Chat Window */}
-      <div className={`flex-1 min-w-0 h-full flex-col ${!selectedChat ? 'hidden md:flex' : 'flex'}`}>
+      <div className={chatPanelClass}>
         {selectedChat ? (
           <div className="flex flex-col w-full h-full">
-            {/* Mobile Chat Header — shows instead of app navbar */}
-            <div className="md:hidden flex-shrink-0 flex items-center gap-3 px-4 py-3 bg-white border-b border-gray-100 shadow-sm">
-              {/* Back button */}
-              <button 
+            {/* Chat header — always visible in fullscreen (WhatsApp style) */}
+            <div className={chatHeaderClass}>
+              <button
                 onClick={() => setSelectedChat(null)}
-                className="p-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-600 transition-colors flex-shrink-0"
+                className="p-2 rounded-full hover:bg-black/5 text-gray-700 transition-colors flex-shrink-0"
+                aria-label="Back to conversations"
               >
-                <ArrowLeft size={18} />
+                <ArrowLeft size={20} />
               </button>
-              
-              {/* Avatar */}
-              <div className="w-9 h-9 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-bold text-sm overflow-hidden flex-shrink-0">
+
+              <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-bold text-sm overflow-hidden flex-shrink-0">
                 {selectedChat.otherUser.avatar_url ? (
-                  <img 
+                  <img
                     src={selectedChat.otherUser.avatar_url}
                     alt={selectedChat.otherUser.full_name}
-                    className="w-full h-full object-cover" 
+                    className="w-full h-full object-cover"
                   />
                 ) : (
                   selectedChat.otherUser.full_name?.[0]?.toUpperCase()
                 )}
               </div>
-              
-              {/* Name + Online */}
+
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-bold text-gray-900 truncate">
+                <p className="text-[15px] font-semibold text-gray-900 truncate">
                   {selectedChat.otherUser.full_name}
-                </p>
-                <p className="text-xs text-green-500 font-semibold">
-                  Online
                 </p>
               </div>
             </div>
 
-            {/* ChatWindow */}
             <div className="flex-1 min-h-0">
               <ChatWindow
                 currentUserId={currentUserId}
@@ -429,11 +471,13 @@ export default function DashboardMessages({ currentUserId, role, initialUserId }
                 otherUserName={selectedChat.otherUser.full_name}
                 otherUserAvatar={selectedChat.otherUser.avatar_url}
                 onMessageSent={handleMessageSent}
+                hideHeader={fullscreen}
+                flat={fullscreen}
               />
             </div>
           </div>
         ) : (
-          <div className="h-full w-full flex flex-col items-center justify-center bg-white border border-gray-100 rounded-3xl shadow-sm text-center p-8">
+          <div className={`h-full w-full flex flex-col items-center justify-center text-center p-8 ${fullscreen ? 'bg-[#efeae2]' : 'bg-white border border-gray-100 rounded-3xl shadow-sm'}`}>
             <div className="w-20 h-20 bg-purple-50 rounded-full flex items-center justify-center mb-4">
               <MessageSquare size={40} className="text-purple-600" />
             </div>

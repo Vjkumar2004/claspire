@@ -40,7 +40,7 @@ export default function AcceptedSeniorsSection() {
   }
 
   const handleMessage = (seniorId: string) => {
-    router.push(`/dashboard/junior?activeTab=messages&user=${seniorId}`)
+    router.push(`/dashboard/junior/messages?user=${seniorId}`)
   }
 
   const getInitials = (name: string) => {

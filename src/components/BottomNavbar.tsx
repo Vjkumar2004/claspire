@@ -101,7 +101,7 @@ const BottomNavbar = () => {
       }
 
       setLastScrollY(currentScrollY)
-      scrollTimeout = setTimeout(() => {}, 150)
+      scrollTimeout = setTimeout(() => { }, 150)
     }
 
     window.addEventListener('scroll', handleScroll, { passive: true })
@@ -168,19 +168,18 @@ const BottomNavbar = () => {
   if (pathname === '/' || pathname === '/login' || pathname === '/signup' || pathname === '/dashboard/senior/messages' || pathname === '/dashboard/junior/messages' || pathname.includes('/community/c/') && pathname.includes('/group/') || isMobileMenuOpen) return null
 
   return (
-    <div 
-      className={`md:hidden fixed bottom-0 left-0 w-full z-[999] bottom-navbar transition-transform duration-300 ease-in-out ${
-        isVisible ? 'translate-y-0' : 'translate-y-full'
-      }`}
+    <div
+      className={`md:hidden fixed bottom-0 left-0 w-full z-[999] bottom-navbar transition-transform duration-300 ease-in-out ${isVisible ? 'translate-y-0' : 'translate-y-full'
+        }`}
     >
       <div className="bg-white/80 backdrop-blur-xl border border-gray-200/50 rounded-[28px] shadow-[0_8px_32px_rgba(0,0,0,0.12)] px-2 py-2">
         <div className="flex items-center justify-between gap-1">
           {navItems.map((item, index) => {
             // Type guard functions
-            const isCenterItem = (navItem: NavItem): navItem is CenterNavItem => 
+            const isCenterItem = (navItem: NavItem): navItem is CenterNavItem =>
               'isCenter' in navItem && navItem.isCenter === true
-            
-            const isRegularItem = (navItem: NavItem): navItem is RegularNavItem => 
+
+            const isRegularItem = (navItem: NavItem): navItem is RegularNavItem =>
               !('isCenter' in navItem)
 
             // Handle center button (Ask)
