@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { resolveDisplayBio, resolveProfileData } from '@/lib/profile-data'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -29,13 +30,20 @@ export async function GET(req: NextRequest) {
 
       if (dbError || !dbUser) {
         console.error('User not found in DB:', dbError)
-        return NextResponse.json({ user: cookieUser }) // Fallback to cookie data
+        return NextResponse.json({
+          user: {
+            ...cookieUser,
+            bio: resolveDisplayBio(cookieUser.bio),
+            profile_data: resolveProfileData(cookieUser),
+          },
+        })
       }
 
-      // Merge and return
+      const merged = { ...cookieUser, ...dbUser }
       const user = {
-        ...cookieUser,
-        ...dbUser
+        ...merged,
+        bio: resolveDisplayBio(merged.bio),
+        profile_data: resolveProfileData(merged),
       }
 
       const today = new Date().toISOString().split('T')[0]

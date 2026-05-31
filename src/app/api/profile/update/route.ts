@@ -1,5 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import {
+  embedProfileInBio,
+  resolveDisplayBio,
+  resolveProfileData,
+  stripProfileFromBio,
+  type UserProfileData,
+} from '@/lib/profile-data'
 
 export async function PATCH(req: NextRequest) {
   const supabase = createClient(
@@ -15,51 +22,52 @@ export async function PATCH(req: NextRequest) {
 
     const session = JSON.parse(cookie.value)
     const userId = session.id
-
     const body = await req.json()
-    const { 
+
+    const {
       bio, branch, year, cgpa, linkedin_url, passout_year,
-      company, designation, graduation_year 
+      company, designation, graduation_year, profile_data,
     } = body
 
-    // Validation
-    if (cgpa !== undefined && (cgpa < 0 || cgpa > 10)) {
+    if (cgpa !== undefined && cgpa !== null && (cgpa < 0 || cgpa > 10)) {
       return NextResponse.json({ error: 'CGPA must be between 0 and 10' }, { status: 400 })
     }
 
-    if (year !== undefined && (year < 1 || year > 4)) {
+    if (year !== undefined && year !== null && (year < 1 || year > 4)) {
       return NextResponse.json({ error: 'Year must be between 1 and 4' }, { status: 400 })
     }
 
     if (
-      linkedin_url && 
-      !linkedin_url.startsWith('https://linkedin.com') && 
+      linkedin_url &&
+      !linkedin_url.startsWith('https://linkedin.com') &&
       !linkedin_url.startsWith('https://www.linkedin.com')
     ) {
-      return NextResponse.json({ error: 'LinkedIn URL must start with https://linkedin.com or https://www.linkedin.com' }, { status: 400 })
+      return NextResponse.json({ error: 'Invalid LinkedIn URL' }, { status: 400 })
     }
 
-    // Only allow specific fields
-    const updateData: any = {}
-    const allowedFields = [
-      'bio', 'branch', 'year', 'cgpa', 'linkedin_url', 'passout_year',
-      'company', 'designation', 'graduation_year', 'onesignal_player_id'
-    ]
+    const updateData: Record<string, unknown> = { updated_at: new Date().toISOString() }
 
-    allowedFields.forEach(field => {
-      if (body[field] !== undefined) {
-        updateData[field] = body[field]
-      }
+    const scalarFields = [
+      'bio', 'branch', 'year', 'cgpa', 'linkedin_url', 'passout_year',
+      'company', 'designation', 'graduation_year', 'onesignal_player_id',
+    ] as const
+
+    scalarFields.forEach((field) => {
+      if (body[field] !== undefined) updateData[field] = body[field]
     })
 
-    // Explicitly handle onesignal_player_id if provided outside the loop or to ensure it's captured
-    if (body.onesignal_player_id !== undefined) {
-      updateData.onesignal_player_id = body.onesignal_player_id
+    if (profile_data !== undefined) {
+      updateData.profile_data = profile_data
+      const bioForStrip =
+        body.bio !== undefined
+          ? String(body.bio)
+          : (await supabase.from('users').select('bio').eq('id', userId).single()).data?.bio || ''
+      updateData.bio = stripProfileFromBio(bioForStrip)
+    } else if (body.bio !== undefined) {
+      updateData.bio = stripProfileFromBio(String(body.bio))
     }
 
-    updateData.updated_at = new Date().toISOString()
-
-    const { data: updatedUser, error } = await supabase
+    let { data: updatedUser, error } = await supabase
       .from('users')
       .update(updateData)
       .eq('id', userId)
@@ -71,37 +79,63 @@ export async function PATCH(req: NextRequest) {
         is_verified, verification_status,
         bio, branch, year, cgpa, linkedin_url, passout_year,
         company, designation, graduation_year,
-        avatar_url, onesignal_player_id,
-        colleges ( id, name, short_name, slug )
+        avatar_url, onesignal_player_id, profile_data,
+        colleges ( id, name, short_name, slug, location, state )
       `)
       .single()
 
+    if (error?.message?.includes('profile_data')) {
+      const { profile_data: pd, ...withoutProfileData } = updateData
+      const retryPayload = { ...withoutProfileData } as Record<string, unknown>
+
+      if (pd !== undefined) {
+        const { data: current } = await supabase.from('users').select('bio').eq('id', userId).single()
+        const baseBio =
+          body.bio !== undefined ? String(body.bio) : resolveDisplayBio(current?.bio || '')
+        retryPayload.bio = embedProfileInBio(baseBio, pd as UserProfileData)
+      }
+
+      const retry = await supabase
+        .from('users')
+        .update(retryPayload)
+        .eq('id', userId)
+        .select(`
+          id, full_name, email, role,
+          unique_id, rise_points, rp_level,
+          doubt_count, answer_count,
+          referral_count, webinar_count,
+          is_verified, verification_status,
+          bio, branch, year, cgpa, linkedin_url, passout_year,
+          company, designation, graduation_year,
+          avatar_url, onesignal_player_id,
+          colleges ( id, name, short_name, slug, location, state )
+        `)
+        .single()
+      updatedUser = retry.data ? { ...retry.data, profile_data: pd } : null
+      error = retry.error
+    }
+
     if (error) {
-      console.error('Profile update error:', error)
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    const response = NextResponse.json({
-      success: true,
-      user: updatedUser
+    const resolved = resolveProfileData(updatedUser!)
+    const userResponse = {
+      ...updatedUser,
+      bio: resolveDisplayBio(updatedUser!.bio),
+      profile_data: resolved,
+    }
+
+    const response = NextResponse.json({ success: true, user: userResponse })
+    response.cookies.set('claspire_session', JSON.stringify(userResponse), {
+      httpOnly: true,
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 30,
+      path: '/',
     })
 
-    // Update session cookie to keep parity
-    response.cookies.set(
-      'claspire_session',
-      JSON.stringify(updatedUser),
-      {
-        httpOnly: true,
-        sameSite: 'lax',
-        maxAge: 60 * 60 * 24 * 30,
-        path: '/'
-      }
-    )
-
     return response
-
-  } catch (err: any) {
-    console.error('Server error:', err)
+  } catch {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

@@ -109,10 +109,10 @@ export default function NotificationBell({ align = 'right', dark = false }: Noti
     // Initial fetch
     fetchNotifications()
 
-    // Start polling every 5 seconds for notifications
+    // Start polling every 30 seconds for notifications
     pollingRef.current = setInterval(() => {
       fetchNotifications(true)
-    }, 5000)
+    }, 30000)
 
     return () => {
       if (pollingRef.current) {

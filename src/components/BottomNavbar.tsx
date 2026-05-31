@@ -5,7 +5,6 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Users, Search, Plus, User, Users as Groups, GraduationCap, LayoutDashboard, Building2 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
-import { supabase } from '@/lib/supabase'
 
 // Type definitions for navigation items
 type RegularNavItem = {
@@ -27,61 +26,8 @@ type NavItem = RegularNavItem | CenterNavItem
 const BottomNavbar = () => {
   const pathname = usePathname()
   const { user } = useAuth()
-  const [unreadMessageCount, setUnreadMessageCount] = useState(0)
   const [isVisible, setIsVisible] = useState(true)
   const [lastScrollY, setLastScrollY] = useState(0)
-
-  useEffect(() => {
-    if (!user?.id) return
-
-    // Fetch initial unread count
-    const fetchUnreadCount = async () => {
-      try {
-        const res = await fetch('/api/messages/unread-count')
-        const data = await res.json()
-        setUnreadMessageCount(data.count || 0)
-      } catch (err) {
-        console.error('Failed to fetch unread count:', err)
-      }
-    }
-
-    fetchUnreadCount()
-
-    // Subscribe to real-time messages
-    const channel = supabase
-      .channel(`unread-messages-${user.id}`)
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'direct_messages',
-          filter: `receiver_id=eq.${user.id}`
-        },
-        () => {
-          setUnreadMessageCount(prev => prev + 1)
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'direct_messages',
-          filter: `receiver_id=eq.${user.id}`
-        },
-        (payload: any) => {
-          if (payload.new.is_read && !payload.old.is_read) {
-            setUnreadMessageCount(prev => Math.max(0, prev - 1))
-          }
-        }
-      )
-      .subscribe()
-
-    return () => {
-      supabase.removeChannel(channel)
-    }
-  }, [user?.id])
 
   // Auto-hide navbar on scroll
   useEffect(() => {

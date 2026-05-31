@@ -6,6 +6,8 @@ const supabase = createClient(
   process.env.SUPABASE_SECRET_KEY!
 )
 
+export const revalidate = 300
+
 export async function GET() {
   try {
     const { data: communities, error: communitiesError } = await supabase

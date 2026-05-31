@@ -3,6 +3,7 @@ import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { PointsProvider } from "@/contexts/PointsContext";
+import { UnreadMessagesProvider } from "@/contexts/UnreadMessagesContext";
 import RPNotification from "@/components/RPNotification";
 import OneSignalInit from "@/components/OneSignalInit";
 import NotificationPrompt from "@/components/NotificationPrompt";
@@ -178,15 +179,17 @@ export default function RootLayout({
        >
          <AuthProvider>
            <PointsProvider>
-             <OneSignalInit />
-             <NotificationPrompt />
-             <RPNotification />
-             <Navbar />
-             <ToastContainer />
-             <main className="min-h-screen">
-               {children}
-             </main>
-             <BottomNavbar />
+             <UnreadMessagesProvider>
+               <OneSignalInit />
+               <NotificationPrompt />
+               <RPNotification />
+               <Navbar />
+               <ToastContainer />
+               <main className="min-h-screen">
+                 {children}
+               </main>
+               <BottomNavbar />
+             </UnreadMessagesProvider>
            </PointsProvider>
          </AuthProvider>
        </body>

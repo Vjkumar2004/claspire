@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { resolveDisplayBio, resolveProfileData } from '@/lib/profile-data'
 
 export async function GET(req: NextRequest) {
   const supabase = createClient(
@@ -23,24 +24,37 @@ export async function GET(req: NextRequest) {
     const userId = session.id
     const today = new Date().toISOString().split('T')[0]
 
-    // Fetch user + college
-    const { data: user, error } = await supabase
+    const baseSelect = `
+      id, full_name, email, role,
+      unique_id, rise_points, rp_level,
+      doubt_count, answer_count,
+      referral_count, webinar_count,
+      is_verified, verification_status,
+      is_premium,
+      avatar_url, bio, branch, year,
+      passout_year, linkedin_url,
+      company, designation, graduation_year,
+      last_visit_date,
+      colleges (
+        id, name, short_name, slug
+      )
+    `
+
+    let { data: user, error } = await supabase
       .from('users')
-      .select(`
-        id, full_name, email, role,
-        unique_id, rise_points, rp_level,
-        doubt_count, answer_count,
-        referral_count, webinar_count,
-        is_verified, verification_status,
-        is_premium,
-        avatar_url,
-        last_visit_date,
-        colleges (
-          id, name, short_name, slug
-        )
-      `)
+      .select(`${baseSelect}, profile_data`)
       .eq('id', userId)
       .single()
+
+    if (error?.message?.includes('profile_data')) {
+      const fallback = await supabase
+        .from('users')
+        .select(baseSelect)
+        .eq('id', userId)
+        .single()
+      user = fallback.data ? { ...fallback.data, profile_data: {} } : null
+      error = fallback.error
+    }
 
     if (error || !user) {
       return NextResponse.json(
@@ -221,9 +235,15 @@ export async function GET(req: NextRequest) {
       upcomingWebinars = webinars || []
     }
 
+    const userWithProfile = {
+      ...user,
+      bio: resolveDisplayBio(user.bio),
+      profile_data: resolveProfileData(user),
+    }
+
     return NextResponse.json({
       success: true,
-      user,
+      user: userWithProfile,
       rpLog: rpLog || [],
       myPosts: myPosts || [],
       pendingDoubts,
