@@ -2,6 +2,7 @@
 
 import { Plus, X } from 'lucide-react'
 import { useState } from 'react'
+import { DEFAULT_MENTORSHIP } from '@/lib/profile-data'
 import type { CertificationItem, SeniorProfileExtras } from '@/lib/profile-data'
 
 type Props = {
@@ -67,14 +68,18 @@ export default function SeniorProfileEditor({
   onExtrasChange,
   collegeName,
 }: Props) {
+  const skills = extras.skills || []
+  const certifications = extras.certifications || []
+  const mentorship = { ...DEFAULT_MENTORSHIP, ...(extras.mentorship || {}) }
+
   const updateCert = (index: number, patch: Partial<CertificationItem>) => {
-    const next = [...extras.certifications]
+    const next = [...certifications]
     next[index] = { ...next[index], ...patch }
     onExtrasChange({ certifications: next })
   }
 
   const removeCert = (index: number) => {
-    onExtrasChange({ certifications: extras.certifications.filter((_, i) => i !== index) })
+    onExtrasChange({ certifications: certifications.filter((_, i) => i !== index) })
   }
 
   return (
@@ -158,7 +163,7 @@ export default function SeniorProfileEditor({
 
       <section className="bg-white rounded-2xl border border-slate-200/80 p-6 md:p-8 shadow-sm">
         <h3 className="text-xs font-extrabold text-[#0F172A] mb-4 uppercase tracking-wider">Skills</h3>
-        <SkillsEditor skills={extras.skills} onChange={(skills) => onExtrasChange({ skills })} />
+        <SkillsEditor skills={skills} onChange={(nextSkills) => onExtrasChange({ skills: nextSkills })} />
       </section>
 
       <section className="bg-white rounded-2xl border border-slate-200/80 p-6 md:p-8 shadow-sm space-y-4">
@@ -166,16 +171,16 @@ export default function SeniorProfileEditor({
           <h3 className="text-xs font-extrabold text-[#0F172A] uppercase tracking-wider">Certifications</h3>
           <button
             type="button"
-            onClick={() => onExtrasChange({ certifications: [...extras.certifications, { name: '' }] })}
+            onClick={() => onExtrasChange({ certifications: [...certifications, { name: '' }] })}
             className="text-[10px] font-bold text-cyan-600 flex items-center gap-1"
           >
             <Plus size={14} /> Add
           </button>
         </div>
-        {extras.certifications.length === 0 && (
+        {certifications.length === 0 && (
           <p className="text-xs text-slate-400 font-medium m-0">No certifications yet. Click Add to add one.</p>
         )}
-        {extras.certifications.map((c, i) => (
+        {certifications.map((c, i) => (
           <div key={i} className="p-3 rounded-xl border border-slate-100 bg-slate-50/50 space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-[9px] font-bold text-slate-400 uppercase">Certificate {i + 1}</span>
@@ -257,10 +262,10 @@ export default function SeniorProfileEditor({
             <label key={key} className="flex items-center gap-2 p-3 rounded-xl border border-slate-200 bg-slate-50 cursor-pointer">
               <input
                 type="checkbox"
-                checked={extras.mentorship[key]}
+                checked={mentorship[key]}
                 onChange={(e) =>
                   onExtrasChange({
-                    mentorship: { ...extras.mentorship, [key]: e.target.checked },
+                    mentorship: { ...mentorship, [key]: e.target.checked },
                   })
                 }
                 className="accent-cyan-600"

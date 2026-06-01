@@ -21,6 +21,7 @@ import DeleteAccountModal from '@/components/DeleteAccountModal'
 import AcceptedSeniorsSection from '@/components/junior/AcceptedSeniorsSection'
 import CreateGroupModal from '@/components/CreateGroupModal'
 import MyGroupsList from '@/components/MyGroupsList'
+import GroupJoinRequestsSection from '@/components/GroupJoinRequestsSection'
 
 interface DashData {
   user: {
@@ -464,6 +465,8 @@ export default function JuniorDashboard() {
                     <div className="bg-white rounded-2xl shadow-sm">
                       <MyGroupsList />
                     </div>
+
+                    <GroupJoinRequestsSection />
                     
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       {[

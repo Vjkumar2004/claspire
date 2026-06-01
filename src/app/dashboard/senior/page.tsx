@@ -13,6 +13,7 @@ import NotificationBell from '@/components/NotificationBell';
 import DeleteAccountModal from '@/components/DeleteAccountModal';
 import MessageRequestsSection from '@/components/senior/MessageRequestsSection';
 import SeniorConnectionRequestsSection from '@/components/SeniorConnectionRequestsSection';
+import GroupJoinRequestsSection from '@/components/GroupJoinRequestsSection';
 
 import { Pencil } from 'lucide-react';
 
@@ -83,6 +84,8 @@ export default function SeniorDashboardPage() {
   const [groupsLoading, setGroupsLoading] = useState(false)
   const [showMyGroupsModal, setShowMyGroupsModal] = useState(false)
   const referralSectionRef = useRef<HTMLDivElement | null>(null)
+  const groupRequestsSectionRef = useRef<HTMLDivElement | null>(null)
+  const [pendingGroupRequests, setPendingGroupRequests] = useState(0)
 
   // My Posts states
   const [deletingPostId, setDeletingPostId] = useState<string | null>(null)
@@ -262,6 +265,14 @@ export default function SeniorDashboardPage() {
     }, 50)
   }
 
+  const handleOpenGroupRequests = () => {
+    setActiveNav('overview')
+    setMobileSidebarOpen(false)
+    setTimeout(() => {
+      groupRequestsSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, 50)
+  }
+
   const handleOpenProfile = () => {
     setMobileSidebarOpen(false)
     router.push('/profile')
@@ -421,6 +432,18 @@ export default function SeniorDashboardPage() {
               MY GROUPS
             </div>
             <div className="space-y-0.5">
+              <div
+                onClick={handleOpenGroupRequests}
+                className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors"
+              >
+                <Lock size={16} className="flex-shrink-0" />
+                <span>Group Requests</span>
+                {pendingGroupRequests > 0 && (
+                  <span className="ml-auto bg-amber-500 text-white rounded-full px-1.5 py-0 text-[10px] font-black">
+                    {pendingGroupRequests}
+                  </span>
+                )}
+              </div>
               <div
                 onClick={() => setShowMyGroupsModal(true)}
                 className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors"
@@ -789,6 +812,10 @@ export default function SeniorDashboardPage() {
               </div>
             </div>
           </div>
+        </div>
+
+        <div ref={groupRequestsSectionRef} className="mb-8 scroll-mt-8">
+          <GroupJoinRequestsSection onCountChange={setPendingGroupRequests} />
         </div>
 
         {/* My Groups Section */}

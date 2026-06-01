@@ -229,12 +229,12 @@ export default function NotificationBell({ align = 'right', dark = false }: Noti
               style={{
                 position: 'fixed',
                 top: coords.top,
-                '--dropdown-left': align === 'left' ? `${coords.left}px` : 'auto',
-                '--dropdown-right': align === 'right' ? `${coords.right}px` : 'auto',
+                width: 'min(calc(100vw - 32px), 20rem)',
+                ...(align === 'left'
+                  ? { left: Math.max(16, Math.min(coords.left, window.innerWidth - 336)) }
+                  : { right: Math.max(16, coords.right) }),
               } as React.CSSProperties}
               className={`
-                left-4 right-4 md:left-[var(--dropdown-left)] md:right-[var(--dropdown-right)]
-                w-auto md:w-80 
                 max-h-[calc(100vh-100px)] md:max-h-[480px] 
                 bg-white rounded-2xl border border-gray-200 shadow-2xl z-[9999] 
                 overflow-hidden flex flex-col

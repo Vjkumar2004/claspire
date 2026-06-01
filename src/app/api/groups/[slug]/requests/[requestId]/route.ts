@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
+import { createNotification, sendPushToUsers } from '@/lib/notifications'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -27,7 +28,7 @@ export async function PATCH(
     // Verify admin
     const { data: group } = await supabase
       .from('student_groups')
-      .select('id, created_by, member_count')
+      .select('id, name, slug, created_by, member_count, colleges (slug, name)')
       .eq('slug', slug)
       .single()
 
@@ -46,6 +47,10 @@ export async function PATCH(
       return NextResponse.json({ error: 'Request not found or already processed' }, { status: 404 })
     }
 
+    if (action !== 'accept' && action !== 'reject') {
+      return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
+    }
+
     // Update request status
     await supabase
       .from('student_group_join_requests')
@@ -60,7 +65,7 @@ export async function PATCH(
     if (action === 'accept') {
       await supabase
         .from('student_group_members')
-        .insert({
+        .upsert({
           group_id: group.id,
           user_id: joinRequest.user_id,
           role: 'member'
@@ -71,6 +76,25 @@ export async function PATCH(
         .update({ member_count: (group.member_count || 0) + 1 })
         .eq('id', group.id)
     }
+
+    const college = Array.isArray(group.colleges) ? group.colleges[0] : group.colleges
+    const communitySlug = college?.slug || college?.name?.toLowerCase().replace(/\s+/g, '-') || 'groups'
+    const link = `/community/c/${communitySlug}/group/${group.slug}`
+    const accepted = action === 'accept'
+    const title = accepted ? 'Group request accepted' : 'Group request declined'
+    const message = accepted
+      ? `Your request to join ${group.name} was accepted.`
+      : `Your request to join ${group.name} was declined.`
+
+    await createNotification({
+      receiver_id: joinRequest.user_id,
+      sender_id: cookieUser.id,
+      type: accepted ? 'group_join_accepted' : 'group_join_rejected',
+      title,
+      message,
+      link
+    })
+    await sendPushToUsers([joinRequest.user_id], title, message, link)
 
     return NextResponse.json({ success: true, action })
 

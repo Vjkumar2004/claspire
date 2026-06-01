@@ -130,6 +130,7 @@ export async function GET(request: NextRequest) {
 
     // If user is logged in, check which groups they've joined
     let joinedGroupIds: string[] = []
+    let requestedGroupIds: string[] = []
     if (currentUserId) {
       const { data: memberships } = await supabase
         .from('student_group_members')
@@ -137,13 +138,22 @@ export async function GET(request: NextRequest) {
         .eq('user_id', currentUserId)
       
       joinedGroupIds = memberships?.map(m => m.group_id) || []
+
+      const { data: requests } = await supabase
+        .from('student_group_join_requests')
+        .select('group_id')
+        .eq('user_id', currentUserId)
+        .eq('status', 'pending')
+
+      requestedGroupIds = requests?.map(r => r.group_id) || []
     }
 
     // Add is_joined status to each group
     const groupsWithJoinStatus = groupsWithDetails.map(group => ({
       ...group,
       scope: group.scope || (!group.is_private ? 'public' : 'private'),
-      is_joined: joinedGroupIds.includes(group.id)
+      is_joined: joinedGroupIds.includes(group.id),
+      is_requested: requestedGroupIds.includes(group.id)
     }))
 
     return NextResponse.json({ groups: groupsWithJoinStatus })

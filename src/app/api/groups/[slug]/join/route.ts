@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
+import { createNotification, sendPushToUsers } from '@/lib/notifications'
 
 export async function POST(
   request: NextRequest,
@@ -33,7 +34,7 @@ export async function POST(
     // Get group details by slug
     const { data: group, error: groupError } = await supabase
       .from('student_groups')
-      .select('id, is_active, member_count, college_id, scope, is_private')
+      .select('id, name, slug, is_active, member_count, college_id, scope, is_private, created_by, colleges (slug, name)')
       .eq('slug', slug)
       .single()
 
@@ -89,6 +90,28 @@ export async function POST(
 
       if (requestError) {
         return NextResponse.json({ error: 'Failed to send request' }, { status: 500 })
+      }
+
+      const college = Array.isArray(group.colleges) ? group.colleges[0] : group.colleges
+      const communitySlug = college?.slug || college?.name?.toLowerCase().replace(/\s+/g, '-') || 'groups'
+      const link = `/community/c/${communitySlug}/group/${group.slug}`
+      const requesterName = cookieUser.full_name || cookieUser.name || 'Someone'
+
+      if (group.created_by && group.created_by !== userId) {
+        await createNotification({
+          receiver_id: group.created_by,
+          sender_id: userId,
+          type: 'group_join_request',
+          title: 'New private group request',
+          message: `${requesterName} requested to join ${group.name}.`,
+          link
+        })
+        await sendPushToUsers(
+          [group.created_by],
+          'New private group request',
+          `${requesterName} requested to join ${group.name}.`,
+          link
+        )
       }
 
       return NextResponse.json({ requested: true })

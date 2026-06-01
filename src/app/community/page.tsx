@@ -184,7 +184,7 @@ function CommunityPageContent() {
       }
 
       setLastScrollY(currentScrollY)
-      scrollTimeout = setTimeout(() => {}, 150)
+      scrollTimeout = setTimeout(() => { }, 150)
     }
 
     window.addEventListener('scroll', handleScroll, { passive: true })
@@ -292,7 +292,7 @@ function CommunityPageContent() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ conversationId })
     }).catch(console.error)
-    
+
     // Clear local unread state immediately
     setChatThreads(prev => prev.map(t => t.id === activeChatUser.id ? { ...t, unread: false } : t))
 
@@ -878,8 +878,8 @@ function CommunityPageContent() {
 
                 <div className="flex items-center gap-1 mt-2">
                   <span className={`text-[8px] font-extrabold uppercase px-2 py-0.5 rounded-full border ${user?.role === 'senior'
-                      ? 'bg-emerald-50 text-emerald-600 border-emerald-100'
-                      : 'bg-purple-50 text-purple-600 border-purple-100'
+                    ? 'bg-emerald-50 text-emerald-600 border-emerald-100'
+                    : 'bg-purple-50 text-purple-600 border-purple-100'
                     }`}>
                     {user?.role === 'senior' ? '★ Verified Senior Mentor' : 'Mentee Member'}
                   </span>
@@ -1024,8 +1024,8 @@ function CommunityPageContent() {
                       key={btn.key}
                       onClick={() => setFilter(isActive ? 'all' : btn.key)}
                       className={`flex items-center gap-1.5 px-3 py-1.5 rounded transition-all font-bold text-[11px] whitespace-nowrap cursor-pointer ${isActive
-                          ? 'bg-purple-100 text-[#7C3AED] shadow-sm border border-purple-200'
-                          : 'bg-white border border-slate-200 hover:bg-slate-50 text-slate-600'
+                        ? 'bg-purple-100 text-[#7C3AED] shadow-sm border border-purple-200'
+                        : 'bg-white border border-slate-200 hover:bg-slate-50 text-slate-600'
                         }`}
                     >
                       <btn.icon className={`w-3.5 h-3.5 ${isActive ? 'text-[#7C3AED]' : btn.color}`} />
@@ -1154,9 +1154,9 @@ function CommunityPageContent() {
                         </div>
 
                         {/* Attached media inside card via Carousel */}
-                        <PostImageCarousel 
-                          imageUrls={post.image_url} 
-                          onImageClick={handleImageClick} 
+                        <PostImageCarousel
+                          imageUrls={post.image_url}
+                          onImageClick={handleImageClick}
                         />
 
                         {/* Tags line */}
@@ -1179,8 +1179,8 @@ function CommunityPageContent() {
                               <button
                                 onClick={() => handleVote(post.id, 'upvote')}
                                 className={`flex items-center gap-1 px-2 py-0.5 rounded transition-all cursor-pointer ${votes[post.id]?.userVote === 'upvote'
-                                    ? 'bg-purple-100 text-[#7C3AED] shadow-sm'
-                                    : 'hover:bg-slate-100 text-slate-500'
+                                  ? 'bg-purple-100 text-[#7C3AED] shadow-sm'
+                                  : 'hover:bg-slate-100 text-slate-500'
                                   }`}
                               >
                                 <ArrowUp className="w-3 h-3" />
@@ -1190,8 +1190,8 @@ function CommunityPageContent() {
                               <button
                                 onClick={() => handleVote(post.id, 'downvote')}
                                 className={`flex items-center px-1.5 py-0.5 rounded transition-all cursor-pointer ${votes[post.id]?.userVote === 'downvote'
-                                    ? 'bg-red-100 text-red-600 shadow-sm'
-                                    : 'hover:bg-slate-100 text-slate-400'
+                                  ? 'bg-red-100 text-red-600 shadow-sm'
+                                  : 'hover:bg-slate-100 text-slate-400'
                                   }`}
                               >
                                 <ArrowDown className="w-3 h-3" />
@@ -1414,11 +1414,10 @@ function CommunityPageContent() {
                       </div>
                       <button
                         onClick={() => router.push(`/careers/${job.id}`)}
-                        className={`px-2 py-0.5 rounded font-bold text-[9px] cursor-pointer flex-shrink-0 ${
-                          idx === 0
-                            ? 'bg-rose-50 border border-rose-100 hover:bg-rose-100 text-rose-600'
-                            : 'bg-slate-50 border border-slate-100 hover:bg-slate-100 text-slate-600'
-                        }`}
+                        className={`px-2 py-0.5 rounded font-bold text-[9px] cursor-pointer flex-shrink-0 ${idx === 0
+                          ? 'bg-rose-50 border border-rose-100 hover:bg-rose-100 text-rose-600'
+                          : 'bg-slate-50 border border-slate-100 hover:bg-slate-100 text-slate-600'
+                          }`}
                       >
                         {idx === 0 ? 'Apply' : 'View'}
                       </button>
@@ -1474,9 +1473,8 @@ function CommunityPageContent() {
       {/* ════ MOBILE DIRECT MESSAGING REDESIGN: Floating Circular FAB ════ */}
       <button
         onClick={() => setMobileDrawerOpen(true)}
-        className={`fixed right-6 lg:hidden w-12 h-12 rounded-full bg-[#7C3AED] text-white flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all duration-300 ease-in-out z-50 border border-purple-400 ${
-          isNavVisible ? 'bottom-24' : 'bottom-6'
-        }`}
+        className={`fixed right-6 lg:hidden w-12 h-12 rounded-full bg-[#7C3AED] text-white flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all duration-300 ease-in-out z-50 border border-purple-400 ${isNavVisible ? 'bottom-24' : 'bottom-6'
+          }`}
         title="Open Direct Messages"
       >
         <MessageCircle className="w-6 h-6 animate-pulse" />
@@ -1574,8 +1572,8 @@ function CommunityPageContent() {
                           return (
                             <div key={msg.id} className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
                               <div className={`max-w-[85%] p-2.5 rounded-xl text-[10.5px] font-semibold ${isMine
-                                  ? `bg-purple-600 text-white rounded-br-none ${isOptimistic ? 'opacity-70' : ''}`
-                                  : 'bg-white border border-slate-200 text-slate-800 rounded-bl-none shadow-sm'
+                                ? `bg-purple-600 text-white rounded-br-none ${isOptimistic ? 'opacity-70' : ''}`
+                                : 'bg-white border border-slate-200 text-slate-800 rounded-bl-none shadow-sm'
                                 }`}>
                                 <p className="leading-normal">{msg.content}</p>
                                 <span className={`block text-[6.5px] text-right mt-1 ${isMine ? 'text-white/70' : 'text-slate-400'}`}>
@@ -1781,8 +1779,8 @@ function CommunityPageContent() {
                       return (
                         <div key={msg.id} className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
                           <div className={`max-w-[85%] p-2 rounded-lg text-[10px] font-semibold ${isMine
-                              ? `bg-purple-600 text-white rounded-br-none ${isOptimistic ? 'opacity-70' : ''}`
-                              : 'bg-white border border-slate-200 text-slate-800 rounded-bl-none shadow-sm'
+                            ? `bg-purple-600 text-white rounded-br-none ${isOptimistic ? 'opacity-70' : ''}`
+                            : 'bg-white border border-slate-200 text-slate-800 rounded-bl-none shadow-sm'
                             }`}>
                             <p className="leading-normal">{msg.content}</p>
                             <span className={`block text-[6px] text-right mt-1 ${isMine ? 'text-white/70' : 'text-slate-400'}`}>
