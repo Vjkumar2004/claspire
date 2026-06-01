@@ -54,21 +54,44 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Receiver is not a senior' }, { status: 403 })
     }
 
-    // Check if there's an existing request
-    const { data: existingRequest, error: requestError } = await supabase
+    // Check request in either direction (sender or receiver)
+    const { data: requests, error: requestError } = await supabase
       .from('senior_message_requests')
-      .select('status')
-      .eq('sender_id', user.id)
-      .eq('receiver_id', receiverId)
-      .single()
+      .select('status, sender_id')
+      .or(
+        `and(sender_id.eq.${user.id},receiver_id.eq.${receiverId}),and(sender_id.eq.${receiverId},receiver_id.eq.${user.id})`
+      )
+      .order('created_at', { ascending: false })
 
-    if (requestError && requestError.code !== 'PGRST116') {
-      // PGRST116 means no rows found, which is expected
+    if (requestError) {
       console.error('Error checking request status:', requestError)
       return NextResponse.json({ error: 'Failed to check request status' }, { status: 500 })
     }
 
-    const status = existingRequest?.status || 'none'
+    const rows = requests || []
+    const normalize = (s: string) => (s || '').toLowerCase()
+
+    let status = 'none'
+
+    if (rows.some((r) => normalize(r.status) === 'accepted')) {
+      status = 'accepted'
+    } else if (
+      rows.some(
+        (r) =>
+          r.sender_id === user.id &&
+          (normalize(r.status) === 'pending')
+      )
+    ) {
+      status = 'pending'
+    } else if (
+      rows.some(
+        (r) =>
+          r.sender_id === user.id &&
+          normalize(r.status) === 'declined'
+      )
+    ) {
+      status = 'declined'
+    }
 
     return NextResponse.json({ status })
   } catch (error) {

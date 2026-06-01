@@ -105,10 +105,13 @@ CREATE TABLE public.direct_messages (
   content text NOT NULL,
   is_read boolean DEFAULT false,
   conversation_id text,
+  reply_to_id uuid,
+  edited_at timestamp with time zone,
   created_at timestamp with time zone DEFAULT now(),
   CONSTRAINT direct_messages_pkey PRIMARY KEY (id),
   CONSTRAINT direct_messages_receiver_id_fkey FOREIGN KEY (receiver_id) REFERENCES public.users(id),
-  CONSTRAINT direct_messages_sender_id_fkey FOREIGN KEY (sender_id) REFERENCES public.users(id)
+  CONSTRAINT direct_messages_sender_id_fkey FOREIGN KEY (sender_id) REFERENCES public.users(id),
+  CONSTRAINT direct_messages_reply_to_id_fkey FOREIGN KEY (reply_to_id) REFERENCES public.direct_messages(id)
 );
 CREATE TABLE public.group_members (
   id uuid NOT NULL DEFAULT gen_random_uuid(),

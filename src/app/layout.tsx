@@ -3,6 +3,7 @@ import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { PointsProvider } from "@/contexts/PointsContext";
+import { UnreadMessagesProvider } from "@/contexts/UnreadMessagesContext";
 import RPNotification from "@/components/RPNotification";
 import OneSignalInit from "@/components/OneSignalInit";
 import NotificationPrompt from "@/components/NotificationPrompt";
@@ -24,29 +25,22 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://claspire.in'),
-  title: {
-    default: "Claspire - India's College Senior Community Platform",
-    template: "%s | Claspire"
-  },
-  description: "Connect with verified seniors from your college — get real answers, job referrals, and paid mentorship. Free to start.",
+  title: "Claspire | College Senior Community Platform for Indian Students",
+  description: "Connect with verified seniors from your own college for real guidance, referrals & mentorship. India's campus peer network — built for college students across Tamil Nadu, Maharashtra, Karnataka and beyond.",
   keywords: [
-    "college seniors", 
-    "placement help", 
-    "mentorship india",
-    "job referrals college",
-    "indian colleges community",
-    "tamil nadu colleges",
-    "senior student connect",
-    "college placement guidance",
-    "engineering college community",
-    "college doubts answers"
+    "college senior community platform",
+    "campus mentorship India",
+    "student alumni network",
+    "college peer network India",
+    "internship referral platform",
+    "senior student connect"
   ],
   openGraph: {
-    title: "Claspire - India's College Senior Community",
-    description: "Connect with verified seniors from your college for placement help, referrals and mentorship. Free to start.",
-    url: 'https://claspire.in',
-    siteName: 'Claspire',
-    type: 'website',
+    title: "Claspire | College Senior Community Platform for Indian Students",
+    description: "Connect with verified seniors from your own college for real guidance, referrals & mentorship.",
+    url: "https://claspire.in",
+    siteName: "Claspire",
+    type: "website",
     locale: 'en_IN',
     images: [{
       url: '/og-image.png',
@@ -56,9 +50,9 @@ export const metadata: Metadata = {
     }],
   },
   twitter: {
-    card: 'summary_large_image',
-    title: "Claspire - India's College Senior Community",
-    description: "Connect with verified seniors from your college for placement help and referrals.",
+    card: "summary_large_image",
+    title: "Claspire | College Senior Community Platform for Indian Students",
+    description: "Connect with verified seniors from your own college for real guidance, referrals & mentorship.",
     images: ['/og-image.png'],
   },
   verification: {
@@ -119,21 +113,83 @@ export default function RootLayout({
             })
           }}
         />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify([
+              {
+                "@context": "https://schema.org",
+                "@type": "SoftwareApplication",
+                "name": "Claspire",
+                "applicationCategory": "SocialNetworkingApplication",
+                "operatingSystem": "Web",
+                "description": "India's college senior-student community platform. Connect with verified alumni and seniors from your own college for mentorship, referrals, and guidance.",
+                "url": "https://claspire.in",
+                "offers": {
+                  "@type": "Offer",
+                  "price": "0",
+                  "priceCurrency": "INR"
+                },
+                "keywords": "college senior community platform, campus mentorship India, student alumni network, college peer network"
+              },
+              {
+                "@context": "https://schema.org",
+                "@type": "FAQPage",
+                "mainEntity": [
+                  {
+                    "@type": "Question",
+                    "name": "What is Claspire?",
+                    "acceptedAnswer": {
+                      "@type": "Answer",
+                      "text": "Claspire is India's college senior-student community platform that connects students with verified seniors from their own college for real guidance, referrals, and mentorship."
+                    }
+                  },
+                  {
+                    "@type": "Question",
+                    "name": "How is Claspire different from LinkedIn?",
+                    "acceptedAnswer": {
+                      "@type": "Answer",
+                      "text": "Unlike LinkedIn where cold messaging is the norm, Claspire connects you only with seniors from your own college — people who've faced the same professors, placements, and challenges as you."
+                    }
+                  },
+                  {
+                    "@type": "Question",
+                    "name": "Which colleges is Claspire available for?",
+                    "acceptedAnswer": {
+                      "@type": "Answer",
+                      "text": "Claspire is available for engineering and arts colleges across India — including colleges in Tamil Nadu, Maharashtra, Karnataka, Delhi, and more states being added regularly."
+                    }
+                  },
+                  {
+                    "@type": "Question",
+                    "name": "Is Claspire free to use?",
+                    "acceptedAnswer": {
+                      "@type": "Answer",
+                      "text": "Yes, Claspire is completely free for college students and seniors across India."
+                    }
+                  }
+                ]
+              }
+            ])
+          }}
+        />
        </head>
        <body
          className={`${inter.variable} ${plusJakartaSans.variable} antialiased`}
        >
          <AuthProvider>
            <PointsProvider>
-             <OneSignalInit />
-             <NotificationPrompt />
-             <RPNotification />
-             <Navbar />
-             <ToastContainer />
-             <main className="min-h-screen">
-               {children}
-             </main>
-             <BottomNavbar />
+             <UnreadMessagesProvider>
+               <OneSignalInit />
+               <NotificationPrompt />
+               <RPNotification />
+               <Navbar />
+               <ToastContainer />
+               <main className="min-h-screen">
+                 {children}
+               </main>
+               <BottomNavbar />
+             </UnreadMessagesProvider>
            </PointsProvider>
          </AuthProvider>
        </body>

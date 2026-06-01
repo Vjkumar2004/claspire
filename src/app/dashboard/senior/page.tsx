@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePoints } from '@/contexts/PointsContext';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { HelpCircle, Briefcase, Handshake, Mic, DollarSign, BarChart3, Star, Trophy, User, CheckCircle, Settings, Zap, TrendingUp, LayoutDashboard, MessageSquare, Trash2, Users, Plus, Eye, Lock, Globe, GraduationCap, Sparkles } from 'lucide-react';
 import CreateGroupModal from '@/components/CreateGroupModal'
 import MyGroupsModal from '@/components/MyGroupsModal'
@@ -13,7 +13,8 @@ import NotificationBell from '@/components/NotificationBell';
 import DeleteAccountModal from '@/components/DeleteAccountModal';
 import MessageRequestsSection from '@/components/senior/MessageRequestsSection';
 import SeniorConnectionRequestsSection from '@/components/SeniorConnectionRequestsSection';
-import DashboardMessages from '@/components/DashboardMessages';
+
+import { Pencil } from 'lucide-react';
 
 // Helper functions
 const timeAgo = (dateStr: string) => {
@@ -35,27 +36,26 @@ const getRPLevel = (points: number) => {
 
 export default function SeniorDashboardPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   // Move ALL useState hooks to the top - Rules of Hooks compliance
   const { showAward } = usePoints();
   const [activeNav, setActiveNav] = useState("overview");
-  const [initialMessageUser, setInitialMessageUser] = useState<string | undefined>(undefined);
 
-  // Handle URL parameters for active tab
+  // Redirect legacy ?activeTab=messages URLs to full-screen messages page
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const tab = params.get('activeTab');
-    const targetUser = params.get('user');
-    
-    if (tab && ["overview", "jobs", "referrals", "messages"].includes(tab)) {
+    const tab = searchParams.get('activeTab');
+    const targetUser = searchParams.get('user');
+
+    if (tab === 'messages') {
+      const url = `/dashboard/senior/messages${targetUser ? `?user=${targetUser}` : ''}`;
+      router.replace(url);
+      return;
+    }
+
+    if (tab && ["overview", "jobs", "referrals", "my-posts"].includes(tab)) {
       setActiveNav(tab);
     }
-    
-    // If user param exists, switch to messages tab
-    if (targetUser) {
-      setActiveNav('messages');
-      setInitialMessageUser(targetUser);
-    }
-  }, []);
+  }, [searchParams, router]);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [dashData, setDashData] = useState<any>(null)
   const [dataLoading, setDataLoading] = useState(true)
@@ -84,6 +84,9 @@ export default function SeniorDashboardPage() {
   const [showMyGroupsModal, setShowMyGroupsModal] = useState(false)
   const referralSectionRef = useRef<HTMLDivElement | null>(null)
 
+  // My Posts states
+  const [deletingPostId, setDeletingPostId] = useState<string | null>(null)
+
   useEffect(() => {
     fetchDashboardData()
     fetchUserCollegeCommunity()
@@ -105,7 +108,9 @@ export default function SeniorDashboardPage() {
 
   const fetchDashboardData = async () => {
     try {
-      const res = await fetch('/api/dashboard/me')
+      const res = await fetch('/api/dashboard/me?t=' + new Date().getTime(), {
+        cache: 'no-store'
+      })
       if (res.ok) {
         const data = await res.json()
         setDashData(data)
@@ -144,6 +149,28 @@ export default function SeniorDashboardPage() {
       }
     } catch { 
       alert('Something went wrong') 
+    }
+  }
+
+  const handleDeletePost = async (postId: string) => {
+    if (!confirm('Are you sure you want to delete this post?')) return
+    setDeletingPostId(postId)
+    try {
+      const res = await fetch('/api/posts/delete', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ post_id: postId })
+      })
+      if (res.ok) {
+        setDashData((prev: any) => prev ? { ...prev, myPosts: prev.myPosts.filter((p: any) => p.id !== postId) } : null)
+      } else {
+        alert('Failed to delete post')
+      }
+    } catch (err) {
+      console.error(err)
+      alert('Error deleting post')
+    } finally {
+      setDeletingPostId(null)
     }
   }
 
@@ -323,13 +350,10 @@ export default function SeniorDashboardPage() {
             <div className="space-y-0.5 mb-4">
               <div
                 onClick={() => {
-                  setActiveNav("messages")
+                  router.push('/dashboard/senior/messages')
                   setMobileSidebarOpen(false)
                 }}
-                className={`flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold transition-colors ${activeNav === "messages"
-                    ? "bg-purple-50 text-purple-600"
-                    : "text-gray-500 hover:bg-gray-50 hover:text-gray-700"
-                  }`}
+                className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold transition-colors text-gray-500 hover:bg-gray-50 hover:text-gray-700"
               >
                 <MessageSquare size={16} />
                 Messages
@@ -339,6 +363,7 @@ export default function SeniorDashboardPage() {
             <div
               onClick={() => {
                 setActiveNav("overview")
+                router.push('?activeTab=overview', { scroll: false })
                 setMobileSidebarOpen(false)
               }}
               className={`flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold transition-colors ${activeNav === "overview"
@@ -372,6 +397,21 @@ export default function SeniorDashboardPage() {
                   {dashData.pendingReferrals.length}
                 </span>
               )}
+            </div>
+            
+            <div
+              onClick={() => {
+                setActiveNav("my-posts")
+                router.push('?activeTab=my-posts', { scroll: false })
+                setMobileSidebarOpen(false)
+              }}
+              className={`flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold transition-colors ${activeNav === "my-posts"
+                  ? "bg-purple-50 text-purple-600"
+                  : "text-gray-500 hover:bg-gray-50 hover:text-gray-700"
+                }`}
+            >
+              <LayoutDashboard size={16} className="flex-shrink-0" />
+              <span>My Posts</span>
             </div>
           </div>
 
@@ -486,12 +526,84 @@ export default function SeniorDashboardPage() {
           </button>
         </div>
 
-        {activeNav === "messages" ? (
-          <DashboardMessages 
-            currentUserId={dashData?.user?.id} 
-            role="senior"
-            initialUserId={initialMessageUser}
-          />
+        {activeNav === "my-posts" ? (
+          <div className="max-w-5xl">
+            <div className="flex items-center justify-between mb-8">
+              <div>
+                <h2 className="text-xl font-bold text-gray-900 font-instrument-serif">My Posts</h2>
+                <p className="text-xs text-gray-400 mt-1">Manage all the doubts, resources and posts you've shared.</p>
+              </div>
+              <button
+                onClick={() => router.push('/community?create=true')}
+                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-cyan-500 text-white rounded-xl text-xs font-black hover:shadow-lg transition-all"
+              >
+                <Plus size={14} /> Create Post
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4">
+              {dashData?.myPosts?.length > 0 ? (
+                dashData.myPosts.map((post: any) => (
+                  <div key={post.id} className="bg-white p-5 rounded-2xl border border-gray-200 hover:shadow-md transition-all">
+                    <div className="flex items-start justify-between gap-4 mb-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="bg-gray-100 text-gray-600 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">{post.type.replace('_', ' ')}</span>
+                          <span className="text-[10px] text-gray-400">{timeAgo(post.created_at)}</span>
+                          {post.type === 'doubt' && (
+                            <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${post.is_answered ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
+                              {post.is_answered ? 'Answered' : 'Pending'}
+                            </span>
+                          )}
+                        </div>
+                        <h3 className="text-base font-bold text-gray-900 leading-tight mb-2">{post.title}</h3>
+                        <p className="text-sm text-gray-600 line-clamp-2">{post.content}</p>
+                      </div>
+                      
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <button
+                          onClick={() => router.push(`/dashboard/senior/edit-post/${post.id}`)}
+                          className="p-2 bg-purple-50 text-purple-600 hover:bg-purple-100 rounded-lg transition-colors"
+                          title="Edit Post"
+                        >
+                          <Pencil size={14} />
+                        </button>
+                        <button
+                          onClick={() => handleDeletePost(post.id)}
+                          disabled={deletingPostId === post.id}
+                          className="p-2 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg transition-colors disabled:opacity-50"
+                          title="Delete Post"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between text-xs font-bold text-gray-400 border-t border-gray-100 pt-3">
+                      <div className="flex gap-4">
+                        <span className="flex items-center gap-1.5"><TrendingUp size={14} /> {post.upvote_count || 0} Upvotes</span>
+                        <span className="flex items-center gap-1.5"><MessageSquare size={14} /> {post.answer_count || 0} Answers</span>
+                      </div>
+                      {post.communities && (
+                         <span className="text-purple-600">in {post.communities.display_name}</span>
+                      )}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-16 bg-white border border-dashed border-gray-200 rounded-2xl">
+                  <LayoutDashboard size={40} className="mx-auto text-gray-300 mb-4" />
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">No Posts Yet</h3>
+                  <p className="text-sm text-gray-500 mb-6">You haven't created any posts or doubts.</p>
+                  <button
+                    onClick={() => router.push('/community?create=true')}
+                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-gray-900 text-white rounded-xl text-sm font-bold hover:bg-black transition-colors"
+                  >
+                    <Plus size={16} /> Create Your First Post
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
         ) : (
           <div className="max-w-5xl">
 

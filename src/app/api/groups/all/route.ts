@@ -113,8 +113,10 @@ export async function GET(request: NextRequest) {
             ...group,
             creator,
             college: { 
-              name: collegeName, 
-              city: college?.city || 'Sivakasi', 
+              id: college?.id,
+              name: collegeName,
+              slug: college?.slug,
+              city: college?.city || college?.location || 'Sivakasi', 
               state: college?.state || 'Tamil Nadu' 
             }
           }

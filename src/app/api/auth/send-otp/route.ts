@@ -1,17 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
-import Mailjet from 'node-mailjet'
 import { createClient } from '@supabase/supabase-js'
 import { rateLimit, getClientIdentifier } from '@/lib/rateLimit'
+import { sendEmail } from '@/services/emailService'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 )
-
-const mailjet = new Mailjet({
-  apiKey: process.env.MAILJET_API_KEY!,
-  apiSecret: process.env.MAILJET_SECRET_KEY!
-})
 
 export async function POST(req: NextRequest) {
   try {
@@ -75,85 +70,71 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Send via Mailjet
-    const result = await mailjet
-      .post('send', { version: 'v3.1' })
-      .request({
-        Messages: [
-          {
-            From: {
-              Email: process.env.MAILJET_FROM_EMAIL,
-              Name: 'Claspire'
-            },
-            To: [{ Email: email }],
-            Subject: `${otp} - Your Claspire OTP`,
-            HTMLPart: `
-              <div style="font-family:Arial,sans-serif;
-                max-width:480px;margin:0 auto;
-                padding:32px;background:#ffffff;">
-                
-                <div style="text-align:center;
-                  margin-bottom:32px;">
-                  <h1 style="font-size:24px;
-                    color:#0A0A0A;margin:0;">
-                    🎓 Claspire
-                  </h1>
-                  <p style="color:#9CA3AF;
-                    font-size:14px;margin-top:4px;">
-                    Your college community
-                  </p>
-                </div>
-
-                <h2 style="font-size:20px;
-                  color:#0A0A0A;margin-bottom:8px;">
-                  Verify your email
-                </h2>
-                <p style="color:#6B7280;font-size:14px;
-                  line-height:1.6;margin-bottom:24px;">
-                  Use this OTP to complete your signup.
-                  Valid for 10 minutes only.
-                </p>
-
-                <div style="background:#F3F0FF;
-                  border-radius:12px;padding:24px;
-                  text-align:center;margin:24px 0;">
-                  <p style="font-size:13px;color:#7C3AED;
-                    font-weight:600;margin:0 0 8px;">
-                    YOUR OTP
-                  </p>
-                  <p style="font-size:40px;font-weight:800;
-                    color:#7C3AED;letter-spacing:8px;margin:0;">
-                    ${otp}
-                  </p>
-                  <p style="font-size:12px;color:#9CA3AF;
-                    margin:8px 0 0;">
-                    Expires in 10 minutes
-                  </p>
-                </div>
-
-                <p style="color:#9CA3AF;font-size:12px;
-                  text-align:center;line-height:1.6;">
-                  Do not share this OTP with anyone.<br/>
-                  Claspire team will never 
-                  ask for your OTP.
-                </p>
-
-                <hr style="border:none;
-                  border-top:1px solid #F3F4F6;
-                  margin:24px 0;"/>
-
-                <p style="color:#D1D5DB;font-size:11px;
-                  text-align:center;">
-                  © 2024 Claspire · 
-                  India's College Community
-                </p>
-              </div>
-            `
-          }
-        ]
-      })
-
-    console.log('Mailjet sent:', result.body)
+    // Send via SMTP
+    await sendEmail({
+      to: email,
+      subject: `${otp} - Your Claspire OTP`,
+      html: `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Verify your email - Claspire</title>
+        </head>
+        <body style="margin: 0; padding: 0; background-color: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+          <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #f3f4f6; padding: 40px 0;">
+            <tr>
+              <td align="center">
+                <table width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 600px; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);">
+                  <!-- Header -->
+                  <tr>
+                    <td align="center" style="padding: 30px 40px; background-color: #ffffff; border-bottom: 1px solid #f3f4f6;">
+                      <!-- Styled text for logo to ensure visibility across all email clients -->
+                      <div style="font-size: 32px; font-weight: 800; letter-spacing: -1px;">
+                        <span style="color: #7C3AED;">claspire</span>
+                      </div>
+                    </td>
+                  </tr>
+                  
+                  <!-- Body -->
+                  <tr>
+                    <td style="padding: 40px;">
+                      <h2 style="color: #111827; font-size: 24px; font-weight: 600; margin: 0 0 20px 0; text-align: center;">Verify your email</h2>
+                      <p style="color: #4b5563; font-size: 16px; line-height: 24px; margin: 0 0 30px 0; text-align: center;">
+                        Welcome to Claspire! Please use the verification code below to complete your signup or sign in.
+                      </p>
+                      
+                      <!-- OTP Box -->
+                      <div style="background-color: #f5f3ff; border: 2px dashed #8b5cf6; border-radius: 12px; padding: 24px; text-align: center; margin-bottom: 30px;">
+                        <span style="display: block; color: #6d28d9; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Your Verification Code</span>
+                        <span style="color: #7C3AED; font-size: 42px; font-weight: 800; letter-spacing: 8px; font-family: monospace;">${otp}</span>
+                      </div>
+                      
+                      <p style="color: #6b7280; font-size: 14px; line-height: 20px; margin: 0; text-align: center;">
+                        This code will expire in <strong>10 minutes</strong>.<br>
+                        Do not share this OTP with anyone. The Claspire team will never ask for your OTP.
+                      </p>
+                    </td>
+                  </tr>
+                  
+                  <!-- Footer -->
+                  <tr>
+                    <td style="background-color: #f9fafb; padding: 24px 40px; border-top: 1px solid #f3f4f6;">
+                      <p style="color: #9ca3af; font-size: 12px; line-height: 18px; margin: 0; text-align: center;">
+                        © ${new Date().getFullYear()} Claspire. All rights reserved.<br>
+                        India's College Community
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </body>
+        </html>
+      `
+    })
 
     return NextResponse.json({
       success: true,

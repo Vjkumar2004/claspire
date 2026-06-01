@@ -109,10 +109,10 @@ export default function NotificationBell({ align = 'right', dark = false }: Noti
     // Initial fetch
     fetchNotifications()
 
-    // Start polling every 5 seconds for notifications
+    // Start polling every 30 seconds for notifications
     pollingRef.current = setInterval(() => {
       fetchNotifications(true)
-    }, 5000)
+    }, 30000)
 
     return () => {
       if (pollingRef.current) {
@@ -126,12 +126,15 @@ export default function NotificationBell({ align = 'right', dark = false }: Noti
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node) && 
           buttonRef.current && !buttonRef.current.contains(event.target as Node)) {
+        if (isOpen && notifications.length > 0) {
+          clearAllNotifications()
+        }
         setIsOpen(false)
       }
     }
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
+  }, [isOpen, notifications.length])
 
   const markAsRead = async (id?: string) => {
     try {
@@ -183,12 +186,15 @@ export default function NotificationBell({ align = 'right', dark = false }: Noti
   }
 
   const handleBellClick = () => {
-  if (!isOpen && unreadCount > 0) {
-    // Mark all as read when opening notifications
-    markAsRead()
+    if (!isOpen && unreadCount > 0) {
+      // Mark all as read when opening notifications
+      markAsRead()
+    } else if (isOpen && notifications.length > 0) {
+      // Clear all when closing
+      clearAllNotifications()
+    }
+    setIsOpen(!isOpen)
   }
-  setIsOpen(!isOpen)
-}
 
   return (
     <div className="relative">
@@ -223,11 +229,11 @@ export default function NotificationBell({ align = 'right', dark = false }: Noti
               style={{
                 position: 'fixed',
                 top: coords.top,
-                left: align === 'left' ? coords.left : 'auto',
-                right: align === 'right' ? coords.right : 'auto',
-              }}
+                '--dropdown-left': align === 'left' ? `${coords.left}px` : 'auto',
+                '--dropdown-right': align === 'right' ? `${coords.right}px` : 'auto',
+              } as React.CSSProperties}
               className={`
-                inset-x-4 md:inset-x-auto 
+                left-4 right-4 md:left-[var(--dropdown-left)] md:right-[var(--dropdown-right)]
                 w-auto md:w-80 
                 max-h-[calc(100vh-100px)] md:max-h-[480px] 
                 bg-white rounded-2xl border border-gray-200 shadow-2xl z-[9999] 
@@ -313,7 +319,10 @@ export default function NotificationBell({ align = 'right', dark = false }: Noti
                             {notif.link && (
                               <Link 
                                 href={notif.link}
-                                onClick={() => setIsOpen(false)}
+                                onClick={() => {
+                                  clearAllNotifications()
+                                  setIsOpen(false)
+                                }}
                                 className="inline-flex items-center gap-1 text-[11px] font-bold text-purple-600 mt-2 hover:underline"
                               >
                                 View Details
@@ -332,7 +341,10 @@ export default function NotificationBell({ align = 'right', dark = false }: Noti
               <div className="p-3 border-t border-gray-100 bg-gray-50/50 text-center">
                  <Link 
                     href={user?.role === 'senior' ? '/dashboard/senior' : '/dashboard/junior'}
-                    onClick={() => setIsOpen(false)}
+                    onClick={() => {
+                      if (notifications.length > 0) clearAllNotifications()
+                      setIsOpen(false)
+                    }}
                     className="text-[11px] font-bold text-gray-400 uppercase tracking-wider hover:text-purple-600 transition-colors no-underline block"
                  >
                     View All Activity

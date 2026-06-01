@@ -82,8 +82,16 @@ export default function SeniorConnectionRequestsSection({
       })
 
       if (res.ok) {
-        // Remove the request from the list
         setRequests(prev => prev.filter(req => req.id !== requestId))
+        if (action === 'accept' && typeof window !== 'undefined') {
+          const accepted = requests.find((r) => r.id === requestId)
+          if (accepted?.sender_id) {
+            localStorage.setItem(
+              `senior_req_status_${accepted.sender_id}`,
+              'accepted'
+            )
+          }
+        }
       } else {
         const data = await res.json()
         alert(data.error || 'Failed to process request')

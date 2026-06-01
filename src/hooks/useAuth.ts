@@ -11,6 +11,15 @@ interface User {
   full_name: string
   college_id: string | null
   avatar_url?: string
+  bio?: string
+  company?: string
+  branch?: string
+  passout_year?: number
+  graduation_year?: number
+  rise_points?: number
+  points?: number
+  answer_count?: number
+  college?: string
 }
 
 export function useAuth() {

@@ -355,6 +355,12 @@ export async function sanitizeImageMetadata(file: File): Promise<Buffer> {
   try {
     const buffer = Buffer.from(await file.arrayBuffer())
     
+    // GIF files: skip sharp processing to preserve animation frames
+    // Sharp only keeps the first frame of animated GIFs by default
+    if (file.type === 'image/gif') {
+      return buffer
+    }
+
     // Use Sharp to strip potentially dangerous metadata
     const sanitizedBuffer = await sharp(buffer)
       .rotate() // Auto-orient based on EXIF

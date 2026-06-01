@@ -1,27 +1,26 @@
 'use client'
 import {
-  LayoutDashboard, HelpCircle, BookOpen,
-  Calendar, Users, Settings, Bell,
-  Flame, TrendingUp, Zap, Award,
+  LayoutDashboard, HelpCircle, 
+  Calendar, Users, Settings, 
+  Flame, Zap, 
   ChevronRight, Plus, Clock,
   CheckCircle, Video, Briefcase,
-  GraduationCap, Star, Target,
+  
   BarChart3, Menu, X, Trash2,
-  Handshake, Search, Sparkles, MessageSquare,
-  ArrowUp, ArrowDown, LogOut, User, Pencil
-} from 'lucide-react'
+  Handshake, Sparkles, MessageSquare,
+  ArrowUp, LogOut, User, GraduationCap, Pencil} from 'lucide-react'
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { usePoints } from '@/contexts/PointsContext'
 import { motion, AnimatePresence } from 'framer-motion'
 import NotificationPrompt from '@/components/NotificationPrompt'
 import NotificationBell from '@/components/NotificationBell'
-import DashboardMessages from '@/components/DashboardMessages'
 import DeleteAccountModal from '@/components/DeleteAccountModal'
 import AcceptedSeniorsSection from '@/components/junior/AcceptedSeniorsSection'
 import CreateGroupModal from '@/components/CreateGroupModal'
 import MyGroupsList from '@/components/MyGroupsList'
+import DashboardMessages from '@/components/DashboardMessages'
 
 interface DashData {
   user: {
@@ -128,22 +127,22 @@ export default function JuniorDashboard() {
   const [activeTab, setActiveTab] = useState('overview')
   const [initialMessageUser, setInitialMessageUser] = useState<string | undefined>(undefined)
 
+  const searchParams = useSearchParams()
+
   // Handle URL parameters for active tab
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search)
-    const tab = params.get('activeTab')
-    const targetUser = params.get('user')
-    
-    if (tab && ['overview', 'doubts', 'webinars', 'community', 'referrals', 'messages'].includes(tab)) {
-      setActiveTab(tab)
+    const tab = searchParams.get('activeTab')
+    const targetUser = searchParams.get('user')
+
+    if (tab && ['overview', 'doubts', 'webinars', 'community', 'referrals', 'events', 'messages'].includes(tab)) {
+      setActiveTab(tab === 'webinars' ? 'events' : tab)
     }
-    
-    // If user param exists, switch to messages tab
+
     if (targetUser) {
-      setActiveTab('messages')
       setInitialMessageUser(targetUser)
+      setActiveTab('messages')
     }
-  }, [])
+  }, [searchParams])
   const [doubtSearch, setDoubtSearch] = useState('')
   const [doubtFilter, setDoubtFilter] = useState<'all' | 'answered' | 'pending'>('all')
   const [eventSearch, setEventSearch] = useState('')
@@ -220,16 +219,29 @@ export default function JuniorDashboard() {
     return 'Just now'
   }
 
-  const parsePostImages = (url: string | undefined | null): string[] => {
-    if (!url) return []
-    if (url.startsWith('[') && url.endsWith(']')) {
+  const parsePostImages = (image_url?: string) => {
+    if (!image_url) return []
+
+    if (typeof image_url !== 'string') {
+      return [String(image_url)]
+    }
+
+    const trimmed = image_url.trim()
+    if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
       try {
-        return JSON.parse(url)
-      } catch (e) {
-        return [url]
+        const parsed = JSON.parse(trimmed)
+        if (Array.isArray(parsed)) {
+          return parsed.filter((item) => typeof item === 'string') as string[]
+        }
+        if (typeof parsed === 'string') {
+          return [parsed]
+        }
+      } catch {
+        // fallback to raw string
       }
     }
-    return [url]
+
+    return [trimmed]
   }
 
   const handleDeletePost = async (postId: string) => {
@@ -328,9 +340,9 @@ export default function JuniorDashboard() {
                   router.push('?activeTab=' + item.id, { scroll: false });
                   setMobileMenuOpen(false); 
                 }}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition-all group cursor-pointer ${activeTab === item.id
-                    ? 'bg-purple-50/70 text-[#7C3AED] shadow-sm'
-                    : 'text-[#64748B] hover:bg-slate-50 hover:text-[#0F172A]'
+                className={`w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all group cursor-pointer ${activeTab === item.id
+                    ? 'bg-[#F5F3FF] text-[#7C3AED] shadow-sm shadow-purple-500/5'
+                    : 'text-[#64748B] hover:bg-[#F8FAFC] hover:text-[#0F172A]'
                   }`}
               >
                 <span className={`transition-transform duration-300 ${activeTab === item.id ? 'scale-110 text-[#7C3AED]' : 'text-slate-400 group-hover:scale-110 group-hover:text-slate-600'}`}>

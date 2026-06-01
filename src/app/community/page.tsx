@@ -20,46 +20,66 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder'
 )
 
-// Utility function to convert URLs to clickable links
+import BottomNavbar from '@/components/BottomNavbar'
+import PostImageCarousel from '@/components/PostImageCarousel'
+import { resolveDisplayBio } from '@/lib/profile-data'
+
+// Utility function to convert URLs to clickable links and preserve line breaks
 const convertUrlsToLinks = (text: string) => {
   if (!text) return text
   const urlPattern = /(https?:\/\/[^\s\)]+)/g
-  const matches = text.match(urlPattern) || []
 
-  if (matches.length === 0) {
-    return <span>{text}</span>
-  }
+  // Split by newlines first to preserve paragraph structure
+  const lines = text.split('\n')
 
-  const result: React.ReactNode[] = []
-  let lastIndex = 0
+  return lines.map((line, lineIndex) => {
+    const matches = line.match(urlPattern) || []
 
-  matches.forEach((match, index) => {
-    const textBefore = text.substring(lastIndex, text.indexOf(match))
-    if (textBefore) {
-      result.push(<span key={`text-${index}`}>{textBefore}</span>)
+    if (matches.length === 0) {
+      return (
+        <span key={`line-${lineIndex}`}>
+          {line}
+          {lineIndex < lines.length - 1 && <br />}
+        </span>
+      )
     }
 
-    result.push(
-      <a
-        key={`link-${index}`}
-        href={match}
-        target="_blank"
-        rel="noopener noreferrer"
-        onClick={(e) => e.stopPropagation()}
-        className="text-[#7C3AED] hover:underline font-semibold"
-      >
-        {match}
-      </a>
+    const parts: React.ReactNode[] = []
+    let lastIdx = 0
+
+    matches.forEach((match, matchIndex) => {
+      const matchStart = line.indexOf(match, lastIdx)
+      const before = line.substring(lastIdx, matchStart)
+      if (before) {
+        parts.push(<span key={`t-${lineIndex}-${matchIndex}`}>{before}</span>)
+      }
+      parts.push(
+        <a
+          key={`l-${lineIndex}-${matchIndex}`}
+          href={match}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={(e) => e.stopPropagation()}
+          className="text-[#7C3AED] hover:underline font-semibold break-all"
+        >
+          {match}
+        </a>
+      )
+      lastIdx = matchStart + match.length
+    })
+
+    const remaining = line.substring(lastIdx)
+    if (remaining) {
+      parts.push(<span key={`t-${lineIndex}-end`}>{remaining}</span>)
+    }
+
+    return (
+      <span key={`line-${lineIndex}`}>
+        {parts}
+        {lineIndex < lines.length - 1 && <br />}
+      </span>
     )
-    lastIndex = text.indexOf(match) + match.length
   })
-
-  const textAfter = text.substring(lastIndex)
-  if (textAfter) {
-    result.push(<span key={`text-final`}>{textAfter}</span>)
-  }
-
-  return result
 }
 
 function CommunityPageContent() {
@@ -80,7 +100,6 @@ function CommunityPageContent() {
 
   // Phase 2 optimization states
   const [feedSearchQuery, setFeedSearchQuery] = useState('')
-  const [profileUser, setProfileUser] = useState<any>(null)
 
   // Direct Messaging Overhaul States (Phase 3)
   const [chatExpanded, setChatExpanded] = useState(false)
@@ -126,6 +145,10 @@ function CommunityPageContent() {
   // Campus Placements (real jobs)
   const [campusJobs, setCampusJobs] = useState<any[]>([])
 
+  // Floating FAB scroll visibility to match bottom nav
+  const [isNavVisible, setIsNavVisible] = useState(true)
+  const [lastScrollY, setLastScrollY] = useState(0)
+
   const toggleContentExpansion = (postId: string) => {
     setExpandedContent(prev => ({
       ...prev,
@@ -143,23 +166,36 @@ function CommunityPageContent() {
     setSelectedImage('')
   }
 
-  // Fetch full details of the authenticated user to render rich profile identity card
+  // Auto-hide FAB on scroll to sync with bottom navbar
   useEffect(() => {
-    const fetchFullProfile = async () => {
-      try {
-        const res = await fetch('/api/auth/me')
-        if (res.ok) {
-          const data = await res.json()
-          if (data.user) {
-            setProfileUser(data.user)
-          }
-        }
-      } catch (err) {
-        console.error('Failed to load profile details:', err)
+    let scrollTimeout: NodeJS.Timeout
+
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY
+
+      if (scrollTimeout) {
+        clearTimeout(scrollTimeout)
+      }
+
+      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        setIsNavVisible(false)
+      } else if (currentScrollY < lastScrollY) {
+        setIsNavVisible(true)
+      }
+
+      setLastScrollY(currentScrollY)
+      scrollTimeout = setTimeout(() => {}, 150)
+    }
+
+    window.addEventListener('scroll', handleScroll, { passive: true })
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+      if (scrollTimeout) {
+        clearTimeout(scrollTimeout)
       }
     }
-    fetchFullProfile()
-  }, [user])
+  }, [lastScrollY])
 
   // Fetch real campus placement jobs
   useEffect(() => {
@@ -197,6 +233,7 @@ function CommunityPageContent() {
             if (oId && !threadsMap.has(oId)) {
               threadsMap.set(oId, {
                 id: oId,
+                unread: conv.unread || false,
                 users: {
                   id: oId,
                   full_name: conv.otherUser?.full_name || 'Alumni Partner',
@@ -209,7 +246,7 @@ function CommunityPageContent() {
         }
 
         // 2. Fetch accepted message requests for juniors (mentors) - student role ONLY
-        if (profileUser.role === 'student') {
+        if (user?.role === 'student') {
           const resSeniors = await fetch('/api/message-requests/accepted-seniors')
           if (resSeniors.ok) {
             const seniorsData = await resSeniors.json()
@@ -239,14 +276,25 @@ function CommunityPageContent() {
       }
     }
 
-    if (profileUser) {
+    if (user?.id) {
       fetchChatWidgetData()
     }
-  }, [profileUser])
+  }, [user?.id, user?.role])
 
   // Polling chat messages inside the interactive drawer/bottom sheet
   useEffect(() => {
-    if (!activeChatUser || !profileUser?.id) return
+    if (!activeChatUser || !user?.id) return
+
+    // Mark messages as read
+    const conversationId = [user.id, activeChatUser.id].sort().join('_')
+    fetch('/api/messages/read', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ conversationId })
+    }).catch(console.error)
+    
+    // Clear local unread state immediately
+    setChatThreads(prev => prev.map(t => t.id === activeChatUser.id ? { ...t, unread: false } : t))
 
     let isMounted = true
     setDrawerChatLoading(true)
@@ -274,7 +322,7 @@ function CommunityPageContent() {
       isMounted = false
       clearInterval(interval)
     }
-  }, [activeChatUser, profileUser])
+  }, [activeChatUser, user?.id])
 
   // Auto Scroll to bottom for messages inside drawer/bottom sheet
   useEffect(() => {
@@ -288,15 +336,15 @@ function CommunityPageContent() {
 
   const sendDrawerMessage = async () => {
     const text = drawerNewMessage.trim()
-    if (!text || !activeChatUser || drawerChatSending || !profileUser?.id) return
+    if (!text || !activeChatUser || drawerChatSending || !user?.id) return
 
     setDrawerChatSending(true)
     setDrawerNewMessage('')
 
-    const conversationId = [profileUser.id, activeChatUser.id].sort().join('_')
+    const conversationId = [user.id, activeChatUser.id].sort().join('_')
     const optMsg = {
       id: `temp-${Date.now()}`,
-      sender_id: profileUser.id,
+      sender_id: user.id,
       receiver_id: activeChatUser.id,
       content: text,
       created_at: new Date().toISOString(),
@@ -343,16 +391,7 @@ function CommunityPageContent() {
     if (!posts.length) return
 
     const fetchUserVotes = async () => {
-      let userId: string | null = null
-      try {
-        const authRes = await fetch('/api/auth/me')
-        if (authRes.ok) {
-          const authData = await authRes.json()
-          userId = authData.user?.id || null
-        }
-      } catch (error) {
-        console.error('Failed to get user for votes:', error)
-      }
+      const userId = user?.id || null
 
       const v: Record<string, any> = {}
       posts.forEach((p: any) => {
@@ -392,30 +431,14 @@ function CommunityPageContent() {
     }
 
     fetchUserVotes()
-  }, [posts])
+  }, [posts, user?.id])
 
   // Get user college community
   useEffect(() => {
-    const getUserCommunity = async () => {
-      try {
-        const authRes = await fetch('/api/auth/me')
-        if (authRes.ok) {
-          const authData = await authRes.json()
-          const user = authData.user
-          if (user && user.college_id) {
-            const mine = communities.find(c => c.colleges?.id === user.college_id)
-            setUserCommunity(mine || null)
-          }
-        }
-      } catch (error) {
-        console.error('Failed to get user community:', error)
-      }
-    }
-
-    if (communities.length) {
-      getUserCommunity()
-    }
-  }, [communities])
+    if (!communities.length || !user?.college_id) return
+    const mine = communities.find((c) => c.colleges?.id === user.college_id)
+    setUserCommunity(mine || null)
+  }, [communities, user?.college_id])
 
   useEffect(() => {
     if (shouldCreate && userCommunity) {
@@ -424,20 +447,7 @@ function CommunityPageContent() {
   }, [shouldCreate, userCommunity, router])
 
   const handleVote = async (postId: string, voteType: 'upvote' | 'downvote') => {
-    let userId: string
-    try {
-      const authRes = await fetch('/api/auth/me')
-      if (!authRes.ok) {
-        router.push('/login')
-        return
-      }
-      const authData = await authRes.json()
-      if (!authData.user) {
-        router.push('/login')
-        return
-      }
-      userId = authData.user.id
-    } catch (error) {
+    if (!user?.id) {
       router.push('/login')
       return
     }
@@ -541,16 +551,41 @@ function CommunityPageContent() {
     }
   }
 
+  const handleSharePost = async (post: any) => {
+    const slug = post.communities?.slug
+    if (!slug) return
+
+    const url = `${window.location.origin}/community/c/${slug}/p/${post.id}`
+    const title = post.title || 'Claspire post'
+    const text = post.content?.slice(0, 120) || 'Check out this post on Claspire'
+
+    if (typeof navigator !== 'undefined' && navigator.share) {
+      try {
+        await navigator.share({ title, text, url })
+        return
+      } catch (err) {
+        if ((err as Error).name === 'AbortError') return
+      }
+    }
+
+    try {
+      await navigator.clipboard.writeText(url)
+      alert('Link copied to clipboard')
+    } catch {
+      prompt('Copy this link:', url)
+    }
+  }
+
   const submitInlineAnswer = async (postId: string) => {
     const text = newAnswerText[postId]?.trim()
     if (!text || answerSubmitting[postId]) return
 
+    if (!user?.id) {
+      router.push('/login')
+      return
+    }
+
     try {
-      const authRes = await fetch('/api/auth/me')
-      if (!authRes.ok) {
-        router.push('/login')
-        return
-      }
       setAnswerSubmitting(prev => ({ ...prev, [postId]: true }))
 
       const response = await fetch('/api/answers/create', {
@@ -824,54 +859,54 @@ function CommunityPageContent() {
 
                 {/* User Avatar with outer ring */}
                 <div className="w-20 h-20 rounded-md border-4 border-white overflow-hidden bg-slate-50 shadow-md flex items-center justify-center">
-                  {profileUser?.avatar_url ? (
-                    <img src={profileUser.avatar_url} alt="Profile" className="w-full h-full object-cover" />
+                  {user?.avatar_url ? (
+                    <img src={user.avatar_url} alt="Profile" className="w-full h-full object-cover" />
                   ) : (
                     <span className="text-2xl font-black text-slate-800 uppercase">
-                      {profileUser?.full_name?.[0] || 'U'}
+                      {user?.full_name?.[0] || 'U'}
                     </span>
                   )}
                 </div>
 
                 {/* Name & Badge details */}
                 <h3 className="font-bold text-slate-900 text-sm mt-3 text-center leading-tight">
-                  {profileUser?.full_name || 'Guest User'}
+                  {user?.full_name || 'Guest User'}
                 </h3>
                 <p className="text-[10px] font-semibold text-slate-400 mt-0.5 text-center truncate w-full">
-                  @{profileUser?.unique_id || 'guest'}
+                  @{user?.unique_id || 'guest'}
                 </p>
 
                 <div className="flex items-center gap-1 mt-2">
-                  <span className={`text-[8px] font-extrabold uppercase px-2 py-0.5 rounded-full border ${profileUser?.role === 'senior'
+                  <span className={`text-[8px] font-extrabold uppercase px-2 py-0.5 rounded-full border ${user?.role === 'senior'
                       ? 'bg-emerald-50 text-emerald-600 border-emerald-100'
                       : 'bg-purple-50 text-purple-600 border-purple-100'
                     }`}>
-                    {profileUser?.role === 'senior' ? '★ Verified Senior Mentor' : 'Mentee Member'}
+                    {user?.role === 'senior' ? '★ Verified Senior Mentor' : 'Mentee Member'}
                   </span>
                 </div>
 
                 {/* Professional headline/bio context */}
                 <p className="text-[11px] text-slate-500 text-center font-medium mt-3 px-1 leading-normal border-b border-slate-100 pb-3 w-full">
-                  {profileUser?.bio || (profileUser?.role === 'senior'
-                    ? `Mentor • Specialist at ${profileUser?.company || 'Industry Partners'}`
-                    : `Student of ${profileUser?.branch || 'Engineering Department'}`)}
+                  {resolveDisplayBio(user?.bio) || (user?.role === 'senior'
+                    ? `Mentor • Specialist at ${user?.company || 'Industry Partners'}`
+                    : `Student of ${user?.branch || 'Engineering Department'}`)}
                 </p>
 
                 {/* Extended academic & student details */}
                 <div className="w-full pt-3 space-y-2 text-[10px] text-slate-500 font-semibold border-b border-slate-100 pb-3">
                   <div className="flex items-center gap-2">
                     <GraduationCap className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-                    <span className="truncate">{userCommunity?.colleges?.short_name || profileUser?.college || 'No campus linked'}</span>
+                    <span className="truncate">{userCommunity?.colleges?.short_name || user?.college || 'No campus linked'}</span>
                   </div>
-                  {profileUser?.branch && (
+                  {user?.branch && (
                     <div className="flex items-center gap-2">
                       <Building2 className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-                      <span className="truncate">{profileUser.branch}</span>
+                      <span className="truncate">{user.branch}</span>
                     </div>
                   )}
                   <div className="flex items-center gap-2">
                     <Award className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-                    <span>Graduation: {profileUser?.graduation_year || profileUser?.passout_year || 'Class of 2026'}</span>
+                    <span>Graduation: {user?.graduation_year || user?.passout_year || 'Class of 2026'}</span>
                   </div>
                 </div>
 
@@ -879,7 +914,7 @@ function CommunityPageContent() {
                 <div className="w-full pt-3 grid grid-cols-2 gap-2 text-center">
                   <div className="p-2 bg-slate-50 rounded border border-slate-100">
                     <span className="block text-[14px] font-black text-[#7C3AED] leading-none">
-                      {profileUser?.rise_points || profileUser?.points || 0}
+                      {user?.rise_points || user?.points || 0}
                     </span>
                     <span className="text-[8px] uppercase tracking-wider text-slate-400 font-extrabold mt-1 block">
                       Rise RP
@@ -887,7 +922,7 @@ function CommunityPageContent() {
                   </div>
                   <div className="p-2 bg-slate-50 rounded border border-slate-100">
                     <span className="block text-[14px] font-black text-slate-800 leading-none">
-                      {profileUser?.answer_count || 0}
+                      {user?.answer_count || 0}
                     </span>
                     <span className="text-[8px] uppercase tracking-wider text-slate-400 font-extrabold mt-1 block">
                       Answers
@@ -936,10 +971,10 @@ function CommunityPageContent() {
             <div className="bg-white rounded-md border border-slate-200 p-4 shadow-sm space-y-3">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded bg-slate-100 flex items-center justify-center font-bold text-slate-800 text-xs overflow-hidden flex-shrink-0 border border-slate-100">
-                  {profileUser?.avatar_url ? (
-                    <img src={profileUser.avatar_url} alt="Profile" className="w-full h-full object-cover" />
+                  {user?.avatar_url ? (
+                    <img src={user.avatar_url} alt="Profile" className="w-full h-full object-cover" />
                   ) : (
-                    profileUser?.full_name?.[0] || 'U'
+                    user?.full_name?.[0] || 'U'
                   )}
                 </div>
 
@@ -1118,17 +1153,11 @@ function CommunityPageContent() {
                           )}
                         </div>
 
-                        {/* Large Attached media inside card */}
-                        {post.image_url && (
-                          <div className="rounded border border-slate-100 mb-2.5 bg-slate-50 overflow-hidden flex items-center justify-center max-h-72">
-                            <img
-                              src={post.image_url}
-                              alt="Attached post attachment illustration"
-                              onClick={() => handleImageClick(post.image_url)}
-                              className="w-full object-cover max-h-72 hover:opacity-95 transition-opacity cursor-zoom-in"
-                            />
-                          </div>
-                        )}
+                        {/* Attached media inside card via Carousel */}
+                        <PostImageCarousel 
+                          imageUrls={post.image_url} 
+                          onImageClick={handleImageClick} 
+                        />
 
                         {/* Tags line */}
                         {post.tags?.length > 0 && (
@@ -1176,6 +1205,14 @@ function CommunityPageContent() {
                             >
                               <MessageSquare className="w-3 h-3" />
                               <span>{post.answer_count || 0} Answers</span>
+                            </button>
+
+                            <button
+                              onClick={() => handleSharePost(post)}
+                              className="flex items-center gap-1.5 px-2.5 py-1 hover:bg-slate-50 text-slate-500 rounded transition-colors cursor-pointer"
+                            >
+                              <Share2 className="w-3 h-3" />
+                              <span>Share</span>
                             </button>
                           </div>
 
@@ -1432,24 +1469,22 @@ function CommunityPageContent() {
         </div>
       </div>
 
-      {/* Floating Action Button (Mobile only) */}
-      <button
-        onClick={() => router.push('?create=true')}
-        className="fixed bottom-6 right-6 lg:hidden w-12 h-12 rounded-full bg-gradient-to-r from-[#7C3AED] to-[#06B6D4] flex items-center justify-center shadow-lg text-white font-bold cursor-pointer transition-transform hover:scale-105 active:scale-95 z-50 animate-bounce"
-      >
-        <Plus className="w-6 h-6" />
-      </button>
+
 
       {/* ════ MOBILE DIRECT MESSAGING REDESIGN: Floating Circular FAB ════ */}
       <button
         onClick={() => setMobileDrawerOpen(true)}
-        className="fixed bottom-24 right-6 lg:hidden w-12 h-12 rounded-full bg-[#7C3AED] text-white flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-transform z-50 border border-purple-400"
+        className={`fixed right-6 lg:hidden w-12 h-12 rounded-full bg-[#7C3AED] text-white flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all duration-300 ease-in-out z-50 border border-purple-400 ${
+          isNavVisible ? 'bottom-24' : 'bottom-6'
+        }`}
         title="Open Direct Messages"
       >
         <MessageCircle className="w-6 h-6 animate-pulse" />
-        <span className="absolute -top-1.5 -right-1.5 bg-rose-500 text-[9px] font-black text-white w-5 h-5 rounded-full flex items-center justify-center border-2 border-[#7C3AED]">
-          {chatThreads.length}
-        </span>
+        {chatThreads.filter(t => t.unread).length > 0 && (
+          <span className="absolute -top-1.5 -right-1.5 bg-rose-500 text-[9px] font-black text-white w-5 h-5 rounded-full flex items-center justify-center border-2 border-[#7C3AED]">
+            {chatThreads.filter(t => t.unread).length}
+          </span>
+        )}
       </button>
 
       {/* ════ MOBILE DIRECT MESSAGING BOTTOM SHEET DRAWER ════ */}
@@ -1534,7 +1569,7 @@ function CommunityPageContent() {
                         </div>
                       ) : (
                         drawerMessages.map((msg: any) => {
-                          const isMine = msg.sender_id === profileUser?.id
+                          const isMine = msg.sender_id === user?.id
                           const isOptimistic = msg.id.startsWith('temp-')
                           return (
                             <div key={msg.id} className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
@@ -1643,7 +1678,7 @@ function CommunityPageContent() {
                       <button
                         onClick={() => {
                           setMobileDrawerOpen(false)
-                          router.push('/dashboard/junior')
+                          router.push('/dashboard/junior/messages')
                         }}
                         className="w-full py-2 bg-purple-50 hover:bg-purple-100 text-[#7C3AED] text-[11px] font-bold rounded transition-colors cursor-pointer border border-purple-100"
                       >
@@ -1741,7 +1776,7 @@ function CommunityPageContent() {
                     </div>
                   ) : (
                     drawerMessages.map((msg: any) => {
-                      const isMine = msg.sender_id === profileUser?.id
+                      const isMine = msg.sender_id === user?.id
                       const isOptimistic = msg.id.startsWith('temp-')
                       return (
                         <div key={msg.id} className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
@@ -1842,7 +1877,12 @@ function CommunityPageContent() {
 
                 <div className="p-3 text-center bg-white mt-auto border-t border-slate-100 flex-shrink-0">
                   <button
-                    onClick={() => router.push('/dashboard/junior')}
+                    onClick={() => {
+                      const messageRoute = user?.role === 'senior'
+                        ? '/dashboard/senior/messages'
+                        : '/dashboard/junior/messages'
+                      router.push(messageRoute)
+                    }}
                     className="w-full py-1.5 bg-purple-50 hover:bg-purple-100 text-[#7C3AED] text-[10px] font-bold rounded transition-colors cursor-pointer border border-purple-100"
                   >
                     Full Messaging Console
@@ -1887,6 +1927,8 @@ function CommunityPageContent() {
     </div>
   )
 }
+
+
 
 export default function CommunityPage() {
   return (

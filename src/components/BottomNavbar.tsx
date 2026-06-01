@@ -5,7 +5,6 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Users, Search, Plus, User, Users as Groups, GraduationCap, LayoutDashboard, Building2 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
-import { supabase } from '@/lib/supabase'
 
 // Type definitions for navigation items
 type RegularNavItem = {
@@ -27,61 +26,8 @@ type NavItem = RegularNavItem | CenterNavItem
 const BottomNavbar = () => {
   const pathname = usePathname()
   const { user } = useAuth()
-  const [unreadMessageCount, setUnreadMessageCount] = useState(0)
   const [isVisible, setIsVisible] = useState(true)
   const [lastScrollY, setLastScrollY] = useState(0)
-
-  useEffect(() => {
-    if (!user?.id) return
-
-    // Fetch initial unread count
-    const fetchUnreadCount = async () => {
-      try {
-        const res = await fetch('/api/messages/unread-count')
-        const data = await res.json()
-        setUnreadMessageCount(data.count || 0)
-      } catch (err) {
-        console.error('Failed to fetch unread count:', err)
-      }
-    }
-
-    fetchUnreadCount()
-
-    // Subscribe to real-time messages
-    const channel = supabase
-      .channel(`unread-messages-${user.id}`)
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'direct_messages',
-          filter: `receiver_id=eq.${user.id}`
-        },
-        () => {
-          setUnreadMessageCount(prev => prev + 1)
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'direct_messages',
-          filter: `receiver_id=eq.${user.id}`
-        },
-        (payload: any) => {
-          if (payload.new.is_read && !payload.old.is_read) {
-            setUnreadMessageCount(prev => Math.max(0, prev - 1))
-          }
-        }
-      )
-      .subscribe()
-
-    return () => {
-      supabase.removeChannel(channel)
-    }
-  }, [user?.id])
 
   // Auto-hide navbar on scroll
   useEffect(() => {
@@ -101,7 +47,7 @@ const BottomNavbar = () => {
       }
 
       setLastScrollY(currentScrollY)
-      scrollTimeout = setTimeout(() => {}, 150)
+      scrollTimeout = setTimeout(() => { }, 150)
     }
 
     window.addEventListener('scroll', handleScroll, { passive: true })
@@ -168,19 +114,18 @@ const BottomNavbar = () => {
   if (pathname === '/' || pathname === '/login' || pathname === '/signup' || pathname === '/dashboard/senior/messages' || pathname === '/dashboard/junior/messages' || pathname.includes('/community/c/') && pathname.includes('/group/') || isMobileMenuOpen) return null
 
   return (
-    <div 
-      className={`md:hidden fixed bottom-0 left-0 w-full z-[999] bottom-navbar transition-transform duration-300 ease-in-out ${
-        isVisible ? 'translate-y-0' : 'translate-y-full'
-      }`}
+    <div
+      className={`md:hidden fixed bottom-0 left-0 w-full z-[999] bottom-navbar transition-transform duration-300 ease-in-out ${isVisible ? 'translate-y-0' : 'translate-y-full'
+        }`}
     >
       <div className="bg-white/80 backdrop-blur-xl border border-gray-200/50 rounded-[28px] shadow-[0_8px_32px_rgba(0,0,0,0.12)] px-2 py-2">
         <div className="flex items-center justify-between gap-1">
           {navItems.map((item, index) => {
             // Type guard functions
-            const isCenterItem = (navItem: NavItem): navItem is CenterNavItem => 
+            const isCenterItem = (navItem: NavItem): navItem is CenterNavItem =>
               'isCenter' in navItem && navItem.isCenter === true
-            
-            const isRegularItem = (navItem: NavItem): navItem is RegularNavItem => 
+
+            const isRegularItem = (navItem: NavItem): navItem is RegularNavItem =>
               !('isCenter' in navItem)
 
             // Handle center button (Ask)

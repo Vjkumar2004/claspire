@@ -23,17 +23,19 @@ export default function SeniorMessageRequestButton({ targetSeniorId, targetSenio
   const { user } = useAuth()
 
   useEffect(() => {
-    // Load cached status immediately to avoid flash
-    const cached = localStorage.getItem(`${STORAGE_KEY_PREFIX}${targetSeniorId}`)
-    if (cached && cached !== 'none') {
-      setStatus(cached as RequestStatus)
-    }
     checkRequestStatus()
+
+    const onFocus = () => checkRequestStatus()
+    window.addEventListener('focus', onFocus)
+    return () => window.removeEventListener('focus', onFocus)
   }, [targetSeniorId])
 
   const checkRequestStatus = async () => {
     try {
-      const res = await fetch(`/api/senior-message-requests/status?receiver_id=${targetSeniorId}`)
+      const res = await fetch(
+        `/api/senior-message-requests/status?receiver_id=${targetSeniorId}`,
+        { cache: 'no-store', credentials: 'include' }
+      )
       if (res.ok) {
         const data = await res.json()
         const serverStatus = data.status as RequestStatus
@@ -92,7 +94,7 @@ export default function SeniorMessageRequestButton({ targetSeniorId, targetSenio
   }
 
   const handleMessage = () => {
-    router.push(`/dashboard/senior?activeTab=messages&user=${targetSeniorId}`)
+    router.push(`/dashboard/senior/messages?user=${targetSeniorId}`)
   }
 
   // Loading state

@@ -1,15 +1,7 @@
 'use client'
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { Send, User as UserIcon, Loader2 } from 'lucide-react'
-
-interface Message {
-  id: string
-  sender_id: string
-  receiver_id: string
-  content: string
-  created_at: string
-  conversation_id: string
-}
+import { Send, Loader2, X, Pencil, Reply, Trash2 } from 'lucide-react'
+import { canModifyMessage, type DirectMessageRow } from '@/lib/message-utils'
 
 interface ChatWindowProps {
   currentUserId: string
@@ -17,30 +9,50 @@ interface ChatWindowProps {
   otherUserName: string
   otherUserAvatar?: string
   onMessageSent?: () => void
+  hideHeader?: boolean
+  flat?: boolean
 }
 
-export default function ChatWindow({ 
-  currentUserId, 
-  otherUserId, 
-  otherUserName, 
+type Message = DirectMessageRow
+
+function formatTime(dateStr: string) {
+  return new Date(dateStr).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+}
+
+function MessageStatus({ isOptimistic, isRead }: { isOptimistic: boolean; isRead?: boolean }) {
+  if (isOptimistic) {
+    return <span className="text-[11px]" title="Sending">🫲</span>
+  }
+  if (isRead) {
+    return <span className="text-[11px]" title="Seen">🤝</span>
+  }
+  return <span className="text-[11px]" title="Sent">🫲</span>
+}
+
+export default function ChatWindow({
+  currentUserId,
+  otherUserId,
+  otherUserName,
   otherUserAvatar,
-  onMessageSent 
+  onMessageSent,
+  hideHeader = false,
+  flat = false,
 }: ChatWindowProps) {
   const [messages, setMessages] = useState<Message[]>([])
   const [newMessage, setNewMessage] = useState('')
   const [loading, setLoading] = useState(true)
   const [sending, setSending] = useState(false)
   const [blockStatus, setBlockStatus] = useState<'loading' | 'none' | 'blocked'>('loading')
+  const [menuMessageId, setMenuMessageId] = useState<string | null>(null)
+  const [replyingTo, setReplyingTo] = useState<Message | null>(null)
+  const [editingMessage, setEditingMessage] = useState<Message | null>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const messagesRef = useRef<Message[]>([])
   const pollingRef = useRef<NodeJS.Timeout | null>(null)
-  const lastMessageIdRef = useRef<string>('')
+  const inputRef = useRef<HTMLInputElement>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
 
-  // Keep ref in sync
-  useEffect(() => {
-    messagesRef.current = messages
-  }, [messages])
+  const conversationId = [currentUserId, otherUserId].sort().join('_')
 
   const scrollToBottom = useCallback(() => {
     if (scrollRef.current) {
@@ -48,91 +60,54 @@ export default function ChatWindow({
     }
   }, [])
 
-  const conversationId = [currentUserId, otherUserId].sort().join('_')
-
-  const fetchNewMessages = useCallback(async () => {
+  const syncMessages = useCallback(async () => {
     try {
-      const res = await fetch(
-        `/api/messages/history?userId=${otherUserId}&after=${encodeURIComponent(lastMessageIdRef.current)}` 
-      )
+      const res = await fetch(`/api/messages/history?userId=${otherUserId}`, { cache: 'no-store' })
       if (!res.ok) return
       const data = await res.json()
-      
-      if (data.messages && Array.isArray(data.messages) && data.messages.length > 0) {
-        setMessages(prev => {
-          // Filter out duplicates and temp messages that were replaced
-          const existingIds = new Set(prev.map(m => m.id))
-          const newMsgs = data.messages.filter(
-            (m: Message) => !existingIds.has(m.id) && !m.id.startsWith('temp-')
-          )
-          if (newMsgs.length === 0) return prev
-          
-          // Update lastMessageId
-          const lastMsg = newMsgs[newMsgs.length - 1]
-          lastMessageIdRef.current = lastMsg.created_at
-          
-          return [...prev, ...newMsgs]
-        })
+      if (data.messages && Array.isArray(data.messages)) {
+        setMessages(data.messages)
       }
-    } catch (err) {
-      // Silent fail — don't show error for background polling
+    } catch {
+      // silent
     }
   }, [otherUserId])
 
-  // Fetch history + polling
   useEffect(() => {
     if (!currentUserId || !otherUserId) return
 
     const init = async () => {
       setLoading(true)
       setMessages([])
-      lastMessageIdRef.current = ''
+      if (pollingRef.current) clearInterval(pollingRef.current)
 
-      // Stop any existing polling
-      if (pollingRef.current) {
-        clearInterval(pollingRef.current)
-        pollingRef.current = null
-      }
+      await syncMessages()
+      setLoading(false)
 
-      // Fetch initial history
-      try {
-        const res = await fetch(`/api/messages/history?userId=${otherUserId}`)
-        const data = await res.json()
-        if (data.messages && Array.isArray(data.messages)) {
-          setMessages(data.messages)
-          // Set last message timestamp for polling
-          if (data.messages.length > 0) {
-            lastMessageIdRef.current = data.messages[data.messages.length - 1].created_at
-          }
-        }
-      } catch (err) {
-        console.error('Failed to fetch chat history:', err)
-      } finally {
-        setLoading(false)
-      }
-
-      // Start polling every 2 seconds
-      pollingRef.current = setInterval(() => {
-        fetchNewMessages()
-      }, 2000)
+      pollingRef.current = setInterval(syncMessages, 2000)
     }
 
     init()
 
     return () => {
-      if (pollingRef.current) {
-        clearInterval(pollingRef.current)
-        pollingRef.current = null
-      }
+      if (pollingRef.current) clearInterval(pollingRef.current)
     }
-  }, [otherUserId, currentUserId, fetchNewMessages])
+  }, [otherUserId, currentUserId, syncMessages])
 
-  // Auto-scroll on new messages
   useEffect(() => {
     scrollToBottom()
   }, [messages, scrollToBottom])
 
-  // Check block status
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuMessageId(null)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
   useEffect(() => {
     const fetchBlockStatus = async () => {
       try {
@@ -141,33 +116,110 @@ export default function ChatWindow({
           const data = await res.json()
           setBlockStatus(data.they_blocked_me ? 'blocked' : 'none')
         }
-      } catch (error) {
-        console.error('Failed to fetch block status:', error)
+      } catch {
         setBlockStatus('none')
       }
     }
-
     fetchBlockStatus()
   }, [otherUserId])
+
+  const clearComposerState = () => {
+    setReplyingTo(null)
+    setEditingMessage(null)
+    setNewMessage('')
+  }
+
+  const handleReply = (msg: Message) => {
+    setMenuMessageId(null)
+    setEditingMessage(null)
+    setReplyingTo(msg)
+    inputRef.current?.focus()
+  }
+
+  const handleEdit = (msg: Message) => {
+    if (!canModifyMessage(msg.created_at)) {
+      alert('Messages can only be edited within 7 hours of sending.')
+      return
+    }
+    setMenuMessageId(null)
+    setReplyingTo(null)
+    setEditingMessage(msg)
+    setNewMessage(msg.content)
+    inputRef.current?.focus()
+  }
+
+  const handleDelete = async (msg: Message) => {
+    setMenuMessageId(null)
+    if (!canModifyMessage(msg.created_at)) {
+      alert('Messages can only be deleted within 7 hours of sending.')
+      return
+    }
+    if (!confirm('Delete this message for everyone?')) return
+
+    try {
+      const res = await fetch(`/api/messages/${msg.id}`, { method: 'DELETE' })
+      const data = await res.json()
+      if (res.ok) {
+        setMessages((prev) => prev.filter((m) => m.id !== msg.id))
+        if (editingMessage?.id === msg.id) clearComposerState()
+        if (replyingTo?.id === msg.id) setReplyingTo(null)
+      } else {
+        alert(data.error || 'Failed to delete message')
+      }
+    } catch {
+      alert('Failed to delete message')
+    }
+  }
 
   const sendMessage = async () => {
     const content = newMessage.trim()
     if (!content || sending) return
 
     setSending(true)
-    setNewMessage('')
 
-    // Optimistic update: show message immediately
+    if (editingMessage) {
+      try {
+        const res = await fetch(`/api/messages/${editingMessage.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content }),
+        })
+        const data = await res.json()
+        if (res.ok && data.message) {
+          setMessages((prev) =>
+            prev.map((m) => (m.id === editingMessage.id ? { ...m, ...data.message, reply_to: m.reply_to } : m))
+          )
+          clearComposerState()
+          onMessageSent?.()
+        } else {
+          alert(data.error || 'Failed to edit message')
+        }
+      } catch {
+        alert('Failed to edit message')
+      } finally {
+        setSending(false)
+      }
+      return
+    }
+
     const optimisticMsg: Message = {
       id: `temp-${Date.now()}-${Math.random()}`,
       sender_id: currentUserId,
       receiver_id: otherUserId,
       content,
       created_at: new Date().toISOString(),
-      conversation_id: conversationId
+      conversation_id: conversationId,
+      is_read: false,
+      reply_to_id: replyingTo?.id || null,
+      reply_to: replyingTo
+        ? { id: replyingTo.id, content: replyingTo.content, sender_id: replyingTo.sender_id }
+        : null,
     }
-    
-    setMessages(prev => [...prev, optimisticMsg])
+
+    setMessages((prev) => [...prev, optimisticMsg])
+    setNewMessage('')
+    const replyTarget = replyingTo
+    setReplyingTo(null)
 
     try {
       const res = await fetch('/api/messages/send', {
@@ -175,71 +227,75 @@ export default function ChatWindow({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           receiverId: otherUserId,
-          content
-        })
+          content,
+          replyToId: replyTarget?.id || undefined,
+        }),
       })
 
       if (res.ok) {
         const data = await res.json()
-        
-        // Replace the optimistic message with the real one from DB
         if (data.message) {
-          setMessages(prev =>
-            prev.map(m => m.id === optimisticMsg.id ? data.message : m)
+          setMessages((prev) =>
+            prev.map((m) => (m.id === optimisticMsg.id ? { ...data.message, reply_to: optimisticMsg.reply_to } : m))
           )
         }
-        // Notify parent to refresh conversation list
+        await syncMessages()
         onMessageSent?.()
       } else {
         const error = await res.json()
-        console.error('Send message error:', error)
-        // Remove optimistic message on failure
-        setMessages(prev => prev.filter(m => m.id !== optimisticMsg.id))
+        setMessages((prev) => prev.filter((m) => m.id !== optimisticMsg.id))
+        setNewMessage(content)
+        if (replyTarget) setReplyingTo(replyTarget)
         alert(error.error || 'Failed to send message')
       }
-    } catch (err) {
-      console.error('Send error:', err)
-      // Remove optimistic message on error
-      setMessages(prev => prev.filter(m => m.id !== optimisticMsg.id))
+    } catch {
+      setMessages((prev) => prev.filter((m) => m.id !== optimisticMsg.id))
+      setNewMessage(content)
+      if (replyTarget) setReplyingTo(replyTarget)
       alert('Network error. Please try again.')
     } finally {
       setSending(false)
     }
   }
 
+  const renderReplyQuote = (msg: Message, isMine: boolean) => {
+    if (!msg.reply_to) return null
+    const author =
+      msg.reply_to.sender_id === currentUserId ? 'You' : otherUserName
+    return (
+      <div
+        className={`mb-2 pl-2 border-l-2 text-[11px] leading-snug ${
+          isMine ? 'border-white/60 text-white/90' : 'border-purple-500 text-gray-500'
+        }`}
+      >
+        <p className="font-bold truncate">{author}</p>
+        <p className="truncate opacity-90">{msg.reply_to.content}</p>
+      </div>
+    )
+  }
+
   return (
-    <div className="flex flex-col h-full bg-white border border-gray-100 rounded-3xl shadow-sm overflow-hidden">
-      {/* Header - Hidden on mobile */}
-      <div className="hidden md:flex flex-shrink-0 p-4 border-b border-gray-100 items-center justify-between bg-white/50 backdrop-blur-sm">
-        <div className="flex items-center gap-3">
-          <div className={`w-10 h-10 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0 ${otherUserAvatar ? 'bg-transparent shadow-sm' : 'bg-red-500 text-white'}`}>
-            {otherUserAvatar ? (
-              <img 
-                src={otherUserAvatar} 
-                alt={otherUserName} 
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).style.display = 'none';
-                  (e.target as HTMLImageElement).parentElement!.classList.add('bg-red-500', 'text-white');
-                  // We can't easily inject the letter here via DOM, so we just rely on state if we had it.
-                  // But for now, just fallback to icon if img fails.
-                }}
-              />
-            ) : (
-              <span className="text-sm font-black">{otherUserName?.[0]?.toUpperCase()}</span>
-            )}
-          </div>
-          <div>
-            <h3 className="text-sm font-bold text-gray-900">{otherUserName}</h3>
-            <p className="text-[10px] text-green-500 font-bold uppercase tracking-wider">Online</p>
+    <div className={`flex flex-col h-full overflow-hidden ${flat ? 'bg-[#efeae2]' : 'bg-white border border-gray-100 rounded-3xl shadow-sm'}`}>
+      {!hideHeader && (
+        <div className="hidden md:flex flex-shrink-0 p-4 border-b border-gray-100 items-center justify-between bg-white/50 backdrop-blur-sm">
+          <div className="flex items-center gap-3">
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0 ${otherUserAvatar ? 'bg-transparent shadow-sm' : 'bg-red-500 text-white'}`}>
+              {otherUserAvatar ? (
+                <img src={otherUserAvatar} alt={otherUserName} className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-sm font-black">{otherUserName?.[0]?.toUpperCase()}</span>
+              )}
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-gray-900">{otherUserName}</h3>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
-      {/* Messages - Scrollable area */}
       <div
         ref={scrollRef}
-        className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar bg-gray-50/30"
+        className={`flex-1 overflow-y-auto p-4 space-y-2 custom-scrollbar ${flat ? 'bg-[#efeae2]' : 'bg-gray-50/30'}`}
       >
         {loading ? (
           <div className="flex items-center justify-center h-full">
@@ -257,20 +313,69 @@ export default function ChatWindow({
           messages.map((msg) => {
             const isMine = msg.sender_id === currentUserId
             const isOptimistic = msg.id.startsWith('temp-')
+            const showMenu = menuMessageId === msg.id
+            const canEditDelete = isMine && !isOptimistic && canModifyMessage(msg.created_at)
+
             return (
               <div
                 key={msg.id}
                 className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}
               >
-                <div className={`max-w-[80%] p-3 rounded-2xl text-sm ${
-                  isMine
-                    ? `bg-purple-600 text-white rounded-br-none ${isOptimistic ? 'opacity-70' : ''}`
-                    : 'bg-white border border-gray-100 text-gray-800 rounded-bl-none shadow-sm'
-                }`}>
-                  {msg.content}
-                  <p className={`text-[9px] mt-1 ${isMine ? 'text-white/70' : 'text-gray-400'}`}>
-                    {isOptimistic ? 'Sending...' : new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                  </p>
+                <div className="relative max-w-[82%]">
+                  <button
+                    type="button"
+                    onClick={() => setMenuMessageId(showMenu ? null : msg.id)}
+                    className={`w-full text-left p-3 rounded-2xl text-sm transition-transform active:scale-[0.99] ${
+                      isMine
+                        ? `bg-purple-600 text-white rounded-br-none ${isOptimistic ? 'opacity-70' : ''}`
+                        : 'bg-white border border-gray-100 text-gray-800 rounded-bl-none shadow-sm'
+                    }`}
+                  >
+                    {renderReplyQuote(msg, isMine)}
+                    <p className="whitespace-pre-wrap break-words">{msg.content}</p>
+                    <div className={`flex items-center justify-end gap-1.5 mt-1 ${isMine ? 'text-white/75' : 'text-gray-400'}`}>
+                      {msg.edited_at && (
+                        <span className="text-[9px] italic">edited</span>
+                      )}
+                      <span className="text-[9px]">{isOptimistic ? 'Sending...' : formatTime(msg.created_at)}</span>
+                      {isMine && <MessageStatus isOptimistic={isOptimistic} isRead={msg.is_read} />}
+                    </div>
+                  </button>
+
+                  {showMenu && (
+                    <div
+                      ref={menuRef}
+                      className={`absolute z-20 min-w-[140px] bg-white border border-gray-200 rounded-xl shadow-xl overflow-hidden ${
+                        isMine ? 'right-0 top-full mt-1' : 'left-0 top-full mt-1'
+                      }`}
+                    >
+                      <button
+                        type="button"
+                        onClick={() => handleReply(msg)}
+                        className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
+                      >
+                        <Reply size={15} /> Reply
+                      </button>
+                      {canEditDelete && (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => handleEdit(msg)}
+                            className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 border-t border-gray-100"
+                          >
+                            <Pencil size={15} /> Edit
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDelete(msg)}
+                            className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 border-t border-gray-100"
+                          >
+                            <Trash2 size={15} /> Delete
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             )
@@ -279,21 +384,41 @@ export default function ChatWindow({
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input - Sticky at bottom */}
-      <div className="flex-shrink-0 p-4 bg-white border-t border-gray-100">
+      <div className={`flex-shrink-0 ${flat ? 'pb-[max(0.75rem,env(safe-area-inset-bottom))] bg-[#f0f2f5] border-t border-gray-200' : 'bg-white border-t border-gray-100'}`}>
+        {(replyingTo || editingMessage) && (
+          <div className="flex items-start gap-2 px-3 pt-3">
+            <div className="flex-1 rounded-xl bg-purple-50 border border-purple-100 px-3 py-2">
+              <p className="text-[10px] font-black uppercase tracking-wide text-purple-600">
+                {editingMessage ? 'Editing message' : `Replying to ${replyingTo?.sender_id === currentUserId ? 'yourself' : otherUserName}`}
+              </p>
+              <p className="text-xs text-gray-600 truncate mt-0.5">
+                {(editingMessage || replyingTo)?.content}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={clearComposerState}
+              className="p-2 rounded-full hover:bg-gray-200 text-gray-500"
+            >
+              <X size={16} />
+            </button>
+          </div>
+        )}
+
         {blockStatus === 'blocked' ? (
-          <div className="p-4 text-center text-gray-500 text-sm bg-gray-900 rounded-xl mx-4 mb-4">
-            You can't send messages to this user.
+          <div className="p-4 text-center text-gray-500 text-sm">
+            You can&apos;t send messages to this user.
           </div>
         ) : (
-          <div className="relative flex items-center gap-2">
+          <div className="relative flex items-center gap-2 p-3">
             <input
+              ref={inputRef}
               type="text"
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && sendMessage()}
-              placeholder="Type a message..."
-              className="flex-1 bg-gray-50 border border-gray-100 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-purple-600 transition-colors"
+              placeholder={editingMessage ? 'Edit your message...' : replyingTo ? 'Write a reply...' : 'Type a message...'}
+              className="flex-1 bg-white border border-gray-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-purple-600 transition-colors"
             />
             <button
               onClick={sendMessage}

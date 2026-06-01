@@ -1,6 +1,8 @@
 'use client'
 import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { useAuth } from '@/hooks/useAuth'
+import { useUnreadMessages } from '@/contexts/UnreadMessagesContext'
 import Link from 'next/link'
 import { useRouter, usePathname } from 'next/navigation'
 import { X, Menu, Users, GraduationCap, Briefcase, DollarSign, LayoutDashboard, User, LogOut, ChevronRight, MessageSquare, Building2, Search, ArrowLeft } from 'lucide-react'
@@ -9,31 +11,20 @@ import SearchBar from './search/SearchBar'
 
 export default function Navbar() {
   const { user, loading, signOut } = useAuth()
+  const { unreadMessageCount } = useUnreadMessages()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false)
-  const [unreadMessageCount, setUnreadMessageCount] = useState(0)
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false)
+  const [mounted, setMounted] = useState(false)
   const pathname = usePathname()
 
-  // Fetch unread message count
   useEffect(() => {
-    if (!user?.id) return
+    setMounted(true)
+  }, [])
 
-    const fetchUnreadCount = async () => {
-      try {
-        const res = await fetch('/api/messages/unread-count')
-        const data = await res.json()
-        setUnreadMessageCount(data.count || 0)
-      } catch (err) {
-        console.error('Failed to fetch unread count:', err)
-      }
-    }
-
-    fetchUnreadCount()
-    // Poll every 30 seconds for new messages
-    const interval = setInterval(fetchUnreadCount, 30000)
-    return () => clearInterval(interval)
-  }, [user?.id])
+  const isFullscreenMessages =
+    pathname === '/dashboard/senior/messages' ||
+    pathname === '/dashboard/junior/messages'
 
   // Sync mobile menu state with body class for BottomNavbar visibility
   useEffect(() => {
@@ -57,7 +48,10 @@ export default function Navbar() {
     };
   }, [mobileMenuOpen])
 
+  if (isFullscreenMessages) return null
+
   return (
+    <>
     <nav className="sticky top-0 left-0 right-0 h-14 z-[999] bg-white/90 border-b border-gray-200 backdrop-blur-[12px]">
       <div className="flex items-center justify-between h-full px-6 max-w-7xl mx-auto w-full">
         <div className="flex items-center gap-3 flex-shrink-0">
@@ -136,7 +130,7 @@ export default function Navbar() {
             <div className="flex items-center gap-4">
               <NotificationBell dark />
               <Link 
-                href={user?.role === 'senior' ? '/dashboard/senior?activeTab=messages' : '/dashboard/junior?activeTab=messages'}
+                href={user?.role === 'senior' ? '/dashboard/senior/messages' : '/dashboard/junior/messages'}
                 className="relative p-2 rounded-full text-gray-600 hover:text-black hover:bg-gray-100 transition-colors"
               >
                 <MessageSquare size={20} />
@@ -353,7 +347,7 @@ export default function Navbar() {
             <div className="flex items-center gap-3">
               <NotificationBell dark />
               <Link 
-                href={user?.role === 'senior' ? '/dashboard/senior?activeTab=messages' : '/dashboard/junior?activeTab=messages'}
+                href={user?.role === 'senior' ? '/dashboard/senior/messages' : '/dashboard/junior/messages'}
                 className="relative p-2 rounded-full text-gray-600 hover:text-black hover:bg-gray-100 transition-colors"
               >
                 <MessageSquare size={18} />
@@ -399,40 +393,34 @@ export default function Navbar() {
           </button>
         </div>
       </div>
+    </nav>
 
-      {/* Mobile Menu Overlay */}
-      {/* Backdrop */}
-      {mobileMenuOpen && (
+    {mounted && mobileMenuOpen && createPortal(
+      <>
         <div
           onClick={() => setMobileMenuOpen(false)}
           style={{
             position: 'fixed',
             inset: 0,
             background: 'rgba(0,0,0,0.4)',
-            zIndex: 998,
+            zIndex: 9998,
             backdropFilter: 'blur(2px)',
-            animation: 'fadeIn 0.2s ease'
+            animation: 'fadeIn 0.2s ease',
           }}
         />
-      )}
-
-      {/* Slide-in Panel */}
-      {mobileMenuOpen && (
         <div style={{
           position: 'fixed',
           top: 0,
           left: 0,
-          height: '100vh',
+          height: '100dvh',
           width: '280px',
           background: 'white',
-          zIndex: 999,
-          transform: 'translateX(0)',
-          transition: 'transform 0.3s cubic-bezier(0.4,0,0.2,1)',
+          zIndex: 9999,
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden',
           boxShadow: '4px 0 24px rgba(0,0,0,0.12)',
-          animation: 'slideInLeft 0.3s ease-out'
+          animation: 'slideInLeft 0.3s ease-out',
         }}>
 
           {/* Panel Header */}
@@ -796,24 +784,26 @@ export default function Navbar() {
             )}
           </div>
         </div>
-      )}
-      {/* Fullscreen Mobile Search Overlay */}
-      {mobileSearchOpen && (
-        <div className="fixed inset-0 bg-white z-[99999] flex flex-col p-4">
-          {/* Header row with back icon */}
-          <div className="flex items-center gap-3 mb-4">
-            <button
-              onClick={() => setMobileSearchOpen(false)}
-              className="p-1.5 text-gray-500 hover:text-black rounded-full hover:bg-gray-100 transition-colors cursor-pointer"
-            >
-              <ArrowLeft size={20} />
-            </button>
-            <div className="flex-1">
-              <SearchBar isMobileOverlay={true} onCloseMobile={() => setMobileSearchOpen(false)} />
-            </div>
+      </>,
+      document.body
+    )}
+
+    {mounted && mobileSearchOpen && createPortal(
+      <div className="fixed inset-0 bg-white z-[99999] flex flex-col p-4">
+        <div className="flex items-center gap-3 mb-4">
+          <button
+            onClick={() => setMobileSearchOpen(false)}
+            className="p-1.5 text-gray-500 hover:text-black rounded-full hover:bg-gray-100 transition-colors cursor-pointer"
+          >
+            <ArrowLeft size={20} />
+          </button>
+          <div className="flex-1">
+            <SearchBar isMobileOverlay={true} onCloseMobile={() => setMobileSearchOpen(false)} />
           </div>
         </div>
-      )}
-    </nav>
+      </div>,
+      document.body
+    )}
+    </>
   )
 }

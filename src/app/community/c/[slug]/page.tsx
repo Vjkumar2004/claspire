@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, useEffect, useMemo, cloneElement, ReactElement, Suspense } from 'react'
+import React, { useState, useEffect, useMemo, Suspense } from 'react'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 
 import {
@@ -15,6 +15,44 @@ import {
 import PostModal from '@/components/PostModal'
 import CreateGroupModal from '@/components/CreateGroupModal'
 import { getCollegeLogo, getCollegeInitial } from '@/lib/college-utils'
+import PostImageCarousel from '@/components/PostImageCarousel'
+
+// Utility function to convert URLs to clickable links and preserve line breaks
+const convertUrlsToLinks = (text: string) => {
+  if (!text) return text
+  const urlPattern = /(https?:\/\/[^\s\)]+)/g
+  const lines = text.split('\n')
+  return lines.map((line, lineIndex) => {
+    const matches = line.match(urlPattern) || []
+    if (matches.length === 0) {
+      return (
+        <span key={`line-${lineIndex}`}>
+          {line}
+          {lineIndex < lines.length - 1 && <br />}
+        </span>
+      )
+    }
+    const parts: React.ReactNode[] = []
+    let lastIdx = 0
+    matches.forEach((match, matchIndex) => {
+      const matchStart = line.indexOf(match, lastIdx)
+      const before = line.substring(lastIdx, matchStart)
+      if (before) parts.push(<span key={`t-${lineIndex}-${matchIndex}`}>{before}</span>)
+      parts.push(
+        <a key={`l-${lineIndex}-${matchIndex}`} href={match} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ color: '#7C3AED', fontWeight: 600, wordBreak: 'break-all' }}>{match}</a>
+      )
+      lastIdx = matchStart + match.length
+    })
+    const remaining = line.substring(lastIdx)
+    if (remaining) parts.push(<span key={`t-${lineIndex}-end`}>{remaining}</span>)
+    return (
+      <span key={`line-${lineIndex}`}>
+        {parts}
+        {lineIndex < lines.length - 1 && <br />}
+      </span>
+    )
+  })
+}
 
 function CommunityPageContent({ params }: { params: Promise<{ slug: string }> }) {
   const router = useRouter()
@@ -259,14 +297,18 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
     }
   }
 
-  const LockScreen = ({ title, description, userRole, ctaText, ctaAction }: any) => (
-    <div className="glass-card animate-fade" style={{ borderRadius: 24, padding: '80px 32px', textAlign: 'center', border: '1px solid rgba(124, 58, 237, 0.1)' }}>
-      <div style={{ width: 80, height: 80, borderRadius: '50%', background: 'linear-gradient(135deg,#7C3AED,#06B6D4)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px', color: 'white', boxShadow: '0 20px 40px rgba(124, 58, 237, 0.2)' }}>
-        <Lock size={40} />
+  const LockScreen = ({ title, description, ctaText, ctaAction }: { title: string; description: string; userRole?: string; ctaText: string; ctaAction: () => void }) => (
+    <div className="bg-white rounded-2xl border border-purple-100/80 shadow-sm py-16 px-6 sm:px-10 text-center">
+      <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#7C3AED] to-cyan-500 flex items-center justify-center mx-auto mb-5 text-white shadow-lg shadow-purple-200/50">
+        <Lock size={32} />
       </div>
-      <h3 style={{ fontSize: 24, fontWeight: 800, color: '#0F172A', marginBottom: 16 }}>{title}</h3>
-      <p style={{ fontSize: 15, color: '#64748B', margin: '0 0 32px', lineHeight: 1.6, maxWidth: 400, marginInline: 'auto' }}>{description}</p>
-      <button onClick={ctaAction} style={{ background: 'linear-gradient(135deg,#7C3AED,#06B6D4)', color: 'white', border: 'none', borderRadius: 16, padding: '16px 40px', fontSize: 15, fontWeight: 700, cursor: 'pointer', boxShadow: '0 10px 20px rgba(124, 58, 237, 0.3)', transition: 'transform 0.2s' }} onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.02)'} onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}>
+      <h3 className="text-xl font-extrabold text-slate-900 m-0 mb-3">{title}</h3>
+      <p className="text-sm text-slate-500 max-w-md mx-auto m-0 mb-8 leading-relaxed">{description}</p>
+      <button
+        type="button"
+        onClick={ctaAction}
+        className="inline-flex items-center justify-center px-8 py-3 rounded-xl bg-[#7C3AED] hover:bg-purple-700 text-white text-sm font-bold border-none cursor-pointer shadow-sm transition-colors"
+      >
         {ctaText}
       </button>
     </div>
@@ -392,9 +434,9 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
   }, [data?.posts])
 
   if (loading) return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F8F9FE' }}>
-      <div style={{ width: 44, height: 44, border: '4px solid #E2E8F0', borderTopColor: '#7C3AED', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
-      <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
+    <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center gap-3 font-plus-jakarta-sans">
+      <div className="w-10 h-10 border-4 border-purple-100 border-t-purple-600 rounded-full animate-spin" />
+      <p className="text-xs text-slate-500 font-semibold">Loading community...</p>
     </div>
   )
 
@@ -428,190 +470,94 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
   // Auto-open logic moved to top
 
   const tabs = [
-    { id: 'feed', label: 'Community Feed', icon: <LayoutGrid size={15} />, locked: false },
-    { id: 'jobs', label: 'Internal Referrals', icon: <Briefcase size={15} />, locked: !canViewJobs },
-    { id: 'webinars', label: 'Academy Events', icon: <Video size={15} />, locked: !canViewWebinars }
+    { id: 'feed', label: 'Feed', icon: <LayoutGrid size={16} />, locked: false },
+    { id: 'jobs', label: 'Referrals', icon: <Briefcase size={16} />, locked: !canViewJobs },
+    { id: 'webinars', label: 'Events', icon: <Video size={16} />, locked: !canViewWebinars }
   ]
 
+  const collegeLogo = getCollegeLogo(community.colleges)
+  const collegeName = community.colleges?.name || community.display_name || community.slug
+  const collegeShort = community.colleges?.short_name
+  const collegeLocation = [community.colleges?.location, community.colleges?.state].filter(Boolean).join(', ')
+
   return (
-    <div style={{ minHeight: '100vh', background: '#F8F9FE', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
-      <style dangerouslySetInnerHTML={{
-        __html: `
-        @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-        
-        .glass-card { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.4); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03); }
-        .tab-active { color: #7C3AED !important; font-weight: 800 !important; }
-        .tab-active::after { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 32px; height: 3px; background: #7C3AED; border-radius: 10px 10px 0 0; }
-        
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-fade { animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        
-        .post-card-hover:hover { transform: translateY(-4px); border-color: rgba(124, 58, 237, 0.3) !important; box-shadow: 0 20px 40px rgba(124, 58, 237, 0.05) !important; }
-        .stat-card-hover:hover { background: #FFFFFF !important; transform: scale(1.02); box-shadow: 0 10px 30px rgba(0,0,0,0.03); }
+    <div className="min-h-screen bg-[#F8FAFC] font-plus-jakarta-sans text-sm text-slate-800 pb-24 lg:pb-8">
+      {/* Hero */}
+      <header className="border-b border-slate-200/80 bg-white">
+        <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-br from-purple-50/80 via-white to-cyan-50/40 pointer-events-none" />
+        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 pt-6 pb-8">
+          <nav className="flex items-center gap-2 text-xs font-semibold text-slate-500 mb-6">
+            <button type="button" onClick={() => router.push('/community')} className="hover:text-[#7C3AED] transition-colors border-none bg-transparent cursor-pointer p-0">
+              Communities
+            </button>
+            <ChevronRight size={14} className="text-slate-300 shrink-0" />
+            <span className="text-slate-900 truncate">c/{community.slug}</span>
+          </nav>
 
-        @media (max-width: 768px) {
-          html, body { 
-            overflow-x: hidden !important; 
-            max-width: 100vw !important;
-            width: 100vw !important;
-          }
-          * {
-            box-sizing: border-box !important;
-          }
-          .main-layout { 
-            grid-template-columns: 1fr !important; 
-            gap: 0 !important; 
-            margin: 0 !important; 
-            padding: 0 !important; 
-            max-width: 100vw !important; 
-            width: 100vw !important;
-            overflow-x: hidden !important;
-          }
-          .right-sidebar { display: none !important; }
-          .hero-content { flex-direction: column !important; gap: 32px !important; text-align: center !important; }
-          .hero-stats { justify-content: center !important; }
-          .hero-actions { justify-content: center !important; flex-wrap: wrap !important; }
-          .mobile-fab { display: block !important; }
-          .hero-logo-box { width: 100px !important; height: 100px !important; }
-          .tab-container { overflow-x: auto !important; padding: 0 !important; }
-          .tab-btn { padding: 16px 20px !important; white-space: nowrap !important; }
-          .post-card { padding: 16px !important; border-radius: 20px !important; margin: 0 16px 16px !important; }
-          .desktop-only-btn { display: none !important; }
-          .animate-fade { 
-            width: 100vw !important; 
-            padding: 0 !important;
-            margin: 0 !important;
-            overflow-x: hidden !important;
-          }
-        }
-      `}} />
-
-      {/* ── HIGH-FIDELITY HERO ── */}
-      <div style={{ position: 'relative', background: 'linear-gradient(135deg, #0A0A0A 0%, #171717 100%)', padding: '60px 20px 48px', overflow: 'hidden' }}>
-        {/* Animated Background Mesh */}
-        <div style={{ position: 'absolute', top: '-20%', right: '-10%', width: 600, height: 600, background: 'radial-gradient(circle, rgba(124, 58, 237, 0.15) 0%, transparent 70%)', filter: 'blur(100px)', pointerEvents: 'none' }} />
-        <div style={{ position: 'absolute', bottom: '-20%', left: '-10%', width: 500, height: 500, background: 'radial-gradient(circle, rgba(6, 182, 212, 0.1) 0%, transparent 70%)', filter: 'blur(100px)', pointerEvents: 'none' }} />
-
-        <div style={{ maxWidth: 1200, margin: '0 auto', position: 'relative', zIndex: 10 }}>
-          {/* Breadcrumbs */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.4)', marginBottom: 32 }}>
-            <span onClick={() => router.push('/community')} style={{ cursor: 'pointer', transition: 'color 0.2s' }} onMouseEnter={e => e.currentTarget.style.color = '#fff'}>Communities</span>
-            <ChevronRight size={14} className="opacity-40" />
-            <span style={{ color: 'white' }}>{community.slug} hub</span>
-          </div>
-
-          <div className="hero-content" style={{ display: 'flex', alignItems: 'center', gap: 48, flexWrap: 'wrap' }}>
-            {/* College Logo/Identity */}
-            <div className="hero-logo-box" style={{ width: 120, height: 120, background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(16px)', borderRadius: 32, padding: 8, border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 24px 48px rgba(0,0,0,0.4)', flexShrink: 0 }}>
-              <div style={{
-                width: '100%',
-                height: '100%',
-                background: getCollegeLogo(community.colleges) ? 'white' : 'linear-gradient(135deg, #7C3AED, #4F46E5)',
-                borderRadius: 24,
-                padding: getCollegeLogo(community.colleges) ? 10 : 0,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                overflow: 'hidden',
-                color: 'white',
-                fontSize: 48,
-                fontWeight: 800
-              }}>
-                {getCollegeLogo(community.colleges) ? (
-                  <img
-                    src={getCollegeLogo(community.colleges)!}
-                    alt={community.colleges?.short_name || community.slug}
-                    style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-                  />
+          <div className="flex flex-col md:flex-row gap-6 md:items-start">
+            <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl border border-slate-200/80 bg-white shadow-sm p-2 shrink-0 mx-auto md:mx-0">
+              <div className={`w-full h-full rounded-xl flex items-center justify-center overflow-hidden text-3xl font-black ${collegeLogo ? 'bg-white' : 'bg-gradient-to-br from-[#7C3AED] to-[#4F46E5] text-white'}`}>
+                {collegeLogo ? (
+                  <img src={collegeLogo} alt={collegeShort || community.slug} className="w-full h-full object-contain" />
                 ) : (
                   getCollegeInitial(community.colleges)
                 )}
               </div>
             </div>
 
-            <div style={{ flex: 1, minWidth: 320 }}>
-              <div className="hero-stats" style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20, flexWrap: 'wrap' }}>
-                <div style={{ background: 'rgba(124, 58, 237, 0.15)', color: '#A78BFA', padding: '6px 16px', borderRadius: 100, fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', border: '1px solid rgba(124, 58, 237, 0.3)' }}>Official Hub</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'white', fontSize: 13, fontWeight: 600, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', padding: '6px 14px', borderRadius: 100 }}>
-                  <Users size={14} style={{ color: '#A78BFA' }} />
-                  {displayMemberCount} Members
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'white', fontSize: 13, fontWeight: 600, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', padding: '6px 14px', borderRadius: 100 }}>
-                  <Crown size={14} style={{ color: '#F59E0B' }} />
-                  {displaySeniorCount} Seniors
-                </div>
+            <div className="flex-1 min-w-0 text-center md:text-left">
+              <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 mb-3">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-purple-700 bg-purple-50 border border-purple-100 px-2.5 py-1 rounded-full">
+                  Official College Hub
+                </span>
+                <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 bg-slate-50 border border-slate-200 px-2.5 py-1 rounded-full">
+                  <Users size={13} className="text-purple-600" />
+                  {displayMemberCount} members
+                </span>
+                <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 bg-slate-50 border border-slate-200 px-2.5 py-1 rounded-full">
+                  <Crown size={13} className="text-amber-500" />
+                  {displaySeniorCount} seniors
+                </span>
               </div>
 
-              <h1 style={{ fontSize: 'clamp(28px, 5vw, 44px)', fontFamily: 'Instrument Serif, serif', color: 'white', margin: '0 0 20px', lineHeight: 1.1, letterSpacing: '-0.02em' }}>
-                {community.colleges?.name}
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-[#0F172A] tracking-tight m-0 mb-1">
+                {collegeName}
               </h1>
+              {(collegeShort || collegeLocation) && (
+                <p className="text-sm text-slate-500 font-medium m-0 mb-4 flex flex-wrap items-center justify-center md:justify-start gap-x-3 gap-y-1">
+                  {collegeShort && <span className="inline-flex items-center gap-1"><GraduationCap size={14} /> {collegeShort}</span>}
+                  {collegeLocation && <span className="inline-flex items-center gap-1"><MapPin size={14} /> {collegeLocation}</span>}
+                </p>
+              )}
+              {community.description && (
+                <p className="text-sm text-slate-600 leading-relaxed max-w-2xl mx-auto md:mx-0 mb-5 line-clamp-2">
+                  {community.description}
+                </p>
+              )}
 
-              <div className="hero-actions" style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+              <div className="flex flex-wrap items-center justify-center md:justify-start gap-2">
                 {userRole === 'guest' ? (
                   <button
+                    type="button"
                     onClick={() => router.push('/signup')}
-                    style={{
-                      background: 'linear-gradient(135deg, #7C3AED, #06B6D4)',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: 14,
-                      padding: '11px 24px',
-                      fontSize: 12,
-                      fontWeight: 800,
-                      cursor: 'pointer',
-                      boxShadow: '0 8px 16px rgba(124, 58, 237, 0.25)',
-                      transition: 'transform 0.2s'
-                    }}
-                    onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
-                    onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#7C3AED] hover:bg-purple-700 text-white text-xs font-bold border-none cursor-pointer shadow-sm transition-colors"
                   >
                     Join Community
                   </button>
                 ) : (hasJoined || isAlreadyMember) ? (
-                  <button
-                    disabled
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 8,
-                      background: 'rgba(16, 185, 129, 0.15)',
-                      border: '1px solid rgba(16, 185, 129, 0.3)',
-                      padding: '10px 20px',
-                      borderRadius: 14,
-                      fontSize: 12,
-                      fontWeight: 700,
-                      color: '#6EE7B7',
-                      cursor: 'default'
-                    }}
-                  >
+                  <span className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold">
                     <CheckCircle size={16} /> Joined
-                  </button>
+                  </span>
                 ) : (
                   <button
+                    type="button"
                     onClick={handleJoin}
                     disabled={joining}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 8,
-                      background: joining ? 'rgba(255,255,255,0.1)' : 'linear-gradient(135deg, #7C3AED, #06B6D4)',
-                      color: 'white',
-                      border: 'none',
-                      padding: '11px 24px',
-                      borderRadius: 14,
-                      fontSize: 12,
-                      fontWeight: 800,
-                      cursor: joining ? 'wait' : 'pointer',
-                      boxShadow: '0 8px 16px rgba(124, 58, 237, 0.25)',
-                      transition: 'all 0.2s',
-                      opacity: joining ? 0.7 : 1
-                    }}
-                    onMouseEnter={e => !joining && (e.currentTarget.style.transform = 'translateY(-2px)')}
-                    onMouseLeave={e => !joining && (e.currentTarget.style.transform = 'translateY(0)')}
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#7C3AED] hover:bg-purple-700 disabled:opacity-60 text-white text-xs font-bold border-none cursor-pointer shadow-sm transition-colors"
                   >
                     {joining ? (
                       <>
-                        <div style={{ width: 14, height: 14, border: '2px solid white', borderTop: '2px solid transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+                        <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                         Joining...
                       </>
                     ) : (
@@ -619,272 +565,237 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                     )}
                   </button>
                 )}
-                <button onClick={() => { fetchCommunityMembers(); setShowMembersModal(true) }} style={{ background: 'rgba(255,255,255,0.08)', color: 'white', border: '1px solid rgba(255,255,255,0.15)', padding: '10px 20px', borderRadius: 14, fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, transition: 'all 0.2s' }} onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'} onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}>
+                <button
+                  type="button"
+                  onClick={() => { fetchCommunityMembers(); setShowMembersModal(true) }}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-bold cursor-pointer transition-colors"
+                >
                   <Users size={14} /> View Members
                 </button>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </header>
 
-      {/* ── STICKY NAVIGATION ── */}
-      <div style={{ background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(24px)', borderBottom: '1px solid rgba(124,58,237,0.12)', position: 'sticky', top: 0, zIndex: 100 }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div className="tab-container" style={{ display: 'flex' }}>
-            {tabs.map(tab => (
-              <button key={tab.id} onClick={() => setActiveTab(tab.id)} disabled={tab.locked} className={`tab-btn ${activeTab === tab.id ? 'tab-active' : ''}`} style={{ padding: '16px 20px', background: 'none', border: 'none', color: tab.locked ? '#CBD5E1' : '#64748B', fontSize: 13, fontWeight: 700, cursor: tab.locked ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: 8, position: 'relative', transition: 'all 0.2s' }}>
-                {tab.icon} {tab.label} {tab.locked && <Lock size={12} />}
+      {/* Tabs */}
+      <div className="sticky top-14 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200/80 shadow-sm">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="flex gap-1 overflow-x-auto scrollbar-hide -mb-px">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => !tab.locked && setActiveTab(tab.id)}
+                disabled={tab.locked}
+                className={`relative flex items-center gap-2 px-4 py-3.5 text-xs font-bold whitespace-nowrap border-none bg-transparent transition-colors ${
+                  tab.locked
+                    ? 'text-slate-300 cursor-not-allowed'
+                    : activeTab === tab.id
+                      ? 'text-[#7C3AED] cursor-pointer'
+                      : 'text-slate-500 hover:text-slate-800 cursor-pointer'
+                }`}
+              >
+                {tab.icon}
+                {tab.label}
+                {tab.locked && <Lock size={12} />}
+                {activeTab === tab.id && !tab.locked && (
+                  <span className="absolute bottom-0 left-2 right-2 h-0.5 bg-[#7C3AED] rounded-full" />
+                )}
               </button>
             ))}
           </div>
         </div>
       </div>
 
-      {/* ── PREMIUM CONTENT GRID ── */}
-      <div className="main-layout" style={{ maxWidth: 1200, margin: '32px auto', padding: '0 20px', display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 340px', gap: 32 }}>
-
-        {/* Left Section (Dynamic Content) */}
-        <div className="animate-fade">
+      {/* Main grid */}
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 lg:py-8 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_300px] gap-6 lg:gap-8">
+        <div className="min-w-0 space-y-6">
           {activeTab === 'feed' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+            <div className="space-y-4">
               {canPost && (
                 <button
+                  type="button"
                   onClick={() => setShowPostModal(true)}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: 8,
-                    background: 'linear-gradient(135deg, #7C3AED, #06B6D4)',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: 16,
-                    padding: '14px 20px',
-                    fontSize: 13,
-                    fontWeight: 800,
-                    cursor: 'pointer',
-                    boxShadow: '0 8px 20px rgba(124, 58, 237, 0.2)'
-                  }}
+                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-[#7C3AED] hover:bg-purple-700 text-white text-xs font-bold border-none cursor-pointer shadow-sm transition-colors"
                 >
                   <MessageSquarePlus size={16} /> Create Post
                 </button>
               )}
               {(hasJoined || isAlreadyMember) && !canPost && userRole !== 'guest' && (
-                <div style={{ padding: '12px 16px', borderRadius: 14, background: '#F5F3FF', border: '1px solid #DDD6FE', fontSize: 12, color: '#5B21B6', fontWeight: 600 }}>
-                  You joined this community as a member. You can view posts and get updates, but only students from this college can post here.
+                <div className="px-4 py-3 rounded-xl bg-purple-50 border border-purple-100 text-xs font-semibold text-purple-800 leading-relaxed">
+                  You joined as a member. You can view posts and updates; only students from this college can post here.
                 </div>
               )}
               {posts.length > 0 ? (
                 posts.map((post: any) => {
                   const s = getTypeStyle(post.type)
                   return (
-                    <div key={post.id} onClick={() => router.push(`/community/c/${community.slug}/p/${post.id}`)} className="glass-card post-card post-card-hover" style={{ padding: 20, borderRadius: 24, cursor: 'pointer', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)', border: '1px solid #F1F5F9' }}>
-                      {/* Interaction Bar Top */}
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                          <div
+                    <article
+                      key={post.id}
+                      onClick={() => router.push(`/community/c/${community.slug}/p/${post.id}`)}
+                      className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-4 sm:p-5 cursor-pointer hover:border-purple-200 hover:shadow-md transition-all"
+                    >
+                      <div className="flex items-start justify-between gap-3 mb-3">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <button
+                            type="button"
                             onClick={(e) => {
-                              e.stopPropagation();
-                              router.push(`/u/${post.users?.unique_id}`);
+                              e.stopPropagation()
+                              router.push(`/u/${post.users?.unique_id}`)
                             }}
-                            style={{
-                              width: 36, height: 36,
-                              borderRadius: 10,
-                              background: post.users?.avatar_url
-                                ? 'transparent'
-                                : (post.users?.role === 'senior' ? 'linear-gradient(135deg, #10B981, #34D399)' : 'linear-gradient(135deg, #7C3AED, #06B6D4)'),
-                              color: 'white',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              fontSize: 13,
-                              fontWeight: 800,
-                              boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
-                              overflow: 'hidden',
-                              cursor: 'pointer'
-                            }}
+                            className={`w-10 h-10 rounded-xl shrink-0 overflow-hidden flex items-center justify-center text-sm font-bold text-white border-none cursor-pointer ${
+                              post.users?.avatar_url
+                                ? 'bg-slate-100'
+                                : post.users?.role === 'senior'
+                                  ? 'bg-gradient-to-br from-emerald-500 to-teal-400'
+                                  : 'bg-gradient-to-br from-[#7C3AED] to-indigo-500'
+                            }`}
                           >
                             {post.users?.avatar_url ? (
-                              <img src={post.users.avatar_url} alt={post.users.full_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                              <img src={post.users.avatar_url} alt="" className="w-full h-full object-cover" />
                             ) : (
                               post.users?.full_name?.[0]
                             )}
-                          </div>
-                          <div>
-                            <div
+                          </button>
+                          <div className="min-w-0">
+                            <button
+                              type="button"
                               onClick={(e) => {
-                                e.stopPropagation();
-                                router.push(`/u/${post.users?.unique_id}`);
+                                e.stopPropagation()
+                                router.push(`/u/${post.users?.unique_id}`)
                               }}
-                              style={{ fontSize: 14, fontWeight: 800, color: '#0F172A', display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}
-                              className="hover:text-purple-600 transition-colors"
+                              className="text-sm font-bold text-slate-900 hover:text-[#7C3AED] flex items-center gap-1.5 border-none bg-transparent cursor-pointer p-0 truncate max-w-full"
                             >
                               {post.users?.full_name}
-                              {post.users?.role === 'senior' && <Crown size={12} color="#F59E0B" />}
-                            </div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 1, flexWrap: 'wrap' }}>
+                              {post.users?.role === 'senior' && <Crown size={12} className="text-amber-500 shrink-0" />}
+                            </button>
+                            <div className="flex flex-wrap items-center gap-1.5 mt-0.5">
                               {post.is_network_post && (
-                                <span style={{ fontSize: 10, fontWeight: 800, color: '#7C3AED', background: '#F5F3FF', padding: '2px 8px', borderRadius: 100, border: '1px solid #DDD6FE', textTransform: 'uppercase' }}>Network</span>
+                                <span className="text-[9px] font-bold uppercase text-purple-700 bg-purple-50 border border-purple-100 px-2 py-0.5 rounded-full">Network</span>
                               )}
-                              <span style={{ fontSize: 10, fontWeight: 800, color: s.color, background: s.bg, padding: '2px 8px', borderRadius: 100, border: `1px solid ${s.border}`, textTransform: 'uppercase' }}>{s.label}</span>
-                              <span style={{ fontSize: 10, color: '#94A3B8', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
+                              <span className="text-[9px] font-bold uppercase px-2 py-0.5 rounded-full border" style={{ color: s.color, background: s.bg, borderColor: s.border }}>{s.label}</span>
+                              <span className="text-[10px] text-slate-400 font-semibold inline-flex items-center gap-1">
                                 <Clock size={10} /> {timeAgo(post.created_at)}
                               </span>
                             </div>
                           </div>
                         </div>
-                        <button style={{ background: 'none', border: 'none', color: '#CBD5E1', cursor: 'pointer' }}><MoreHorizontal size={18} /></button>
+                        <button type="button" onClick={(e) => e.stopPropagation()} className="text-slate-300 hover:text-slate-500 border-none bg-transparent cursor-pointer p-1 shrink-0">
+                          <MoreHorizontal size={18} />
+                        </button>
                       </div>
 
-                      {/* Content Section */}
-                      <div>
-                        {post.title && (
-                          <h2 style={{ fontSize: 18, fontWeight: 800, color: '#0F172A', marginBottom: 10, lineHeight: 1.35, letterSpacing: '-0.01em' }}>{post.title}</h2>
-                        )}
-                        <p style={{ fontSize: 14, color: '#475569', lineHeight: 1.6, marginBottom: 20, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{post.content}</p>
-                        {post.image_url && (
-                          <div style={{
-                            borderRadius: 12,
-                            overflow: 'hidden',
-                            marginBottom: 20,
-                            border: '1px solid #F1F5F9'
-                          }}>
-                            <img
-                              src={post.image_url}
-                              alt="Post"
-                              style={{
-                                width: '100%',
-                                maxHeight: 320,
-                                objectFit: 'cover',
-                                display: 'block'
-                              }}
-                              onClick={e => {
-                                e.stopPropagation()
-                                window.open(post.image_url, '_blank')
-                              }}
-                            />
-                          </div>
-                        )}
-                      </div>
+                      {post.title && (
+                        <h2 className="text-base sm:text-lg font-extrabold text-slate-900 m-0 mb-2 leading-snug">{post.title}</h2>
+                      )}
+                      <div className="text-sm text-slate-600 leading-relaxed line-clamp-3 mb-3">{convertUrlsToLinks(post.content)}</div>
+                      <PostImageCarousel imageUrls={post.image_url} />
 
-                      {/* Engagement Bar */}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 16, paddingTop: 16, borderTop: '1px solid #F1F5F9' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#64748B', fontSize: 11, fontWeight: 700 }}>
-                          <div style={{ width: 26, height: 26, borderRadius: 8, background: '#F5F3FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><ArrowUp size={13} color="#7C3AED" /></div>
-                          {post.upvote_count} <span style={{ fontWeight: 600, opacity: 0.6, fontSize: 10 }}>upvotes</span>
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#64748B', fontSize: 11, fontWeight: 700 }}>
-                          <div style={{ width: 26, height: 26, borderRadius: 8, background: '#F0FDFA', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><MessageSquarePlus size={13} color="#0D9488" /></div>
-                          {post.answer_count} <span style={{ fontWeight: 600, opacity: 0.6, fontSize: 10 }}>responses</span>
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#64748B', fontSize: 11, fontWeight: 700 }}>
-                          <Activity size={12} className="opacity-40" />
-                          {post.view_count || 0} <span style={{ fontWeight: 600, opacity: 0.6, fontSize: 10 }}>reads</span>
-                        </div>
-                        <button style={{ marginLeft: 'auto', background: 'none', border: 'none', color: '#94A3B8', cursor: 'pointer' }}><Share2 size={15} /></button>
+                      <div className="flex flex-wrap items-center gap-4 pt-3 mt-3 border-t border-slate-100 text-xs font-semibold text-slate-500">
+                        <span className="inline-flex items-center gap-1.5">
+                          <ArrowUp size={14} className="text-purple-600" />
+                          {post.upvote_count ?? 0} upvotes
+                        </span>
+                        <span className="inline-flex items-center gap-1.5">
+                          <MessageSquarePlus size={14} className="text-teal-600" />
+                          {post.answer_count ?? 0} replies
+                        </span>
+                        <span className="inline-flex items-center gap-1.5">
+                          <Activity size={14} className="opacity-50" />
+                          {post.view_count || 0} views
+                        </span>
+                        <button type="button" onClick={(e) => e.stopPropagation()} className="ml-auto text-slate-400 hover:text-slate-600 border-none bg-transparent cursor-pointer p-1">
+                          <Share2 size={15} />
+                        </button>
                       </div>
-                    </div>
+                    </article>
                   )
                 })
               ) : (
-                <div style={{ textAlign: 'center', padding: '100px 32px', background: 'white', borderRadius: 32, border: '1px solid #F1F5F9' }}>
-                  <div style={{ width: 80, height: 80, background: '#F5F3FF', borderRadius: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px', color: '#7C3AED' }}>
-                    <MessageSquare size={40} />
+                <div className="text-center py-16 px-6 bg-white rounded-2xl border border-slate-200/80">
+                  <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-purple-50 flex items-center justify-center text-[#7C3AED]">
+                    <MessageSquare size={32} />
                   </div>
-                  <h3 style={{ fontSize: 20, fontWeight: 800, color: '#0F172A', marginBottom: 12 }}>Silent Campus</h3>
-                  <p style={{ color: '#64748B', maxWidth: 300, margin: '0 auto', fontSize: 15, lineHeight: 1.5 }}>Be the visionary to spark the first conversation in your university community.</p>
+                  <h3 className="text-lg font-extrabold text-slate-900 m-0 mb-2">No posts yet</h3>
+                  <p className="text-sm text-slate-500 max-w-sm mx-auto m-0 leading-relaxed">Be the first to start a conversation in your college community.</p>
                 </div>
               )}
             </div>
           )}
 
           {activeTab === 'jobs' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+            <div className="space-y-4">
               {canViewJobs ? (
                 <>
                   {jobs && jobs.length > 0 ? (
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 24 }}>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {jobs.map((job: any) => (
-                        <div key={job.id} className="glass-card post-card-hover" style={{ padding: 24, borderRadius: 28, background: 'white', border: '1px solid #F1F5F9', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)' }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
-                            <div style={{ width: 48, height: 48, background: '#F8FAFC', borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, border: '1px solid #F1F5F9' }}>
+                        <article key={job.id} className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5 hover:border-purple-200 hover:shadow-md transition-all">
+                          <div className="flex justify-between items-start gap-3 mb-4">
+                            <div className="w-12 h-12 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-2xl shrink-0">
                               🏢
                             </div>
                             {job.referral_available && (
-                              <div style={{ background: '#ECFDF5', color: '#059669', padding: '4px 12px', borderRadius: 100, fontSize: 10, fontWeight: 800, border: '1px solid #A7F3D0', textTransform: 'uppercase' }}>
-                                Referral Active
-                              </div>
+                              <span className="text-[9px] font-bold uppercase text-emerald-700 bg-emerald-50 border border-emerald-100 px-2.5 py-1 rounded-full shrink-0">
+                                Referral active
+                              </span>
                             )}
                           </div>
 
-                          <h3 style={{ fontSize: 18, fontWeight: 800, color: '#0F172A', margin: '0 0 4px', letterSpacing: '-0.01em' }}>{job.role}</h3>
-                          <p style={{ fontSize: 14, fontWeight: 700, color: '#64748B', marginBottom: 16 }}>{job.company_name}</p>
+                          <h3 className="text-base font-extrabold text-slate-900 m-0 mb-0.5 leading-snug">{job.role}</h3>
+                          <p className="text-sm font-semibold text-slate-500 m-0 mb-4">{job.company_name}</p>
 
-                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 24 }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, fontWeight: 600, color: '#64748B', background: '#F8FAFC', padding: '4px 10px', borderRadius: 8 }}>
-                              <MapPin size={12} /> {job.location || 'Remote'}
-                            </div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, fontWeight: 600, color: '#64748B', background: '#F8FAFC', padding: '4px 10px', borderRadius: 8 }}>
-                              <Clock size={12} /> {job.job_type?.replace('_', ' ')}
-                            </div>
+                          <div className="flex flex-wrap gap-2 mb-5">
+                            <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-slate-600 bg-slate-50 px-2.5 py-1 rounded-lg">
+                              <MapPin size={12} className="opacity-60" /> {job.location || 'Remote'}
+                            </span>
+                            <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-slate-600 bg-slate-50 px-2.5 py-1 rounded-lg">
+                              <Clock size={12} className="opacity-60" /> {job.job_type?.replace('_', ' ')}
+                            </span>
                             {job.salary_range && (
-                              <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, fontWeight: 600, color: '#64748B', background: '#F8FAFC', padding: '4px 10px', borderRadius: 8 }}>
-                                <DollarSign size={12} /> {job.salary_range}
-                              </div>
+                              <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-slate-600 bg-slate-50 px-2.5 py-1 rounded-lg">
+                                <DollarSign size={12} className="opacity-60" /> {job.salary_range}
+                              </span>
                             )}
                           </div>
 
-                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+                          <div className="flex gap-2">
                             <a
                               href={job.description}
                               target="_blank"
                               rel="noopener noreferrer"
-                              style={{ flex: 1, textAlign: 'center', background: '#F5F3FF', color: '#7C3AED', textDecoration: 'none', padding: '12px', borderRadius: 14, fontSize: 13, fontWeight: 800, transition: 'all 0.2s' }}
-                              onMouseEnter={e => e.currentTarget.style.background = '#EDE9FE'}
-                              onMouseLeave={e => e.currentTarget.style.background = '#F5F3FF'}
+                              className="flex-1 text-center py-2.5 rounded-xl bg-purple-50 hover:bg-purple-100 text-[#7C3AED] text-xs font-bold no-underline transition-colors"
                             >
-                              View Details
+                              View details
                             </a>
-                            <button
-                              onClick={() => {
-                                if (userRole === 'other_college') {
-                                  setShowPremiumModal(true)
-                                } else {
-                                  setSelectedJob(job)
-                                  setReferralConfirmOpen(true)
-                                }
-                              }}
-                              style={{
-                                flex: 1,
-                                background: 'linear-gradient(135deg, #7C3AED, #06B6D4)',
-                                color: 'white',
-                                border: 'none',
-                                padding: '12px',
-                                borderRadius: 14,
-                                fontSize: 13,
-                                fontWeight: 800,
-                                cursor: 'pointer',
-                                boxShadow: '0 8px 16px rgba(124, 58, 237, 0.15)',
-                                transition: 'transform 0.2s',
-                                display: currentUser?.id === job.posted_by ? 'none' : 'block'
-                              }}
-                              onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
-                              onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
-                            >
-                              Get Referral
-                            </button>
+                            {currentUser?.id !== job.posted_by && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (userRole === 'other_college') {
+                                    setShowPremiumModal(true)
+                                  } else {
+                                    setSelectedJob(job)
+                                    setReferralConfirmOpen(true)
+                                  }
+                                }}
+                                className="flex-1 py-2.5 rounded-xl bg-[#7C3AED] hover:bg-purple-700 text-white text-xs font-bold border-none cursor-pointer transition-colors"
+                              >
+                                Get referral
+                              </button>
+                            )}
                           </div>
-                        </div>
+                        </article>
                       ))}
                     </div>
                   ) : (
-                    <div style={{ textAlign: 'center', padding: '100px 32px', background: 'white', borderRadius: 32, border: '1px solid #F1F5F9' }}>
-                      <div style={{ width: 80, height: 80, background: '#ECFDF5', borderRadius: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px', color: '#10B981' }}>
-                        <Briefcase size={40} />
+                    <div className="text-center py-16 px-6 bg-white rounded-2xl border border-slate-200/80">
+                      <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600">
+                        <Briefcase size={32} />
                       </div>
-                      <h3 style={{ fontSize: 20, fontWeight: 800, color: '#0F172A', marginBottom: 12 }}>Seeking Opportunities</h3>
-                      <p style={{ color: '#64748B', maxWidth: 300, margin: '0 auto', fontSize: 15, lineHeight: 1.5 }}>Internal referrals from seniors and alumni will appear here once posted.</p>
+                      <h3 className="text-lg font-extrabold text-slate-900 m-0 mb-2">Seeking opportunities</h3>
+                      <p className="text-sm text-slate-500 max-w-sm mx-auto m-0 leading-relaxed">Internal referrals from seniors and alumni will appear here once posted.</p>
                     </div>
                   )}
                 </>
@@ -895,14 +806,14 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
           )}
 
           {activeTab === 'webinars' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+            <div className="space-y-4">
               {canViewWebinars ? (
-                <div style={{ textAlign: 'center', padding: '100px 32px', background: 'white', borderRadius: 32, border: '1px solid #F1F5F9' }}>
-                  <div style={{ width: 80, height: 80, background: '#FEF2F2', borderRadius: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px', color: '#EF4444' }}>
-                    <Video size={40} />
+                <div className="text-center py-16 px-6 bg-white rounded-2xl border border-slate-200/80">
+                  <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-red-50 flex items-center justify-center text-red-500">
+                    <Video size={32} />
                   </div>
-                  <h3 style={{ fontSize: 20, fontWeight: 800, color: '#0F172A', marginBottom: 12 }}>Academy Live</h3>
-                  <p style={{ color: '#64748B', maxWidth: 300, margin: '0 auto', fontSize: 15, lineHeight: 1.5 }}>Live expert sessions and alumni workshops are currently being curated for your campus.</p>
+                  <h3 className="text-lg font-extrabold text-slate-900 m-0 mb-2">Academy Live</h3>
+                  <p className="text-sm text-slate-500 max-w-sm mx-auto m-0 leading-relaxed">Live expert sessions and alumni workshops are being curated for your campus.</p>
                 </div>
               ) : (
                 <LockScreen title="Claspire Academy Locked" description="Unlock live career masterclasses, alumni webinars, and doubt-clearing sessions." userRole={userRole} ctaText="Enter Academy" ctaAction={() => router.push('/onboarding')} />
@@ -910,33 +821,18 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
             </div>
           )}
 
-          {/* ── STUDENT GROUPS SECTION ── */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 24, padding: '0 16px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          {/* Student Groups */}
+          <section className="space-y-4 pt-2">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div>
-                <h2 style={{ fontSize: 24, fontWeight: 800, color: '#0F172A', margin: 0, fontFamily: 'Instrument Serif, serif' }}>Student Groups</h2>
-                <p style={{ color: '#64748B', fontSize: 14, margin: '4px 0 0' }}>Join student-created groups for focused discussions</p>
+                <h2 className="text-lg font-extrabold text-slate-900 m-0">Student Groups</h2>
+                <p className="text-sm text-slate-500 font-medium mt-1 m-0">Focused discussions within your campus</p>
               </div>
               {currentUser && isUserCollege && (
                 <button
+                  type="button"
                   onClick={() => setShowCreateGroupModal(true)}
-                  style={{
-                    background: 'linear-gradient(135deg, #7C3AED, #06B6D4)',
-                    color: 'white',
-                    border: 'none',
-                    padding: '10px 20px',
-                    borderRadius: 14,
-                    fontSize: 12,
-                    fontWeight: 800,
-                    cursor: 'pointer',
-                    boxShadow: '0 8px 16px rgba(124, 58, 237, 0.25)',
-                    transition: 'transform 0.2s',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 8
-                  }}
-                  onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
-                  onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#7C3AED] hover:bg-purple-700 text-white text-xs font-bold border-none cursor-pointer shadow-sm transition-colors shrink-0"
                 >
                   <Users size={16} />
                   Create Group
@@ -945,417 +841,231 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
             </div>
 
             {groupsLoading ? (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 20 }}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {[1, 2, 3].map((i) => (
-                  <div key={i} style={{ background: 'white', borderRadius: 24, border: '1px solid #F1F5F9', padding: 20 }}>
-                    <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
-                      <div style={{ width: 40, height: 40, background: '#F1F5F9', borderRadius: 12, animation: 'pulse 2s infinite' }} />
-                      <div style={{ flex: 1 }}>
-                        <div style={{ width: '60%', height: 16, background: '#F1F5F9', borderRadius: 8, marginBottom: 8, animation: 'pulse 2s infinite' }} />
-                        <div style={{ width: '40%', height: 12, background: '#F1F5F9', borderRadius: 6, animation: 'pulse 2s infinite' }} />
+                  <div key={i} className="bg-white rounded-2xl border border-slate-200/80 p-5 animate-pulse">
+                    <div className="flex gap-3 mb-4">
+                      <div className="w-11 h-11 rounded-full bg-slate-100 shrink-0" />
+                      <div className="flex-1 space-y-2">
+                        <div className="h-3.5 w-3/5 rounded bg-slate-100" />
+                        <div className="h-2.5 w-2/5 rounded bg-slate-100" />
                       </div>
                     </div>
-                    <div style={{ width: '100%', height: 12, background: '#F1F5F9', borderRadius: 6, marginBottom: 12, animation: 'pulse 2s infinite' }} />
-                    <div style={{ width: '80%', height: 12, background: '#F1F5F9', borderRadius: 6, animation: 'pulse 2s infinite' }} />
+                    <div className="h-3 w-full rounded bg-slate-100 mb-2" />
+                    <div className="h-3 w-4/5 rounded bg-slate-100" />
                   </div>
                 ))}
               </div>
             ) : studentGroups.length > 0 ? (
-              <div style={{ 
-                display: 'grid', 
-                gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', 
-                gap: '16px'
-              }}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {studentGroups.map((group: any) => (
-                  <div key={group.id} className="glass-card post-card-hover" style={{ 
-                    padding: '16px', 
-                    borderRadius: '20px', 
-                    background: 'linear-gradient(to right, #F8FAFC, #FFFFFF)', 
-                    border: '1px solid #F1F5F9', 
-                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)', 
-                    cursor: 'pointer'
-                  }} onClick={() => router.push(`/community/c/${slug}/group/${group.slug}`)}>
-                    {/* Creator Profile Section */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '14px' }}>
-                      <div style={{ position: 'relative', flexShrink: 0 }}>
-                        <div style={{
-                          width: '44px',
-                          height: '44px',
-                          borderRadius: '50%',
-                          background: 'linear-gradient(135deg, #7C3AED, #06B6D4)',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          color: 'white',
-                          fontSize: '14px',
-                          fontWeight: 800,
-                          overflow: 'hidden',
-                          border: '2px solid #F1F5F9'
-                        }}>
+                  <article
+                    key={group.id}
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => router.push(`/community/c/${slug}/group/${group.slug}`)}
+                    onKeyDown={(e) => e.key === 'Enter' && router.push(`/community/c/${slug}/group/${group.slug}`)}
+                    className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-4 sm:p-5 cursor-pointer hover:border-purple-200 hover:shadow-md transition-all"
+                  >
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="relative shrink-0">
+                        <div className="w-11 h-11 rounded-full overflow-hidden flex items-center justify-center text-sm font-bold text-white border-2 border-slate-100 bg-gradient-to-br from-[#7C3AED] to-cyan-500">
                           {group.creator?.avatar_url ? (
-                            <img 
-                              src={group.creator.avatar_url} 
-                              alt={group.creator.full_name || 'Admin'} 
-                              style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-                            />
+                            <img src={group.creator.avatar_url} alt="" className="w-full h-full object-cover" />
                           ) : (
                             group.creator?.full_name?.[0] || 'A'
                           )}
                         </div>
                         {group.creator?.role === 'senior' && (
-                          <div style={{
-                            position: 'absolute',
-                            bottom: '-2px',
-                            right: '-2px',
-                            width: '14px',
-                            height: '14px',
-                            background: '#F59E0B',
-                            borderRadius: '50%',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            border: '2px solid white'
-                          }}>
-                            <Crown size={8} color="white" />
-                          </div>
+                          <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-amber-500 rounded-full flex items-center justify-center border-2 border-white">
+                            <Crown size={8} className="text-white" />
+                          </span>
                         )}
                       </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
-                          <p style={{ 
-                            fontSize: '13px', 
-                            fontWeight: 700, 
-                            color: '#0F172A', 
-                            margin: 0, 
-                            whiteSpace: 'nowrap', 
-                            overflow: 'hidden', 
-                            textOverflow: 'ellipsis'
-                          }}>
-                            {group.creator?.full_name || 'Group Admin'}
-                          </p>
-                          <span style={{ 
-                            fontSize: '9px', 
-                            background: group.creator?.role === 'senior' ? '#FEF3C7' : '#F5F3FF', 
-                            color: group.creator?.role === 'senior' ? '#D97706' : '#7C3AED',
-                            padding: '2px 4px',
-                            borderRadius: '3px',
-                            fontWeight: 600,
-                            textTransform: 'uppercase'
-                          }}>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <p className="text-sm font-bold text-slate-900 m-0 truncate">{group.creator?.full_name || 'Group Admin'}</p>
+                          <span className={`text-[9px] font-bold uppercase px-1.5 py-0.5 rounded shrink-0 ${
+                            group.creator?.role === 'senior' ? 'bg-amber-50 text-amber-700' : 'bg-purple-50 text-purple-700'
+                          }`}>
                             {group.creator?.role === 'senior' ? 'Senior' : 'Admin'}
                           </span>
                         </div>
-                        <p style={{ 
-                          fontSize: '10px', 
-                          color: '#64748B', 
-                          margin: 0,
-                          fontWeight: 500
-                        }}>
-                          Created {new Date(group.created_at).toLocaleDateString('en-US', { 
-                            month: 'short', 
-                            day: 'numeric', 
-                            year: 'numeric' 
-                          })}
+                        <p className="text-[10px] text-slate-400 font-medium m-0 mt-0.5">
+                          Created {new Date(group.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                         </p>
                       </div>
                     </div>
 
-                    {/* Group Content */}
-                    <div style={{ marginBottom: '12px' }}>
-                      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '8px', gap: '8px' }}>
-                        <h3 style={{ 
-                          fontSize: '16px', 
-                          fontWeight: 800, 
-                          color: '#0F172A', 
-                          margin: 0, 
-                          lineHeight: 1.2,
-                          flex: 1
-                        }}>
-                          {group.name}
-                        </h3>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexShrink: 0 }}>
-                          {group.scope === 'private' || group.is_private ? (
-                            <Lock size={14} style={{ color: '#D97706' }} />
-                          ) : group.scope === 'college' ? (
-                            <GraduationCap size={14} style={{ color: '#6366F1' }} />
-                          ) : (
-                            <Globe size={14} style={{ color: '#10B981' }} />
-                          )}
-                        </div>
+                    <div className="mb-3">
+                      <div className="flex items-start justify-between gap-2 mb-1.5">
+                        <h3 className="text-base font-extrabold text-slate-900 m-0 leading-snug flex-1">{group.name}</h3>
+                        {(group.scope === 'private' || group.is_private) ? (
+                          <Lock size={14} className="text-amber-600 shrink-0" />
+                        ) : group.scope === 'college' ? (
+                          <GraduationCap size={14} className="text-indigo-500 shrink-0" />
+                        ) : (
+                          <Globe size={14} className="text-emerald-500 shrink-0" />
+                        )}
                       </div>
-                      <p style={{ 
-                        fontSize: '12px', 
-                        color: '#475569', 
-                        lineHeight: 1.4, 
-                        margin: 0, 
-                        display: '-webkit-box', 
-                        WebkitLineClamp: 2, 
-                        WebkitBoxOrient: 'vertical', 
-                        overflow: 'hidden'
-                      }}>
+                      <p className="text-xs text-slate-600 m-0 line-clamp-2 leading-relaxed">
                         {group.description || 'No description provided'}
                       </p>
                     </div>
 
-                    {/* Stats and Tags */}
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px', flexWrap: 'wrap', gap: '8px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11px', color: '#64748B' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
-                          <Users size={12} />
-                          <span style={{ fontWeight: 500 }}>{group.member_count} members</span>
-                        </div>
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
-                        {(group.scope === 'private' || group.is_private) ? (
-                          <span style={{ 
-                            display: 'flex', 
-                            alignItems: 'center', 
-                            gap: '3px', 
-                            fontSize: '9px', 
-                            color: '#D97706', 
-                            background: '#FEF3C7', 
-                            padding: '3px 6px', 
-                            borderRadius: '6px', 
-                            fontWeight: 600
-                          }}>
-                            <Lock size={8} /> Private
-                          </span>
-                        ) : group.scope === 'college' ? (
-                          <span style={{ 
-                            display: 'flex', 
-                            alignItems: 'center', 
-                            gap: '3px', 
-                            fontSize: '9px', 
-                            color: '#6366F1', 
-                            background: '#EEF2FF', 
-                            padding: '3px 6px', 
-                            borderRadius: '6px', 
-                            fontWeight: 600
-                          }}>
-                            <GraduationCap size={8} /> College Only
-                          </span>
-                        ) : (
-                          <span style={{ 
-                            display: 'flex', 
-                            alignItems: 'center', 
-                            gap: '3px', 
-                            fontSize: '9px', 
-                            color: '#10B981', 
-                            background: '#ECFDF5', 
-                            padding: '3px 6px', 
-                            borderRadius: '6px', 
-                            fontWeight: 600
-                          }}>
-                            <Globe size={8} /> Public
-                          </span>
-                        )}
-                      </div>
+                    <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
+                      <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-500">
+                        <Users size={12} /> {group.member_count} members
+                      </span>
+                      {(group.scope === 'private' || group.is_private) ? (
+                        <span className="inline-flex items-center gap-1 text-[9px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md">
+                          <Lock size={8} /> Private
+                        </span>
+                      ) : group.scope === 'college' ? (
+                        <span className="inline-flex items-center gap-1 text-[9px] font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-md">
+                          <GraduationCap size={8} /> College only
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 text-[9px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md">
+                          <Globe size={8} /> Public
+                        </span>
+                      )}
                     </div>
 
-                    {/* Join/Visit Button */}
                     <button
+                      type="button"
                       onClick={(e) => {
                         e.stopPropagation()
                         router.push(`/community/c/${slug}/group/${group.slug}`)
                       }}
-                      style={{
-                        width: '100%',
-                        background: group.is_joined
-                          ? 'linear-gradient(135deg, #10B981, #059669)'
-                          : 'linear-gradient(135deg, #7C3AED, #06B6D4)',
-                        color: 'white',
-                        border: 'none',
-                        padding: '10px',
-                        borderRadius: '10px',
-                        fontSize: '12px',
-                        fontWeight: 700,
-                        cursor: 'pointer',
-                        transition: 'all 0.2s',
-                        boxShadow: group.is_joined
-                          ? '0 4px 12px rgba(16, 185, 129, 0.2)'
-                          : '0 4px 12px rgba(124, 58, 237, 0.2)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '6px'
-                      }}
-                      onMouseEnter={e => {
-                        e.currentTarget.style.transform = 'translateY(-2px)'
-                        e.currentTarget.style.boxShadow = group.is_joined
-                          ? '0 6px 20px rgba(16, 185, 129, 0.3)'
-                          : '0 6px 20px rgba(124, 58, 237, 0.3)'
-                      }}
-                      onMouseLeave={e => {
-                        e.currentTarget.style.transform = 'translateY(0)'
-                        e.currentTarget.style.boxShadow = group.is_joined
-                          ? '0 4px 12px rgba(16, 185, 129, 0.2)'
-                          : '0 4px 12px rgba(124, 58, 237, 0.2)'
-                      }}
+                      className={`w-full py-2.5 rounded-xl text-xs font-bold border-none cursor-pointer flex items-center justify-center gap-1.5 transition-colors ${
+                        group.is_joined
+                          ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                          : 'bg-[#7C3AED] hover:bg-purple-700 text-white'
+                      }`}
                     >
                       {group.is_joined ? (
-                        <><CheckCircle size={14} /> Visit Group</>
+                        <><CheckCircle size={14} /> Visit group</>
                       ) : (
-                        'Join Group'
+                        'Join group'
                       )}
                     </button>
-                  </div>
+                  </article>
                 ))}
               </div>
             ) : (
-              <div style={{ textAlign: 'center', padding: '80px 32px', background: 'white', borderRadius: 32, border: '1px solid #F1F5F9' }}>
-                <div style={{ width: 80, height: 80, background: '#F5F3FF', borderRadius: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px', color: '#7C3AED' }}>
-                  <Users size={40} />
+              <div className="text-center py-16 px-6 bg-white rounded-2xl border border-slate-200/80">
+                <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-purple-50 flex items-center justify-center text-[#7C3AED]">
+                  <Users size={32} />
                 </div>
-                <h3 style={{ fontSize: 20, fontWeight: 800, color: '#0F172A', marginBottom: 12 }}>No Groups Yet</h3>
-                <p style={{ color: '#64748B', maxWidth: 300, margin: '0 auto 24px', fontSize: 15, lineHeight: 1.5 }}>
-                  Be the first to create a student group in your community!
+                <h3 className="text-lg font-extrabold text-slate-900 m-0 mb-2">No groups yet</h3>
+                <p className="text-sm text-slate-500 max-w-sm mx-auto m-0 mb-6 leading-relaxed">
+                  Be the first to create a student group in your community.
                 </p>
                 {currentUser && isUserCollege ? (
                   <button
+                    type="button"
                     onClick={() => setShowCreateGroupModal(true)}
-                    style={{
-                      background: 'linear-gradient(135deg, #7C3AED, #06B6D4)',
-                      color: 'white',
-                      border: 'none',
-                      padding: '12px 24px',
-                      borderRadius: 16,
-                      fontSize: 13,
-                      fontWeight: 800,
-                      cursor: 'pointer',
-                      boxShadow: '0 8px 16px rgba(124, 58, 237, 0.25)',
-                      transition: 'transform 0.2s',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: 8
-                    }}
-                    onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
-                    onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#7C3AED] hover:bg-purple-700 text-white text-xs font-bold border-none cursor-pointer transition-colors"
                   >
                     <Users size={16} />
-                    Create First Group
+                    Create first group
                   </button>
                 ) : currentUser ? (
-                  <div style={{ textAlign: 'center', padding: '20px', background: '#F8FAFC', borderRadius: 12, border: '1px solid #E2E8F0' }}>
-                    <p style={{ color: '#64748B', fontSize: 14, margin: 0 }}>
+                  <div className="max-w-sm mx-auto px-4 py-3 rounded-xl bg-slate-50 border border-slate-200">
+                    <p className="text-sm text-slate-500 m-0">
                       Only students from {data?.community?.colleges?.name || 'this college'} can create groups here.
                     </p>
                   </div>
                 ) : (
                   <button
+                    type="button"
                     onClick={() => router.push('/signup')}
-                    style={{
-                      background: 'linear-gradient(135deg, #7C3AED, #06B6D4)',
-                      color: 'white',
-                      border: 'none',
-                      padding: '12px 24px',
-                      borderRadius: 16,
-                      fontSize: 13,
-                      fontWeight: 800,
-                      cursor: 'pointer',
-                      boxShadow: '0 8px 16px rgba(124, 58, 237, 0.25)',
-                      transition: 'transform 0.2s'
-                    }}
-                    onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
-                    onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#7C3AED] hover:bg-purple-700 text-white text-xs font-bold border-none cursor-pointer transition-colors"
                   >
-                    Sign Up to Create Groups
+                    Sign up to create groups
                   </button>
                 )}
               </div>
             )}
-          </div>
+          </section>
         </div>
 
-        {/* ── PREMIUM SIDEBAR ── */}
-        <div className="right-sidebar" style={{ position: 'sticky', top: 90, height: 'fit-content', display: 'flex', flexDirection: 'column', gap: 20 }}>
-
-          {/* Stats Insight Card */}
-          <div className="glass-card" style={{ padding: 16, borderRadius: 20, border: '1px solid rgba(124, 58, 237, 0.12)' }}>
-            <h4 style={{ fontSize: 9, fontWeight: 800, color: '#7C3AED', marginBottom: 12, textTransform: 'uppercase', letterSpacing: '0.1em', display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Zap size={11} /> Analytics
+        {/* Sidebar */}
+        <aside className="hidden lg:flex flex-col gap-4 lg:sticky lg:top-[7.5rem] lg:self-start">
+          <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-4">
+            <h4 className="text-[10px] font-bold uppercase tracking-wider text-purple-600 mb-3 flex items-center gap-1.5 m-0">
+              <Zap size={12} /> Community pulse
             </h4>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+            <div className="grid grid-cols-2 gap-2">
               {[
-                { label: 'Seniors', val: verifiedSeniors, icon: <Crown size={16} color="#7C3AED" />, bg: '#F5F3FF' },
-                { label: 'Network', val: totalMembers, icon: <Users size={16} color="#06B6D4" />, bg: '#ECFEFF' },
-                { label: 'Debates', val: posts?.length || 0, icon: <MessageCircle size={16} color="#F59E0B" />, bg: '#FFFBEB' },
-                { label: 'Referrals', val: jobs?.length || 0, icon: <Target size={16} color="#10B981" />, bg: '#F0FDF4' }
-              ].map((s, i) => (
-                <div key={i} className="stat-card-hover" style={{ padding: 12, borderRadius: 14, background: '#F8FAFC', border: '1px solid #F1F5F9', transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)' }}>
-                  <div style={{ width: 28, height: 28, borderRadius: 8, background: s.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 8 }}>{cloneElement(s.icon as ReactElement<any>, { size: 12 })}</div>
-                  <div style={{ fontSize: 16, fontWeight: 800, color: '#0F172A', fontFamily: 'Instrument Serif, serif' }}>{s.val}</div>
-                  <div style={{ fontSize: 9, fontWeight: 600, color: '#64748B', marginTop: 1 }}>{s.label}</div>
+                { label: 'Seniors', val: verifiedSeniors, icon: <Crown size={14} className="text-purple-600" />, bg: 'bg-purple-50' },
+                { label: 'Members', val: totalMembers, icon: <Users size={14} className="text-cyan-600" />, bg: 'bg-cyan-50' },
+                { label: 'Posts', val: posts?.length || 0, icon: <MessageCircle size={14} className="text-amber-600" />, bg: 'bg-amber-50' },
+                { label: 'Jobs', val: jobs?.length || 0, icon: <Target size={14} className="text-emerald-600" />, bg: 'bg-emerald-50' },
+              ].map((s) => (
+                <div key={s.label} className="p-3 rounded-xl bg-slate-50 border border-slate-100">
+                  <div className={`w-8 h-8 rounded-lg ${s.bg} flex items-center justify-center mb-2`}>{s.icon}</div>
+                  <p className="text-lg font-extrabold text-slate-900 m-0 leading-none">{s.val}</p>
+                  <p className="text-[10px] font-semibold text-slate-500 mt-1 m-0">{s.label}</p>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Leaderboard Card */}
-          <div className="glass-card" style={{ padding: 28, borderRadius: 32 }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
-              <h4 style={{ fontSize: 12, fontWeight: 800, color: '#0F172A', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Top Contributors</h4>
-              <div style={{ background: '#FFFBEB', padding: '4px 10px', borderRadius: 8, fontSize: 11, fontWeight: 800, color: '#D97706', display: 'flex', alignItems: 'center', gap: 4 }}>
-                <Star size={12} fill="#D97706" /> Weekly
-              </div>
+          <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-4">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-800 m-0">Top contributors</h4>
+              <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full inline-flex items-center gap-1">
+                <Star size={10} fill="currentColor" /> Weekly
+              </span>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div className="space-y-2">
               {topContributors.length > 0 ? topContributors.map(([id, c]: any, i) => (
-                <div key={id} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px', borderRadius: 16, background: i === 0 ? 'linear-gradient(to right, #F5F3FF, transparent)' : 'transparent' }}>
-                  <div style={{ position: 'relative' }}>
-                    <div style={{
-                      width: 40, height: 40,
-                      borderRadius: 14,
-                      background: c.avatar_url
-                        ? 'transparent'
-                        : (c.role === 'senior' ? 'linear-gradient(135deg, #10B981, #059669)' : 'linear-gradient(135deg, #7C3AED, #4C1D95)'),
-                      color: 'white',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: 15,
-                      fontWeight: 800,
-                      overflow: 'hidden'
-                    }}>
-                      {c.avatar_url ? (
-                        <img src={c.avatar_url} alt={c.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      ) : (
-                        c.name[0]
-                      )}
+                <div key={id} className={`flex items-center gap-3 p-2 rounded-xl ${i === 0 ? 'bg-purple-50/80' : ''}`}>
+                  <div className="relative shrink-0">
+                    <div className={`w-9 h-9 rounded-lg overflow-hidden flex items-center justify-center text-xs font-bold text-white ${
+                      c.avatar_url ? 'bg-slate-100' : c.role === 'senior' ? 'bg-gradient-to-br from-emerald-500 to-teal-500' : 'bg-gradient-to-br from-purple-600 to-indigo-600'
+                    }`}>
+                      {c.avatar_url ? <img src={c.avatar_url} alt="" className="w-full h-full object-cover" /> : c.name[0]}
                     </div>
-                    {i < 3 && <div style={{ position: 'absolute', bottom: -4, right: -4, width: 18, height: 18, background: '#fff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, border: '1px solid #F1F5F9' }}>{i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉'}</div>}
+                    {i < 3 && (
+                      <span className="absolute -bottom-1 -right-1 text-[10px]">{i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉'}</span>
+                    )}
                   </div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 14, fontWeight: 700, color: '#1E293B' }}>{c.name}</div>
-                    <div style={{ fontSize: 11, fontWeight: 600, color: '#94A3B8' }}>{c.count} platform points</div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-bold text-slate-800 m-0 truncate">{c.name}</p>
+                    <p className="text-[10px] text-slate-400 font-semibold m-0">{c.count} posts</p>
                   </div>
-                  {i === 0 && <Award size={18} color="#F59E0B" />}
+                  {i === 0 && <Award size={16} className="text-amber-500 shrink-0" />}
                 </div>
-              )) : <p style={{ fontSize: 13, color: '#94A3B8', textAlign: 'center' }}>Competition just started!</p>}
+              )) : (
+                <p className="text-xs text-slate-400 text-center py-4 m-0">No contributors yet</p>
+              )}
             </div>
           </div>
 
-          {/* Guidelines Card */}
-          <div className="glass-card" style={{ padding: 28, borderRadius: 32, background: 'linear-gradient(to bottom, #FFFFFF, #F8FAFC)' }}>
-            <h4 style={{ fontSize: 12, fontWeight: 800, color: '#0F172A', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Shield size={16} color="#EF4444" /> Community Guidelines
+          <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-4">
+            <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-800 mb-3 flex items-center gap-1.5 m-0">
+              <Shield size={14} className="text-red-500" /> Guidelines
             </h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <ul className="space-y-3 m-0 p-0 list-none">
               {[
-                { t: 'Professional Constructiveness', d: 'Ask doubts that help everyone learn.' },
-                { t: 'Networking Privacy', d: 'Connect via platform; no personal metadata.' },
-                { t: 'Verified Guidance', d: 'Follow advice from verified seniors only.' }
+                { t: 'Stay constructive', d: 'Ask doubts that help everyone learn.' },
+                { t: 'Respect privacy', d: 'Connect through Claspire only.' },
+                { t: 'Trust verified seniors', d: 'Prioritize guidance from verified mentors.' },
               ].map((r, i) => (
-                <div key={i} style={{ display: 'flex', gap: 16 }}>
-                  <div style={{ fontSize: 14, fontWeight: 800, color: '#7C3AED', opacity: 0.3 }}>{i + 1}</div>
+                <li key={i} className="flex gap-3">
+                  <span className="text-xs font-extrabold text-purple-300 w-4 shrink-0">{i + 1}</span>
                   <div>
-                    <div style={{ fontSize: 13, fontWeight: 800, color: '#334155' }}>{r.t}</div>
-                    <div style={{ fontSize: 11, color: '#64748B', lineHeight: 1.5, marginTop: 4 }}>{r.d}</div>
+                    <p className="text-xs font-bold text-slate-700 m-0">{r.t}</p>
+                    <p className="text-[11px] text-slate-500 m-0 mt-0.5 leading-relaxed">{r.d}</p>
                   </div>
-                </div>
+                </li>
               ))}
-            </div>
+            </ul>
           </div>
-        </div>
+        </aside>
       </div>
 
       {/* ── MODALS ── */}
@@ -1605,14 +1315,6 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
         />
       )}
 
-      <style dangerouslySetInnerHTML={{
-        __html: `
-        @media (max-width: 1024px) {
-          .main-layout { grid-template-columns: 1fr !important; gap: 32px !important; }
-          .sidebar-desktop { display: none !important; }
-          .mobile-fab { display: flex !important; }
-        }
-      `}} />
     </div>
   )
 }
@@ -1620,22 +1322,9 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
 export default function CommunityPage({ params }: { params: Promise<{ slug: string }> }) {
   return (
     <Suspense fallback={
-      <div style={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: '#F8F9FE'
-      }}>
-        <div style={{
-          width: 44,
-          height: 44,
-          border: '4px solid #E2E8F0',
-          borderTopColor: '#7C3AED',
-          borderRadius: '50%',
-          animation: 'spin 1s linear infinite'
-        }} />
-        <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
+      <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center gap-3 font-plus-jakarta-sans">
+        <div className="w-10 h-10 border-4 border-purple-100 border-t-purple-600 rounded-full animate-spin" />
+        <p className="text-xs text-slate-500 font-semibold">Loading community...</p>
       </div>
     }>
       <CommunityPageContent params={params} />
