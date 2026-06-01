@@ -8,7 +8,7 @@ import {
   GraduationCap, Star, Target,
   BarChart3, Menu, X, Trash2,
   Handshake, Search, Sparkles, MessageSquare,
-  ArrowUp, ArrowDown, LogOut, User
+  ArrowUp, ArrowDown, LogOut, User, Pencil
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
@@ -38,6 +38,9 @@ interface DashData {
     avatar_url?: string
     is_premium?: boolean
     role?: 'student' | 'senior'
+    branch?: string
+    year?: number | string
+    passout_year?: number | string
     colleges: {
       id: string
       name: string
@@ -217,6 +220,18 @@ export default function JuniorDashboard() {
     return 'Just now'
   }
 
+  const parsePostImages = (url: string | undefined | null): string[] => {
+    if (!url) return []
+    if (url.startsWith('[') && url.endsWith(']')) {
+      try {
+        return JSON.parse(url)
+      } catch (e) {
+        return [url]
+      }
+    }
+    return [url]
+  }
+
   const handleDeletePost = async (postId: string) => {
     setDeletingId(postId)
     try {
@@ -238,9 +253,7 @@ export default function JuniorDashboard() {
       const res = await fetch('/api/user/delete-account', { method: 'DELETE' })
       const data = await res.json()
       if (data.success) {
-        // Clear localStorage
         localStorage.clear()
-        // Redirect to home
         window.location.href = '/'
       } else {
         alert('Failed to delete account. Please try again.')
@@ -254,28 +267,28 @@ export default function JuniorDashboard() {
 
   if (loading || !authChecked || !dashData || !dashData.user) {
     return (
-      <div className="flex items-center justify-center h-screen bg-[#F8F9FA] flex-col gap-4 font-plus-jakarta-sans">
-        <div className="w-12 h-12 border-[3px] border-purple-100 border-t-purple-600 rounded-full animate-spin" />
-        <p className="text-gray-400 text-sm font-medium animate-pulse">Initializing Dashboard...</p>
+      <div className="flex items-center justify-center h-screen bg-[#F8FAFC] flex-col gap-4 font-plus-jakarta-sans">
+        <div className="w-12 h-12 border-[3px] border-slate-100 border-t-purple-600 rounded-full animate-spin" />
+        <p className="text-slate-400 text-sm font-semibold animate-pulse">Initializing Dashboard...</p>
       </div>
     )
   }
 
-  const u = dashData.user! // Non-null assertion since we checked above
+  const u = dashData.user!
   const rp = getRPLevel(u.rise_points)
   const rpProgress = rp.next ? Math.min((u.rise_points / rp.next) * 100, 100) : 100
 
   const navItems = [
-    { id: 'overview', label: 'Overview', icon: <LayoutDashboard size={20} /> },
-    { id: 'doubts', label: 'My Doubts', icon: <HelpCircle size={20} /> },
-    { id: 'events', label: 'Webinars', icon: <Video size={20} /> },
-    { id: 'community', label: 'Community', icon: <Users size={20} /> },
-    { id: 'referrals', label: 'Referrals', icon: <Handshake size={20} /> },
-    { id: 'messages', label: 'Messages', icon: <MessageSquare size={20} /> },
+    { id: 'overview', label: 'Overview', icon: <LayoutDashboard size={18} /> },
+    { id: 'doubts', label: 'My Doubts', icon: <HelpCircle size={18} /> },
+    { id: 'events', label: 'Webinars', icon: <Video size={18} /> },
+    { id: 'community', label: 'Community', icon: <Users size={18} /> },
+    { id: 'referrals', label: 'Referrals', icon: <Handshake size={18} /> },
+    { id: 'messages', label: 'Messages', icon: <MessageSquare size={18} /> },
   ]
 
   return (
-    <div className="min-h-screen bg-[#F0F2F5] font-plus-jakarta-sans text-[#1E293B]">
+    <div className="min-h-screen bg-[#F8FAFC] font-plus-jakarta-sans text-[#0F172A] antialiased">
 
       {/* ═══ MOBILE SIDEBAR OVERLAY ═══ */}
       <AnimatePresence>
@@ -283,32 +296,44 @@ export default function JuniorDashboard() {
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             onClick={() => setMobileMenuOpen(false)}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] lg:hidden"
+            className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] lg:hidden"
           />
         )}
       </AnimatePresence>
 
       {/* ═══ SIDEBAR NAVIGATION ═══ */}
-      <aside className={`fixed top-0 left-0 h-full w-[280px] bg-white border-r border-[#E2E8F0] z-[101] transition-all duration-300 transform lg:translate-x-0 ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <aside className={`fixed top-0 left-0 h-full w-[280px] bg-white border-r border-slate-200/60 z-[101] flex flex-col justify-between transition-all duration-300 transform lg:translate-x-0 ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="p-8 pb-4">
-          <Link href="/" className="inline-block mb-10 no-underline">
-            <span className="font-plus-jakarta-sans font-bold text-lg text-black">
-              cl<span style={{ color: '#7C3AED' }}>aspire</span>
-            </span>
-          </Link>
+          <div className="flex items-center justify-between mb-10">
+            <Link href="/" className="inline-block no-underline">
+              <span className="font-plus-jakarta-sans font-black text-xl text-[#0F172A] tracking-tight">
+                cl<span className="text-[#7C3AED]">aspire</span>
+              </span>
+            </Link>
+            <button 
+              onClick={() => setMobileMenuOpen(false)}
+              className="lg:hidden p-1.5 rounded-lg hover:bg-slate-50 text-slate-500 hover:text-slate-700 transition-colors border border-slate-200/50 shadow-sm cursor-pointer"
+            >
+              <X size={16} />
+            </button>
+          </div>
 
           <nav className="space-y-1.5">
-            <p className="text-[11px] font-extrabold text-[#94A3B8] uppercase tracking-[0.15em] ml-2 mb-4">Main Menu</p>
+            <p className="text-[10px] font-extrabold text-[#94A3B8] uppercase tracking-[0.2em] ml-3 mb-4">Student Hub</p>
             {navItems.map((item) => (
               <button
                 key={item.id}
-                onClick={() => { setActiveTab(item.id); setMobileMenuOpen(false); }}
-                className={`w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all group cursor-pointer ${activeTab === item.id
-                    ? 'bg-[#F5F3FF] text-[#7C3AED] shadow-sm shadow-purple-500/5'
-                    : 'text-[#64748B] hover:bg-[#F8FAFC] hover:text-[#0F172A]'
+                onClick={() => { 
+                  setActiveTab(item.id); 
+                  router.push('?activeTab=' + item.id, { scroll: false });
+                  setMobileMenuOpen(false); 
+                }}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition-all group cursor-pointer ${activeTab === item.id
+                    ? 'bg-purple-50/70 text-[#7C3AED] shadow-sm'
+                    : 'text-[#64748B] hover:bg-slate-50 hover:text-[#0F172A]'
                   }`}
               >
-                <span className={`transition-transform duration-300 ${activeTab === item.id ? 'scale-110' : 'group-hover:scale-110'}`}>
+                <span className={`transition-transform duration-300 ${activeTab === item.id ? 'scale-110 text-[#7C3AED]' : 'text-slate-400 group-hover:scale-110 group-hover:text-slate-600'}`}>
                   {item.icon}
                 </span>
                 {item.label}
@@ -321,27 +346,27 @@ export default function JuniorDashboard() {
         </div>
 
         {/* Rise Points Mini Card */}
-        <div className="mt-auto p-6">
-          <div className="bg-gradient-to-br from-[#1E1B4B] to-[#312E81] rounded-[24px] p-5 text-white shadow-2xl relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-white/10 transition-colors" />
+        <div className="p-6">
+          <div className="bg-slate-900 rounded-3xl p-5 text-white shadow-xl relative overflow-hidden group border border-white/5">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-purple-500/20 transition-colors" />
             <div className="relative z-10">
               <div className="flex items-center justify-between mb-4">
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-60 m-0">Rise Points</p>
-                <Flame size={18} className="text-[#F59E0B]" />
+                <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 m-0">Rise Points</p>
+                <Flame size={16} className="text-[#F59E0B] animate-pulse" />
               </div>
-              <div className="text-3xl font-black mb-1 font-instrument-serif">{u.rise_points}</div>
-              <div className="text-[11px] font-bold opacity-80 mb-4 flex items-center gap-1.5">
-                {rp.emoji} {rp.label} Level
+              <div className="text-3xl font-bold mb-1 text-white tracking-tight">{u.rise_points}</div>
+              <div className="text-[10px] font-extrabold text-purple-300 mb-4 flex items-center gap-1.5 bg-white/5 w-fit px-2 py-0.5 rounded-full border border-white/5">
+                {rp.emoji} {rp.label}
               </div>
               <div className="space-y-1.5">
-                <div className="flex justify-between text-[10px] font-bold">
-                  <span className="opacity-60">Progress</span>
-                  <span className="text-[#A5B4FC]">{Math.round(rpProgress)}%</span>
+                <div className="flex justify-between text-[9px] font-bold text-slate-400">
+                  <span>Level Progress</span>
+                  <span className="text-purple-300">{Math.round(rpProgress)}%</span>
                 </div>
-                <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
+                <div className="h-1 bg-white/10 rounded-full overflow-hidden">
                   <motion.div
                     initial={{ width: 0 }} animate={{ width: `${rpProgress}%` }}
-                    className="h-full bg-gradient-to-r from-purple-400 to-cyan-400 rounded-full"
+                    className="h-full bg-gradient-to-r from-purple-500 to-indigo-400 rounded-full"
                   />
                 </div>
               </div>
@@ -351,160 +376,222 @@ export default function JuniorDashboard() {
       </aside>
 
       {/* ═══ MAIN CONTENT AREA ═══ */}
-      <main className="lg:ml-[280px] min-h-screen">
+      <main className="lg:ml-[280px] min-h-screen pb-20">
 
-        {/* TOP NAV / DASHBOARD HERO */}
-        <div className={`relative z-40 bg-[#0F172A] pt-6 px-6 md:px-12 border-b border-white/5 ${activeTab === 'messages' ? 'pb-6' : 'pb-20'}`}>
-          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-[120px] -mr-64 -mt-64" />
-          <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-cyan-600/10 rounded-full blur-[100px] -ml-40 -mb-40" />
+        {/* MOBILE TOP HEADER BAR */}
+        <div className="lg:hidden sticky top-0 bg-white/85 backdrop-blur-md border-b border-slate-200/60 z-30 px-4 py-4 flex items-center justify-between">
+          <button 
+            onClick={() => setMobileMenuOpen(true)}
+            className="p-2 rounded-xl hover:bg-slate-50 text-slate-700 transition-colors border border-slate-200/50 shadow-sm cursor-pointer"
+          >
+            <Menu size={20} />
+          </button>
+          
+          <span className="font-plus-jakarta-sans font-black text-base text-[#0F172A] tracking-tight">
+            cl<span className="text-[#7C3AED]">aspire</span>
+          </span>
 
-          {/* Desktop Header Container */}
-          <div className="relative z-30 flex flex-col gap-10">
-            <header className="flex justify-between items-center">
-              <div className="flex items-center gap-4">
-                <button
-                  onClick={() => setMobileMenuOpen(true)}
-                  className="lg:hidden w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white cursor-pointer"
-                >
-                  <Menu size={20} />
-                </button>
-                <div className="hidden md:block">
-                  <h2 className="text-white font-bold text-sm m-0 flex items-center gap-2 opacity-60">
-                    <LayoutDashboard size={14} /> / {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
-                  </h2>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <NotificationBell />
-                <div className={`w-11 h-11 rounded-2xl ${u.avatar_url ? 'bg-transparent' : 'bg-gradient-to-br from-purple-500 to-indigo-600'} flex items-center justify-center text-white text-sm font-black shadow-lg overflow-hidden`}>
-                  {u.avatar_url ? (
-                    <img src={u.avatar_url} alt={u.full_name} className="w-full h-full object-cover" />
-                  ) : (
-                    u.full_name[0].toUpperCase()
-                  )}
-                </div>
-              </div>
-            </header>
-
-            {activeTab !== 'messages' && (
-              <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-                <div>
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-                    className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-[10px] font-black tracking-widest uppercase mb-4"
-                  >
-                    <Sparkles size={10} /> Professional Dashboard
-                  </motion.div>
-                  <h1 className="text-4xl md:text-5xl font-black text-white m-0 font-instrument-serif tracking-tight leading-tight">
-                    Welcome, {u.full_name.split(' ')[0]}
-                  </h1>
-                  <p className="text-white/50 font-medium text-lg mt-2 m-0 max-w-xl">
-                    Connect with verified seniors from {u.colleges?.short_name || 'your college'}.
-                  </p>
-                </div>
-                <div className="flex items-center gap-4">
-                  <button
-                    onClick={() => router.push('/community?create=true')}
-                    className="bg-white text-[#0F172A] px-6 py-3.5 rounded-[20px] font-bold text-sm shadow-xl hover:scale-105 transition-transform flex items-center gap-2 cursor-pointer"
-                  >
-                    <Plus size={18} /> Ask a Doubt
-                  </button>
-                </div>
-              </div>
-            )}
+          <div className="flex items-center gap-3">
+            <NotificationBell />
+            <div className={`w-8 h-8 rounded-xl ${u.avatar_url ? 'bg-transparent' : 'bg-gradient-to-br from-purple-500 to-indigo-600'} flex items-center justify-center text-white text-xs font-bold overflow-hidden border border-slate-200/60 shadow-sm`}>
+              {u.avatar_url ? (
+                <img src={u.avatar_url} alt={u.full_name} className="w-full h-full object-cover" />
+              ) : (
+                u.full_name[0].toUpperCase()
+              )}
+            </div>
           </div>
         </div>
 
-        {/* ═══ TAB CONTENT ═══ */}
-        <div className={`px-6 md:px-12 relative pb-20 ${activeTab === 'messages' ? 'mt-0' : '-mt-10'} z-50`}>
+        {/* PREMIUM PROFILE HERO CARD (LinkedIn Style) */}
+        <div className="px-4 md:px-12 pt-6 md:pt-8">
+          <div className="bg-white rounded-3xl border border-slate-200/60 overflow-hidden shadow-sm relative group">
+            {/* Solid Black Matte Banner Placeholder (optimized height for mobile) */}
+            <div className="h-36 md:h-64 bg-slate-950 relative overflow-hidden transition-all duration-300">
+              <div className="absolute inset-0 bg-grid-white/5 opacity-20" />
+            </div>
+            {/* Profile Detail Block */}
+            <div className="px-6 md:px-8 pb-6 md:pb-8 pt-0 relative flex flex-col md:flex-row md:items-end justify-between gap-6">
+              
+              {/* Profile Avatar & Metadata */}
+<div className="flex flex-col md:flex-row items-center md:items-end gap-5 -mt-8 md:-mt-10 relative z-10 text-center md:text-left">                {/* Avatar with White Border */}
+                <div className="w-28 h-28 md:w-32 md:h-32 rounded-3xl bg-white p-1 shadow-md flex items-center justify-center overflow-hidden flex-shrink-0">
+                  <div className={`w-full h-full rounded-2xl ${u.avatar_url ? 'bg-transparent' : 'bg-gradient-to-br from-purple-500 to-indigo-600'} flex items-center justify-center text-white text-3xl font-bold overflow-hidden`}>
+                    {u.avatar_url ? (
+                      <img src={u.avatar_url} alt={u.full_name} className="w-full h-full object-cover" />
+                    ) : (
+                      u.full_name[0].toUpperCase()
+                    )}
+                  </div>
+                </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <div className="pt-2 md:pt-0">
+                  <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 mb-2">
+                    <h1 className="text-xl md:text-2xl font-bold text-slate-900 m-0 tracking-tight leading-none">{u.full_name}</h1>
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-purple-50 border border-purple-100 text-purple-600 text-[9px] font-extrabold tracking-wider uppercase">
+                      <Sparkles size={8} /> Verified Student
+                    </span>
+                  </div>
 
-            {/* LEFT COLUMN: MAIN FEED (8 COLS or 12 COLS for messages) */}
-            <div className={activeTab === 'messages' ? "lg:col-span-12" : "lg:col-span-8 space-y-8"}>
+                  <p className="text-[#64748B] text-xs font-semibold m-0 flex items-center justify-center md:justify-start gap-1.5">
+                    <GraduationCap size={14} className="text-slate-400" />
+                    <span>{u.colleges?.name} ({u.colleges?.short_name})</span>
+                  </p>
+
+                  <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 mt-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                    <span className="bg-slate-50 border border-slate-200/60 px-3 py-1 rounded-xl">
+                      {u.branch || 'General Branch'}
+                    </span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-slate-300 hidden md:inline" />
+                    <span className="bg-slate-50 border border-slate-200/60 px-3 py-1 rounded-xl">
+                      Year {u.year || '1'} (Class of {u.passout_year || '2025'})
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex items-center justify-center md:justify-end gap-3 self-center md:self-auto w-full md:w-auto relative z-10">
+                <button
+                  onClick={() => router.push('/jobs')}
+                  className="flex-1 md:flex-initial bg-slate-50 hover:bg-slate-100 border border-slate-200/60 text-[#0F172A] px-5 py-3 rounded-2xl font-bold text-xs shadow-sm hover:scale-102 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <Briefcase size={14} /> Explore Jobs
+                </button>
+                <button
+                  onClick={() => router.push('/community?create=true')}
+                  className="flex-1 md:flex-initial bg-slate-900 hover:bg-black text-white px-5 py-3 rounded-2xl font-bold text-xs shadow-sm hover:scale-102 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <Plus size={14} /> Ask a Doubt
+                </button>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        {/* ═══ MAIN GRID SYSTEM ═══ */}
+        {activeTab === 'messages' ? (
+          <div className="px-4 md:px-12 mt-6 md:mt-8">
+            <DashboardMessages 
+              currentUserId={u.id}
+              role="junior"
+              initialUserId={initialMessageUser}
+            />
+          </div>
+        ) : (
+          <div className="px-4 md:px-12 mt-6 md:mt-8">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+            {/* LEFT COLUMN: MAIN TAB CONTENT (8 COLS) */}
+            <div className="lg:col-span-8 space-y-8">
 
               <AnimatePresence mode="wait">
                 {activeTab === 'overview' && (
                   <motion.div
-                    key="overview" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
+                    key="overview" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }}
                     className="space-y-8"
                   >
-                    {/* My Student Groups */}
-                    <div className="bg-white rounded-2xl shadow-sm">
+                    {/* My Student Groups Card */}
+                    <div className="bg-white rounded-3xl border border-slate-200/60 p-6 shadow-sm">
+                      <div className="flex justify-between items-center mb-6">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-9 h-9 rounded-xl bg-purple-50 flex items-center justify-center text-purple-600">
+                            <Users size={16} />
+                          </div>
+                          <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider m-0">My Mentorship Groups</h3>
+                        </div>
+                        <button
+                          onClick={() => setShowCreateGroupModal(true)}
+                          className="px-3.5 py-2 bg-slate-50 border border-slate-200/60 text-slate-700 hover:bg-slate-100 rounded-xl font-bold text-xs flex items-center gap-1.5 cursor-pointer transition-colors"
+                        >
+                          <Plus size={14} /> Create
+                        </button>
+                      </div>
                       <MyGroupsList />
                     </div>
-                    
+
+                    {/* Premium SaaS Stats Grid */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       {[
-                        { label: 'Doubts Asked', value: u.doubt_count, icon: <HelpCircle size={22} />, color: '#7C3AED', trend: '+1 this week' },
-                        { label: 'Referrals', value: dashData.myReferrals.length, icon: <Handshake size={22} />, color: '#06B6D4', trend: 'Active tracking' },
-                        { label: 'Events Joined', value: u.webinar_count, icon: <Video size={22} />, color: '#D97706', trend: 'Learing mode' },
+                        { label: 'Doubts Asked', value: u.doubt_count, icon: <HelpCircle size={20} />, trend: '+1 this week', bg: 'from-purple-500/5 to-indigo-500/5', border: 'hover:border-purple-200', iconColor: 'text-purple-600 bg-purple-50' },
+                        { label: 'Active Referrals', value: dashData.myReferrals.length, icon: <Handshake size={20} />, trend: 'Direct Tracking', bg: 'from-cyan-500/5 to-blue-500/5', border: 'hover:border-cyan-200', iconColor: 'text-cyan-600 bg-cyan-50' },
+                        { label: 'Events Joined', value: u.webinar_count, icon: <Video size={20} />, trend: 'Live Seminars', bg: 'from-amber-500/5 to-orange-500/5', border: 'hover:border-amber-200', iconColor: 'text-amber-600 bg-amber-50' },
                       ].map((stat, i) => (
-                        <div key={i} className="bg-white p-6 rounded-[28px] border border-[#E2E8F0] shadow-sm hover:shadow-xl transition-all group cursor-pointer">
-                          <div className="flex justify-between items-start mb-4">
-                            <div className="w-12 h-12 rounded-[18px] bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-purple-50 group-hover:text-purple-600 transition-colors">
+                        <div key={i} className={`bg-gradient-to-br ${stat.bg} bg-white p-6 rounded-3xl border border-slate-200/60 ${stat.border} shadow-sm hover:shadow-md transition-all group flex flex-col justify-between min-h-[160px] cursor-pointer`}>
+                          <div className="flex justify-between items-start">
+                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${stat.iconColor} transition-transform group-hover:scale-105 duration-300`}>
                               {stat.icon}
                             </div>
-                            <span className="text-[10px] font-black text-green-600 bg-green-50 px-2.5 py-1 rounded-full">{stat.trend}</span>
+                            <span className="text-[9px] font-black text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full">{stat.trend}</span>
                           </div>
-                          <p className="text-[11px] font-extrabold text-[#94A3B8] uppercase tracking-[0.1em] mb-1">{stat.label}</p>
-                          <div className="text-4xl font-black text-[#0F172A] font-instrument-serif">{stat.value}</div>
+                          <div className="mt-4">
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">{stat.label}</p>
+                            <div className="text-3xl font-bold text-slate-900 leading-none tracking-tight">{stat.value}</div>
+                          </div>
                         </div>
                       ))}
                     </div>
 
-                    {/* Quick Access Card */}
-                    <div className="bg-white rounded-[32px] border border-[#E2E8F0] overflow-hidden shadow-sm">
-                      <div className="p-8 border-b border-[#F1F5F9] flex justify-between items-center">
-                        <h3 className="text-xl font-black text-[#0F172A] font-instrument-serif m-0">Recent Activity</h3>
-                        <button className="text-[11px] font-bold text-purple-600 uppercase tracking-widest px-4 py-2 bg-purple-50 rounded-xl cursor-pointer">View Journal</button>
+                    {/* Recent Activity (RP Log Timeline) */}
+                    <div className="bg-white rounded-3xl border border-slate-200/60 overflow-hidden shadow-sm">
+                      <div className="p-6 border-b border-slate-100 flex justify-between items-center">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-9 h-9 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600">
+                            <Zap size={16} />
+                          </div>
+                          <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider m-0">Recent Activity</h3>
+                        </div>
+                        <span className="text-[9px] font-black text-[#94A3B8] bg-slate-50 border border-slate-100 px-3 py-1 rounded-full uppercase tracking-wider">Rewards Log</span>
                       </div>
-                      <div className="divide-y divide-[#F1F5F9]">
+                      <div className="divide-y divide-slate-100">
                         {dashData.rpLog.length > 0 ? dashData.rpLog.map((log) => (
-                          <div key={log.id} className="p-6 flex items-center justify-between hover:bg-gray-50/50 transition-colors cursor-pointer">
+                          <div key={log.id} className="p-5 flex items-center justify-between hover:bg-slate-50/50 transition-colors cursor-pointer">
                             <div className="flex items-center gap-4">
-                              <div className="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center border border-gray-100">
-                                <Zap size={18} className="text-purple-600" />
+                              <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center border border-slate-100 text-slate-400">
+                                <Zap size={15} className="text-purple-500" />
                               </div>
                               <div>
-                                <p className="text-sm font-bold text-[#1E293B] m-0">{log.reason}</p>
-                                <p className="text-xs font-medium text-[#94A3B8] m-0 mt-1 flex items-center gap-1.5"><Clock size={12} /> {timeAgo(log.created_at)}</p>
+                                <p className="text-xs font-bold text-[#0F172A] m-0">{log.reason}</p>
+                                <p className="text-[10px] font-semibold text-[#94A3B8] m-0 mt-1 flex items-center gap-1.5"><Clock size={11} /> {timeAgo(log.created_at)}</p>
                               </div>
                             </div>
-                            <div className={`text-sm font-black px-4 py-1.5 rounded-full ${log.points > 0 ? 'text-green-600 bg-green-50' : 'text-red-500 bg-red-50'}`}>
+                            <div className={`text-xs font-black px-3.5 py-1 rounded-full ${log.points > 0 ? 'text-green-600 bg-green-50' : 'text-red-500 bg-red-50'}`}>
                               {log.points > 0 ? '+' : ''}{log.points} RP
                             </div>
                           </div>
                         )) : (
-                          <div className="p-20 text-center">
-                            <BarChart3 size={40} className="mx-auto text-gray-300 mb-4" />
-                            <p className="text-gray-400 font-bold">No activity logged yet.</p>
+                          <div className="p-16 text-center">
+                            <BarChart3 size={32} className="mx-auto text-slate-200 mb-4" />
+                            <p className="text-slate-400 text-xs font-semibold">No rewards activity logged yet.</p>
                           </div>
                         )}
                       </div>
                     </div>
 
-                    {/* Accepted Seniors Section */}
-                    <AcceptedSeniorsSection />
+                    {/* Accepted Connections Section */}
+                    <div className="bg-white rounded-3xl border border-slate-200/60 p-6 shadow-sm">
+                      <AcceptedSeniorsSection />
+                    </div>
                   </motion.div>
                 )}
 
+                {/* MY DOUBTS TAB */}
                 {activeTab === 'doubts' && (
                   <motion.div
-                    key="doubts" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
+                    key="doubts" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }}
                     className="space-y-6"
                   >
-                    <div className="flex items-center justify-between bg-white p-6 rounded-[28px] border border-[#E2E8F0] shadow-sm">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-3xl border border-slate-200/60 shadow-sm">
                       <div>
-                        <h2 className="text-2xl font-black text-[#0F172A] font-instrument-serif m-0">My Doubts</h2>
-                        <p className="text-[#64748B] text-sm font-medium m-0 mt-1">History of all questions asked across communities.</p>
+                        <h2 className="text-xl font-bold text-slate-900 tracking-tight m-0">My Doubts Feed</h2>
+                        <p className="text-[#64748B] text-xs font-semibold m-0 mt-1">Check answers and status for all your posted doubts.</p>
                       </div>
-                      <div className="flex gap-2 bg-gray-50 p-1.5 rounded-2xl border border-gray-100">
+                      <div className="flex gap-1 bg-slate-50 border border-slate-100 p-1 rounded-xl self-start sm:self-auto">
                         {['all', 'answered', 'pending'].map(f => (
                           <button
                             key={f} onClick={() => setDoubtFilter(f as any)}
-                            className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all capitalize cursor-pointer ${doubtFilter === f ? 'bg-white shadow-sm text-purple-600' : 'text-gray-400'}`}
+                            className={`px-3.5 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all capitalize cursor-pointer ${doubtFilter === f ? 'bg-white shadow-sm text-purple-600' : 'text-slate-400 hover:text-slate-600'}`}
                           >
                             {f}
                           </button>
@@ -513,163 +600,210 @@ export default function JuniorDashboard() {
                     </div>
 
                     <div className="grid grid-cols-1 gap-4">
-                      {dashData.myPosts.filter(p => doubtFilter === 'all' || (doubtFilter === 'answered' ? p.is_answered : !p.is_answered)).map(post => (
-                        <div key={post.id} className="group bg-white p-6 rounded-[28px] border border-[#E2E8F0] hover:border-purple-200 transition-all shadow-sm hover:shadow-xl relative overflow-hidden cursor-pointer">
-                          <div className="flex justify-between items-start mb-4">
-                            <span className={`px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${post.is_answered ? 'bg-green-50 text-green-600 border-green-200' : 'bg-amber-50 text-amber-600 border-amber-200'}`}>
-                              {post.is_answered ? '✓ Answered' : '⌛ Pending'}
-                            </span>
-                            <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      {(() => {
+                        const filteredPosts = dashData.myPosts.filter(p => doubtFilter === 'all' || (doubtFilter === 'answered' ? p.is_answered : !p.is_answered))
+                        if (filteredPosts.length === 0) {
+                          return (
+                            <div className="rounded-3xl border border-dashed border-slate-200 bg-white p-12 text-center shadow-sm">
+                              <HelpCircle size={32} className="mx-auto text-slate-300 mb-4" />
+                              <p className="text-sm font-bold text-[#0F172A] mb-1">No doubts found</p>
+                              <p className="text-xs text-[#64748B] font-semibold mb-6">You haven't asked any doubts matching this filter yet.</p>
                               <button
-                                onClick={() => setShowDeleteConfirm(post.id)}
-                                className="p-2 rounded-xl bg-red-50 text-red-400 hover:bg-red-500 hover:text-white transition-all shadow-sm border border-red-100"
+                                onClick={() => router.push('/community?create=true')}
+                                className="bg-slate-900 text-white px-5 py-2.5 rounded-xl font-bold text-xs hover:bg-black transition-transform cursor-pointer"
                               >
-                                <Trash2 size={14} />
+                                Ask First Doubt 🚀
                               </button>
                             </div>
-                          </div>
-                          <div className="flex gap-4">
-                            <div className={`w-9 h-9 rounded-xl ${post.users?.avatar_url ? 'bg-transparent' : 'bg-purple-100'} flex items-center justify-center text-purple-600 font-bold text-xs overflow-hidden flex-shrink-0 mt-1 shadow-sm`}>
-                              {post.users?.avatar_url ? (
-                                <img src={post.users.avatar_url} alt={post.users.full_name} className="w-full h-full object-cover" />
-                              ) : (
-                                post.users?.full_name?.[0] || 'U'
-                              )}
-                            </div>
-                            <div className="flex-1">
-                              <h3 className="text-lg font-bold text-[#1E293B] group-hover:text-purple-600 transition-colors mb-2">{post.title}</h3>
-                              <p className="text-sm font-medium text-[#64748B] line-clamp-2 mb-4">{post.content}</p>
-                              {post.image_url && (
-                                <div className="mb-6 rounded-xl overflow-hidden border border-gray-100 max-w-md shadow-sm">
-                                  <img src={post.image_url} alt="Post content" className="w-full h-auto object-cover max-h-60" />
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                          <div className="flex items-center justify-between text-xs font-bold text-[#94A3B8] border-t border-[#F1F5F9] pt-4">
-                            <div className="flex gap-4">
-                              <span className="flex items-center gap-1.5"><ArrowUp size={14} /> {post.upvote_count}</span>
-                              <span className="flex items-center gap-1.5"><HelpCircle size={14} /> {post.answer_count} answers</span>
-                            </div>
-                            <span className="flex items-center gap-1.5"><Clock size={14} /> {timeAgo(post.created_at)}</span>
-                          </div>
+                          )
+                        }
 
-                          {showDeleteConfirm === post.id && (
-                            <div className="absolute inset-0 bg-white/95 backdrop-blur-sm z-10 flex flex-col items-center justify-center p-8 text-center">
-                              <p className="font-black text-[#0F172A] mb-2 text-lg">Delete this doubt?</p>
-                              <p className="text-sm text-[#64748B] mb-6 font-medium">This cannot be undone. All answers will also be removed.</p>
-                              <div className="flex gap-3 w-full max-w-xs">
-                                <button onClick={() => setShowDeleteConfirm(null)} className="flex-1 py-3 rounded-2xl border border-gray-200 font-bold text-sm text-[#64748B] hover:bg-gray-50">Cancel</button>
-                                <button onClick={() => handleDeletePost(post.id)} className="flex-1 py-3 rounded-2xl bg-red-500 text-white font-bold text-sm hover:bg-red-600">Delete</button>
+                        return filteredPosts.map(post => (
+                          <div key={post.id} className="group bg-white p-6 rounded-3xl border border-slate-200/60 hover:border-purple-200 transition-all shadow-sm hover:shadow-md relative overflow-hidden cursor-pointer">
+                            <div className="flex justify-between items-center mb-4">
+                              <span className={`px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-wider border ${post.is_answered ? 'bg-green-50 text-green-600 border-green-200' : 'bg-amber-50 text-amber-600 border-amber-200'}`}>
+                                {post.is_answered ? '✓ Answered' : '⌛ Pending'}
+                              </span>
+                              
+                              <div className="flex gap-1.5 opacity-60 group-hover:opacity-100 transition-opacity">
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    router.push(`/dashboard/junior/edit-post/${post.id}?activeTab=doubts`)
+                                  }}
+                                  className="p-1.5 rounded-lg bg-slate-50 text-slate-500 hover:bg-purple-50 hover:text-purple-600 transition-all shadow-sm border border-slate-200/60"
+                                  title="Edit Post"
+                                >
+                                  <Pencil size={12} />
+                                </button>
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); setShowDeleteConfirm(post.id) }}
+                                  className="p-1.5 rounded-lg bg-slate-50 text-slate-500 hover:bg-red-50 hover:text-red-500 transition-all shadow-sm border border-slate-200/60"
+                                  title="Delete Post"
+                                >
+                                  <Trash2 size={12} />
+                                </button>
                               </div>
                             </div>
-                          )}
-                        </div>
-                      ))}
+                            
+                            <div className="flex gap-4">
+                              <div className={`w-9 h-9 rounded-xl ${post.users?.avatar_url ? 'bg-transparent' : 'bg-purple-100'} flex items-center justify-center text-purple-600 font-bold text-xs overflow-hidden flex-shrink-0 mt-0.5 border border-slate-200/60`}>
+                                {post.users?.avatar_url ? (
+                                  <img src={post.users.avatar_url} alt={post.users.full_name} className="w-full h-full object-cover" />
+                                ) : (
+                                  post.users?.full_name?.[0] || 'U'
+                                )}
+                              </div>
+                              <div className="flex-1">
+                                <h3 className="text-base font-bold text-[#0F172A] group-hover:text-purple-600 transition-colors mb-1.5 tracking-tight leading-snug">{post.title}</h3>
+                                <p className="text-xs font-semibold text-[#64748B] line-clamp-2 mb-4 leading-relaxed">{post.content}</p>
+                                {parsePostImages(post.image_url).length > 0 && (
+                                  <div className="mb-4 rounded-2xl overflow-hidden border border-slate-100 max-w-sm shadow-sm">
+                                    <img src={parsePostImages(post.image_url)[0]} alt="Post media" className="w-full h-auto object-cover max-h-52" />
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                            
+                            <div className="flex items-center justify-between text-[10px] font-bold text-[#94A3B8] border-t border-slate-100 pt-3.5 mt-2">
+                              <div className="flex gap-4">
+                                <span className="flex items-center gap-1"><ArrowUp size={12} /> {post.upvote_count} Upvotes</span>
+                                <span className="flex items-center gap-1"><MessageSquare size={12} /> {post.answer_count} Answers</span>
+                              </div>
+                              <span className="flex items-center gap-1"><Clock size={12} /> {timeAgo(post.created_at)}</span>
+                            </div>
+
+                            {showDeleteConfirm === post.id && (
+                              <div className="absolute inset-0 bg-white/95 backdrop-blur-sm z-10 flex flex-col items-center justify-center p-6 text-center">
+                                <p className="font-black text-[#0F172A] mb-1 text-base">Delete this doubt?</p>
+                                <p className="text-xs text-[#64748B] mb-5 font-semibold">This action cannot be undone.</p>
+                                <div className="flex gap-2 w-full max-w-xs">
+                                  <button onClick={(e) => { e.stopPropagation(); setShowDeleteConfirm(null) }} className="flex-1 py-2.5 rounded-xl border border-slate-200 font-bold text-xs text-[#64748B] hover:bg-slate-50 cursor-pointer">Cancel</button>
+                                  <button onClick={(e) => { e.stopPropagation(); handleDeletePost(post.id) }} className="flex-1 py-2.5 bg-red-500 text-white rounded-xl font-bold text-xs hover:bg-red-600 cursor-pointer">Delete</button>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        ))
+                      })()}
                     </div>
                   </motion.div>
                 )}
 
+                {/* WEBINARS TAB */}
                 {activeTab === 'events' && (
                   <motion.div
-                    key="events" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+                    key="events" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }}
                     className="grid grid-cols-1 md:grid-cols-2 gap-6"
                   >
                     {dashData.webinars.length > 0 ? dashData.webinars.map((w, i) => (
-                      <div key={i} className="bg-white rounded-[32px] border border-[#E2E8F0] overflow-hidden group shadow-sm hover:shadow-2xl transition-all cursor-pointer">
-                        <div className="h-48 bg-[#0F172A] relative overflow-hidden">
-                          <div className="absolute inset-0 bg-gradient-to-tr from-purple-600/20 to-blue-600/10" />
-                          <div className="absolute top-4 left-4 bg-white/10 backdrop-blur-md border border-white/20 px-3 py-1 rounded-full text-white text-[10px] font-black uppercase tracking-widest">
-                            UPCOMING
+                      <div key={i} className="bg-white rounded-3xl border border-slate-200/60 overflow-hidden group shadow-sm hover:shadow-md transition-all flex flex-col justify-between cursor-pointer">
+                        <div>
+                          <div className="h-40 bg-[#0F172A] relative overflow-hidden">
+                            <div className="absolute inset-0 bg-gradient-to-tr from-purple-600/30 to-indigo-600/20" />
+                            <div className="absolute top-4 left-4 bg-white/10 backdrop-blur-md border border-white/20 px-3 py-1 rounded-full text-white text-[9px] font-black uppercase tracking-wider">
+                              LIVE WEBINAR
+                            </div>
+                            <div className="absolute inset-0 flex items-center justify-center group-hover:scale-105 transition-transform duration-500">
+                              <Video size={40} className="text-white/20" />
+                            </div>
                           </div>
-                          <div className="absolute inset-0 flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
-                            <Video size={48} className="text-white/20" />
+                          <div className="p-6">
+                            <h3 className="text-base font-bold text-[#0F172A] m-0 mb-1.5 truncate group-hover:text-purple-600 transition-colors leading-snug tracking-tight">{w.title}</h3>
+                            <p className="text-xs font-semibold text-[#64748B] line-clamp-2 mb-6 leading-relaxed h-8">{w.description}</p>
+                            
+                            <div className="flex items-center gap-3">
+                              <div
+                                onClick={() => router.push(`/u/${w.users.unique_id}`)}
+                                className={`w-9 h-9 rounded-xl ${w.users.avatar_url ? 'bg-transparent' : 'bg-slate-50'} border border-slate-200/60 flex items-center justify-center text-sm overflow-hidden flex-shrink-0 hover:scale-105 transition-transform`}
+                              >
+                                {w.users.avatar_url ? (
+                                  <img src={w.users.avatar_url} alt={w.users.full_name} className="w-full h-full object-cover" />
+                                ) : (
+                                  '👨‍🏫'
+                                )}
+                              </div>
+                              <div>
+                                <p
+                                  onClick={() => router.push(`/u/${w.users.unique_id}`)}
+                                  className="text-xs font-bold text-[#0F172A] m-0 cursor-pointer hover:text-purple-600 transition-colors"
+                                >
+                                  {w.users.full_name}
+                                </p>
+                                <p className="text-[9px] font-extrabold text-[#94A3B8] m-0 uppercase tracking-widest mt-0.5">Verified Instructor</p>
+                              </div>
+                            </div>
                           </div>
                         </div>
-                        <div className="p-6">
-                          <h3 className="text-xl font-bold text-[#0F172A] m-0 mb-2 truncate group-hover:text-purple-600 transition-colors">{w.title}</h3>
-                          <p className="text-sm font-medium text-[#64748B] line-clamp-2 mb-6 h-10">{w.description}</p>
-                          <div className="flex items-center gap-3 mb-6">
-                            <div
-                              onClick={() => router.push(`/u/${w.users.unique_id}`)}
-                              className={`w-10 h-10 rounded-xl ${w.users.avatar_url ? 'bg-transparent' : 'bg-gray-50'} flex items-center justify-center text-lg overflow-hidden cursor-pointer hover:scale-105 transition-transform`}
-                            >
-                              {w.users.avatar_url ? (
-                                <img src={w.users.avatar_url} alt={w.users.full_name} className="w-full h-full object-cover" />
-                              ) : (
-                                '👨‍🏫'
-                              )}
-                            </div>
-                            <div>
-                              <p
-                                onClick={() => router.push(`/u/${w.users.unique_id}`)}
-                                className="text-xs font-bold text-[#0F172A] m-0 cursor-pointer hover:text-purple-600 transition-colors"
-                              >
-                                {w.users.full_name}
-                              </p>
-                              <p className="text-[10px] font-bold text-[#94A3B8] m-0 uppercase tracking-wider">Expert Mentor</p>
-                            </div>
-                          </div>
-                          <button className="w-full py-3.5 rounded-2xl bg-[#0F172A] text-white font-bold text-sm hover:bg-black transition-colors shadow-lg cursor-pointer">Register for Webinar</button>
+                        <div className="px-6 pb-6 pt-0">
+                          <button className="w-full py-3 rounded-2xl bg-[#0F172A] text-white font-bold text-xs hover:bg-black transition-colors shadow-sm cursor-pointer">Register for Webinar</button>
                         </div>
                       </div>
                     )) : (
-                      <div className="col-span-2 py-40 text-center bg-white rounded-[40px] border border-dashed border-[#E2E8F0]">
-                        <Video size={48} className="mx-auto text-gray-300 mb-6" />
-                        <h3 className="text-xl font-black text-[#0F172A] font-instrument-serif m-0 mb-2">No Webinars Found</h3>
-                        <p className="text-[#64748B] font-medium m-0">Stay tuned! New expert sessions are added weekly.</p>
+                      <div className="col-span-2 py-20 text-center bg-white rounded-3xl border border-dashed border-slate-200">
+                        <Video size={36} className="mx-auto text-slate-300 mb-4" />
+                        <h3 className="text-sm font-bold text-slate-800 m-0 mb-1">No Webinars Found</h3>
+                        <p className="text-xs text-[#64748B] font-semibold m-0">Check back later for expert mentoring sessions.</p>
                       </div>
                     )}
                   </motion.div>
                 )}
 
+                {/* COMMUNITY TAB */}
                 {activeTab === 'community' && (
                   <motion.div key="community" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
-                    <div className="bg-gradient-to-br from-[#7C3AED] to-[#4F46E5] rounded-[40px] p-10 text-white relative overflow-hidden shadow-2xl">
-                      <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-32 -mt-32" />
-                      <div className="relative z-10">
-                        <h2 className="text-4xl font-black font-instrument-serif tracking-tight mb-4">Inside {u.colleges?.short_name || 'Your College'} Hub</h2>
-                        <p className="text-white/60 font-medium text-lg max-w-lg mb-8">Access private discussions and exclusive resources limited to your college members.</p>
-                        <div className="flex flex-col sm:flex-row gap-4">
-                          <Link href={u.colleges?.slug ? `/community/c/${u.colleges.slug}` : '/community'} className="inline-flex items-center gap-3 bg-white text-[#0F172A] px-8 py-4 rounded-2xl font-black text-sm hover:scale-105 transition-transform no-underline cursor-pointer">
-                            Enter College Hub <ChevronRight size={18} />
+                    {/* College Banner Call-to-action */}
+                    <div className="bg-gradient-to-br from-purple-600 to-indigo-700 rounded-3xl p-8 text-white relative overflow-hidden shadow-md">
+                      <div className="absolute inset-0 bg-grid-white/10 opacity-20" />
+                      <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -mr-32 -mt-32" />
+                      
+                      <div className="relative z-10 max-w-xl">
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 border border-white/10 text-white text-[9px] font-black tracking-widest uppercase mb-4">
+                          <Sparkles size={10} /> Exclusive Campus Network
+                        </span>
+                        <h2 className="text-2xl font-extrabold text-white tracking-tight mb-2">Inside {u.colleges?.short_name || 'Your College'} Hub</h2>
+                        <p className="text-purple-100 font-semibold text-xs leading-relaxed mb-6">Interact directly with verified students and senior alumni from your institute inside your private college discussions board.</p>
+                        
+                        <div className="flex flex-wrap gap-3">
+                          <Link href={u.colleges?.slug ? `/community/c/${u.colleges.slug}` : '/community'} className="inline-flex items-center gap-2 bg-white text-[#0F172A] px-6 py-3 rounded-2xl font-bold text-xs hover:scale-102 hover:shadow-md transition-all no-underline cursor-pointer">
+                            Enter Campus Hub <ChevronRight size={14} />
                           </Link>
                           <button
                             onClick={() => setShowCreateGroupModal(true)}
-                            className="inline-flex items-center gap-3 bg-white/20 backdrop-blur-sm text-white px-8 py-4 rounded-2xl font-black text-sm hover:bg-white/30 transition-all border border-white/20"
+                            className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white px-6 py-3 rounded-2xl font-bold text-xs hover:bg-white/20 transition-all border border-white/10"
                           >
-                            <Plus size={18} />
-                            Create Group
+                            <Plus size={14} /> Create Student Group
                           </button>
                         </div>
                       </div>
                     </div>
 
+                    {/* Joined Subscribed Hubs */}
                     <div>
-                      <div className="flex items-center justify-between mb-6">
-                        <h3 className="text-[11px] font-black text-[#94A3B8] uppercase tracking-[0.2em] ml-4">Subscription Overview</h3>
+                      <div className="flex items-center justify-between mb-4 px-2">
+                        <h3 className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest ml-4">Subscription Overview</h3>
                         <button
                           onClick={() => setShowCreateGroupModal(true)}
-                          className="px-4 py-2 bg-[#7C3AED] text-white rounded-xl font-black text-xs hover:bg-purple-700 transition-colors flex items-center gap-2"
+                          className="px-3.5 py-1.5 bg-purple-50 text-purple-600 border border-purple-100 rounded-xl font-bold text-[10px] hover:bg-purple-100 transition-colors flex items-center gap-1.5"
                         >
-                          <Plus size={14} />
-                          Create Group
+                          <Plus size={12} /> Create Group
                         </button>
                       </div>
+                      
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {dashData.joinedCommunities.map((item, i) => (
-                          <div key={i} className="bg-white p-5 rounded-[28px] border border-[#E2E8F0] flex items-center justify-between group hover:shadow-xl transition-all cursor-pointer">
+                          <div key={i} className="bg-white p-5 rounded-3xl border border-slate-200/60 flex items-center justify-between group hover:shadow-md transition-all cursor-pointer">
                             <div className="flex items-center gap-4">
-                              <div className="w-14 h-14 rounded-2xl bg-[#F5F3FF] flex items-center justify-center text-[#7C3AED] font-black text-xl border border-purple-100 group-hover:scale-110 transition-transform duration-300">
+                              <div className="w-11 h-11 rounded-xl bg-purple-50 flex items-center justify-center text-purple-600 font-extrabold text-sm border border-purple-100 group-hover:scale-105 transition-transform duration-300">
                                 {item.communities.display_name[0]}
                               </div>
                               <div>
-                                <h4 className="text-base font-bold text-[#0F172A] m-0">{item.communities.display_name}</h4>
-                                <p className="text-[10px] font-black text-[#94A3B8] uppercase tracking-widest mt-1">Joined Member</p>
+                                <h4 className="text-sm font-bold text-[#0F172A] m-0 leading-snug">{item.communities.display_name}</h4>
+                                <p className="text-[9px] font-black text-[#94A3B8] uppercase tracking-wider mt-1">Private Hub Member</p>
                               </div>
                             </div>
-                            <button onClick={() => router.push(`/community/c/${item.communities.slug}`)} className="p-3.5 rounded-2xl bg-gray-50 text-gray-400 group-hover:bg-[#F5F3FF] group-hover:text-purple-600 transition-colors cursor-pointer">
-                              <ChevronRight size={20} />
+                            <button onClick={() => router.push(`/community/c/${item.communities.slug}`)} className="p-2.5 rounded-xl bg-slate-50 text-slate-400 group-hover:bg-purple-50 group-hover:text-purple-600 transition-colors cursor-pointer border border-transparent group-hover:border-purple-100">
+                              <ChevronRight size={16} />
                             </button>
                           </div>
                         ))}
@@ -678,33 +812,37 @@ export default function JuniorDashboard() {
                   </motion.div>
                 )}
 
+                {/* REFERRALS TAB */}
                 {activeTab === 'referrals' && (
                   <motion.div key="referrals" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-                    <div className="bg-white p-6 rounded-[28px] border border-[#E2E8F0] shadow-sm flex items-center justify-between">
-                      <h2 className="text-2xl font-black text-[#0F172A] font-instrument-serif m-0">Referral Tracker</h2>
-                      <button onClick={() => router.push('/jobs')} className="px-5 py-2.5 rounded-xl bg-[#0F172A] text-white text-xs font-bold hover:bg-black transition-colors cursor-pointer">Browse Jobs</button>
+                    <div className="bg-white p-6 rounded-3xl border border-slate-200/60 shadow-sm flex items-center justify-between">
+                      <div>
+                        <h2 className="text-xl font-bold text-slate-900 tracking-tight m-0">Referral Request Tracker</h2>
+                        <p className="text-slate-400 text-xs font-semibold m-0 mt-0.5">Real-time referral requests status directly linked to company recruiters.</p>
+                      </div>
+                      <button onClick={() => router.push('/jobs')} className="px-4 py-2.5 rounded-xl bg-[#0F172A] text-white text-xs font-bold hover:bg-black transition-colors cursor-pointer border border-transparent">Browse Jobs</button>
                     </div>
 
                     <div className="space-y-4">
                       {dashData.myReferrals.length > 0 ? dashData.myReferrals.map((req, i) => (
-                        <div key={i} className="bg-white p-6 rounded-[32px] border border-[#E2E8F0] hover:border-purple-200 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4 group cursor-pointer">
-                          <div className="flex items-center gap-5">
+                        <div key={i} className="bg-white p-5 rounded-3xl border border-slate-200/60 hover:border-purple-200 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4 group cursor-pointer shadow-sm">
+                          <div className="flex items-center gap-4">
                             <div
                               onClick={() => router.push(`/u/${req.senior.unique_id}`)}
-                              className={`w-16 h-16 rounded-[24px] ${req.senior.avatar_url ? 'bg-transparent' : 'bg-gray-50'} border border-gray-100 flex items-center justify-center text-3xl hover:scale-105 transition-transform overflow-hidden cursor-pointer`}
+                              className={`w-14 h-14 rounded-2xl ${req.senior.avatar_url ? 'bg-transparent' : 'bg-slate-50'} border border-slate-200/60 flex items-center justify-center text-slate-400 hover:scale-105 transition-transform overflow-hidden cursor-pointer flex-shrink-0`}
                             >
                               {req.senior.avatar_url ? (
                                 <img src={req.senior.avatar_url} alt={req.senior.full_name} className="w-full h-full object-cover" />
                               ) : (
-                                <Briefcase size={28} className="text-gray-400" />
+                                <Briefcase size={22} className="text-slate-400" />
                               )}
                             </div>
                             <div>
-                              <h3 className="text-lg font-bold text-[#0F172A] m-0">{req.job.role} <span className="text-[#94A3B8] font-medium">@ {req.job.company_name}</span></h3>
-                              <p className="text-xs font-bold text-[#64748B] mt-1 m-0">Request sent to <span className="text-[#0F172A]">{req.senior.full_name}</span> • {timeAgo(req.created_at)}</p>
+                              <h3 className="text-sm font-bold text-[#0F172A] m-0">{req.job.role} <span className="text-[#94A3B8] font-semibold">@ {req.job.company_name}</span></h3>
+                              <p className="text-[10px] font-black text-[#64748B] mt-1 m-0">Requested from <span className="text-[#0F172A]">{req.senior.full_name}</span> • {timeAgo(req.created_at)}</p>
                             </div>
                           </div>
-                          <div className={`px-5 py-2 rounded-full text-[11px] font-black uppercase tracking-widest border text-center ${req.status === 'approved' ? 'bg-green-50 text-green-600 border-green-200' :
+                          <div className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border text-center ${req.status === 'approved' ? 'bg-green-50 text-green-600 border-green-200' :
                               req.status === 'rejected' ? 'bg-red-50 text-red-500 border-red-200' :
                                 'bg-amber-50 text-amber-600 border-amber-200'
                             }`}>
@@ -712,137 +850,123 @@ export default function JuniorDashboard() {
                           </div>
                         </div>
                       )) : (
-                        <div className="p-32 bg-white rounded-[40px] border border-dashed border-[#E2E8F0] text-center">
-                          <Handshake size={48} className="mx-auto text-gray-200 mb-6" />
-                          <h3 className="text-xl font-black text-[#0F172A] font-instrument-serif m-0 mb-2">No Referrals Requested</h3>
-                          <p className="text-[#64748B] font-medium mb-8">Reach out to seniors at top tech companies for referrals.</p>
-                          <button onClick={() => router.push('/jobs')} className="bg-[#0F172A] text-white px-8 py-4 rounded-2xl font-black text-sm hover:scale-105 transition-all cursor-pointer">Explore Opportunities</button>
+                        <div className="p-20 bg-white rounded-3xl border border-dashed border-slate-200 text-center shadow-sm">
+                          <Handshake size={36} className="mx-auto text-slate-200 mb-4" />
+                          <h3 className="text-base font-black m-0 mb-1">No Referrals Requested</h3>
+                          <p className="text-xs text-[#64748B] font-semibold mb-6">Connect with seniors in your dream company to get your resume referred.</p>
+                          <button onClick={() => router.push('/jobs')} className="bg-[#0F172A] text-white px-6 py-3 rounded-2xl font-bold text-xs hover:scale-102 transition-all cursor-pointer">Explore Job Opportunities</button>
                         </div>
                       )}
                     </div>
                   </motion.div>
                 )}
 
-                {activeTab === 'messages' && (
-                  <motion.div key="messages" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-                    <DashboardMessages 
-                      currentUserId={u.id} 
-                      role="junior"
-                      initialUserId={initialMessageUser}
-                    />
-                  </motion.div>
-                )}
               </AnimatePresence>
 
             </div>
 
-            {/* RIGHT COLUMN: INFO & BADGES (4 COLS) */}
-            {activeTab !== 'messages' && (
-              <div className="lg:col-span-4 space-y-8">
+            {/* RIGHT COLUMN: INTERACTIVE ROADMAP & SETTINGS (4 COLS) */}
+            <div className="lg:col-span-4 space-y-8">
 
-              {/* How to Earn RP Card */}
-              <div className="bg-white rounded-[32px] border border-[#E2E8F0] p-8 shadow-sm hover:shadow-xl transition-all overflow-hidden relative group">
+              {/* Gamified Growth Road Map */}
+              <div className="bg-white rounded-3xl border border-slate-200/60 p-6 shadow-sm overflow-hidden relative group">
                 <div className="absolute top-0 right-0 w-24 h-24 bg-purple-50 group-hover:bg-purple-100 transition-colors rounded-bl-full -mr-8 -mt-8" />
-                <h3 className="text-xl font-black text-[#0F172A] font-instrument-serif m-0 mb-6 relative z-10">The Growth Map</h3>
-                <div className="space-y-4 relative z-10">
+                <h3 className="text-sm font-bold text-slate-800 m-0 mb-6 uppercase tracking-wider relative z-10 font-bold">Campus Career Roadmap</h3>
+                
+                <div className="space-y-3 relative z-10">
                   {[
                     { label: 'Post a Doubt', rp: '+5', done: u.doubt_count > 0, icon: <HelpCircle size={14} /> },
-                    { label: 'Daily Visit', rp: '+1', done: true, icon: <Calendar size={14} /> },
-                    { label: 'Join Webinar', rp: '+10', done: u.webinar_count > 0, icon: <Video size={14} /> },
-                    { label: 'Get Referral', rp: '+20', done: dashData.myReferrals.some((r: any) => r.status === 'approved'), icon: <Handshake size={14} /> },
+                    { label: 'Daily Campus Login', rp: '+1', done: true, icon: <Calendar size={14} /> },
+                    { label: 'Join Expert Webinar', rp: '+10', done: u.webinar_count > 0, icon: <Video size={14} /> },
+                    { label: 'Receive Referral', rp: '+20', done: dashData.myReferrals.some((r: any) => r.status === 'approved'), icon: <Handshake size={14} /> },
                   ].map((task, i) => (
-                    <div key={i} className={`flex items-center justify-between p-4 rounded-2xl border transition-all cursor-pointer ${task.done ? 'bg-green-50 border-green-100' : 'bg-gray-50 border-transparent hover:bg-white hover:border-gray-200 shadow-sm'}`}>
+                    <div key={i} className={`flex items-center justify-between p-3.5 rounded-2xl border transition-all cursor-pointer ${task.done ? 'bg-green-50/50 border-green-100/50' : 'bg-slate-50 border-transparent hover:bg-white hover:border-slate-200 shadow-sm'}`}>
                       <div className="flex items-center gap-3">
-                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${task.done ? 'text-green-600 bg-white/50' : 'text-gray-400 bg-white shadow-sm'}`}>
+                        <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${task.done ? 'text-green-600 bg-white/50' : 'text-slate-400 bg-white shadow-sm'}`}>
                           {task.done ? <CheckCircle size={14} /> : task.icon}
                         </div>
-                        <span className={`text-xs font-bold ${task.done ? 'text-green-700' : 'text-[#64748B]'}`}>{task.label}</span>
+                        <span className={`text-xs font-bold ${task.done ? 'text-green-800' : 'text-[#64748B]'}`}>{task.label}</span>
                       </div>
-                      <span className={`text-[11px] font-black ${task.done ? 'text-green-600' : 'text-purple-600'}`}>{task.rp} RP</span>
+                      <span className={`text-[10px] font-black ${task.done ? 'text-green-600' : 'text-[#7C3AED]'}`}>{task.rp} RP</span>
                     </div>
                   ))}
                 </div>
               </div>
 
               {/* Action Sidebar: Quick Nav */}
-              <div className="bg-[#0F172A] rounded-[32px] p-8 text-white shadow-2xl space-y-8">
+              <div className="bg-slate-900 rounded-3xl p-6 text-white border border-white/5 shadow-xl space-y-6">
                 <div>
-                  <h4 className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-6">Account Settings</h4>
-                  <div className="space-y-2">
-                    <button className="w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold text-white/70 hover:bg-white/5 hover:text-white transition-all group">
-                      <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center group-hover:scale-110 transition-transform">
-                        <User size={16} />
+                  <h4 className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Quick Settings</h4>
+                  <div className="space-y-1.5">
+                    <button onClick={() => router.push(`/u/${u.unique_id}`)} className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-bold text-slate-300 hover:bg-white/5 hover:text-white transition-all group cursor-pointer">
+                      <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:scale-105 transition-transform text-slate-400">
+                        <User size={14} />
                       </div>
-                      My Profile
+                      My Public Profile
                     </button>
-                    <button className="w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold text-white/70 hover:bg-white/5 hover:text-white transition-all group">
-                      <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center group-hover:scale-110 transition-transform">
-                        <Settings size={16} />
+                    <button onClick={() => alert('Preferences page coming soon!')} className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-bold text-slate-300 hover:bg-white/5 hover:text-white transition-all group cursor-pointer">
+                      <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:scale-105 transition-transform text-slate-400">
+                        <Settings size={14} />
                       </div>
-                      Preferences
+                      Dashboard Settings
                     </button>
-                    <button onClick={() => { localStorage.removeItem('claspire_user'); router.push('/login'); }} className="w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold text-red-400 hover:bg-red-500/10 transition-all group cursor-pointer">
-                      <div className="w-8 h-8 rounded-xl bg-red-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                        <LogOut size={16} />
+                    <button onClick={async () => {
+                      try { await fetch('/api/auth/signout', { method: 'POST' }); } catch(e) {}
+                      localStorage.removeItem('claspire_user');
+                      router.push('/login');
+                    }} className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-bold text-red-400 hover:bg-red-500/10 transition-all group cursor-pointer">
+                      <div className="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center group-hover:scale-105 transition-transform">
+                        <LogOut size={14} />
                       </div>
                       Sign Out
                     </button>
                   </div>
                 </div>
 
-                <div className="mt-12 border-t border-gray-800 pt-8">
-                  <h3 className="text-red-400 font-semibold text-sm uppercase tracking-wider mb-1">
+                <div className="mt-8 border-t border-slate-800 pt-6">
+                  <h3 className="text-red-400 font-bold text-xs uppercase tracking-wider mb-1">
                     Danger Zone
                   </h3>
-                  <p className="text-gray-500 text-sm mb-4">
-                    Once you delete your account, there is no going back.
+                  <p className="text-slate-500 text-[11px] leading-relaxed mb-4 font-semibold">
+                    Permanent action. Once deleted, your student portfolio, doubts, and connection history are erased.
                   </p>
                   <button
                     onClick={() => setShowDeleteModal(true)}
-                    className="border border-red-800 text-red-400 hover:bg-red-950/30 rounded-xl px-5 py-2.5 text-sm font-medium transition-colors"
+                    className="border border-red-900/60 text-red-400 hover:bg-red-950/20 rounded-xl px-4 py-2 text-xs font-bold transition-all cursor-pointer w-full text-center"
                   >
                     Delete My Account
                   </button>
                 </div>
 
-                <div className="pt-8 border-t border-white/5">
+                <div className="pt-6 border-t border-slate-800">
                   <div className="flex items-center justify-between mb-4">
-                    <h4 className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Platform Status</h4>
+                    <h4 className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Platform Status</h4>
                     <div className="flex items-center gap-1.5">
                       <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                      <span className="text-[9px] font-bold text-green-500 text-purple-400">ONLINE</span>
+                      <span className="text-[9px] font-black text-green-500">SYSTEM ONLINE ⚡</span>
                     </div>
                   </div>
                   <div className="bg-white/5 rounded-2xl p-4 border border-white/5">
-                    <p className="text-[11px] text-white/40 font-medium leading-relaxed italic m-0">
-                      "Your degree is just a piece of paper, your education is seen in your behavior."
+                    <p className="text-[10px] text-slate-400 font-semibold leading-relaxed italic m-0">
+                      "Education is not preparation for life; education is life itself."
                     </p>
                   </div>
                 </div>
               </div>
+
             </div>
-          )}
+          </div>
         </div>
-      </div>
-    </main>
+        )}
+      </main>
 
       <style jsx global>{`
-        @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-        
-        :root {
-          --font-instrument-serif: 'Instrument Serif', serif;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
-        .font-instrument-serif {
-          font-family: var(--font-instrument-serif);
-        }
-
-        /* Smooth scroll for modern look */
         html {
           scroll-behavior: smooth;
         }
 
-        /* Hide scrollbars for a cleaner look */
         .hide-scrollbar::-webkit-scrollbar {
           display: none;
         }
@@ -851,6 +975,7 @@ export default function JuniorDashboard() {
           scrollbar-width: none;
         }
       `}</style>
+      
       <DeleteAccountModal
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
@@ -862,7 +987,6 @@ export default function JuniorDashboard() {
         onClose={() => setShowCreateGroupModal(false)}
         onSuccess={() => {
           setShowCreateGroupModal(false)
-          // Refresh or navigate as needed
         }}
         currentUser={{
           id: u.id,
@@ -870,7 +994,7 @@ export default function JuniorDashboard() {
           role: u.role || 'student',
           college_id: u.colleges?.id || ''
         }}
-        communityId={userCollegeCommunityId || undefined}  // Pass as optional prop
+        communityId={userCollegeCommunityId || undefined}
       />
       <NotificationPrompt />
     </div>

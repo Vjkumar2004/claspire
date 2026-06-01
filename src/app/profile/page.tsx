@@ -152,7 +152,15 @@ export default function ProfilePage() {
     }
   }
 
-  if (loading) {
+  // const updateStudentExtras = (patch: Partial<any>) => {
+  //   setProfileData((prev) => mergeStudentExtras(prev, patch))
+  // }
+
+  // const updateSeniorExtras = (patch: Partial<any>) => {
+  //   setProfileData((prev) => mergeSeniorExtras(prev, patch))
+  // }
+
+  if (loading || !user) {
     return (
       <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center font-plus-jakarta-sans">
         <motion.div 
