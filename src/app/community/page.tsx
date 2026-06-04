@@ -325,25 +325,26 @@ function CommunityPageContent() {
     }
   }, [user?.id, user?.role])
 
-  // Polling chat messages inside the interactive drawer/bottom sheet
+  // Realtime chat messages inside the interactive drawer/bottom sheet
   useEffect(() => {
     if (!activeChatUser || !user?.id) return
 
-    // Mark messages as read
     const conversationId = [user.id, activeChatUser.id].sort().join('_')
+
+    // Mark messages as read immediately
     fetch('/api/messages/read', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ conversationId })
     }).catch(console.error)
 
-    // Clear local unread state immediately
+    // Clear local unread state
     setChatThreads(prev => prev.map(t => t.id === activeChatUser.id ? { ...t, unread: false } : t))
 
     let isMounted = true
     setDrawerChatLoading(true)
 
-    const fetchHistory = async () => {
+    const fetchInitialHistory = async () => {
       try {
         const res = await fetch(`/api/messages/history?userId=${activeChatUser.id}`)
         if (res.ok) {
@@ -353,18 +354,54 @@ function CommunityPageContent() {
           }
         }
       } catch (err) {
-        console.error('Failed to poll chat history inside drawer:', err)
+        console.error('Failed to fetch initial chat history:', err)
       } finally {
         if (isMounted) setDrawerChatLoading(false)
       }
     }
 
-    fetchHistory()
-    const interval = setInterval(fetchHistory, 3000)
+    fetchInitialHistory()
+
+    const channel = supabase.channel(`community-chat-${conversationId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'direct_messages',
+          filter: `conversation_id=eq.${conversationId}`
+        },
+        (payload) => {
+          if (payload.eventType === 'INSERT') {
+            const newMsg = payload.new as any
+            if (newMsg.sender_id !== user.id) {
+              setDrawerMessages(prev => {
+                if (prev.some((m: any) => m.id === newMsg.id)) return prev;
+                return [...prev, newMsg]
+              })
+              
+              fetch('/api/messages/read', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ conversationId })
+              }).catch(console.error)
+            }
+          } else if (payload.eventType === 'UPDATE') {
+            const updatedMsg = payload.new as any
+            setDrawerMessages(prev =>
+              prev.map(m => m.id === updatedMsg.id ? { ...m, ...updatedMsg } : m)
+            )
+          } else if (payload.eventType === 'DELETE') {
+            const deletedMsg = payload.old as any
+            setDrawerMessages(prev => prev.filter(m => m.id !== deletedMsg.id))
+          }
+        }
+      )
+      .subscribe()
 
     return () => {
       isMounted = false
-      clearInterval(interval)
+      supabase.removeChannel(channel)
     }
   }, [activeChatUser, user?.id])
 
