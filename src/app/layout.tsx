@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
-import { AuthProvider } from "@/contexts/AuthContext";
-import { PointsProvider } from "@/contexts/PointsContext";
-import { UnreadMessagesProvider } from "@/contexts/UnreadMessagesContext";
+import Providers from "@/components/Providers";
 import RPNotification from "@/components/RPNotification";
 import OneSignalInit from "@/components/OneSignalInit";
 import NotificationPrompt from "@/components/NotificationPrompt";
@@ -175,24 +173,20 @@ export default function RootLayout({
         />
        </head>
        <body
-         className={`${inter.variable} ${plusJakartaSans.variable} antialiased`}
-       >
-         <AuthProvider>
-           <PointsProvider>
-             <UnreadMessagesProvider>
-               <OneSignalInit />
-               <NotificationPrompt />
-               <RPNotification />
-               <Navbar />
-               <ToastContainer />
-               <main className="min-h-screen">
-                 {children}
-               </main>
-               <BottomNavbar />
-             </UnreadMessagesProvider>
-           </PointsProvider>
-         </AuthProvider>
-       </body>
+          className={`${inter.variable} ${plusJakartaSans.variable} antialiased`}
+        >
+          <Providers>
+            <OneSignalInit />
+            <NotificationPrompt />
+            <RPNotification />
+            <Navbar />
+            <ToastContainer />
+            <main className="min-h-screen">
+              {children}
+            </main>
+            <BottomNavbar />
+          </Providers>
+        </body>
     </html>
   );
 }

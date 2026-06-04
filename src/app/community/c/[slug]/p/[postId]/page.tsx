@@ -77,6 +77,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
 
   useEffect(() => {
     if (postId) {
+      window.scrollTo(0, 0)
       fetchPost()
       fetchCurrentUser()
     }

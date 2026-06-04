@@ -7,6 +7,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { getCollegeLogo } from '@/lib/college-utils';
 import { createClient } from '@supabase/supabase-js'
 import { Mail, Phone, Lock, Eye, EyeOff, User, GraduationCap, MapPin, Calendar } from 'lucide-react'
+import GoogleSignInButton from '@/components/auth/GoogleSignInButton'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -22,6 +23,221 @@ export default function SignupPage() {
   const [step, setStep] = useState<'form' | 'otp' | 'success'>('form')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [googleId, setGoogleId] = useState<string | null>(null)
+
+  // Handle URL query email and sessionStorage on mount
+  useEffect(() => {
+    const storedEmail = sessionStorage.getItem('google_signup_email')
+    const storedId = sessionStorage.getItem('google_signup_id')
+    if (storedEmail && storedId) {
+      setStudentData(prev => ({ ...prev, email: storedEmail }))
+      setSeniorData(prev => ({ ...prev, work_email: storedEmail }))
+      setGoogleId(storedId)
+
+      const urlParams = new URLSearchParams(window.location.search)
+      const roleParam = urlParams.get('role')
+      if (roleParam === 'senior' || roleParam === 'student') {
+        setActiveRole(roleParam)
+      }
+    }
+  }, [])
+
+  const handleGoogleSuccess = async (credential: string) => {
+    setLoading(true)
+    setError('')
+    try {
+      const res = await fetch('/api/auth/google-verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ credential })
+      })
+
+      const data = await res.json()
+      if (!res.ok) {
+        setError(data.error || 'Google verification failed')
+        return
+      }
+
+      // Check if email already exists before proceeding (hijacking protection)
+      const checkRes = await fetch('/api/auth/check-account', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: data.email, role: activeRole })
+      })
+
+      if (checkRes.status === 409) {
+        setError('An account with this email already exists. Please sign in instead.')
+        return
+      }
+
+      // Auto-fill and secure google_id
+      setStudentData(prev => ({ ...prev, email: data.email }))
+      setSeniorData(prev => ({ ...prev, work_email: data.email }))
+      setGoogleId(data.google_id)
+      
+      // Store in session storage to persist
+      sessionStorage.setItem('google_signup_email', data.email)
+      sessionStorage.setItem('google_signup_id', data.google_id)
+
+    } catch (err) {
+      console.error(err)
+      setError('Network error during Google authentication.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const registerWithGoogle = async () => {
+    const email = activeRole === 'senior'
+      ? seniorData.work_email
+      : studentData.email
+
+    setLoading(true)
+    setError('')
+
+    try {
+      const profileData = activeRole === 'senior' ? {
+        full_name: seniorData.full_name,
+        college_id: seniorData.college_id,
+        company: seniorData.company.trim() || (seniorData.is_fresher ? 'Fresher' : ''),
+        designation: seniorData.designation.trim() || (seniorData.is_fresher ? 'Seeking Opportunity' : ''),
+        branch: seniorData.branch,
+        passout_year: parseInt(seniorData.passout_year),
+        graduation_year: parseInt(seniorData.passout_year),
+        linkedin_url: seniorData.linkedin_url || null,
+        work_email: seniorData.work_email,
+        is_verified: true,
+        verification_type: seniorData.is_fresher ? 'fresher' : 'work_email',
+        verification_status: 'verified',
+        is_fresher: seniorData.is_fresher
+      } : {
+        full_name: studentData.full_name,
+        college_id: studentData.college_id || null,
+        branch: studentData.branch || '',
+        year: parseInt(studentData.year) || 1,
+        passout_year: parseInt(studentData.passout_year) || 2025,
+        is_verified: true,
+        verification_type: 'manual',
+        verification_status: 'verified',
+      }
+
+      const createRes = await fetch('/api/auth/create-user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          email, 
+          role: activeRole, 
+          profileData, 
+          password, 
+          google_id: googleId 
+        })
+      })
+
+      const createData = await createRes.json()
+      if (!createRes.ok) {
+        setError(createData.error || 'Failed to create account')
+        return
+      }
+
+      sessionStorage.removeItem('google_signup_email')
+      sessionStorage.removeItem('google_signup_id')
+
+      localStorage.setItem('claspire_user', JSON.stringify(createData.user))
+      router.push(activeRole === 'senior' ? '/dashboard/senior' : '/dashboard/junior')
+
+    } catch (err) {
+      console.error('Verify error:', err)
+      setError('Network error. Try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleSubmit = async () => {
+    setError('')
+    const emailToUse = activeRole === 'senior'
+      ? seniorData.work_email
+      : studentData.email
+
+    if (!emailToUse) {
+      setError(activeRole === 'senior' ? 'Work email is required' : 'Email is required')
+      return
+    }
+
+    if (!agreedToTerms) {
+      setError('Please agree to Terms of Service and Privacy Policy to continue')
+      return
+    }
+
+    if (!password || password.length < 6) {
+      setError('Password must be at least 6 characters long')
+      return
+    }
+    if (password !== confirmPassword) {
+      setError('Passwords do not match')
+      return
+    }
+
+    // Validate student fields
+    if (activeRole === 'student') {
+      if (!studentData.full_name.trim()) {
+        setError('Full name is required')
+        return
+      }
+      if (!studentData.college_id) {
+        setError('Please select your college')
+        return
+      }
+      if (!studentData.branch.trim()) {
+        setError('Branch is required')
+        return
+      }
+      if (!studentData.year) {
+        setError('Current year is required')
+        return
+      }
+      if (!studentData.passout_year) {
+        setError('Passout year is required')
+        return
+      }
+    }
+
+    // Validate senior fields
+    if (activeRole === 'senior') {
+      if (!seniorData.full_name.trim()) {
+        setError('Full name is required')
+        return
+      }
+      if (!seniorData.college_id) {
+        setError('Please select your college')
+        return
+      }
+      if (!seniorData.branch.trim()) {
+        setError('Branch is required')
+        return
+      }
+      if (!seniorData.passout_year) {
+        setError('Passout year is required')
+        return
+      }
+      if (!seniorData.work_email.trim()) {
+        setError('Work email is required')
+        return
+      }
+      const workEmailDomain = seniorData.work_email.split('@')[1]
+      const personalDomains = ['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com']
+      if (!seniorData.is_fresher && personalDomains.includes(workEmailDomain?.toLowerCase())) {
+        setError('Please use your work/company email, not personal email')
+        return
+      }
+    }
+
+    if (googleId) {
+      await registerWithGoogle()
+    } else {
+      await sendOTP()
+    }
+  }
 
   // Password states
   const [password, setPassword] = useState('')
@@ -456,7 +672,7 @@ export default function SignupPage() {
             </button>
 
             {/* Student/Senior Toggle */}
-            <div className="flex bg-gray-100 rounded-xl p-1 mb-7 gap-1">
+            <div className="flex bg-gray-100 rounded-xl p-1 mb-6 gap-1">
               <button
                 onClick={() => { setActiveRole("student"); setOtpSent(false); setAgreedToTerms(false); }}
                 className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-semibold transition-all ${
@@ -474,6 +690,46 @@ export default function SignupPage() {
                 👔 Senior
               </button>
             </div>
+
+            {/* Google Signup Option */}
+            {!otpSent && (
+              <div className="mb-6">
+                {googleId ? (
+                  <div className="bg-green-50 border border-green-200 text-green-700 text-xs rounded-xl p-3.5 flex items-center justify-between">
+                    <div>
+                      <span className="font-bold">✓ Google Connected</span>
+                      <p className="text-[10px] text-green-600 mt-0.5">We pre-verified your email. Complete fields below.</p>
+                    </div>
+                    <button 
+                      type="button"
+                      onClick={() => {
+                        setGoogleId(null);
+                        setStudentData(prev => ({ ...prev, email: '' }));
+                        setSeniorData(prev => ({ ...prev, work_email: '' }));
+                        sessionStorage.removeItem('google_signup_email');
+                        sessionStorage.removeItem('google_signup_id');
+                      }}
+                      className="text-green-700 font-bold hover:underline text-[10px] ml-2"
+                    >
+                      Disconnect
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <GoogleSignInButton
+                      buttonId="google-signup-btn"
+                      onSuccess={handleGoogleSuccess}
+                      onError={(err) => setError(err)}
+                    />
+                    <div className="flex items-center my-4 text-gray-300">
+                      <div className="flex-1 h-[1px] bg-gray-200" />
+                      <span className="text-xs px-2.5 text-gray-400 font-medium">or Sign up with Email</span>
+                      <div className="flex-1 h-[1px] bg-gray-200" />
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
 
             {/* Form Container */}
             <div>
@@ -783,7 +1039,8 @@ export default function SignupPage() {
                         placeholder="yourname@gmail.com"
                         value={studentData.email}
                         onChange={(e) => setStudentData({...studentData, email: e.target.value})}
-                        className="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm text-black outline-none focus:border-purple-600 mb-4"
+                        className={`w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm outline-none focus:border-purple-600 mb-4 ${googleId ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'text-black'}`}
+                        readOnly={!!googleId}
                       />
 
                       <label className="block text-sm font-semibold text-gray-700 mb-1.5">Password</label>
@@ -839,11 +1096,11 @@ export default function SignupPage() {
 
                       <button
                         type="button"
-                        onClick={sendOTP}
+                        onClick={handleSubmit}
                         disabled={loading || !agreedToTerms}
                         className="w-full bg-gradient-to-r from-purple-600 to-cyan-500 text-white py-3.5 rounded-xl font-bold text-sm hover:opacity-90 transition-opacity disabled:opacity-50"
                       >
-                        {loading ? 'Sending...' : 'Create Student Account →'}
+                        {loading ? 'Processing...' : googleId ? 'Complete Signup 🚀' : 'Create Student Account →'}
                       </button>
                     </>
                   )}
@@ -903,9 +1160,10 @@ export default function SignupPage() {
                               placeholder={seniorData.is_fresher ? "yourname@gmail.com" : "name@company.com"}
                               value={seniorData.work_email}
                               onChange={e => setSeniorData({...seniorData, work_email: e.target.value})}
-                              className="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm outline-none focus:border-purple-600"
+                              className={`w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm outline-none focus:border-purple-600 ${googleId ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'text-black'}`}
+                              readOnly={!!googleId}
                             />
-                            {!seniorData.is_fresher && <p className="text-[10px] text-gray-400 mt-1">Use office email for instant approval</p>}
+                            {!seniorData.is_fresher && !googleId && <p className="text-[10px] text-gray-400 mt-1">Use office email for instant approval</p>}
                           </div>
 
                           <div>
@@ -1086,11 +1344,11 @@ export default function SignupPage() {
 
                           <button
                             type="button"
-                            onClick={sendOTP}
+                            onClick={handleSubmit}
                             disabled={loading || !verifyMethod || !agreedToTerms}
                             className="w-full bg-gradient-to-r from-purple-600 to-cyan-500 text-white py-3.5 rounded-xl font-bold text-sm hover:opacity-90 transition-opacity disabled:opacity-50 mt-2"
                           >
-                            {loading ? 'Processing...' : 'Verify & Continue →'}
+                            {loading ? 'Processing...' : googleId ? 'Complete Signup 🚀' : 'Verify & Continue →'}
                           </button>
                         </div>
                       )}

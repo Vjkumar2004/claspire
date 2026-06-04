@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import Link from 'next/link'
 import { Eye, EyeOff, Mail, Lock, User, GraduationCap } from 'lucide-react'
+import GoogleSignInButton from '@/components/auth/GoogleSignInButton'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -15,6 +16,52 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+
+  const handleGoogleSuccess = async (credential: string) => {
+    setLoading(true)
+    setError('')
+
+    try {
+      const res = await fetch('/api/auth/google-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ credential, role: activeRole })
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        if (res.status === 404 && data.isNewUser) {
+          // Redirect to signup and auto-fill email safely
+          sessionStorage.setItem('google_signup_email', data.email)
+          sessionStorage.setItem('google_signup_id', data.google_id)
+          router.push(`/signup?email=${encodeURIComponent(data.email)}&role=${activeRole}`)
+          return
+        }
+        setError(data.error || 'Google login failed')
+        return
+      }
+
+      // Save to localStorage
+      localStorage.setItem(
+        'claspire_user',
+        JSON.stringify(data.user)
+      )
+
+      // Full reload for cookie redirect
+      if (data.user.role === 'senior') {
+        window.location.href = '/dashboard/senior'
+      } else {
+        window.location.href = '/dashboard/junior'
+      }
+
+    } catch (err) {
+      console.error(err)
+      setError('Network error during Google authentication. Try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   // Redirect if already logged in
   useEffect(() => {
@@ -158,7 +205,7 @@ export default function LoginPage() {
           background: '#F3F4F6',
           borderRadius: 10,
           padding: 4,
-          marginBottom: 24,
+          marginBottom: 20,
           gap: 4
         }}>
           {(['student', 'senior'] as const).map(role => (
@@ -199,6 +246,25 @@ export default function LoginPage() {
               )}
             </button>
           ))}
+        </div>
+
+        {/* Google Sign In Option */}
+        <div style={{ marginBottom: 20 }}>
+          <GoogleSignInButton
+            buttonId="google-login-btn"
+            onSuccess={handleGoogleSuccess}
+            onError={(err) => setError(err)}
+          />
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            margin: '16px 0 8px 0',
+            color: '#D1D5DB'
+          }}>
+            <div style={{ flex: 1, height: 1, background: '#E5E7EB' }} />
+            <span style={{ fontSize: 12, padding: '0 10px', color: '#9CA3AF', fontWeight: 500 }}>or Sign in with Email</span>
+            <div style={{ flex: 1, height: 1, background: '#E5E7EB' }} />
+          </div>
         </div>
 
         {/* Email */}

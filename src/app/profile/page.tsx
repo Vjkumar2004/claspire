@@ -124,15 +124,15 @@ export default function ProfilePage() {
     }
   }
 
-  const updateStudentExtras = (patch: Partial<StudentProfileExtras>) => {
+  const updateStudentExtras = (patch: Partial<any>) => {
     setProfileData((prev) => mergeStudentExtras(prev, patch))
   }
 
-  const updateSeniorExtras = (patch: Partial<SeniorProfileExtras>) => {
+  const updateSeniorExtras = (patch: Partial<any>) => {
     setProfileData((prev) => mergeSeniorExtras(prev, patch))
   }
 
-  if (loading) {
+  if (loading || !user) {
     return (
       <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center">
         <div className="w-10 h-10 border-3 border-[#7C3AED] border-t-transparent rounded-full animate-spin" />

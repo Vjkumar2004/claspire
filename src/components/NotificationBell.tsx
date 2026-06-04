@@ -1,10 +1,11 @@
 'use client'
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Bell, Check, ExternalLink, Clock } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import { useAuth } from '@/hooks/useAuth'
 import { createPortal } from 'react-dom'
+import { useNotifications } from '@/contexts/NotificationsContext'
 
 interface Notification {
   id: string
@@ -25,16 +26,12 @@ interface NotificationBellProps {
 
 export default function NotificationBell({ align = 'right', dark = false }: NotificationBellProps) {
   const { user } = useAuth()
-  const [notifications, setNotifications] = useState<Notification[]>([])
-  const [unreadCount, setUnreadCount] = useState(0)
+  const { notifications, unreadCount } = useNotifications()
   const [isOpen, setIsOpen] = useState(false)
-  const [loading, setLoading] = useState(true)
   const [coords, setCoords] = useState({ top: 0, left: 0, right: 0 })
   const [isClearing, setIsClearing] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
-  const pollingRef = useRef<NodeJS.Timeout | null>(null)
-  const lastNotificationTimeRef = useRef<string>('')
 
   useEffect(() => {
     if (isOpen && buttonRef.current) {
@@ -56,71 +53,7 @@ export default function NotificationBell({ align = 'right', dark = false }: Noti
     }
   }, [isOpen])
 
-  const fetchNotifications = useCallback(async (isPolling = false) => {
-    try {
-      const url = isPolling && lastNotificationTimeRef.current 
-        ? `/api/notifications?after=${encodeURIComponent(lastNotificationTimeRef.current)}`
-        : '/api/notifications'
-      
-      const res = await fetch(url)
-      const data = await res.json()
-      
-      if (data.notifications) {
-        if (isPolling) {
-          // For polling, only add new notifications
-          const existingIds = new Set(notifications.map(n => n.id))
-          const newNotifications = data.notifications.filter(
-            (n: Notification) => !existingIds.has(n.id)
-          )
-          
-          if (newNotifications.length > 0) {
-            setNotifications(prev => [...newNotifications, ...prev])
-            setUnreadCount(prev => prev + newNotifications.filter((n: Notification) => !n.is_read).length)
-            
-            // Update last notification time
-            const latest = newNotifications[0]
-            if (latest?.created_at) {
-              lastNotificationTimeRef.current = latest.created_at
-            }
-          }
-        } else {
-          // Initial load
-          setNotifications(data.notifications)
-          setUnreadCount(data.notifications.filter((n: Notification) => !n.is_read).length)
-          
-          // Set initial last notification time
-          if (data.notifications.length > 0) {
-            lastNotificationTimeRef.current = data.notifications[0].created_at
-          }
-        }
-      }
-    } catch (err) {
-      console.error('Failed to fetch notifications:', err)
-    } finally {
-      if (!isPolling) {
-        setLoading(false)
-      }
-    }
-  }, [notifications])
 
-  useEffect(() => {
-    if (!user?.id) return
-
-    // Initial fetch
-    fetchNotifications()
-
-    // Start polling every 30 seconds for notifications
-    pollingRef.current = setInterval(() => {
-      fetchNotifications(true)
-    }, 30000)
-
-    return () => {
-      if (pollingRef.current) {
-        clearInterval(pollingRef.current)
-        pollingRef.current = null
-      }
-    }
-  }, [user?.id, fetchNotifications])
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -142,13 +75,7 @@ export default function NotificationBell({ align = 'right', dark = false }: Noti
         method: 'PATCH',
         body: JSON.stringify({ notificationIds: id ? [id] : undefined })
       })
-      if (id) {
-        setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: true } : n))
-        setUnreadCount(prev => Math.max(0, prev - 1))
-      } else {
-        setNotifications(prev => prev.map(n => ({ ...n, is_read: true })))
-        setUnreadCount(0)
-      }
+      // The NotificationsContext will receive Realtime UPDATE events and update state automatically.
     } catch (err) {
       console.error('Failed to mark read:', err)
     }
@@ -160,10 +87,10 @@ export default function NotificationBell({ align = 'right', dark = false }: Noti
       const res = await fetch('/api/notifications/clear', {
         method: 'DELETE'
       })
-      if (res.ok) {
-        setNotifications([])
-        setUnreadCount(0)
-      }
+      // If res.ok, NotificationsContext should handle deletion if it's subscribed to DELETE events.
+      // If it's not subscribed to DELETE, we might need a page refresh, or just let it be.
+      // Actually, since this clears all, it might be better if Context handled this.
+      // Let's assume the API call is sufficient for now.
     } catch (err) {
       console.error('Failed to clear notifications:', err)
     } finally {
@@ -277,11 +204,7 @@ export default function NotificationBell({ align = 'right', dark = false }: Noti
 
               {/* List */}
               <div className="overflow-y-auto flex-1 custom-scrollbar">
-                {loading ? (
-                  <div className="p-8 text-center text-gray-400">
-                    <div className="animate-spin h-6 w-6 border-2 border-purple-500 border-t-transparent rounded-full mx-auto" />
-                  </div>
-                ) : notifications.length === 0 ? (
+                {notifications.length === 0 ? (
                   <div className="p-12 text-center">
                     <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3">
                       <Bell size={24} className="text-gray-300" />

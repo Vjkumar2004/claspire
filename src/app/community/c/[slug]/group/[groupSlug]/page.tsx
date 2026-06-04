@@ -74,22 +74,81 @@ export default function GroupChatPage() {
     fetchCurrentUser()
   }, [slug, groupSlug])
 
-  // Poll for new messages every 3 seconds
-useEffect(() => {
-  if (!groupData?.isMember || !groupData?.group?.id) return
+  // Subscribe to Realtime messages
+  useEffect(() => {
+    if (!groupData?.isMember || !groupData?.group?.id) return
 
-  const pollMessages = async () => {
-    const res = await fetch(`/api/groups/${groupSlug}`)
-    if (res.ok) {
-      const data = await res.json()
-      const newMessages = data.messages || []
-      setMessages(newMessages)
+    const channel = supabase
+      .channel(`group-messages-${groupData.group.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'student_group_messages',
+          filter: `group_id=eq.${groupData.group.id}`,
+        },
+        (payload) => {
+          // Look up sender details from existing group members
+          const senderId = payload.new.sender_id
+          const sender = groupData.members.find(m => m.id === senderId)
+          
+          const newMessage: Message = {
+            id: payload.new.id,
+            content: payload.new.content,
+            created_at: payload.new.created_at,
+            sender: {
+              id: senderId,
+              full_name: sender?.full_name || 'Unknown User',
+              avatar_url: sender?.avatar_url,
+              role: sender?.role || 'student',
+              unique_id: sender?.unique_id || '',
+            }
+          }
+
+          setMessages((prev) => {
+            // Prevent duplicate messages if sender already appended locally
+            if (prev.some(m => m.id === newMessage.id)) return prev
+            return [...prev, newMessage]
+          })
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'DELETE',
+          schema: 'public',
+          table: 'student_group_messages',
+          filter: `group_id=eq.${groupData.group.id}`,
+        },
+        (payload) => {
+          setMessages((prev) => prev.filter((msg) => msg.id !== payload.old.id))
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'student_group_messages',
+          filter: `group_id=eq.${groupData.group.id}`,
+        },
+        (payload) => {
+          if (payload.new.is_deleted) {
+            setMessages((prev) => prev.filter((msg) => msg.id !== payload.new.id))
+          } else {
+            setMessages((prev) =>
+              prev.map((msg) => (msg.id === payload.new.id ? { ...msg, content: payload.new.content } : msg))
+            )
+          }
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
     }
-  }
-
-  const interval = setInterval(pollMessages, 3000)
-  return () => clearInterval(interval)
-}, [groupData?.isMember, groupData?.group?.id, groupSlug])
+  }, [groupData?.isMember, groupData?.group?.id, groupData?.members])
 
   useEffect(() => {
     scrollToBottom()

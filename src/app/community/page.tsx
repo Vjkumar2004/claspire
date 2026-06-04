@@ -20,6 +20,24 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder'
 )
 
+interface FeedStateCache {
+  posts: any[]
+  communities: any[]
+  page: number
+  hasMore: boolean
+  filter: string
+  feedSearchQuery: string
+  votes: Record<string, any>
+  scrollY: number
+  expandedPost: string | null
+  postAnswers: Record<string, any[]>
+  expandedContent: Record<string, boolean>
+  userId: string | null
+  timestamp: number
+}
+
+let communityFeedCache: FeedStateCache | null = null
+
 import BottomNavbar from '@/components/BottomNavbar'
 import PostImageCarousel from '@/components/PostImageCarousel'
 import { resolveDisplayBio } from '@/lib/profile-data'
@@ -86,20 +104,33 @@ function CommunityPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const shouldCreate = searchParams.get('create') === 'true'
-  const { user } = useAuth()
+  const { user, loading: authLoading } = useAuth()
   const { showAward } = usePoints()
 
+  const getValidCache = () => {
+    if (!communityFeedCache) return null
+    const now = Date.now()
+    const TTL = 10 * 60 * 1000 // 10 minutes
+    if (now - communityFeedCache.timestamp > TTL) {
+      communityFeedCache = null
+      return null
+    }
+    return communityFeedCache
+  }
+
+  const validCache = getValidCache()
+
   // Base state listings
-  const [communities, setCommunities] = useState<any[]>([])
-  const [posts, setPosts] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
+  const [communities, setCommunities] = useState<any[]>(() => validCache?.communities || [])
+  const [posts, setPosts] = useState<any[]>(() => validCache?.posts || [])
+  const [loading, setLoading] = useState(() => !validCache)
   const [search, setSearch] = useState('')
   const [showSearch, setShowSearch] = useState(false)
-  const [filter, setFilter] = useState('all')
+  const [filter, setFilter] = useState(() => validCache?.filter || 'all')
   const [userCommunity, setUserCommunity] = useState<any>(null)
 
   // Phase 2 optimization states
-  const [feedSearchQuery, setFeedSearchQuery] = useState('')
+  const [feedSearchQuery, setFeedSearchQuery] = useState(() => validCache?.feedSearchQuery || '')
 
   // Direct Messaging Overhaul States (Phase 3)
   const [chatExpanded, setChatExpanded] = useState(false)
@@ -115,18 +146,18 @@ function CommunityPageContent() {
   const mobileScrollRef = useRef<HTMLDivElement>(null)
 
   // Inline answer states
-  const [expandedPost, setExpandedPost] = useState<string | null>(null)
-  const [postAnswers, setPostAnswers] = useState<Record<string, any[]>>({})
+  const [expandedPost, setExpandedPost] = useState<string | null>(() => validCache?.expandedPost || null)
+  const [postAnswers, setPostAnswers] = useState<Record<string, any[]>>(() => validCache?.postAnswers || {})
   const [answersLoading, setAnswersLoading] = useState<Record<string, boolean>>({})
   const [newAnswerText, setNewAnswerText] = useState<Record<string, string>>({})
   const [answerSubmitting, setAnswerSubmitting] = useState<Record<string, boolean>>({})
 
   // Content expansion state
-  const [expandedContent, setExpandedContent] = useState<Record<string, boolean>>({})
+  const [expandedContent, setExpandedContent] = useState<Record<string, boolean>>(() => validCache?.expandedContent || {})
 
   // Pagination / Load more
-  const [page, setPage] = useState(1)
-  const [hasMore, setHasMore] = useState(true)
+  const [page, setPage] = useState(() => validCache?.page || 1)
+  const [hasMore, setHasMore] = useState(() => validCache?.hasMore !== undefined ? validCache.hasMore : true)
   const [loadingMore, setLoadingMore] = useState(false)
 
   // Image modal state
@@ -140,10 +171,20 @@ function CommunityPageContent() {
     downvotes: number
     isLoading: boolean
     error: string | null
-  }>>({})
+  }>>(() => validCache?.votes || {})
 
   // Campus Placements (real jobs)
   const [campusJobs, setCampusJobs] = useState<any[]>([])
+
+  // New Posts Available states
+  const [hasNewPosts, setHasNewPosts] = useState(false)
+  const [newPostsCount, setNewPostsCount] = useState(0)
+
+  // Scroll restoration tracking state
+  const [isRestoringScroll, setIsRestoringScroll] = useState(() => {
+    const validCache = getValidCache()
+    return !!(validCache && validCache.scrollY > 0)
+  })
 
   // Floating FAB scroll visibility to match bottom nav
   const [isNavVisible, setIsNavVisible] = useState(true)
@@ -724,14 +765,140 @@ function CommunityPageContent() {
     }
   }
 
+  const handleLoadNewPosts = async () => {
+    setHasNewPosts(false)
+    setNewPostsCount(0)
+    communityFeedCache = null
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+    await fetchCommunities(false)
+  }
+
+  // Mount effect: Fetch communities/posts if no valid cache exists
   useEffect(() => {
-    fetchCommunities()
+    const validCache = getValidCache()
+    if (!validCache) {
+      fetchCommunities()
+    }
   }, [])
+
+  // Session Boundary Check
+  useEffect(() => {
+    if (!authLoading) {
+      const currentUserId = user?.id || null
+      if (communityFeedCache && communityFeedCache.userId !== currentUserId) {
+        communityFeedCache = null
+        setPosts([])
+        setCommunities([])
+        setPage(1)
+        setHasMore(true)
+        setFilter('all')
+        setFeedSearchQuery('')
+        setVotes({})
+        setExpandedPost(null)
+        setPostAnswers({})
+        setExpandedContent({})
+        setLoading(true)
+        fetchCommunities()
+      }
+    }
+  }, [authLoading, user?.id])
+
+  // Synchronize state to in-memory cache
+  useEffect(() => {
+    if (!loading) {
+      communityFeedCache = {
+        posts,
+        communities,
+        page,
+        hasMore,
+        filter,
+        feedSearchQuery,
+        votes,
+        scrollY: communityFeedCache?.scrollY || 0,
+        expandedPost,
+        postAnswers,
+        expandedContent,
+        userId: authLoading ? (communityFeedCache?.userId || null) : (user?.id || null),
+        timestamp: communityFeedCache?.timestamp || Date.now()
+      }
+    }
+  }, [posts, communities, page, hasMore, filter, feedSearchQuery, votes, expandedPost, postAnswers, expandedContent, user?.id, loading, authLoading])
+
+  // Track scroll position
+  useEffect(() => {
+    const handleScroll = () => {
+      if (communityFeedCache) {
+        communityFeedCache.scrollY = window.scrollY
+      }
+    }
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  // Restore scroll position on mount if cache is valid
+  useEffect(() => {
+    const validCache = getValidCache()
+    if (validCache && validCache.scrollY > 0) {
+      const restoreScroll = () => {
+        window.scrollTo(0, validCache.scrollY)
+      }
+      
+      restoreScroll()
+      
+      const rafId1 = requestAnimationFrame(restoreScroll)
+      const rafId2 = requestAnimationFrame(() => requestAnimationFrame(restoreScroll))
+      
+      const timeoutId1 = setTimeout(restoreScroll, 100)
+      const timeoutId2 = setTimeout(restoreScroll, 300)
+      const timeoutId3 = setTimeout(() => {
+        restoreScroll()
+        setIsRestoringScroll(false)
+      }, 600)
+      
+      return () => {
+        cancelAnimationFrame(rafId1)
+        cancelAnimationFrame(rafId2)
+        clearTimeout(timeoutId1)
+        clearTimeout(timeoutId2)
+        clearTimeout(timeoutId3)
+      }
+    } else {
+      setIsRestoringScroll(false)
+    }
+  }, [])
+
+  // Background check for newer posts (every 20 seconds)
+  useEffect(() => {
+    if (loading || posts.length === 0) return
+
+    const checkForNewPosts = async () => {
+      try {
+        const latestPostTime = posts[0]?.created_at
+        if (!latestPostTime) return
+
+        const { count, error } = await supabase
+          .from('posts')
+          .select('id', { count: 'exact', head: true })
+          .eq('visibility', 'public')
+          .gt('created_at', latestPostTime)
+
+        if (!error && count && count > 0) {
+          setHasNewPosts(true)
+          setNewPostsCount(count)
+        }
+      } catch (err) {
+        console.error('Failed to check for newer posts:', err)
+      }
+    }
+
+    const interval = setInterval(checkForNewPosts, 20000)
+    return () => clearInterval(interval)
+  }, [posts, loading])
 
   // Infinite Scroll Observer
   const feedEndRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
-    if (loading || !hasMore) return
+    if (isRestoringScroll || loading || !hasMore) return
     const observer = new IntersectionObserver((entries) => {
       if (entries[0].isIntersecting && !loadingMore) {
         fetchCommunities(true)
@@ -742,7 +909,7 @@ function CommunityPageContent() {
       observer.observe(feedEndRef.current)
     }
     return () => observer.disconnect()
-  }, [loading, hasMore, loadingMore, page])
+  }, [isRestoringScroll, loading, hasMore, loadingMore, page])
 
   // Filter posts with both category filters AND local search inputs
   const filteredPosts = posts.filter((p: any) => {
@@ -1056,6 +1223,19 @@ function CommunityPageContent() {
                   className="text-[#7C3AED] hover:underline cursor-pointer"
                 >
                   Reset Feed
+                </button>
+              </div>
+            )}
+
+            {/* LinkedIn-Style New Posts Available Pill */}
+            {hasNewPosts && (
+              <div className="flex justify-center my-3.5">
+                <button
+                  onClick={handleLoadNewPosts}
+                  className="px-4 py-2 bg-[#7C3AED] hover:bg-[#6D28D9] text-white text-xs font-bold rounded-full shadow-md flex items-center gap-1.5 transition-all transform hover:scale-105 active:scale-95 cursor-pointer"
+                >
+                  <ArrowUp className="w-3.5 h-3.5 animate-bounce" />
+                  <span>↑ {newPostsCount > 0 ? `${newPostsCount} ` : ''}New Posts Available</span>
                 </button>
               </div>
             )}

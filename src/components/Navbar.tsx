@@ -18,6 +18,8 @@ export default function Navbar() {
   const [mounted, setMounted] = useState(false)
   const pathname = usePathname()
 
+  console.log('Navbar render:', { unreadMessageCount, userId: user?.id, loading })
+
   useEffect(() => {
     setMounted(true)
   }, [])

@@ -9,7 +9,7 @@ const supabase = createClient(
 
 export async function POST(req: NextRequest) {
   try {
-    const { email, role, profileData, password, onesignal_player_id } = await req.json()
+    const { email, role, profileData, password, onesignal_player_id, google_id } = await req.json()
 
     // Validate password
     if (!password || password.length < 6) {
@@ -19,19 +19,21 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Check OTP was verified
-    const { data: otpData, error: otpError } = await supabase
-      .from('otp_store')
-      .select('*')
-      .eq('email', email)
-      .eq('verified', true)
-      .single()
+    // Check OTP was verified (only if NOT signing up with Google)
+    if (!google_id) {
+      const { data: otpData, error: otpError } = await supabase
+        .from('otp_store')
+        .select('*')
+        .eq('email', email)
+        .eq('verified', true)
+        .single()
 
-    if (otpError || !otpData) {
-      return NextResponse.json(
-        { error: 'Email verification failed' },
-        { status: 400 }
-      )
+      if (otpError || !otpData) {
+        return NextResponse.json(
+          { error: 'Email verification failed' },
+          { status: 400 }
+        )
+      }
     }
 
     // Check user already exists
@@ -96,6 +98,8 @@ export async function POST(req: NextRequest) {
         rise_points: 50,
         rp_level: 1,
         ...safeProfileData,
+        google_id: google_id || null,
+        auth_provider: google_id ? 'email_google' : 'email',
         onesignal_player_id: onesignal_player_id || null,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
@@ -204,6 +208,8 @@ export async function POST(req: NextRequest) {
       verification_status: profileData.verification_status,
       is_verified: true,        // ← ADD this!
       is_premium: false,        // ← ADD this!
+      google_id: google_id || null,
+      auth_provider: google_id ? 'email_google' : 'email',
     }
 
     // Debug log to show session data

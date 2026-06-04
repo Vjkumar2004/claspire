@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { Send, Loader2, X, Pencil, Reply, Trash2 } from 'lucide-react'
 import { canModifyMessage, type DirectMessageRow } from '@/lib/message-utils'
+import { supabase } from '@/lib/supabase'
 
 interface ChatWindowProps {
   currentUserId: string
@@ -79,20 +80,56 @@ export default function ChatWindow({
     const init = async () => {
       setLoading(true)
       setMessages([])
-      if (pollingRef.current) clearInterval(pollingRef.current)
 
       await syncMessages()
       setLoading(false)
-
-      pollingRef.current = setInterval(syncMessages, 2000)
     }
 
     init()
 
+    const channel = supabase
+      .channel(`chat-${conversationId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'direct_messages',
+          filter: `conversation_id=eq.${conversationId}`
+        },
+        (payload) => {
+          if (payload.eventType === 'INSERT') {
+            const newMsg = payload.new as Message
+            // Only add if it's from the other person (we add our own optimistically)
+            // Wait, we add our own optimistically, but when the API returns, we update it.
+            // If the Realtime event arrives, we don't want to duplicate our own message.
+            if (newMsg.sender_id !== currentUserId) {
+              setMessages(prev => {
+                // Prevent duplicates if already exists
+                if (prev.find(m => m.id === newMsg.id)) return prev;
+                return [...prev, newMsg]
+              })
+              // We could mark it as read here via API if we are actively viewing it,
+              // but since ChatWindow is open, maybe just let the user see it.
+              // Actually, DashboardMessages might mark it as read when opened.
+            }
+          } else if (payload.eventType === 'UPDATE') {
+            const updatedMsg = payload.new as Message
+            setMessages(prev =>
+              prev.map(m => m.id === updatedMsg.id ? { ...m, ...updatedMsg } : m)
+            )
+          } else if (payload.eventType === 'DELETE') {
+            const deletedMsg = payload.old as { id: string }
+            setMessages(prev => prev.filter(m => m.id !== deletedMsg.id))
+          }
+        }
+      )
+      .subscribe()
+
     return () => {
-      if (pollingRef.current) clearInterval(pollingRef.current)
+      supabase.removeChannel(channel)
     }
-  }, [otherUserId, currentUserId, syncMessages])
+  }, [otherUserId, currentUserId, syncMessages, conversationId])
 
   useEffect(() => {
     scrollToBottom()
