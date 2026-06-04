@@ -28,7 +28,7 @@ export default function NotificationBell({ align = 'right', dark = false }: Noti
   const { user } = useAuth()
   const { notifications, unreadCount } = useNotifications()
   const [isOpen, setIsOpen] = useState(false)
-  const [coords, setCoords] = useState({ top: 0, left: 0, right: 0 })
+  const [coords, setCoords] = useState({ top: 0, left: 0, right: 0, isMobile: false })
   const [isClearing, setIsClearing] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
@@ -40,7 +40,8 @@ export default function NotificationBell({ align = 'right', dark = false }: Noti
         setCoords({
           top: rect.bottom + 8,
           left: rect.left,
-          right: window.innerWidth - rect.right
+          right: window.innerWidth - rect.right,
+          isMobile: window.innerWidth < 640
         })
       }
       updateCoords()
@@ -156,10 +157,12 @@ export default function NotificationBell({ align = 'right', dark = false }: Noti
               style={{
                 position: 'fixed',
                 top: coords.top,
-                width: 'min(calc(100vw - 32px), 20rem)',
-                ...(align === 'left'
-                  ? { left: Math.max(16, Math.min(coords.left, window.innerWidth - 336)) }
-                  : { right: Math.max(16, coords.right) }),
+                width: coords.isMobile ? 'calc(100vw - 32px)' : 'min(calc(100vw - 32px), 20rem)',
+                ...(coords.isMobile
+                  ? { left: 16, right: 16 }
+                  : align === 'left'
+                    ? { left: Math.max(16, Math.min(coords.left, window.innerWidth - 336)) }
+                    : { right: Math.max(16, coords.right) }),
               } as React.CSSProperties}
               className={`
                 max-h-[calc(100vh-100px)] md:max-h-[480px] 

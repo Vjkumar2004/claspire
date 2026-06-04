@@ -54,7 +54,7 @@ export default function Navbar() {
 
   return (
     <>
-    <nav className="sticky top-0 left-0 right-0 h-14 z-[999] bg-white/90 border-b border-gray-200 backdrop-blur-[12px]">
+    <nav className="fixed top-0 left-0 right-0 h-14 z-[999] bg-white/90 border-b border-gray-200 backdrop-blur-[12px]">
       <div className="flex items-center justify-between h-full px-6 max-w-7xl mx-auto w-full">
         <div className="flex items-center gap-3 flex-shrink-0">
           <Link href="/" className="font-plus-jakarta-sans font-extrabold text-xl text-black no-underline hover:no-underline tracking-tight flex items-center">

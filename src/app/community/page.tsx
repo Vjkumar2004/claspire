@@ -41,6 +41,7 @@ let communityFeedCache: FeedStateCache | null = null
 import BottomNavbar from '@/components/BottomNavbar'
 import PostImageCarousel from '@/components/PostImageCarousel'
 import ChatWidget from '@/components/community/ChatWidget'
+import FeedPost from '@/components/community/FeedPost'
 import { resolveDisplayBio } from '@/lib/profile-data'
 
 // Utility function to convert URLs to clickable links and preserve line breaks
@@ -594,11 +595,11 @@ function CommunityPageContent() {
   const handleLoadNewPosts = async () => {
     if (isRefreshingFeed) return
     setIsRefreshingFeed(true)
-    
+
     try {
       const limit = 5
       const offset = 0
-      
+
       const { data: postsData, error: postsError } = await supabase
         .from('posts')
         .select(`
@@ -751,6 +752,9 @@ function CommunityPageContent() {
       supabase.removeChannel(channel)
     }
   }, [])
+
+
+
 
   // Infinite Scroll Observer
   const feedEndRef = useRef<HTMLDivElement>(null)
@@ -1116,234 +1120,25 @@ function CommunityPageContent() {
               <div className="space-y-3">
                 <AnimatePresence mode="popLayout">
                   {filteredPosts.map((post: any) => {
-                    const ts = getTypeStyle(post.type)
                     return (
-                      <motion.article
+                      <FeedPost
                         key={post.id}
-                        layout
-                        initial={{ opacity: 0, y: 8 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.98 }}
-                        transition={{ duration: 0.2 }}
-                        className="bg-white rounded-md border border-slate-200 p-3.5 shadow-sm hover:border-slate-300 transition-colors"
-                      >
-                        {/* Feed Card Header details */}
-                        <div className="flex items-start justify-between gap-3 mb-2.5">
-                          <div className="flex items-center gap-2.5">
-
-                            {/* Author avatar */}
-                            <div
-                              onClick={() => router.push(`/u/${post.users?.unique_id}`)}
-                              className="w-9 h-9 rounded bg-slate-100 flex items-center justify-center font-bold text-slate-800 text-xs overflow-hidden flex-shrink-0 cursor-pointer border border-slate-100"
-                            >
-                              {post.users?.avatar_url ? (
-                                <img src={post.users.avatar_url} alt={post.users?.full_name} className="w-full h-full object-cover" />
-                              ) : (
-                                post.users?.full_name?.[0] || 'U'
-                              )}
-                            </div>
-
-                            <div>
-                              <div className="flex items-center gap-1.5">
-                                <button
-                                  onClick={() => router.push(`/u/${post.users?.unique_id}`)}
-                                  className="font-bold text-slate-900 hover:text-[#7C3AED] hover:underline text-xs text-left leading-none"
-                                >
-                                  {post.users?.full_name}
-                                </button>
-                                <span className={`text-[7px] font-black uppercase px-1 rounded ${post.users?.role === 'senior' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-slate-50 text-slate-600 border border-slate-100'
-                                  }`}>
-                                  {post.users?.role === 'senior' ? 'Senior' : 'Mentee'}
-                                </span>
-                              </div>
-                              <p className="text-[9px] text-slate-400 font-semibold mt-0.5">
-                                {post.communities?.colleges?.short_name || 'Campus'} Hub • {timeAgo(post.created_at)}
-                              </p>
-                            </div>
-                          </div>
-
-                          {/* Post type badging */}
-                          <span
-                            style={{ background: ts.bg, color: ts.color, borderColor: ts.border }}
-                            className="text-[8px] font-bold uppercase px-2 py-0.5 rounded border tracking-wide whitespace-nowrap flex items-center gap-1"
-                          >
-                            <span>{ts.icon}</span>
-                            <span>{ts.label}</span>
-                          </span>
-                        </div>
-
-                        {/* Title click through */}
-                        <h4
-                          onClick={() => router.push(`/community/c/${post.communities?.slug}/p/${post.id}`)}
-                          className="font-bold text-slate-950 text-xs hover:text-[#7C3AED] transition-colors leading-snug tracking-tight mb-1.5 cursor-pointer"
-                        >
-                          {post.title}
-                        </h4>
-
-                        {/* Content text */}
-                        <div className="text-[11px] text-slate-600 leading-normal font-semibold mb-2.5">
-                          <p className={expandedContent[post.id] ? '' : 'line-clamp-3 whitespace-pre-wrap'}>
-                            {convertUrlsToLinks(post.content)}
-                          </p>
-
-                          {post.content && post.content.length > 180 && (
-                            <button
-                              onClick={() => toggleContentExpansion(post.id)}
-                              className="text-[#7C3AED] font-bold hover:underline mt-1 cursor-pointer block"
-                            >
-                              {expandedContent[post.id] ? 'Show less' : 'Read more'}
-                            </button>
-                          )}
-                        </div>
-
-                        {/* Attached media inside card via Carousel */}
-                        <PostImageCarousel
-                          imageUrls={post.image_url}
-                          onImageClick={handleImageClick}
-                        />
-
-                        {/* Tags line */}
-                        {post.tags?.length > 0 && (
-                          <div className="flex flex-wrap gap-1 mb-2.5">
-                            {post.tags.map((t: string) => (
-                              <span key={t} className="text-[8px] font-bold text-slate-500 bg-slate-50 border border-slate-100 px-1.5 py-0.5 rounded">
-                                #{t}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-
-                        {/* Low Opacity action footer bar */}
-                        <div className="flex items-center justify-between border-t border-slate-100 pt-2.5 text-[10px] font-bold text-slate-500">
-                          <div className="flex items-center gap-2">
-
-                            {/* Upvote & Downvote buttons */}
-                            <div className="flex items-center bg-slate-50 border border-slate-200 rounded p-0.5">
-                              <button
-                                onClick={() => handleVote(post.id, 'upvote')}
-                                className={`flex items-center gap-1 px-2 py-0.5 rounded transition-all cursor-pointer ${votes[post.id]?.userVote === 'upvote'
-                                  ? 'bg-purple-100 text-[#7C3AED] shadow-sm'
-                                  : 'hover:bg-slate-100 text-slate-500'
-                                  }`}
-                              >
-                                <ArrowUp className="w-3 h-3" />
-                                <span>{votes[post.id]?.upvotes || 0}</span>
-                              </button>
-
-                              <button
-                                onClick={() => handleVote(post.id, 'downvote')}
-                                className={`flex items-center px-1.5 py-0.5 rounded transition-all cursor-pointer ${votes[post.id]?.userVote === 'downvote'
-                                  ? 'bg-red-100 text-red-600 shadow-sm'
-                                  : 'hover:bg-slate-100 text-slate-400'
-                                  }`}
-                              >
-                                <ArrowDown className="w-3 h-3" />
-                              </button>
-                            </div>
-
-                            {/* Answers buttons */}
-                            <button
-                              onClick={() => toggleAnswerSection(post.id)}
-                              className="flex items-center gap-1.5 px-2.5 py-1 hover:bg-slate-50 text-slate-500 rounded transition-colors cursor-pointer"
-                            >
-                              <MessageSquare className="w-3 h-3" />
-                              <span>{post.answer_count || 0} Answers</span>
-                            </button>
-
-                            <button
-                              onClick={() => handleSharePost(post)}
-                              className="flex items-center gap-1.5 px-2.5 py-1 hover:bg-slate-50 text-slate-500 rounded transition-colors cursor-pointer"
-                            >
-                              <Share2 className="w-3 h-3" />
-                              <span>Share</span>
-                            </button>
-                          </div>
-
-                          <button
-                            onClick={() => router.push(`/community/c/${post.communities?.slug}/p/${post.id}`)}
-                            className="text-[#7C3AED] hover:underline cursor-pointer text-[10px]"
-                          >
-                            Explore Detail →
-                          </button>
-                        </div>
-
-                        {/* Errors details */}
-                        {votes[post.id]?.error && (
-                          <div className="text-[9px] text-red-600 bg-red-50 border border-red-100 rounded p-2 mt-2">
-                            {votes[post.id]?.error}
-                          </div>
-                        )}
-
-                        {/* Inline Answers dynamic render */}
-                        {expandedPost === post.id && (
-                          <div className="border-t border-slate-100 mt-2.5 pt-2.5 space-y-2">
-                            <h5 className="font-bold text-[10px] text-slate-800 flex items-center gap-1">
-                              <MessageSquare className="w-3 h-3 text-[#7C3AED]" />
-                              <span>Answers ({postAnswers[post.id]?.length || 0})</span>
-                            </h5>
-
-                            {answersLoading[post.id] && (
-                              <div className="flex items-center justify-center gap-2 py-3">
-                                <div className="w-3.5 h-3.5 border-2 border-purple-100 border-t-purple-600 rounded-full animate-spin" />
-                                <span className="text-[9px] text-slate-400 font-semibold">Loading answers...</span>
-                              </div>
-                            )}
-
-                            {!answersLoading[post.id] && postAnswers[post.id]?.length === 0 && (
-                              <p className="text-[9px] text-slate-400 font-semibold text-center py-1">
-                                No answers yet. Help this mentee by sharing your experience!
-                              </p>
-                            )}
-
-                            {/* Answers List */}
-                            {!answersLoading[post.id] && postAnswers[post.id]?.map((answer: any) => (
-                              <div key={answer.id} className="flex gap-2.5 py-1.5 border-b border-slate-50 last:border-b-0 items-start">
-                                <div className="w-7 h-7 rounded bg-slate-100 flex items-center justify-center font-bold text-slate-800 text-xs overflow-hidden flex-shrink-0 border border-slate-100">
-                                  {answer.users?.avatar_url ? (
-                                    <img src={answer.users.avatar_url} alt="Author" className="w-full h-full object-cover" />
-                                  ) : (
-                                    answer.users?.full_name?.[0] || 'U'
-                                  )}
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                  <div className="flex items-center gap-1.5">
-                                    <span className="font-bold text-slate-900 text-[10px]">{answer.users?.full_name}</span>
-                                    {answer.users?.role === 'senior' && (
-                                      <span className="text-[6px] font-black uppercase bg-emerald-50 text-emerald-600 border border-emerald-100 px-0.5 rounded">
-                                        SENIOR
-                                      </span>
-                                    )}
-                                    {answer.is_accepted && (
-                                      <span className="text-[6px] font-black uppercase bg-emerald-50 text-emerald-600 border border-emerald-100 px-0.5 rounded flex items-center gap-0.5">
-                                        <CheckCircle className="w-2 h-2" /> Accepted
-                                      </span>
-                                    )}
-                                  </div>
-                                  <p className="text-[10px] text-slate-600 leading-normal font-semibold mt-0.5">{answer.content}</p>
-                                </div>
-                              </div>
-                            ))}
-
-                            {/* Answer submission block */}
-                            <div className="flex items-end gap-2 pt-1.5">
-                              <textarea
-                                value={newAnswerText[post.id] || ''}
-                                onChange={e => setNewAnswerText(prev => ({ ...prev, [post.id]: e.target.value }))}
-                                placeholder="Help by writing an answer..."
-                                rows={1}
-                                className="flex-1 border border-slate-200 hover:border-slate-300 rounded p-2 text-[10px] font-semibold focus:outline-none focus:border-[#7C3AED] resize-none"
-                              />
-                              <button
-                                onClick={() => submitInlineAnswer(post.id)}
-                                disabled={!newAnswerText[post.id]?.trim() || answerSubmitting[post.id]}
-                                className="px-3 py-1.5 bg-[#7C3AED] hover:bg-[#6D28D9] disabled:bg-slate-200 text-white rounded font-bold text-[10px] cursor-pointer transition-colors flex-shrink-0"
-                              >
-                                Send
-                              </button>
-                            </div>
-                          </div>
-                        )}
-                      </motion.article>
+                        post={post}
+                        expandedContent={expandedContent[post.id]}
+                        voteData={votes[post.id]}
+                        expandedPost={expandedPost}
+                        postAnswers={postAnswers[post.id]}
+                        answersLoading={answersLoading[post.id]}
+                        newAnswerText={newAnswerText[post.id]}
+                        answerSubmitting={answerSubmitting[post.id]}
+                        onToggleContent={toggleContentExpansion}
+                        onImageClick={handleImageClick}
+                        onVote={handleVote}
+                        onToggleAnswerSection={toggleAnswerSection}
+                        onSharePost={handleSharePost}
+                        onAnswerTextChange={(postId, text) => setNewAnswerText(prev => ({ ...prev, [postId]: text }))}
+                        onSubmitInlineAnswer={submitInlineAnswer}
+                      />
                     )
                   })}
                 </AnimatePresence>

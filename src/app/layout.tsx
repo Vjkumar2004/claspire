@@ -181,7 +181,7 @@ export default function RootLayout({
             <RPNotification />
             <Navbar />
             <ToastContainer />
-            <main className="min-h-screen">
+            <main className="min-h-screen pt-14">
               {children}
             </main>
             <BottomNavbar />
