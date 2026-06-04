@@ -43,6 +43,7 @@ import PostImageCarousel from '@/components/PostImageCarousel'
 import { resolveDisplayBio } from '@/lib/profile-data'
 
 // Utility function to convert URLs to clickable links and preserve line breaks
+
 const convertUrlsToLinks = (text: string) => {
   if (!text) return text
   const urlPattern = /(https?:\/\/[^\s\)]+)/g
@@ -176,9 +177,8 @@ function CommunityPageContent() {
   // Campus Placements (real jobs)
   const [campusJobs, setCampusJobs] = useState<any[]>([])
 
-  // New Posts Available states
-  const [hasNewPosts, setHasNewPosts] = useState(false)
-  const [newPostsCount, setNewPostsCount] = useState(0)
+  // Realtime New Posts Queue
+  const [newPostsQueue, setNewPostsQueue] = useState<any[]>([])
 
   // Scroll restoration tracking state
   const [isRestoringScroll, setIsRestoringScroll] = useState(() => {
@@ -237,6 +237,8 @@ function CommunityPageContent() {
       }
     }
   }, [lastScrollY])
+
+
 
   // Fetch real campus placement jobs
   useEffect(() => {
@@ -765,12 +767,10 @@ function CommunityPageContent() {
     }
   }
 
-  const handleLoadNewPosts = async () => {
-    setHasNewPosts(false)
-    setNewPostsCount(0)
-    communityFeedCache = null
+  const handleLoadNewPosts = () => {
+    setPosts(prev => [...newPostsQueue, ...prev])
+    setNewPostsQueue([])
     window.scrollTo({ top: 0, behavior: 'smooth' })
-    await fetchCommunities(false)
   }
 
   // Mount effect: Fetch communities/posts if no valid cache exists
@@ -842,19 +842,19 @@ function CommunityPageContent() {
       const restoreScroll = () => {
         window.scrollTo(0, validCache.scrollY)
       }
-      
+
       restoreScroll()
-      
+
       const rafId1 = requestAnimationFrame(restoreScroll)
       const rafId2 = requestAnimationFrame(() => requestAnimationFrame(restoreScroll))
-      
+
       const timeoutId1 = setTimeout(restoreScroll, 100)
       const timeoutId2 = setTimeout(restoreScroll, 300)
       const timeoutId3 = setTimeout(() => {
         restoreScroll()
         setIsRestoringScroll(false)
       }, 600)
-      
+
       return () => {
         cancelAnimationFrame(rafId1)
         cancelAnimationFrame(rafId2)
@@ -867,33 +867,39 @@ function CommunityPageContent() {
     }
   }, [])
 
-  // Background check for newer posts (every 20 seconds)
+  // Listen for new public posts via Supabase Realtime
   useEffect(() => {
-    if (loading || posts.length === 0) return
+    const channel = supabase.channel('public:posts')
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'posts', filter: "visibility=eq.public" },
+        async (payload) => {
+          // Fetch the full joined post data to match existing feed structure
+          const { data, error } = await supabase
+            .from('posts')
+            .select(`
+              id, title, content, type, created_at, upvote_count, downvote_count, answer_count, is_answered, tags, image_url, author_id,
+              users!posts_author_id_fkey ( full_name, unique_id, role, is_verified, avatar_url ),
+              communities ( slug, colleges ( name, short_name ) )
+            `)
+            .eq('id', payload.new.id)
+            .single()
 
-    const checkForNewPosts = async () => {
-      try {
-        const latestPostTime = posts[0]?.created_at
-        if (!latestPostTime) return
-
-        const { count, error } = await supabase
-          .from('posts')
-          .select('id', { count: 'exact', head: true })
-          .eq('visibility', 'public')
-          .gt('created_at', latestPostTime)
-
-        if (!error && count && count > 0) {
-          setHasNewPosts(true)
-          setNewPostsCount(count)
+          if (data && !error) {
+            setNewPostsQueue(prev => {
+              // Prevent duplicate queue entries
+              if (prev.some(p => p.id === data.id)) return prev;
+              return [data, ...prev];
+            });
+          }
         }
-      } catch (err) {
-        console.error('Failed to check for newer posts:', err)
-      }
-    }
+      )
+      .subscribe()
 
-    const interval = setInterval(checkForNewPosts, 20000)
-    return () => clearInterval(interval)
-  }, [posts, loading])
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [])
 
   // Infinite Scroll Observer
   const feedEndRef = useRef<HTMLDivElement>(null)
@@ -1228,14 +1234,14 @@ function CommunityPageContent() {
             )}
 
             {/* LinkedIn-Style New Posts Available Pill */}
-            {hasNewPosts && (
+            {newPostsQueue.length > 0 && (
               <div className="flex justify-center my-3.5">
                 <button
                   onClick={handleLoadNewPosts}
                   className="px-4 py-2 bg-[#7C3AED] hover:bg-[#6D28D9] text-white text-xs font-bold rounded-full shadow-md flex items-center gap-1.5 transition-all transform hover:scale-105 active:scale-95 cursor-pointer"
                 >
                   <ArrowUp className="w-3.5 h-3.5 animate-bounce" />
-                  <span>↑ {newPostsCount > 0 ? `${newPostsCount} ` : ''}New Posts Available</span>
+                  <span>↑ {newPostsQueue.length} New Post{newPostsQueue.length > 1 ? 's' : ''} Available</span>
                 </button>
               </div>
             )}
