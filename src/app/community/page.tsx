@@ -179,6 +179,7 @@ function CommunityPageContent() {
 
   // Realtime New Posts Queue
   const [newPostsQueue, setNewPostsQueue] = useState<any[]>([])
+  const [isRefreshingFeed, setIsRefreshingFeed] = useState(false)
 
   // Scroll restoration tracking state
   const [isRestoringScroll, setIsRestoringScroll] = useState(() => {
@@ -767,10 +768,37 @@ function CommunityPageContent() {
     }
   }
 
-  const handleLoadNewPosts = () => {
-    setPosts(prev => [...newPostsQueue, ...prev])
-    setNewPostsQueue([])
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+  const handleLoadNewPosts = async () => {
+    if (isRefreshingFeed) return
+    setIsRefreshingFeed(true)
+    
+    try {
+      const limit = 5
+      const offset = 0
+      
+      const { data: postsData, error: postsError } = await supabase
+        .from('posts')
+        .select(`
+          id, title, content, type, created_at, upvote_count, downvote_count, answer_count, is_answered, tags, image_url, author_id,
+          users!posts_author_id_fkey ( full_name, unique_id, role, is_verified, avatar_url ),
+          communities ( slug, colleges ( name, short_name ) )
+        `)
+        .eq('visibility', 'public')
+        .order('created_at', { ascending: false })
+        .range(offset, offset + limit - 1)
+
+      if (!postsError && postsData) {
+        setPosts(postsData)
+        setHasMore(postsData.length === limit)
+        setPage(2)
+        setNewPostsQueue([])
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+      }
+    } catch (err) {
+      console.error('Failed to soft refresh posts:', err)
+    } finally {
+      setIsRefreshingFeed(false)
+    }
   }
 
   // Mount effect: Fetch communities/posts if no valid cache exists
@@ -1235,14 +1263,20 @@ function CommunityPageContent() {
 
             {/* LinkedIn-Style New Posts Available Pill */}
             {newPostsQueue.length > 0 && (
-              <div className="flex justify-center my-3.5">
-                <button
-                  onClick={handleLoadNewPosts}
-                  className="px-4 py-2 bg-[#7C3AED] hover:bg-[#6D28D9] text-white text-xs font-bold rounded-full shadow-md flex items-center gap-1.5 transition-all transform hover:scale-105 active:scale-95 cursor-pointer"
-                >
-                  <ArrowUp className="w-3.5 h-3.5 animate-bounce" />
-                  <span>↑ {newPostsQueue.length} New Post{newPostsQueue.length > 1 ? 's' : ''} Available</span>
-                </button>
+              <div className="flex justify-center my-3.5 h-9">
+                {isRefreshingFeed ? (
+                  <div className="flex items-center justify-center px-4 py-2 bg-white border border-slate-200 rounded-full shadow-sm">
+                    <div className="w-4 h-4 border-2 border-purple-100 border-t-[#7C3AED] rounded-full animate-spin" />
+                  </div>
+                ) : (
+                  <button
+                    onClick={handleLoadNewPosts}
+                    className="px-4 py-2 bg-[#7C3AED] hover:bg-[#6D28D9] text-white text-xs font-bold rounded-full shadow-md flex items-center gap-1.5 transition-all transform hover:scale-105 active:scale-95 cursor-pointer"
+                  >
+                    <ArrowUp className="w-3.5 h-3.5 animate-bounce" />
+                    <span>↑ {newPostsQueue.length} New Post{newPostsQueue.length > 1 ? 's' : ''} Available</span>
+                  </button>
+                )}
               </div>
             )}
 
