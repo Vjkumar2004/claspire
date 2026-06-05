@@ -21,14 +21,23 @@ interface MessageRequest {
   college_location?: string
 }
 
-export default function MessageRequestsSection() {
-  const [requests, setRequests] = useState<MessageRequest[]>([])
-  const [loading, setLoading] = useState(true)
+interface MessageRequestsSectionProps {
+  initialRequests?: MessageRequest[]
+}
+
+export default function MessageRequestsSection({ initialRequests }: MessageRequestsSectionProps) {
+  const [requests, setRequests] = useState<MessageRequest[]>(initialRequests ?? [])
+  const [loading, setLoading] = useState(initialRequests === undefined)
   const [responding, setResponding] = useState<string | null>(null)
 
   useEffect(() => {
-    fetchRequests()
-  }, [])
+    if (initialRequests !== undefined) {
+      setRequests(initialRequests)
+      setLoading(false)
+    } else {
+      fetchRequests()
+    }
+  }, [initialRequests])
 
   const fetchRequests = async () => {
     try {

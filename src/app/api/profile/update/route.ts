@@ -50,6 +50,7 @@ export async function PATCH(req: NextRequest) {
     const scalarFields = [
       'bio', 'branch', 'year', 'cgpa', 'linkedin_url', 'passout_year',
       'company', 'designation', 'graduation_year', 'onesignal_player_id',
+      'banner_url',
     ] as const
 
     scalarFields.forEach((field) => {

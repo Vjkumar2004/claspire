@@ -63,12 +63,12 @@ export default function Navbar() {
         </div>
 
         {/* Desktop Sticky Navbar Search Bar (Transitions width smoothly on focus to prevent overlapping menu links) */}
-        <div className="hidden md:flex items-center gap-3 w-56 focus-within:w-72 lg:w-64 lg:focus-within:w-[320px] transition-all duration-300 ease-in-out ml-4 mr-auto flex-shrink-0">
+        <div className="hidden md:flex items-center gap-3 flex-1 min-w-[160px] max-w-[240px] lg:max-w-[320px] transition-all duration-300 ease-in-out ml-4 mr-auto">
           <SearchBar />
         </div>
 
         {/* Desktop Center Links */}
-        <div className="hidden md:flex items-center gap-1 lg:gap-3 h-full">
+        <div className="hidden md:flex items-center gap-1 xl:gap-2 h-full flex-shrink-0">
           <Link 
             href="/community" 
             onClick={(e) => {
@@ -77,58 +77,58 @@ export default function Navbar() {
                 window.dispatchEvent(new CustomEvent('REFRESH_COMMUNITY_FEED'))
               }
             }}
-            className={`flex items-center gap-2 px-3 h-full text-[13px] font-semibold transition-all border-b-2 ${
+            className={`flex items-center gap-1.5 px-2 xl:px-3 h-full text-[13px] font-semibold transition-all border-b-2 ${
             pathname === '/community' 
               ? 'text-[#7C3AED] border-[#7C3AED]' 
               : 'text-gray-500 border-transparent hover:text-black hover:border-gray-200'
           }`}>
             <Users size={16} />
-            Community
+            <span className="hidden lg:block">Community</span>
           </Link>
-          <Link href="/groups" className={`flex items-center gap-2 px-3 h-full text-[13px] font-semibold transition-all border-b-2 ${
+          <Link href="/groups" className={`flex items-center gap-1.5 px-2 xl:px-3 h-full text-[13px] font-semibold transition-all border-b-2 ${
             pathname === '/groups' 
               ? 'text-[#7C3AED] border-[#7C3AED]' 
               : 'text-gray-500 border-transparent hover:text-black hover:border-gray-200'
           }`}>
             <Building2 size={16} />
-            Groups
+            <span className="hidden lg:block">Groups</span>
           </Link>
-          <Link href={user?.role === 'senior' ? '/dashboard/senior' : '/dashboard/junior'} className={`flex items-center gap-2 px-3 h-full text-[13px] font-semibold transition-all border-b-2 ${
+          <Link href={user?.role === 'senior' ? '/dashboard/senior' : '/dashboard/junior'} className={`flex items-center gap-1.5 px-2 xl:px-3 h-full text-[13px] font-semibold transition-all border-b-2 ${
             pathname === '/dashboard/senior' || pathname === '/dashboard/junior'
               ? 'text-[#7C3AED] border-[#7C3AED]' 
               : 'text-gray-500 border-transparent hover:text-black hover:border-gray-200'
           }`}>
             <LayoutDashboard size={16} />
-            Dashboard
+            <span className="hidden lg:block">Dashboard</span>
           </Link>
-          <Link href="/seniors" className={`flex items-center gap-2 px-3 h-full text-[13px] font-semibold transition-all border-b-2 ${
+          <Link href="/seniors" className={`flex items-center gap-1.5 px-2 xl:px-3 h-full text-[13px] font-semibold transition-all border-b-2 ${
             pathname === '/seniors' 
               ? 'text-[#7C3AED] border-[#7C3AED]' 
               : 'text-gray-500 border-transparent hover:text-black hover:border-gray-200'
           }`}>
             <Users size={16} />
-            Seniors
+            <span className="hidden lg:block">Seniors</span>
           </Link>
-          <Link href="/jobs" className={`flex items-center gap-2 px-3 h-full text-[13px] font-semibold transition-all border-b-2 ${
+          <Link href="/jobs" className={`flex items-center gap-1.5 px-2 xl:px-3 h-full text-[13px] font-semibold transition-all border-b-2 ${
             pathname === '/jobs' 
               ? 'text-[#7C3AED] border-[#7C3AED]' 
               : 'text-gray-500 border-transparent hover:text-black hover:border-gray-200'
           }`}>
             <Briefcase size={16} />
-            Jobs
+            <span className="hidden lg:block">Jobs</span>
           </Link>
-          <Link href="/colleges" className={`flex items-center gap-2 px-3 h-full text-[13px] font-semibold transition-all border-b-2 ${
+          <Link href="/colleges" className={`flex items-center gap-1.5 px-2 xl:px-3 h-full text-[13px] font-semibold transition-all border-b-2 ${
             pathname === '/colleges' 
               ? 'text-[#7C3AED] border-[#7C3AED]' 
               : 'text-gray-500 border-transparent hover:text-black hover:border-gray-200'
           }`}>
             <GraduationCap size={16} />
-            Colleges
+            <span className="hidden lg:block">Colleges</span>
           </Link>
         </div>
 
         {/* Desktop Right Buttons */}
-        <div className="hidden md:flex items-center gap-3">
+        <div className="hidden md:flex items-center gap-3 flex-shrink-0">
           {loading ? (
             <div style={{
               width: 32, height: 32,
@@ -137,7 +137,7 @@ export default function Navbar() {
               animation: 'pulse 1.5s infinite'
             }} />
           ) : user ? (
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 lg:gap-4">
               <NotificationBell dark />
               <Link 
                 href={user?.role === 'senior' ? '/dashboard/senior/messages' : '/dashboard/junior/messages'}
@@ -195,7 +195,7 @@ export default function Navbar() {
                         .slice(0, 2) || 'U'
                     )}
                   </div>
-                  <span style={{ fontSize: 13, fontWeight: 600, color: '#0A0A0A' }} className="hidden sm:block">
+                  <span style={{ fontSize: 13, fontWeight: 600, color: '#0A0A0A' }} className="hidden xl:block">
                     {user.full_name?.split(' ')[0]}
                   </span>
                   <svg width="12" height="12" viewBox="0 0 12 12" fill="none"

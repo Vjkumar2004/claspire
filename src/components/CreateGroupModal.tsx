@@ -36,6 +36,8 @@ export default function CreateGroupModal({ isOpen, onClose, onSuccess, currentUs
     privateCount: 0
   })
 
+  const [hasFetchedExistingGroups, setHasFetchedExistingGroups] = useState(false)
+
   // Check if community ID is available
   const isCommunityAvailable = !!communityId
 
@@ -49,7 +51,9 @@ export default function CreateGroupModal({ isOpen, onClose, onSuccess, currentUs
         scope: 'college',
         is_ephemeral: true
       })
-      fetchExistingGroups()
+      if (!hasFetchedExistingGroups) {
+        fetchExistingGroups()
+      }
       
       // Try to fetch community ID if not available
       if (!communityId) {
@@ -57,7 +61,7 @@ export default function CreateGroupModal({ isOpen, onClose, onSuccess, currentUs
         fetchCommunityId()
       }
     }
-  }, [isOpen, communityId])
+  }, [isOpen, communityId, hasFetchedExistingGroups])
 
   const fetchCommunityId = async () => {
     if (fetchingCommunity) return // Prevent multiple fetches
@@ -89,6 +93,7 @@ export default function CreateGroupModal({ isOpen, onClose, onSuccess, currentUs
           publicCount: data.publicCount || 0,
           privateCount: data.privateCount || 0
         })
+        setHasFetchedExistingGroups(true)
       }
     } catch (err) {
       console.error('Failed to fetch existing groups:', err)

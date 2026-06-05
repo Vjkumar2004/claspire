@@ -41,12 +41,10 @@ export default function SeniorConnectionRequestsSection({
   }, [initialRequests])
 
   useEffect(() => {
-    fetchRequests()
-
-    const onFocus = () => fetchRequests()
-    window.addEventListener('focus', onFocus)
-    return () => window.removeEventListener('focus', onFocus)
-  }, [])
+    if (initialRequests === undefined) {
+      fetchRequests()
+    }
+  }, [initialRequests])
 
   const fetchRequests = async () => {
     try {

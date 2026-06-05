@@ -89,9 +89,19 @@ export default function PublicProfilePage() {
   return (
     <div className="min-h-screen bg-[#F8FAFC] font-plus-jakarta-sans text-xs">
       <main className="pt-24 pb-20 px-4 max-w-5xl mx-auto">
-        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden mb-8">
-          <div className="h-44 bg-gradient-to-r from-slate-100 via-indigo-50/60 to-purple-50 relative border-b border-slate-200/60">
-            <div className="absolute -bottom-14 left-6 md:left-10">
+        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm mb-8">
+          <div className="relative mb-16">
+            {/* Banner */}
+            <div 
+              className="h-44 rounded-t-2xl overflow-hidden relative"
+              style={{
+                background: user.banner_url 
+                  ? `url(${user.banner_url}) center/cover no-repeat` 
+                  : 'linear-gradient(to right, #f1f5f9, #eef2ff, #faf5ff)'
+              }}
+            />
+            {/* Avatar — positioned outside overflow-hidden banner so it's never clipped */}
+            <div className="absolute -bottom-14 left-6 md:left-10 z-10">
               <div className={`w-28 h-28 rounded-2xl overflow-hidden border-4 border-white shadow-md ${!user.avatar_url ? 'bg-gradient-to-br from-[#7C3AED] to-[#4F46E5] flex items-center justify-center text-white text-2xl font-black' : ''}`}>
                 {user.avatar_url ? (
                   <img src={user.avatar_url} alt={user.full_name} className="w-full h-full object-cover" />

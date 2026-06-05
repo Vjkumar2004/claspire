@@ -34,7 +34,7 @@ export async function GET(
       doubt_count, answer_count,
       referral_count, webinar_count,
       is_verified, verification_status,
-      bio, branch, year, avatar_url,
+      bio, branch, year, avatar_url, banner_url,
       company, designation, graduation_year, passout_year, linkedin_url,
       colleges ( id, name, short_name, slug, location, state )
     `

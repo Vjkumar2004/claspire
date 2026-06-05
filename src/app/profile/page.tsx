@@ -2,11 +2,13 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useAuth } from '@/hooks/useAuth'
 import {
   LayoutDashboard, Users, Settings, LogOut, ShieldCheck,
   Building2, Briefcase, Sparkles, Zap, HelpCircle, Star, Handshake,
 } from 'lucide-react'
 import AvatarUpload from '@/components/AvatarUpload'
+import BannerUpload from '@/components/BannerUpload'
 import StudentProfileEditor from '@/components/profile/StudentProfileEditor'
 import SeniorProfileEditor from '@/components/profile/SeniorProfileEditor'
 import {
@@ -187,8 +189,23 @@ export default function ProfilePage() {
 
       <main className="lg:ml-72 pt-24 px-4 lg:px-8 max-w-5xl mx-auto pb-20">
         <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden mb-8">
-          <div className="h-40 bg-gradient-to-r from-slate-100 via-indigo-50 to-purple-50 relative border-b border-slate-200/60">
-            <div className="absolute -bottom-14 left-6 md:left-10">
+          <div className="relative mb-16">
+            <BannerUpload
+              currentUrl={user.banner_url}
+              userName={user.full_name}
+              onUploadSuccess={(url) => {
+                setUser({ ...user, banner_url: url })
+              }}
+              onRemoveSuccess={async () => {
+                setUser({ ...user, banner_url: null })
+                await fetch('/api/profile/update', {
+                  method: 'PATCH',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ banner_url: null })
+                })
+              }}
+            />
+            <div className="absolute -bottom-14 left-6 md:left-10 z-30">
               <AvatarUpload
                 currentUrl={avatarUrl}
                 userName={user.full_name}

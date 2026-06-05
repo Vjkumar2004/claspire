@@ -126,6 +126,7 @@ export default function JuniorDashboard() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState('overview')
   const [initialMessageUser, setInitialMessageUser] = useState<string | undefined>(undefined)
+  const [hasOpenedMessages, setHasOpenedMessages] = useState(false)
 
   const searchParams = useSearchParams()
 
@@ -141,8 +142,15 @@ export default function JuniorDashboard() {
     if (targetUser) {
       setInitialMessageUser(targetUser)
       setActiveTab('messages')
+      setHasOpenedMessages(true)
     }
   }, [searchParams])
+
+  useEffect(() => {
+    if (activeTab === 'messages') {
+      setHasOpenedMessages(true)
+    }
+  }, [activeTab])
   const [doubtSearch, setDoubtSearch] = useState('')
   const [doubtFilter, setDoubtFilter] = useState<'all' | 'answered' | 'pending'>('all')
   const [eventSearch, setEventSearch] = useState('')
@@ -484,17 +492,18 @@ export default function JuniorDashboard() {
         </div>
 
         {/* ═══ MAIN GRID SYSTEM ═══ */}
-        {activeTab === 'messages' ? (
-          <div className="px-4 md:px-12 mt-6 md:mt-8">
+        {hasOpenedMessages && (
+          <div className={`px-4 md:px-12 mt-6 md:mt-8 ${activeTab === 'messages' ? 'block' : 'hidden'}`}>
             <DashboardMessages 
               currentUserId={u.id}
               role="junior"
               initialUserId={initialMessageUser}
             />
           </div>
-        ) : (
-          <div className="px-4 md:px-12 mt-6 md:mt-8">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        )}
+        
+        <div className={`px-4 md:px-12 mt-6 md:mt-8 ${activeTab !== 'messages' ? 'block' : 'hidden'}`}>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
             {/* LEFT COLUMN: MAIN TAB CONTENT (8 COLS) */}
             <div className="lg:col-span-8 space-y-8">
@@ -970,7 +979,6 @@ export default function JuniorDashboard() {
             </div>
           </div>
         </div>
-        )}
       </main>
 
       <style jsx global>{`

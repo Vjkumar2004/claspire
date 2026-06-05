@@ -114,16 +114,19 @@ export async function POST(req: NextRequest) {
     const publicUrl = getR2Url(key)
 
     // Avatar → update DB + cookie
-    if (type === 'avatar') {
-      // Delete old avatar from R2 if it exists
+    if (type === 'avatar' || type === 'banner') {
+      const columnToUpdate = type === 'avatar' ? 'avatar_url' : 'banner_url'
+      
+      // Delete old file from R2 if it exists
       const { data: user } = await supabase
         .from('users')
-        .select('avatar_url')
+        .select(columnToUpdate)
         .eq('id', userId)
         .single()
 
-      if (user?.avatar_url?.includes('.r2.dev')) {
-        const oldKey = user.avatar_url.split('.r2.dev/')[1]
+      const oldUrl = user?.[columnToUpdate]
+      if (oldUrl?.includes('.r2.dev')) {
+        const oldKey = oldUrl.split('.r2.dev/')[1]
         if (oldKey) {
           try {
             await r2Client.send(
@@ -132,9 +135,9 @@ export async function POST(req: NextRequest) {
                 Key: oldKey
               })
             )
-            console.log('Old avatar deleted:', oldKey)
+            console.log(`Old ${type} deleted:`, oldKey)
           } catch (e) {
-            console.warn('Failed to delete old avatar:', e)
+            console.warn(`Failed to delete old ${type}:`, e)
           }
         }
       }
@@ -142,7 +145,7 @@ export async function POST(req: NextRequest) {
       // Update DB
       const { error: dbError } = await supabase
         .from('users')
-        .update({ avatar_url: publicUrl })
+        .update({ [columnToUpdate]: publicUrl })
         .eq('id', userId)
 
       if (dbError) {
@@ -153,13 +156,13 @@ export async function POST(req: NextRequest) {
       // Update cookie
       const updatedSession = {
         ...session,
-        avatar_url: publicUrl
+        [columnToUpdate]: publicUrl
       }
 
       const response = NextResponse.json({
         success: true,
         url: publicUrl,
-        message: 'Avatar uploaded successfully'
+        message: `${type === 'avatar' ? 'Avatar' : 'Banner'} uploaded successfully`
       })
 
       response.cookies.set(
@@ -173,7 +176,7 @@ export async function POST(req: NextRequest) {
         }
       )
       
-      console.log('Avatar upload completed successfully')
+      console.log(`${type === 'avatar' ? 'Avatar' : 'Banner'} upload completed successfully`)
       return response
     }
 

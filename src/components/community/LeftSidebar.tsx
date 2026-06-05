@@ -12,11 +12,20 @@ interface LeftSidebarProps {
 
 function LeftSidebar({ user, userCommunity, filter, setFilter, setFeedSearchQuery }: LeftSidebarProps) {
   return (
-    <aside className="lg:col-span-3 sticky top-[88px] self-start space-y-4 hidden lg:block">
+    <aside className="hidden md:block md:col-span-4 lg:col-span-3 sticky top-[88px] self-start space-y-4">
       {/* Identity Card */}
       <div className="bg-white rounded-md border border-slate-200 overflow-hidden shadow-sm">
-        <div className="h-20 bg-gradient-to-r from-purple-700 to-indigo-900 relative">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-indigo-500/20 via-transparent to-transparent pointer-events-none" />
+        <div 
+          className="h-20 relative bg-slate-100"
+          style={{
+            background: user?.banner_url 
+              ? `url(${user.banner_url}) center/cover no-repeat` 
+              : 'linear-gradient(to right, #7e22ce, #312e81)'
+          }}
+        >
+          {!user?.banner_url && (
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-indigo-500/20 via-transparent to-transparent pointer-events-none" />
+          )}
         </div>
 
         <div className="px-4 pb-4 relative flex flex-col items-center -mt-10">

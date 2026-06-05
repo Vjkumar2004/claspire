@@ -20,63 +20,98 @@ interface User {
   points?: number
   answer_count?: number
   college?: string
+  banner_url?: string | null
   is_verified?: boolean
 }
 
+let globalUser: User | null = null;
+let globalLoading = true;
+let globalFetchPromise: Promise<void> | null = null;
+const subscribers = new Set<() => void>();
+
+const notifySubscribers = () => {
+  subscribers.forEach((fn) => fn());
+};
+
+const fetchUserGlobal = async (showAward: any, retryCount = 0) => {
+  try {
+    const res = await fetch('/api/auth/me')
+    
+    if (res.ok) {
+      const data = await res.json()
+      globalUser = data.user || null
+      
+      // Show daily RP award if earned today
+      if (data.dailyRPEarned && showAward) {
+        showAward(1, "Daily visit bonus 🌅")
+      }
+    } else if (res.status === 401) {
+      // 401 = not logged in
+      globalUser = null
+    } else {
+      // Other errors - retry once
+      if (retryCount < 1) {
+        return await new Promise((resolve) => setTimeout(resolve, 500)).then(() => fetchUserGlobal(showAward, retryCount + 1));
+      } else {
+        globalUser = null
+      }
+    }
+  } catch (error) {
+    console.error('useAuth - fetch error:', error)
+    if (retryCount < 1) {
+      return await new Promise((resolve) => setTimeout(resolve, 500)).then(() => fetchUserGlobal(showAward, retryCount + 1));
+    } else {
+      globalUser = null
+    }
+  } finally {
+    if (retryCount === 0) {
+      globalLoading = false
+      globalFetchPromise = null
+      notifySubscribers()
+    }
+  }
+};
+
 export function useAuth() {
-  const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [user, setUser] = useState<User | null>(globalUser)
+  const [loading, setLoading] = useState(globalLoading)
   const router = useRouter()
   const { showAward } = usePoints()
 
   useEffect(() => {
-    fetchUser()
-  }, [])
-
-  const fetchUser = async (retryCount = 0) => {
-    try {
-      const res = await fetch('/api/auth/me')
-      
-      if (res.ok) {
-        const data = await res.json()
-        setUser(data.user || null)
-        
-        // Show daily RP award if earned today
-        if (data.dailyRPEarned) {
-          showAward(1, "Daily visit bonus 🌅")
-        }
-      } else if (res.status === 401) {
-        // 401 = not logged in, that's ok
-        setUser(null)
-      } else {
-        // Other errors - retry once
-        if (retryCount < 1) {
-          setTimeout(() => fetchUser(retryCount + 1), 500)
-        } else {
-          setUser(null)
-        }
-      }
-    } catch (error) {
-      console.error('useAuth - fetch error:', error)
-      if (retryCount < 1) {
-        setTimeout(() => fetchUser(retryCount + 1), 500)
-      } else {
-        setUser(null)
-      }
-    } finally {
-      if (retryCount === 0) {
-        setLoading(false)
-      }
+    const handleChange = () => {
+      setUser(globalUser)
+      setLoading(globalLoading)
     }
-  }
+    
+    subscribers.add(handleChange)
+    
+    if (globalLoading && !globalFetchPromise) {
+      globalFetchPromise = fetchUserGlobal(showAward)
+    }
+    
+    return () => {
+      subscribers.delete(handleChange)
+    }
+  }, [showAward])
 
   const signOut = async () => {
     try {
       await fetch('/api/auth/signout', { method: 'POST' })
     } catch {}
-    setUser(null)
+    globalUser = null
+    globalLoading = false
+    notifySubscribers()
     router.push('/')
   }
 
-  return { user, loading, signOut, refetch: fetchUser }
+  const refetch = async () => {
+    globalLoading = true;
+    notifySubscribers();
+    globalFetchPromise = fetchUserGlobal(showAward);
+    await globalFetchPromise;
+  }
+
+  return { user, loading, signOut, refetch }
 }
+

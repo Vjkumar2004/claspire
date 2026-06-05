@@ -94,7 +94,6 @@ export default function SeniorDashboardPage() {
   useEffect(() => {
     fetchDashboardData()
     fetchUserCollegeCommunity()
-    fetchUserGroups()
   }, [])
 
   const fetchUserCollegeCommunity = async () => {
@@ -112,7 +111,7 @@ export default function SeniorDashboardPage() {
 
   const fetchDashboardData = async () => {
     try {
-      const res = await fetch('/api/dashboard/me?t=' + new Date().getTime(), {
+      const res = await fetch('/api/dashboard/me', {
         cache: 'no-store'
       })
       if (res.ok) {
@@ -126,20 +125,7 @@ export default function SeniorDashboardPage() {
     }
   }
 
-  const fetchUserGroups = async () => {
-    try {
-      setGroupsLoading(true)
-      const res = await fetch('/api/groups/my-groups')
-      if (res.ok) {
-        const data = await res.json()
-        setUserGroups(data.groups || [])
-      }
-    } catch (err) {
-      console.error('Failed to fetch user groups:', err)
-    } finally {
-      setGroupsLoading(false)
-    }
-  }
+
 
   const deleteGroup = async (groupSlug: string) => {
     if (!confirm('Are you sure you want to delete this group? This action cannot be undone.')) return
@@ -770,7 +756,9 @@ export default function SeniorDashboardPage() {
         />
 
         {/* Student message requests */}
-        <MessageRequestsSection />
+        <MessageRequestsSection 
+          initialRequests={dashData?.pendingMessageRequests}
+        />
 
         {/* Main Content Grid - Adjusted to full width */}
         <div className="w-full">

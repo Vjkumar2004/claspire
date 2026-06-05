@@ -929,8 +929,8 @@ function CommunityPageContent() {
       )}
 
       {/* Main 3-Column Content Layout */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <div className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-6 pb-20 lg:pb-6">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
 
           {/* ════ LEFT COLUMN: Rich Sticky LinkedIn-style Profile Identity Card ════ */}
           <LeftSidebar
@@ -942,7 +942,7 @@ function CommunityPageContent() {
           />
 
           {/* ════ CENTER COLUMN: Searchable + Filterable Feed ════ */}
-          <main className="lg:col-span-6 space-y-3.5">
+          <main className="md:col-span-8 lg:col-span-6 space-y-3.5">
 
             {/* Dedicated LinkedIn-Style Feed Search & Filter Bar */}
             <div className="bg-white rounded-md border border-slate-200 p-4 shadow-sm space-y-3">
