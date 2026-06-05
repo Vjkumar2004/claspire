@@ -135,8 +135,8 @@ export default function EditPostPage() {
         setError('Please upload a valid image format.')
         return
       }
-      if (file.size > 2 * 1024 * 1024) {
-        setError('Each image must be under 2MB.')
+      if (file.size >= 2 * 1024 * 1024) {
+        setError('Image size must be less than 2MB')
         return
       }
       validFiles.push(file)
@@ -389,6 +389,14 @@ export default function EditPostPage() {
             className="hidden"
           />
 
+          {/* 2MB Size Alert */}
+          <div className="mb-3 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+            <p className="text-[10px] font-semibold text-amber-700 flex items-center gap-1.5">
+              <AlertCircle size={12} />
+              Maximum image size: 2MB per image
+            </p>
+          </div>
+
           {imageUploading && (
             <div className="flex items-center gap-2 mb-3 px-3 py-2 bg-blue-50 rounded-lg">
               <Loader2 size={14} className="animate-spin text-blue-600" />
@@ -452,7 +460,7 @@ export default function EditPostPage() {
               className="w-full border-2 border-dashed border-gray-200 rounded-xl py-10 flex flex-col items-center gap-2 hover:border-purple-300 hover:bg-purple-50/30 transition-all cursor-pointer"
             >
               <ImagePlus size={28} className="text-gray-300" />
-              <span className="text-xs font-semibold text-gray-400">Click to add images (max 5, each under 2MB)</span>
+              <span className="text-xs font-semibold text-gray-400">Click to add images (max 5, each less than 2MB)</span>
             </button>
           )}
         </div>

@@ -90,6 +90,12 @@ const timeAgo = (date: string) => {
   return past.toLocaleDateString()
 }
 
+export interface RecentUpvoter {
+  id: string
+  full_name: string
+  avatar_url: string | null
+}
+
 export interface FeedPostProps {
   post: any
   expandedContent?: boolean
@@ -98,6 +104,7 @@ export interface FeedPostProps {
     upvotes?: number
     error?: string | null
   }
+  recentUpvoters?: RecentUpvoter[]
   expandedPost: string | null
   postAnswers?: any[]
   answersLoading?: boolean
@@ -107,12 +114,14 @@ export interface FeedPostProps {
   onToggleAnswerSection: (postId: string) => void
   onSharePost: (post: any) => void
   onSubmitInlineAnswer: (postId: string, text: string, parentAnswerId?: string) => Promise<boolean> | void
+  onUpvotersClick?: (postId: string) => void
 }
 
 export default function FeedPost({
   post,
   expandedContent,
   voteData,
+  recentUpvoters,
   expandedPost,
   postAnswers,
   answersLoading,
@@ -122,6 +131,7 @@ export default function FeedPost({
   onToggleAnswerSection,
   onSharePost,
   onSubmitInlineAnswer,
+  onUpvotersClick,
 }: FeedPostProps) {
   const router = useRouter()
   const ts = getTypeStyle(post.type)
@@ -355,6 +365,44 @@ export default function FeedPost({
               #{t}
             </span>
           ))}
+        </div>
+      )}
+
+      {/* LinkedIn-style Upvoter Avatars */}
+      {(voteData?.upvotes || 0) > 0 && recentUpvoters && recentUpvoters.length > 0 && (
+        <div
+          className="flex items-center gap-2 pb-2 cursor-pointer group"
+          onClick={() => onUpvotersClick?.(post.id)}
+        >
+          {/* Overlapping avatar stack */}
+          <div className="flex items-center -space-x-1.5 flex-shrink-0">
+            {recentUpvoters.slice(0, 3).map((upvoter, i) => (
+              <div
+                key={upvoter.id}
+                className="w-5 h-5 rounded-full border-[1.5px] border-white bg-slate-100 flex items-center justify-center text-[7px] font-black text-slate-600 overflow-hidden flex-shrink-0"
+                style={{ zIndex: 3 - i }}
+                title={upvoter.full_name}
+              >
+                {upvoter.avatar_url ? (
+                  <img src={upvoter.avatar_url} alt={upvoter.full_name} className="w-full h-full object-cover" />
+                ) : (
+                  upvoter.full_name?.[0]?.toUpperCase() || 'U'
+                )}
+              </div>
+            ))}
+          </div>
+          {/* Text */}
+          <span className="text-[9px] text-slate-500 font-semibold leading-tight group-hover:text-[#7C3AED] transition-colors">
+            {(() => {
+              const total = voteData?.upvotes || 0
+              const names = recentUpvoters.slice(0, 3).map(u => u.full_name?.split(' ')[0] || 'Someone')
+              if (total === 1) return `${names[0]} upvoted this`
+              if (total === 2) return `${names[0]} and ${names[1] || 'someone'} upvoted this`
+              const othersCount = total - names.length
+              if (othersCount <= 0) return `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]} upvoted this`
+              return `${names.slice(0, 2).join(', ')} and ${othersCount + (names.length > 2 ? 1 : 0)} others upvoted this`
+            })()}
+          </span>
         </div>
       )}
 

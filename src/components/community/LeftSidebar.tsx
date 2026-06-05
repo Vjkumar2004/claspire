@@ -1,6 +1,9 @@
 import React from 'react'
 import { GraduationCap, Building2, Award, Globe, TrendingUp, HelpCircle } from 'lucide-react'
 import { resolveDisplayBio } from '@/lib/profile-data'
+import YourProgressCard from './YourProgressCard'
+import QuickActionsCard from './QuickActionsCard'
+import YourImpactCard from './YourImpactCard'
 
 interface LeftSidebarProps {
   user: any
@@ -105,6 +108,23 @@ function LeftSidebar({ user, userCommunity, filter, setFilter, setFeedSearchQuer
 
         </div>
       </div>
+
+      {/* Your Progress Card */}
+      <YourProgressCard
+        risePoints={user?.rise_points || 0}
+        rpLevel={user?.rp_level || 1}
+      />
+
+      {/* Quick Actions Card */}
+      <QuickActionsCard />
+
+      {/* Your Impact Card */}
+      <YourImpactCard
+        doubtCount={user?.doubt_count || 0}
+        answerCount={user?.answer_count || 0}
+        referralCount={user?.referral_count || 0}
+        upvotesReceived={0} // Not readily available in user data
+      />
 
       {/* Navigation shortcuts list */}
       <div className="bg-white rounded-md border border-slate-200 p-2.5 shadow-sm">

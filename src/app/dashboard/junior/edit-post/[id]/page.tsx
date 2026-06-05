@@ -133,8 +133,8 @@ export default function EditPostPage() {
         setError('Please upload a valid image format.')
         return
       }
-      if (file.size > 2 * 1024 * 1024) {
-        setError('Each image must be under 2MB.')
+      if (file.size >= 2 * 1024 * 1024) {
+        setError('Image size must be less than 2MB')
         return
       }
       validFiles.push(file)
@@ -450,7 +450,7 @@ export default function EditPostPage() {
               className="w-full border-2 border-dashed border-gray-200 rounded-xl py-10 flex flex-col items-center gap-2 hover:border-purple-300 hover:bg-purple-50/30 transition-all cursor-pointer"
             >
               <ImagePlus size={28} className="text-gray-300" />
-              <span className="text-xs font-semibold text-gray-400">Click to add images (max 5, each under 2MB)</span>
+              <span className="text-xs font-semibold text-gray-400">Click to add images (max 5, each less than 2MB)</span>
             </button>
           )}
         </div>

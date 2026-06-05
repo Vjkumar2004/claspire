@@ -16,14 +16,8 @@ export interface ValidationResult {
  */
 export async function validateImageFile(file: File): Promise<ValidationResult> {
   try {
-    // 1. Basic MIME type check
-    const allowedMimeTypes = [
-      'image/jpeg', 'image/jpg', 'image/png', 'image/webp',
-      'image/gif', 'image/bmp', 'image/tiff', 'image/x-tiff',
-      'image/svg+xml', 'image/heic', 'image/heif', 'image/x-icon',
-      'image/vnd.microsoft.icon'
-    ]
-    if (!allowedMimeTypes.includes(file.type)) {
+    // 1. Basic MIME type check - allow all image formats
+    if (!file.type.startsWith('image/')) {
       return {
         isValid: false,
         error: `Invalid file type: ${file.type}. Please upload a valid image file`
@@ -32,10 +26,10 @@ export async function validateImageFile(file: File): Promise<ValidationResult> {
 
     // 2. File size check (max 2MB)
     const maxSize = 2 * 1024 * 1024 // 2MB
-    if (file.size > maxSize) {
+    if (file.size >= maxSize) {
       return {
         isValid: false,
-        error: `File too large: ${(file.size / 1024 / 1024).toFixed(2)}MB. Max allowed: 2MB`
+        error: 'Image size must be less than 2MB'
       }
     }
 

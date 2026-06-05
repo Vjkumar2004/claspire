@@ -46,13 +46,17 @@ export default function PostImageCarousel({ imageUrls, onImageClick }: PostImage
         {urls.map((url, index) => (
           <div 
             key={index} 
-            className="flex-none w-full max-h-[350px] flex items-center justify-center snap-center hide-scroll"
+            className={`flex-none w-full flex items-center justify-center snap-center hide-scroll ${
+              urls.length === 1 ? 'max-h-[600px]' : 'max-h-[350px]'
+            }`}
           >
             <img
               src={url}
               alt={`Attached post media ${index + 1}`}
               onClick={() => onImageClick?.(url)}
-              className="w-full object-cover max-h-[350px] hover:opacity-95 transition-opacity cursor-zoom-in"
+              className={`w-full hover:opacity-95 transition-opacity cursor-zoom-in ${
+                urls.length === 1 ? 'object-contain max-h-[600px]' : 'object-cover max-h-[350px]'
+              }`}
             />
           </div>
         ))}

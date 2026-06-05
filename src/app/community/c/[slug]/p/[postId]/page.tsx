@@ -1,21 +1,27 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@supabase/supabase-js'
+import { motion } from 'framer-motion'
 import {
   ArrowLeft, ArrowUp, ArrowDown, MessageCircle,
-  CheckCircle, Clock, Eye, Shield, Send,
-  ChevronRight, TrendingUp, Share2
+  CheckCircle, Clock, Eye, Send, ChevronRight,
+  Share2, GraduationCap, Crown, Sparkles, Users, Building2
 } from 'lucide-react'
+import PostImageCarousel from '@/components/PostImageCarousel'
+import LikesModal from '@/components/community/LikesModal'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 )
 
-import PostImageCarousel from '@/components/PostImageCarousel'
+interface RecentUpvoter {
+  id: string
+  full_name: string
+  avatar_url: string | null
+}
 
-// Utility function to convert URLs to clickable links and preserve line breaks
 const convertUrlsToLinks = (text: string) => {
   if (!text) return text
   const urlPattern = /(https?:\/\/[^\s\)]+)/g
@@ -38,7 +44,16 @@ const convertUrlsToLinks = (text: string) => {
       const before = line.substring(lastIdx, matchStart)
       if (before) parts.push(<span key={`t-${lineIndex}-${matchIndex}`}>{before}</span>)
       parts.push(
-        <a key={`l-${lineIndex}-${matchIndex}`} href={match} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ color: '#7C3AED', fontWeight: 600, wordBreak: 'break-all' }}>{match}</a>
+        <a
+          key={`l-${lineIndex}-${matchIndex}`}
+          href={match}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={(e) => e.stopPropagation()}
+          className="text-[#7C3AED] font-semibold break-all hover:underline"
+        >
+          {match}
+        </a>
       )
       lastIdx = matchStart + match.length
     })
@@ -51,6 +66,41 @@ const convertUrlsToLinks = (text: string) => {
       </span>
     )
   })
+}
+
+const timeAgo = (date: string) => {
+  const now = new Date()
+  const past = new Date(date)
+  const diff = now.getTime() - past.getTime()
+  const hours = Math.floor(diff / (1000 * 60 * 60))
+  if (hours < 1) return 'just now'
+  if (hours < 24) return `${hours}h ago`
+  const days = Math.floor(hours / 24)
+  if (days < 7) return `${days}d ago`
+  return past.toLocaleDateString()
+}
+
+const formatCount = (n: number) => {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1).replace(/\.0$/, '')}M`
+  if (n >= 1_000) return `${(n / 1_000).toFixed(1).replace(/\.0$/, '')}K`
+  return String(n)
+}
+
+const getTypeStyle = (type: string) => {
+  switch (type) {
+    case 'doubt':
+      return { label: 'Doubt', color: '#2563EB', bg: '#EFF6FF', border: '#BFDBFE', icon: '❓' }
+    case 'discussion':
+      return { label: 'Discussion', color: '#7C3AED', bg: '#F5F3FF', border: '#DDD6FE', icon: '💬' }
+    case 'experience':
+      return { label: 'Experience', color: '#D97706', bg: '#FFFBEB', border: '#FDE68A', icon: '⭐' }
+    case 'referral_hunt':
+      return { label: 'Referral Hunt', color: '#059669', bg: '#ECFDF5', border: '#A7F3D0', icon: '🎯' }
+    case 'resource':
+      return { label: 'Resource', color: '#DC2626', bg: '#FEF2F2', border: '#FECACA', icon: '📚' }
+    default:
+      return { label: type, color: '#6B7280', bg: '#F9FAFB', border: '#F3F4F6', icon: '📝' }
+  }
 }
 
 export default function PostDetailPage({ params }: { params: Promise<{ slug: string; postId: string }> }) {
@@ -67,6 +117,10 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
   const [currentUser, setCurrentUser] = useState<any>(null)
   const [userVote, setUserVote] = useState<'upvote' | 'downvote' | null>(null)
   const [voteLoading, setVoteLoading] = useState(false)
+  const [viewCount, setViewCount] = useState(0)
+  const [recentUpvoters, setRecentUpvoters] = useState<RecentUpvoter[]>([])
+  const [likesModalOpen, setLikesModalOpen] = useState(false)
+  const viewRecordedRef = useRef(false)
 
   useEffect(() => {
     const getParams = async () => {
@@ -77,13 +131,22 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
     getParams()
   }, [params])
 
-  useEffect(() => {
-    if (postId) {
-      window.scrollTo(0, 0)
-      fetchPost()
-      fetchCurrentUser()
+  const recordView = useCallback(async (id: string) => {
+    if (viewRecordedRef.current) return
+    viewRecordedRef.current = true
+
+    try {
+      const res = await fetch(`/api/posts/${id}/view`, { method: 'POST' })
+      if (res.ok) {
+        const data = await res.json()
+        if (typeof data.view_count === 'number') {
+          setViewCount(data.view_count)
+        }
+      }
+    } catch (err) {
+      console.error('Failed to record view:', err)
     }
-  }, [postId])
+  }, [])
 
   const fetchCurrentUser = async () => {
     try {
@@ -100,7 +163,6 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
   const fetchPost = async () => {
     setLoading(true)
     try {
-      // Fetch post
       const { data: postData, error: postError } = await supabase
         .from('posts')
         .select(`
@@ -111,6 +173,8 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
           ),
           communities (
             slug,
+            display_name,
+            member_count,
             colleges ( name, short_name )
           )
         `)
@@ -124,14 +188,9 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
       }
 
       setPost(postData)
+      setViewCount(postData.view_count || 0)
+      recordView(postId)
 
-      // Increment view count
-      await supabase
-        .from('posts')
-        .update({ view_count: (postData.view_count || 0) + 1 })
-        .eq('id', postId)
-
-      // Fetch answers
       const { data: answersData } = await supabase
         .from('answers')
         .select(`
@@ -148,7 +207,30 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
 
       setAnswers(answersData || [])
 
-      // Fetch user vote
+      const { data: recentVotes } = await supabase
+        .from('votes')
+        .select('user_id, created_at, users:user_id ( id, full_name, avatar_url )')
+        .eq('post_id', postId)
+        .eq('vote_type', 'upvote')
+        .order('created_at', { ascending: false })
+        .limit(10)
+
+      if (recentVotes) {
+        const seen = new Set<string>()
+        const upvoters: RecentUpvoter[] = []
+        recentVotes.forEach((vote: any) => {
+          if (vote.users && !seen.has(vote.users.id) && upvoters.length < 3) {
+            seen.add(vote.users.id)
+            upvoters.push({
+              id: vote.users.id,
+              full_name: vote.users.full_name,
+              avatar_url: vote.users.avatar_url,
+            })
+          }
+        })
+        setRecentUpvoters(upvoters)
+      }
+
       try {
         const authRes = await fetch('/api/auth/me')
         if (authRes.ok) {
@@ -166,7 +248,6 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
           }
         }
       } catch {}
-
     } catch (err) {
       console.error('Error:', err)
       router.push(`/community/c/${slug}`)
@@ -175,9 +256,19 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
     }
   }
 
+  useEffect(() => {
+    if (postId) {
+      window.scrollTo(0, 0)
+      viewRecordedRef.current = false
+      fetchPost()
+      fetchCurrentUser()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [postId])
+
   const handleVote = async (voteType: 'upvote' | 'downvote') => {
     if (voteLoading) return
-    
+
     try {
       const authRes = await fetch('/api/auth/me')
       if (!authRes.ok) {
@@ -195,27 +286,50 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
       const response = await fetch('/api/posts/vote', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ post_id: postId, vote_type: voteType })
+        body: JSON.stringify({ post_id: postId, vote_type: voteType }),
       })
 
       if (response.ok) {
         const result = await response.json()
         if (result.success) {
-          // Refresh post data
           const { data: updatedPost } = await supabase
             .from('posts')
             .select('upvote_count, downvote_count')
             .eq('id', postId)
             .single()
-          
+
           if (updatedPost) {
             setPost((prev: any) => ({
               ...prev,
               upvote_count: updatedPost.upvote_count,
-              downvote_count: updatedPost.downvote_count
+              downvote_count: updatedPost.downvote_count,
             }))
           }
           setUserVote(result.action === 'removed' ? null : voteType)
+
+          const { data: recentVotes } = await supabase
+            .from('votes')
+            .select('user_id, created_at, users:user_id ( id, full_name, avatar_url )')
+            .eq('post_id', postId)
+            .eq('vote_type', 'upvote')
+            .order('created_at', { ascending: false })
+            .limit(10)
+
+          if (recentVotes) {
+            const seen = new Set<string>()
+            const upvoters: RecentUpvoter[] = []
+            recentVotes.forEach((vote: any) => {
+              if (vote.users && !seen.has(vote.users.id) && upvoters.length < 3) {
+                seen.add(vote.users.id)
+                upvoters.push({
+                  id: vote.users.id,
+                  full_name: vote.users.full_name,
+                  avatar_url: vote.users.avatar_url,
+                })
+              }
+            })
+            setRecentUpvoters(upvoters)
+          }
         }
       }
     } catch (err) {
@@ -248,7 +362,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
           post_id: postId,
           author_id: authData.user.id,
           content: newAnswer.trim(),
-          parent_answer_id: replyToAnswerId || null
+          parent_answer_id: replyToAnswerId || null,
         })
         .select(`
           *,
@@ -260,10 +374,9 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
         .single()
 
       if (!error && data) {
-        setAnswers(prev => [...prev, data])
+        setAnswers((prev) => [...prev, data])
         setNewAnswer('')
-        
-        // Update answer count only for top-level answers
+
         if (!replyToAnswerId) {
           await supabase
             .from('posts')
@@ -271,12 +384,12 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
             .eq('id', postId)
           setPost((prev: any) => ({
             ...prev,
-            answer_count: (prev.answer_count || 0) + 1
+            answer_count: (prev.answer_count || 0) + 1,
           }))
         } else {
-          setExpandedReplies(prev => ({ ...prev, [replyToAnswerId as string]: true }))
+          setExpandedReplies((prev) => ({ ...prev, [replyToAnswerId as string]: true }))
         }
-        
+
         setReplyToAnswerId(null)
       }
     } catch (err) {
@@ -286,58 +399,35 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
     }
   }
 
-  const timeAgo = (date: string) => {
-    const now = new Date()
-    const past = new Date(date)
-    const diff = now.getTime() - past.getTime()
-    const hours = Math.floor(diff / (1000 * 60 * 60))
-    if (hours < 1) return 'just now'
-    if (hours < 24) return `${hours}h ago`
-    const days = Math.floor(hours / 24)
-    if (days < 7) return `${days}d ago`
-    return past.toLocaleDateString()
-  }
+  const handleShare = async () => {
+    const url = `${window.location.origin}/community/c/${slug}/p/${postId}`
+    const title = post?.title || 'Claspire post'
+    const text = post?.content?.slice(0, 120) || 'Check out this post on Claspire'
 
-  const getTypeStyle = (type: string) => {
-    switch (type) {
-      case 'doubt':
-        return { label: 'Doubt', color: '#2563EB', bg: '#EFF6FF', border: '#BFDBFE', icon: '❓' }
-      case 'discussion':
-        return { label: 'Discussion', color: '#7C3AED', bg: '#F5F3FF', border: '#DDD6FE', icon: '💬' }
-      case 'experience':
-        return { label: 'Experience', color: '#D97706', bg: '#FFFBEB', border: '#FDE68A', icon: '⭐' }
-      case 'referral_hunt':
-        return { label: 'Referral Hunt', color: '#059669', bg: '#ECFDF5', border: '#A7F3D0', icon: '🎯' }
-      case 'resource':
-        return { label: 'Resource', color: '#DC2626', bg: '#FEF2F2', border: '#FECACA', icon: '📚' }
-      default:
-        return { label: type, color: '#6B7280', bg: '#F9FAFB', border: '#F3F4F6', icon: '📝' }
+    if (typeof navigator !== 'undefined' && navigator.share) {
+      try {
+        await navigator.share({ title, text, url })
+        return
+      } catch (err) {
+        if ((err as Error).name === 'AbortError') return
+      }
+    }
+
+    try {
+      await navigator.clipboard.writeText(url)
+      alert('Link copied to clipboard')
+    } catch {
+      prompt('Copy this link:', url)
     }
   }
 
   if (loading) {
     return (
-      <div style={{
-        minHeight: '100vh',
-        background: '#F5F4FF',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        flexDirection: 'column',
-        gap: 12,
-        fontFamily: 'Plus Jakarta Sans'
-      }}>
-        <div style={{
-          width: 40, height: 40,
-          border: '3px solid #EDE9FE',
-          borderTop: '3px solid #7C3AED',
-          borderRadius: '50%',
-          animation: 'spin 0.8s linear infinite'
-        }} />
-        <p style={{ fontSize: 13, color: '#9CA3AF', margin: 0, fontWeight: 500 }}>
-          Loading post...
-        </p>
-        <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
+      <div className="min-h-screen bg-gradient-to-b from-[#F5F4FF] to-white flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-10 h-10 border-[3px] border-purple-100 border-t-[#7C3AED] rounded-full animate-spin" />
+          <p className="text-sm text-slate-400 font-semibold">Loading post...</p>
+        </div>
       </div>
     )
   }
@@ -345,619 +435,537 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
   if (!post) return null
 
   const ts = getTypeStyle(post.type)
+  const topLevelAnswers = answers.filter((a: any) => !a.parent_answer_id)
+  const replies = answers.filter((a: any) => a.parent_answer_id)
+  const collegeName = post.communities?.colleges?.short_name || post.communities?.colleges?.name
+  const communityName = post.communities?.display_name || collegeName || slug
+  const memberCount = post.communities?.member_count
 
-  return (
-    <div style={{
-      minHeight: '100vh',
-      background: '#F5F4FF',
-      fontFamily: 'Plus Jakarta Sans, sans-serif',
-      overflowX: 'hidden'
-    }}>
+  const renderAnswer = (answer: any, isReply = false) => (
+    <motion.div
+      key={answer.id}
+      initial={{ opacity: 0, y: 6 }}
+      animate={{ opacity: 1, y: 0 }}
+      className={`${isReply ? 'py-3 border-b border-slate-100 last:border-b-0' : 'bg-white rounded-xl border border-slate-200 p-4 mb-3 shadow-sm'} ${
+        answer.is_accepted && !isReply ? 'border-emerald-200 bg-emerald-50/30' : ''
+      }`}
+    >
+      {answer.is_accepted && !isReply && (
+        <div className="inline-flex items-center gap-1.5 text-[10px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full mb-3">
+          <CheckCircle className="w-3 h-3" />
+          ACCEPTED ANSWER
+        </div>
+      )}
 
-      {/* Breadcrumb */}
-      <div style={{
-        background: 'white',
-        borderBottom: '1px solid #EEEBFF',
-        padding: '12px 20px',
-      }}>
-        <div style={{
-          maxWidth: 800,
-          margin: '0 auto',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 8,
-          fontSize: 12,
-          color: '#9CA3AF',
-          fontWeight: 500
-        }}>
-          <span
-            onClick={() => router.push('/community')}
-            style={{ cursor: 'pointer', color: '#7C3AED', fontWeight: 600 }}
-          >
-            Community
-          </span>
-          <ChevronRight size={12} />
-          <span
-            onClick={() => router.push(`/community/c/${slug}`)}
-            style={{ cursor: 'pointer', color: '#7C3AED', fontWeight: 600 }}
-          >
-            c/{slug}
-          </span>
-          <ChevronRight size={12} />
-          <span style={{ color: '#6B7280' }}>Post</span>
+      <div className={`flex items-start gap-3 ${isReply ? 'pl-2' : ''}`}>
+        <button
+          onClick={() => router.push(`/u/${answer.users?.unique_id}`)}
+          className={`${isReply ? 'w-7 h-7 text-[10px]' : 'w-9 h-9 text-xs'} rounded-lg bg-gradient-to-br from-[#7C3AED] to-cyan-400 flex items-center justify-center font-bold text-white overflow-hidden flex-shrink-0 hover:scale-105 transition-transform`}
+        >
+          {answer.users?.avatar_url ? (
+            <img src={answer.users.avatar_url} alt={answer.users.full_name} className="w-full h-full object-cover" />
+          ) : (
+            answer.users?.full_name?.[0] || 'U'
+          )}
+        </button>
+
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap mb-1">
+            <button
+              onClick={() => router.push(`/u/${answer.users?.unique_id}`)}
+              className="text-sm font-bold text-slate-900 hover:text-[#7C3AED] transition-colors"
+            >
+              {answer.users?.full_name}
+            </button>
+            {answer.users?.role === 'senior' && (
+              <span className="text-[8px] font-black uppercase bg-emerald-50 text-emerald-600 border border-emerald-100 px-1.5 py-0.5 rounded">
+                Senior
+              </span>
+            )}
+            <span className="text-[10px] text-slate-400 font-medium">{timeAgo(answer.created_at)}</span>
+          </div>
+
+          <div className={`text-sm text-slate-600 leading-relaxed ${isReply ? '' : ''}`}>
+            {convertUrlsToLinks(answer.content)}
+          </div>
+
+          {!isReply && (
+            <div className="mt-3 flex items-center gap-3">
+              <button
+                onClick={() => {
+                  setReplyToAnswerId(replyToAnswerId === answer.id ? null : answer.id)
+                  if (replyToAnswerId !== answer.id) setNewAnswer('')
+                }}
+                className="text-xs font-bold text-slate-400 hover:text-[#7C3AED] transition-colors"
+              >
+                Reply
+              </button>
+              {replies.filter((r: any) => r.parent_answer_id === answer.id).length > 0 && (
+                <button
+                  onClick={() => setExpandedReplies((prev) => ({ ...prev, [answer.id]: !prev[answer.id] }))}
+                  className="text-xs font-bold text-[#7C3AED] bg-purple-50 px-2.5 py-1 rounded-md hover:bg-purple-100 transition-colors"
+                >
+                  {expandedReplies[answer.id]
+                    ? 'Hide Replies'
+                    : `Show Replies (${replies.filter((r: any) => r.parent_answer_id === answer.id).length})`}
+                </button>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Main Content */}
-      <div style={{
-        maxWidth: 800,
-        margin: '24px auto',
-        padding: '0 16px',
-        paddingBottom: 100
-      }}>
+      {!isReply && expandedReplies[answer.id] && replies.filter((r: any) => r.parent_answer_id === answer.id).length > 0 && (
+        <div className="mt-3 ml-4 pl-4 border-l-2 border-slate-100">
+          {replies.filter((r: any) => r.parent_answer_id === answer.id).map((reply: any) => renderAnswer(reply, true))}
+        </div>
+      )}
+    </motion.div>
+  )
 
-        {/* Back Button */}
+  const sidebarCardClass =
+    'bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden'
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-[#F5F4FF] via-white to-slate-50">
+      {/* Breadcrumb */}
+      <div className="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-purple-100/60">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center gap-2 text-xs font-semibold text-slate-400">
+          <button onClick={() => router.push('/community')} className="text-[#7C3AED] hover:underline">
+            Community
+          </button>
+          <ChevronRight className="w-3 h-3 shrink-0" />
+          <button onClick={() => router.push(`/community/c/${slug}`)} className="text-[#7C3AED] hover:underline">
+            c/{slug}
+          </button>
+          <ChevronRight className="w-3 h-3 shrink-0" />
+          <span className="text-slate-500 truncate">{post.title}</span>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 pb-28">
         <button
           onClick={() => router.back()}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 6,
-            fontSize: 13,
-            fontWeight: 600,
-            color: '#7C3AED',
-            background: 'white',
-            border: '1px solid #EEEBFF',
-            borderRadius: 10,
-            padding: '8px 14px',
-            cursor: 'pointer',
-            fontFamily: 'Plus Jakarta Sans',
-            marginBottom: 16
-          }}
+          className="inline-flex items-center gap-2 text-sm font-bold text-[#7C3AED] bg-white border border-purple-100 rounded-xl px-4 py-2 mb-6 hover:bg-purple-50 transition-colors shadow-sm"
         >
-          <ArrowLeft size={14} />
+          <ArrowLeft className="w-4 h-4" />
           Back
         </button>
 
-        {/* Post Card */}
-        <div style={{
-          background: 'white',
-          borderRadius: 16,
-          border: '1px solid #EEEBFF',
-          padding: '24px',
-          marginBottom: 20,
-          boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
-        }}>
-          {/* Author Row */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'flex-start',
-            gap: 12,
-            marginBottom: 16,
-            flexWrap: 'wrap'
-          }}>
-            <div style={{
-              width: 40, height: 40,
-              borderRadius: 10,
-              background: post.users?.avatar_url 
-                ? 'transparent' 
-                : (post.users?.role === 'senior'
-                    ? 'linear-gradient(135deg,#059669,#34D399)'
-                    : 'linear-gradient(135deg,#7C3AED,#06B6D4)'),
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'white',
-              fontSize: 15,
-              fontWeight: 800,
-              flexShrink: 0,
-              overflow: 'hidden',
-              cursor: 'pointer',
-              transition: 'transform 0.2s'
-            }}
-            onClick={() => router.push(`/u/${post.users?.unique_id}`)}
-            onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.05)'}
-            onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+        {/* Two-column layout: main content + sticky sidebar (desktop only) */}
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6 lg:gap-8 items-start">
+          {/* ── Main column: post + discussion ── */}
+          <div className="min-w-0 space-y-6">
+            <motion.article
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden"
             >
-              {post.users?.avatar_url ? (
-                <img 
-                  src={post.users.avatar_url} 
-                  alt={post.users.full_name} 
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-                />
-              ) : (
-                post.users?.full_name?.[0] || 'U'
-              )}
-            </div>
+              <div className="h-1.5 bg-gradient-to-r from-[#7C3AED] via-violet-400 to-cyan-400" />
 
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8,
-                flexWrap: 'wrap',
-                marginBottom: 4
-              }}>
-                <span 
-                  onClick={() => router.push(`/u/${post.users?.unique_id}`)}
-                  style={{ fontSize: 15, fontWeight: 700, color: '#1F2937', cursor: 'pointer' }}
-                  onMouseEnter={e => e.currentTarget.style.color = '#7C3AED'}
-                  onMouseLeave={e => e.currentTarget.style.color = '#1F2937'}
-                >
-                  {post.users?.full_name}
-                </span>
-                {post.users?.role === 'senior' && (
-                  <span style={{
-                    fontSize: 9, fontWeight: 700,
-                    background: '#ECFDF5', color: '#059669',
-                    padding: '2px 6px', borderRadius: 100,
-                    border: '1px solid #A7F3D0'
-                  }}>
-                    SENIOR
-                  </span>
-                )}
-                {post.users?.is_verified && (
-                  <span style={{
-                    fontSize: 9, fontWeight: 700,
-                    background: '#EDE9FE', color: '#7C3AED',
-                    padding: '2px 6px', borderRadius: 100
-                  }}>
-                    VERIFIED
-                  </span>
-                )}
-              </div>
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8,
-                flexWrap: 'wrap'
-              }}>
-                <span
-                  onClick={() => router.push(`/community/c/${slug}`)}
-                  style={{
-                    fontSize: 11, fontWeight: 700,
-                    color: '#7C3AED', background: '#F5F3FF',
-                    padding: '2px 8px', borderRadius: 100,
-                    cursor: 'pointer'
-                  }}
-                >
-                  c/{slug}
-                </span>
-                <span style={{ fontSize: 11, color: '#D1D5DB' }}>•</span>
-                <span style={{ fontSize: 11, color: '#9CA3AF', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 4 }}>
-                  <Clock size={11} />
-                  {timeAgo(post.created_at)}
-                </span>
-              </div>
-            </div>
-
-            {/* Type Badge */}
-            <span style={{
-              fontSize: 10, fontWeight: 700,
-              background: ts.bg, color: ts.color,
-              border: `1.5px solid ${ts.border}`,
-              padding: '4px 12px', borderRadius: 100,
-              letterSpacing: '0.02em', textTransform: 'uppercase',
-              flexShrink: 0
-            }}>
-              {ts.icon} {ts.label}
-            </span>
-          </div>
-
-          {/* Title */}
-          <h1 style={{
-            fontSize: 20,
-            fontWeight: 800,
-            color: '#111827',
-            margin: '0 0 12px',
-            lineHeight: 1.4,
-            wordBreak: 'break-word'
-          }}>
-            {post.title}
-          </h1>
-
-          {/* Content */}
-          <div style={{
-            fontSize: 14,
-            color: '#4B5563',
-            margin: '0 0 16px',
-            lineHeight: 1.8,
-            wordBreak: 'break-word'
-          }}>
-            {convertUrlsToLinks(post.content)}
-          </div>
-
-          <PostImageCarousel 
-            imageUrls={post.image_url} 
-            onImageClick={(url) => window.open(url, '_blank')} 
-          />
-
-          {/* Tags */}
-          {post.tags?.length > 0 && (
-            <div style={{
-              display: 'flex',
-              gap: 6,
-              flexWrap: 'wrap',
-              marginBottom: 16
-            }}>
-              {post.tags.map((tag: string) => (
-                <span key={tag} style={{
-                  fontSize: 10, fontWeight: 600,
-                  background: '#F5F3FF', color: '#7C3AED',
-                  padding: '3px 8px', borderRadius: 100,
-                  border: '1px solid #EDE9FE'
-                }}>
-                  #{tag}
-                </span>
-              ))}
-            </div>
-          )}
-
-          {/* Action Bar */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 8,
-            paddingTop: 16,
-            borderTop: '1px solid #F3F4F6',
-            flexWrap: 'wrap'
-          }}>
-            {/* Upvote */}
-            <button
-              onClick={() => handleVote('upvote')}
-              disabled={voteLoading}
-              style={{
-                display: 'flex', alignItems: 'center', gap: 5,
-                fontSize: 12, fontWeight: 700,
-                color: userVote === 'upvote' ? '#7C3AED' : '#6B7280',
-                background: userVote === 'upvote' ? '#F5F3FF' : '#F9FAFB',
-                border: userVote === 'upvote' ? '1.5px solid #DDD6FE' : '1px solid #F3F4F6',
-                borderRadius: 8, padding: '8px 14px',
-                cursor: voteLoading ? 'not-allowed' : 'pointer',
-                fontFamily: 'Plus Jakarta Sans',
-                transition: 'all 0.15s',
-                opacity: voteLoading ? 0.6 : 1
-              }}
-            >
-              <ArrowUp size={13} />
-              {post.upvote_count || 0}
-            </button>
-
-            {/* Downvote */}
-            <button
-              onClick={() => handleVote('downvote')}
-              disabled={voteLoading}
-              style={{
-                display: 'flex', alignItems: 'center', gap: 5,
-                fontSize: 12, fontWeight: 700,
-                color: userVote === 'downvote' ? '#EF4444' : '#6B7280',
-                background: userVote === 'downvote' ? '#FEF2F2' : '#F9FAFB',
-                border: userVote === 'downvote' ? '1.5px solid #FECACA' : '1px solid #F3F4F6',
-                borderRadius: 8, padding: '8px 14px',
-                cursor: voteLoading ? 'not-allowed' : 'pointer',
-                fontFamily: 'Plus Jakarta Sans',
-                transition: 'all 0.15s',
-                opacity: voteLoading ? 0.6 : 1
-              }}
-            >
-              <ArrowDown size={13} />
-              {post.downvote_count || 0}
-            </button>
-
-            {/* Answers count */}
-            <span style={{
-              display: 'flex', alignItems: 'center', gap: 5,
-              fontSize: 12, fontWeight: 600,
-              color: post.is_answered ? '#059669' : '#6B7280',
-              background: post.is_answered ? '#ECFDF5' : '#F9FAFB',
-              border: post.is_answered ? '1px solid #A7F3D0' : '1px solid #F3F4F6',
-              borderRadius: 8, padding: '8px 14px'
-            }}>
-              <MessageCircle size={13} />
-              {post.answer_count || 0} {post.is_answered ? 'Solved' : 'Answers'}
-              {post.is_answered && <CheckCircle size={11} />}
-            </span>
-
-            {/* Views */}
-            <span style={{
-              display: 'flex', alignItems: 'center', gap: 4,
-              fontSize: 11, color: '#D1D5DB', fontWeight: 500,
-              marginLeft: 'auto'
-            }}>
-              <Eye size={12} />
-              {post.view_count || 0} views
-            </span>
-          </div>
-        </div>
-
-        {/* Answers Section */}
-        <div style={{ marginBottom: 20 }}>
-          <h2 style={{
-            fontSize: 16, fontWeight: 800,
-            color: '#111827', margin: '0 0 14px',
-            display: 'flex', alignItems: 'center', gap: 8
-          }}>
-            <MessageCircle size={16} color="#7C3AED" />
-            Answers ({answers.length})
-          </h2>
-
-          {answers.length === 0 ? (
-            <div style={{
-              background: 'white',
-              borderRadius: 16,
-              border: '1px solid #EEEBFF',
-              padding: '32px 20px',
-              textAlign: 'center'
-            }}>
-              <MessageCircle size={28} color="#DDD6FE" style={{ margin: '0 auto 10px', display: 'block' }} />
-              <p style={{ fontSize: 13, fontWeight: 600, color: '#6B7280', margin: '0 0 4px' }}>
-                No answers yet
-              </p>
-              <p style={{ fontSize: 11, color: '#9CA3AF', margin: 0 }}>
-                Be the first to help!
-              </p>
-            </div>
-          ) : (
-            (() => {
-              const topLevelAnswers = answers.filter((a: any) => !a.parent_answer_id)
-              const replies = answers.filter((a: any) => a.parent_answer_id)
-
-              const renderAnswer = (answer: any, isReply: boolean = false) => (
-                <div
-                  key={answer.id}
-                  style={{
-                    background: answer.is_accepted ? '#FEFFF5' : 'white',
-                    borderRadius: 14,
-                    border: answer.is_accepted ? '2px solid #A7F3D0' : isReply ? 'none' : '1px solid #EEEBFF',
-                    padding: isReply ? '10px 0 10px 10px' : '18px',
-                    marginBottom: isReply ? 0 : 12,
-                    boxShadow: isReply ? 'none' : '0 1px 4px rgba(0,0,0,0.03)',
-                    borderBottom: isReply ? '1px solid #F3F4F6' : undefined
-                  }}
-                >
-                  {answer.is_accepted && !isReply && (
-                    <div style={{
-                      display: 'flex', alignItems: 'center', gap: 6,
-                      fontSize: 10, fontWeight: 700,
-                      color: '#059669', background: '#ECFDF5',
-                      padding: '4px 10px', borderRadius: 100,
-                      border: '1px solid #A7F3D0',
-                      marginBottom: 10, width: 'fit-content'
-                    }}>
-                      <CheckCircle size={11} />
-                      ACCEPTED ANSWER
-                    </div>
-                  )}
-
-                  {/* Answer Author */}
-                  <div style={{
-                    display: 'flex', alignItems: 'center', gap: 10,
-                    marginBottom: 10
-                  }}>
-                    <div 
-                      onClick={() => router.push(`/u/${answer.users?.unique_id}`)}
-                      style={{
-                        width: isReply ? 24 : 32, height: isReply ? 24 : 32, borderRadius: 8,
-                        background: answer.users?.avatar_url 
-                          ? 'transparent' 
-                          : (answer.users?.role === 'senior'
-                              ? 'linear-gradient(135deg,#059669,#34D399)'
-                              : 'linear-gradient(135deg,#7C3AED,#06B6D4)'),
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        color: 'white', fontSize: isReply ? 10 : 12, fontWeight: 800, flexShrink: 0,
-                        overflow: 'hidden',
-                        cursor: 'pointer',
-                        transition: 'transform 0.2s'
-                      }}
-                      onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.05)'}
-                      onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+              <div className="p-5 sm:p-7">
+                {/* Compact author header — full context on mobile, minimal on desktop */}
+                <div className="flex items-start justify-between gap-3 mb-5">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <button
+                      onClick={() => router.push(`/u/${post.users?.unique_id}`)}
+                      className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-[#7C3AED] to-cyan-400 flex items-center justify-center font-bold text-white text-sm overflow-hidden shrink-0 hover:scale-105 transition-transform shadow-md"
                     >
-                      {answer.users?.avatar_url ? (
-                        <img 
-                          src={answer.users.avatar_url} 
-                          alt={answer.users.full_name} 
-                          style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-                        />
+                      {post.users?.avatar_url ? (
+                        <img src={post.users.avatar_url} alt={post.users.full_name} className="w-full h-full object-cover" />
                       ) : (
-                        answer.users?.full_name?.[0] || 'U'
+                        post.users?.full_name?.[0] || 'U'
                       )}
-                    </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-                        <span 
-                          onClick={() => router.push(`/u/${answer.users?.unique_id}`)}
-                          style={{ fontSize: 13, fontWeight: 700, color: '#1F2937', cursor: 'pointer' }}
-                          onMouseEnter={e => e.currentTarget.style.color = '#7C3AED'}
-                          onMouseLeave={e => e.currentTarget.style.color = '#1F2937'}
+                    </button>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <button
+                          onClick={() => router.push(`/u/${post.users?.unique_id}`)}
+                          className="font-bold text-slate-900 hover:text-[#7C3AED] transition-colors text-sm"
                         >
-                          {answer.users?.full_name}
+                          {post.users?.full_name}
+                        </button>
+                        {/* Badges visible on mobile only — desktop sidebar has full author card */}
+                        <span className="lg:hidden flex items-center gap-1.5 flex-wrap">
+                          {post.users?.role === 'senior' && (
+                            <span className="inline-flex items-center gap-0.5 text-[8px] font-black uppercase bg-emerald-50 text-emerald-600 border border-emerald-100 px-1.5 py-0.5 rounded">
+                              <Crown className="w-2.5 h-2.5" />
+                              Senior
+                            </span>
+                          )}
+                          {post.users?.is_verified && (
+                            <span className="text-[8px] font-black uppercase bg-purple-50 text-[#7C3AED] border border-purple-100 px-1.5 py-0.5 rounded">
+                              Verified
+                            </span>
+                          )}
                         </span>
-                        {answer.users?.role === 'senior' && (
-                          <span style={{
-                            fontSize: 8, fontWeight: 700,
-                            background: '#ECFDF5', color: '#059669',
-                            padding: '1px 5px', borderRadius: 100,
-                            border: '1px solid #A7F3D0'
-                          }}>
-                            SENIOR
-                          </span>
-                        )}
-                        <span style={{ fontSize: 10, color: '#9CA3AF', fontWeight: 500 }}>
-                          • {timeAgo(answer.created_at)}
+                      </div>
+                      <div className="flex items-center gap-2 mt-0.5 flex-wrap text-[10px] text-slate-400 font-semibold">
+                        <span className="flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          {timeAgo(post.created_at)}
+                        </span>
+                        {/* Community/college on mobile only */}
+                        <span className="lg:hidden flex items-center gap-2">
+                          <span className="text-slate-300">•</span>
+                          <button
+                            onClick={() => router.push(`/community/c/${slug}`)}
+                            className="text-[#7C3AED] bg-purple-50 px-2 py-0.5 rounded-full hover:bg-purple-100 transition-colors"
+                          >
+                            c/{slug}
+                          </button>
+                          {collegeName && (
+                            <>
+                              <span className="text-slate-300">•</span>
+                              <span className="flex items-center gap-1">
+                                <GraduationCap className="w-3 h-3" />
+                                {collegeName}
+                              </span>
+                            </>
+                          )}
                         </span>
                       </div>
                     </div>
                   </div>
 
-                  {/* Answer Content */}
-                  <div style={{
-                    fontSize: 13, color: '#4B5563',
-                    margin: 0, lineHeight: 1.7,
-                    wordBreak: 'break-word',
-                    paddingLeft: isReply ? 34 : 0
-                  }}>
-                    {convertUrlsToLinks(answer.content)}
-                  </div>
-                  
-                  {!isReply && (
-                    <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', gap: 12 }}>
-                      <button 
-                        onClick={() => {
-                          setReplyToAnswerId(replyToAnswerId === answer.id ? null : answer.id)
-                          if (replyToAnswerId !== answer.id) setNewAnswer('')
-                        }}
-                        style={{
-                          fontSize: 11, color: '#9CA3AF', fontWeight: 700,
-                          background: 'none', border: 'none', cursor: 'pointer'
-                        }}
-                      >
-                        Reply
-                      </button>
-                      
-                      {replies.filter((r: any) => r.parent_answer_id === answer.id).length > 0 && (
-                        <button 
-                          onClick={() => setExpandedReplies(prev => ({ ...prev, [answer.id]: !prev[answer.id] }))}
-                          style={{
-                            fontSize: 11, color: '#7C3AED', fontWeight: 700,
-                            background: '#F5F3FF', border: 'none', cursor: 'pointer',
-                            padding: '4px 10px', borderRadius: 6
-                          }}
-                        >
-                          {expandedReplies[answer.id] ? 'Hide Replies' : `Show Replies (${replies.filter((r: any) => r.parent_answer_id === answer.id).length})`}
-                        </button>
-                      )}
-                    </div>
-                  )}
-
-                  {!isReply && expandedReplies[answer.id] && replies.filter((r: any) => r.parent_answer_id === answer.id).length > 0 && (
-                    <div style={{ marginLeft: 16, marginTop: 16, borderLeft: '2px solid #F3F4F6', paddingLeft: 12 }}>
-                      {replies.filter((r: any) => r.parent_answer_id === answer.id).map((reply: any) => 
-                        renderAnswer(reply, true)
-                      )}
-                    </div>
-                  )}
+                  <span
+                    style={{ background: ts.bg, color: ts.color, borderColor: ts.border }}
+                    className="text-[9px] font-black uppercase px-2.5 py-1 rounded-full border tracking-wide flex items-center gap-1 shrink-0"
+                  >
+                    <span>{ts.icon}</span>
+                    {ts.label}
+                  </span>
                 </div>
-              )
 
-              return topLevelAnswers.map((answer: any) => renderAnswer(answer, false))
-            })()
-          )}
-        </div>
+                <h1 className="text-xl sm:text-2xl lg:text-[1.65rem] font-extrabold text-slate-950 leading-snug tracking-tight mb-4">
+                  {post.title}
+                </h1>
 
-        {/* Answer Input */}
-        {currentUser && (
-          <div style={{
-            background: 'white',
-            borderRadius: 16,
-            border: '1px solid #EEEBFF',
-            padding: '18px',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
-            position: 'sticky',
-            bottom: 16
-          }}>
-            {replyToAnswerId ? (
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10, background: '#F9FAFB', padding: '8px 12px', borderRadius: 8 }}>
-                <span style={{ fontSize: 12, color: '#6B7280', fontWeight: 500 }}>
-                  Replying to <span style={{ fontWeight: 700, color: '#374151' }}>{answers.find(a => a.id === replyToAnswerId)?.users?.full_name}</span>
-                </span>
-                <button 
-                  onClick={() => setReplyToAnswerId(null)}
-                  style={{ fontSize: 11, color: '#9CA3AF', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 700 }}
+                <div className="text-sm sm:text-[15px] text-slate-600 leading-relaxed mb-5 whitespace-pre-wrap">
+                  {convertUrlsToLinks(post.content)}
+                </div>
+
+                <PostImageCarousel imageUrls={post.image_url} onImageClick={(url) => window.open(url, '_blank')} />
+
+                {post.tags?.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 mt-4 mb-5">
+                    {post.tags.map((tag: string) => (
+                      <span
+                        key={tag}
+                        className="text-[10px] font-bold text-[#7C3AED] bg-purple-50 border border-purple-100 px-2 py-0.5 rounded-full"
+                      >
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                {(post.upvote_count || 0) > 0 && recentUpvoters.length > 0 && (
+                  <button
+                    onClick={() => setLikesModalOpen(true)}
+                    className="flex items-center gap-2 mb-5 group w-full text-left"
+                  >
+                    <div className="flex -space-x-2">
+                      {recentUpvoters.slice(0, 3).map((upvoter, i) => (
+                        <div
+                          key={upvoter.id}
+                          className="w-7 h-7 rounded-full border-2 border-white bg-slate-100 flex items-center justify-center text-[9px] font-black text-slate-600 overflow-hidden"
+                          style={{ zIndex: 3 - i }}
+                        >
+                          {upvoter.avatar_url ? (
+                            <img src={upvoter.avatar_url} alt={upvoter.full_name} className="w-full h-full object-cover" />
+                          ) : (
+                            upvoter.full_name?.[0]?.toUpperCase() || 'U'
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                    <span className="text-xs text-slate-500 font-semibold group-hover:text-[#7C3AED] transition-colors">
+                      {formatCount(post.upvote_count || 0)} upvote{(post.upvote_count || 0) !== 1 ? 's' : ''} — tap to see who
+                    </span>
+                  </button>
+                )}
+
+                {/* Interactive engagement row */}
+                <div className="flex flex-wrap items-center gap-2 pt-4 border-t border-slate-100">
+                  <div className="flex items-center bg-slate-50 border border-slate-200 rounded-xl p-1">
+                    <button
+                      onClick={() => handleVote('upvote')}
+                      disabled={voteLoading}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                        userVote === 'upvote'
+                          ? 'bg-purple-100 text-[#7C3AED] shadow-sm'
+                          : 'hover:bg-slate-100 text-slate-500'
+                      } ${voteLoading ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}
+                    >
+                      <ArrowUp className="w-3.5 h-3.5" />
+                      {formatCount(post.upvote_count || 0)}
+                    </button>
+                    <button
+                      onClick={() => handleVote('downvote')}
+                      disabled={voteLoading}
+                      className={`flex items-center px-2 py-1.5 rounded-lg transition-all ${
+                        userVote === 'downvote'
+                          ? 'bg-red-100 text-red-600 shadow-sm'
+                          : 'hover:bg-slate-100 text-slate-400'
+                      } ${voteLoading ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}
+                    >
+                      <ArrowDown className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+
+                  {/* Stats pills on mobile only — desktop sidebar shows these */}
+                  <div
+                    className={`lg:hidden flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border ${
+                      post.is_answered
+                        ? 'bg-emerald-50 text-emerald-600 border-emerald-200'
+                        : 'bg-slate-50 text-slate-500 border-slate-200'
+                    }`}
+                  >
+                    <MessageCircle className="w-3.5 h-3.5" />
+                    {post.answer_count || 0} {post.is_answered ? 'Solved' : 'Answers'}
+                    {post.is_answered && <CheckCircle className="w-3 h-3" />}
+                  </div>
+
+                  <div className="lg:hidden flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-slate-50 text-slate-500 border border-slate-200">
+                    <Eye className="w-3.5 h-3.5" />
+                    {formatCount(viewCount)} {viewCount === 1 ? 'view' : 'views'}
+                  </div>
+
+                  <button
+                    onClick={handleShare}
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-slate-50 text-slate-500 border border-slate-200 hover:bg-purple-50 hover:text-[#7C3AED] hover:border-purple-200 transition-colors ml-auto"
+                  >
+                    <Share2 className="w-3.5 h-3.5" />
+                    Share
+                  </button>
+                </div>
+              </div>
+            </motion.article>
+
+            {/* Discussion */}
+            <section>
+              <h2 className="text-base font-extrabold text-slate-900 flex items-center gap-2 mb-4">
+                <MessageCircle className="w-4 h-4 text-[#7C3AED]" />
+                Discussion
+                <span className="text-sm font-bold text-slate-400">({answers.length})</span>
+              </h2>
+
+              {answers.length === 0 ? (
+                <div className="bg-white rounded-2xl border border-dashed border-slate-200 p-10 text-center">
+                  <div className="w-12 h-12 rounded-full bg-purple-50 flex items-center justify-center mx-auto mb-3">
+                    <Sparkles className="w-5 h-5 text-[#7C3AED]" />
+                  </div>
+                  <p className="text-sm font-bold text-slate-600 mb-1">No answers yet</p>
+                  <p className="text-xs text-slate-400">Be the first to help — share your experience!</p>
+                </div>
+              ) : (
+                topLevelAnswers.map((answer: any) => renderAnswer(answer, false))
+              )}
+            </section>
+
+            {/* Answer composer */}
+            {currentUser ? (
+              <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm sticky bottom-4">
+                {replyToAnswerId ? (
+                  <div className="flex items-center justify-between mb-3 bg-slate-50 px-3 py-2 rounded-lg">
+                    <span className="text-xs text-slate-500 font-medium">
+                      Replying to{' '}
+                      <span className="font-bold text-slate-800">
+                        {answers.find((a) => a.id === replyToAnswerId)?.users?.full_name}
+                      </span>
+                    </span>
+                    <button
+                      onClick={() => setReplyToAnswerId(null)}
+                      className="text-xs font-bold text-slate-400 hover:text-slate-600"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                ) : (
+                  <p className="text-sm font-bold text-slate-800 mb-3">Your Answer</p>
+                )}
+                <textarea
+                  value={newAnswer}
+                  onChange={(e) => setNewAnswer(e.target.value)}
+                  placeholder={replyToAnswerId ? 'Write your reply...' : 'Write your answer here...'}
+                  className="w-full min-h-[80px] p-3 rounded-xl border border-slate-200 text-sm text-slate-700 outline-none resize-y focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 transition-all"
+                />
+                <button
+                  onClick={handleSubmitAnswer}
+                  disabled={!newAnswer.trim() || submitting}
+                  className="mt-3 inline-flex items-center gap-2 text-sm font-bold text-white bg-gradient-to-r from-[#7C3AED] to-cyan-500 rounded-xl px-5 py-2.5 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg hover:shadow-purple-200 transition-all"
                 >
-                  Cancel
+                  <Send className="w-4 h-4" />
+                  {submitting ? 'Posting...' : replyToAnswerId ? 'Post Reply' : 'Post Answer'}
                 </button>
               </div>
             ) : (
-              <p style={{
-                fontSize: 12, fontWeight: 700,
-                color: '#374151', margin: '0 0 10px'
-              }}>
-                Your Answer
-              </p>
+              <div className="bg-white rounded-2xl border border-slate-200 p-8 text-center shadow-sm">
+                <p className="text-sm text-slate-500 font-medium mb-4">Login to post your answer</p>
+                <button
+                  onClick={() => router.push('/login')}
+                  className="text-sm font-bold text-white bg-gradient-to-r from-[#7C3AED] to-cyan-500 rounded-xl px-6 py-2.5 hover:shadow-lg hover:shadow-purple-200 transition-all"
+                >
+                  Login →
+                </button>
+              </div>
             )}
-            <textarea
-              value={newAnswer}
-              onChange={e => setNewAnswer(e.target.value)}
-              placeholder={replyToAnswerId ? "Write your reply..." : "Write your answer here..."}
-              style={{
-                width: '100%',
-                minHeight: replyToAnswerId ? 60 : 80,
-                padding: '12px',
-                borderRadius: 10,
-                border: '1.5px solid #EEEBFF',
-                fontSize: 13,
-                fontFamily: 'Plus Jakarta Sans',
-                color: '#374151',
-                outline: 'none',
-                resize: 'vertical',
-                boxSizing: 'border-box',
-                lineHeight: 1.6
-              }}
-              onFocus={e => e.target.style.borderColor = '#7C3AED'}
-              onBlur={e => e.target.style.borderColor = '#EEEBFF'}
-            />
-            <button
-              onClick={handleSubmitAnswer}
-              disabled={!newAnswer.trim() || submitting}
-              style={{
-                marginTop: 10,
-                display: 'flex', alignItems: 'center', gap: 6,
-                fontSize: 13, fontWeight: 700,
-                color: 'white',
-                background: !newAnswer.trim() || submitting
-                  ? '#D1D5DB'
-                  : 'linear-gradient(135deg,#7C3AED,#06B6D4)',
-                border: 'none',
-                borderRadius: 10,
-                padding: '10px 18px',
-                cursor: !newAnswer.trim() || submitting ? 'not-allowed' : 'pointer',
-                fontFamily: 'Plus Jakarta Sans',
-                transition: 'all 0.15s'
-              }}
-            >
-              <Send size={13} />
-              {submitting ? 'Posting...' : replyToAnswerId ? 'Post Reply' : 'Post Answer'}
-            </button>
           </div>
-        )}
 
-        {!currentUser && (
-          <div style={{
-            background: 'white',
-            borderRadius: 16,
-            border: '1px solid #EEEBFF',
-            padding: '24px',
-            textAlign: 'center'
-          }}>
-            <p style={{ fontSize: 13, color: '#6B7280', margin: '0 0 12px', fontWeight: 500 }}>
-              Login to post your answer
-            </p>
-            <button
-              onClick={() => router.push('/login')}
-              style={{
-                fontSize: 13, fontWeight: 700,
-                color: 'white',
-                background: 'linear-gradient(135deg,#7C3AED,#06B6D4)',
-                border: 'none',
-                borderRadius: 10,
-                padding: '10px 20px',
-                cursor: 'pointer',
-                fontFamily: 'Plus Jakarta Sans'
-              }}
-            >
-              Login →
-            </button>
-          </div>
-        )}
+          {/* ── Sidebar: desktop only, sticky ── */}
+          <aside className="hidden lg:block sticky top-6 self-start space-y-4 w-[320px]">
+            {/* About Author */}
+            <div className={sidebarCardClass}>
+              <div className="px-4 py-3 border-b border-slate-100">
+                <h3 className="text-xs font-extrabold text-slate-900 uppercase tracking-wide">About Author</h3>
+              </div>
+              <div className="p-4">
+                <button
+                  onClick={() => router.push(`/u/${post.users?.unique_id}`)}
+                  className="flex items-center gap-3 w-full text-left group mb-4"
+                >
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#7C3AED] to-cyan-400 flex items-center justify-center font-bold text-white text-lg overflow-hidden shrink-0 group-hover:scale-105 transition-transform">
+                    {post.users?.avatar_url ? (
+                      <img src={post.users.avatar_url} alt={post.users.full_name} className="w-full h-full object-cover" />
+                    ) : (
+                      post.users?.full_name?.[0] || 'U'
+                    )}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-bold text-slate-900 group-hover:text-[#7C3AED] transition-colors truncate">
+                      {post.users?.full_name}
+                    </p>
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {post.users?.role === 'senior' && (
+                        <span className="inline-flex items-center gap-0.5 text-[8px] font-black uppercase bg-emerald-50 text-emerald-600 border border-emerald-100 px-1.5 py-0.5 rounded">
+                          <Crown className="w-2.5 h-2.5" />
+                          Senior
+                        </span>
+                      )}
+                      {post.users?.is_verified && (
+                        <span className="text-[8px] font-black uppercase bg-purple-50 text-[#7C3AED] border border-purple-100 px-1.5 py-0.5 rounded">
+                          Verified
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </button>
+                <dl className="space-y-2.5 text-xs">
+                  <div>
+                    <dt className="text-slate-400 font-semibold mb-0.5">Role</dt>
+                    <dd className="font-bold text-slate-700 capitalize">
+                      {post.users?.role === 'senior' ? 'Senior Mentor' : 'Student / Mentee'}
+                    </dd>
+                  </div>
+                  {collegeName && (
+                    <div>
+                      <dt className="text-slate-400 font-semibold mb-0.5">College</dt>
+                      <dd className="font-bold text-slate-700 flex items-center gap-1">
+                        <GraduationCap className="w-3.5 h-3.5 text-slate-400" />
+                        {collegeName}
+                      </dd>
+                    </div>
+                  )}
+                  <div>
+                    <dt className="text-slate-400 font-semibold mb-0.5">Community</dt>
+                    <dd>
+                      <button
+                        onClick={() => router.push(`/community/c/${slug}`)}
+                        className="font-bold text-[#7C3AED] hover:underline"
+                      >
+                        c/{slug}
+                      </button>
+                    </dd>
+                  </div>
+                </dl>
+              </div>
+            </div>
+
+            {/* Community */}
+            <div className={sidebarCardClass}>
+              <div className="px-4 py-3 border-b border-slate-100">
+                <h3 className="text-xs font-extrabold text-slate-900 uppercase tracking-wide">Community</h3>
+              </div>
+              <div className="p-4">
+                <button
+                  onClick={() => router.push(`/community/c/${slug}`)}
+                  className="flex items-start gap-3 w-full text-left group"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-purple-50 border border-purple-100 flex items-center justify-center shrink-0">
+                    <Building2 className="w-5 h-5 text-[#7C3AED]" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-bold text-slate-900 group-hover:text-[#7C3AED] transition-colors truncate">
+                      {communityName}
+                    </p>
+                    <p className="text-[11px] text-slate-400 font-semibold mt-0.5">c/{slug}</p>
+                    {collegeName && (
+                      <p className="text-xs text-slate-500 font-medium mt-2 flex items-center gap-1">
+                        <GraduationCap className="w-3.5 h-3.5 text-slate-400" />
+                        {post.communities?.colleges?.name || collegeName}
+                      </p>
+                    )}
+                    {typeof memberCount === 'number' && (
+                      <p className="text-xs text-slate-500 font-medium mt-2 flex items-center gap-1">
+                        <Users className="w-3.5 h-3.5 text-slate-400" />
+                        {formatCount(memberCount)} members
+                      </p>
+                    )}
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            {/* Engagement stats */}
+            <div className={sidebarCardClass}>
+              <div className="px-4 py-3 border-b border-slate-100">
+                <h3 className="text-xs font-extrabold text-slate-900 uppercase tracking-wide">Engagement</h3>
+              </div>
+              <div className="p-4 space-y-3">
+                <button
+                  onClick={() => (post.upvote_count || 0) > 0 && setLikesModalOpen(true)}
+                  className={`flex items-center justify-between w-full text-left ${(post.upvote_count || 0) > 0 ? 'hover:bg-slate-50 -mx-2 px-2 py-1 rounded-lg transition-colors cursor-pointer' : ''}`}
+                >
+                  <span className="text-xs font-semibold text-slate-500 flex items-center gap-2">
+                    <ArrowUp className="w-3.5 h-3.5" />
+                    Helpful votes
+                  </span>
+                  <span className="text-sm font-extrabold text-slate-900">{formatCount(post.upvote_count || 0)}</span>
+                </button>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold text-slate-500 flex items-center gap-2">
+                    <MessageCircle className="w-3.5 h-3.5" />
+                    Answers
+                  </span>
+                  <span className={`text-sm font-extrabold ${post.is_answered ? 'text-emerald-600' : 'text-slate-900'}`}>
+                    {post.answer_count || 0}
+                    {post.is_answered && (
+                      <CheckCircle className="w-3.5 h-3.5 inline ml-1 -mt-0.5" />
+                    )}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold text-slate-500 flex items-center gap-2">
+                    <Eye className="w-3.5 h-3.5" />
+                    Views
+                  </span>
+                  <span className="text-sm font-extrabold text-slate-900">{formatCount(viewCount)}</span>
+                </div>
+              </div>
+            </div>
+          </aside>
+        </div>
       </div>
 
-      <style>{`
-        @media (max-width: 768px) {
-          div[style*="maxWidth: 800"] {
-            padding: 0 12px !important;
-          }
-        }
-      `}</style>
+      <LikesModal
+        isOpen={likesModalOpen}
+        onClose={() => setLikesModalOpen(false)}
+        postId={postId}
+        totalLikes={post.upvote_count || 0}
+        currentUser={currentUser}
+      />
     </div>
   )
 }

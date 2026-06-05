@@ -119,8 +119,8 @@ export default function PostModal({
         setError('Please upload a valid image format.')
         return
       }
-      if (file.size > 2 * 1024 * 1024) {
-        setError('Each image max size is 2MB')
+      if (file.size >= 2 * 1024 * 1024) {
+        setError('Image size must be less than 2MB')
         return
       }
       validFiles.push(file)

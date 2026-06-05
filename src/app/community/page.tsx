@@ -20,6 +20,12 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder'
 )
 
+interface RecentUpvoter {
+  id: string
+  full_name: string
+  avatar_url: string | null
+}
+
 interface FeedStateCache {
   posts: any[]
   communities: any[]
@@ -28,6 +34,7 @@ interface FeedStateCache {
   filter: string
   feedSearchQuery: string
   votes: Record<string, any>
+  recentUpvoters: Record<string, RecentUpvoter[]>
   scrollY: number
   expandedPost: string | null
   postAnswers: Record<string, any[]>
@@ -44,6 +51,7 @@ import ChatWidget from '@/components/community/ChatWidget'
 import FeedPost from '@/components/community/FeedPost'
 import LeftSidebar from '@/components/community/LeftSidebar'
 import RightSidebar from '@/components/community/RightSidebar'
+import LikesModal from '@/components/community/LikesModal'
 import { resolveDisplayBio } from '@/lib/profile-data'
 
 // Utility function to convert URLs to clickable links and preserve line breaks
@@ -165,8 +173,17 @@ function CommunityPageContent() {
     error: string | null
   }>>(() => validCache?.votes || {})
 
+  // Recent upvoters for LinkedIn-style display
+  const [recentUpvoters, setRecentUpvoters] = useState<Record<string, RecentUpvoter[]>>(() => validCache?.recentUpvoters || {})
+
   // Campus Placements (real jobs)
   const [campusJobs, setCampusJobs] = useState<any[]>([])
+
+  // Community Activity Metrics
+  const [todayPosts, setTodayPosts] = useState(0)
+  const [todayAnswers, setTodayAnswers] = useState(0)
+  const [todayReferrals, setTodayReferrals] = useState(0)
+  const [todaySeniors, setTodaySeniors] = useState(0)
 
   // Realtime New Posts Queue
   const [newPostsQueue, setNewPostsQueue] = useState<any[]>([])
@@ -181,6 +198,10 @@ function CommunityPageContent() {
   // Floating FAB scroll visibility to match bottom nav
   const [isNavVisible, setIsNavVisible] = useState(true)
   const [lastScrollY, setLastScrollY] = useState(0)
+
+  // Likes modal state
+  const [likesModalOpen, setLikesModalOpen] = useState(false)
+  const [selectedPostId, setSelectedPostId] = useState<string | null>(null)
 
   const toggleContentExpansion = (postId: string) => {
     setExpandedContent(prev => ({
@@ -252,13 +273,69 @@ function CommunityPageContent() {
     fetchJobs()
   }, [])
 
+  // Fetch community activity metrics
+  useEffect(() => {
+    const fetchActivityMetrics = async () => {
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+      const tomorrow = new Date(today)
+      tomorrow.setDate(tomorrow.getDate() + 1)
+
+      try {
+        // Today's posts
+        const { data: postsData, error: postsError } = await supabase
+          .from('posts')
+          .select('id')
+          .gte('created_at', today.toISOString())
+          .lt('created_at', tomorrow.toISOString())
+        if (!postsError && postsData) {
+          setTodayPosts(postsData.length)
+        }
+
+        // Today's answers
+        const { data: answersData, error: answersError } = await supabase
+          .from('answers')
+          .select('id')
+          .gte('created_at', today.toISOString())
+          .lt('created_at', tomorrow.toISOString())
+        if (!answersError && answersData) {
+          setTodayAnswers(answersData.length)
+        }
+
+        // Today's referrals
+        const { data: referralsData, error: referralsError } = await supabase
+          .from('referral_requests')
+          .select('id')
+          .gte('created_at', today.toISOString())
+          .lt('created_at', tomorrow.toISOString())
+        if (!referralsError && referralsData) {
+          setTodayReferrals(referralsData.length)
+        }
+
+        // New seniors joined today
+        const { data: seniorsData, error: seniorsError } = await supabase
+          .from('users')
+          .select('id')
+          .eq('role', 'senior')
+          .gte('created_at', today.toISOString())
+          .lt('created_at', tomorrow.toISOString())
+        if (!seniorsError && seniorsData) {
+          setTodaySeniors(seniorsData.length)
+        }
+      } catch (err) {
+        console.error('Failed to fetch activity metrics:', err)
+      }
+    }
+    fetchActivityMetrics()
+  }, [])
 
 
-  // Initialize votes
+
+  // Initialize votes and fetch recent upvoters
   useEffect(() => {
     if (!posts.length) return
 
-    const fetchUserVotes = async () => {
+    const fetchUserVotesAndUpvoters = async () => {
       const userId = user?.id || null
 
       const v: Record<string, any> = {}
@@ -273,6 +350,38 @@ function CommunityPageContent() {
       })
       setVotes(v)
 
+      // Batch fetch recent upvoters for all visible posts (single query)
+      const postIds = posts.map(p => p.id)
+      try {
+        const { data: recentVotes } = await supabase
+          .from('votes')
+          .select('post_id, user_id, created_at, users:user_id ( id, full_name, avatar_url )')
+          .in('post_id', postIds)
+          .eq('vote_type', 'upvote')
+          .order('created_at', { ascending: false })
+
+        if (recentVotes) {
+          const upvoterMap: Record<string, RecentUpvoter[]> = {}
+          recentVotes.forEach((vote: any) => {
+            const pid = vote.post_id
+            if (!upvoterMap[pid]) upvoterMap[pid] = []
+            if (upvoterMap[pid].length < 3 && vote.users) {
+              // Avoid duplicates
+              if (!upvoterMap[pid].some(u => u.id === vote.users.id)) {
+                upvoterMap[pid].push({
+                  id: vote.users.id,
+                  full_name: vote.users.full_name,
+                  avatar_url: vote.users.avatar_url
+                })
+              }
+            }
+          })
+          setRecentUpvoters(prev => ({ ...prev, ...upvoterMap }))
+        }
+      } catch (err) {
+        console.error('Failed to fetch recent upvoters:', err)
+      }
+
       if (!userId) return
 
       try {
@@ -280,7 +389,7 @@ function CommunityPageContent() {
           .from('votes')
           .select('post_id, vote_type')
           .eq('user_id', userId)
-          .in('post_id', posts.map(p => p.id))
+          .in('post_id', postIds)
 
         if (userVotes) {
           setVotes(prev => {
@@ -298,7 +407,7 @@ function CommunityPageContent() {
       }
     }
 
-    fetchUserVotes()
+    fetchUserVotesAndUpvoters()
   }, [posts, user?.id])
 
   // Get user college community
@@ -378,6 +487,33 @@ function CommunityPageContent() {
           userVote: result.action === 'removed' ? null : voteType
         }
       }))
+
+      // Optimistically update recent upvoters
+      if (voteType === 'upvote' && user) {
+        if (result.action === 'removed') {
+          // Remove current user from upvoters
+          setRecentUpvoters(prev => ({
+            ...prev,
+            [postId]: (prev[postId] || []).filter(u => u.id !== user.id)
+          }))
+        } else if (result.action === 'added') {
+          // Add current user to front of upvoters
+          setRecentUpvoters(prev => {
+            const existing = prev[postId] || []
+            if (existing.some(u => u.id === user.id)) return prev
+            return {
+              ...prev,
+              [postId]: [{ id: user.id, full_name: user.full_name, avatar_url: user.avatar_url || null }, ...existing].slice(0, 3)
+            }
+          })
+        }
+      } else if (voteType === 'downvote' && user && currentVote.userVote === 'upvote') {
+        // Switched from upvote to downvote — remove from upvoters
+        setRecentUpvoters(prev => ({
+          ...prev,
+          [postId]: (prev[postId] || []).filter(u => u.id !== user.id)
+        }))
+      }
     } catch (error) {
       setVotes(prev => ({
         ...prev,
@@ -444,6 +580,11 @@ function CommunityPageContent() {
     } catch {
       prompt('Copy this link:', url)
     }
+  }
+
+  const handleUpvotersClick = (postId: string) => {
+    setSelectedPostId(postId)
+    setLikesModalOpen(true)
   }
 
   const submitInlineAnswer = async (postId: string, text: string, parentAnswerId?: string) => {
@@ -685,6 +826,7 @@ function CommunityPageContent() {
         setFilter('all')
         setFeedSearchQuery('')
         setVotes({})
+        setRecentUpvoters({})
         setExpandedPost(null)
         setPostAnswers({})
         setExpandedContent({})
@@ -705,6 +847,7 @@ function CommunityPageContent() {
         filter,
         feedSearchQuery,
         votes,
+        recentUpvoters,
         scrollY: communityFeedCache?.scrollY || 0,
         expandedPost,
         postAnswers,
@@ -713,7 +856,7 @@ function CommunityPageContent() {
         timestamp: communityFeedCache?.timestamp || Date.now()
       }
     }
-  }, [posts, communities, page, hasMore, filter, feedSearchQuery, votes, expandedPost, postAnswers, expandedContent, user?.id, loading, authLoading])
+  }, [posts, communities, page, hasMore, filter, feedSearchQuery, votes, recentUpvoters, expandedPost, postAnswers, expandedContent, user?.id, loading, authLoading])
 
   // Track scroll position
   useEffect(() => {
@@ -1076,6 +1219,7 @@ function CommunityPageContent() {
                         post={post}
                         expandedContent={expandedContent[post.id]}
                         voteData={votes[post.id]}
+                        recentUpvoters={recentUpvoters[post.id]}
                         expandedPost={expandedPost}
                         postAnswers={postAnswers[post.id]}
                         answersLoading={answersLoading[post.id]}
@@ -1085,6 +1229,7 @@ function CommunityPageContent() {
                         onToggleAnswerSection={toggleAnswerSection}
                         onSharePost={handleSharePost}
                         onSubmitInlineAnswer={submitInlineAnswer}
+                        onUpvotersClick={handleUpvotersClick}
                       />
                     )
                   })}
@@ -1110,8 +1255,11 @@ function CommunityPageContent() {
           <RightSidebar
             communities={communities}
             userCommunity={userCommunity}
-            campusJobs={campusJobs}
             posts={posts}
+            todayPosts={todayPosts}
+            todayAnswers={todayAnswers}
+            todayReferrals={todayReferrals}
+            todaySeniors={todaySeniors}
           />
 
         </div>
@@ -1150,6 +1298,15 @@ function CommunityPageContent() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Likes Modal */}
+      <LikesModal
+        isOpen={likesModalOpen}
+        onClose={() => setLikesModalOpen(false)}
+        postId={selectedPostId || ''}
+        totalLikes={votes[selectedPostId || '']?.upvotes || 0}
+        currentUser={user}
+      />
 
       <NotificationPrompt />
     </div>
