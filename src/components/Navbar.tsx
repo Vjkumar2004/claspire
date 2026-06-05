@@ -69,7 +69,15 @@ export default function Navbar() {
 
         {/* Desktop Center Links */}
         <div className="hidden md:flex items-center gap-1 lg:gap-3 h-full">
-          <Link href="/community" className={`flex items-center gap-2 px-3 h-full text-[13px] font-semibold transition-all border-b-2 ${
+          <Link 
+            href="/community" 
+            onClick={(e) => {
+              if (pathname === '/community') {
+                e.preventDefault()
+                window.dispatchEvent(new CustomEvent('REFRESH_COMMUNITY_FEED'))
+              }
+            }}
+            className={`flex items-center gap-2 px-3 h-full text-[13px] font-semibold transition-all border-b-2 ${
             pathname === '/community' 
               ? 'text-[#7C3AED] border-[#7C3AED]' 
               : 'text-gray-500 border-transparent hover:text-black hover:border-gray-200'
@@ -582,7 +590,13 @@ export default function Navbar() {
               <a
                 key={item.href}
                 href={item.href}
-                onClick={() => setMobileMenuOpen(false)}
+                onClick={(e) => {
+                  setMobileMenuOpen(false)
+                  if (item.href === '/community' && pathname === '/community') {
+                    e.preventDefault()
+                    window.dispatchEvent(new CustomEvent('REFRESH_COMMUNITY_FEED'))
+                  }
+                }}
                 style={{
                   display: 'flex',
                   alignItems: 'center',

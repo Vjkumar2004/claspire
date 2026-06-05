@@ -42,6 +42,8 @@ import BottomNavbar from '@/components/BottomNavbar'
 import PostImageCarousel from '@/components/PostImageCarousel'
 import ChatWidget from '@/components/community/ChatWidget'
 import FeedPost from '@/components/community/FeedPost'
+import LeftSidebar from '@/components/community/LeftSidebar'
+import RightSidebar from '@/components/community/RightSidebar'
 import { resolveDisplayBio } from '@/lib/profile-data'
 
 // Utility function to convert URLs to clickable links and preserve line breaks
@@ -593,6 +595,7 @@ function CommunityPageContent() {
   }
 
   const handleLoadNewPosts = async () => {
+    // console.log('HANDLE LOAD NEW POSTS CALLED')
     if (isRefreshingFeed) return
     setIsRefreshingFeed(true)
 
@@ -632,6 +635,22 @@ function CommunityPageContent() {
       fetchCommunities()
     }
   }, [])
+
+
+
+  // Handle LinkedIn-style soft refresh events from Navigation bars
+  const handleLoadNewPostsRef = useRef(handleLoadNewPosts)
+  useEffect(() => {
+    handleLoadNewPostsRef.current = handleLoadNewPosts
+  })
+
+  // useEffect(() => {
+  //   const onRefresh = () => {
+  //     handleLoadNewPostsRef.current()
+  //   }
+  //   window.addEventListener('REFRESH_COMMUNITY_FEED', onRefresh)
+  //   return () => window.removeEventListener('REFRESH_COMMUNITY_FEED', onRefresh)
+  // }, [])
 
   // Session Boundary Check
   useEffect(() => {
@@ -752,7 +771,24 @@ function CommunityPageContent() {
       supabase.removeChannel(channel)
     }
   }, [])
+  useEffect(() => {
+    const handleRefresh = () => {
+      console.log('REFRESH EVENT RECEIVED')
+      handleLoadNewPosts()
+    }
 
+    window.addEventListener(
+      'REFRESH_COMMUNITY_FEED',
+      handleRefresh
+    )
+
+    return () => {
+      window.removeEventListener(
+        'REFRESH_COMMUNITY_FEED',
+        handleRefresh
+      )
+    }
+  }, [])
 
 
 
@@ -796,6 +832,8 @@ function CommunityPageContent() {
 
     return matchFilter && matchQuery
   })
+
+
 
   const getTypeStyle = (type: string) => {
     switch (type) {
@@ -875,122 +913,13 @@ function CommunityPageContent() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
           {/* ════ LEFT COLUMN: Rich Sticky LinkedIn-style Profile Identity Card ════ */}
-          <aside className="lg:col-span-3 sticky top-[88px] self-start space-y-4 hidden lg:block">
-
-            {/* Identity Card */}
-            <div className="bg-white rounded-md border border-slate-200 overflow-hidden shadow-sm">
-              <div className="h-20 bg-gradient-to-r from-purple-700 to-indigo-900 relative">
-                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-indigo-500/20 via-transparent to-transparent pointer-events-none" />
-              </div>
-
-              <div className="px-4 pb-4 relative flex flex-col items-center -mt-10">
-
-                {/* User Avatar with outer ring */}
-                <div className="w-20 h-20 rounded-md border-4 border-white overflow-hidden bg-slate-50 shadow-md flex items-center justify-center">
-                  {user?.avatar_url ? (
-                    <img src={user.avatar_url} alt="Profile" className="w-full h-full object-cover" />
-                  ) : (
-                    <span className="text-2xl font-black text-slate-800 uppercase">
-                      {user?.full_name?.[0] || 'U'}
-                    </span>
-                  )}
-                </div>
-
-                {/* Name & Badge details */}
-                <h3 className="font-bold text-slate-900 text-sm mt-3 text-center leading-tight">
-                  {user?.full_name || 'Guest User'}
-                </h3>
-                <p className="text-[10px] font-semibold text-slate-400 mt-0.5 text-center truncate w-full">
-                  @{user?.unique_id || 'guest'}
-                </p>
-
-                <div className="flex items-center gap-1 mt-2">
-                  <span className={`text-[8px] font-extrabold uppercase px-2 py-0.5 rounded-full border ${user?.role === 'senior'
-                    ? 'bg-emerald-50 text-emerald-600 border-emerald-100'
-                    : 'bg-purple-50 text-purple-600 border-purple-100'
-                    }`}>
-                    {user?.role === 'senior' ? '★ Verified Senior Mentor' : 'Mentee Member'}
-                  </span>
-                </div>
-
-                {/* Professional headline/bio context */}
-                <p className="text-[11px] text-slate-500 text-center font-medium mt-3 px-1 leading-normal border-b border-slate-100 pb-3 w-full">
-                  {resolveDisplayBio(user?.bio) || (user?.role === 'senior'
-                    ? `Mentor • Specialist at ${user?.company || 'Industry Partners'}`
-                    : `Student of ${user?.branch || 'Engineering Department'}`)}
-                </p>
-
-                {/* Extended academic & student details */}
-                <div className="w-full pt-3 space-y-2 text-[10px] text-slate-500 font-semibold border-b border-slate-100 pb-3">
-                  <div className="flex items-center gap-2">
-                    <GraduationCap className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-                    <span className="truncate">{userCommunity?.colleges?.short_name || user?.college || 'No campus linked'}</span>
-                  </div>
-                  {user?.branch && (
-                    <div className="flex items-center gap-2">
-                      <Building2 className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-                      <span className="truncate">{user.branch}</span>
-                    </div>
-                  )}
-                  <div className="flex items-center gap-2">
-                    <Award className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-                    <span>Graduation: {user?.graduation_year || user?.passout_year || 'Class of 2026'}</span>
-                  </div>
-                </div>
-
-                {/* High Density Metric Tally grid */}
-                <div className="w-full pt-3 grid grid-cols-2 gap-2 text-center">
-                  <div className="p-2 bg-slate-50 rounded border border-slate-100">
-                    <span className="block text-[14px] font-black text-[#7C3AED] leading-none">
-                      {user?.rise_points || user?.points || 0}
-                    </span>
-                    <span className="text-[8px] uppercase tracking-wider text-slate-400 font-extrabold mt-1 block">
-                      Rise RP
-                    </span>
-                  </div>
-                  <div className="p-2 bg-slate-50 rounded border border-slate-100">
-                    <span className="block text-[14px] font-black text-slate-800 leading-none">
-                      {user?.answer_count || 0}
-                    </span>
-                    <span className="text-[8px] uppercase tracking-wider text-slate-400 font-extrabold mt-1 block">
-                      Answers
-                    </span>
-                  </div>
-                </div>
-
-              </div>
-            </div>
-
-            {/* Navigation shortcuts list */}
-            <div className="bg-white rounded-md border border-slate-200 p-2.5 shadow-sm">
-              <h4 className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest px-2.5 mb-1.5">
-                Ecosystem Hubs
-              </h4>
-              <nav className="space-y-0.5">
-                {[
-                  { key: 'all', label: 'Global Feed Home', icon: Globe },
-                  { key: 'trending', label: 'Trending Posts', icon: TrendingUp },
-                  { key: 'doubt', label: 'Q&A doubts', icon: HelpCircle }
-                ].map((item) => {
-                  const isActive = filter === item.key
-                  return (
-                    <button
-                      key={item.key}
-                      onClick={() => {
-                        setFilter(item.key)
-                        setFeedSearchQuery('') // Reset query on layout change
-                      }}
-                      className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 text-left rounded font-bold text-xs transition-colors cursor-pointer ${isActive ? 'bg-purple-50 text-[#7C3AED]' : 'text-slate-600 hover:text-black hover:bg-slate-50'
-                        }`}
-                    >
-                      <item.icon className={`w-3.5 h-3.5 ${isActive ? 'text-[#7C3AED]' : 'text-slate-400'}`} />
-                      <span>{item.label}</span>
-                    </button>
-                  )
-                })}
-              </nav>
-            </div>
-          </aside>
+          <LeftSidebar
+            user={user}
+            userCommunity={userCommunity}
+            filter={filter}
+            setFilter={setFilter}
+            setFeedSearchQuery={setFeedSearchQuery}
+          />
 
           {/* ════ CENTER COLUMN: Searchable + Filterable Feed ════ */}
           <main className="lg:col-span-6 space-y-3.5">
@@ -1088,12 +1017,13 @@ function CommunityPageContent() {
               </div>
             )}
 
-            {/* LinkedIn-Style New Posts Available Pill */}
-            {newPostsQueue.length > 0 && (
+            {/* LinkedIn-Style New Posts Available Pill / Refresh Indicator */}
+            {(isRefreshingFeed || newPostsQueue.length > 0) && (
               <div className="flex justify-center my-3.5 h-9">
                 {isRefreshingFeed ? (
-                  <div className="flex items-center justify-center px-4 py-2 bg-white border border-slate-200 rounded-full shadow-sm">
+                  <div className="flex items-center justify-center px-4 py-2 bg-white border border-slate-200 rounded-full shadow-sm gap-2">
                     <div className="w-4 h-4 border-2 border-purple-100 border-t-[#7C3AED] rounded-full animate-spin" />
+                    <span className="text-[10px] font-bold text-slate-500">Refreshing feed...</span>
                   </div>
                 ) : (
                   <button
@@ -1160,148 +1090,12 @@ function CommunityPageContent() {
           </main>
 
           {/* ════ RIGHT COLUMN: Sticky Campus Leadership & Discovery ════ */}
-          <aside className="lg:col-span-3 sticky top-[88px] self-start space-y-4 hidden lg:block">
-
-            {/* Top communities leader board */}
-            <div className="bg-white rounded-md border border-slate-200 overflow-hidden shadow-sm">
-              <div className="p-3.5 border-b border-slate-100 flex items-center justify-between">
-                <h4 className="font-bold text-slate-900 text-xs flex items-center gap-1.5">
-                  <TrendingUp className="w-4 h-4 text-purple-600" />
-                  Campus Leaders
-                </h4>
-              </div>
-
-              <div className="p-1.5 space-y-0.5">
-                {communities.slice(0, 4).map((c) => (
-                  <div
-                    key={c.id}
-                    onClick={() => router.push(`/community/c/${c.slug}`)}
-                    className="flex items-center gap-2.5 p-2 rounded hover:bg-slate-50 cursor-pointer transition-colors"
-                  >
-                    <div className="w-7 h-7 rounded bg-purple-50 border border-slate-100 flex items-center justify-center font-bold text-[#7C3AED] overflow-hidden text-[10px] flex-shrink-0">
-                      {c.colleges?.logo_url ? (
-                        <img src={c.colleges.logo_url} alt={c.colleges?.short_name || c.slug} className="w-full h-full object-contain" />
-                      ) : (
-                        c.colleges?.short_name?.[0] || 'C'
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h5 className="font-bold text-xs text-slate-800 truncate">c/{c.slug}</h5>
-                      <p className="text-[9px] text-slate-400 font-semibold">{c.member_count || 0} members</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <button
-                onClick={() => router.push('/colleges')}
-                className="w-full py-2 bg-purple-50 hover:bg-purple-100 text-[#7C3AED] text-[11px] font-bold text-center border-t border-slate-100 transition-colors cursor-pointer block"
-              >
-                Explore Campuses ↗
-              </button>
-            </div>
-
-            {/* Suggested For You Hubs */}
-            <div className="bg-white rounded-md border border-slate-200 p-3.5 shadow-sm">
-              <h4 className="font-bold text-slate-900 text-xs mb-3 flex items-center gap-1.5">
-                <Sparkles className="w-4 h-4 text-emerald-600" />
-                Suggested Circles
-              </h4>
-              <div className="space-y-2.5">
-                {communities
-                  .filter(c => c.slug !== userCommunity?.slug)
-                  .slice(0, 3)
-                  .map((c) => (
-                    <div key={c.id} className="flex items-center gap-2.5">
-                      <div className="w-7 h-7 rounded bg-slate-50 flex items-center justify-center font-bold text-slate-500 text-[10px] flex-shrink-0">
-                        {c.colleges?.short_name?.[0] || 'C'}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h5 className="font-bold text-xs text-slate-800 truncate">{c.colleges?.short_name || c.display_name}</h5>
-                        <p className="text-[9px] text-slate-400 font-semibold truncate">{c.colleges?.location || 'Tamil Nadu'}</p>
-                      </div>
-                      <button
-                        onClick={() => router.push(`/community/c/${c.slug}`)}
-                        className="px-2 py-0.5 border border-slate-200 hover:border-[#7C3AED] hover:text-[#7C3AED] bg-white rounded font-bold text-[9px] text-slate-600 transition-colors cursor-pointer"
-                      >
-                        Join
-                      </button>
-                    </div>
-                  ))}
-              </div>
-            </div>
-
-            {/* Active Placements / Jobs list (real data) */}
-            <div className="bg-white rounded-md border border-slate-200 p-3.5 shadow-sm">
-              <h4 className="font-bold text-slate-900 text-xs mb-3 flex items-center gap-1.5">
-                <Briefcase className="w-4 h-4 text-rose-500" />
-                Campus Placements
-              </h4>
-              <div className="space-y-2.5 text-[10px] font-semibold text-slate-600">
-                {campusJobs.length > 0 ? (
-                  campusJobs.map((job, idx) => (
-                    <div
-                      key={job.id}
-                      className={`flex items-center justify-between ${idx < campusJobs.length - 1 ? 'border-b border-slate-50 pb-2' : ''}`}
-                    >
-                      <div className="min-w-0 flex-1 mr-2">
-                        <p className="font-bold text-slate-800 truncate">{job.role}</p>
-                        <p className="text-slate-400 mt-0.5 text-[9px] truncate">
-                          {job.company_name}{job.referral_available ? ' • Referral' : ''}{job.job_type ? ` • ${job.job_type}` : ''}
-                        </p>
-                      </div>
-                      <button
-                        onClick={() => router.push(`/careers/${job.id}`)}
-                        className={`px-2 py-0.5 rounded font-bold text-[9px] cursor-pointer flex-shrink-0 ${idx === 0
-                          ? 'bg-rose-50 border border-rose-100 hover:bg-rose-100 text-rose-600'
-                          : 'bg-slate-50 border border-slate-100 hover:bg-slate-100 text-slate-600'
-                          }`}
-                      >
-                        {idx === 0 ? 'Apply' : 'View'}
-                      </button>
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-slate-400 text-[10px] text-center py-2">No active placements yet</p>
-                )}
-              </div>
-              {campusJobs.length > 0 && (
-                <button
-                  onClick={() => router.push('/careers')}
-                  className="mt-2.5 w-full text-center text-[10px] font-bold text-[#7C3AED] hover:text-[#6D28D9] transition-colors cursor-pointer"
-                >
-                  View All Jobs →
-                </button>
-              )}
-            </div>
-
-            {/* Platform statistics summary */}
-            <div className="bg-slate-950 text-white rounded-md p-3.5 shadow-sm relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-20 h-20 bg-purple-500/10 rounded-full blur-xl pointer-events-none" />
-              <h4 className="font-bold text-xs mb-3 flex items-center gap-1.5 relative z-10">
-                <Zap className="w-4 h-4 text-purple-400" />
-                Network Statistics
-              </h4>
-              <div className="space-y-2.5 relative z-10 text-[10px] font-semibold text-slate-300">
-                <div className="flex items-center justify-between">
-                  <span>Communities Joined</span>
-                  <span className="text-white font-bold">{communities.length}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span>Active Members</span>
-                  <span className="text-white font-bold">
-                    {communities.reduce((acc, c) => acc + (c.member_count || 0), 0)}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span>New Submissions</span>
-                  <span className="text-white font-bold">
-                    {posts.filter((p: any) => new Date(p.created_at).toDateString() === new Date().toDateString()).length}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </aside>
+          <RightSidebar
+            communities={communities}
+            userCommunity={userCommunity}
+            campusJobs={campusJobs}
+            posts={posts}
+          />
 
         </div>
       </div>

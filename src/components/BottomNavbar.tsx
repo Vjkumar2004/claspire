@@ -155,6 +155,12 @@ const BottomNavbar = () => {
                 <Link
                   key={index}
                   href={item.href}
+                  onClick={(e) => {
+                    if (item.href === '/community' && pathname === '/community') {
+                      e.preventDefault()
+                      window.dispatchEvent(new CustomEvent('REFRESH_COMMUNITY_FEED'))
+                    }
+                  }}
                   className="flex-1 flex flex-col items-center py-2 no-underline group relative"
                 >
                   <div className={`transition-all duration-200 ${isActive ? 'text-purple-600 scale-110' : 'text-gray-400 group-hover:text-gray-600'}`}>

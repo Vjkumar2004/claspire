@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@supabase/supabase-js'
 import {
@@ -18,7 +18,7 @@ interface ChatWidgetProps {
   isNavVisible: boolean
 }
 
-export default function ChatWidget({ user, isNavVisible }: ChatWidgetProps) {
+function ChatWidget({ user, isNavVisible }: ChatWidgetProps) {
   const router = useRouter()
 
   // Direct Messaging Overhaul States (Phase 3)
@@ -666,3 +666,5 @@ export default function ChatWidget({ user, isNavVisible }: ChatWidgetProps) {
     </>
   )
 }
+
+export default React.memo(ChatWidget)
