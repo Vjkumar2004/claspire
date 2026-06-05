@@ -93,6 +93,15 @@ export async function POST(req: NextRequest) {
           })
           .eq('id', post_id)
 
+        // Fix Exploit: Reverse the RP if removing an upvote
+        if (vote_type === 'upvote') {
+          const { data: p } = await supabase.from('posts').select('author_id').eq('id', post_id).single()
+          if (p && p.author_id !== userId) {
+            const { data: u } = await supabase.from('users').select('rise_points').eq('id', p.author_id).single()
+            await supabase.from('users').update({ rise_points: Math.max(0, (u?.rise_points || 0) - 1) }).eq('id', p.author_id)
+          }
+        }
+
         return NextResponse.json({
           success: true,
           action: 'removed',
@@ -134,6 +143,15 @@ export async function POST(req: NextRequest) {
             downvote_count: newDownvotes
           })
           .eq('id', post_id)
+
+        // Fix Exploit: Reverse the RP if switching from upvote to downvote
+        if (existing.vote_type === 'upvote' && vote_type === 'downvote') {
+          const { data: p } = await supabase.from('posts').select('author_id').eq('id', post_id).single()
+          if (p && p.author_id !== userId) {
+            const { data: u } = await supabase.from('users').select('rise_points').eq('id', p.author_id).single()
+            await supabase.from('users').update({ rise_points: Math.max(0, (u?.rise_points || 0) - 1) }).eq('id', p.author_id)
+          }
+        }
 
         return NextResponse.json({
           success: true,

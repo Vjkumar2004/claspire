@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
       .from('users')
       .update({ 
         referral_count: (seniorUser?.referral_count || 0) + 1,
-        rise_points: (seniorUser?.rise_points || 0) + 10
+        rise_points: (seniorUser?.rise_points || 0) + 15
       })
       .eq('id', ref.senior_id)
 
@@ -74,7 +74,7 @@ export async function POST(req: NextRequest) {
       .from('rise_points_log')
       .insert({
         user_id: ref.senior_id,
-        points: 10,
+        points: 15,
         reason: `Approved a referral for ${jobRole} @ ${companyName} 🤝`,
         created_at: new Date().toISOString()
       })
@@ -89,7 +89,7 @@ export async function POST(req: NextRequest) {
     await supabase
       .from('users')
       .update({ 
-        rise_points: (juniorUser?.rise_points || 0) + 20,
+        rise_points: (juniorUser?.rise_points || 0) + 25,
         referral_count: (juniorUser?.referral_count || 0) + 1
       })
       .eq('id', juniorId)
@@ -99,7 +99,7 @@ export async function POST(req: NextRequest) {
       .from('rise_points_log')
       .insert({
         user_id: juniorId,
-        points: 20,
+        points: 25,
         reason: `Referral approved by ${seniorName}! 🎯`,
         created_at: new Date().toISOString()
       })

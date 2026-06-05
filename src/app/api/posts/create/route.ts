@@ -175,11 +175,11 @@ export async function POST(req: NextRequest) {
       .single()
 
     const rpAmount =
-      type === 'doubt' ? 3
-        : type === 'discussion' ? 2
-          : type === 'experience' ? 8
-            : type === 'referral_hunt' ? 5
-              : type === 'resource' ? 6
+      type === 'experience' ? 10
+        : type === 'resource' ? 8
+          : type === 'referral_hunt' ? 5
+            : type === 'doubt' ? 2
+              : type === 'discussion' ? 2
                 : 2
 
     await supabase

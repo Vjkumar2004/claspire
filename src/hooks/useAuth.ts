@@ -20,6 +20,7 @@ interface User {
   points?: number
   answer_count?: number
   college?: string
+  is_verified?: boolean
 }
 
 export function useAuth() {

@@ -143,8 +143,6 @@ function CommunityPageContent() {
   const [expandedPost, setExpandedPost] = useState<string | null>(() => validCache?.expandedPost || null)
   const [postAnswers, setPostAnswers] = useState<Record<string, any[]>>(() => validCache?.postAnswers || {})
   const [answersLoading, setAnswersLoading] = useState<Record<string, boolean>>({})
-  const [newAnswerText, setNewAnswerText] = useState<Record<string, string>>({})
-  const [answerSubmitting, setAnswerSubmitting] = useState<Record<string, boolean>>({})
 
   // Content expansion state
   const [expandedContent, setExpandedContent] = useState<Record<string, boolean>>(() => validCache?.expandedContent || {})
@@ -388,21 +386,23 @@ function CommunityPageContent() {
     }
   }
 
-  const fetchPostAnswers = async (postId: string) => {
-    if (postAnswers[postId]) return
+  const fetchPostAnswers = async (postId: string, forceRefresh = false) => {
+    if (!forceRefresh && postAnswers[postId]?.length) return
     setAnswersLoading(prev => ({ ...prev, [postId]: true }))
     try {
       const { data, error } = await supabase
         .from('answers')
         .select(`
-          id, content, created_at, is_accepted, upvote_count, author_id,
+          *,
           users!answers_author_id_fkey ( id, full_name, unique_id, role, is_verified, avatar_url )
         `)
         .eq('post_id', postId)
         .order('created_at', { ascending: true })
-        .limit(10)
 
-      if (!error && data) {
+      if (error) {
+        console.error('Answer fetch error:', error)
+      }
+      if (data) {
         setPostAnswers(prev => ({ ...prev, [postId]: data }))
       }
     } catch (err) {
@@ -446,39 +446,59 @@ function CommunityPageContent() {
     }
   }
 
-  const submitInlineAnswer = async (postId: string) => {
-    const text = newAnswerText[postId]?.trim()
-    if (!text || answerSubmitting[postId]) return
+  const submitInlineAnswer = async (postId: string, text: string, parentAnswerId?: string) => {
+    const trimmed = text.trim()
+    if (!trimmed) return false
 
     if (!user?.id) {
       router.push('/login')
-      return
+      return false
     }
 
     try {
-      setAnswerSubmitting(prev => ({ ...prev, [postId]: true }))
-
       const response = await fetch('/api/answers/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ post_id: postId, content: text })
+        body: JSON.stringify({ post_id: postId, content: trimmed, parent_answer_id: parentAnswerId })
       })
 
       if (!response.ok) throw new Error('Answer creation failed')
       const result = await response.json()
 
       if (result.success && result.answer) {
-        showAward(5, "Answered a question 🤝")
-        setPostAnswers(prev => ({ ...prev, [postId]: [...(prev[postId] || []), result.answer] }))
-        setNewAnswerText(prev => ({ ...prev, [postId]: '' }))
-        setPosts(prev => prev.map((p: any) =>
-          p.id === postId ? { ...p, answer_count: (p.answer_count || 0) + 1, is_answered: true } : p
-        ))
+        if (trimmed.length >= 20) {
+          showAward(5, "Answered a question 🤝")
+        }
+
+        const enrichedAnswer = {
+          ...result.answer,
+          users: {
+            ...result.answer.users,
+            full_name: user?.full_name || result.answer.users?.full_name,
+            avatar_url: user?.avatar_url,
+            role: user?.role,
+            unique_id: user?.unique_id,
+            is_verified: user?.is_verified,
+          }
+        }
+
+        setPostAnswers(prev => ({ ...prev, [postId]: [...(prev[postId] || []), enrichedAnswer] }))
+        setPosts(prev => prev.map((p: any) => {
+          if (p.id === postId) {
+            return { 
+              ...p, 
+              answer_count: !parentAnswerId ? (p.answer_count || 0) + 1 : p.answer_count, 
+              is_answered: true 
+            }
+          }
+          return p
+        }))
+        return true
       }
+      return false
     } catch (err) {
       console.error(err)
-    } finally {
-      setAnswerSubmitting(prev => ({ ...prev, [postId]: false }))
+      return false
     }
   }
 
@@ -1059,14 +1079,11 @@ function CommunityPageContent() {
                         expandedPost={expandedPost}
                         postAnswers={postAnswers[post.id]}
                         answersLoading={answersLoading[post.id]}
-                        newAnswerText={newAnswerText[post.id]}
-                        answerSubmitting={answerSubmitting[post.id]}
                         onToggleContent={toggleContentExpansion}
                         onImageClick={handleImageClick}
                         onVote={handleVote}
                         onToggleAnswerSection={toggleAnswerSection}
                         onSharePost={handleSharePost}
-                        onAnswerTextChange={(postId, text) => setNewAnswerText(prev => ({ ...prev, [postId]: text }))}
                         onSubmitInlineAnswer={submitInlineAnswer}
                       />
                     )

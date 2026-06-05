@@ -276,7 +276,7 @@ export default function ChatWindow({
             prev.map((m) => (m.id === optimisticMsg.id ? { ...data.message, reply_to: optimisticMsg.reply_to } : m))
           )
         }
-        await syncMessages()
+        // await syncMessages()
         onMessageSent?.()
       } else {
         const error = await res.json()
@@ -301,9 +301,8 @@ export default function ChatWindow({
       msg.reply_to.sender_id === currentUserId ? 'You' : otherUserName
     return (
       <div
-        className={`mb-2 pl-2 border-l-2 text-[11px] leading-snug ${
-          isMine ? 'border-white/60 text-white/90' : 'border-purple-500 text-gray-500'
-        }`}
+        className={`mb-2 pl-2 border-l-2 text-[11px] leading-snug ${isMine ? 'border-white/60 text-white/90' : 'border-purple-500 text-gray-500'
+          }`}
       >
         <p className="font-bold truncate">{author}</p>
         <p className="truncate opacity-90">{msg.reply_to.content}</p>
@@ -362,11 +361,10 @@ export default function ChatWindow({
                   <button
                     type="button"
                     onClick={() => setMenuMessageId(showMenu ? null : msg.id)}
-                    className={`w-full text-left p-3 rounded-2xl text-sm transition-transform active:scale-[0.99] ${
-                      isMine
+                    className={`w-full text-left p-3 rounded-2xl text-sm transition-transform active:scale-[0.99] ${isMine
                         ? `bg-purple-600 text-white rounded-br-none ${isOptimistic ? 'opacity-70' : ''}`
                         : 'bg-white border border-gray-100 text-gray-800 rounded-bl-none shadow-sm'
-                    }`}
+                      }`}
                   >
                     {renderReplyQuote(msg, isMine)}
                     <p className="whitespace-pre-wrap break-words">{msg.content}</p>
@@ -382,9 +380,8 @@ export default function ChatWindow({
                   {showMenu && (
                     <div
                       ref={menuRef}
-                      className={`absolute z-20 min-w-[140px] bg-white border border-gray-200 rounded-xl shadow-xl overflow-hidden ${
-                        isMine ? 'right-0 top-full mt-1' : 'left-0 top-full mt-1'
-                      }`}
+                      className={`absolute z-20 min-w-[140px] bg-white border border-gray-200 rounded-xl shadow-xl overflow-hidden ${isMine ? 'right-0 top-full mt-1' : 'left-0 top-full mt-1'
+                        }`}
                     >
                       <button
                         type="button"

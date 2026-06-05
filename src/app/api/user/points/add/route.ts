@@ -25,7 +25,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate reason
-    const validReasons = ['post_created', 'answer', 'upvote_received', 'answer_accepted']
+    const validReasons = [
+      'post_created', 'answer', 'upvote_received', 'answer_accepted',
+      'referral_approved', 'referral_received', 'senior_verification'
+    ]
     if (!validReasons.includes(reason)) {
       return NextResponse.json(
         { error: 'Invalid reason' },

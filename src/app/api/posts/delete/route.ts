@@ -37,7 +37,7 @@ export async function DELETE(
     // Verify post belongs to user
     const { data: post } = await supabase
       .from('posts')
-      .select('id, author_id, title')
+      .select('id, author_id, title, type')
       .eq('id', post_id)
       .single()
 
@@ -95,12 +95,20 @@ export async function DELETE(
       .eq('id', userId)
       .single()
 
+    const rpPenalty =
+      post.type === 'experience' ? 10
+        : post.type === 'resource' ? 8
+          : post.type === 'referral_hunt' ? 5
+            : post.type === 'doubt' ? 2
+              : post.type === 'discussion' ? 2
+                : 2
+
     await supabase
       .from('users')
       .update({
         rise_points: Math.max(
           0,
-          (user?.rise_points || 0) - 3
+          (user?.rise_points || 0) - rpPenalty
         )
       })
       .eq('id', userId)

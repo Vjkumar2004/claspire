@@ -101,16 +101,12 @@ export interface FeedPostProps {
   expandedPost: string | null
   postAnswers?: any[]
   answersLoading?: boolean
-  newAnswerText?: string
-  answerSubmitting?: boolean
-
   onToggleContent: (postId: string) => void
   onImageClick: (url: string) => void
   onVote: (postId: string, voteType: 'upvote' | 'downvote') => void
   onToggleAnswerSection: (postId: string) => void
   onSharePost: (post: any) => void
-  onAnswerTextChange: (postId: string, text: string) => void
-  onSubmitInlineAnswer: (postId: string) => void
+  onSubmitInlineAnswer: (postId: string, text: string, parentAnswerId?: string) => Promise<boolean> | void
 }
 
 export default function FeedPost({
@@ -120,18 +116,154 @@ export default function FeedPost({
   expandedPost,
   postAnswers,
   answersLoading,
-  newAnswerText,
-  answerSubmitting,
   onToggleContent,
   onImageClick,
   onVote,
   onToggleAnswerSection,
   onSharePost,
-  onAnswerTextChange,
   onSubmitInlineAnswer,
 }: FeedPostProps) {
   const router = useRouter()
   const ts = getTypeStyle(post.type)
+  const [expandedReplies, setExpandedReplies] = React.useState<Record<string, boolean>>({})
+  const [answerText, setAnswerText] = React.useState('')
+  const [isSubmittingAnswer, setIsSubmittingAnswer] = React.useState(false)
+  const [replyToAnswerId, setReplyToAnswerId] = React.useState<string | null>(null)
+
+  const toggleReplies = (answerId: string) => {
+    setExpandedReplies(prev => ({ ...prev, [answerId]: !prev[answerId] }))
+  }
+
+  const handleSubmitAnswer = async () => {
+    const trimmed = answerText.trim()
+    if (!trimmed || isSubmittingAnswer) return
+    
+    setIsSubmittingAnswer(true)
+    try {
+      const success = await onSubmitInlineAnswer(post.id, trimmed, replyToAnswerId || undefined)
+      if (success !== false) {
+        setAnswerText('') // clear only on success
+        if (replyToAnswerId) {
+          setExpandedReplies(prev => ({ ...prev, [replyToAnswerId as string]: true }))
+        }
+        setReplyToAnswerId(null)
+      }
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setIsSubmittingAnswer(false)
+    }
+  }
+
+  const topLevelAnswers = postAnswers?.filter((a: any) => !a.parent_answer_id) || []
+  const replies = postAnswers?.filter((a: any) => a.parent_answer_id) || []
+
+  const renderComposer = (isTopLevel: boolean, targetAnswerId?: string) => {
+    if (isTopLevel && replyToAnswerId) return null; // Don't show global composer if replying inline
+    if (!isTopLevel && replyToAnswerId !== targetAnswerId) return null;
+
+    return (
+      <div className={`flex flex-col gap-2 ${isTopLevel ? 'pt-1.5 mt-2 border-t border-slate-100' : 'mt-2 mb-2 pl-2'}`}>
+        {!isTopLevel && (
+          <div className="flex items-center justify-between bg-slate-50 p-2 rounded-md">
+            <span className="text-[10px] text-slate-600 font-medium">
+              Replying to <span className="font-bold text-slate-800">{topLevelAnswers.find((a: any) => a.id === targetAnswerId)?.users?.full_name}</span>
+            </span>
+            <button 
+              onClick={() => setReplyToAnswerId(null)}
+              className="text-[10px] text-slate-400 hover:text-slate-600 font-bold px-2 py-0.5"
+            >
+              Cancel
+            </button>
+          </div>
+        )}
+        <div className="flex items-end gap-2">
+          <textarea
+            value={answerText}
+            onChange={e => setAnswerText(e.target.value)}
+            placeholder={!isTopLevel ? "Write a reply..." : "Help by writing an answer..."}
+            rows={1}
+            className="flex-1 border border-slate-200 hover:border-slate-300 rounded p-2 text-[10px] font-semibold focus:outline-none focus:border-[#7C3AED] resize-none"
+          />
+          <button
+            onClick={handleSubmitAnswer}
+            disabled={!answerText.trim() || isSubmittingAnswer}
+            className="px-3 py-1.5 bg-[#7C3AED] hover:bg-[#6D28D9] disabled:bg-slate-200 text-white rounded font-bold text-[10px] cursor-pointer transition-colors flex-shrink-0"
+          >
+            {!isTopLevel ? 'Reply' : 'Send'}
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  const renderAnswerContent = (answer: any, isReply: boolean = false) => (
+    <div key={answer.id} className={`flex gap-2.5 py-1.5 items-start ${isReply ? 'mt-1 mb-1' : 'border-b border-slate-50 last:border-b-0'}`}>
+      <div className="w-7 h-7 rounded bg-slate-100 flex items-center justify-center font-bold text-slate-800 text-xs overflow-hidden flex-shrink-0 border border-slate-100 mt-0.5">
+        {answer.users?.avatar_url ? (
+          <img src={answer.users.avatar_url} alt="Author" className="w-full h-full object-cover" />
+        ) : (
+          answer.users?.full_name?.[0] || 'U'
+        )}
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-1.5">
+          <span className="font-bold text-slate-900 text-[10px]">{answer.users?.full_name}</span>
+          {answer.users?.role === 'senior' && (
+            <span className="text-[6px] font-black uppercase bg-emerald-50 text-emerald-600 border border-emerald-100 px-0.5 rounded">
+              SENIOR
+            </span>
+          )}
+          {answer.is_accepted && (
+            <span className="text-[6px] font-black uppercase bg-emerald-50 text-emerald-600 border border-emerald-100 px-0.5 rounded flex items-center gap-0.5">
+              <CheckCircle className="w-2 h-2" /> Accepted
+            </span>
+          )}
+          {answer.created_at && (
+            <span className="text-[9px] text-slate-400 font-medium ml-1">
+              {timeAgo(answer.created_at)}
+            </span>
+          )}
+        </div>
+        <p className="text-[10px] text-slate-600 leading-normal font-semibold mt-0.5">{answer.content}</p>
+        
+        {!isReply && (
+          <div className="mt-1 flex items-center gap-3">
+            <button 
+              onClick={() => {
+                setReplyToAnswerId(replyToAnswerId === answer.id ? null : answer.id)
+                if (replyToAnswerId !== answer.id) setAnswerText('')
+              }}
+              className="text-[9px] text-slate-400 hover:text-[#7C3AED] font-bold transition-colors"
+            >
+              Reply
+            </button>
+            
+            {replies.filter((r: any) => r.parent_answer_id === answer.id).length > 0 && (
+              <button 
+                onClick={() => toggleReplies(answer.id)}
+                className="text-[9px] text-[#7C3AED] font-bold transition-colors flex items-center gap-1 bg-purple-50 px-1.5 py-0.5 rounded"
+              >
+                {expandedReplies[answer.id] ? 'Hide Replies' : `Show Replies (${replies.filter((r: any) => r.parent_answer_id === answer.id).length})`}
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* Render inline composer below this answer if replying */}
+        {!isReply && renderComposer(false, answer.id)}
+
+        {/* Nested Replies */}
+        {!isReply && expandedReplies[answer.id] && replies.filter((r: any) => r.parent_answer_id === answer.id).length > 0 && (
+          <div className="pl-4 ml-2 border-l-2 border-slate-100 mb-2 mt-2">
+            {replies.filter((r: any) => r.parent_answer_id === answer.id).map((reply: any) => 
+              renderAnswerContent(reply, true)
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  )
 
   return (
     <motion.article
@@ -310,51 +442,14 @@ export default function FeedPost({
           )}
 
           {/* Answers List */}
-          {!answersLoading && postAnswers?.map((answer: any) => (
-            <div key={answer.id} className="flex gap-2.5 py-1.5 border-b border-slate-50 last:border-b-0 items-start">
-              <div className="w-7 h-7 rounded bg-slate-100 flex items-center justify-center font-bold text-slate-800 text-xs overflow-hidden flex-shrink-0 border border-slate-100">
-                {answer.users?.avatar_url ? (
-                  <img src={answer.users.avatar_url} alt="Author" className="w-full h-full object-cover" />
-                ) : (
-                  answer.users?.full_name?.[0] || 'U'
-                )}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1.5">
-                  <span className="font-bold text-slate-900 text-[10px]">{answer.users?.full_name}</span>
-                  {answer.users?.role === 'senior' && (
-                    <span className="text-[6px] font-black uppercase bg-emerald-50 text-emerald-600 border border-emerald-100 px-0.5 rounded">
-                      SENIOR
-                    </span>
-                  )}
-                  {answer.is_accepted && (
-                    <span className="text-[6px] font-black uppercase bg-emerald-50 text-emerald-600 border border-emerald-100 px-0.5 rounded flex items-center gap-0.5">
-                      <CheckCircle className="w-2 h-2" /> Accepted
-                    </span>
-                  )}
-                </div>
-                <p className="text-[10px] text-slate-600 leading-normal font-semibold mt-0.5">{answer.content}</p>
-              </div>
+          {!answersLoading && topLevelAnswers.map((answer: any) => (
+            <div key={answer.id} className="flex flex-col">
+              {renderAnswerContent(answer, false)}
             </div>
           ))}
 
           {/* Answer submission block */}
-          <div className="flex items-end gap-2 pt-1.5">
-            <textarea
-              value={newAnswerText || ''}
-              onChange={e => onAnswerTextChange(post.id, e.target.value)}
-              placeholder="Help by writing an answer..."
-              rows={1}
-              className="flex-1 border border-slate-200 hover:border-slate-300 rounded p-2 text-[10px] font-semibold focus:outline-none focus:border-[#7C3AED] resize-none"
-            />
-            <button
-              onClick={() => onSubmitInlineAnswer(post.id)}
-              disabled={!newAnswerText?.trim() || answerSubmitting}
-              className="px-3 py-1.5 bg-[#7C3AED] hover:bg-[#6D28D9] disabled:bg-slate-200 text-white rounded font-bold text-[10px] cursor-pointer transition-colors flex-shrink-0"
-            >
-              Send
-            </button>
-          </div>
+          {renderComposer(true)}
         </div>
       )}
     </motion.article>

@@ -62,6 +62,8 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
   const [loading, setLoading] = useState(true)
   const [newAnswer, setNewAnswer] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const [expandedReplies, setExpandedReplies] = useState<Record<string, boolean>>({})
+  const [replyToAnswerId, setReplyToAnswerId] = useState<string | null>(null)
   const [currentUser, setCurrentUser] = useState<any>(null)
   const [userVote, setUserVote] = useState<'upvote' | 'downvote' | null>(null)
   const [voteLoading, setVoteLoading] = useState(false)
@@ -245,7 +247,8 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
         .insert({
           post_id: postId,
           author_id: authData.user.id,
-          content: newAnswer.trim()
+          content: newAnswer.trim(),
+          parent_answer_id: replyToAnswerId || null
         })
         .select(`
           *,
@@ -259,15 +262,22 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
       if (!error && data) {
         setAnswers(prev => [...prev, data])
         setNewAnswer('')
-        // Update answer count
-        await supabase
-          .from('posts')
-          .update({ answer_count: (post.answer_count || 0) + 1 })
-          .eq('id', postId)
-        setPost((prev: any) => ({
-          ...prev,
-          answer_count: (prev.answer_count || 0) + 1
-        }))
+        
+        // Update answer count only for top-level answers
+        if (!replyToAnswerId) {
+          await supabase
+            .from('posts')
+            .update({ answer_count: (post.answer_count || 0) + 1 })
+            .eq('id', postId)
+          setPost((prev: any) => ({
+            ...prev,
+            answer_count: (prev.answer_count || 0) + 1
+          }))
+        } else {
+          setExpandedReplies(prev => ({ ...prev, [replyToAnswerId as string]: true }))
+        }
+        
+        setReplyToAnswerId(null)
       }
     } catch (err) {
       console.error('Answer error:', err)
@@ -688,102 +698,149 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
               </p>
             </div>
           ) : (
-            answers.map((answer: any, index: number) => (
-              <div
-                key={answer.id}
-                style={{
-                  background: answer.is_accepted ? '#FEFFF5' : 'white',
-                  borderRadius: 14,
-                  border: answer.is_accepted ? '2px solid #A7F3D0' : '1px solid #EEEBFF',
-                  padding: '18px',
-                  marginBottom: 12,
-                  boxShadow: '0 1px 4px rgba(0,0,0,0.03)'
-                }}
-              >
-                {answer.is_accepted && (
-                  <div style={{
-                    display: 'flex', alignItems: 'center', gap: 6,
-                    fontSize: 10, fontWeight: 700,
-                    color: '#059669', background: '#ECFDF5',
-                    padding: '4px 10px', borderRadius: 100,
-                    border: '1px solid #A7F3D0',
-                    marginBottom: 10, width: 'fit-content'
-                  }}>
-                    <CheckCircle size={11} />
-                    ACCEPTED ANSWER
-                  </div>
-                )}
+            (() => {
+              const topLevelAnswers = answers.filter((a: any) => !a.parent_answer_id)
+              const replies = answers.filter((a: any) => a.parent_answer_id)
 
-                {/* Answer Author */}
-                <div style={{
-                  display: 'flex', alignItems: 'center', gap: 10,
-                  marginBottom: 12
-                }}>
-                  <div 
-                    onClick={() => router.push(`/u/${answer.users?.unique_id}`)}
-                    style={{
-                      width: 32, height: 32, borderRadius: 8,
-                      background: answer.users?.avatar_url 
-                        ? 'transparent' 
-                        : (answer.users?.role === 'senior'
-                            ? 'linear-gradient(135deg,#059669,#34D399)'
-                            : 'linear-gradient(135deg,#7C3AED,#06B6D4)'),
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      color: 'white', fontSize: 12, fontWeight: 800, flexShrink: 0,
-                      overflow: 'hidden',
-                      cursor: 'pointer',
-                      transition: 'transform 0.2s'
-                    }}
-                    onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.05)'}
-                    onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
-                  >
-                    {answer.users?.avatar_url ? (
-                      <img 
-                        src={answer.users.avatar_url} 
-                        alt={answer.users.full_name} 
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-                      />
-                    ) : (
-                      answer.users?.full_name?.[0] || 'U'
-                    )}
-                  </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-                      <span 
-                        onClick={() => router.push(`/u/${answer.users?.unique_id}`)}
-                        style={{ fontSize: 13, fontWeight: 700, color: '#1F2937', cursor: 'pointer' }}
-                        onMouseEnter={e => e.currentTarget.style.color = '#7C3AED'}
-                        onMouseLeave={e => e.currentTarget.style.color = '#1F2937'}
-                      >
-                        {answer.users?.full_name}
-                      </span>
-                      {answer.users?.role === 'senior' && (
-                        <span style={{
-                          fontSize: 8, fontWeight: 700,
-                          background: '#ECFDF5', color: '#059669',
-                          padding: '1px 5px', borderRadius: 100,
-                          border: '1px solid #A7F3D0'
-                        }}>
-                          SENIOR
-                        </span>
+              const renderAnswer = (answer: any, isReply: boolean = false) => (
+                <div
+                  key={answer.id}
+                  style={{
+                    background: answer.is_accepted ? '#FEFFF5' : 'white',
+                    borderRadius: 14,
+                    border: answer.is_accepted ? '2px solid #A7F3D0' : isReply ? 'none' : '1px solid #EEEBFF',
+                    padding: isReply ? '10px 0 10px 10px' : '18px',
+                    marginBottom: isReply ? 0 : 12,
+                    boxShadow: isReply ? 'none' : '0 1px 4px rgba(0,0,0,0.03)',
+                    borderBottom: isReply ? '1px solid #F3F4F6' : undefined
+                  }}
+                >
+                  {answer.is_accepted && !isReply && (
+                    <div style={{
+                      display: 'flex', alignItems: 'center', gap: 6,
+                      fontSize: 10, fontWeight: 700,
+                      color: '#059669', background: '#ECFDF5',
+                      padding: '4px 10px', borderRadius: 100,
+                      border: '1px solid #A7F3D0',
+                      marginBottom: 10, width: 'fit-content'
+                    }}>
+                      <CheckCircle size={11} />
+                      ACCEPTED ANSWER
+                    </div>
+                  )}
+
+                  {/* Answer Author */}
+                  <div style={{
+                    display: 'flex', alignItems: 'center', gap: 10,
+                    marginBottom: 10
+                  }}>
+                    <div 
+                      onClick={() => router.push(`/u/${answer.users?.unique_id}`)}
+                      style={{
+                        width: isReply ? 24 : 32, height: isReply ? 24 : 32, borderRadius: 8,
+                        background: answer.users?.avatar_url 
+                          ? 'transparent' 
+                          : (answer.users?.role === 'senior'
+                              ? 'linear-gradient(135deg,#059669,#34D399)'
+                              : 'linear-gradient(135deg,#7C3AED,#06B6D4)'),
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        color: 'white', fontSize: isReply ? 10 : 12, fontWeight: 800, flexShrink: 0,
+                        overflow: 'hidden',
+                        cursor: 'pointer',
+                        transition: 'transform 0.2s'
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.05)'}
+                      onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+                    >
+                      {answer.users?.avatar_url ? (
+                        <img 
+                          src={answer.users.avatar_url} 
+                          alt={answer.users.full_name} 
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                        />
+                      ) : (
+                        answer.users?.full_name?.[0] || 'U'
                       )}
                     </div>
-                    <span style={{ fontSize: 10, color: '#9CA3AF', fontWeight: 500 }}>
-                      {timeAgo(answer.created_at)}
-                    </span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                        <span 
+                          onClick={() => router.push(`/u/${answer.users?.unique_id}`)}
+                          style={{ fontSize: 13, fontWeight: 700, color: '#1F2937', cursor: 'pointer' }}
+                          onMouseEnter={e => e.currentTarget.style.color = '#7C3AED'}
+                          onMouseLeave={e => e.currentTarget.style.color = '#1F2937'}
+                        >
+                          {answer.users?.full_name}
+                        </span>
+                        {answer.users?.role === 'senior' && (
+                          <span style={{
+                            fontSize: 8, fontWeight: 700,
+                            background: '#ECFDF5', color: '#059669',
+                            padding: '1px 5px', borderRadius: 100,
+                            border: '1px solid #A7F3D0'
+                          }}>
+                            SENIOR
+                          </span>
+                        )}
+                        <span style={{ fontSize: 10, color: '#9CA3AF', fontWeight: 500 }}>
+                          • {timeAgo(answer.created_at)}
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                </div>
 
-                {/* Answer Content */}
-                <div style={{
-                  fontSize: 13, color: '#4B5563',
-                  margin: 0, lineHeight: 1.7,
-                  wordBreak: 'break-word'
-                }}>
-                  {convertUrlsToLinks(answer.content)}
+                  {/* Answer Content */}
+                  <div style={{
+                    fontSize: 13, color: '#4B5563',
+                    margin: 0, lineHeight: 1.7,
+                    wordBreak: 'break-word',
+                    paddingLeft: isReply ? 34 : 0
+                  }}>
+                    {convertUrlsToLinks(answer.content)}
+                  </div>
+                  
+                  {!isReply && (
+                    <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <button 
+                        onClick={() => {
+                          setReplyToAnswerId(replyToAnswerId === answer.id ? null : answer.id)
+                          if (replyToAnswerId !== answer.id) setNewAnswer('')
+                        }}
+                        style={{
+                          fontSize: 11, color: '#9CA3AF', fontWeight: 700,
+                          background: 'none', border: 'none', cursor: 'pointer'
+                        }}
+                      >
+                        Reply
+                      </button>
+                      
+                      {replies.filter((r: any) => r.parent_answer_id === answer.id).length > 0 && (
+                        <button 
+                          onClick={() => setExpandedReplies(prev => ({ ...prev, [answer.id]: !prev[answer.id] }))}
+                          style={{
+                            fontSize: 11, color: '#7C3AED', fontWeight: 700,
+                            background: '#F5F3FF', border: 'none', cursor: 'pointer',
+                            padding: '4px 10px', borderRadius: 6
+                          }}
+                        >
+                          {expandedReplies[answer.id] ? 'Hide Replies' : `Show Replies (${replies.filter((r: any) => r.parent_answer_id === answer.id).length})`}
+                        </button>
+                      )}
+                    </div>
+                  )}
+
+                  {!isReply && expandedReplies[answer.id] && replies.filter((r: any) => r.parent_answer_id === answer.id).length > 0 && (
+                    <div style={{ marginLeft: 16, marginTop: 16, borderLeft: '2px solid #F3F4F6', paddingLeft: 12 }}>
+                      {replies.filter((r: any) => r.parent_answer_id === answer.id).map((reply: any) => 
+                        renderAnswer(reply, true)
+                      )}
+                    </div>
+                  )}
                 </div>
-              </div>
-            ))
+              )
+
+              return topLevelAnswers.map((answer: any) => renderAnswer(answer, false))
+            })()
           )}
         </div>
 
@@ -798,19 +855,33 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
             position: 'sticky',
             bottom: 16
           }}>
-            <p style={{
-              fontSize: 12, fontWeight: 700,
-              color: '#374151', margin: '0 0 10px'
-            }}>
-              Your Answer
-            </p>
+            {replyToAnswerId ? (
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10, background: '#F9FAFB', padding: '8px 12px', borderRadius: 8 }}>
+                <span style={{ fontSize: 12, color: '#6B7280', fontWeight: 500 }}>
+                  Replying to <span style={{ fontWeight: 700, color: '#374151' }}>{answers.find(a => a.id === replyToAnswerId)?.users?.full_name}</span>
+                </span>
+                <button 
+                  onClick={() => setReplyToAnswerId(null)}
+                  style={{ fontSize: 11, color: '#9CA3AF', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 700 }}
+                >
+                  Cancel
+                </button>
+              </div>
+            ) : (
+              <p style={{
+                fontSize: 12, fontWeight: 700,
+                color: '#374151', margin: '0 0 10px'
+              }}>
+                Your Answer
+              </p>
+            )}
             <textarea
               value={newAnswer}
               onChange={e => setNewAnswer(e.target.value)}
-              placeholder="Write your answer here..."
+              placeholder={replyToAnswerId ? "Write your reply..." : "Write your answer here..."}
               style={{
                 width: '100%',
-                minHeight: 80,
+                minHeight: replyToAnswerId ? 60 : 80,
                 padding: '12px',
                 borderRadius: 10,
                 border: '1.5px solid #EEEBFF',
@@ -845,7 +916,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
               }}
             >
               <Send size={13} />
-              {submitting ? 'Posting...' : 'Post Answer'}
+              {submitting ? 'Posting...' : replyToAnswerId ? 'Post Reply' : 'Post Answer'}
             </button>
           </div>
         )}

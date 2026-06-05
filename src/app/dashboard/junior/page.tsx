@@ -202,10 +202,11 @@ export default function JuniorDashboard() {
   }
 
   const getRPLevel = (points: number) => {
-    if (points >= 1000) return { label: 'Pathfinder', emoji: '🏆', next: null, color: '#F59E0B' }
-    if (points >= 500) return { label: 'Rising Star', emoji: '⭐', next: 1000, color: '#7C3AED' }
-    if (points >= 200) return { label: 'Explorer', emoji: '🔭', next: 500, color: '#06B6D4' }
-    return { label: 'Newcomer', emoji: '🌱', next: 200, color: '#16A34A' }
+    if (points >= 5000) return { label: 'Legend', emoji: '👑', next: null, color: '#F59E0B' }
+    if (points >= 1500) return { label: 'Champion', emoji: '🏆', next: 5000, color: '#7C3AED' }
+    if (points >= 500) return { label: 'Mentor', emoji: '💎', next: 1500, color: '#06B6D4' }
+    if (points >= 100) return { label: 'Contributor', emoji: '🌟', next: 500, color: '#16A34A' }
+    return { label: 'Explorer', emoji: '🌱', next: 100, color: '#8B5CF6' }
   }
 
   const timeAgo = (dateStr: string) => {

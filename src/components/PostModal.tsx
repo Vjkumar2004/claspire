@@ -230,10 +230,12 @@ export default function PostModal({
 
       // Show RP Award
       if (data.rpEarned && !isEdit) {
-        if (type === 'doubt') showAward(5, 'Great question! 🌟')
-        else if (type === 'resource') showAward(10, 'Resource shared! 📚')
-        else if (type === 'referral_hunt') showAward(2, 'Good luck with referral! 🎯')
-        else showAward(5, 'Post created! ✨')
+        if (type === 'experience') showAward(10, 'Experience shared! ⭐')
+        else if (type === 'resource') showAward(8, 'Resource shared! 📚')
+        else if (type === 'referral_hunt') showAward(5, 'Good luck with referral! 🎯')
+        else if (type === 'doubt') showAward(2, 'Great question! 🌟')
+        else if (type === 'discussion') showAward(2, 'Discussion started! 💬')
+        else showAward(2, 'Post created! ✨')
       }
 
       // Reset form

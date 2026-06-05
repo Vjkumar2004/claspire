@@ -17,23 +17,32 @@ export async function POST(req: NextRequest) {
     const session = JSON.parse(cookie.value)
     const userId = session.id
 
-    const { post_id, content, is_senior_answer } = await req.json()
+    const { post_id, content, is_senior_answer, parent_answer_id } = await req.json()
 
     if (!content?.trim()) {
       return NextResponse.json({ error: 'Answer required' }, { status: 400 })
     }
 
     // Insert answer
-    const { data: answer, error } = await supabase
+    const insertPayload: any = {
+      post_id,
+      author_id: userId,
+      content: content.trim(),
+      is_senior_answer: is_senior_answer || false,
+      upvote_count: 0,
+      created_at: new Date().toISOString()
+    }
+    
+    if (parent_answer_id) {
+      insertPayload.parent_answer_id = parent_answer_id
+    }
+
+    console.log('[DEBUG answers/create] Request payload parent_answer_id:', parent_answer_id)
+    console.log('[DEBUG answers/create] Initial insert payload:', insertPayload)
+
+    let { data: answer, error } = await supabase
       .from('answers')
-      .insert({
-        post_id,
-        author_id: userId,
-        content: content.trim(),
-        is_senior_answer: is_senior_answer || false,
-        upvote_count: 0,
-        created_at: new Date().toISOString()
-      })
+      .insert(insertPayload)
       .select('*, users(full_name, branch, year)')
       .single()
 
@@ -50,13 +59,15 @@ export async function POST(req: NextRequest) {
       .single()
 
     if (post) {
-      await supabase
-        .from('posts')
-        .update({
-          answer_count: (post.answer_count || 0) + 1,
-          is_answered: true
-        })
-        .eq('id', post_id)
+      if (!parent_answer_id) {
+        await supabase
+          .from('posts')
+          .update({
+            answer_count: (post.answer_count || 0) + 1,
+            is_answered: true
+          })
+          .eq('id', post_id)
+      }
 
       // Get answerer name
       const { data: answerer } = await supabase
@@ -109,24 +120,37 @@ export async function POST(req: NextRequest) {
         .eq('id', userId)
         .single()
 
-      const rpAmount = isSenior ? 10 : 5
+      const rpAmount = content.trim().length >= 20 ? 5 : 0
 
-      await supabase
-        .from('rise_points_log')
-        .insert({
-          user_id: userId,
-          points: rpAmount,
-          reason: `Answered a ${isSenior ? 'doubt as Senior' : 'post'}`,
-          created_at: new Date().toISOString()
-        })
+      if (rpAmount > 0) {
+        await supabase
+          .from('rise_points_log')
+          .insert({
+            user_id: userId,
+            points: rpAmount,
+            reason: `Answered a ${isSenior ? 'doubt as Senior' : 'post'}`,
+            created_at: new Date().toISOString()
+          })
+      }
 
-      await supabase
-        .from('users')
-        .update({
-          rise_points: (user?.rise_points || 0) + rpAmount,
-          answer_count: (user?.answer_count || 0) + 1
-        })
-        .eq('id', userId)
+      if (user) {
+        if (!parent_answer_id) {
+          await supabase
+            .from('users')
+            .update({
+              rise_points: (user?.rise_points || 0) + rpAmount,
+              answer_count: (user?.answer_count || 0) + 1
+            })
+            .eq('id', userId)
+        } else {
+          await supabase
+            .from('users')
+            .update({
+              rise_points: (user?.rise_points || 0) + rpAmount
+            })
+            .eq('id', userId)
+        }
+      }
     }
 
     return NextResponse.json({

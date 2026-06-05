@@ -81,7 +81,7 @@ export async function createUserProfile(data: {
         graduation_year: data.graduation_year,
         avatar_url: `https://api.dicebear.com/7.x/initials/svg?seed=${initials}`,
         verification_status: 'pending',
-        rise_points: data.role === 'senior' ? 500 : 0, // Seniors start with some RP
+        rise_points: data.role === 'senior' ? 100 : 0, // Seniors start with some RP
         rp_level: data.role === 'senior' ? 2 : 1,
       })
       .select()
