@@ -3,6 +3,9 @@ import { createHmac, timingSafeEqual } from 'crypto'
 const SESSION_SECRET = process.env.SESSION_SECRET || ''
 const SESSION_VERSION = 1
 
+// Maximum session age in seconds (30 days)
+const SESSION_MAX_AGE_SECONDS = 30 * 24 * 60 * 60
+
 if (!SESSION_SECRET) {
   console.warn('WARNING: SESSION_SECRET environment variable not set. Using insecure fallback.')
 }
@@ -103,7 +106,16 @@ export function verifySessionCookie(cookieValue: string): { userId: string; isLe
         
         // Validate payload structure
         if (payload.uid && payload.ver === SESSION_VERSION && payload.iat) {
-          console.log('[Session] Valid signed session for user:', payload.uid)
+          // Check session expiration
+          const currentTime = Math.floor(Date.now() / 1000)
+          const sessionAge = currentTime - payload.iat
+          
+          if (sessionAge > SESSION_MAX_AGE_SECONDS) {
+            console.log('[Session] Session expired - age:', sessionAge, 'seconds, max allowed:', SESSION_MAX_AGE_SECONDS, 'seconds')
+            return null
+          }
+          
+          console.log('[Session] Valid signed session for user:', payload.uid, 'age:', sessionAge, 'seconds')
           return { userId: payload.uid, isLegacy: false }
         } else {
           console.log('[Session] Payload validation failed - missing required fields or wrong version')
@@ -168,8 +180,9 @@ export function getUserIdFromRequest(req: Request): string | null {
  * This function:
  * 1. Verifies HMAC-SHA256 signature of the cookie
  * 2. Rejects tampered/invalid cookies (returns null)
- * 3. Fetches fresh user data from database (source of truth)
- * 4. Returns complete user object with verified data
+ * 3. Rejects expired sessions (returns null)
+ * 4. Fetches fresh user data from database (source of truth)
+ * 5. Returns complete user object with verified data
  * 
  * @param request - NextRequest object
  * @returns User object from database or null if authentication fails
@@ -199,7 +212,7 @@ export async function getAuthenticatedUser(request: Request): Promise<any | null
   const verifiedSession = verifySessionCookie(cookieValue)
   
   if (!verifiedSession) {
-    // Cookie is missing, invalid, or tampered
+    // Cookie is missing, invalid, tampered, or expired
     return null
   }
   
@@ -217,4 +230,40 @@ export async function getAuthenticatedUser(request: Request): Promise<any | null
   }
   
   return user
+}
+
+/**
+ * Check if a session cookie is expired without verifying signature
+ * This is useful for clearing expired cookies from the client
+ * 
+ * @param cookieValue - The session cookie value
+ * @returns true if the session is expired, false otherwise
+ */
+export function isSessionExpired(cookieValue: string): boolean {
+  if (!cookieValue) {
+    return false
+  }
+  
+  try {
+    const decodedCookie = decodeURIComponent(cookieValue)
+    const firstDotIndex = decodedCookie.indexOf('.')
+    
+    if (firstDotIndex === -1) {
+      return false
+    }
+    
+    const payloadB64 = decodedCookie.substring(0, firstDotIndex)
+    const payload = JSON.parse(Buffer.from(payloadB64, 'base64').toString())
+    
+    if (!payload.iat) {
+      return false
+    }
+    
+    const currentTime = Math.floor(Date.now() / 1000)
+    const sessionAge = currentTime - payload.iat
+    
+    return sessionAge > SESSION_MAX_AGE_SECONDS
+  } catch {
+    return false
+  }
 }

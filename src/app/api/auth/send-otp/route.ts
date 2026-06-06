@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { rateLimit, getClientIdentifier } from '@/lib/rateLimit'
+import { applyRateLimit, getClientIdentifier } from '@/lib/rateLimitRedis'
 import { sendEmail } from '@/services/emailService'
 
 const supabase = createClient(
@@ -21,20 +21,10 @@ export async function POST(req: NextRequest) {
 
     // Rate limiting: 5 OTP requests per 15 minutes per IP
     const identifier = getClientIdentifier(req);
-    const rateLimitResult = rateLimit({
-      identifier: `otp:${identifier}:${email}`,
-      windowMs: 15 * 60 * 1000, // 15 minutes
-      maxAttempts: 5,
-    });
+    const rateLimitResult = await applyRateLimit(req, 'otp', `otp:${identifier}:${email}`);
 
-    if (!rateLimitResult.success) {
-      return NextResponse.json(
-        { 
-          error: 'Too many OTP requests. Please try again later.',
-          resetTime: rateLimitResult.resetTime 
-        },
-        { status: 429 }
-      )
+    if (!rateLimitResult.success && rateLimitResult.response) {
+      return rateLimitResult.response
     }
 
     // Generate 6 digit OTP

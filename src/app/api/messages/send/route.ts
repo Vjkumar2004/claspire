@@ -4,6 +4,7 @@ import { getConversationId } from '@/lib/messages';
 import { createNotification } from '@/lib/notifications';
 import { canUsersMessage } from '@/middleware/checkCanMessage';
 import { getAuthenticatedUser } from '@/lib/session';
+import { applyRateLimit, getUserIdentifier } from '@/lib/rateLimitRedis';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -18,6 +19,13 @@ export async function POST(req: NextRequest) {
     const user = await getAuthenticatedUser(req);
     if (!user) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+    }
+
+    // Rate limiting: 30 requests per minute per user
+    const userIdentifier = await getUserIdentifier(req);
+    const rateLimitResult = await applyRateLimit(req, 'sendMessage', userIdentifier);
+    if (!rateLimitResult.success && rateLimitResult.response) {
+      return rateLimitResult.response;
     }
 
     const userId = user.id;

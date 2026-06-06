@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { sendEmail } from '@/services/emailService'
+import { applyRateLimit } from '@/lib/rateLimitRedis'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
@@ -91,6 +92,12 @@ async function sendOTPviaSMTP(email: string, otp: string, fullName: string): Pro
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting: 3 requests per hour per IP
+    const rateLimitResult = await applyRateLimit(request, 'passwordReset')
+    if (!rateLimitResult.success && rateLimitResult.response) {
+      return rateLimitResult.response
+    }
+
     const { email } = await request.json()
 
     if (!email) {

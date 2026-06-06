@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import bcrypt from 'bcryptjs'
 import { createSessionCookie } from '@/lib/session'
+import { applyRateLimit, getClientIdentifier } from '@/lib/rateLimitRedis'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -10,6 +11,12 @@ const supabase = createClient(
 
 export async function POST(req: NextRequest) {
   try {
+    // Rate limiting: 3 requests per hour per IP
+    const rateLimitResult = await applyRateLimit(req, 'signup')
+    if (!rateLimitResult.success && rateLimitResult.response) {
+      return rateLimitResult.response
+    }
+
     const { email, role, profileData, password, onesignal_player_id, google_id } = await req.json()
 
     // Validate password

@@ -20,6 +20,48 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Environment Variables
+
+### Required for Rate Limiting (Upstash Redis)
+
+The application uses Upstash Redis for production-grade distributed rate limiting. You must configure these environment variables:
+
+```env
+UPSTASH_REDIS_REST_URL=your_upstash_redis_url
+UPSTASH_REDIS_REST_TOKEN=your_upstash_redis_token
+```
+
+To get these credentials:
+1. Create a free account at [Upstash Console](https://console.upstash.com/)
+2. Create a new Redis database
+3. Copy the REST URL and REST token from the database details
+
+**Note**: If Upstash Redis is not configured, the rate limiter will fail open (allow requests) to prevent breaking the application.
+
+### Rate Limiting Configuration
+
+The following endpoints are protected with rate limiting:
+
+**Authentication Endpoints (per IP):**
+- Login: 5 requests per minute
+- Signup: 3 requests per hour
+- Password Reset: 3 requests per hour
+- OTP: 5 requests per 15 minutes
+
+**Content Creation Endpoints (per authenticated user):**
+- Create Post: 10 requests per minute
+- Send Message: 30 requests per minute
+- Create Comment: 20 requests per minute
+
+**Voting Endpoints (per authenticated user):**
+- Vote Actions: 100 requests per minute
+
+Rate limited requests return HTTP 429 with:
+- `X-RateLimit-Limit`: Maximum requests
+- `X-RateLimit-Remaining`: Remaining requests
+- `X-RateLimit-Reset`: Unix timestamp when limit resets
+- `Retry-After`: Seconds until retry
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

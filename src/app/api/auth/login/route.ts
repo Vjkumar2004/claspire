@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import bcrypt from 'bcryptjs'
 import { createSessionCookie } from '@/lib/session'
+import { applyRateLimit, getClientIdentifier } from '@/lib/rateLimitRedis'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -10,6 +11,12 @@ const supabase = createClient(
 
 export async function POST(req: NextRequest) {
   try {
+    // Rate limiting: 5 requests per minute per IP
+    const rateLimitResult = await applyRateLimit(req, 'login')
+    if (!rateLimitResult.success && rateLimitResult.response) {
+      return rateLimitResult.response
+    }
+
     const { email, password, role } = await req.json()
 
     if (!email || !password) {
