@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { cookies } from 'next/headers'
+import { getAuthenticatedUser } from '@/lib/session'
 
 interface Group {
   id: string
@@ -36,19 +36,9 @@ export async function GET(request: NextRequest) {
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     )
 
-    // Get current user if logged in
-    const cookiesStore = await cookies()
-    const sessionCookie = cookiesStore.get('claspire_session')
-    let currentUserId = null
-    
-    if (sessionCookie?.value) {
-      try {
-        const cookieUser = JSON.parse(sessionCookie.value)
-        currentUserId = cookieUser.id
-      } catch (parseError) {
-        // Invalid cookie, continue without user
-      }
-    }
+    // SECURITY: Use signed session verification instead of direct cookie parsing
+    const user = await getAuthenticatedUser(request)
+    const currentUserId = user?.id || null
 
     // Fetch all active groups with creator and college details
     console.log('Fetching all groups...')

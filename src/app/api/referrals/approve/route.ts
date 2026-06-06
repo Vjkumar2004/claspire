@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { createNotification } from '@/lib/notifications'
+import { getAuthenticatedUser } from '@/lib/session'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -9,11 +10,13 @@ const supabase = createClient(
 
 export async function POST(req: NextRequest) {
   try {
-    const cookie = req.cookies.get('claspire_session')
-    if (!cookie) {
+    // SECURITY: Use signed session verification instead of direct cookie parsing
+    // Direct JSON.parse(cookie.value) is unsafe because cookies can be modified
+    // via DevTools or proxy tools, allowing session hijacking and privilege escalation
+    const user = await getAuthenticatedUser(req)
+    if (!user) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
     }
-    const session = JSON.parse(cookie.value)
 
     const { referralId } = await req.json()
     if (!referralId) {
@@ -108,7 +111,7 @@ export async function POST(req: NextRequest) {
     try {
         const notifResult = await createNotification({
           receiver_id: juniorId,
-          sender_id: session.id,
+          sender_id: user.id,
           type: 'referral_approved',
           title: 'Congratulations! Referral Approved! 🎉',
           message: `${seniorName} has approved your referral request for ${jobRole} at ${companyName}. Check your dashboard!`,

@@ -2,16 +2,19 @@ import { NextRequest, NextResponse } from 'next/server'
 import { PutObjectCommand } from '@aws-sdk/client-s3'
 import { r2Client, R2_BUCKET, getR2Url } from '@/lib/r2'
 import { generateSafeFilename } from '@/lib/file-validation'
+import { getAuthenticatedUser } from '@/lib/session'
 
 export async function POST(req: NextRequest) {
   try {
-    const cookie = req.cookies.get('claspire_session')
-    if (!cookie) {
+    // SECURITY: Use signed session verification instead of direct cookie parsing
+    // Direct JSON.parse(cookie.value) is unsafe because cookies can be modified
+    // via DevTools or proxy tools, allowing session hijacking and privilege escalation
+    const user = await getAuthenticatedUser(req)
+    if (!user) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
     }
 
-    const session = JSON.parse(cookie.value)
-    const userId = session.id
+    const userId = user.id
     const formData = await req.formData()
     const file = formData.get('file') as File
 

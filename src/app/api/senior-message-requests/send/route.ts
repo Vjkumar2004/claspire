@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { getAuthenticatedUser } from '@/lib/session'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -19,15 +20,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Get current user from cookie
-    const cookie = request.cookies.get('claspire_session')
-    if (!cookie?.value) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    let user
-    try {
-      user = JSON.parse(cookie.value)
-    } catch {
+    // SECURITY: Use signed session verification instead of direct cookie parsing
+    // Direct JSON.parse(cookie.value) is unsafe because cookies can be modified
+    // via DevTools or proxy tools, allowing session hijacking and privilege escalation
+    const user = await getAuthenticatedUser(request)
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 

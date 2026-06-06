@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { canUsersMessage } from '@/middleware/checkCanMessage'
+import { getAuthenticatedUser } from '@/lib/session'
 
 export const dynamic = 'force-dynamic'
 
@@ -11,19 +12,15 @@ const supabase = createClient(
 
 export async function GET(req: NextRequest) {
   try {
-    const session = req.cookies.get('claspire_session')
-    if (!session?.value) {
+    // SECURITY: Use signed session verification instead of direct cookie parsing
+    // Direct JSON.parse(cookie.value) is unsafe because cookies can be modified
+    // via DevTools or proxy tools, allowing session hijacking and privilege escalation
+    const user = await getAuthenticatedUser(req)
+    if (!user) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
     }
 
-    let userSession
-    try {
-      userSession = JSON.parse(session.value)
-    } catch {
-      return NextResponse.json({ error: 'Invalid session' }, { status: 401 })
-    }
-
-    const userId = userSession.id
+    const userId = user.id
     const { searchParams } = new URL(req.url)
     const other_user_id = searchParams.get('other_user_id')
 

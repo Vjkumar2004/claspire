@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { getAuthenticatedUser } from '@/lib/session'
 
 export const dynamic = 'force-dynamic'
 
@@ -10,18 +11,11 @@ const supabase = createClient(
 
 export async function GET(req: NextRequest) {
   try {
-    // Get current user from cookie (same as /api/auth/me)
-    const session = req.cookies.get('claspire_session')
-    
-    if (!session?.value) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    let user
-    try {
-      user = JSON.parse(session.value)
-    } catch (parseError) {
-      console.error('Failed to parse session:', parseError)
+    // SECURITY: Use signed session verification instead of direct cookie parsing
+    // Direct JSON.parse(cookie.value) is unsafe because cookies can be modified
+    // via DevTools or proxy tools, allowing session hijacking and privilege escalation
+    const user = await getAuthenticatedUser(req)
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 

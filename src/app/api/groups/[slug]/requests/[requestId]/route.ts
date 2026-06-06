@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { cookies } from 'next/headers'
+import { getAuthenticatedUser } from '@/lib/session'
 import { createNotification, sendPushToUsers } from '@/lib/notifications'
 
 const supabase = createClient(
@@ -16,14 +16,11 @@ export async function PATCH(
     const { slug, requestId } = await params
     const { action } = await request.json() // 'accept' or 'reject'
 
-    const cookiesStore = await cookies()
-    const sessionCookie = cookiesStore.get('claspire_session')
-
-    if (!sessionCookie?.value) {
+    // SECURITY: Use signed session verification instead of direct cookie parsing
+    const user = await getAuthenticatedUser(request)
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
-
-    const cookieUser = JSON.parse(sessionCookie.value)
 
     // Verify admin
     const { data: group } = await supabase
@@ -57,7 +54,7 @@ export async function PATCH(
       .update({
         status: action === 'accept' ? 'accepted' : 'rejected',
         reviewed_at: new Date().toISOString(),
-        reviewed_by: cookieUser.id
+        reviewed_by: user.id
       })
       .eq('id', requestId)
 
@@ -88,7 +85,7 @@ export async function PATCH(
 
     await createNotification({
       receiver_id: joinRequest.user_id,
-      sender_id: cookieUser.id,
+      sender_id: user.id,
       type: accepted ? 'group_join_accepted' : 'group_join_rejected',
       title,
       message,

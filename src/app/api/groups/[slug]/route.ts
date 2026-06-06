@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { cookies } from 'next/headers'
+import { getAuthenticatedUser } from '@/lib/session'
 
 export async function GET(
   request: NextRequest,
@@ -19,19 +19,12 @@ export async function GET(
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     )
 
-    let currentUserId: string | null = null
-
-    const cookieStore = await cookies()
-    const sessionCookie = cookieStore.get('claspire_session')
-
-    if (sessionCookie?.value) {
-      try {
-        const cookieUser = JSON.parse(sessionCookie.value)
-        currentUserId = cookieUser.id ?? null
-      } catch {
-        currentUserId = null
-      }
+    // SECURITY: Use signed session verification instead of direct cookie parsing
+    const user = await getAuthenticatedUser(request)
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+    const currentUserId = user.id
 
     // Get group details
     const { data: group, error: groupError } = await supabase

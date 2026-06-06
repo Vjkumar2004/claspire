@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { getAuthenticatedUser } from '@/lib/session'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -10,23 +11,17 @@ export async function GET(req: NextRequest) {
   try {
     console.log('🔥 Incoming requests API called (simple version)')
     
-    // Get current user from session cookie
-    const session = req.cookies.get('claspire_session')
-    if (!session?.value) {
+    // SECURITY: Use signed session verification instead of direct cookie parsing
+    // Direct JSON.parse(cookie.value) is unsafe because cookies can be modified
+    // via DevTools or proxy tools, allowing session hijacking and privilege escalation
+    const user = await getAuthenticatedUser(req)
+    if (!user) {
       console.log('❌ No session cookie found')
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
     }
 
-    let userSession
-    try {
-      userSession = JSON.parse(session.value)
-      console.log('✅ Session parsed, user ID:', userSession.id)
-    } catch (parseError) {
-      console.log('❌ Failed to parse session')
-      return NextResponse.json({ error: 'Invalid session' }, { status: 401 })
-    }
-
-    const userId = userSession.id
+    const userId = user.id
+    console.log('✅ Session verified, user ID:', userId)
 
     // Get user role to ensure they're a senior
     const { data: userData, error: userError } = await supabase

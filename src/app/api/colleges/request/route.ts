@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { getAuthenticatedUser } from '@/lib/session'
 
 export async function POST(req: NextRequest) {
   const supabase = createClient(
@@ -8,17 +9,11 @@ export async function POST(req: NextRequest) {
   )
 
   try {
-    const cookie = req.cookies.get('claspire_session')
-    let userId = null
-    
-    if (cookie) {
-      try {
-        const session = JSON.parse(cookie.value)
-        userId = session.id
-      } catch (e) {
-        console.warn('Failed to parse optional session for college request')
-      }
-    }
+    // SECURITY: Use signed session verification instead of direct cookie parsing
+    // Direct JSON.parse(cookie.value) is unsafe because cookies can be modified
+    // via DevTools or proxy tools, allowing session hijacking and privilege escalation
+    const user = await getAuthenticatedUser(req)
+    let userId = user?.id || null
 
     const { 
       college_name, short_name, location, state, 

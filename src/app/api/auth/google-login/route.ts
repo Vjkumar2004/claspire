@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { OAuth2Client } from 'google-auth-library'
+import { createSessionCookie } from '@/lib/session'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -121,8 +122,8 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // 5. Create session cookie
-    const sessionData = {
+    // 5. Create user data for response (cookie will only contain signed userId)
+    const userData = {
       id: user.id,
       email: user.email,
       role: user.role,
@@ -135,16 +136,17 @@ export async function POST(req: NextRequest) {
       google_id: user.google_id,
     }
 
-    console.log('Google login session data:', sessionData)
+    console.log('Google login user data:', userData)
 
     const response = NextResponse.json({
       success: true,
-      user: sessionData
+      user: userData
     })
 
+    // Set signed session cookie (minimal payload: userId, version, timestamp)
     response.cookies.set(
       'claspire_session',
-      JSON.stringify(sessionData),
+      createSessionCookie(user.id),
       {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',

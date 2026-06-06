@@ -106,9 +106,8 @@ function GroupsPageContent() {
 
       if (res.ok) {
         if (data.joined) {
-          setGroups(groups.map((g) =>
-            g.id === groupId ? { ...g, is_joined: true, member_count: g.member_count + 1 } : g
-          ))
+          // Re-fetch groups to get updated membership status from API
+          await fetchGroups()
           router.push(`/community/c/${communitySlug}/group/${groupSlug}`)
         } else if (data.requested) {
           setGroups(groups.map((g) =>

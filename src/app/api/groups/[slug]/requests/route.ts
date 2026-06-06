@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { cookies } from 'next/headers'
+import { getAuthenticatedUser } from '@/lib/session'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -13,14 +13,11 @@ export async function GET(
 ) {
   try {
     const { slug } = await params
-    const cookiesStore = await cookies()
-    const sessionCookie = cookiesStore.get('claspire_session')
-
-    if (!sessionCookie?.value) {
+    // SECURITY: Use signed session verification instead of direct cookie parsing
+    const user = await getAuthenticatedUser(request)
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
-
-    const cookieUser = JSON.parse(sessionCookie.value)
 
     // Get group and verify admin
     const { data: group, error: groupError } = await supabase
@@ -38,9 +35,9 @@ export async function GET(
       return NextResponse.json({ error: 'Group not found' }, { status: 404 })
     }
 
-    console.log('Group found:', group.id, 'User:', cookieUser.id, 'Creator:', group.created_by)
+    console.log('Group found:', group.id, 'User:', user.id, 'Creator:', group.created_by)
 
-    if (group.created_by !== cookieUser.id) {
+    if (group.created_by !== user.id) {
       return NextResponse.json({ error: 'Forbidden - Only group creator can view requests' }, { status: 403 })
     }
 

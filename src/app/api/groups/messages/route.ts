@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { getAuthenticatedUser } from '@/lib/session'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -8,14 +9,21 @@ const supabase = createClient(
 
 export async function POST(request: NextRequest) {
   try {
-    const { content, sender_id, slug } = await request.json()
+    // Never trust sender_id from client. Always derive from authenticated session.
+    // SECURITY: Use signed session verification instead of direct cookie parsing
+    // Direct JSON.parse(cookie.value) is unsafe because cookies can be modified
+    // via DevTools or proxy tools, allowing session hijacking and privilege escalation
+    const user = await getAuthenticatedUser(request)
+    if (!user) {
+      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
+    }
+
+    const sender_id = user.id
+
+    const { content, slug } = await request.json()
 
     if (!content?.trim()) {
       return NextResponse.json({ error: 'Content is required' }, { status: 400 })
-    }
-
-    if (!sender_id) {
-      return NextResponse.json({ error: 'sender_id is required' }, { status: 400 })
     }
 
     // Get group id from slug

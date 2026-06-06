@@ -26,7 +26,8 @@ export default function Navbar() {
 
   const isFullscreenMessages =
     pathname === '/dashboard/senior/messages' ||
-    pathname === '/dashboard/junior/messages'
+    pathname === '/dashboard/junior/messages' ||
+    pathname?.startsWith('/community/c/') && pathname?.includes('/group/')
 
   // Sync mobile menu state with body class for BottomNavbar visibility
   useEffect(() => {

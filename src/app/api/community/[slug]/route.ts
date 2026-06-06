@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { getCommunityDisplayCounts, resolveCommunityCollegeId } from '@/lib/community-stats'
+import { getAuthenticatedUser } from '@/lib/session'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -16,11 +17,9 @@ export async function GET(
 
     // 1. Get current user
     let currentUser = null
-    const cookie = req.cookies.get('claspire_session')
-    if (cookie) {
-      try {
-        currentUser = JSON.parse(cookie.value)
-      } catch {}
+    const user = await getAuthenticatedUser(req)
+    if (user) {
+      currentUser = user
     }
 
     // 2. Fetch community + college (check both communities and student_groups tables)

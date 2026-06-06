@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { resolveDisplayBio, resolveProfileData } from '@/lib/profile-data'
+import { verifySessionCookie, createSessionCookie } from '@/lib/session'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -10,44 +11,50 @@ const supabase = createClient(
 export async function GET(req: NextRequest) {
   try {
     const session = req.cookies.get('claspire_session')
-    
+
     if (!session?.value) {
       return NextResponse.json(
         { user: null },
         { status: 401 }
       )
     }
-    
+
     try {
-      const cookieUser = JSON.parse(session.value)
-      
-      // Fetch latest user data from Supabase to ensure avatar_url is sync'd
+      // Verify signed session cookie
+      const verifiedSession = verifySessionCookie(session.value)
+
+      if (!verifiedSession) {
+        console.error('Invalid or tampered session cookie')
+        return NextResponse.json(
+          { user: null },
+          { status: 401 }
+        )
+      }
+
+      const { userId, isLegacy } = verifiedSession
+
+      // Fetch latest user data from Supabase (always fetch from DB now)
       const { data: dbUser, error: dbError } = await supabase
         .from('users')
         .select('*')
-        .eq('id', cookieUser.id)
+        .eq('id', userId)
         .single()
 
       if (dbError || !dbUser) {
         console.error('User not found in DB:', dbError)
-        return NextResponse.json({
-          user: {
-            ...cookieUser,
-            bio: resolveDisplayBio(cookieUser.bio),
-            profile_data: resolveProfileData(cookieUser),
-          },
-        })
+        return NextResponse.json(
+          { user: null },
+          { status: 401 }
+        )
       }
 
-      const merged = { ...cookieUser, ...dbUser }
       const user = {
-        ...merged,
-        bio: resolveDisplayBio(merged.bio),
-        profile_data: resolveProfileData(merged),
+        ...dbUser,
+        bio: resolveDisplayBio(dbUser.bio),
+        profile_data: resolveProfileData(dbUser),
       }
 
       const today = new Date().toISOString().split('T')[0]
-      let sessionUpdated = false
       let dailyRPEarned = false
 
       // ── Global Daily Visit RP ──
@@ -61,13 +68,13 @@ export async function GET(req: NextRequest) {
             last_visit_date: today,
             updated_at: new Date().toISOString()
           })
-          .eq('id', cookieUser.id)
+          .eq('id', userId)
 
         // Log it
         await supabase
           .from('rise_points_log')
           .insert({
-            user_id: cookieUser.id,
+            user_id: userId,
             points: 1,
             reason: 'Daily visit bonus 🌅',
             created_at: new Date().toISOString()
@@ -76,7 +83,6 @@ export async function GET(req: NextRequest) {
         user.rise_points = newPoints
         user.last_visit_date = today
         dailyRPEarned = true
-        sessionUpdated = true
 
         // ── RP Level Auto-Leveling ──
         const newLevel = newPoints >= 1000 ? 4
@@ -88,7 +94,7 @@ export async function GET(req: NextRequest) {
           await supabase
             .from('users')
             .update({ rp_level: newLevel })
-            .eq('id', cookieUser.id)
+            .eq('id', userId)
           user.rp_level = newLevel
         }
       }
@@ -96,26 +102,26 @@ export async function GET(req: NextRequest) {
       // We attach dailyRPEarned to the response so the frontend knows to show the toast
       const response = NextResponse.json({ user, dailyRPEarned })
 
-      // Check if cookie is stale (e.g. is_premium manually updated in DB, or points updated)
-      if (sessionUpdated || dbUser.is_premium !== cookieUser.is_premium || dbUser.role !== cookieUser.role || dbUser.college_id !== cookieUser.college_id) {
-        console.log('useAuth - refreshing stale session cookie')
-        response.cookies.set('claspire_session', JSON.stringify(user), {
+      // If legacy cookie detected, migrate to new signed cookie
+      if (isLegacy) {
+        console.log('[Auth/me] Migrating legacy cookie to signed format for user:', userId)
+        response.cookies.set('claspire_session', createSessionCookie(userId), {
           path: '/',
           httpOnly: true,
           secure: process.env.NODE_ENV === 'production',
-          maxAge: 60 * 60 * 24 * 7 // 7 days
+          maxAge: 60 * 60 * 24 * 30 // 30 days
         })
       }
 
       return response
     } catch (parseError) {
-      console.error('Failed to parse session:', parseError)
+      console.error('Failed to verify session:', parseError)
       return NextResponse.json(
         { user: null },
         { status: 401 }
       )
     }
-    
+
   } catch (error) {
     console.error('Auth me route error:', error)
     return NextResponse.json(

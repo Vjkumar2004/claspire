@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { getAuthenticatedUser } from '@/lib/session'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -8,17 +9,19 @@ const supabase = createClient(
 
 export async function POST(req: NextRequest) {
   try {
-    // Authentication
-    const cookie = req.cookies.get('claspire_session')
-    if (!cookie) {
+    // SECURITY: Use signed session verification instead of direct cookie parsing
+    // Direct JSON.parse(cookie.value) is unsafe because cookies can be modified
+    // via DevTools or proxy tools, allowing session hijacking and privilege escalation
+    const user = await getAuthenticatedUser(req)
+    if (!user) {
       return NextResponse.json(
         { error: 'Not authenticated' },
         { status: 401 }
       )
     }
 
-    const session = JSON.parse(cookie.value)
-    const userId = session.id
+    const userId = user.id
+    const userName = user.full_name || 'Someone'
 
     const { post_id, vote_type } = await req.json()
 
@@ -238,7 +241,7 @@ export async function POST(req: NextRequest) {
           await createNotification({
             type: 'post_upvoted',
             title: '🔥 Someone liked your post!',
-            message: `${session.full_name || 'Someone'} liked your post "${authorData.title?.slice(0, 50)}"`,
+            message: `${userName} liked your post "${authorData.title?.slice(0, 50)}"`,
             receiver_id: authorData.author_id,
             sender_id: userId,
             post_id: post_id,
@@ -263,7 +266,7 @@ export async function POST(req: NextRequest) {
                 app_id: process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID,
                 include_player_ids: [receiver.onesignal_player_id],
                 headings: { en: '🔥 Someone liked your post!' },
-                contents: { en: `${session.full_name || 'Someone'} liked "${authorData.title?.slice(0, 50)}"` },
+                contents: { en: `${userName} liked "${authorData.title?.slice(0, 50)}"` },
                 url: `${process.env.NEXT_PUBLIC_APP_URL}/community/c/all/p/${post_id}`
               })
             })

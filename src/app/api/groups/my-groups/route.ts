@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
+import { getAuthenticatedUser } from '@/lib/session'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -10,19 +11,20 @@ export async function GET(request: NextRequest) {
   try {
     console.log('=== /api/groups/my-groups called ===')
     
-    const session = request.cookies.get('claspire_session')
-    
-    if (!session?.value) {
+    // SECURITY: Use signed session verification instead of direct cookie parsing
+    // Direct JSON.parse(cookie.value) is unsafe because cookies can be modified
+    // via DevTools or proxy tools, allowing session hijacking and privilege escalation
+    const user = await getAuthenticatedUser(request)
+    if (!user) {
       console.log('No session found')
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
-    
-    try {
-      const cookieUser = JSON.parse(session.value)
-      console.log('User from session:', cookieUser.id)
 
-      // Get user's college
-      const { data: userData, error: userError } = await supabase
+    const cookieUser = user
+    console.log('User from session:', cookieUser.id)
+
+    // Get user's college
+    const { data: userData, error: userError } = await supabase
         .from('users')
         .select('college_id')
         .eq('id', cookieUser.id)
@@ -64,10 +66,6 @@ export async function GET(request: NextRequest) {
       privateCount,
       total: publicCount + privateCount
     })
-
-    } catch (parseError) {
-      return NextResponse.json({ error: 'Invalid session data' }, { status: 401 })
-    }
 
   } catch (error) {
     console.error('My groups API error:', error)

@@ -7,6 +7,7 @@ import {
   stripProfileFromBio,
   type UserProfileData,
 } from '@/lib/profile-data'
+import { getAuthenticatedUser } from '@/lib/session'
 
 export async function PATCH(req: NextRequest) {
   const supabase = createClient(
@@ -15,13 +16,15 @@ export async function PATCH(req: NextRequest) {
   )
 
   try {
-    const cookie = req.cookies.get('claspire_session')
-    if (!cookie) {
+    // SECURITY: Use signed session verification instead of direct cookie parsing
+    // Direct JSON.parse(cookie.value) is unsafe because cookies can be modified
+    // via DevTools or proxy tools, allowing session hijacking and privilege escalation
+    const user = await getAuthenticatedUser(req)
+    if (!user) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
     }
 
-    const session = JSON.parse(cookie.value)
-    const userId = session.id
+    const userId = user.id
     const body = await req.json()
 
     const {
@@ -127,15 +130,10 @@ export async function PATCH(req: NextRequest) {
       profile_data: resolved,
     }
 
-    const response = NextResponse.json({ success: true, user: userResponse })
-    response.cookies.set('claspire_session', JSON.stringify(userResponse), {
-      httpOnly: true,
-      sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 30,
-      path: '/',
-    })
-
-    return response
+    // SECURITY: No longer update session cookie with user data
+    // Cookie now only contains signed userId, version, and timestamp
+    // User data is always fetched fresh from database
+    return NextResponse.json({ success: true, user: userResponse })
   } catch {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }

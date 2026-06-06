@@ -221,7 +221,7 @@ export default function GroupChatPage() {
     const res = await fetch(`/api/groups/${groupSlug}/message`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content, sender_id: currentUser?.id })
+      body: JSON.stringify({ content })
     })
 
     if (!res.ok) {

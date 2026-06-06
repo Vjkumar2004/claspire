@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
 import { createNotification, sendPushToUsers } from '@/lib/notifications'
+import { getAuthenticatedUser } from '@/lib/session'
 
 export async function POST(
   request: NextRequest,
@@ -15,21 +16,15 @@ export async function POST(
     const { slug } = await params
 
     // Auth check
-    const cookiesStore = await cookies()
-    const sessionCookie = cookiesStore.get('claspire_session')
-    
-    if (!sessionCookie?.value) {
+    // SECURITY: Use signed session verification instead of direct cookie parsing
+    // Direct JSON.parse(cookie.value) is unsafe because cookies can be modified
+    // via DevTools or proxy tools, allowing session hijacking and privilege escalation
+    const user = await getAuthenticatedUser(request)
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized - No session found' }, { status: 401 })
     }
 
-    let cookieUser
-    try {
-      cookieUser = JSON.parse(sessionCookie.value)
-    } catch (parseError) {
-      return NextResponse.json({ error: 'Unauthorized - Invalid session' }, { status: 401 })
-    }
-
-    const userId = cookieUser.id
+    const userId = user.id
 
     // Get group details by slug
     const { data: group, error: groupError } = await supabase
@@ -95,7 +90,7 @@ export async function POST(
       const college = Array.isArray(group.colleges) ? group.colleges[0] : group.colleges
       const communitySlug = college?.slug || college?.name?.toLowerCase().replace(/\s+/g, '-') || 'groups'
       const link = `/community/c/${communitySlug}/group/${group.slug}`
-      const requesterName = cookieUser.full_name || cookieUser.name || 'Someone'
+      const requesterName = user.full_name || user.name || 'Someone'
 
       if (group.created_by && group.created_by !== userId) {
         await createNotification({

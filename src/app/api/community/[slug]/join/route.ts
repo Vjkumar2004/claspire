@@ -5,6 +5,7 @@ import {
   resolveCommunityCollegeId,
   normalizeCollegeRelation,
 } from '@/lib/community-stats'
+import { getAuthenticatedUser } from '@/lib/session'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -17,26 +18,20 @@ export async function POST(
 ) {
   try {
     const { slug } = await params
-    const cookie = req.cookies.get('claspire_session')
-    if (!cookie) {
+
+    // SECURITY: Use signed session verification instead of direct cookie parsing
+    // Direct JSON.parse(cookie.value) is unsafe because cookies can be modified
+    // via DevTools or proxy tools, allowing session hijacking and privilege escalation
+    const user = await getAuthenticatedUser(req)
+    if (!user) {
       return NextResponse.json(
         { error: 'Not authenticated' },
         { status: 401 }
       )
     }
 
-    let session
-    try {
-      session = JSON.parse(cookie.value)
-    } catch (e) {
-      return NextResponse.json(
-        { error: 'Invalid session' },
-        { status: 401 }
-      )
-    }
-
-    const userId = session.id
-    const userRole = session.role
+    const userId = user.id
+    const userRole = user.role
 
     // Get community
     const { data: community } = await supabase
@@ -82,13 +77,13 @@ export async function POST(
     }
 
     // Get user college to determine type
-    const { data: user } = await supabase
+    const { data: userData } = await supabase
       .from('users')
       .select('college_id, is_verified')
       .eq('id', userId)
       .single()
 
-    const isOwnCollege = !!collegeId && user?.college_id === collegeId
+    const isOwnCollege = !!collegeId && userData?.college_id === collegeId
 
     // Insert member
     const { error: insertError } = await supabase

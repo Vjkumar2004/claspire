@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
+import { getAuthenticatedUser } from '@/lib/session'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -14,19 +14,9 @@ export async function GET(
   try {
     const { slug } = await params
 
-    // Get current user if logged in
-    const cookiesStore = await cookies()
-    const sessionCookie = cookiesStore.get('claspire_session')
-    let currentUserId: string | null = null
-
-    if (sessionCookie?.value) {
-      try {
-        const cookieUser = JSON.parse(sessionCookie.value)
-        currentUserId = cookieUser.id
-      } catch (parseError) {
-        // Invalid cookie, continue without user
-      }
-    }
+    // SECURITY: Use signed session verification instead of direct cookie parsing
+    const user = await getAuthenticatedUser(request)
+    const currentUserId = user?.id || null
 
     // Get the main community (college)
     const { data: community, error: communityError } = await supabase

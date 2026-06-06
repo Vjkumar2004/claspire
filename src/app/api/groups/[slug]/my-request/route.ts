@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { cookies } from 'next/headers'
+import { getAuthenticatedUser } from '@/lib/session'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -13,14 +13,11 @@ export async function GET(
 ) {
   try {
     const { slug } = await params
-    const cookiesStore = await cookies()
-    const sessionCookie = cookiesStore.get('claspire_session')
-
-    if (!sessionCookie?.value) {
+    // SECURITY: Use signed session verification instead of direct cookie parsing
+    const user = await getAuthenticatedUser(request)
+    if (!user) {
       return NextResponse.json({ status: null })
     }
-
-    const cookieUser = JSON.parse(sessionCookie.value)
 
     const { data: group } = await supabase
       .from('student_groups')
@@ -34,7 +31,7 @@ export async function GET(
       .from('student_group_join_requests')
       .select('status')
       .eq('group_id', group.id)
-      .eq('user_id', cookieUser.id)
+      .eq('user_id', user.id)
       .single()
 
     return NextResponse.json({ status: joinRequest?.status ?? null })

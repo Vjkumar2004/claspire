@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { resolveDisplayBio, resolveProfileData } from '@/lib/profile-data'
+import { getAuthenticatedUser } from '@/lib/session'
 
 export async function GET(
   req: NextRequest,
@@ -18,14 +19,9 @@ export async function GET(
     }
 
     let viewer: { id: string; role: string } | null = null
-    const cookie = req.cookies.get('claspire_session')
-    if (cookie?.value) {
-      try {
-        const session = JSON.parse(cookie.value)
-        viewer = { id: session.id, role: session.role }
-      } catch {
-        viewer = null
-      }
+    const authenticatedUser = await getAuthenticatedUser(req)
+    if (authenticatedUser) {
+      viewer = { id: authenticatedUser.id, role: authenticatedUser.role }
     }
 
     const baseSelect = `

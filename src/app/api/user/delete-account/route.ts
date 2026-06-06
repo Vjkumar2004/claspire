@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { S3Client, DeleteObjectCommand } from '@aws-sdk/client-s3'
 import { r2Client, R2_BUCKET } from '@/lib/r2'
+import { getAuthenticatedUser } from '@/lib/session'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -10,28 +11,18 @@ const supabase = createClient(
 
 export async function DELETE(req: NextRequest) {
   try {
-    // 1. Get user session from httpOnly cookie
-    const session = req.cookies.get('claspire_session')
-    
-    if (!session?.value) {
+    // SECURITY: Use signed session verification instead of direct cookie parsing
+    // Direct JSON.parse(cookie.value) is unsafe because cookies can be modified
+    // via DevTools or proxy tools, allowing session hijacking and privilege escalation
+    const user = await getAuthenticatedUser(req)
+    if (!user) {
       return NextResponse.json(
         { error: 'Not authenticated' },
         { status: 401 }
       )
     }
 
-    let userSession
-    try {
-      userSession = JSON.parse(session.value)
-    } catch (parseError) {
-      console.error('Failed to parse session:', parseError)
-      return NextResponse.json(
-        { error: 'Invalid session' },
-        { status: 401 }
-      )
-    }
-
-    const userId = userSession.id
+    const userId = user.id
 
     // 2. Fetch user data: id, avatar_url from users table
     const { data: userData, error: userError } = await supabase

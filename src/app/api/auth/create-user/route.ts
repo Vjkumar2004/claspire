@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import bcrypt from 'bcryptjs'
+import { createSessionCookie } from '@/lib/session'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -196,8 +197,8 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Store session in cookie
-    const sessionData = {
+    // Create user data for response (cookie will only contain signed userId)
+    const userData = {
       id: userId,
       email,
       role,
@@ -206,14 +207,14 @@ export async function POST(req: NextRequest) {
       avatar_url: user.avatar_url,
       college_id: safeCollegeId,
       verification_status: profileData.verification_status,
-      is_verified: true,        // ← ADD this!
-      is_premium: false,        // ← ADD this!
+      is_verified: true,
+      is_premium: false,
       google_id: google_id || null,
       auth_provider: google_id ? 'email_google' : 'email',
     }
 
     // Debug log to show session data
-    console.log('Session data being stored:', sessionData)
+    console.log('User data being stored:', userData)
 
     // Clean up OTP
     await supabase
@@ -223,13 +224,13 @@ export async function POST(req: NextRequest) {
 
     const response = NextResponse.json({
       success: true,
-      user: sessionData,
+      user: userData,
       uniqueId
     })
 
-    // Set session cookie
-    response.cookies.set('claspire_session', 
-      JSON.stringify(sessionData), {
+    // Set signed session cookie (minimal payload: userId, version, timestamp)
+    response.cookies.set('claspire_session',
+      createSessionCookie(userId), {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
@@ -237,7 +238,7 @@ export async function POST(req: NextRequest) {
       }
     )
 
-    console.log('Session cookie set:', sessionData.email, sessionData.role)
+    console.log('Session cookie set:', userData.email, userData.role)
 
     // Add a small delay to ensure cookie is set
     await new Promise(resolve => setTimeout(resolve, 100))

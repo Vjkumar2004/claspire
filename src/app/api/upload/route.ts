@@ -3,6 +3,7 @@ import { PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3'
 import { r2Client, R2_BUCKET, getR2Url } from '@/lib/r2'
 import { createClient } from '@supabase/supabase-js'
 import { validateImageFile, generateSafeFilename, sanitizeImageMetadata } from '@/lib/file-validation'
+import { getAuthenticatedUser } from '@/lib/session'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -11,15 +12,17 @@ const supabase = createClient(
 
 export async function POST(req: NextRequest) {
   try {
-    const cookie = req.cookies.get('claspire_session')
-    if (!cookie) {
+    // SECURITY: Use signed session verification instead of direct cookie parsing
+    // Direct JSON.parse(cookie.value) is unsafe because cookies can be modified
+    // via DevTools or proxy tools, allowing session hijacking and privilege escalation
+    const user = await getAuthenticatedUser(req)
+    if (!user) {
       return NextResponse.json(
         { error: 'Not authenticated' },
         { status: 401 }
       )
     }
-    const session = JSON.parse(cookie.value)
-    const userId = session.id
+    const userId = user.id
 
     const formData = await req.formData()
     const file = formData.get('file') as File
@@ -120,11 +123,11 @@ export async function POST(req: NextRequest) {
       // Delete old file from R2 if it exists
       const { data: user } = await supabase
         .from('users')
-        .select(columnToUpdate)
+        .select('avatar_url, banner_url')
         .eq('id', userId)
         .single()
 
-      const oldUrl = user?.[columnToUpdate]
+      const oldUrl = columnToUpdate === 'avatar_url' ? (user as any)?.avatar_url : (user as any)?.banner_url
       if (oldUrl?.includes('.r2.dev')) {
         const oldKey = oldUrl.split('.r2.dev/')[1]
         if (oldKey) {
@@ -153,28 +156,14 @@ export async function POST(req: NextRequest) {
         throw dbError
       }
 
-      // Update cookie
-      const updatedSession = {
-        ...session,
-        [columnToUpdate]: publicUrl
-      }
-
+      // SECURITY: No longer update session cookie with user data
+      // Cookie now only contains signed userId, version, and timestamp
+      // User data is always fetched fresh from database
       const response = NextResponse.json({
         success: true,
         url: publicUrl,
         message: `${type === 'avatar' ? 'Avatar' : 'Banner'} uploaded successfully`
       })
-
-      response.cookies.set(
-        'claspire_session',
-        JSON.stringify(updatedSession),
-        {
-          httpOnly: true,
-          sameSite: 'lax',
-          maxAge: 60 * 60 * 24 * 30,
-          path: '/'
-        }
-      )
       
       console.log(`${type === 'avatar' ? 'Avatar' : 'Banner'} upload completed successfully`)
       return response
@@ -192,7 +181,7 @@ export async function POST(req: NextRequest) {
     console.error('Upload error:', {
       error: err.message,
       stack: err.stack,
-      userId: req.cookies.get('claspire_session') ? JSON.parse(req.cookies.get('claspire_session')!.value).id : 'unknown'
+      userId: userId || 'unknown'
     })
     return NextResponse.json(
       { error: 'Upload failed: ' + err.message },
