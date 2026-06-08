@@ -2,6 +2,8 @@ import { NextRequest, NextResponse }
   from 'next/server'
 import { createClient }
   from '@supabase/supabase-js'
+import { DeleteObjectCommand } from '@aws-sdk/client-s3'
+import { r2Client, R2_BUCKET } from '@/lib/r2'
 import { getAuthenticatedUser } from '@/lib/session'
 
 const supabase = createClient(
@@ -38,7 +40,7 @@ export async function DELETE(
     // Verify post belongs to user
     const { data: post } = await supabase
       .from('posts')
-      .select('id, author_id, title, type')
+      .select('id, author_id, title, type, image_url')
       .eq('id', post_id)
       .single()
 
@@ -55,6 +57,37 @@ export async function DELETE(
         { error: 'Not authorized' },
         { status: 403 }
       )
+    }
+
+    // Delete associated images from Cloudflare R2
+    if (post.image_url) {
+      let imageUrls: string[] = []
+      try {
+        imageUrls = typeof post.image_url === 'string' && post.image_url.startsWith('[')
+          ? JSON.parse(post.image_url)
+          : [post.image_url]
+      } catch {
+        imageUrls = [post.image_url]
+      }
+
+      for (const url of imageUrls) {
+        if (url && typeof url === 'string' && url.includes('.r2.dev/')) {
+          const key = url.split('.r2.dev/')[1]
+          if (key) {
+            try {
+              await r2Client.send(
+                new DeleteObjectCommand({
+                  Bucket: R2_BUCKET,
+                  Key: key
+                })
+              )
+              console.log('Deleted post image from R2:', key)
+            } catch (e) {
+              console.warn('Failed to delete post image from R2:', key, e)
+            }
+          }
+        }
+      }
     }
 
     // Delete votes first (foreign key)

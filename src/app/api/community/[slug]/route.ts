@@ -336,77 +336,6 @@ export async function GET(
       .order('created_at', { ascending: false })
       .limit(50)
 
-    // Posts from cross-college followers (shown first in feed)
-    const { data: followingMembers } = await supabase
-      .from('community_members')
-      .select('user_id')
-      .eq('community_id', community.id)
-      .eq('membership_type', 'following')
-
-    const followingUserIds = (followingMembers || []).map((m: { user_id: string }) => m.user_id)
-
-    let networkPosts: any[] = []
-    if (followingUserIds.length > 0) {
-      const { data: followingAuthors } = await supabase
-        .from('users')
-        .select('id, college_id')
-        .in('id', followingUserIds)
-
-      const collegeIds = [
-        ...new Set(
-          (followingAuthors || [])
-            .map((a: { college_id?: string }) => a.college_id)
-            .filter(Boolean)
-        ),
-      ] as string[]
-
-      if (collegeIds.length > 0) {
-        const { data: homeCommunities } = await supabase
-          .from('communities')
-          .select('id')
-          .in('college_id', collegeIds)
-
-        const homeCommunityIds = (homeCommunities || []).map((c: { id: string }) => c.id)
-
-        if (homeCommunityIds.length > 0) {
-          const { data: crossPosts } = await supabase
-            .from('posts')
-            .select(postSelect)
-            .in('author_id', followingUserIds)
-            .in('community_id', homeCommunityIds)
-            .eq('visibility', 'public')
-            .order('created_at', { ascending: false })
-            .limit(20)
-
-          networkPosts = (crossPosts || []).map((p: any) => ({
-            ...p,
-            is_network_post: true,
-          }))
-        }
-      }
-    }
-
-    const seenPostIds = new Set<string>()
-    const posts: any[] = []
-
-    for (const p of networkPosts) {
-      if (!seenPostIds.has(p.id)) {
-        posts.push(p)
-        seenPostIds.add(p.id)
-      }
-    }
-
-    const sortedNative = [...(nativePosts || [])].sort(
-      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-    )
-
-    for (const p of sortedNative) {
-      if (!seenPostIds.has(p.id)) {
-        posts.push(p)
-        seenPostIds.add(p.id)
-      }
-    }
-
     // 6. Fetch jobs only if permitted
     let jobs = null
     const canViewJobs = [
@@ -455,7 +384,7 @@ export async function GET(
       seniorCount,
       ownStudentCount,
       otherCollegeStudentCount,
-      posts: posts || [],
+      posts: nativePosts || [],
       jobs,
       webinars,
       userRole,

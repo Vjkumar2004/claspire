@@ -60,16 +60,11 @@ export default function DashboardMessages({
     router.push(backHref)
   }
 
-  console.log('DashboardMessages rendering. Current conversations count:', conversations.length);
-
   const fetchConversations = useCallback(async () => {
-    console.log('fetchConversations() executing...');
     try {
       const res = await fetch('/api/messages/list', { cache: 'no-store' })
       const data = await res.json()
-      console.log('fetchConversations() response length:', data.conversations?.length);
       if (data.conversations && Array.isArray(data.conversations)) {
-        console.log('setConversations() being called with:', data.conversations);
         setConversations(data.conversations)
       }
     } catch (err) {
@@ -81,7 +76,7 @@ export default function DashboardMessages({
 
   useEffect(() => {
     if (!currentUserId) return;
-    
+
     fetchConversations();
 
     const channel = supabase
@@ -91,8 +86,7 @@ export default function DashboardMessages({
         schema: 'public', 
         table: 'direct_messages', 
         filter: `receiver_id=eq.${currentUserId}` 
-      }, (payload) => {
-        console.log('Realtime event received (receiver):', payload);
+      }, () => {
         fetchConversations();
       })
       .on('postgres_changes', { 
@@ -100,13 +94,10 @@ export default function DashboardMessages({
         schema: 'public', 
         table: 'direct_messages', 
         filter: `sender_id=eq.${currentUserId}` 
-      }, (payload) => {
-        console.log('Realtime event received (sender):', payload);
+      }, () => {
         fetchConversations();
       })
-      .subscribe((status) => {
-        console.log('DashboardMessages Realtime status:', status);
-      });
+      .subscribe();
 
     return () => {
       supabase.removeChannel(channel);

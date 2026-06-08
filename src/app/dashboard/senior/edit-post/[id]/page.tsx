@@ -7,6 +7,7 @@ import {
   Globe, Lock, AlertCircle, ChevronDown, Trash2
 } from 'lucide-react'
 import { usePoints } from '@/contexts/PointsContext'
+import { compressImage, needsCompression } from '@/lib/imageCompression'
 
 const POST_TYPES = [
   { key: 'doubt', icon: '❓', label: 'Doubt', desc: 'Ask a question', color: '#7C3AED', bg: '#F5F3FF', border: '#DDD6FE' },
@@ -41,6 +42,7 @@ export default function EditPostPage() {
   const [newImagePreviews, setNewImagePreviews] = useState<string[]>([])
   const [removedImageUrls, setRemovedImageUrls] = useState<string[]>([])
   const [imageUploading, setImageUploading] = useState(false)
+  const [imageCompressing, setImageCompressing] = useState(false)
   const [newUploadedUrls, setNewUploadedUrls] = useState<string[]>([])
   const imageRef = useRef<HTMLInputElement>(null)
 
@@ -135,47 +137,78 @@ export default function EditPostPage() {
         setError('Please upload a valid image format.')
         return
       }
-      if (file.size >= 2 * 1024 * 1024) {
-        setError('Image size must be less than 2MB')
-        return
-      }
       validFiles.push(file)
     }
 
-    const newPreviews = validFiles.map(f => URL.createObjectURL(f))
-    setNewImages(prev => [...prev, ...validFiles])
-    setNewImagePreviews(prev => [...prev, ...newPreviews])
-
-    // Upload immediately
-    setImageUploading(true)
+    // Compress images if needed
+    setImageCompressing(true)
     setError('')
     try {
-      const uploadedUrls: string[] = []
+      const compressedFiles: File[] = []
       for (const file of validFiles) {
-        const formData = new FormData()
-        formData.append('file', file)
-        formData.append('type', 'post_image')
-
-        const res = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData
-        })
-        const data = await res.json()
-
-        if (res.ok && data.url) {
-          uploadedUrls.push(data.url)
+        if (needsCompression(file, 2)) {
+          try {
+            const result = await compressImage(file, {
+              maxSizeMB: 2,
+              maxWidthOrHeight: 1920,
+              useWebWorker: true,
+              initialQuality: 0.8
+            })
+            
+            // Check if compressed file is still too large
+            if (result.compressedSize >= 2 * 1024 * 1024) {
+              setError(`Unable to compress "${file.name}" below 2MB. Please choose a smaller image.`)
+              setImageCompressing(false)
+              return
+            }
+            
+            compressedFiles.push(result.compressedFile)
+          } catch (compressionError) {
+            setError(`Failed to compress "${file.name}": ${compressionError instanceof Error ? compressionError.message : 'Unknown error'}`)
+            setImageCompressing(false)
+            return
+          }
         } else {
-          setError(data.error || 'Upload failed for some images')
+          compressedFiles.push(file)
         }
       }
-      if (uploadedUrls.length > 0) {
-        setNewUploadedUrls(prev => [...prev, ...uploadedUrls])
+
+      const newPreviews = compressedFiles.map(f => URL.createObjectURL(f))
+      setNewImages(prev => [...prev, ...compressedFiles])
+      setNewImagePreviews(prev => [...prev, ...newPreviews])
+
+      // Upload immediately
+      setImageUploading(true)
+      try {
+        const uploadedUrls: string[] = []
+        for (const file of compressedFiles) {
+          const formData = new FormData()
+          formData.append('file', file)
+          formData.append('type', 'post_image')
+
+          const res = await fetch('/api/upload', {
+            method: 'POST',
+            body: formData
+          })
+          const data = await res.json()
+
+          if (res.ok && data.url) {
+            uploadedUrls.push(data.url)
+          } else {
+            setError(data.error || 'Upload failed for some images')
+          }
+        }
+        if (uploadedUrls.length > 0) {
+          setNewUploadedUrls(prev => [...prev, ...uploadedUrls])
+        }
+      } catch {
+        setError('Image upload failed')
+      } finally {
+        setImageUploading(false)
+        if (imageRef.current) imageRef.current.value = ''
       }
-    } catch {
-      setError('Image upload failed')
     } finally {
-      setImageUploading(false)
-      if (imageRef.current) imageRef.current.value = ''
+      setImageCompressing(false)
     }
   }
 
@@ -280,10 +313,15 @@ export default function EditPostPage() {
             )}
             <button
               onClick={handleSave}
-              disabled={saving || imageUploading}
+              disabled={saving || imageUploading || imageCompressing}
               className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-purple-600 to-cyan-500 text-white rounded-xl text-sm font-black hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {saving ? (
+              {imageCompressing ? (
+                <>
+                  <Loader2 size={16} className="animate-spin" />
+                  Optimizing image...
+                </>
+              ) : saving ? (
                 <><Loader2 size={16} className="animate-spin" /> Saving...</>
               ) : (
                 <><Save size={16} /> Save Changes</>
@@ -372,7 +410,7 @@ export default function EditPostPage() {
             {totalImageCount < 5 && (
               <button
                 onClick={() => imageRef.current?.click()}
-                disabled={imageUploading}
+                disabled={imageUploading || imageCompressing}
                 className="flex items-center gap-1.5 px-3 py-1.5 bg-purple-50 text-purple-600 rounded-lg text-xs font-bold hover:bg-purple-100 transition-colors disabled:opacity-50"
               >
                 <ImagePlus size={14} />
@@ -541,10 +579,15 @@ export default function EditPostPage() {
         <div className="pt-4 pb-12">
           <button
             onClick={handleSave}
-            disabled={saving || imageUploading}
+            disabled={saving || imageUploading || imageCompressing}
             className="w-full flex items-center justify-center gap-2 px-5 py-4 bg-gradient-to-r from-purple-600 to-cyan-500 text-white rounded-2xl text-sm font-black hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {saving ? (
+            {imageCompressing ? (
+              <>
+                <Loader2 size={16} className="animate-spin" />
+                Optimizing image...
+              </>
+            ) : saving ? (
               <><Loader2 size={18} className="animate-spin" /> Updating Post...</>
             ) : (
               <><Save size={18} /> Save Changes</>

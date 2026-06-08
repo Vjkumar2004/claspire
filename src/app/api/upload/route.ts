@@ -76,10 +76,10 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Generate secure filename
+    // Generate secure filename using detectedType as primary source
     let key: string
     try {
-      key = generateSafeFilename(file.name, userId, type || 'misc')
+      key = generateSafeFilename(file.name, userId, type || 'misc', validation.detectedType, file.type)
       console.log('Generated secure filename:', key)
     } catch (error) {
       console.error('Failed to generate secure filename:', error)

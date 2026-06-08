@@ -11,12 +11,13 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url)
     const afterRaw = searchParams.get('after')
-    // Fix: '+' in timestamp gets decoded as space, restore it
-    const after = afterRaw ? afterRaw.replace(/ /g, '+') : null
+    const cursorRaw = searchParams.get('cursor')
+    const limitParam = searchParams.get('limit')
 
-    // SECURITY: Use signed session verification instead of direct cookie parsing
-    // Direct JSON.parse(cookie.value) is unsafe because cookies can be modified
-    // via DevTools or proxy tools, allowing session hijacking and privilege escalation
+    const after = afterRaw ? afterRaw.replace(/ /g, '+') : null
+    const cursor = cursorRaw ? cursorRaw.replace(/ /g, '+') : null
+    const limit = Math.min(Math.max(parseInt(limitParam || '50') || 50, 1), 100)
+
     const user = await getAuthenticatedUser(req)
     if (!user) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
@@ -29,17 +30,17 @@ export async function GET(req: NextRequest) {
       .select('*')
       .eq('receiver_id', userId)
       .order('created_at', { ascending: false })
-      .limit(50)
+      .limit(limit + 1)
 
-    if (after) {
-      try {
-        // Validate it's a proper date before querying
-        const afterDate = new Date(after)
-        if (!isNaN(afterDate.getTime())) {
-          query = query.gt('created_at', afterDate.toISOString())
-        }
-      } catch {
-        // Invalid date — skip filter, return all notifications
+    if (cursor) {
+      const cursorDate = new Date(cursor)
+      if (!isNaN(cursorDate.getTime())) {
+        query = query.lt('created_at', cursorDate.toISOString())
+      }
+    } else if (after) {
+      const afterDate = new Date(after)
+      if (!isNaN(afterDate.getTime())) {
+        query = query.gt('created_at', afterDate.toISOString())
       }
     }
 
@@ -49,7 +50,11 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    return NextResponse.json({ notifications: data || [] })
+    const hasMore = data && data.length > limit
+    const notifications = hasMore ? data.slice(0, limit) : (data || [])
+    const nextCursor = notifications.length > 0 ? notifications[notifications.length - 1].created_at : null
+
+    return NextResponse.json({ notifications, nextCursor })
 
   } catch (err) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
       return rateLimitResult.response
     }
 
-    const { email, password, role } = await req.json()
+    const { email, password } = await req.json()
 
     if (!email || !password) {
       return NextResponse.json(
@@ -37,14 +37,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         { error: 'Account not found. Please sign up.' },
         { status: 404 }
-      )
-    }
-
-    // Role validation
-    if (role && user.role !== role) {
-      return NextResponse.json(
-        { error: `This email is associated with a ${user.role === 'senior' ? 'Senior' : 'Student'} account.` },
-        { status: 403 }
       )
     }
 

@@ -82,6 +82,7 @@ export async function POST(request: NextRequest) {
       ? `${currentUser.full_name} accepted your connection request! You can now message each other.`
       : `${currentUser.full_name} declined your connection request.`
 
+    console.log('PATH_E: senior-message-requests/manage direct insert')
     const { error: notificationError } = await supabase
       .from('notifications')
       .insert({

@@ -5,7 +5,7 @@ import { verifySessionCookie, createSessionCookie } from '@/lib/session'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  process.env.SUPABASE_SECRET_KEY!
 )
 
 export async function GET(req: NextRequest) {
@@ -59,43 +59,58 @@ export async function GET(req: NextRequest) {
 
       // ── Global Daily Visit RP ──
       if (dbUser.last_visit_date !== today) {
-        // Give +1 RP
-        const newPoints = (dbUser.rise_points || 0) + 1
-        await supabase
+        // Update users table first and get the persisted value
+        const { data: updatedUser, error: updateError } = await supabase
           .from('users')
           .update({
-            rise_points: newPoints,
+            rise_points: (dbUser.rise_points || 0) + 1,
             last_visit_date: today,
             updated_at: new Date().toISOString()
           })
           .eq('id', userId)
+          .select('rise_points, last_visit_date, rp_level')
+          .single()
 
-        // Log it
-        await supabase
-          .from('rise_points_log')
-          .insert({
-            user_id: userId,
-            points: 1,
-            reason: 'Daily visit bonus 🌅',
-            created_at: new Date().toISOString()
-          })
+        if (updateError || !updatedUser) {
+          console.error('Daily visit RP update failed:', updateError || 'UPDATE affected 0 rows')
+        } else {
+          // Only log if the update succeeded
+          const { error: logError } = await supabase
+            .from('rise_points_log')
+            .insert({
+              user_id: userId,
+              points: 1,
+              reason: 'Daily visit bonus 🌅',
+              created_at: new Date().toISOString()
+            })
 
-        user.rise_points = newPoints
-        user.last_visit_date = today
-        dailyRPEarned = true
+          if (logError) {
+            console.error('Daily visit RP log insert failed:', logError)
+          }
 
-        // ── RP Level Auto-Leveling ──
-        const newLevel = newPoints >= 1000 ? 4
-          : newPoints >= 500 ? 3
-          : newPoints >= 200 ? 2
-          : 1
+          // Use actual persisted values from database
+          user.rise_points = updatedUser.rise_points
+          user.last_visit_date = updatedUser.last_visit_date
+          dailyRPEarned = true
 
-        if (newLevel !== dbUser.rp_level) {
-          await supabase
-            .from('users')
-            .update({ rp_level: newLevel })
-            .eq('id', userId)
-          user.rp_level = newLevel
+          // ── RP Level Auto-Leveling (based on persisted value) ──
+          const newLevel = updatedUser.rise_points >= 1000 ? 4
+            : updatedUser.rise_points >= 500 ? 3
+            : updatedUser.rise_points >= 200 ? 2
+            : 1
+
+          if (newLevel !== dbUser.rp_level) {
+            const { error: levelError } = await supabase
+              .from('users')
+              .update({ rp_level: newLevel })
+              .eq('id', userId)
+
+            if (levelError) {
+              console.error('RP level update failed:', levelError)
+            } else {
+              user.rp_level = newLevel
+            }
+          }
         }
       }
 

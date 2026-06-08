@@ -936,7 +936,6 @@ function CommunityPageContent() {
   }, [])
   useEffect(() => {
     const handleRefresh = () => {
-      console.log('REFRESH EVENT RECEIVED')
       handleLoadNewPosts()
     }
 

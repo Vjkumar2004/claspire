@@ -11,8 +11,6 @@ import MyGroupsList from '@/components/MyGroupsList'
 import NotificationPrompt from '@/components/NotificationPrompt';
 import NotificationBell from '@/components/NotificationBell';
 import DeleteAccountModal from '@/components/DeleteAccountModal';
-import MessageRequestsSection from '@/components/senior/MessageRequestsSection';
-import SeniorConnectionRequestsSection from '@/components/SeniorConnectionRequestsSection';
 import GroupJoinRequestsSection from '@/components/GroupJoinRequestsSection';
 
 import { Pencil } from 'lucide-react';
@@ -624,7 +622,7 @@ export default function SeniorDashboardPage() {
               Action Needed
             </div>
             <span className="bg-red-50 text-red-500 rounded-full px-2 py-0.5 text-[10px] font-black">
-              {(dashData?.pendingDoubts?.length || 0) + (dashData?.pendingReferrals?.length || 0) + (dashData?.pendingSeniorConnections?.length || 0)} total
+              {(dashData?.pendingDoubts?.length || 0) + (dashData?.pendingReferrals?.length || 0)} total
             </span>
           </div>
 
@@ -750,15 +748,6 @@ export default function SeniorDashboardPage() {
           </div>
         </div>
 
-        {/* Senior-to-senior connection requests (from /seniors) */}
-        <SeniorConnectionRequestsSection
-          initialRequests={dashData?.pendingSeniorConnections}
-        />
-
-        {/* Student message requests */}
-        <MessageRequestsSection 
-          initialRequests={dashData?.pendingMessageRequests}
-        />
 
         {/* Main Content Grid - Adjusted to full width */}
         <div className="w-full">

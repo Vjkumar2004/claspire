@@ -1,6 +1,6 @@
 'use client'
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { Send, Loader2, X, Pencil, Reply, Trash2 } from 'lucide-react'
+import { Send, Loader2, X, Pencil, Reply, Trash2, AlertTriangle, RefreshCw } from 'lucide-react'
 import { canModifyMessage, type DirectMessageRow } from '@/lib/message-utils'
 import { supabase } from '@/lib/supabase'
 
@@ -20,7 +20,10 @@ function formatTime(dateStr: string) {
   return new Date(dateStr).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
 }
 
-function MessageStatus({ isOptimistic, isRead }: { isOptimistic: boolean; isRead?: boolean }) {
+function MessageStatus({ isOptimistic, isRead, failed }: { isOptimistic: boolean; isRead?: boolean; failed?: boolean }) {
+  if (failed) {
+    return <AlertTriangle size={12} className="text-red-400" />
+  }
   if (isOptimistic) {
     return <span className="text-[11px]" title="Sending">🫲</span>
   }
@@ -52,6 +55,8 @@ export default function ChatWindow({
   const pollingRef = useRef<NodeJS.Timeout | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
+  const sendingRef = useRef(false)
+  const [failedMessages, setFailedMessages] = useState<Set<string>>(new Set())
 
   const conversationId = [currentUserId, otherUserId].sort().join('_')
 
@@ -100,18 +105,11 @@ export default function ChatWindow({
         (payload) => {
           if (payload.eventType === 'INSERT') {
             const newMsg = payload.new as Message
-            // Only add if it's from the other person (we add our own optimistically)
-            // Wait, we add our own optimistically, but when the API returns, we update it.
-            // If the Realtime event arrives, we don't want to duplicate our own message.
             if (newMsg.sender_id !== currentUserId) {
               setMessages(prev => {
-                // Prevent duplicates if already exists
                 if (prev.find(m => m.id === newMsg.id)) return prev;
                 return [...prev, newMsg]
               })
-              // We could mark it as read here via API if we are actively viewing it,
-              // but since ChatWindow is open, maybe just let the user see it.
-              // Actually, DashboardMessages might mark it as read when opened.
             }
           } else if (payload.eventType === 'UPDATE') {
             const updatedMsg = payload.new as Message
@@ -210,11 +208,10 @@ export default function ChatWindow({
 
   const sendMessage = async () => {
     const content = newMessage.trim()
-    if (!content || sending) return
-
-    setSending(true)
+    if (!content || sending || sendingRef.current) return
 
     if (editingMessage) {
+      setSending(true)
       try {
         const res = await fetch(`/api/messages/${editingMessage.id}`, {
           method: 'PATCH',
@@ -239,23 +236,26 @@ export default function ChatWindow({
       return
     }
 
+    sendingRef.current = true
+    const tempId = `temp-${Date.now()}-${Math.random()}`
+    const replyTarget = replyingTo
+
     const optimisticMsg: Message = {
-      id: `temp-${Date.now()}-${Math.random()}`,
+      id: tempId,
       sender_id: currentUserId,
       receiver_id: otherUserId,
       content,
       created_at: new Date().toISOString(),
       conversation_id: conversationId,
       is_read: false,
-      reply_to_id: replyingTo?.id || null,
-      reply_to: replyingTo
-        ? { id: replyingTo.id, content: replyingTo.content, sender_id: replyingTo.sender_id }
+      reply_to_id: replyTarget?.id || null,
+      reply_to: replyTarget
+        ? { id: replyTarget.id, content: replyTarget.content, sender_id: replyTarget.sender_id }
         : null,
     }
 
     setMessages((prev) => [...prev, optimisticMsg])
     setNewMessage('')
-    const replyTarget = replyingTo
     setReplyingTo(null)
 
     try {
@@ -273,26 +273,39 @@ export default function ChatWindow({
         const data = await res.json()
         if (data.message) {
           setMessages((prev) =>
-            prev.map((m) => (m.id === optimisticMsg.id ? { ...data.message, reply_to: optimisticMsg.reply_to } : m))
+            prev.map((m) => (m.id === tempId ? { ...data.message, reply_to: optimisticMsg.reply_to } : m))
           )
         }
-        // await syncMessages()
         onMessageSent?.()
       } else {
-        const error = await res.json()
-        setMessages((prev) => prev.filter((m) => m.id !== optimisticMsg.id))
-        setNewMessage(content)
-        if (replyTarget) setReplyingTo(replyTarget)
-        alert(error.error || 'Failed to send message')
+        const errorData = await res.json().catch(() => ({}))
+        setMessages((prev) =>
+          prev.map((m) => (m.id === tempId ? { ...m, failed: true, error: errorData.error || 'Failed to send' } : m))
+        )
+        setFailedMessages((prev) => new Set(prev).add(tempId))
       }
     } catch {
-      setMessages((prev) => prev.filter((m) => m.id !== optimisticMsg.id))
-      setNewMessage(content)
-      if (replyTarget) setReplyingTo(replyTarget)
-      alert('Network error. Please try again.')
+      setMessages((prev) =>
+        prev.map((m) => (m.id === tempId ? { ...m, failed: true, error: 'Network error' } : m))
+      )
+      setFailedMessages((prev) => new Set(prev).add(tempId))
     } finally {
-      setSending(false)
+      sendingRef.current = false
     }
+  }
+
+  const retryMessage = (failedMsg: Message) => {
+    setMessages((prev) => prev.filter((m) => m.id !== failedMsg.id))
+    setFailedMessages((prev) => {
+      const next = new Set(prev)
+      next.delete(failedMsg.id)
+      return next
+    })
+    setNewMessage(failedMsg.content)
+    if (failedMsg.reply_to) {
+      setReplyingTo(failedMsg as any)
+    }
+    inputRef.current?.focus()
   }
 
   const renderReplyQuote = (msg: Message, isMine: boolean) => {
@@ -349,8 +362,9 @@ export default function ChatWindow({
           messages.map((msg) => {
             const isMine = msg.sender_id === currentUserId
             const isOptimistic = msg.id.startsWith('temp-')
+            const failed = failedMessages.has(msg.id)
             const showMenu = menuMessageId === msg.id
-            const canEditDelete = isMine && !isOptimistic && canModifyMessage(msg.created_at)
+            const canEditDelete = isMine && !isOptimistic && !failed && canModifyMessage(msg.created_at)
 
             return (
               <div
@@ -360,11 +374,17 @@ export default function ChatWindow({
                 <div className="relative max-w-[82%]">
                   <button
                     type="button"
-                    onClick={() => setMenuMessageId(showMenu ? null : msg.id)}
+                    onClick={() => {
+                      if (failed) {
+                        retryMessage(msg)
+                      } else {
+                        setMenuMessageId(showMenu ? null : msg.id)
+                      }
+                    }}
                     className={`w-full text-left p-3 rounded-2xl text-sm transition-transform active:scale-[0.99] ${isMine
-                        ? `bg-purple-600 text-white rounded-br-none ${isOptimistic ? 'opacity-70' : ''}`
+                        ? `bg-purple-600 text-white rounded-br-none`
                         : 'bg-white border border-gray-100 text-gray-800 rounded-bl-none shadow-sm'
-                      }`}
+                      } ${failed ? 'ring-2 ring-red-400 cursor-pointer' : ''}`}
                   >
                     {renderReplyQuote(msg, isMine)}
                     <p className="whitespace-pre-wrap break-words">{msg.content}</p>
@@ -372,12 +392,20 @@ export default function ChatWindow({
                       {msg.edited_at && (
                         <span className="text-[9px] italic">edited</span>
                       )}
-                      <span className="text-[9px]">{isOptimistic ? 'Sending...' : formatTime(msg.created_at)}</span>
-                      {isMine && <MessageStatus isOptimistic={isOptimistic} isRead={msg.is_read} />}
+                      {failed ? (
+                        <span className="flex items-center gap-1 text-[9px] text-red-400">
+                          <RefreshCw size={10} /> Tap to retry
+                        </span>
+                      ) : (
+                        <>
+                          <span className="text-[9px]">{formatTime(msg.created_at)}</span>
+                          {isMine && <MessageStatus isOptimistic={isOptimistic} isRead={msg.is_read} />}
+                        </>
+                      )}
                     </div>
                   </button>
 
-                  {showMenu && (
+                  {showMenu && !failed && (
                     <div
                       ref={menuRef}
                       className={`absolute z-20 min-w-[140px] bg-white border border-gray-200 rounded-xl shadow-xl overflow-hidden ${isMine ? 'right-0 top-full mt-1' : 'left-0 top-full mt-1'
@@ -456,10 +484,10 @@ export default function ChatWindow({
             />
             <button
               onClick={sendMessage}
-              disabled={!newMessage.trim() || sending}
+              disabled={!newMessage.trim()}
               className="p-3 bg-purple-600 text-white rounded-2xl hover:bg-purple-700 transition-all disabled:opacity-50 active:scale-95 flex-shrink-0"
             >
-              {sending ? <Loader2 className="animate-spin" size={20} /> : <Send size={20} />}
+              <Send size={20} />
             </button>
           </div>
         )}

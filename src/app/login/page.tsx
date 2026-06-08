@@ -10,7 +10,6 @@ import GoogleSignInButton from '@/components/auth/GoogleSignInButton'
 export default function LoginPage() {
   const router = useRouter()
   const { user, loading: authLoading } = useAuth()
-  const [activeRole, setActiveRole] = useState<'student' | 'senior'>('student')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -25,7 +24,7 @@ export default function LoginPage() {
       const res = await fetch('/api/auth/google-login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ credential, role: activeRole })
+        body: JSON.stringify({ credential })
       })
 
       const data = await res.json()
@@ -35,7 +34,7 @@ export default function LoginPage() {
           // Redirect to signup and auto-fill email safely
           sessionStorage.setItem('google_signup_email', data.email)
           sessionStorage.setItem('google_signup_id', data.google_id)
-          router.push(`/signup?email=${encodeURIComponent(data.email)}&role=${activeRole}`)
+          router.push(`/signup?email=${encodeURIComponent(data.email)}`)
           return
         }
         setError(data.error || 'Google login failed')
@@ -107,7 +106,7 @@ export default function LoginPage() {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, role: activeRole })
+        body: JSON.stringify({ email, password })
       })
 
       const data = await res.json()
@@ -199,55 +198,6 @@ export default function LoginPage() {
           </Link>
         </p>
 
-        {/* Student / Senior Toggle */}
-        <div style={{
-          display: 'flex',
-          background: '#F3F4F6',
-          borderRadius: 10,
-          padding: 4,
-          marginBottom: 20,
-          gap: 4
-        }}>
-          {(['student', 'senior'] as const).map(role => (
-            <button
-              key={role}
-              onClick={() => {
-                setActiveRole(role)
-                setError('')
-              }}
-              style={{
-                flex: 1,
-                padding: '10px',
-                borderRadius: 8,
-                border: 'none',
-                cursor: 'pointer',
-                fontSize: 14,
-                fontWeight: 600,
-                fontFamily: 'Plus Jakarta Sans',
-                transition: 'all 0.2s',
-                background: activeRole === role
-                  ? 'white' : 'transparent',
-                color: activeRole === role
-                  ? '#0A0A0A' : '#9CA3AF',
-                boxShadow: activeRole === role
-                  ? '0 1px 4px rgba(0,0,0,0.1)' : 'none'
-              }}
-            >
-              {role === 'student' ? (
-                <>
-                  <GraduationCap size={16} style={{ marginRight: 6 }} />
-                  Student
-                </>
-              ) : (
-                <>
-                  <User size={16} style={{ marginRight: 6 }} />
-                  Senior
-                </>
-              )}
-            </button>
-          ))}
-        </div>
-
         {/* Google Sign In Option */}
         <div style={{ marginBottom: 20 }}>
           <GoogleSignInButton
@@ -281,11 +231,7 @@ export default function LoginPage() {
           </label>
           <input
             type="email"
-            placeholder={
-              activeRole === 'student'
-                ? 'yourname@gmail.com'
-                : 'yourname@company.com'
-            }
+            placeholder="yourname@gmail.com"
             value={email}
             onChange={e => setEmail(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && handleLogin()}
@@ -444,9 +390,7 @@ export default function LoginPage() {
               Signing in...
             </>
           ) : (
-            `Sign in as ${
-              activeRole === 'student' ? 'Student 🎓' : 'Senior 👔'
-            } →`
+            'Sign in →'
           )}
         </button>
 

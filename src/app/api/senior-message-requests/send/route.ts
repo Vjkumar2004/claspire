@@ -91,6 +91,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to create request' }, { status: 500 })
     }
 
+    console.log('PATH_D: senior-message-requests/send direct insert')
     await supabase
       .from('notifications')
       .insert({

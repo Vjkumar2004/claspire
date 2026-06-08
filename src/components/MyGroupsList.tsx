@@ -205,7 +205,7 @@ export default function MyGroupsList() {
 
   const getDaysUntilDeletion = (autoDeleteAt: string) => {
     const diffTime = new Date(autoDeleteAt).getTime() - Date.now()
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+    return Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60 * 24)))
   }
 
   const handleShareGroup = async (group: Group) => {

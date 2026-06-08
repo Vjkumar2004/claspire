@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { DeleteObjectCommand } from '@aws-sdk/client-s3'
+import { r2Client, R2_BUCKET } from '@/lib/r2'
 import {
   embedProfileInBio,
   resolveDisplayBio,
@@ -59,6 +61,31 @@ export async function PATCH(req: NextRequest) {
     scalarFields.forEach((field) => {
       if (body[field] !== undefined) updateData[field] = body[field]
     })
+
+    // Delete old banner from R2 if clearing it
+    if (body.banner_url === null) {
+      const { data: currentUser } = await supabase
+        .from('users')
+        .select('banner_url')
+        .eq('id', userId)
+        .single()
+
+      const oldBannerUrl = currentUser?.banner_url
+      if (oldBannerUrl && typeof oldBannerUrl === 'string' && oldBannerUrl.includes('.r2.dev/')) {
+        const key = oldBannerUrl.split('.r2.dev/')[1]
+        if (key) {
+          try {
+            await r2Client.send(new DeleteObjectCommand({
+              Bucket: R2_BUCKET,
+              Key: key
+            }))
+            console.log('Deleted banner from R2:', key)
+          } catch (e) {
+            console.warn('Failed to delete banner from R2:', key, e)
+          }
+        }
+      }
+    }
 
     if (profile_data !== undefined) {
       updateData.profile_data = profile_data

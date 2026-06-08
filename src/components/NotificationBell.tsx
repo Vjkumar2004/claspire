@@ -26,12 +26,14 @@ interface NotificationBellProps {
 
 export default function NotificationBell({ align = 'right', dark = false }: NotificationBellProps) {
   const { user } = useAuth()
-  const { notifications, unreadCount } = useNotifications()
+  const { notifications, unreadCount, loadMore, hasMore, loading } = useNotifications()
   const [isOpen, setIsOpen] = useState(false)
   const [coords, setCoords] = useState({ top: 0, left: 0, right: 0, isMobile: false })
   const [isClearing, setIsClearing] = useState(false)
+  const [confirmingClear, setConfirmingClear] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
+  const sentinelRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (isOpen && buttonRef.current) {
@@ -60,15 +62,27 @@ export default function NotificationBell({ align = 'right', dark = false }: Noti
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node) && 
           buttonRef.current && !buttonRef.current.contains(event.target as Node)) {
-        if (isOpen && notifications.length > 0) {
-          clearAllNotifications()
-        }
         setIsOpen(false)
       }
     }
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [isOpen, notifications.length])
+  }, [isOpen])
+
+  // Infinite scroll: load more when sentinel enters viewport
+  useEffect(() => {
+    if (!isOpen || !hasMore || !sentinelRef.current) return
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && hasMore && !loading) {
+          loadMore()
+        }
+      },
+      { rootMargin: '200px' }
+    )
+    observer.observe(sentinelRef.current)
+    return () => observer.disconnect()
+  }, [isOpen, hasMore, loading, loadMore])
 
   const markAsRead = async (id?: string) => {
     try {
@@ -84,19 +98,20 @@ export default function NotificationBell({ align = 'right', dark = false }: Noti
 
   const clearAllNotifications = async () => {
     setIsClearing(true)
+    setConfirmingClear(false)
     try {
-      const res = await fetch('/api/notifications/clear', {
+      await fetch('/api/notifications/clear', {
         method: 'DELETE'
       })
-      // If res.ok, NotificationsContext should handle deletion if it's subscribed to DELETE events.
-      // If it's not subscribed to DELETE, we might need a page refresh, or just let it be.
-      // Actually, since this clears all, it might be better if Context handled this.
-      // Let's assume the API call is sufficient for now.
     } catch (err) {
       console.error('Failed to clear notifications:', err)
     } finally {
       setIsClearing(false)
     }
+  }
+
+  const handleConfirmClear = async () => {
+    await clearAllNotifications()
   }
 
   const getTimeAgo = (dateString: string) => {
@@ -114,13 +129,6 @@ export default function NotificationBell({ align = 'right', dark = false }: Noti
   }
 
   const handleBellClick = () => {
-    if (!isOpen && unreadCount > 0) {
-      // Mark all as read when opening notifications
-      markAsRead()
-    } else if (isOpen && notifications.length > 0) {
-      // Clear all when closing
-      clearAllNotifications()
-    }
     setIsOpen(!isOpen)
   }
 
@@ -185,7 +193,7 @@ export default function NotificationBell({ align = 'right', dark = false }: Noti
                   )}
                   {notifications.length > 0 && (
                     <button
-                      onClick={clearAllNotifications}
+                      onClick={() => setConfirmingClear(true)}
                       disabled={isClearing}
                       className="text-[11px] font-bold text-red-400 hover:text-red-500 transition-colors flex items-center gap-1 disabled:opacity-50"
                     >
@@ -206,7 +214,7 @@ export default function NotificationBell({ align = 'right', dark = false }: Noti
               </div>
 
               {/* List */}
-              <div className="overflow-y-auto flex-1 custom-scrollbar">
+              <div className="overflow-y-auto flex-1 custom-scrollbar relative">
                 {notifications.length === 0 ? (
                   <div className="p-12 text-center">
                     <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3">
@@ -245,10 +253,7 @@ export default function NotificationBell({ align = 'right', dark = false }: Noti
                             {notif.link && (
                               <Link 
                                 href={notif.link}
-                                onClick={() => {
-                                  clearAllNotifications()
-                                  setIsOpen(false)
-                                }}
+                                onClick={() => setIsOpen(false)}
                                 className="inline-flex items-center gap-1 text-[11px] font-bold text-purple-600 mt-2 hover:underline"
                               >
                                 View Details
@@ -259,22 +264,59 @@ export default function NotificationBell({ align = 'right', dark = false }: Noti
                         </div>
                       </div>
                     ))}
+                    {/* Sentinel for infinite scroll */}
+                    <div ref={sentinelRef} className="py-4 flex items-center justify-center">
+                      {loading && (
+                        <div className="h-5 w-5 border-2 border-purple-400 border-t-transparent rounded-full animate-spin" />
+                      )}
+                      {!hasMore && notifications.length >= 50 && (
+                        <p className="text-[10px] text-gray-400">All caught up</p>
+                      )}
+                    </div>
                   </div>
+                )}
+
+                {/* Confirmation overlay */}
+                {confirmingClear && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="absolute inset-0 bg-white/95 backdrop-blur-sm z-20 flex items-center justify-center p-6"
+                    style={{ borderRadius: 'inherit' }}
+                  >
+                    <div className="text-center">
+                      <p className="text-sm font-bold text-gray-900 mb-2">Clear all notifications?</p>
+                      <p className="text-xs text-gray-500 mb-4">This action cannot be undone.</p>
+                      <div className="flex gap-2 justify-center">
+                        <button
+                          onClick={handleConfirmClear}
+                          disabled={isClearing}
+                          className="px-4 py-2 bg-red-500 text-white text-xs font-bold rounded-lg hover:bg-red-600 disabled:opacity-50 transition-colors"
+                        >
+                          {isClearing ? 'Clearing...' : 'Clear all'}
+                        </button>
+                        <button
+                          onClick={() => setConfirmingClear(false)}
+                          className="px-4 py-2 bg-gray-100 text-gray-700 text-xs font-bold rounded-lg hover:bg-gray-200 transition-colors"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  </motion.div>
                 )}
               </div>
 
               {/* Footer */}
               <div className="p-3 border-t border-gray-100 bg-gray-50/50 text-center">
-                 <Link 
-                    href={user?.role === 'senior' ? '/dashboard/senior' : '/dashboard/junior'}
-                    onClick={() => {
-                      if (notifications.length > 0) clearAllNotifications()
-                      setIsOpen(false)
-                    }}
-                    className="text-[11px] font-bold text-gray-400 uppercase tracking-wider hover:text-purple-600 transition-colors no-underline block"
-                 >
-                    View All Activity
-                 </Link>
+                  <Link 
+                     href={user?.role === 'senior' ? '/dashboard/senior' : '/dashboard/junior'}
+                     onClick={() => setIsOpen(false)}
+                     className="text-[11px] font-bold text-gray-400 uppercase tracking-wider hover:text-purple-600 transition-colors no-underline block"
+                  >
+                     View All Activity
+                  </Link>
               </div>
             </motion.div>
           )}

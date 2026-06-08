@@ -15,8 +15,6 @@ export function UnreadMessagesProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth()
   const [unreadMessageCount, setUnreadMessageCount] = useState(0)
 
-  console.log('UnreadMessagesProvider render. Current count:', unreadMessageCount, 'User:', user?.id);
-
   const refreshUnreadCount = useCallback(async () => {
     if (!user?.id) {
       setUnreadMessageCount(0)
@@ -39,8 +37,6 @@ export function UnreadMessagesProvider({ children }: { children: ReactNode }) {
 
     refreshUnreadCount()
 
-    console.log(`UnreadMessagesContext subscribing to direct_messages for receiver_id=${user.id}`);
-
     const channel = supabase
       .channel(`unread-messages-${user.id}`)
       .on(
@@ -51,8 +47,7 @@ export function UnreadMessagesProvider({ children }: { children: ReactNode }) {
           table: 'direct_messages',
           filter: `receiver_id=eq.${user.id}`,
         },
-        (payload) => {
-          console.log('UnreadMessagesContext INSERT event received:', payload);
+        () => {
           setUnreadMessageCount((prev) => prev + 1)
         }
       )
@@ -65,15 +60,12 @@ export function UnreadMessagesProvider({ children }: { children: ReactNode }) {
           filter: `receiver_id=eq.${user.id}`,
         },
         (payload: { new: { is_read?: boolean }; old: { is_read?: boolean } }) => {
-          console.log('UnreadMessagesContext UPDATE event received:', payload);
           if (payload.new.is_read && !payload.old.is_read) {
             setUnreadMessageCount((prev) => Math.max(0, prev - 1))
           }
         }
       )
-      .subscribe((status) => {
-        console.log('UnreadMessagesContext Realtime status:', status);
-      })
+      .subscribe()
 
     return () => {
       supabase.removeChannel(channel)

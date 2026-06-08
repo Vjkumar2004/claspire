@@ -14,7 +14,8 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Delete all notifications older than 24 hours
+    // Delete only read notifications older than 24 hours
+    // Unread notifications are preserved regardless of age
     const cutoff = new Date(
       Date.now() - 24 * 60 * 60 * 1000
     ).toISOString()
@@ -22,6 +23,7 @@ export async function GET(req: NextRequest) {
     const { error } = await supabase
       .from('notifications')
       .delete()
+      .eq('is_read', true)
       .lt('created_at', cutoff)
 
     if (error) {
@@ -32,12 +34,12 @@ export async function GET(req: NextRequest) {
       )
     }
 
-    console.log('✅ Notifications cleared successfully')
+    console.log('✅ Read notifications older than 24hrs cleared')
 
     return NextResponse.json({
       success: true,
       timestamp: new Date().toISOString(),
-      message: 'Notifications older than 24hrs cleared'
+      message: 'Read notifications older than 24hrs cleared'
     })
   } catch (err: any) {
     console.error('Cron error:', err)

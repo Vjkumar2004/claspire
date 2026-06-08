@@ -33,7 +33,7 @@ export async function GET(req: NextRequest) {
       referral_count, webinar_count,
       is_verified, verification_status,
       is_premium,
-      avatar_url, bio, branch, year,
+      avatar_url, banner_url, bio, branch, year,
       passout_year, linkedin_url,
       company, designation, graduation_year,
       last_visit_date,

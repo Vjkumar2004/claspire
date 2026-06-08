@@ -5,6 +5,7 @@ import {
   Loader2, Tag, AlertCircle, ImagePlus
 } from 'lucide-react'
 import { usePoints } from '@/contexts/PointsContext'
+import { compressImage, formatFileSize, needsCompression } from '@/lib/imageCompression'
 
 interface PostModalProps {
   isOpen: boolean
@@ -40,12 +41,15 @@ export default function PostModal({
   const [images, setImages] = useState<File[]>([])
   const [imagePreviews, setImagePreviews] = useState<string[]>([])
   const [imageUploading, setImageUploading] = useState(false)
+  const [imageCompressing, setImageCompressing] = useState(false)
   const [imageUrls, setImageUrls] = useState<string[]>([])
+  const [removedImageUrls, setRemovedImageUrls] = useState<string[]>([])
   const imageRef = useRef<HTMLInputElement>(null)
 
   // Populate data if editing
   useEffect(() => {
     if (isOpen && editData) {
+      setRemovedImageUrls([])
       setTitle(editData.title || '')
       setContent(editData.content || '')
       setType(editData.type || 'doubt')
@@ -65,6 +69,7 @@ export default function PostModal({
       setImagePreviews(parsedUrls)
     } else if (isOpen) {
       // reset if creating new
+      setRemovedImageUrls([])
       setTitle('')
       setContent('')
       setType('doubt')
@@ -119,50 +124,84 @@ export default function PostModal({
         setError('Please upload a valid image format.')
         return
       }
-      if (file.size >= 2 * 1024 * 1024) {
-        setError('Image size must be less than 2MB')
-        return
-      }
       validFiles.push(file)
     }
 
-    const newPreviews = validFiles.map(f => URL.createObjectURL(f))
-    setImages(prev => [...prev, ...validFiles])
-    setImagePreviews(prev => [...prev, ...newPreviews])
-
-    setImageUploading(true)
+    // Compress images if needed
+    setImageCompressing(true)
     setError('')
     try {
-      const newUrls: string[] = []
+      const compressedFiles: File[] = []
       for (const file of validFiles) {
-        const formData = new FormData()
-        formData.append('file', file)
-        formData.append('type', 'post_image')
-
-        const res = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData
-        })
-        const data = await res.json()
-
-        if (res.ok && data.url) {
-          newUrls.push(data.url)
+        if (needsCompression(file, 2)) {
+          try {
+            const result = await compressImage(file, {
+              maxSizeMB: 2,
+              maxWidthOrHeight: 1920,
+              useWebWorker: true,
+              initialQuality: 0.8
+            })
+            
+            // Check if compressed file is still too large
+            if (result.compressedSize >= 2 * 1024 * 1024) {
+              setError(`Unable to compress "${file.name}" below 2MB. Please choose a smaller image.`)
+              setImageCompressing(false)
+              return
+            }
+            
+            compressedFiles.push(result.compressedFile)
+          } catch (compressionError) {
+            setError(`Failed to compress "${file.name}": ${compressionError instanceof Error ? compressionError.message : 'Unknown error'}`)
+            setImageCompressing(false)
+            return
+          }
         } else {
-          setError(data.error || 'Upload failed for some images')
+          compressedFiles.push(file)
         }
       }
-      if (newUrls.length > 0) {
-        setImageUrls(prev => [...prev, ...newUrls])
+
+      const newPreviews = compressedFiles.map(f => URL.createObjectURL(f))
+      setImages(prev => [...prev, ...compressedFiles])
+      setImagePreviews(prev => [...prev, ...newPreviews])
+
+      setImageUploading(true)
+      try {
+        const newUrls: string[] = []
+        for (const file of compressedFiles) {
+          const formData = new FormData()
+          formData.append('file', file)
+          formData.append('type', 'post_image')
+
+          const res = await fetch('/api/upload', {
+            method: 'POST',
+            body: formData
+          })
+          const data = await res.json()
+
+          if (res.ok && data.url) {
+            newUrls.push(data.url)
+          } else {
+            setError(data.error || 'Upload failed for some images')
+          }
+        }
+        if (newUrls.length > 0) {
+          setImageUrls(prev => [...prev, ...newUrls])
+        }
+      } catch (err) {
+        setError('Image upload failed')
+      } finally {
+        setImageUploading(false)
+        if (imageRef.current) imageRef.current.value = ''
       }
-    } catch (err) {
-      setError('Image upload failed')
     } finally {
-      setImageUploading(false)
-      if (imageRef.current) imageRef.current.value = ''
+      setImageCompressing(false)
     }
   }
 
   const removeImage = (index: number) => {
+    if (index < imageUrls.length) {
+      setRemovedImageUrls(prev => [...prev, imageUrls[index]])
+    }
     setImages(prev => prev.filter((_, i) => i !== index))
     setImagePreviews(prev => prev.filter((_, i) => i !== index))
     setImageUrls(prev => prev.filter((_, i) => i !== index))
@@ -203,6 +242,9 @@ export default function PostModal({
       
       if (isEdit) {
         bodyParams.post_id = editData.id
+        if (removedImageUrls.length > 0) {
+          bodyParams.deleted_image_urls = removedImageUrls
+        }
       } else {
         bodyParams.community_id = communityId
         bodyParams.is_pinned = false
@@ -248,6 +290,7 @@ export default function PostModal({
       setImages([])
       setImagePreviews([])
       setImageUrls([])
+      setRemovedImageUrls([])
 
       onSuccess()
       onClose()
@@ -850,7 +893,7 @@ export default function PostModal({
           {/* Submit */}
           <button
             onClick={handleSubmit}
-            disabled={loading || imageUploading}
+            disabled={loading || imageUploading || imageCompressing}
             style={{
               width: '100%',
               display: 'flex',
@@ -860,21 +903,26 @@ export default function PostModal({
               fontSize: 14,
               fontWeight: 800,
               color: 'white',
-              background: (loading || imageUploading)
+              background: (loading || imageUploading || imageCompressing)
                 ? '#C4B5FD'
                 : 'linear-gradient(135deg,#7C3AED,#06B6D4)',
               border: 'none',
               borderRadius: 12,
               padding: '14px',
-              cursor: loading
+              cursor: (loading || imageUploading || imageCompressing)
                 ? 'not-allowed' : 'pointer',
               fontFamily: 'Plus Jakarta Sans',
-              boxShadow: (loading || imageUploading) ? 'none'
+              boxShadow: (loading || imageUploading || imageCompressing) ? 'none'
                 : '0 4px 16px rgba(124,58,237,0.35)',
               transition: 'all 0.2s'
             }}
           >
-            {imageUploading ? (
+            {imageCompressing ? (
+              <>
+                <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} />
+                Optimizing image...
+              </>
+            ) : imageUploading ? (
               <>
                 <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} />
                 Uploading Image...

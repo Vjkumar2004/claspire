@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { usePoints } from '@/contexts/PointsContext'
+import { setAccessTokenProvider } from '@/lib/supabase'
 
 interface User {
   id: string
@@ -40,7 +41,16 @@ const fetchUserGlobal = async (showAward: any, retryCount = 0) => {
     if (res.ok) {
       const data = await res.json()
       globalUser = data.user || null
-      
+
+      setAccessTokenProvider(async () => {
+        const r = await fetch('/api/auth/supabase-token')
+        if (r.ok) {
+          const d = await r.json()
+          return d.access_token
+        }
+        return null
+      })
+
       // Show daily RP award if earned today
       if (data.dailyRPEarned && showAward) {
         showAward(1, "Daily visit bonus 🌅")
@@ -48,12 +58,14 @@ const fetchUserGlobal = async (showAward: any, retryCount = 0) => {
     } else if (res.status === 401) {
       // 401 = not logged in
       globalUser = null
+      setAccessTokenProvider(null)
     } else {
       // Other errors - retry once
       if (retryCount < 1) {
         return await new Promise((resolve) => setTimeout(resolve, 500)).then(() => fetchUserGlobal(showAward, retryCount + 1));
       } else {
         globalUser = null
+        setAccessTokenProvider(null)
       }
     }
   } catch (error) {
@@ -62,6 +74,7 @@ const fetchUserGlobal = async (showAward: any, retryCount = 0) => {
       return await new Promise((resolve) => setTimeout(resolve, 500)).then(() => fetchUserGlobal(showAward, retryCount + 1));
     } else {
       globalUser = null
+      setAccessTokenProvider(null)
     }
   } finally {
     if (retryCount === 0) {
@@ -99,6 +112,7 @@ export function useAuth() {
     try {
       await fetch('/api/auth/signout', { method: 'POST' })
     } catch {}
+    setAccessTokenProvider(null)
     globalUser = null
     globalLoading = false
     notifySubscribers()

@@ -95,9 +95,9 @@ const BottomNavbar = () => {
       isCenter: true,
     },
     {
-      label: 'Seniors',
+      label: 'Network',
       icon: GraduationCap,
-      href: '/seniors',
+      href: '/network',
     },
     {
       label: 'Dashboard',

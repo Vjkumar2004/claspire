@@ -1,12 +1,24 @@
 import { createClient } from '@supabase/supabase-js'
 
-// Create a single Supabase client for both client and server side
+let getAccessToken: (() => Promise<string | null>) | null = null
+
+export function setAccessTokenProvider(provider: () => Promise<string | null>) {
+  getAccessToken = provider
+}
+
 export const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  {
+    accessToken: async () => {
+      if (getAccessToken) {
+        return getAccessToken()
+      }
+      return null
+    }
+  }
 )
 
-// Admin client (for server-side operations with service role key if needed later)
 export const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!

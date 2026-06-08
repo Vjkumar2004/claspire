@@ -1,8 +1,21 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useState, useCallback } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
+
+const MESSAGE_NOTIFICATION_TYPES = new Set([
+  'direct_message',
+  'message',
+  'message_request',
+  'message_request_accepted',
+  'message_request_rejected',
+  'referral_request',
+])
+
+function isMessageNotificationType(type: string): boolean {
+  return MESSAGE_NOTIFICATION_TYPES.has(type)
+}
 
 export type Notification = {
   id: string
@@ -19,6 +32,9 @@ export type Notification = {
 type NotificationsContextType = {
   notifications: Notification[]
   unreadCount: number
+  loadMore: () => Promise<void>
+  hasMore: boolean
+  loading: boolean
 }
 
 const NotificationsContext = createContext<NotificationsContextType | undefined>(undefined)
@@ -27,32 +43,63 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
   const { user } = useAuth()
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [unreadCount, setUnreadCount] = useState(0)
+  const [cursor, setCursor] = useState<string | null>(null)
+  const [hasMore, setHasMore] = useState(false)
+  const [loading, setLoading] = useState(false)
 
-  console.log('NotificationsProvider render. Current count:', unreadCount, 'User:', user?.id);
+  const loadMore = useCallback(async () => {
+    if (!cursor || loading) return
+    setLoading(true)
+    try {
+      const res = await fetch(`/api/notifications?cursor=${encodeURIComponent(cursor)}`)
+      const data = await res.json()
+      if (data.notifications?.length) {
+        setNotifications((prev) => [...prev, ...data.notifications])
+        setCursor(data.nextCursor)
+        setHasMore(data.nextCursor !== null)
+      } else {
+        setHasMore(false)
+      }
+    } catch (err) {
+      console.error('Failed to load more notifications:', err)
+    } finally {
+      setLoading(false)
+    }
+  }, [cursor, loading])
+
+  useEffect(() => {
+    setUnreadCount(
+      notifications.filter((n) => !n.is_read && !isMessageNotificationType(n.type)).length
+    )
+  }, [notifications])
 
   useEffect(() => {
     if (!user?.id) {
       setNotifications([])
       setUnreadCount(0)
+      setCursor(null)
+      setHasMore(false)
       return
     }
 
     const fetchInitialNotifications = async () => {
       try {
+        setLoading(true)
         const res = await fetch('/api/notifications')
         const data = await res.json()
         if (data.notifications) {
           setNotifications(data.notifications)
-          setUnreadCount(data.notifications.filter((n: Notification) => !n.is_read).length)
+          setCursor(data.nextCursor)
+          setHasMore(data.nextCursor !== null)
         }
       } catch (err) {
         console.error('Failed to fetch initial notifications:', err)
+      } finally {
+        setLoading(false)
       }
     }
 
     fetchInitialNotifications()
-
-    console.log(`NotificationsContext subscribing to notifications for receiver_id=${user.id}`);
 
     const channel = supabase
       .channel(`notifications-${user.id}`)
@@ -62,13 +109,13 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
           event: 'INSERT',
           schema: 'public',
           table: 'notifications',
-          filter: `receiver_id=eq.${user.id}`,
         },
         (payload) => {
-          console.log('NotificationsContext INSERT event received:', payload);
+          if (payload.new?.receiver_id !== user?.id) {
+            return
+          }
           const newNotification = payload.new as Notification
           setNotifications((prev) => [newNotification, ...prev])
-          setUnreadCount((prev) => prev + (newNotification.is_read ? 0 : 1))
         }
       )
       .on(
@@ -80,7 +127,6 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
           filter: `receiver_id=eq.${user.id}`,
         },
         (payload) => {
-          console.log('NotificationsContext UPDATE event received:', payload);
           const updated = payload.new as Notification
           const previous = payload.old as Notification
           if (updated.is_read !== previous.is_read) {
@@ -89,15 +135,23 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
                 n.id === updated.id ? { ...n, is_read: updated.is_read } : n
               )
             )
-            setUnreadCount((prev) =>
-              updated.is_read ? Math.max(0, prev - 1) : prev + 1
-            )
           }
         }
       )
-      .subscribe((status) => {
-        console.log('NotificationsContext Realtime status:', status);
-      })
+      .on(
+        'postgres_changes',
+        {
+          event: 'DELETE',
+          schema: 'public',
+          table: 'notifications',
+          filter: `receiver_id=eq.${user.id}`,
+        },
+        (payload) => {
+          const deletedId = payload.old.id as string
+          setNotifications((prev) => prev.filter((n) => n.id !== deletedId))
+        }
+      )
+      .subscribe()
 
     return () => {
       supabase.removeChannel(channel)
@@ -105,7 +159,7 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
   }, [user?.id])
 
   return (
-    <NotificationsContext.Provider value={{ notifications, unreadCount }}>
+    <NotificationsContext.Provider value={{ notifications, unreadCount, loadMore, hasMore, loading }}>
       {children}
     </NotificationsContext.Provider>
   )

@@ -132,6 +132,7 @@ export async function POST(req: NextRequest) {
         created_at: new Date().toISOString()
       }))
 
+      console.log('PATH_F: jobs/create bulk insert', { count: notifs.length })
       for (let i = 0; i < notifs.length; i += 50) {
         await supabase
           .from('notifications')

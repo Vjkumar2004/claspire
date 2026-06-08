@@ -63,7 +63,7 @@ export default function PublicProfilePage() {
     )
   }
 
-  const { user, viewer, isOwnProfile } = data
+  const { user, viewer, isOwnProfile, connectionStatus = 'not_connected', connectionId = null, followStatus = 'not_following' } = data
   const isSenior = user.role === 'senior'
   const college = user.colleges
   const profileData = parseProfileData(user.profile_data)
@@ -139,7 +139,7 @@ export default function PublicProfilePage() {
               </div>
 
               <div className="flex flex-col gap-3 min-w-[240px]">
-                <ProfileActionBar profileUser={user} viewer={viewer} isOwnProfile={isOwnProfile} />
+                <ProfileActionBar profileUser={user} viewer={viewer} isOwnProfile={isOwnProfile} connectionStatus={connectionStatus} connectionId={connectionId} followStatus={followStatus} />
                 {headerLinks.map((l) => (
                   <a
                     key={l.label}

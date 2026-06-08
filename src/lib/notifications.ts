@@ -45,6 +45,7 @@ export async function createNotification({
     const { error } = await supabase
       .from('notifications')
       .insert({
+        user_id: receiver_id,
         receiver_id,
         sender_id: sender_id || null,
         type,
@@ -105,6 +106,7 @@ export async function notifyNewPost({
       type: 'post_in_community',
       title,
       message,
+      user_id: m.user_id,
       receiver_id: m.user_id,
       sender_id: authorId,
       post_id: postId,
@@ -155,6 +157,7 @@ export async function createBulkNotifications(
     const { receiver_ids, sender_id, type, title, message, link, post_id } = params
     
     const notifications = receiver_ids.map(receiver_id => ({
+      user_id: receiver_id,
       receiver_id,
       sender_id: sender_id || null,
       type,
@@ -259,6 +262,7 @@ export async function notifyGroupCreated({
       type: 'group_created' as const,
       title,
       message,
+      user_id: user.id,
       receiver_id: user.id,
       sender_id: creatorId,
       link,
@@ -298,7 +302,6 @@ export async function notifyGroupCreated({
       })
     }
 
-    console.log(`Group creation notification sent to ${collegeUsers.length} users`)
   } catch (err) {
     console.error('Group creation notification error:', err)
   }

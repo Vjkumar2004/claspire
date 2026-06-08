@@ -33,21 +33,13 @@ export async function validateImageFile(file: File): Promise<ValidationResult> {
       }
     }
 
-    // 3. Filename validation - prevent double extensions and dangerous names
+    // 3. Filename validation - prevent dangerous names only
+    // We no longer restrict double extensions since valid filenames like "my.photo.jpg" should be allowed
     const fileName = file.name.toLowerCase()
     
-    // Check for double extensions (e.g., shell.php.jpg, malicious.js.png)
-    const parts = fileName.split('.')
-    if (parts.length > 2) {
-      return {
-        isValid: false,
-        error: 'Invalid filename: Multiple extensions not allowed'
-      }
-    }
-
-    // Check for dangerous extensions
+    // Check for dangerous extensions in the final extension only
     const dangerousExtensions = ['php', 'js', 'exe', 'bat', 'cmd', 'sh', 'py', 'pl', 'rb', 'asp', 'aspx', 'jsp', 'cfm']
-    const extension = parts[parts.length - 1]
+    const extension = fileName.split('.').pop() || ''
     if (dangerousExtensions.includes(extension)) {
       return {
         isValid: false,
@@ -309,37 +301,67 @@ function detectImageType(bytes: Uint8Array): string | null {
 }
 
 /**
- * Generates a safe filename
+ * Generates a safe filename using UUID format
+ * Format: {userId}_{timestamp}_{uuid}.{extension}
+ * Uses detectedType as primary source of truth for extension, not original filename
+ * This handles compressed images that have filename "blob"
  */
-export function generateSafeFilename(originalName: string, userId: string, type: string): string {
-  // Remove all non-alphanumeric characters except dots, hyphens, and underscores
-  const cleanName = originalName.replace(/[^a-zA-Z0-9._-]/g, '_')
+export function generateSafeFilename(originalName: string, userId: string, type: string, detectedType?: string, mimeType?: string): string {
+  // Determine extension using detectedType as primary source
+  let extension = ''
   
-  // Get extension
-  const parts = cleanName.split('.')
-  if (parts.length < 2) {
-    throw new Error('Invalid filename: No extension found')
+  // Priority 1: Use detectedType from validation (most reliable)
+  if (detectedType) {
+    extension = detectedType.toLowerCase()
+  } else {
+    // Priority 2: Try to extract from original filename
+    const fileName = originalName.toLowerCase()
+    const fileExtension = fileName.split('.').pop() || ''
+    
+    // Only use filename extension if it's a valid image extension
+    const allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp', 'tif', 'tiff', 'svg', 'heic', 'heif', 'ico']
+    if (fileExtension && allowedExtensions.includes(fileExtension)) {
+      extension = fileExtension
+    } else if (mimeType) {
+      // Priority 3: Extract from MIME type
+      const mimeExtension = mimeType.split('/')[1]?.toLowerCase()
+      if (mimeExtension) {
+        // Normalize common MIME type extensions
+        const mimeMapping: { [key: string]: string } = {
+          'jpeg': 'jpg',
+          'pjpeg': 'jpg',
+          'x-png': 'png',
+          'vnd.microsoft.icon': 'ico',
+          'svg+xml': 'svg'
+        }
+        extension = mimeMapping[mimeExtension] || mimeExtension
+      }
+    }
   }
   
-  const extension = parts[parts.length - 1].toLowerCase()
-  const baseName = parts.slice(0, -1).join('_')
+  // Final fallback if no extension found
+  if (!extension) {
+    throw new Error('Unable to determine file extension from filename, detected type, or MIME type')
+  }
   
-  // Only allow image extensions
+  // Only allow image extensions (security validation)
   const allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp', 'tif', 'tiff', 'svg', 'heic', 'heif', 'ico']
   if (!allowedExtensions.includes(extension)) {
     throw new Error(`Invalid extension: .${extension}`)
   }
+  
+  // Generate unique filename using UUID format
+  // Format: {userId}_{timestamp}_{uuid}.{extension}
+  const timestamp = Date.now()
+  const uuid = crypto.randomUUID()
   
   // For avatars, use consistent filename to replace old image
   if (type === 'avatar') {
     return `${type}/${userId}_avatar.${extension}`
   }
   
-  // For other files, generate unique filename
-  const timestamp = Date.now()
-  const random = Math.random().toString(36).substring(2, 8)
-  
-  return `${type}/${userId}_${timestamp}_${random}.${extension}`
+  // For other files, use UUID format
+  return `${type}/${userId}_${timestamp}_${uuid}.${extension}`
 }
 
 /**

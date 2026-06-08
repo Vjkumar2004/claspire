@@ -258,7 +258,7 @@ export default function SearchBar({ isMobileOverlay = false, onCloseMobile }: { 
           }}
           onFocus={() => setIsOpen(true)}
           onKeyDown={handleKeyDown}
-          placeholder="Search seniors, jobs, groups, colleges..."
+          placeholder="Search people, jobs, groups, colleges..."
           className={`w-full bg-[#EEF3F8] text-gray-800 text-[13px] font-semibold pl-10 pr-10 py-1.5 sm:py-2 rounded-md border border-transparent focus:border-gray-300 focus:bg-white focus:outline-none focus:ring-1 focus:ring-gray-300 transition-all duration-200 ${
             isMobileOverlay ? 'h-11 sm:h-12' : 'h-9'
           }`}

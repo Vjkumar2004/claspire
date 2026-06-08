@@ -63,11 +63,47 @@ export async function GET(
     }
     delete (sanitized as { email?: string }).email
 
+    let connectionStatus = 'not_connected'
+    let connectionId: string | null = null
+
+    if (viewer && viewer.id !== user.id) {
+      const { data: conn } = await supabase
+        .from('connections')
+        .select('id, status, sender_id')
+        .or(`and(sender_id.eq.${viewer.id},receiver_id.eq.${user.id}),and(sender_id.eq.${user.id},receiver_id.eq.${viewer.id})`)
+        .maybeSingle()
+
+      if (conn) {
+        connectionId = conn.id
+        if (conn.status === 'accepted') {
+          connectionStatus = 'connected'
+        } else if (conn.status === 'pending') {
+          connectionStatus = conn.sender_id === viewer.id ? 'pending_sent' : 'pending_received'
+        }
+      }
+    }
+
+    let followStatus: string = 'not_following'
+    if (viewer && viewer.id !== user.id) {
+      const { data: follow } = await supabase
+        .from('follows')
+        .select('id')
+        .eq('follower_id', viewer.id)
+        .eq('following_id', user.id)
+        .maybeSingle()
+      if (follow) {
+        followStatus = 'following'
+      }
+    }
+
     return NextResponse.json({
       success: true,
       user: sanitized,
       viewer,
       isOwnProfile: viewer?.id === user.id,
+      connectionStatus,
+      connectionId,
+      followStatus,
     })
   } catch {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

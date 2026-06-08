@@ -4,7 +4,8 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@supabase/supabase-js'
 import {
   MessageCircle, MessageSquare, Send, X,
-  ChevronRight, ChevronUp, ChevronDown
+  ChevronRight, ChevronUp, ChevronDown,
+  AlertTriangle, RefreshCw
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -30,9 +31,11 @@ function ChatWidget({ user, isNavVisible }: ChatWidgetProps) {
   const [drawerChatLoading, setDrawerChatLoading] = useState(false)
   const [drawerChatSending, setDrawerChatSending] = useState(false)
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false)
+  const [drawerFailedMessages, setDrawerFailedMessages] = useState<Set<string>>(new Set())
 
   const drawerScrollRef = useRef<HTMLDivElement>(null)
   const mobileScrollRef = useRef<HTMLDivElement>(null)
+  const drawerSendingRef = useRef(false)
 
   // Fetch active conversations and accepted connections dynamically
   useEffect(() => {
@@ -188,16 +191,27 @@ function ChatWidget({ user, isNavVisible }: ChatWidgetProps) {
     }
   }, [drawerMessages])
 
+  const retryDrawerMessage = (failedId: string, content: string) => {
+    setDrawerMessages(prev => prev.filter(m => m.id !== failedId))
+    setDrawerFailedMessages(prev => {
+      const next = new Set(prev)
+      next.delete(failedId)
+      return next
+    })
+    setDrawerNewMessage(content)
+  }
+
   const sendDrawerMessage = async () => {
     const text = drawerNewMessage.trim()
-    if (!text || !activeChatUser || drawerChatSending || !user?.id) return
+    if (!text || !activeChatUser || drawerChatSending || drawerSendingRef.current || !user?.id) return
 
-    setDrawerChatSending(true)
+    drawerSendingRef.current = true
     setDrawerNewMessage('')
 
     const conversationId = [user.id, activeChatUser.id].sort().join('_')
+    const tempId = `temp-${Date.now()}-${Math.random()}`
     const optMsg = {
-      id: `temp-${Date.now()}`,
+      id: tempId,
       sender_id: user.id,
       receiver_id: activeChatUser.id,
       content: text,
@@ -220,23 +234,24 @@ function ChatWidget({ user, isNavVisible }: ChatWidgetProps) {
       if (res.ok) {
         const data = await res.json()
         if (data.message) {
-          setDrawerMessages(prev => prev.map(m => m.id === optMsg.id ? data.message : m))
+          setDrawerMessages(prev => prev.map(m => m.id === tempId ? data.message : m))
         }
       } else {
         const errorData = await res.json().catch(() => ({}))
-        setDrawerMessages(prev => prev.filter(m => m.id !== optMsg.id))
         if (errorData.error === 'not_connected') {
-          alert('You are not connected with this user yet. Mentorship messages require an accepted request connection. Go to their profile to request a connection!')
+          setDrawerMessages(prev => prev.filter(m => m.id !== tempId))
+          alert('You are not connected with this user yet.')
         } else {
-          alert(errorData.error || 'Failed to send message')
+          setDrawerMessages(prev => prev.map(m => m.id === tempId ? { ...m, failed: true } : m))
+          setDrawerFailedMessages(prev => new Set(prev).add(tempId))
         }
       }
     } catch (err) {
       console.error('Failed to send message inside drawer:', err)
-      setDrawerMessages(prev => prev.filter(m => m.id !== optMsg.id))
-      alert('Network error. Please try again.')
+      setDrawerMessages(prev => prev.map(m => m.id === tempId ? { ...m, failed: true } : m))
+      setDrawerFailedMessages(prev => new Set(prev).add(tempId))
     } finally {
-      setDrawerChatSending(false)
+      drawerSendingRef.current = false
     }
   }
 
@@ -341,17 +356,25 @@ function ChatWidget({ user, isNavVisible }: ChatWidgetProps) {
                         drawerMessages.map((msg: any) => {
                           const isMine = msg.sender_id === user?.id
                           const isOptimistic = msg.id.startsWith('temp-')
+                          const failed = drawerFailedMessages.has(msg.id)
                           return (
                             <div key={msg.id} className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
-                              <div className={`max-w-[85%] p-2.5 rounded-xl text-[10.5px] font-semibold ${isMine
-                                ? `bg-purple-600 text-white rounded-br-none ${isOptimistic ? 'opacity-70' : ''}`
-                                : 'bg-white border border-slate-200 text-slate-800 rounded-bl-none shadow-sm'
-                                }`}>
+                              <button
+                                onClick={() => failed && retryDrawerMessage(msg.id, msg.content)}
+                                className={`max-w-[85%] p-2.5 rounded-xl text-[10.5px] font-semibold text-left ${isMine
+                                  ? `bg-purple-600 text-white rounded-br-none`
+                                  : 'bg-white border border-slate-200 text-slate-800 rounded-bl-none shadow-sm'
+                                  } ${failed ? 'ring-2 ring-red-400 cursor-pointer' : ''}`}
+                              >
                                 <p className="leading-normal">{msg.content}</p>
-                                <span className={`block text-[6.5px] text-right mt-1 ${isMine ? 'text-white/70' : 'text-slate-400'}`}>
-                                  {isOptimistic ? 'Sending...' : new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                <span className={`flex items-center gap-1 mt-1 ${isMine ? 'text-white/70 justify-end' : 'text-slate-400'}`}>
+                                  {failed ? (
+                                    <><RefreshCw size={9} /> Tap to retry</>
+                                  ) : (
+                                    new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                                  )}
                                 </span>
-                              </div>
+                              </button>
                             </div>
                           )
                         })
@@ -548,17 +571,25 @@ function ChatWidget({ user, isNavVisible }: ChatWidgetProps) {
                     drawerMessages.map((msg: any) => {
                       const isMine = msg.sender_id === user?.id
                       const isOptimistic = msg.id.startsWith('temp-')
+                      const failed = drawerFailedMessages.has(msg.id)
                       return (
                         <div key={msg.id} className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
-                          <div className={`max-w-[85%] p-2 rounded-lg text-[10px] font-semibold ${isMine
-                            ? `bg-purple-600 text-white rounded-br-none ${isOptimistic ? 'opacity-70' : ''}`
-                            : 'bg-white border border-slate-200 text-slate-800 rounded-bl-none shadow-sm'
-                            }`}>
+                          <button
+                            onClick={() => failed && retryDrawerMessage(msg.id, msg.content)}
+                            className={`max-w-[85%] p-2 rounded-lg text-[10px] font-semibold text-left ${isMine
+                              ? `bg-purple-600 text-white rounded-br-none`
+                              : 'bg-white border border-slate-200 text-slate-800 rounded-bl-none shadow-sm'
+                              } ${failed ? 'ring-2 ring-red-400 cursor-pointer' : ''}`}
+                          >
                             <p className="leading-normal">{msg.content}</p>
-                            <span className={`block text-[6px] text-right mt-1 ${isMine ? 'text-white/70' : 'text-slate-400'}`}>
-                              {isOptimistic ? 'Sending...' : new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            <span className={`flex items-center gap-1 mt-1 ${isMine ? 'text-white/70 justify-end' : 'text-slate-400'}`}>
+                              {failed ? (
+                                <><RefreshCw size={8} /> Tap to retry</>
+                              ) : (
+                                new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                              )}
                             </span>
-                          </div>
+                          </button>
                         </div>
                       )
                     })

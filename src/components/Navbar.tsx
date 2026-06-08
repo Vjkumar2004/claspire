@@ -18,8 +18,6 @@ export default function Navbar() {
   const [mounted, setMounted] = useState(false)
   const pathname = usePathname()
 
-  console.log('Navbar render:', { unreadMessageCount, userId: user?.id, loading })
-
   useEffect(() => {
     setMounted(true)
   }, [])
@@ -102,13 +100,13 @@ export default function Navbar() {
             <LayoutDashboard size={16} />
             <span className="hidden lg:block">Dashboard</span>
           </Link>
-          <Link href="/seniors" className={`flex items-center gap-1.5 px-2 xl:px-3 h-full text-[13px] font-semibold transition-all border-b-2 ${
-            pathname === '/seniors' 
+          <Link href="/network" className={`flex items-center gap-1.5 px-2 xl:px-3 h-full text-[13px] font-semibold transition-all border-b-2 ${
+            pathname === '/network' || pathname === '/seniors'
               ? 'text-[#7C3AED] border-[#7C3AED]' 
               : 'text-gray-500 border-transparent hover:text-black hover:border-gray-200'
           }`}>
             <Users size={16} />
-            <span className="hidden lg:block">Seniors</span>
+            <span className="hidden lg:block">Network</span>
           </Link>
           <Link href="/jobs" className={`flex items-center gap-1.5 px-2 xl:px-3 h-full text-[13px] font-semibold transition-all border-b-2 ${
             pathname === '/jobs' 
@@ -585,7 +583,7 @@ export default function Navbar() {
             {[
               { label: 'Community', href: '/community', icon: Users },
               { label: 'Colleges', href: '/colleges', icon: GraduationCap },
-              { label: 'Seniors', href: '/seniors', icon: Users },
+              { label: 'Network', href: '/network', icon: Users },
               { label: 'Jobs', href: '/jobs', icon: Briefcase },
             ].map(item => (
               <a

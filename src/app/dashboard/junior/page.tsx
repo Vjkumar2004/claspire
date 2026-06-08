@@ -35,6 +35,7 @@ interface DashData {
     webinar_count: number
     is_verified: boolean
     avatar_url?: string
+    banner_url?: string | null
     is_premium?: boolean
     role?: 'student' | 'senior'
     branch?: string
@@ -427,9 +428,14 @@ export default function JuniorDashboard() {
         {/* PREMIUM PROFILE HERO CARD (LinkedIn Style) */}
         <div className="px-4 md:px-12 pt-6 md:pt-8">
           <div className="bg-white rounded-3xl border border-slate-200/60 overflow-hidden shadow-sm relative group">
-            {/* Solid Black Matte Banner Placeholder (optimized height for mobile) */}
-            <div className="h-36 md:h-64 bg-slate-950 relative overflow-hidden transition-all duration-300">
-              <div className="absolute inset-0 bg-grid-white/5 opacity-20" />
+            {/* User Banner */}
+            <div
+              className="h-36 md:h-64 bg-slate-950 relative overflow-hidden transition-all duration-300"
+              style={u.banner_url ? {
+                background: `url(${u.banner_url}) center/cover no-repeat`
+              } : undefined}
+            >
+              {!u.banner_url && <div className="absolute inset-0 bg-grid-white/5 opacity-20" />}
             </div>
             {/* Profile Detail Block */}
             <div className="px-6 md:px-8 pb-6 md:pb-8 pt-0 relative flex flex-col md:flex-row md:items-end justify-between gap-6">

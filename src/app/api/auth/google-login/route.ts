@@ -12,7 +12,7 @@ const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID)
 
 export async function POST(req: NextRequest) {
   try {
-    const { credential, role } = await req.json()
+    const { credential } = await req.json()
 
     if (!credential) {
       return NextResponse.json(
@@ -114,15 +114,7 @@ export async function POST(req: NextRequest) {
     }
     // Scenario 2: Stored google_id matches (user.google_id === google_id), proceed normally
 
-    // 4. Role validation
-    if (role && user.role !== role) {
-      return NextResponse.json(
-        { error: `This email is associated with a ${user.role === 'senior' ? 'Senior' : 'Student'} account.` },
-        { status: 403 }
-      )
-    }
-
-    // 5. Create user data for response (cookie will only contain signed userId)
+    // 4. Create user data for response (cookie will only contain signed userId)
     const userData = {
       id: user.id,
       email: user.email,
