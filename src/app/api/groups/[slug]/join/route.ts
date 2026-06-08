@@ -126,10 +126,14 @@ export async function POST(
       return NextResponse.json({ error: 'Failed to join group' }, { status: 500 })
     }
 
-    // Update member count
+    // Update member count and reset auto_delete_at
     await supabase
       .from('student_groups')
-      .update({ member_count: (group.member_count || 0) + 1 })
+      .update({
+        member_count: (group.member_count || 0) + 1,
+        auto_delete_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+        updated_at: new Date().toISOString()
+      })
       .eq('id', group.id)
 
     return NextResponse.json({ joined: true })

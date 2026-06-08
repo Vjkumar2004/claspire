@@ -34,7 +34,10 @@ export default function PublicProfilePage() {
     try {
       const res = await fetch(`/api/u/${uniqueId}`, { cache: 'no-store' })
       const json = await res.json()
-      if (res.ok) setData(json)
+      if (res.ok) {
+        console.log(`[PublicProfilePage] setData — connectionId:${json.connectionId} connectionStatus:${json.connectionStatus}`)
+        setData(json)
+      }
       else setError(json.error || 'User not found')
     } catch {
       setError('Failed to load profile')
@@ -42,6 +45,8 @@ export default function PublicProfilePage() {
       setLoading(false)
     }
   }
+
+  console.log(`[PublicProfilePage] Render — loading:${loading} data:`, data?.connectionStatus, data?.connectionId)
 
   if (loading) {
     return (

@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Users, Search, Plus, User, Users as Groups, GraduationCap, LayoutDashboard, Building2 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
+import { useNetworkRequestCount } from '@/contexts/NetworkRequestCountContext'
 
 // Type definitions for navigation items
 type RegularNavItem = {
@@ -61,6 +62,7 @@ const BottomNavbar = () => {
   }, [lastScrollY])
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const { pendingCount } = useNetworkRequestCount()
 
   useEffect(() => {
     const handleToggle = (e: any) => {
@@ -98,6 +100,7 @@ const BottomNavbar = () => {
       label: 'Network',
       icon: GraduationCap,
       href: '/network',
+      badge: pendingCount,
     },
     {
       label: 'Dashboard',
@@ -168,8 +171,8 @@ const BottomNavbar = () => {
 
                     {/* Notification Badge */}
                     {item.badge !== undefined && item.badge > 0 && (
-                      <span className="absolute -top-1 right-2 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white ring-2 ring-white">
-                        {item.badge}
+                      <span className="absolute -top-1 right-2 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white ring-2 ring-white px-0.5">
+                        {item.badge > 99 ? '99+' : item.badge}
                       </span>
                     )}
                   </div>
