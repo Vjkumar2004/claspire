@@ -1071,9 +1071,9 @@ function CommunityPageContent() {
         </div>
       )}
 
-      {/* Main 3-Column Content Layout */}
-      <div className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-6 pb-20 lg:pb-6">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+             {/* Main 3-Column Content Layout */}
+      <div className="w-full max-w-[1600px] mx-auto px-0 sm:px-6 lg:px-8 mt-0 sm:mt-6 pb-20 lg:pb-6">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6 items-start">
 
           {/* ════ LEFT COLUMN: Rich Sticky LinkedIn-style Profile Identity Card ════ */}
           <LeftSidebar
@@ -1085,12 +1085,13 @@ function CommunityPageContent() {
           />
 
           {/* ════ CENTER COLUMN: Searchable + Filterable Feed ════ */}
-          <main className="md:col-span-8 lg:col-span-6 space-y-3.5">
+          <main className="md:col-span-8 lg:col-span-6 space-y-3 sm:space-y-4">
 
             {/* Dedicated LinkedIn-Style Feed Search & Filter Bar */}
-            <div className="bg-white rounded-md border border-slate-200 p-4 shadow-sm space-y-3">
+            <div className="bg-white rounded-none sm:rounded-md border-y border-x-0 sm:border border-slate-200 p-4 sm:p-5 shadow-sm space-y-4">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded bg-slate-100 flex items-center justify-center font-bold text-slate-800 text-xs overflow-hidden flex-shrink-0 border border-slate-100">
+                {/* Circular Profile Avatar */}
+                <div className="w-9 h-9 sm:w-8 sm:h-8 rounded-full bg-slate-100 flex items-center justify-center font-bold text-slate-800 text-xs overflow-hidden flex-shrink-0 border border-slate-100">
                   {user?.avatar_url ? (
                     <img src={user.avatar_url} alt="Profile" className="w-full h-full object-cover" />
                   ) : (
@@ -1099,14 +1100,14 @@ function CommunityPageContent() {
                 </div>
 
                 {/* Local search input block */}
-                <div className="flex-1 flex items-center gap-2 bg-slate-50 border border-slate-200 hover:border-slate-300 rounded px-3 py-2 transition-all">
+                <div className="flex-1 flex items-center gap-2 bg-slate-50 border border-slate-200 hover:border-slate-300 rounded-full px-4 py-2.5 transition-all focus-within:border-[#7C3AED] focus-within:ring-1 focus-within:ring-[#7C3AED]/20">
                   <Search className="w-4 h-4 text-slate-400 flex-shrink-0" />
                   <input
                     type="text"
                     value={feedSearchQuery}
                     onChange={(e) => setFeedSearchQuery(e.target.value)}
                     placeholder="Search feed by title, tag, keywords, author, or campus..."
-                    className="flex-1 bg-transparent border-none outline-none text-xs font-semibold text-slate-800 placeholder-slate-400"
+                    className="flex-1 bg-transparent border-none outline-none text-xs font-semibold text-slate-805 placeholder-slate-400"
                   />
                   {feedSearchQuery && (
                     <button
@@ -1118,10 +1119,10 @@ function CommunityPageContent() {
                   )}
                 </div>
 
-                {/* Standard Post creator button */}
+                {/* Circular Post creator button */}
                 <button
                   onClick={() => router.push('?create=true')}
-                  className="p-2 bg-purple-50 hover:bg-purple-100 text-[#7C3AED] rounded border border-purple-100 transition-colors flex items-center justify-center cursor-pointer flex-shrink-0"
+                  className="w-10 h-10 sm:w-8 sm:h-8 bg-purple-50 hover:bg-purple-100 text-[#7C3AED] rounded-full border border-purple-100 transition-colors flex items-center justify-center cursor-pointer flex-shrink-0"
                   title="Create a new post"
                 >
                   <Plus className="w-4 h-4" />
@@ -1129,7 +1130,7 @@ function CommunityPageContent() {
               </div>
 
               {/* Interactive Feed Filters row - Keep as only system of filters */}
-              <div className="flex items-center gap-2 overflow-x-auto pt-2.5 border-t border-slate-100 scrollbar-none select-none">
+              <div className="flex items-center gap-2 overflow-x-auto pt-3 border-t border-slate-100 scrollbar-none select-none px-1">
                 {[
                   { key: 'photo', label: 'Photos Only', icon: Image, color: 'text-sky-500' },
                   { key: 'doubt', label: 'Doubts', icon: HelpCircle, color: 'text-purple-500' },
@@ -1143,12 +1144,12 @@ function CommunityPageContent() {
                     <button
                       key={btn.key}
                       onClick={() => setFilter(isActive ? 'all' : btn.key)}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded transition-all font-bold text-[11px] whitespace-nowrap cursor-pointer ${isActive
-                        ? 'bg-purple-100 text-[#7C3AED] shadow-sm border border-purple-200'
+                      className={`flex items-center gap-2 px-4 py-2 sm:px-3 sm:py-1.5 rounded-full transition-all font-semibold text-xs whitespace-nowrap cursor-pointer ${isActive
+                        ? 'bg-purple-100 text-[#7C3AED] border border-purple-200'
                         : 'bg-white border border-slate-200 hover:bg-slate-50 text-slate-600'
                         }`}
                     >
-                      <btn.icon className={`w-3.5 h-3.5 ${isActive ? 'text-[#7C3AED]' : btn.color}`} />
+                      <btn.icon className={`w-4 h-4 sm:w-3.5 sm:h-3.5 ${isActive ? 'text-[#7C3AED]' : btn.color}`} />
                       <span>{btn.label}</span>
                     </button>
                   )
