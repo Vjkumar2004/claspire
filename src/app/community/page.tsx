@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@supabase/supabase-js'
 import {
   Search, HelpCircle, MessageSquare, Clock, TrendingUp,
-  ArrowUp, ArrowDown, CheckCircle, Eye, ChevronRight, Briefcase,
+  CheckCircle, Eye, ChevronRight, Briefcase,
   Building2, Crown, Zap, Hash, Star, Shield, Globe,
   BookOpen, Target, Send, X, Sparkles, Filter, Plus,
   Image, FileText, Share2, MoreHorizontal, Bookmark, ThumbsUp, MessageCircle,

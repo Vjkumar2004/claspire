@@ -1,7 +1,7 @@
 'use client'
 import React from 'react'
 import { motion } from 'framer-motion'
-import { ArrowUp, ArrowDown, MessageSquare, Share2, CheckCircle, ArrowRight } from 'lucide-react'
+import { Zap, MessageSquare, Share2, CheckCircle, ArrowRight } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import PostImageCarousel from '@/components/PostImageCarousel'
 
@@ -402,11 +402,11 @@ export default function FeedPost({
             {(() => {
                const total = voteData?.upvotes || 0
                const names = recentUpvoters.slice(0, 3).map(u => u.full_name?.split(' ')[0] || 'Someone')
-               if (total === 1) return `${names[0]} upvoted this`
-               if (total === 2) return `${names[0]} and ${names[1] || 'someone'} upvoted this`
-               const othersCount = total - names.length
-               if (othersCount <= 0) return `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]} upvoted this`
-               return `${names.slice(0, 2).join(', ')} and ${othersCount + (names.length > 2 ? 1 : 0)} others upvoted this`
+                if (total === 1) return `${names[0]} appreciated this`
+                if (total === 2) return `${names[0]} and ${names[1] || 'someone'} appreciated this`
+                const othersCount = total - names.length
+                if (othersCount <= 0) return `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]} appreciated this`
+                return `${names.slice(0, 2).join(', ')} and ${othersCount + (names.length > 2 ? 1 : 0)} others appreciated this`
             })()}
           </span>
         </div>
@@ -414,32 +414,19 @@ export default function FeedPost({
 
       {/* Low Opacity action footer bar */}
       <div className="grid grid-cols-4 items-center border-t border-slate-100 pt-2 mt-2 w-full text-slate-600">
-        {/* Upvote & Downvote buttons */}
+        {/* Appreciation button */}
         <div className="flex justify-center w-full">
-          <div className="flex items-center bg-slate-50 border border-slate-200 rounded-full p-0.5">
-            <button
-              onClick={() => onVote(post.id, 'upvote')}
-              className={`flex items-center gap-1 px-2.5 py-1 rounded-full transition-all cursor-pointer ${
-                voteData?.userVote === 'upvote'
-                  ? 'bg-purple-100 text-[#7C3AED] shadow-sm'
-                  : 'hover:bg-slate-100 text-slate-500'
-              }`}
-            >
-              <ArrowUp className="w-3.5 h-3.5" />
-              <span>{voteData?.upvotes || 0}</span>
-            </button>
-
-            <button
-              onClick={() => onVote(post.id, 'downvote')}
-              className={`flex items-center px-2 py-1 rounded-full transition-all cursor-pointer ${
-                voteData?.userVote === 'downvote'
-                  ? 'bg-red-100 text-red-600 shadow-sm'
-                  : 'hover:bg-slate-100 text-slate-400'
-              }`}
-            >
-              <ArrowDown className="w-3.5 h-3.5" />
-            </button>
-          </div>
+          <button
+            onClick={() => onVote(post.id, 'upvote')}
+            className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+              voteData?.userVote === 'upvote'
+                ? 'bg-purple-100 text-[#7C3AED] shadow-sm'
+                : 'hover:bg-slate-100 text-slate-500'
+            }`}
+          >
+            <Zap className="w-3.5 h-3.5" />
+            <span>{voteData?.upvotes || 0} RP</span>
+          </button>
         </div>
 
         {/* Answers buttons */}

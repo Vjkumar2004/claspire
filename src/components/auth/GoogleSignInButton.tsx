@@ -42,7 +42,7 @@ export default function GoogleSignInButton({ onSuccess, onError, buttonId }: Goo
               size: 'large',
               text: 'continue_with',
               shape: 'rectangular',
-              width: '392', // Matches the design container size perfectly
+              width: '250',
               logo_alignment: 'left',
             })
           }
@@ -69,8 +69,8 @@ export default function GoogleSignInButton({ onSuccess, onError, buttonId }: Goo
   }, [onSuccess, onError, buttonId])
 
   return (
-    <div className="w-full flex justify-center mb-4 min-h-[44px]">
-      <div id={buttonId} className="w-full flex justify-center" />
+    <div className="w-full flex justify-center">
+      <div id={buttonId} className="flex justify-center" />
     </div>
   )
 }

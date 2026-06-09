@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@supabase/supabase-js'
 import { motion } from 'framer-motion'
 import {
-  ArrowLeft, ArrowUp, ArrowDown, MessageCircle,
+  ArrowLeft, Zap, MessageCircle,
   CheckCircle, Clock, Eye, Send, ChevronRight,
   Share2, GraduationCap, Crown, Sparkles, Users, Building2
 } from 'lucide-react'
@@ -682,38 +682,26 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
                       ))}
                     </div>
                     <span className="text-xs text-slate-500 font-semibold group-hover:text-[#7C3AED] transition-colors">
-                      {formatCount(post.upvote_count || 0)} upvote{(post.upvote_count || 0) !== 1 ? 's' : ''} — tap to see who
+                      {formatCount(post.upvote_count || 0)} appreciation{(post.upvote_count || 0) !== 1 ? 's' : ''} — tap to see who
                     </span>
                   </button>
                 )}
 
                 {/* Interactive engagement row */}
                 <div className="flex flex-wrap items-center gap-2 pt-4 border-t border-slate-100">
-                  <div className="flex items-center bg-slate-50 border border-slate-200 rounded-xl p-1">
-                    <button
-                      onClick={() => handleVote('upvote')}
-                      disabled={voteLoading}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                        userVote === 'upvote'
-                          ? 'bg-purple-100 text-[#7C3AED] shadow-sm'
-                          : 'hover:bg-slate-100 text-slate-500'
-                      } ${voteLoading ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}
-                    >
-                      <ArrowUp className="w-3.5 h-3.5" />
-                      {formatCount(post.upvote_count || 0)}
-                    </button>
-                    <button
-                      onClick={() => handleVote('downvote')}
-                      disabled={voteLoading}
-                      className={`flex items-center px-2 py-1.5 rounded-lg transition-all ${
-                        userVote === 'downvote'
-                          ? 'bg-red-100 text-red-600 shadow-sm'
-                          : 'hover:bg-slate-100 text-slate-400'
-                      } ${voteLoading ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}
-                    >
-                      <ArrowDown className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
+                {/* Appreciation button */}
+                <button
+                  onClick={() => handleVote('upvote')}
+                  disabled={voteLoading}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                    userVote === 'upvote'
+                      ? 'bg-purple-100 text-[#7C3AED] shadow-sm'
+                      : 'hover:bg-slate-100 text-slate-500'
+                  } ${voteLoading ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}
+                >
+                  <Zap className="w-3.5 h-3.5" />
+                  {formatCount(post.upvote_count || 0)} RP
+                </button>
 
                   {/* Stats pills on mobile only — desktop sidebar shows these */}
                   <div
@@ -929,8 +917,8 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
                   className={`flex items-center justify-between w-full text-left ${(post.upvote_count || 0) > 0 ? 'hover:bg-slate-50 -mx-2 px-2 py-1 rounded-lg transition-colors cursor-pointer' : ''}`}
                 >
                   <span className="text-xs font-semibold text-slate-500 flex items-center gap-2">
-                    <ArrowUp className="w-3.5 h-3.5" />
-                    Helpful votes
+                    <Zap className="w-3.5 h-3.5" />
+                    Appreciations
                   </span>
                   <span className="text-sm font-extrabold text-slate-900">{formatCount(post.upvote_count || 0)}</span>
                 </button>
