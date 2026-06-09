@@ -67,7 +67,7 @@ export async function POST(
     const { data: message, error: insertError } = await supabase
       .from('student_group_messages')
       .insert({
-        id: crypto.randomUUID(), // Generate UUID manually
+        id: crypto.randomUUID(),
         group_id: group.id,
         sender_id: sender_id,
         content: content.trim(),
@@ -80,6 +80,15 @@ export async function POST(
       console.error('Insert error:', insertError)
       return NextResponse.json({ error: 'Failed to send message' }, { status: 500 })
     }
+
+    // Reset auto_delete_at to 7 days from now (group activity = not inactive)
+    await supabase
+      .from('student_groups')
+      .update({
+        auto_delete_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', group.id)
 
     return NextResponse.json({ message }, { status: 201 })
 

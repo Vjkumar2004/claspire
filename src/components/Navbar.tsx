@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { useUnreadMessages } from '@/contexts/UnreadMessagesContext'
+import { useNotifications } from '@/contexts/NotificationsContext'
 import Link from 'next/link'
 import { useRouter, usePathname } from 'next/navigation'
 import { X, Menu, Users, GraduationCap, Briefcase, DollarSign, LayoutDashboard, User, LogOut, ChevronRight, MessageSquare, Building2, Search, ArrowLeft } from 'lucide-react'
@@ -12,6 +13,7 @@ import SearchBar from './search/SearchBar'
 export default function Navbar() {
   const { user, loading, signOut } = useAuth()
   const { unreadMessageCount } = useUnreadMessages()
+  const { pendingNetworkRequestsCount } = useNotifications()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false)
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false)
@@ -100,12 +102,19 @@ export default function Navbar() {
             <LayoutDashboard size={16} />
             <span className="hidden lg:block">Dashboard</span>
           </Link>
-          <Link href="/network" className={`flex items-center gap-1.5 px-2 xl:px-3 h-full text-[13px] font-semibold transition-all border-b-2 ${
+          <Link href="/network" className={`relative flex items-center gap-1.5 px-2 xl:px-3 h-full text-[13px] font-semibold transition-all border-b-2 ${
             pathname === '/network' || pathname === '/seniors'
               ? 'text-[#7C3AED] border-[#7C3AED]' 
               : 'text-gray-500 border-transparent hover:text-black hover:border-gray-200'
           }`}>
-            <Users size={16} />
+            <span className="relative">
+              <Users size={16} />
+              {pendingNetworkRequestsCount > 0 && (
+                <span className="absolute -top-1.5 -right-2 flex h-3.5 min-w-[14px] items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white ring-2 ring-white px-0.5">
+                  {pendingNetworkRequestsCount > 99 ? '99+' : pendingNetworkRequestsCount}
+                </span>
+              )}
+            </span>
             <span className="hidden lg:block">Network</span>
           </Link>
           <Link href="/jobs" className={`flex items-center gap-1.5 px-2 xl:px-3 h-full text-[13px] font-semibold transition-all border-b-2 ${

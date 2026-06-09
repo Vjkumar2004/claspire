@@ -4,15 +4,18 @@ import { AuthProvider } from '@/contexts/AuthContext'
 import { PointsProvider } from '@/contexts/PointsContext'
 import { UnreadMessagesProvider } from '@/contexts/UnreadMessagesContext'
 import { NotificationsProvider } from '@/contexts/NotificationsContext'
+import { NetworkRequestCountProvider } from '@/contexts/NetworkRequestCountContext'
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (
     <AuthProvider>
       <PointsProvider>
         <UnreadMessagesProvider>
-          <NotificationsProvider>
-            {children}
-          </NotificationsProvider>
+          <NetworkRequestCountProvider>
+            <NotificationsProvider>
+              {children}
+            </NotificationsProvider>
+          </NetworkRequestCountProvider>
         </UnreadMessagesProvider>
       </PointsProvider>
     </AuthProvider>

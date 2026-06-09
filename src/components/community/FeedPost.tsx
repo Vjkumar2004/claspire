@@ -1,7 +1,7 @@
 'use client'
 import React from 'react'
 import { motion } from 'framer-motion'
-import { ArrowUp, ArrowDown, MessageSquare, Share2, CheckCircle } from 'lucide-react'
+import { Zap, MessageSquare, Share2, CheckCircle, ArrowRight } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import PostImageCarousel from '@/components/PostImageCarousel'
 
@@ -282,15 +282,15 @@ export default function FeedPost({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.98 }}
       transition={{ duration: 0.2 }}
-      className="bg-white rounded-md border border-slate-200 p-3.5 shadow-sm hover:border-slate-300 transition-colors"
+      className="bg-white rounded-none sm:rounded-xl border-y border-x-0 sm:border border-slate-200 p-4 sm:p-5 shadow-none sm:shadow-sm hover:border-slate-300 transition-colors"
     >
       {/* Feed Card Header details */}
-      <div className="flex items-start justify-between gap-3 mb-2.5">
-        <div className="flex items-center gap-2.5">
+      <div className="flex items-start justify-between gap-3 mb-4">
+        <div className="flex items-center gap-3">
           {/* Author avatar */}
           <div
             onClick={() => router.push(`/u/${post.users?.unique_id}`)}
-            className="w-9 h-9 rounded bg-slate-100 flex items-center justify-center font-bold text-slate-800 text-xs overflow-hidden flex-shrink-0 cursor-pointer border border-slate-100"
+            className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center font-bold text-slate-800 text-sm overflow-hidden flex-shrink-0 cursor-pointer border border-slate-100"
           >
             {post.users?.avatar_url ? (
               <img src={post.users.avatar_url} alt={post.users?.full_name} className="w-full h-full object-cover" />
@@ -300,18 +300,18 @@ export default function FeedPost({
           </div>
 
           <div>
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-2">
               <button
                 onClick={() => router.push(`/u/${post.users?.unique_id}`)}
-                className="font-bold text-slate-900 hover:text-[#7C3AED] hover:underline text-xs text-left leading-none"
+                className="font-bold text-slate-900 hover:text-[#7C3AED] hover:underline text-sm text-left leading-none"
               >
                 {post.users?.full_name}
               </button>
-              <span className={`text-[7px] font-black uppercase px-1 rounded ${post.users?.role === 'senior' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-slate-50 text-slate-600 border border-slate-100'}`}>
+              <span className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded-full border ${post.users?.role === 'senior' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-slate-50 text-slate-600 border border-slate-100'}`}>
                 {post.users?.role === 'senior' ? 'Senior' : 'Mentee'}
               </span>
             </div>
-            <p className="text-[9px] text-slate-400 font-semibold mt-0.5">
+            <p className="text-xs text-slate-500 font-medium mt-1">
               {post.communities?.colleges?.short_name || 'Campus'} Hub • {timeAgo(post.created_at)}
             </p>
           </div>
@@ -328,15 +328,17 @@ export default function FeedPost({
       </div>
 
       {/* Title click through */}
-      <h4
-        onClick={() => router.push(`/community/c/${post.communities?.slug}/p/${post.id}`)}
-        className="font-bold text-slate-950 text-xs hover:text-[#7C3AED] transition-colors leading-snug tracking-tight mb-1.5 cursor-pointer"
-      >
-        {post.title}
-      </h4>
+      {post.title && (
+        <h4
+          onClick={() => router.push(`/community/c/${post.communities?.slug}/p/${post.id}`)}
+          className="font-bold text-slate-950 text-sm sm:text-base hover:text-[#7C3AED] transition-colors leading-snug tracking-tight mb-2 cursor-pointer"
+        >
+          {post.title}
+        </h4>
+      )}
 
       {/* Content text */}
-      <div className="text-[11px] text-slate-600 leading-normal font-semibold mb-2.5">
+      <div className="text-sm text-slate-800 leading-relaxed font-normal mb-3">
         <p className={expandedContent ? '' : 'line-clamp-3 whitespace-pre-wrap'}>
           {convertUrlsToLinks(post.content)}
         </p>
@@ -344,7 +346,7 @@ export default function FeedPost({
         {post.content && post.content.length > 180 && (
           <button
             onClick={() => onToggleContent(post.id)}
-            className="text-[#7C3AED] font-bold hover:underline mt-1 cursor-pointer block"
+            className="text-[#7C3AED] font-bold hover:underline mt-1.5 cursor-pointer block text-xs"
           >
             {expandedContent ? 'Show less' : 'Read more'}
           </button>
@@ -352,16 +354,20 @@ export default function FeedPost({
       </div>
 
       {/* Attached media inside card via Carousel */}
-      <PostImageCarousel
-        imageUrls={post.image_url}
-        onImageClick={onImageClick}
-      />
+      {post.image_url && post.image_url.length > 0 && (
+        <div className="mb-3">
+          <PostImageCarousel
+            imageUrls={post.image_url}
+            onImageClick={onImageClick}
+          />
+        </div>
+      )}
 
       {/* Tags line */}
       {post.tags?.length > 0 && (
-        <div className="flex flex-wrap gap-1 mb-2.5">
+        <div className="flex flex-wrap gap-1.5 mb-3">
           {post.tags.map((t: string) => (
-            <span key={t} className="text-[8px] font-bold text-slate-500 bg-slate-50 border border-slate-100 px-1.5 py-0.5 rounded">
+            <span key={t} className="text-[10px] font-semibold text-slate-500 bg-slate-50 border border-slate-200 px-2.5 py-0.5 rounded-full">
               #{t}
             </span>
           ))}
@@ -371,7 +377,7 @@ export default function FeedPost({
       {/* LinkedIn-style Upvoter Avatars */}
       {(voteData?.upvotes || 0) > 0 && recentUpvoters && recentUpvoters.length > 0 && (
         <div
-          className="flex items-center gap-2 pb-2 cursor-pointer group"
+          className="flex items-center gap-2 pb-3 cursor-pointer group"
           onClick={() => onUpvotersClick?.(post.id)}
         >
           {/* Overlapping avatar stack */}
@@ -392,72 +398,62 @@ export default function FeedPost({
             ))}
           </div>
           {/* Text */}
-          <span className="text-[9px] text-slate-500 font-semibold leading-tight group-hover:text-[#7C3AED] transition-colors">
+          <span className="text-[11px] text-slate-500 font-medium leading-tight group-hover:text-[#7C3AED] transition-colors">
             {(() => {
-              const total = voteData?.upvotes || 0
-              const names = recentUpvoters.slice(0, 3).map(u => u.full_name?.split(' ')[0] || 'Someone')
-              if (total === 1) return `${names[0]} upvoted this`
-              if (total === 2) return `${names[0]} and ${names[1] || 'someone'} upvoted this`
-              const othersCount = total - names.length
-              if (othersCount <= 0) return `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]} upvoted this`
-              return `${names.slice(0, 2).join(', ')} and ${othersCount + (names.length > 2 ? 1 : 0)} others upvoted this`
+               const total = voteData?.upvotes || 0
+               const names = recentUpvoters.slice(0, 3).map(u => u.full_name?.split(' ')[0] || 'Someone')
+                if (total === 1) return `${names[0]} appreciated this`
+                if (total === 2) return `${names[0]} and ${names[1] || 'someone'} appreciated this`
+                const othersCount = total - names.length
+                if (othersCount <= 0) return `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]} appreciated this`
+                return `${names.slice(0, 2).join(', ')} and ${othersCount + (names.length > 2 ? 1 : 0)} others appreciated this`
             })()}
           </span>
         </div>
       )}
 
       {/* Low Opacity action footer bar */}
-      <div className="flex items-center justify-between border-t border-slate-100 pt-2.5 text-[10px] font-bold text-slate-500">
-        <div className="flex items-center gap-2">
-          {/* Upvote & Downvote buttons */}
-          <div className="flex items-center bg-slate-50 border border-slate-200 rounded p-0.5">
-            <button
-              onClick={() => onVote(post.id, 'upvote')}
-              className={`flex items-center gap-1 px-2 py-0.5 rounded transition-all cursor-pointer ${
-                voteData?.userVote === 'upvote'
-                  ? 'bg-purple-100 text-[#7C3AED] shadow-sm'
-                  : 'hover:bg-slate-100 text-slate-500'
-              }`}
-            >
-              <ArrowUp className="w-3 h-3" />
-              <span>{voteData?.upvotes || 0}</span>
-            </button>
-
-            <button
-              onClick={() => onVote(post.id, 'downvote')}
-              className={`flex items-center px-1.5 py-0.5 rounded transition-all cursor-pointer ${
-                voteData?.userVote === 'downvote'
-                  ? 'bg-red-100 text-red-600 shadow-sm'
-                  : 'hover:bg-slate-100 text-slate-400'
-              }`}
-            >
-              <ArrowDown className="w-3 h-3" />
-            </button>
-          </div>
-
-          {/* Answers buttons */}
+      <div className="grid grid-cols-4 items-center border-t border-slate-100 pt-2 mt-2 w-full text-slate-600">
+        {/* Appreciation button */}
+        <div className="flex justify-center w-full">
           <button
-            onClick={() => onToggleAnswerSection(post.id)}
-            className="flex items-center gap-1.5 px-2.5 py-1 hover:bg-slate-50 text-slate-500 rounded transition-colors cursor-pointer"
+            onClick={() => onVote(post.id, 'upvote')}
+            className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+              voteData?.userVote === 'upvote'
+                ? 'bg-purple-100 text-[#7C3AED] shadow-sm'
+                : 'hover:bg-slate-100 text-slate-500'
+            }`}
           >
-            <MessageSquare className="w-3 h-3" />
-            <span>{post.answer_count || 0} Answers</span>
-          </button>
-
-          <button
-            onClick={() => onSharePost(post)}
-            className="flex items-center gap-1.5 px-2.5 py-1 hover:bg-slate-50 text-slate-500 rounded transition-colors cursor-pointer"
-          >
-            <Share2 className="w-3 h-3" />
-            <span>Share</span>
+            <Zap className="w-3.5 h-3.5" />
+            <span>{voteData?.upvotes || 0} RP</span>
           </button>
         </div>
 
+        {/* Answers buttons */}
+        <button
+          onClick={() => onToggleAnswerSection(post.id)}
+          className="flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1.5 py-2 hover:bg-slate-50 text-slate-600 rounded-lg transition-colors cursor-pointer w-full text-center"
+        >
+          <MessageSquare className="w-3.5 h-3.5" />
+          <span className="text-[10px] sm:text-xs">{post.answer_count || 0} Answers</span>
+        </button>
+
+        {/* Share buttons */}
+        <button
+          onClick={() => onSharePost(post)}
+          className="flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1.5 py-2 hover:bg-slate-50 text-slate-600 rounded-lg transition-colors cursor-pointer w-full text-center"
+        >
+          <Share2 className="w-3.5 h-3.5" />
+          <span className="text-[10px] sm:text-xs">Share</span>
+        </button>
+
+        {/* Explore Detail buttons */}
         <button
           onClick={() => router.push(`/community/c/${post.communities?.slug}/p/${post.id}`)}
-          className="text-[#7C3AED] hover:underline cursor-pointer text-[10px]"
+          className="flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1.5 py-2 hover:bg-slate-50 text-[#7C3AED] hover:text-[#6D28D9] rounded-lg transition-colors cursor-pointer w-full text-center"
         >
-          Explore Detail →
+          <ArrowRight className="w-3.5 h-3.5" />
+          <span className="font-bold text-[10px] sm:text-xs whitespace-nowrap">Detail</span>
         </button>
       </div>
 

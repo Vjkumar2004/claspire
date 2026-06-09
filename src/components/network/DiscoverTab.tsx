@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { Search, Filter, Loader2, Users, RefreshCw } from 'lucide-react'
 import PeopleCard from './PeopleCard'
 
@@ -10,6 +10,7 @@ interface Person {
   unique_id: string
   role: string
   avatar_url?: string | null
+  banner_url?: string | null
   college_id?: string | null
   branch?: string | null
   company?: string | null
@@ -19,16 +20,49 @@ interface Person {
   rise_points?: number | null
   college?: { name: string; short_name: string } | null
   connectionStatus: string
+  isFollowing?: boolean
   mutualConnections: number
   score?: number
 }
 
-interface DiscoverTabProps {
-  onConnectAction: (userId: string) => Promise<boolean>
-  refreshKey?: number
+interface DiscoverCache {
+  people: Person[]
+  total: number
+  hasMore: boolean
+  offset: number
+  fetchedAt: number
 }
 
-export default function DiscoverTab({ onConnectAction, refreshKey = 0 }: DiscoverTabProps) {
+const CACHE_KEY = 'network_discover_cache'
+const CACHE_TTL = 300000
+
+function getDiscoverCache(): DiscoverCache | null {
+  if (typeof window === 'undefined') return null
+  try {
+    const raw = sessionStorage.getItem(CACHE_KEY)
+    if (!raw) return null
+    const cache: DiscoverCache = JSON.parse(raw)
+    if (Date.now() - cache.fetchedAt > CACHE_TTL) {
+      sessionStorage.removeItem(CACHE_KEY)
+      return null
+    }
+    return cache
+  } catch {
+    return null
+  }
+}
+
+function setDiscoverCache(data: DiscoverCache): void {
+  try {
+    sessionStorage.setItem(CACHE_KEY, JSON.stringify(data))
+  } catch {}
+}
+
+interface DiscoverTabProps {
+  onConnectAction: (userId: string) => Promise<boolean>
+}
+
+export default function DiscoverTab({ onConnectAction }: DiscoverTabProps) {
   const [people, setPeople] = useState<Person[]>([])
   const [loading, setLoading] = useState(true)
   const [loadingMore, setLoadingMore] = useState(false)
@@ -39,6 +73,8 @@ export default function DiscoverTab({ onConnectAction, refreshKey = 0 }: Discove
   const [searchQuery, setSearchQuery] = useState('')
   const [roleFilter, setRoleFilter] = useState('')
   const [appliedQuery, setAppliedQuery] = useState('')
+
+  const peopleRef = useRef<Person[]>([])
 
   const LIMIT = 20
 
@@ -57,10 +93,25 @@ export default function DiscoverTab({ onConnectAction, refreshKey = 0 }: Discove
       if (!res.ok) return
       const data = await res.json()
       const list = data.people || []
-      setPeople((prev) => (append ? [...prev, ...list] : list))
-      setTotal(data.total ?? list.length)
-      setHasMore(!!data.hasMore)
-      setOffset(append ? offset + LIMIT : LIMIT)
+      const newTotal = data.total ?? list.length
+      const newHasMore = !!data.hasMore
+      const newOffset = append ? offset + LIMIT : LIMIT
+
+      const updatedPeople = append ? [...peopleRef.current, ...list] : list
+      peopleRef.current = updatedPeople
+      setPeople(updatedPeople)
+      setTotal(newTotal)
+      setHasMore(newHasMore)
+      setOffset(newOffset)
+
+      setDiscoverCache({
+        people: updatedPeople,
+        total: newTotal,
+        hasMore: newHasMore,
+        offset: newOffset,
+        fetchedAt: Date.now(),
+      })
+      console.log('[Discover] Cache updated')
     } catch { } finally {
       setLoading(false)
       setLoadingMore(false)
@@ -68,8 +119,21 @@ export default function DiscoverTab({ onConnectAction, refreshKey = 0 }: Discove
   }, [offset])
 
   useEffect(() => {
+    const cached = getDiscoverCache()
+    if (cached) {
+      console.log('[Discover] Using cached data')
+      peopleRef.current = cached.people
+      setPeople(cached.people)
+      setTotal(cached.total)
+      setHasMore(cached.hasMore)
+      setOffset(cached.offset)
+      setLoading(false)
+      return
+    }
+    console.log('[Discover] Cache expired, fetching fresh data')
     fetchPeople(false, '', '')
-  }, [refreshKey])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const handleSearch = () => {
     setOffset(0)
@@ -85,11 +149,13 @@ export default function DiscoverTab({ onConnectAction, refreshKey = 0 }: Discove
   const handleConnect = async (userId: string): Promise<boolean> => {
     const ok = await onConnectAction(userId)
     if (ok) {
-      setPeople((prev) =>
-        prev.map((p) =>
-          p.id === userId ? { ...p, connectionStatus: 'pending_sent' } : p
-        )
+      const updated = peopleRef.current.map((p) =>
+        p.id === userId ? { ...p, connectionStatus: 'pending_sent' } : p
       )
+      peopleRef.current = updated
+      setPeople(updated)
+      setDiscoverCache({ people: updated, total, hasMore, offset, fetchedAt: Date.now() })
+      console.log('[Discover] Cache updated')
     }
     return ok
   }
@@ -124,8 +190,8 @@ export default function DiscoverTab({ onConnectAction, refreshKey = 0 }: Discove
       </div>
 
       {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[1, 2, 3, 4, 5, 6].map((i) => (
+        <div className="grid grid-cols-2 md:grid-cols-2 xl:grid-cols-2 gap-3 md:gap-4">
+          {[1, 2, 3, 4].map((i) => (
             <div key={i} className="h-[260px] bg-gray-100 rounded-xl border border-gray-200 animate-pulse" />
           ))}
         </div>
@@ -140,7 +206,7 @@ export default function DiscoverTab({ onConnectAction, refreshKey = 0 }: Discove
             </h3>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-2 xl:grid-cols-2 gap-3 md:gap-4">
             {people.map((person) => (
               <PeopleCard
                 key={person.id}

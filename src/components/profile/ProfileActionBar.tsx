@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { GraduationCap, MessageSquare, Users, Handshake, Calendar, Clock, Check, X, CheckCircle, Loader2, ChevronDown, UserPlus, UserCheck } from 'lucide-react'
 import MessageRequestButton from '@/components/MessageRequestButton'
@@ -27,6 +27,19 @@ export default function ProfileActionBar({ profileUser, viewer, isOwnProfile, co
   const [showDropdown, setShowDropdown] = useState(false)
   const [removing, setRemoving] = useState(false)
   const [localFollow, setLocalFollow] = useState(followStatus)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowDropdown(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [])
 
   if (isOwnProfile || !viewer) return null
 
@@ -107,6 +120,7 @@ export default function ProfileActionBar({ profileUser, viewer, isOwnProfile, co
   }
 
   const handleRemove = async () => {
+    console.log('handleRemove entered')
     if (!connectionId) return
     setRemoving(true)
     try {
@@ -116,6 +130,7 @@ export default function ProfileActionBar({ profileUser, viewer, isOwnProfile, co
         body: JSON.stringify({ connection_id: connectionId }),
       })
       if (res.ok) {
+        console.log('API success')
         setLocalStatus('not_connected')
         setShowDropdown(false)
       }
@@ -212,8 +227,14 @@ export default function ProfileActionBar({ profileUser, viewer, isOwnProfile, co
             <MessageSquare size={14} />
             Message
           </button>
-          <div className="relative">
-            <button onClick={() => setShowDropdown(!showDropdown)} onBlur={() => setTimeout(() => setShowDropdown(false), 200)} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-700 text-xs font-bold hover:border-emerald-200 hover:text-emerald-600 transition-colors">
+          <div className="relative" ref={dropdownRef}>
+            <button 
+              onClick={() => {
+                console.log('dropdown opened')
+                setShowDropdown(!showDropdown)
+              }} 
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-700 text-xs font-bold hover:border-emerald-200 hover:text-emerald-600 transition-colors"
+            >
               <CheckCircle size={14} />
               Connected
               <ChevronDown size={12} />
@@ -221,7 +242,10 @@ export default function ProfileActionBar({ profileUser, viewer, isOwnProfile, co
             {showDropdown && (
               <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-slate-200 rounded-xl shadow-lg z-50 py-1">
                 <button
-                  onClick={handleRemove}
+                  onClick={() => {
+                    console.log('remove clicked')
+                    handleRemove()
+                  }}
                   disabled={removing}
                   className="w-full flex items-center gap-2 px-4 py-2.5 text-xs font-semibold text-red-600 hover:bg-red-50 transition-colors"
                 >
@@ -276,11 +300,14 @@ export default function ProfileActionBar({ profileUser, viewer, isOwnProfile, co
       )}
       {connectionButtons()}
       {followButton()}
-      {viewerIsSenior ? (
-        <SeniorMessageRequestButton targetSeniorId={profileUser.id} targetSeniorName={profileUser.full_name} />
-      ) : (
-        <MessageRequestButton seniorId={profileUser.id} seniorName={profileUser.full_name} />
-      )}
+      {/* 
+        Legacy message request system is being phased out and replaced by Network connections.
+        {viewerIsSenior ? (
+          <SeniorMessageRequestButton targetSeniorId={profileUser.id} targetSeniorName={profileUser.full_name} />
+        ) : (
+          <MessageRequestButton seniorId={profileUser.id} seniorName={profileUser.full_name} />
+        )}
+      */}
     </div>
   )
 }

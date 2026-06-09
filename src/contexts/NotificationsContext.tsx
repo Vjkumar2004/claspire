@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState, useCallback } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
+import { useNetworkRequestCount } from './NetworkRequestCountContext'
 
 const MESSAGE_NOTIFICATION_TYPES = new Set([
   'direct_message',
@@ -32,6 +33,7 @@ export type Notification = {
 type NotificationsContextType = {
   notifications: Notification[]
   unreadCount: number
+  pendingNetworkRequestsCount: number
   loadMore: () => Promise<void>
   hasMore: boolean
   loading: boolean
@@ -41,6 +43,7 @@ const NotificationsContext = createContext<NotificationsContextType | undefined>
 
 export function NotificationsProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth()
+  const { pendingCount } = useNetworkRequestCount()
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [unreadCount, setUnreadCount] = useState(0)
   const [cursor, setCursor] = useState<string | null>(null)
@@ -159,7 +162,7 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
   }, [user?.id])
 
   return (
-    <NotificationsContext.Provider value={{ notifications, unreadCount, loadMore, hasMore, loading }}>
+    <NotificationsContext.Provider value={{ notifications, unreadCount, pendingNetworkRequestsCount: pendingCount, loadMore, hasMore, loading }}>
       {children}
     </NotificationsContext.Provider>
   )

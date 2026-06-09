@@ -7,6 +7,24 @@ const supabase = createClient(
 
 export async function canUsersMessage(userId1: string, userId2: string): Promise<boolean> {
   try {
+    // Primary check: users connected via network (connections table)
+    const { data: connection, error: connectionError } = await supabase
+      .from('connections')
+      .select('id')
+      .eq('status', 'accepted')
+      .or(`and(sender_id.eq.${userId1},receiver_id.eq.${userId2}),and(sender_id.eq.${userId2},receiver_id.eq.${userId1})`)
+      .limit(1)
+
+    if (connectionError) {
+      console.error('Connection check error:', connectionError)
+      return false
+    }
+
+    if (connection && connection.length > 0) {
+      return true
+    }
+
+    // Legacy fallback: check message_requests table (student→senior)
     const { data: juniorRequests, error: juniorError } = await supabase
       .from('message_requests')
       .select('id')
@@ -23,6 +41,7 @@ export async function canUsersMessage(userId1: string, userId2: string): Promise
       return true
     }
 
+    // Legacy fallback: check senior_message_requests table (senior→senior)
     const { data: seniorRequests, error: seniorError } = await supabase
       .from('senior_message_requests')
       .select('id')

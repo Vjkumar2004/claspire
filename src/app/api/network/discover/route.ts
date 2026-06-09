@@ -13,6 +13,7 @@ const PERSON_SELECT = `
   unique_id,
   role,
   avatar_url,
+  banner_url,
   college_id,
   branch,
   company,
@@ -45,108 +46,134 @@ export async function GET(req: NextRequest) {
     const currentUserBranch = user.branch || ''
     const currentUserYear = user.graduation_year || user.passout_year || 0
 
-    let query = supabase
+    // Phase 1: Single connections query for exclusion + mutual connections
+    const { data: connections, error: connError } = await supabase
+      .from('connections')
+      .select('sender_id, receiver_id, status, responded_at')
+      .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
+
+    if (connError) {
+      console.error('[Discover] Connections query error:', connError)
+    }
+
+    const excludedIds = new Set<string>()
+    excludedIds.add(user.id)
+
+    const acceptedIds = new Set<string>()
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+
+    for (const conn of connections || []) {
+      const otherId = conn.sender_id === user.id ? conn.receiver_id : conn.sender_id
+      if (conn.status === 'accepted') {
+        excludedIds.add(otherId)
+        acceptedIds.add(otherId)
+      } else if (conn.status === 'pending') {
+        excludedIds.add(otherId)
+      } else if (conn.status === 'rejected') {
+        const respondedAt = conn.responded_at ? new Date(conn.responded_at) : new Date()
+        if (respondedAt > thirtyDaysAgo) {
+          excludedIds.add(otherId)
+        }
+      }
+      // cancelled, removed, deleted: do NOT exclude
+    }
+
+    // Phase 2: Fetch user IDs (lightweight) with all search/filters, then JS-exclude
+    // Using IDs-first approach avoids PostgREST UUID not.in issues documented in the codebase.
+    // We cap at MAX_FETCH_IDS to keep the payload reasonable; pagination past this cap
+    // will still work correctly (hasMore signals when the cap is reached).
+    let idQuery = supabase
       .from('users')
-      .select(PERSON_SELECT, { count: 'exact' })
-      .neq('id', user.id)
+      .select('id')
 
     if (q) {
-      query = query.or(
+      idQuery = idQuery.or(
         `full_name.ilike.%${q}%,unique_id.ilike.%${q}%,company.ilike.%${q}%,designation.ilike.%${q}%,branch.ilike.%${q}%,role.ilike.%${q}%`
       )
     }
 
     if (roleFilter) {
       if (roleFilter === 'alumni') {
-        query = query.not('passout_year', 'is', null)
+        idQuery = idQuery.not('passout_year', 'is', null)
       } else {
-        query = query.eq('role', roleFilter)
+        idQuery = idQuery.eq('role', roleFilter)
       }
     }
 
     if (collegeId) {
-      query = query.eq('college_id', collegeId)
+      idQuery = idQuery.eq('college_id', collegeId)
     }
 
-    const { data: people, error, count } = await query
+    const MAX_FETCH_IDS = 5000
+    const fetchLimit = Math.min(offset + limit + 200, MAX_FETCH_IDS)
+
+    const { data: allIds, error: idError } = await idQuery
       .order('rise_points', { ascending: false })
-      .range(offset, offset + limit - 1)
+      .range(0, fetchLimit - 1)
 
-    if (error) {
-      console.error('Discover error:', error)
-      return NextResponse.json({ error: error.message }, { status: 500 })
+    if (idError) {
+      console.error('[Discover] ID query error:', idError)
+      return NextResponse.json({ error: idError.message }, { status: 500 })
     }
 
-    if (!people || people.length === 0) {
+    // Apply JS exclusion to get the true visible set
+    const visibleIds = (allIds || [])
+      .map(r => r.id)
+      .filter(id => !excludedIds.has(id))
+
+    const total = visibleIds.length
+    const pageIds = visibleIds.slice(offset, offset + limit)
+
+    if (pageIds.length === 0) {
       return NextResponse.json({ people: [], total: 0, hasMore: false })
     }
 
-    const personIds = people.map((p) => p.id)
+    // Phase 2b: Fetch full person data for the visible page
+    const { data: people, error: peopleError } = await supabase
+      .from('users')
+      .select(PERSON_SELECT)
+      .in('id', pageIds)
 
-    const [connectionsResult, followsResult] = await Promise.all([
-      supabase
-        .from('connections')
-        .select('sender_id, receiver_id, status')
-        .or(`sender_id.in.(${personIds.map(id => `"${id}"`).join(',')}),receiver_id.in.(${personIds.map(id => `"${id}"`).join(',')})`)
-        .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`),
-      supabase
-        .from('follows')
-        .select('following_id')
-        .eq('follower_id', user.id)
-        .in('following_id', personIds),
-    ])
-
-    const followedIds = new Set((followsResult.data || []).map((f) => f.following_id))
-    const followingIds = new Set<string>()
-    const pendingSentIds = new Set<string>()
-    const pendingReceivedIds = new Set<string>()
-    const acceptedIds = new Set<string>()
-
-    for (const conn of connectionsResult.data || []) {
-      if (conn.status === 'accepted') {
-        acceptedIds.add(conn.sender_id === user.id ? conn.receiver_id : conn.sender_id)
-      } else if (conn.status === 'pending') {
-        if (conn.sender_id === user.id) {
-          pendingSentIds.add(conn.receiver_id)
-        } else {
-          pendingReceivedIds.add(conn.sender_id)
-        }
-      }
+    if (peopleError) {
+      console.error('[Discover] People query error:', peopleError)
+      return NextResponse.json({ error: peopleError.message }, { status: 500 })
     }
 
-    const formatted = people.map((person) => {
+    // Phase 3: Fetch follows for visible users
+    const { data: follows } = await supabase
+      .from('follows')
+      .select('following_id')
+      .eq('follower_id', user.id)
+      .in('following_id', pageIds)
+
+    const followedIds = new Set((follows || []).map(f => f.following_id))
+
+    // Reconstruct the original order since .in() doesn't preserve it
+    const peopleMap = new Map((people || []).map(p => [p.id, p]))
+    const orderedPeople = pageIds.map(id => peopleMap.get(id)).filter(Boolean)
+
+    const formatted = orderedPeople.map((person: any) => {
       let score = 0
 
       if (currentUserCollege && person.college_id === currentUserCollege) {
         score += 100
       }
       if (currentUserBranch && person.branch && person.branch.toLowerCase() === currentUserBranch.toLowerCase()) {
-        score += 50
+        score += 80
       }
       if (currentUserYear && person.graduation_year && person.graduation_year === currentUserYear) {
-        score += 30
+        score += 60
       }
-      if (acceptedIds.has(person.id)) {
+      if (currentUserCollege && person.college_id === currentUserCollege && person.role === 'senior') {
         score += 40
       }
 
       const mutualConnections = [...acceptedIds].filter((id) =>
-        personIds.includes(id)
+        pageIds.includes(id)
       ).length
 
-      score += mutualConnections * 5
+      score += mutualConnections * 30
       score += (person.rise_points || 0) * 0.05
-
-      let connectionStatus: string = 'none'
-      if (acceptedIds.has(person.id)) {
-        connectionStatus = 'accepted'
-      } else if (pendingSentIds.has(person.id)) {
-        connectionStatus = 'pending_sent'
-      } else if (pendingReceivedIds.has(person.id)) {
-        connectionStatus = 'pending_received'
-      }
-
-      const isFollowing = followedIds.has(person.id)
 
       return {
         id: person.id,
@@ -154,6 +181,7 @@ export async function GET(req: NextRequest) {
         unique_id: person.unique_id,
         role: person.role,
         avatar_url: person.avatar_url,
+        banner_url: person.banner_url,
         college_id: person.college_id,
         branch: person.branch,
         company: person.company,
@@ -162,16 +190,13 @@ export async function GET(req: NextRequest) {
         passout_year: person.passout_year,
         rise_points: person.rise_points,
         college: person.college,
-        connectionStatus,
-        isFollowing,
+        connectionStatus: 'none',
+        isFollowing: followedIds.has(person.id),
         mutualConnections,
         score: Math.round(score),
       }
     })
 
-    formatted.sort((a, b) => b.score - a.score)
-
-    const total = count ?? formatted.length
     const hasMore = offset + limit < total
 
     return NextResponse.json({
@@ -182,7 +207,7 @@ export async function GET(req: NextRequest) {
       offset,
     })
   } catch (err: unknown) {
-    console.error('Discover API error:', err)
+    console.error('[Discover] API error:', err)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
