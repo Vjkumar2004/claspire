@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState, useCallback } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
+import { useNetworkRequestCount } from './NetworkRequestCountContext'
 
 const MESSAGE_NOTIFICATION_TYPES = new Set([
   'direct_message',
@@ -42,13 +43,12 @@ const NotificationsContext = createContext<NotificationsContextType | undefined>
 
 export function NotificationsProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth()
+  const { pendingCount } = useNetworkRequestCount()
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [unreadCount, setUnreadCount] = useState(0)
   const [cursor, setCursor] = useState<string | null>(null)
   const [hasMore, setHasMore] = useState(false)
   const [loading, setLoading] = useState(false)
-
-  const [pendingNetworkRequestsCount, setPendingNetworkRequestsCount] = useState(0)
 
   const loadMore = useCallback(async () => {
     if (!cursor || loading) return
@@ -80,42 +80,29 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
     if (!user?.id) {
       setNotifications([])
       setUnreadCount(0)
-      setPendingNetworkRequestsCount(0)
       setCursor(null)
       setHasMore(false)
       return
     }
 
-    const fetchInitialData = async () => {
+    const fetchInitialNotifications = async () => {
       try {
         setLoading(true)
-        const [notifRes, networkRes] = await Promise.all([
-          fetch('/api/notifications'),
-          supabase
-            .from('connections')
-            .select('*', { count: 'exact', head: true })
-            .eq('receiver_id', user.id)
-            .eq('status', 'pending')
-        ])
-
-        const notifData = await notifRes.json()
-        if (notifData.notifications) {
-          setNotifications(notifData.notifications)
-          setCursor(notifData.nextCursor)
-          setHasMore(notifData.nextCursor !== null)
-        }
-
-        if (networkRes.count !== null) {
-          setPendingNetworkRequestsCount(networkRes.count)
+        const res = await fetch('/api/notifications')
+        const data = await res.json()
+        if (data.notifications) {
+          setNotifications(data.notifications)
+          setCursor(data.nextCursor)
+          setHasMore(data.nextCursor !== null)
         }
       } catch (err) {
-        console.error('Failed to fetch initial data:', err)
+        console.error('Failed to fetch initial notifications:', err)
       } finally {
         setLoading(false)
       }
     }
 
-    fetchInitialData()
+    fetchInitialNotifications()
 
     const channel = supabase
       .channel(`notifications-${user.id}`)
@@ -167,28 +154,6 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
           setNotifications((prev) => prev.filter((n) => n.id !== deletedId))
         }
       )
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'connections',
-          filter: `receiver_id=eq.${user.id}`,
-        },
-        () => {
-          // Re-fetch count when connections change
-          supabase
-            .from('connections')
-            .select('*', { count: 'exact', head: true })
-            .eq('receiver_id', user.id)
-            .eq('status', 'pending')
-            .then((res) => {
-              if (res.count !== null) {
-                setPendingNetworkRequestsCount(res.count)
-              }
-            })
-        }
-      )
       .subscribe()
 
     return () => {
@@ -197,7 +162,7 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
   }, [user?.id])
 
   return (
-    <NotificationsContext.Provider value={{ notifications, unreadCount, pendingNetworkRequestsCount, loadMore, hasMore, loading }}>
+    <NotificationsContext.Provider value={{ notifications, unreadCount, pendingNetworkRequestsCount: pendingCount, loadMore, hasMore, loading }}>
       {children}
     </NotificationsContext.Provider>
   )

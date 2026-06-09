@@ -21,9 +21,12 @@ export function NetworkRequestCountProvider({ children }: { children: ReactNode 
       return
     }
     try {
-      const res = await fetch('/api/network/stats')
-      const data = await res.json()
-      setPendingCount(data.incomingRequests || 0)
+      const { count } = await supabase
+        .from('connections')
+        .select('*', { count: 'exact', head: true })
+        .eq('receiver_id', user.id)
+        .eq('status', 'pending')
+      setPendingCount(count ?? 0)
     } catch (err) {
       console.error('Failed to fetch network request count:', err)
     }

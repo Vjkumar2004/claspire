@@ -156,28 +156,14 @@ export default function PeopleCard({ person, onConnect, onFollow, onRemove, conn
         {showActions && (
           <div className="mt-4 pt-4 border-t border-gray-100 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
             {localStatus === 'none' && (
-              <>
-                <button
-                  onClick={handleConnect}
-                  disabled={connecting}
-                  className="flex-1 h-9 md:h-10 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs md:text-sm font-bold transition-all flex items-center justify-center gap-2 disabled:opacity-50 shadow-[0_2px_8px_rgba(124,58,237,0.2)] hover:shadow-[0_4px_12px_rgba(124,58,237,0.3)]"
-                >
-                  {connecting ? <Loader2 size={16} className="animate-spin" /> : <UserPlus size={16} />}
-                  <span>Connect</span>
-                </button>
-                <button
-                  onClick={handleFollow}
-                  disabled={followLoading}
-                  className={`flex-1 sm:flex-none h-9 md:h-10 px-4 rounded-xl text-xs md:text-sm font-bold border transition-all flex items-center justify-center gap-2 ${
-                    following
-                      ? 'bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100'
-                      : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-                  }`}
-                >
-                  {followLoading ? <Loader2 size={16} className="animate-spin" /> : following ? <UserCheck size={16} /> : <UserPlus size={16} />}
-                  <span>{following ? 'Following' : 'Follow'}</span>
-                </button>
-              </>
+              <button
+                onClick={handleConnect}
+                disabled={connecting}
+                className="w-full h-9 md:h-10 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs md:text-sm font-bold transition-all flex items-center justify-center gap-2 disabled:opacity-50 shadow-[0_2px_8px_rgba(124,58,237,0.2)] hover:shadow-[0_4px_12px_rgba(124,58,237,0.3)]"
+              >
+                {connecting ? <Loader2 size={16} className="animate-spin" /> : <UserPlus size={16} />}
+                <span>Connect</span>
+              </button>
             )}
 
             {localStatus === 'pending_sent' && (

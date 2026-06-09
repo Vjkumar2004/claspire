@@ -11,11 +11,11 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     <AuthProvider>
       <PointsProvider>
         <UnreadMessagesProvider>
-          <NotificationsProvider>
-            <NetworkRequestCountProvider>
+          <NetworkRequestCountProvider>
+            <NotificationsProvider>
               {children}
-            </NetworkRequestCountProvider>
-          </NotificationsProvider>
+            </NotificationsProvider>
+          </NetworkRequestCountProvider>
         </UnreadMessagesProvider>
       </PointsProvider>
     </AuthProvider>

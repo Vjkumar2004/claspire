@@ -60,37 +60,38 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ groups: [] })
     }
 
-    // Step 3: Get latest messages and unread counts
-    const { data: allMessages } = await supabase
-      .from('student_group_messages')
-      .select('id, group_id, content, created_at, sender_id')
-      .in('group_id', groupIds)
-      .eq('is_deleted', false)
-      .order('created_at', { ascending: false })
-      .limit(1000)
-
-    const msgs = (allMessages || []) as MessageRow[]
-
-    // Build maps
-    const groupMap = new Map(groupsData.map(g => [g.id, g]))
+    // Step 3: Get latest message + unread count per group via indexed queries
     const membershipMap = new Map(memberships.map(m => [m.group_id, m]))
     const latestPerGroup: Record<string, MessageRow> = {}
     const unreadPerGroup: Record<string, number> = {}
 
-    for (const g of groupsData) {
-      unreadPerGroup[g.id] = 0
-    }
+    const queries = groupsData.map(async (g) => {
+      const mem = membershipMap.get(g.id)
 
-    for (const msg of msgs) {
-      if (!latestPerGroup[msg.group_id]) {
-        latestPerGroup[msg.group_id] = msg
+      const [latestResult, countResult] = await Promise.all([
+        supabase
+          .from('student_group_messages')
+          .select('id, group_id, content, created_at, sender_id')
+          .eq('group_id', g.id)
+          .eq('is_deleted', false)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle(),
+        supabase
+          .from('student_group_messages')
+          .select('id', { count: 'exact', head: true })
+          .eq('group_id', g.id)
+          .eq('is_deleted', false)
+          .gt('created_at', mem?.last_read_at || '1970-01-01T00:00:00Z'),
+      ])
+
+      if (latestResult.data) {
+        latestPerGroup[g.id] = latestResult.data as MessageRow
       }
-      const mem = membershipMap.get(msg.group_id)
-      const lastRead = mem?.last_read_at
-      if (!lastRead || new Date(msg.created_at) > new Date(lastRead)) {
-        unreadPerGroup[msg.group_id] = (unreadPerGroup[msg.group_id] || 0) + 1
-      }
-    }
+      unreadPerGroup[g.id] = countResult.count ?? 0
+    })
+
+    await Promise.all(queries)
 
     // Step 4: Build response (activity = latest message or created_at)
     const result = groupsData.map(g => {

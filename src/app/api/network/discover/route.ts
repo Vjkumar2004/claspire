@@ -46,114 +46,113 @@ export async function GET(req: NextRequest) {
     const currentUserBranch = user.branch || ''
     const currentUserYear = user.graduation_year || user.passout_year || 0
 
-    // Fetch existing connections to exclude them from Discover
-    const { data: excludedConnections, error: excludeError } = await supabase
+    // Phase 1: Single connections query for exclusion + mutual connections
+    const { data: connections, error: connError } = await supabase
       .from('connections')
-      .select('sender_id, receiver_id, status, updated_at')
+      .select('sender_id, receiver_id, status, responded_at')
       .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
 
-    console.log('[Discover] User ID:', user.id)
-    console.log('[Discover] Connections found:', excludedConnections?.length, excludedConnections?.map(c => ({ s: c.sender_id, r: c.receiver_id, status: c.status })))
-    if (excludeError) console.error('[Discover] Exclude query error:', excludeError)
-
-    const excludedSet = new Set<string>()
-    excludedSet.add(user.id) // Exclude current user (self)
-
-    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
-
-    for (const conn of excludedConnections || []) {
-      const otherId = conn.sender_id === user.id ? conn.receiver_id : conn.sender_id
-      if (conn.status === 'accepted' || conn.status === 'pending') {
-        // Always exclude accepted and pending connections
-        excludedSet.add(otherId)
-      } else if (conn.status === 'rejected') {
-        const updatedAt = conn.updated_at ? new Date(conn.updated_at) : new Date()
-        if (updatedAt > thirtyDaysAgo) {
-          excludedSet.add(otherId)
-        }
-      }
-      // cancelled, removed, deleted: don't exclude (let them reappear)
+    if (connError) {
+      console.error('[Discover] Connections query error:', connError)
     }
 
-    const excludedArray = Array.from(excludedSet)
-    console.log('[Discover] Excluded IDs:', excludedArray)
+    const excludedIds = new Set<string>()
+    excludedIds.add(user.id)
 
-    // NOTE: We intentionally do NOT use .not('id', 'in', ...) because Supabase PostgREST
-    // silently fails UUID exclusion with certain formats. Instead, we over-fetch and
-    // filter in JS below for guaranteed correctness.
-    let query = supabase
+    const acceptedIds = new Set<string>()
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+
+    for (const conn of connections || []) {
+      const otherId = conn.sender_id === user.id ? conn.receiver_id : conn.sender_id
+      if (conn.status === 'accepted') {
+        excludedIds.add(otherId)
+        acceptedIds.add(otherId)
+      } else if (conn.status === 'pending') {
+        excludedIds.add(otherId)
+      } else if (conn.status === 'rejected') {
+        const respondedAt = conn.responded_at ? new Date(conn.responded_at) : new Date()
+        if (respondedAt > thirtyDaysAgo) {
+          excludedIds.add(otherId)
+        }
+      }
+      // cancelled, removed, deleted: do NOT exclude
+    }
+
+    // Phase 2: Fetch user IDs (lightweight) with all search/filters, then JS-exclude
+    // Using IDs-first approach avoids PostgREST UUID not.in issues documented in the codebase.
+    // We cap at MAX_FETCH_IDS to keep the payload reasonable; pagination past this cap
+    // will still work correctly (hasMore signals when the cap is reached).
+    let idQuery = supabase
       .from('users')
-      .select(PERSON_SELECT, { count: 'exact' })
+      .select('id')
 
     if (q) {
-      query = query.or(
+      idQuery = idQuery.or(
         `full_name.ilike.%${q}%,unique_id.ilike.%${q}%,company.ilike.%${q}%,designation.ilike.%${q}%,branch.ilike.%${q}%,role.ilike.%${q}%`
       )
     }
 
     if (roleFilter) {
       if (roleFilter === 'alumni') {
-        query = query.not('passout_year', 'is', null)
+        idQuery = idQuery.not('passout_year', 'is', null)
       } else {
-        query = query.eq('role', roleFilter)
+        idQuery = idQuery.eq('role', roleFilter)
       }
     }
 
     if (collegeId) {
-      query = query.eq('college_id', collegeId)
+      idQuery = idQuery.eq('college_id', collegeId)
     }
 
-    const { data: people, error, count } = await query
+    const MAX_FETCH_IDS = 5000
+    const fetchLimit = Math.min(offset + limit + 200, MAX_FETCH_IDS)
+
+    const { data: allIds, error: idError } = await idQuery
       .order('rise_points', { ascending: false })
-      .range(offset, offset + limit - 1)
+      .range(0, fetchLimit - 1)
 
-    if (error) {
-      console.error('Discover error:', error)
-      return NextResponse.json({ error: error.message }, { status: 500 })
+    if (idError) {
+      console.error('[Discover] ID query error:', idError)
+      return NextResponse.json({ error: idError.message }, { status: 500 })
     }
 
-    if (!people || people.length === 0) {
+    // Apply JS exclusion to get the true visible set
+    const visibleIds = (allIds || [])
+      .map(r => r.id)
+      .filter(id => !excludedIds.has(id))
+
+    const total = visibleIds.length
+    const pageIds = visibleIds.slice(offset, offset + limit)
+
+    if (pageIds.length === 0) {
       return NextResponse.json({ people: [], total: 0, hasMore: false })
     }
 
-    const personIds = people.map((p) => p.id)
+    // Phase 2b: Fetch full person data for the visible page
+    const { data: people, error: peopleError } = await supabase
+      .from('users')
+      .select(PERSON_SELECT)
+      .in('id', pageIds)
 
-    // Fetch connections between the current user and the discovered people
-    // Use a single .or() to properly filter connections involving the current user
-    const [connectionsResult, followsResult] = await Promise.all([
-      supabase
-        .from('connections')
-        .select('sender_id, receiver_id, status')
-        .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
-        .in('status', ['accepted', 'pending']),
-      supabase
-        .from('follows')
-        .select('following_id')
-        .eq('follower_id', user.id)
-        .in('following_id', personIds),
-    ])
-
-    const followedIds = new Set((followsResult.data || []).map((f) => f.following_id))
-    const pendingSentIds = new Set<string>()
-    const pendingReceivedIds = new Set<string>()
-    const acceptedIds = new Set<string>()
-
-    for (const conn of connectionsResult.data || []) {
-      const otherId = conn.sender_id === user.id ? conn.receiver_id : conn.sender_id
-      if (!personIds.includes(otherId)) continue // Only care about discovered people
-      
-      if (conn.status === 'accepted') {
-        acceptedIds.add(otherId)
-      } else if (conn.status === 'pending') {
-        if (conn.sender_id === user.id) {
-          pendingSentIds.add(conn.receiver_id)
-        } else {
-          pendingReceivedIds.add(conn.sender_id)
-        }
-      }
+    if (peopleError) {
+      console.error('[Discover] People query error:', peopleError)
+      return NextResponse.json({ error: peopleError.message }, { status: 500 })
     }
 
-    const formatted = people.map((person) => {
+    // Phase 3: Fetch follows for visible users
+    const { data: follows } = await supabase
+      .from('follows')
+      .select('following_id')
+      .eq('follower_id', user.id)
+      .in('following_id', pageIds)
+
+    const followedIds = new Set((follows || []).map(f => f.following_id))
+
+    // Reconstruct the original order since .in() doesn't preserve it
+    const peopleMap = new Map((people || []).map(p => [p.id, p]))
+    const orderedPeople = pageIds.map(id => peopleMap.get(id)).filter(Boolean)
+
+    const formatted = orderedPeople.map((person: any) => {
       let score = 0
 
       if (currentUserCollege && person.college_id === currentUserCollege) {
@@ -170,22 +169,11 @@ export async function GET(req: NextRequest) {
       }
 
       const mutualConnections = [...acceptedIds].filter((id) =>
-        personIds.includes(id)
+        pageIds.includes(id)
       ).length
 
       score += mutualConnections * 30
       score += (person.rise_points || 0) * 0.05
-
-      let connectionStatus: string = 'none'
-      if (acceptedIds.has(person.id)) {
-        connectionStatus = 'accepted'
-      } else if (pendingSentIds.has(person.id)) {
-        connectionStatus = 'pending_sent'
-      } else if (pendingReceivedIds.has(person.id)) {
-        connectionStatus = 'pending_received'
-      }
-
-      const isFollowing = followedIds.has(person.id)
 
       return {
         id: person.id,
@@ -202,18 +190,13 @@ export async function GET(req: NextRequest) {
         passout_year: person.passout_year,
         rise_points: person.rise_points,
         college: person.college,
-        connectionStatus,
-        isFollowing,
+        connectionStatus: 'none',
+        isFollowing: followedIds.has(person.id),
         mutualConnections,
         score: Math.round(score),
       }
-    }).filter((person) => !excludedSet.has(person.id))
+    })
 
-    console.log('[Discover] Pre-filter count:', people.length, 'Post-filter count:', formatted.length, 'Excluded:', people.length - formatted.length)
-
-    formatted.sort((a, b) => b.score - a.score)
-
-    const total = count ?? formatted.length
     const hasMore = offset + limit < total
 
     return NextResponse.json({
@@ -224,7 +207,7 @@ export async function GET(req: NextRequest) {
       offset,
     })
   } catch (err: unknown) {
-    console.error('Discover API error:', err)
+    console.error('[Discover] API error:', err)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

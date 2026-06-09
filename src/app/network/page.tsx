@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { Users, UserCheck, UserPlus, HeartHandshake, Compass } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
@@ -22,6 +22,7 @@ export default function NetworkPage() {
   const [stats, setStats] = useState({ connections: 0, following: 0, requests: 0, communities: 0, incomingRequests: 0, outgoingRequests: 0, totalRequests: 0 })
   const [statsLoading, setStatsLoading] = useState(true)
   const [refreshKey, setRefreshKey] = useState(0)
+  const pendingStatsFetch = useRef<Promise<void> | null>(null)
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -30,16 +31,22 @@ export default function NetworkPage() {
   }, [user, authLoading, router])
 
   const fetchStats = useCallback(async () => {
+    if (pendingStatsFetch.current) return pendingStatsFetch.current
     setStatsLoading(true)
-    try {
-      const res = await fetch('/api/network/stats')
-      if (res.ok) {
-        const data = await res.json()
-        setStats(data)
+    const promise = (async () => {
+      try {
+        const res = await fetch('/api/network/stats')
+        if (res.ok) {
+          const data = await res.json()
+          setStats(data)
+        }
+      } catch { } finally {
+        pendingStatsFetch.current = null
+        setStatsLoading(false)
       }
-    } catch { } finally {
-      setStatsLoading(false)
-    }
+    })()
+    pendingStatsFetch.current = promise
+    return promise
   }, [])
 
   useEffect(() => {
@@ -198,7 +205,6 @@ export default function NetworkPage() {
                 <DiscoverTab
                   key="discover"
                   onConnectAction={handleConnectAction}
-                  refreshKey={refreshKey}
                 />
               )}
               {activeTab === 'network' && <MyNetworkTab key="network" refreshKey={refreshKey} />}
@@ -210,7 +216,7 @@ export default function NetworkPage() {
           {/* RIGHT SIDEBAR */}
           <div className="hidden xl:block xl:w-[300px] flex-shrink-0">
             <div className="sticky top-24">
-              <NetworkInsights />
+              <NetworkInsights connectionsCount={stats.connections} />
             </div>
           </div>
         </div>
