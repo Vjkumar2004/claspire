@@ -32,6 +32,7 @@ export type Notification = {
 type NotificationsContextType = {
   notifications: Notification[]
   unreadCount: number
+  pendingNetworkRequestsCount: number
   loadMore: () => Promise<void>
   hasMore: boolean
   loading: boolean
@@ -46,6 +47,8 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
   const [cursor, setCursor] = useState<string | null>(null)
   const [hasMore, setHasMore] = useState(false)
   const [loading, setLoading] = useState(false)
+
+  const [pendingNetworkRequestsCount, setPendingNetworkRequestsCount] = useState(0)
 
   const loadMore = useCallback(async () => {
     if (!cursor || loading) return
@@ -77,29 +80,42 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
     if (!user?.id) {
       setNotifications([])
       setUnreadCount(0)
+      setPendingNetworkRequestsCount(0)
       setCursor(null)
       setHasMore(false)
       return
     }
 
-    const fetchInitialNotifications = async () => {
+    const fetchInitialData = async () => {
       try {
         setLoading(true)
-        const res = await fetch('/api/notifications')
-        const data = await res.json()
-        if (data.notifications) {
-          setNotifications(data.notifications)
-          setCursor(data.nextCursor)
-          setHasMore(data.nextCursor !== null)
+        const [notifRes, networkRes] = await Promise.all([
+          fetch('/api/notifications'),
+          supabase
+            .from('connections')
+            .select('*', { count: 'exact', head: true })
+            .eq('receiver_id', user.id)
+            .eq('status', 'pending')
+        ])
+
+        const notifData = await notifRes.json()
+        if (notifData.notifications) {
+          setNotifications(notifData.notifications)
+          setCursor(notifData.nextCursor)
+          setHasMore(notifData.nextCursor !== null)
+        }
+
+        if (networkRes.count !== null) {
+          setPendingNetworkRequestsCount(networkRes.count)
         }
       } catch (err) {
-        console.error('Failed to fetch initial notifications:', err)
+        console.error('Failed to fetch initial data:', err)
       } finally {
         setLoading(false)
       }
     }
 
-    fetchInitialNotifications()
+    fetchInitialData()
 
     const channel = supabase
       .channel(`notifications-${user.id}`)
@@ -151,6 +167,28 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
           setNotifications((prev) => prev.filter((n) => n.id !== deletedId))
         }
       )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'connections',
+          filter: `receiver_id=eq.${user.id}`,
+        },
+        () => {
+          // Re-fetch count when connections change
+          supabase
+            .from('connections')
+            .select('*', { count: 'exact', head: true })
+            .eq('receiver_id', user.id)
+            .eq('status', 'pending')
+            .then((res) => {
+              if (res.count !== null) {
+                setPendingNetworkRequestsCount(res.count)
+              }
+            })
+        }
+      )
       .subscribe()
 
     return () => {
@@ -159,7 +197,7 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
   }, [user?.id])
 
   return (
-    <NotificationsContext.Provider value={{ notifications, unreadCount, loadMore, hasMore, loading }}>
+    <NotificationsContext.Provider value={{ notifications, unreadCount, pendingNetworkRequestsCount, loadMore, hasMore, loading }}>
       {children}
     </NotificationsContext.Provider>
   )

@@ -10,6 +10,7 @@ interface Person {
   unique_id: string
   role: string
   avatar_url?: string | null
+  banner_url?: string | null
   college_id?: string | null
   branch?: string | null
   company?: string | null
@@ -19,6 +20,7 @@ interface Person {
   rise_points?: number | null
   college?: { name: string; short_name: string } | null
   connectionStatus: string
+  isFollowing?: boolean
   mutualConnections: number
   score?: number
 }
@@ -124,8 +126,8 @@ export default function DiscoverTab({ onConnectAction, refreshKey = 0 }: Discove
       </div>
 
       {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[1, 2, 3, 4, 5, 6].map((i) => (
+        <div className="grid grid-cols-2 md:grid-cols-2 xl:grid-cols-2 gap-3 md:gap-4">
+          {[1, 2, 3, 4].map((i) => (
             <div key={i} className="h-[260px] bg-gray-100 rounded-xl border border-gray-200 animate-pulse" />
           ))}
         </div>
@@ -140,7 +142,7 @@ export default function DiscoverTab({ onConnectAction, refreshKey = 0 }: Discove
             </h3>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-2 xl:grid-cols-2 gap-3 md:gap-4">
             {people.map((person) => (
               <PeopleCard
                 key={person.id}

@@ -13,6 +13,7 @@ const PERSON_SELECT = `
   unique_id,
   role,
   avatar_url,
+  banner_url,
   college_id,
   branch,
   company,
@@ -45,10 +46,44 @@ export async function GET(req: NextRequest) {
     const currentUserBranch = user.branch || ''
     const currentUserYear = user.graduation_year || user.passout_year || 0
 
+    // Fetch existing connections to exclude them from Discover
+    const { data: excludedConnections, error: excludeError } = await supabase
+      .from('connections')
+      .select('sender_id, receiver_id, status, updated_at')
+      .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
+
+    console.log('[Discover] User ID:', user.id)
+    console.log('[Discover] Connections found:', excludedConnections?.length, excludedConnections?.map(c => ({ s: c.sender_id, r: c.receiver_id, status: c.status })))
+    if (excludeError) console.error('[Discover] Exclude query error:', excludeError)
+
+    const excludedSet = new Set<string>()
+    excludedSet.add(user.id) // Exclude current user (self)
+
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+
+    for (const conn of excludedConnections || []) {
+      const otherId = conn.sender_id === user.id ? conn.receiver_id : conn.sender_id
+      if (conn.status === 'accepted' || conn.status === 'pending') {
+        // Always exclude accepted and pending connections
+        excludedSet.add(otherId)
+      } else if (conn.status === 'rejected') {
+        const updatedAt = conn.updated_at ? new Date(conn.updated_at) : new Date()
+        if (updatedAt > thirtyDaysAgo) {
+          excludedSet.add(otherId)
+        }
+      }
+      // cancelled, removed, deleted: don't exclude (let them reappear)
+    }
+
+    const excludedArray = Array.from(excludedSet)
+    console.log('[Discover] Excluded IDs:', excludedArray)
+
+    // NOTE: We intentionally do NOT use .not('id', 'in', ...) because Supabase PostgREST
+    // silently fails UUID exclusion with certain formats. Instead, we over-fetch and
+    // filter in JS below for guaranteed correctness.
     let query = supabase
       .from('users')
       .select(PERSON_SELECT, { count: 'exact' })
-      .neq('id', user.id)
 
     if (q) {
       query = query.or(
@@ -83,12 +118,14 @@ export async function GET(req: NextRequest) {
 
     const personIds = people.map((p) => p.id)
 
+    // Fetch connections between the current user and the discovered people
+    // Use a single .or() to properly filter connections involving the current user
     const [connectionsResult, followsResult] = await Promise.all([
       supabase
         .from('connections')
         .select('sender_id, receiver_id, status')
-        .or(`sender_id.in.(${personIds.map(id => `"${id}"`).join(',')}),receiver_id.in.(${personIds.map(id => `"${id}"`).join(',')})`)
-        .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`),
+        .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
+        .in('status', ['accepted', 'pending']),
       supabase
         .from('follows')
         .select('following_id')
@@ -97,14 +134,16 @@ export async function GET(req: NextRequest) {
     ])
 
     const followedIds = new Set((followsResult.data || []).map((f) => f.following_id))
-    const followingIds = new Set<string>()
     const pendingSentIds = new Set<string>()
     const pendingReceivedIds = new Set<string>()
     const acceptedIds = new Set<string>()
 
     for (const conn of connectionsResult.data || []) {
+      const otherId = conn.sender_id === user.id ? conn.receiver_id : conn.sender_id
+      if (!personIds.includes(otherId)) continue // Only care about discovered people
+      
       if (conn.status === 'accepted') {
-        acceptedIds.add(conn.sender_id === user.id ? conn.receiver_id : conn.sender_id)
+        acceptedIds.add(otherId)
       } else if (conn.status === 'pending') {
         if (conn.sender_id === user.id) {
           pendingSentIds.add(conn.receiver_id)
@@ -121,12 +160,12 @@ export async function GET(req: NextRequest) {
         score += 100
       }
       if (currentUserBranch && person.branch && person.branch.toLowerCase() === currentUserBranch.toLowerCase()) {
-        score += 50
+        score += 80
       }
       if (currentUserYear && person.graduation_year && person.graduation_year === currentUserYear) {
-        score += 30
+        score += 60
       }
-      if (acceptedIds.has(person.id)) {
+      if (currentUserCollege && person.college_id === currentUserCollege && person.role === 'senior') {
         score += 40
       }
 
@@ -134,7 +173,7 @@ export async function GET(req: NextRequest) {
         personIds.includes(id)
       ).length
 
-      score += mutualConnections * 5
+      score += mutualConnections * 30
       score += (person.rise_points || 0) * 0.05
 
       let connectionStatus: string = 'none'
@@ -154,6 +193,7 @@ export async function GET(req: NextRequest) {
         unique_id: person.unique_id,
         role: person.role,
         avatar_url: person.avatar_url,
+        banner_url: person.banner_url,
         college_id: person.college_id,
         branch: person.branch,
         company: person.company,
@@ -167,7 +207,9 @@ export async function GET(req: NextRequest) {
         mutualConnections,
         score: Math.round(score),
       }
-    })
+    }).filter((person) => !excludedSet.has(person.id))
+
+    console.log('[Discover] Pre-filter count:', people.length, 'Post-filter count:', formatted.length, 'Excluded:', people.length - formatted.length)
 
     formatted.sort((a, b) => b.score - a.score)
 

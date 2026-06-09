@@ -28,12 +28,12 @@ export default function NetworkSidebar({ activeTab, onTabChange, connections, fo
     <div className="space-y-4">
       {/* Profile Summary Card */}
       <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-        <div className={`h-16 ${user?.banner_url ? '' : 'bg-gradient-to-r from-purple-500/10 to-blue-500/10'}`}>
+        <div className={`h-24 ${user?.banner_url ? '' : 'bg-gradient-to-r from-purple-500/10 to-blue-500/10'}`}>
           {user?.banner_url && (
-            <img src={user.banner_url} alt="" className="w-full h-full object-cover" />
+            <img src={user.banner_url} alt="Profile Banner" className="w-full h-full object-cover" />
           )}
         </div>
-        <div className="px-4 pb-4 -mt-8">
+        <div className="px-4 pb-4 -mt-10">
           <div className="w-14 h-14 rounded-full border-2 border-white bg-gray-100 flex items-center justify-center text-base font-black text-gray-500 overflow-hidden shadow-md mx-auto">
             {user?.avatar_url ? (
               <img src={user.avatar_url} alt={user?.full_name} className="w-full h-full object-cover" />

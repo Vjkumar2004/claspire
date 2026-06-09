@@ -11,6 +11,7 @@ const supabase = createClient(
 )
 
 export async function POST(req: NextRequest) {
+  let userId: string | undefined
   try {
     // SECURITY: Use signed session verification instead of direct cookie parsing
     // Direct JSON.parse(cookie.value) is unsafe because cookies can be modified
@@ -22,7 +23,7 @@ export async function POST(req: NextRequest) {
         { status: 401 }
       )
     }
-    const userId = user.id
+    userId = user.id
 
     const formData = await req.formData()
     const file = formData.get('file') as File
@@ -79,7 +80,7 @@ export async function POST(req: NextRequest) {
     // Generate secure filename using detectedType as primary source
     let key: string
     try {
-      key = generateSafeFilename(file.name, userId, type || 'misc', validation.detectedType, file.type)
+      key = generateSafeFilename(file.name, userId!, type || 'misc', validation.detectedType, file.type)
       console.log('Generated secure filename:', key)
     } catch (error) {
       console.error('Failed to generate secure filename:', error)
@@ -100,7 +101,7 @@ export async function POST(req: NextRequest) {
           CacheControl: 'public, max-age=31536000',
           Metadata: {
             'original-name': file.name,
-            'user-id': userId,
+            'user-id': userId!,
             'validated-type': validation.detectedType || 'unknown'
           }
         })

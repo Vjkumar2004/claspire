@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { useUnreadMessages } from '@/contexts/UnreadMessagesContext'
-import { useNetworkRequestCount } from '@/contexts/NetworkRequestCountContext'
+import { useNotifications } from '@/contexts/NotificationsContext'
 import Link from 'next/link'
 import { useRouter, usePathname } from 'next/navigation'
 import { X, Menu, Users, GraduationCap, Briefcase, DollarSign, LayoutDashboard, User, LogOut, ChevronRight, MessageSquare, Building2, Search, ArrowLeft } from 'lucide-react'
@@ -13,7 +13,7 @@ import SearchBar from './search/SearchBar'
 export default function Navbar() {
   const { user, loading, signOut } = useAuth()
   const { unreadMessageCount } = useUnreadMessages()
-  const { pendingCount } = useNetworkRequestCount()
+  const { pendingNetworkRequestsCount } = useNotifications()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false)
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false)
@@ -109,9 +109,9 @@ export default function Navbar() {
           }`}>
             <span className="relative">
               <Users size={16} />
-              {pendingCount > 0 && (
+              {pendingNetworkRequestsCount > 0 && (
                 <span className="absolute -top-1.5 -right-2 flex h-3.5 min-w-[14px] items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white ring-2 ring-white px-0.5">
-                  {pendingCount > 99 ? '99+' : pendingCount}
+                  {pendingNetworkRequestsCount > 99 ? '99+' : pendingNetworkRequestsCount}
                 </span>
               )}
             </span>

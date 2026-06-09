@@ -89,11 +89,11 @@ export default function FollowingTab({ refreshKey = 0 }: FollowingTabProps) {
           <h3 className="text-sm font-bold text-gray-700">{title}</h3>
           <span className="text-xs font-semibold text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">{items.length}</span>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <div className="grid grid-cols-2 md:grid-cols-2 xl:grid-cols-2 gap-3 md:gap-4">
           {items.map((f) => (
             <div
               key={f.id}
-              className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:border-gray-300 hover:shadow-sm transition-all"
+              className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:border-gray-300 hover:shadow-lg transition-all duration-300 group flex flex-col h-full"
             >
               <div className={`relative h-8 ${f.banner_url ? '' : 'bg-gradient-to-r from-gray-50 to-gray-100'}`}>
                 {f.banner_url && (

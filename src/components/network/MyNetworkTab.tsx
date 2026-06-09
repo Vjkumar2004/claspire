@@ -102,11 +102,11 @@ export default function MyNetworkTab({ refreshKey = 0 }: MyNetworkTabProps) {
           <h3 className="text-sm font-bold text-gray-700">{title}</h3>
           <span className="text-xs font-semibold text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">{items.length}</span>
         </div>
-        <div className="space-y-2">
+        <div className="grid grid-cols-2 md:grid-cols-2 xl:grid-cols-2 gap-3 md:gap-4">
           {items.map((conn) => (
             <div
               key={conn.connection_id}
-              className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:border-gray-300 hover:shadow-sm transition-all"
+              className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:border-gray-300 hover:shadow-lg transition-all duration-300 group flex flex-col h-full"
             >
               <div className={`relative h-8 ${conn.banner_url ? '' : 'bg-gradient-to-r from-gray-50 to-gray-100'}`}>
                 {conn.banner_url && (
