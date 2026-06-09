@@ -4,8 +4,9 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import Link from 'next/link'
-import { Eye, EyeOff, Mail, Lock, User, GraduationCap } from 'lucide-react'
+import { Eye, EyeOff } from 'lucide-react'
 import GoogleSignInButton from '@/components/auth/GoogleSignInButton'
+import AuthLayout from '@/components/auth/AuthLayout'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -31,7 +32,6 @@ export default function LoginPage() {
 
       if (!res.ok) {
         if (res.status === 404 && data.isNewUser) {
-          // Redirect to signup and auto-fill email safely
           sessionStorage.setItem('google_signup_email', data.email)
           sessionStorage.setItem('google_signup_id', data.google_id)
           router.push(`/signup?email=${encodeURIComponent(data.email)}`)
@@ -41,13 +41,11 @@ export default function LoginPage() {
         return
       }
 
-      // Save to localStorage
       localStorage.setItem(
         'claspire_user',
         JSON.stringify(data.user)
       )
 
-      // Full reload for cookie redirect
       if (data.user.role === 'senior') {
         window.location.href = '/dashboard/senior'
       } else {
@@ -62,7 +60,6 @@ export default function LoginPage() {
     }
   }
 
-  // Redirect if already logged in
   useEffect(() => {
     if (!authLoading && user) {
       if (user.role === 'senior') {
@@ -75,24 +72,12 @@ export default function LoginPage() {
 
   if (authLoading) {
     return (
-      <div style={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: '#F9FAFB'
-      }}>
-        <div style={{
-          width: 40, height: 40,
-          border: '3px solid #E5E7EB',
-          borderTop: '3px solid #7C3AED',
-          borderRadius: '50%',
-          animation: 'spin 0.8s linear infinite'
-        }} />
-        <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
+      <div className="min-h-screen flex items-center justify-center bg-[#FAFAFA]">
+        <div className="w-10 h-10 border-3 border-gray-200 border-t-purple-600 rounded-full animate-spin" />
       </div>
     )
   }
+
   const handleLogin = async () => {
     if (!email || !password) {
       setError('Email and password required')
@@ -116,13 +101,11 @@ export default function LoginPage() {
         return
       }
 
-      // Save to localStorage
       localStorage.setItem(
         'claspire_user',
         JSON.stringify(data.user)
       )
 
-      // Full reload for cookie
       if (data.user.role === 'senior') {
         window.location.href = '/dashboard/senior'
       } else {
@@ -137,313 +120,114 @@ export default function LoginPage() {
   }
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: '#F9FAFB',
-      fontFamily: 'Plus Jakarta Sans, sans-serif'
-    }}>
-      <div style={{
-        display: 'flex',
-        height: 'calc(100vh - 56px)',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '20px'
-      }}>
-      <div style={{
-        background: 'white',
-        borderRadius: 16,
-        padding: '40px 36px',
-        width: '100%',
-        maxWidth: 420,
-        boxShadow: '0 4px 24px rgba(0,0,0,0.06)',
-        border: '1px solid #E5E7EB'
-      }}>
+    <AuthLayout>
+      <div className="space-y-8">
+        <div className="space-y-2">
+          <h1 className="text-[28px] font-bold text-gray-900 font-plus-jakarta-sans">
+            Welcome back <span className="inline-block">👋</span>
+          </h1>
+          <p className="text-[15px] text-gray-400 font-plus-jakarta-sans">
+            Continue your journey on{' '}
+            <span className="font-semibold text-gray-600">Claspire</span>
+          </p>
+        </div>
 
-        {/* Logo */}
-        <Link 
-          href="/"
-          className="font-plus-jakarta-sans font-bold text-lg text-black no-underline hover:no-underline"
-          style={{
-            display: 'block',
-            textAlign: 'center',
-            marginBottom: 28,
-            textDecoration: 'none'
-          }}
-        >
-          cl<span style={{ color: '#7C3AED' }}>aspire</span>
-        </Link>
-
-        {/* Heading */}
-        <h2 style={{
-          fontFamily: 'Instrument Serif, serif',
-          fontSize: 26,
-          fontWeight: 400,
-          color: '#0A0A0A',
-          margin: '0 0 6px'
-        }}>
-          Welcome back 👋
-        </h2>
-        <p style={{
-          fontSize: 14,
-          color: '#9CA3AF',
-          margin: '0 0 24px'
-        }}>
-          Don't have an account?{' '}
-          <Link href="/signup" style={{
-            color: '#7C3AED',
-            fontWeight: 600,
-            textDecoration: 'none'
-          }}>
-            Sign up free
-          </Link>
-        </p>
-
-        {/* Google Sign In Option */}
-        <div style={{ marginBottom: 20 }}>
+        <div className="space-y-6">
           <GoogleSignInButton
             buttonId="google-login-btn"
             onSuccess={handleGoogleSuccess}
             onError={(err) => setError(err)}
           />
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            margin: '16px 0 8px 0',
-            color: '#D1D5DB'
-          }}>
-            <div style={{ flex: 1, height: 1, background: '#E5E7EB' }} />
-            <span style={{ fontSize: 12, padding: '0 10px', color: '#9CA3AF', fontWeight: 500 }}>or Sign in with Email</span>
-            <div style={{ flex: 1, height: 1, background: '#E5E7EB' }} />
-          </div>
-        </div>
 
-        {/* Email */}
-        <div style={{ marginBottom: 16 }}>
-          <label style={{
-            display: 'block',
-            fontSize: 13,
-            fontWeight: 600,
-            color: '#374151',
-            marginBottom: 6
-          }}>
-            <Mail size={14} style={{ marginRight: 6, verticalAlign: 'middle' }} />
-            Email Address
-          </label>
-          <input
-            type="email"
-            placeholder="yourname@gmail.com"
-            value={email}
-            onChange={e => setEmail(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && handleLogin()}
-            style={{
-              width: '100%',
-              border: '1.5px solid #E5E7EB',
-              borderRadius: 8,
-              padding: '11px 14px',
-              fontSize: 14,
-              color: '#0A0A0A',
-              outline: 'none',
-              fontFamily: 'Plus Jakarta Sans',
-              boxSizing: 'border-box',
-              transition: 'border-color 0.15s'
-            }}
-            onFocus={e => {
-              e.target.style.borderColor = '#7C3AED'
-              e.target.style.boxShadow = 
-                '0 0 0 3px #7C3AED18'
-            }}
-            onBlur={e => {
-              e.target.style.borderColor = '#E5E7EB'
-              e.target.style.boxShadow = 'none'
-            }}
-          />
-        </div>
-
-        {/* Password */}
-        <div style={{ marginBottom: 8 }}>
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: 6
-          }}>
-            <label style={{
-              fontSize: 13,
-              fontWeight: 600,
-              color: '#374151'
-            }}>
-              <Lock size={14} style={{ marginRight: 6, verticalAlign: 'middle' }} />
-              Password
-            </label>
-            <Link
-              href="/forgot-password"
-              style={{
-                fontSize: 12,
-                color: '#7C3AED',
-                fontWeight: 600,
-                textDecoration: 'none'
-              }}
-            >
-              Forgot password?
-            </Link>
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-200" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-[#FAFAFA] px-3 text-gray-400 font-medium">or sign in with email</span>
+            </div>
           </div>
-          <div style={{ position: 'relative' }}>
-            <input
-              type={showPassword ? 'text' : 'password'}
-              placeholder="Enter your password"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && handleLogin()}
-              style={{
-                width: '100%',
-                border: '1.5px solid #E5E7EB',
-                borderRadius: 8,
-                padding: '11px 40px 11px 14px',
-                fontSize: 14,
-                color: '#0A0A0A',
-                outline: 'none',
-                fontFamily: 'Plus Jakarta Sans',
-                boxSizing: 'border-box',
-                transition: 'border-color 0.15s'
-              }}
-              onFocus={e => {
-                e.target.style.borderColor = '#7C3AED'
-                e.target.style.boxShadow = 
-                  '0 0 0 3px #7C3AED18'
-              }}
-              onBlur={e => {
-                e.target.style.borderColor = '#E5E7EB'
-                e.target.style.boxShadow = 'none'
-              }}
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              style={{
-                position: 'absolute',
-                right: 12,
-                top: '50%',
-                transform: 'translateY(-50%)',
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                color: '#9CA3AF',
-                fontSize: 16,
-                padding: 0
-              }}
-            >
-              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-            </button>
-          </div>
-        </div>
 
-        {/* Error */}
-        {error && (
-          <div style={{
-            background: '#FEF2F2',
-            border: '1px solid #FECACA',
-            borderRadius: 8,
-            padding: '10px 14px',
-            fontSize: 13,
-            color: '#EF4444',
-            marginBottom: 16,
-            marginTop: 8
-          }}>
-            ⚠️ {error}
-          </div>
-        )}
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                Email
+              </label>
+              <input
+                type="email"
+                placeholder="you@example.com"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleLogin()}
+                className="w-full h-11 px-3.5 text-sm text-gray-900 placeholder:text-gray-400 border border-gray-200 rounded-xl outline-none transition-all duration-150 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 bg-white"
+              />
+            </div>
 
-        {/* Login Button */}
-        <button
-          onClick={handleLogin}
-          disabled={loading}
-          style={{
-            width: '100%',
-            background: loading
-              ? '#E5E7EB'
-              : 'linear-gradient(135deg, #7C3AED, #06B6D4)',
-            color: loading ? '#9CA3AF' : 'white',
-            border: 'none',
-            borderRadius: 10,
-            padding: '14px',
-            fontSize: 15,
-            fontWeight: 700,
-            cursor: loading ? 'not-allowed' : 'pointer',
-            fontFamily: 'Plus Jakarta Sans',
-            marginTop: error ? 0 : 16,
-            transition: 'opacity 0.2s',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 8
-          }}
-        >
-          {loading ? (
-            <>
-              <div style={{
-                width: 16, height: 16,
-                border: '2px solid #9CA3AF',
-                borderTop: '2px solid white',
-                borderRadius: '50%',
-                animation: 'spin 0.8s linear infinite'
-              }} />
-              Signing in...
-            </>
-          ) : (
-            'Sign in →'
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="text-sm font-semibold text-gray-700">
+                  Password
+                </label>
+                <Link
+                  href="/forgot-password"
+                  className="text-xs font-semibold text-purple-600 hover:text-purple-700 no-underline"
+                >
+                  Forgot password?
+                </Link>
+              </div>
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && handleLogin()}
+                  className="w-full h-11 px-3.5 pr-11 text-sm text-gray-900 placeholder:text-gray-400 border border-gray-200 rounded-xl outline-none transition-all duration-150 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 bg-white"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 bg-transparent border-none cursor-pointer p-0"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3">
+              <p className="text-xs font-medium text-red-600">{error}</p>
+            </div>
           )}
-        </button>
 
-        {/* Forgot Password Link */}
-        <div style={{
-          textAlign: 'center',
-          marginTop: 16
-        }}>
-          <Link 
-            href="/forgot-password"
-            style={{
-              fontSize: 13,
-              color: '#7C3AED',
-              textDecoration: 'none',
-              fontWeight: 600,
-              transition: 'color 0.2s'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.color = '#6D28D9'
-              e.currentTarget.style.textDecoration = 'underline'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.color = '#7C3AED'
-              e.currentTarget.style.textDecoration = 'none'
-            }}
+          <button
+            onClick={handleLogin}
+            disabled={loading}
+            className="w-full h-11 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-400 text-white text-sm font-semibold rounded-xl transition-all duration-150 flex items-center justify-center gap-2 border-none cursor-pointer disabled:cursor-not-allowed shadow-sm"
           >
-            Forgot your password?
-          </Link>
-        </div>
+            {loading ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <span>Signing in...</span>
+              </>
+            ) : (
+              'Sign in'
+            )}
+          </button>
 
-        <style>{`
-          @keyframes spin {
-            to { transform: rotate(360deg) }
-          }
-        `}</style>
-
-        {/* Divider */}
-        <div style={{
-          textAlign: 'center',
-          marginTop: 20,
-          paddingTop: 20,
-          borderTop: '1px solid #F3F4F6'
-        }}>
-          <p style={{
-            fontSize: 12,
-            color: '#D1D5DB',
-            margin: 0
-          }}>
-            © 2024 Claspire · India's College Community
+          <p className="text-center text-sm text-gray-400">
+            Don't have an account?{' '}
+            <Link href="/signup" className="font-semibold text-purple-600 hover:text-purple-700 no-underline">
+              Sign up free
+            </Link>
           </p>
         </div>
+
+        <p className="text-center text-xs text-gray-300 font-medium">
+          © 2024 Claspire · India's College Community
+        </p>
       </div>
-      </div>
-    </div>
+    </AuthLayout>
   )
 }
