@@ -3,7 +3,7 @@ import React from 'react'
 import { motion } from 'framer-motion'
 import { Zap, MessageSquare, Share2, CheckCircle, ArrowRight } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import PostImageCarousel from '@/components/PostImageCarousel'
+import MediaGallery from '@/components/MediaGallery'
 
 const convertUrlsToLinks = (text: string) => {
   if (!text) return text
@@ -109,7 +109,6 @@ export interface FeedPostProps {
   postAnswers?: any[]
   answersLoading?: boolean
   onToggleContent: (postId: string) => void
-  onImageClick: (url: string) => void
   onVote: (postId: string, voteType: 'upvote' | 'downvote') => void
   onToggleAnswerSection: (postId: string) => void
   onSharePost: (post: any) => void
@@ -126,7 +125,6 @@ export default function FeedPost({
   postAnswers,
   answersLoading,
   onToggleContent,
-  onImageClick,
   onVote,
   onToggleAnswerSection,
   onSharePost,
@@ -353,14 +351,9 @@ export default function FeedPost({
         )}
       </div>
 
-      {/* Attached media inside card via Carousel */}
+      {/* Attached media inside card via MediaGallery */}
       {post.image_url && post.image_url.length > 0 && (
-        <div className="mb-3">
-          <PostImageCarousel
-            imageUrls={post.image_url}
-            onImageClick={onImageClick}
-          />
-        </div>
+        <MediaGallery imageUrls={post.image_url} />
       )}
 
       {/* Tags line */}

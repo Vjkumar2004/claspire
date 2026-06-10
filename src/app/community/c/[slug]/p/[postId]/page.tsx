@@ -8,7 +8,7 @@ import {
   CheckCircle, Clock, Eye, Send, ChevronRight,
   Share2, GraduationCap, Crown, Sparkles, Users, Building2
 } from 'lucide-react'
-import PostImageCarousel from '@/components/PostImageCarousel'
+import MediaGallery from '@/components/MediaGallery'
 import LikesModal from '@/components/community/LikesModal'
 
 const supabase = createClient(
@@ -646,7 +646,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
                   {convertUrlsToLinks(post.content)}
                 </div>
 
-                <PostImageCarousel imageUrls={post.image_url} onImageClick={(url) => window.open(url, '_blank')} />
+                <MediaGallery imageUrls={post.image_url} />
 
                 {post.tags?.length > 0 && (
                   <div className="flex flex-wrap gap-1.5 mt-4 mb-5">

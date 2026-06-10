@@ -15,7 +15,7 @@ import {
 import PostModal from '@/components/PostModal'
 import CreateGroupModal from '@/components/CreateGroupModal'
 import { getCollegeLogo, getCollegeInitial } from '@/lib/college-utils'
-import PostImageCarousel from '@/components/PostImageCarousel'
+import MediaGallery from '@/components/MediaGallery'
 
 // Utility function to convert URLs to clickable links and preserve line breaks
 const convertUrlsToLinks = (text: string) => {
@@ -690,7 +690,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                         <h2 className="text-base sm:text-lg font-extrabold text-slate-900 m-0 mb-2 leading-snug">{post.title}</h2>
                       )}
                       <div className="text-sm text-slate-600 leading-relaxed line-clamp-3 mb-3">{convertUrlsToLinks(post.content)}</div>
-                      <PostImageCarousel imageUrls={post.image_url} />
+                      <MediaGallery imageUrls={post.image_url} />
 
                       <div className="flex flex-wrap items-center gap-4 pt-3 mt-3 border-t border-slate-100 text-xs font-semibold text-slate-500">
                         <span className="inline-flex items-center gap-1.5">

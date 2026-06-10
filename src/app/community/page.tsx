@@ -46,7 +46,7 @@ interface FeedStateCache {
 let communityFeedCache: FeedStateCache | null = null
 
 import BottomNavbar from '@/components/BottomNavbar'
-import PostImageCarousel from '@/components/PostImageCarousel'
+
 import ChatWidget from '@/components/community/ChatWidget'
 import FeedPost from '@/components/community/FeedPost'
 import LeftSidebar from '@/components/community/LeftSidebar'
@@ -160,10 +160,6 @@ function CommunityPageContent() {
   const [hasMore, setHasMore] = useState(() => validCache?.hasMore !== undefined ? validCache.hasMore : true)
   const [loadingMore, setLoadingMore] = useState(false)
 
-  // Image modal state
-  const [showImageModal, setShowImageModal] = useState(false)
-  const [selectedImage, setSelectedImage] = useState('')
-
   // Votes state
   const [votes, setVotes] = useState<Record<string, {
     userVote: 'upvote' | 'downvote' | null
@@ -208,16 +204,6 @@ function CommunityPageContent() {
       ...prev,
       [postId]: !prev[postId]
     }))
-  }
-
-  const handleImageClick = (imageUrl: string) => {
-    setSelectedImage(imageUrl)
-    setShowImageModal(true)
-  }
-
-  const closeImageModal = () => {
-    setShowImageModal(false)
-    setSelectedImage('')
   }
 
   // Auto-hide FAB on scroll to sync with bottom navbar
@@ -1224,7 +1210,6 @@ function CommunityPageContent() {
                         postAnswers={postAnswers[post.id]}
                         answersLoading={answersLoading[post.id]}
                         onToggleContent={toggleContentExpansion}
-                        onImageClick={handleImageClick}
                         onVote={handleVote}
                         onToggleAnswerSection={toggleAnswerSection}
                         onSharePost={handleSharePost}
@@ -1269,35 +1254,6 @@ function CommunityPageContent() {
 
       {/* ════ COMMUNITY CHAT WIDGET (Extracted) ════ */}
       <ChatWidget user={user} isNavVisible={isNavVisible} />
-
-      {/* Image Modal Lightbox */}
-      <AnimatePresence>
-        {showImageModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={closeImageModal}
-            className="fixed inset-0 bg-black/90 z-[10000] flex items-center justify-center p-4 cursor-zoom-out"
-          >
-            <motion.div
-              initial={{ scale: 0.95 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0.95 }}
-              onClick={e => e.stopPropagation()}
-              className="relative max-w-4xl max-h-[90vh] flex items-center justify-center"
-            >
-              <img src={selectedImage} alt="Post preview large" className="rounded-lg object-contain max-h-[85vh] max-w-full" />
-              <button
-                onClick={closeImageModal}
-                className="absolute -top-10 -right-10 w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white flex items-center justify-center cursor-zoom-out transition-all"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* Likes Modal */}
       <LikesModal
