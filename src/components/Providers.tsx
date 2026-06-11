@@ -6,6 +6,16 @@ import { UnreadMessagesProvider } from '@/contexts/UnreadMessagesContext'
 import { NotificationsProvider } from '@/contexts/NotificationsContext'
 import { NetworkRequestCountProvider } from '@/contexts/NetworkRequestCountContext'
 import { useLastSeen } from '@/hooks/useActivityStatus'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 60 * 1000,
+      refetchOnWindowFocus: false,
+    },
+  },
+})
 
 function LastSeenUpdater() {
   useLastSeen()
@@ -14,17 +24,19 @@ function LastSeenUpdater() {
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <AuthProvider>
-      <PointsProvider>
-        <UnreadMessagesProvider>
-          <NetworkRequestCountProvider>
-            <NotificationsProvider>
-              <LastSeenUpdater />
-              {children}
-            </NotificationsProvider>
-          </NetworkRequestCountProvider>
-        </UnreadMessagesProvider>
-      </PointsProvider>
-    </AuthProvider>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <PointsProvider>
+          <UnreadMessagesProvider>
+            <NetworkRequestCountProvider>
+              <NotificationsProvider>
+                <LastSeenUpdater />
+                {children}
+              </NotificationsProvider>
+            </NetworkRequestCountProvider>
+          </UnreadMessagesProvider>
+        </PointsProvider>
+      </AuthProvider>
+    </QueryClientProvider>
   )
 }

@@ -163,7 +163,7 @@ export default function NetworkPage() {
 
         {/* ===== TAB NAVIGATION ===== */}
         <div className="mt-4 lg:mt-8 mb-4 lg:mb-8">
-          <div className="inline-flex bg-white/90 backdrop-blur-sm border border-gray-200/70 rounded-xl lg:rounded-2xl p-1 shadow-sm w-full lg:w-auto">
+          <div className="inline-flex bg-white/90 backdrop-blur-sm border border-gray-200/70 rounded-xl lg:rounded-2xl p-1 shadow-sm w-full lg:w-auto overflow-x-auto scrollbar-none">
             {tabs.map((tab, i) => {
               const Icon = tab.icon
               const isActive = activeTab === tab.id
@@ -172,7 +172,7 @@ export default function NetworkPage() {
                   key={tab.id}
                   data-tab={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`relative flex items-center gap-1.5 lg:gap-2 px-3 lg:px-6 py-2 lg:py-2.5 text-xs lg:text-sm font-semibold rounded-lg lg:rounded-xl transition-all duration-200 flex-1 lg:flex-initial justify-center ${
+                  className={`relative flex items-center gap-1.5 lg:gap-2 px-3 lg:px-6 py-2 lg:py-2.5 text-xs lg:text-sm font-semibold rounded-lg lg:rounded-xl transition-all duration-200 flex-shrink-0 ${
                     isActive
                       ? 'text-white'
                       : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'

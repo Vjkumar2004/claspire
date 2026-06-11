@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
 const supabase = createClient(
@@ -10,110 +10,120 @@ export const revalidate = 300
 
 export async function GET() {
   try {
-    const { data: communities, error: communitiesError } = await supabase
-      .from('communities')
-      .select(`
-        id,
-        slug,
-        display_name,
-        member_count,
-        senior_count,
-        doubt_count,
-        colleges (
-          id,
-          name,
-          short_name,
-          location,
-          state,
-          type,
-          logo_url
-        )
-      `)
-      .order('member_count', { ascending: false })
+    const [
+      collegesResult,
+      communitiesResult,
+      usersResult,
+      connectionsResult,
+    ] = await Promise.all([
+      supabase.from('colleges').select('id, name, short_name, slug, location, state, type, logo_url').order('name', { ascending: true }),
+      supabase.from('communities').select(`
+        id, slug, display_name, member_count, senior_count, doubt_count, last_activity_at, college_id,
+        colleges ( id, name, short_name, slug, location, state, type, logo_url )
+      `).eq('is_active', true).order('member_count', { ascending: false }).limit(200),
+      supabase.from('users').select('college_id, role'),
+      supabase.from('connections').select('id', { count: 'exact', head: true }).eq('status', 'accepted'),
+    ])
 
-    if (communitiesError) throw communitiesError
-
-    const { data: colleges, error: collegesError } = await supabase
-      .from('colleges')
-      .select('id, name, short_name, slug, location, state, type, logo_url')
-      .order('name', { ascending: true })
-
-    if (collegesError) throw collegesError
-
-    const collegeIds = (colleges || []).map((college) => college.id)
-
-    const usersResult = collegeIds.length > 0
-      ? await supabase
-          .from('users')
-          .select('college_id, role')
-          .in('college_id', collegeIds)
-      : { data: [], error: null }
-
+    if (collegesResult.error) throw collegesResult.error
+    if (communitiesResult.error) throw communitiesResult.error
     if (usersResult.error) throw usersResult.error
 
-    const statsByCollege = new Map<string, { member_count: number; senior_count: number; doubt_count: number }>()
+    const colleges = collegesResult.data || []
+    const communities = communitiesResult.data || []
+    const users = usersResult.data || []
+    const totalConnections = connectionsResult.count ?? 0
 
-    for (const college of colleges || []) {
-      statsByCollege.set(college.id, {
-        member_count: 0,
-        senior_count: 0,
-        doubt_count: 0
-      })
+    // Stats by college from users
+    const statsByCollege = new Map<string, { member_count: number; senior_count: number }>()
+    for (const college of colleges) {
+      statsByCollege.set(college.id, { member_count: 0, senior_count: 0 })
     }
-
-    for (const user of usersResult.data || []) {
+    for (const user of users) {
       if (!user.college_id) continue
-
       const stats = statsByCollege.get(user.college_id)
-      if (!stats) continue
-
-      stats.member_count += 1
-      if (user.role === 'senior') {
-        stats.senior_count += 1
+      if (!stats) {
+        statsByCollege.set(user.college_id, { member_count: 1, senior_count: user.role === 'senior' ? 1 : 0 })
+        continue
       }
+      stats.member_count += 1
+      if (user.role === 'senior') stats.senior_count += 1
     }
 
+    // Total stats
+    const totalStudents = users.filter(u => u.role === 'student').length
+    const totalSeniors = users.filter(u => u.role === 'senior').length
+
+    // Merge communities with college data
     const existingByCollegeId = new Map(
-      (communities || [])
-        .filter((community: any) => community.colleges?.id)
-        .map((community: any) => [community.colleges.id, community])
+      (communities as any[])
+        .filter((c: any) => c.colleges?.id)
+        .map((c: any) => [c.colleges.id, c])
     )
 
-    const mergedCommunities = (colleges || []).map((college) => {
-      const stats = statsByCollege.get(college.id) || {
-        member_count: 0,
-        senior_count: 0,
-        doubt_count: 0
-      }
-
-      const existingCommunity = existingByCollegeId.get(college.id)
-      if (existingCommunity) {
+    const mergedColleges = colleges.map((college) => {
+      const stats = statsByCollege.get(college.id) || { member_count: 0, senior_count: 0 }
+      const existing = existingByCollegeId.get(college.id)
+      if (existing) {
         return {
-          ...existingCommunity,
-          member_count: Math.max(existingCommunity.member_count || 0, stats.member_count),
-          senior_count: Math.max(existingCommunity.senior_count || 0, stats.senior_count),
+          id: existing.id,
+          slug: existing.slug,
+          display_name: existing.display_name,
+          member_count: Math.max(existing.member_count || 0, stats.member_count || 0),
+          senior_count: Math.max(existing.senior_count || 0, stats.senior_count || 0),
+          doubt_count: existing.doubt_count || 0,
+          last_activity_at: existing.last_activity_at || null,
+          colleges: college,
         }
       }
-
       return {
         id: college.id,
         slug: college.slug,
         display_name: college.short_name || college.name,
-        ...stats,
-        colleges: college
+        member_count: stats.member_count || 0,
+        senior_count: stats.senior_count || 0,
+        doubt_count: 0,
+        last_activity_at: null,
+        colleges: college,
       }
     })
 
+    // Recently active: use communities with non-null last_activity_at, sorted desc
+    const withActivity = mergedColleges.filter(c => c.last_activity_at)
+    const recentlyActive = [...withActivity]
+      .sort((a, b) => new Date(b.last_activity_at!).getTime() - new Date(a.last_activity_at!).getTime())
+      .slice(0, 5)
+
+    // Fastest growing: by senior density (seniors / members)
+    const fastestGrowing = [...mergedColleges]
+      .filter(c => c.member_count > 0)
+      .sort((a, b) => {
+        const ratioA = a.senior_count / a.member_count
+        const ratioB = b.senior_count / b.member_count
+        return ratioB - ratioA
+      })
+      .slice(0, 5)
+
+    // Trending: highest member_count
+    const trending = [...mergedColleges]
+      .sort((a, b) => b.member_count - a.member_count)
+      .slice(0, 5)
+
     return NextResponse.json({
       success: true,
-      communities: mergedCommunities
+      heroStats: {
+        totalColleges: colleges.length,
+        totalStudents,
+        totalSeniors,
+        totalConnections,
+      },
+      colleges: mergedColleges,
+      trending,
+      fastestGrowing,
+      recentlyActive,
     })
-
   } catch (err: any) {
     console.error('Colleges fetch error:', err)
-    return NextResponse.json(
-      { error: 'Server error', details: err.message },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Server error', details: err.message }, { status: 500 })
   }
 }

@@ -37,17 +37,16 @@ interface PeopleCardProps {
   index?: number
 }
 
-function getBannerGradient(id: string): string {
-  const gradients = [
-    'from-violet-500 via-purple-500 to-fuchsia-500',
-    'from-blue-500 via-indigo-500 to-violet-500',
-    'from-emerald-500 via-teal-500 to-cyan-500',
-    'from-rose-500 via-pink-500 to-purple-500',
-    'from-amber-500 via-orange-500 to-red-500',
-    'from-sky-500 via-blue-500 to-indigo-500',
-  ]
-  const num = (id.charCodeAt(0) + id.charCodeAt(id.length - 1)) % gradients.length
-  return gradients[num]
+function ClaspireBanner() {
+  return (
+    <div className="absolute inset-0 w-full h-full bg-[#1E1B4B] flex items-center justify-center">
+      <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: 'radial-gradient(circle at 20px 20px, white 1.5px, transparent 0)', backgroundSize: '30px 30px' }} />
+      <div className="absolute inset-0 bg-gradient-to-t from-[#312E81]/40 via-transparent to-[#4C1D95]/20" />
+      <span className="relative text-[15px] lg:text-lg font-extrabold tracking-[0.2em] bg-gradient-to-r from-purple-300 via-fuchsia-300 to-purple-200 bg-clip-text text-transparent select-none">
+        CLASPIRE
+      </span>
+    </div>
+  )
 }
 
 export default function PeopleCard({ person, onConnect, onRemove, connectionId, showActions = true }: PeopleCardProps) {
@@ -119,7 +118,7 @@ export default function PeopleCard({ person, onConnect, onRemove, connectionId, 
             loading="lazy"
           />
         ) : (
-          <div className={`absolute inset-0 w-full h-full bg-gradient-to-br ${getBannerGradient(person.id)}`} />
+          <ClaspireBanner />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent" />
       </div>
