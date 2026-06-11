@@ -27,7 +27,7 @@ export async function GET(req: NextRequest) {
     if (targetUserId) {
       const { data: user, error } = await supabase
         .from('users')
-        .select('id, full_name, avatar_url, role, unique_id, company, designation, is_verified')
+        .select('id, full_name, avatar_url, role, unique_id, company, designation, is_verified, last_seen')
         .eq('id', targetUserId)
         .single();
       
@@ -45,7 +45,7 @@ export async function GET(req: NextRequest) {
     // Search users by name, excluding the current user
     let dbQuery = supabase
       .from('users')
-      .select('id, full_name, avatar_url, role, unique_id, company, designation, is_verified')
+      .select('id, full_name, avatar_url, role, unique_id, company, designation, is_verified, last_seen')
       .neq('id', userId)
       .ilike('full_name', `%${query}%`)
       .limit(10);

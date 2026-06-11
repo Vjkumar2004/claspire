@@ -45,7 +45,7 @@ export async function GET(req: NextRequest) {
       .from('users')
       .select(`
         id, full_name, unique_id, role, avatar_url, company, designation,
-        branch, graduation_year, passout_year, college_id,
+        branch, graduation_year, passout_year, college_id, last_seen,
         college:college_id ( name, short_name )
       `)
       .in('id', peerIds)
@@ -72,6 +72,7 @@ export async function GET(req: NextRequest) {
         branch: peer?.branch || null,
         graduation_year: peer?.graduation_year || null,
         passout_year: peer?.passout_year || null,
+        last_seen: peer?.last_seen || null,
         college: peer?.college || null,
         accepted_at: c.responded_at,
       }

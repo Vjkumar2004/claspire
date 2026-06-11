@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Check, X, Loader2, UserPlus, Clock, ArrowLeft, Send, GraduationCap, Briefcase } from 'lucide-react'
+import PeopleCard from './PeopleCard'
 
 interface RequestUser {
   id: string
@@ -20,6 +21,7 @@ interface RequestUser {
   branch?: string | null
   college_id?: string | null
   graduation_year?: number | null
+  last_seen?: string | null
 }
 
 interface RequestsTabProps {
@@ -71,19 +73,27 @@ export default function RequestsTab({ refreshKey = 0 }: RequestsTabProps) {
     } catch { } finally { setActionId(null) }
   }
 
+  const handleConnectAction = async (userId: string): Promise<boolean> => {
+    // For requests tab, this is handled by handleRespond/handleWithdraw
+    return false
+  }
+
   if (loading) {
     return (
-      <div className="space-y-3">
-        {[1, 2].map((i) => (
-          <div key={i} className="bg-white border border-gray-200 rounded-xl p-4 flex items-center gap-4 animate-pulse">
-            <div className="w-11 h-11 rounded-full bg-gray-100" />
-            <div className="flex-1 space-y-2">
-              <div className="h-3 bg-gray-100 rounded w-1/3" />
-              <div className="h-2.5 bg-gray-100 rounded w-1/4" />
-            </div>
-            <div className="flex gap-2">
-              <div className="h-8 w-20 bg-gray-100 rounded-lg" />
-              <div className="h-8 w-20 bg-gray-100 rounded-lg" />
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-2 2xl:grid-cols-3 gap-3 lg:gap-5">
+        {[1, 2, 3, 4, 5, 6].map((i) => (
+          <div key={i} className="bg-white rounded-xl border border-gray-200/90 overflow-hidden animate-pulse shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+            <div className="h-[80px] lg:h-[90px] bg-gray-100" />
+            <div className="px-3 lg:px-4 pb-2.5 lg:pb-3 pt-1 lg:pt-1.5 space-y-1.5 lg:space-y-2">
+              <div className="flex justify-center -mt-[21px] lg:-mt-8 mb-1">
+                <div className="w-[42px] h-[42px] lg:w-16 lg:h-16 rounded-full border-[3px] lg:border-[4px] border-white bg-gray-100 shadow-md" />
+              </div>
+              <div className="h-3 lg:h-3.5 bg-gray-100 rounded w-2/3 mx-auto" />
+              <div className="h-2 lg:h-2.5 bg-gray-50 rounded w-1/2 mx-auto" />
+              <div className="h-2 bg-gray-50 rounded w-1/3 mx-auto" />
+              <div className="mt-1.5 lg:mt-2 pt-1.5 lg:pt-2 border-t border-gray-100">
+                <div className="h-7 lg:h-8 bg-gray-100 rounded-lg w-full" />
+              </div>
             </div>
           </div>
         ))}
@@ -98,80 +108,40 @@ export default function RequestsTab({ refreshKey = 0 }: RequestsTabProps) {
       : 'bg-blue-50 text-blue-700 border-blue-100'
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {incoming.length > 0 && (
         <div>
-          <h3 className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
-            <UserPlus size={16} className="text-amber-500" />
-            Incoming Requests
-            <span className="text-xs font-semibold text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">{incoming.length}</span>
-          </h3>
-          <div className="grid grid-cols-2 md:grid-cols-2 xl:grid-cols-2 gap-3 md:gap-4">
+          <div className="flex items-center justify-between mb-5">
+            <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+              <UserPlus size={18} className="text-amber-500" />
+              Incoming Requests
+              <span className="text-xs font-semibold text-gray-400 bg-gray-100 px-3 py-1 rounded-full">{incoming.length}</span>
+            </h3>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-2 2xl:grid-cols-3 gap-3 lg:gap-5">
             {incoming.map((req) => (
-              <div
+              <PeopleCard
                 key={req.id}
-                className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:border-gray-300 hover:shadow-lg transition-all duration-300 group flex flex-col h-full"
-              >
-                <div className={`relative h-8 ${req.banner_url ? '' : 'bg-gradient-to-r from-gray-50 to-gray-100'}`}>
-                  {req.banner_url && (
-                    <img src={req.banner_url} alt="" className="w-full h-full object-cover" />
-                  )}
-                </div>
-                <div className="p-3.5 flex items-center gap-3">
-                <div
-                  onClick={() => router.push(`/u/${req.unique_id}`)}
-                  className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-xs font-black text-gray-500 border border-gray-200 overflow-hidden cursor-pointer flex-shrink-0"
-                >
-                  {req.avatar_url ? (
-                    <img src={req.avatar_url} alt={req.full_name} className="w-full h-full object-cover" />
-                  ) : (
-                    req.full_name?.substring(0, 2).toUpperCase()
-                  )}
-                </div>
-
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <h4
-                      onClick={() => router.push(`/u/${req.unique_id}`)}
-                      className="text-sm font-bold text-gray-900 hover:text-purple-600 cursor-pointer truncate"
-                    >
-                      {req.full_name}
-                    </h4>
-                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full border ${roleColor(req.role)} flex-shrink-0`}>
-                      {roleLabel(req.role)}
-                    </span>
-                  </div>
-                  <p className="text-xs text-gray-500 mt-0.5 truncate">
-                    {req.designation && req.company
-                      ? `${req.designation} at ${req.company}`
-                      : req.branch || 'Student'}
-                  </p>
-                  <p className="text-[11px] text-gray-400 mt-1 flex items-center gap-1">
-                    <Clock size={11} />
-                    {new Date(req.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                  </p>
-                </div>
-
-                <div className="flex items-center gap-1.5 flex-shrink-0">
-                  <button
-                    onClick={() => handleRespond(req.id, 'accepted')}
-                    disabled={actionId === req.id}
-                    className="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white transition-colors flex items-center gap-1 disabled:opacity-50"
-                  >
-                    {actionId === req.id ? <Loader2 size={12} className="animate-spin" /> : <Check size={12} />}
-                    Accept
-                  </button>
-                  <button
-                    onClick={() => handleRespond(req.id, 'rejected')}
-                    disabled={actionId === req.id}
-                    className="px-3 py-1.5 rounded-lg text-xs font-bold bg-white text-gray-600 border border-gray-200 hover:border-red-200 hover:text-red-500 hover:bg-red-50 transition-colors flex items-center gap-1 disabled:opacity-50"
-                  >
-                    <X size={12} />
-                    Ignore
-                  </button>
-                </div>
-              </div>
-            </div>
+                person={{
+                  id: req.sender_id,
+                  full_name: req.full_name,
+                  unique_id: req.unique_id,
+                  role: req.role,
+                  avatar_url: req.avatar_url,
+                  banner_url: req.banner_url,
+                  company: req.company,
+                  designation: req.designation,
+                  branch: req.branch,
+                  college_id: req.college_id,
+                  graduation_year: req.graduation_year,
+                  last_seen: req.last_seen,
+                  connectionStatus: 'pending_received',
+                  mutualConnections: 0,
+                  isFollowing: false,
+                }}
+                onConnect={handleConnectAction}
+                showActions={false}
+              />
             ))}
           </div>
         </div>
@@ -179,74 +149,49 @@ export default function RequestsTab({ refreshKey = 0 }: RequestsTabProps) {
 
       {outgoing.length > 0 && (
         <div>
-          <h3 className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
-            <Send size={16} className="text-blue-500" />
-            Outgoing Requests
-            <span className="text-xs font-semibold text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">{outgoing.length}</span>
-          </h3>
-          <div className="grid grid-cols-2 md:grid-cols-2 xl:grid-cols-2 gap-3 md:gap-4">
+          <div className="flex items-center justify-between mb-5">
+            <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+              <Send size={18} className="text-blue-500" />
+              Outgoing Requests
+              <span className="text-xs font-semibold text-gray-400 bg-gray-100 px-3 py-1 rounded-full">{outgoing.length}</span>
+            </h3>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-2 2xl:grid-cols-3 gap-3 lg:gap-5">
             {outgoing.map((req) => (
-              <div
+              <PeopleCard
                 key={req.id}
-                className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:border-gray-300 hover:shadow-lg transition-all duration-300 group flex flex-col h-full"
-              >
-                <div className={`relative h-8 ${req.banner_url ? '' : 'bg-gradient-to-r from-gray-50 to-gray-100'}`}>
-                  {req.banner_url && (
-                    <img src={req.banner_url} alt="" className="w-full h-full object-cover" />
-                  )}
-                </div>
-                <div className="p-3.5 flex items-center gap-3">
-                <div
-                  onClick={() => router.push(`/u/${req.unique_id}`)}
-                  className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-xs font-black text-gray-500 border border-gray-200 overflow-hidden cursor-pointer flex-shrink-0"
-                >
-                  {req.avatar_url ? (
-                    <img src={req.avatar_url} alt={req.full_name} className="w-full h-full object-cover" />
-                  ) : (
-                    req.full_name?.substring(0, 2).toUpperCase()
-                  )}
-                </div>
-
-                <div className="flex-1 min-w-0">
-                  <h4
-                    onClick={() => router.push(`/u/${req.unique_id}`)}
-                    className="text-sm font-bold text-gray-900 hover:text-purple-600 cursor-pointer truncate"
-                  >
-                    {req.full_name}
-                  </h4>
-                  <p className="text-xs text-gray-500 mt-0.5 truncate">
-                    {req.designation && req.company
-                      ? `${req.designation} at ${req.company}`
-                      : req.branch || 'Student'}
-                  </p>
-                  <p className="text-[11px] text-amber-600 mt-1 flex items-center gap-1 font-medium">
-                    <Clock size={11} />
-                    Sent {new Date(req.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                  </p>
-                </div>
-
-                <button
-                  onClick={() => handleWithdraw(req.id)}
-                  disabled={actionId === req.id}
-                  className="px-3 py-1.5 rounded-lg text-xs font-bold bg-white text-gray-600 border border-gray-200 hover:border-red-200 hover:text-red-500 hover:bg-red-50 transition-colors flex items-center gap-1 disabled:opacity-50"
-                >
-                  {actionId === req.id ? <Loader2 size={12} className="animate-spin" /> : <ArrowLeft size={12} />}
-                  Withdraw
-                </button>
-              </div>
-            </div>
+                person={{
+                  id: req.receiver_id,
+                  full_name: req.full_name,
+                  unique_id: req.unique_id,
+                  role: req.role,
+                  avatar_url: req.avatar_url,
+                  banner_url: req.banner_url,
+                  company: req.company,
+                  designation: req.designation,
+                  branch: req.branch,
+                  college_id: req.college_id,
+                  graduation_year: req.graduation_year,
+                  last_seen: req.last_seen,
+                  connectionStatus: 'pending_sent',
+                  mutualConnections: 0,
+                  isFollowing: false,
+                }}
+                onConnect={handleConnectAction}
+                showActions={false}
+              />
             ))}
           </div>
         </div>
       )}
 
       {incoming.length === 0 && outgoing.length === 0 && (
-        <div className="text-center py-12 bg-white border border-dashed border-gray-200 rounded-xl">
-          <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3 border border-gray-100">
-            <UserPlus size={20} className="text-gray-300" />
+        <div className="text-center py-16 bg-white rounded-2xl border border-gray-200">
+          <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <UserPlus size={24} className="text-gray-300" />
           </div>
-          <h3 className="text-sm font-bold text-gray-900 mb-1">No pending requests</h3>
-          <p className="text-xs text-gray-500">Connect with people in the Discover tab to grow your network</p>
+          <h3 className="text-base font-bold text-gray-900 mb-2">No pending requests</h3>
+          <p className="text-sm text-gray-500">Connect with people in the Discover tab to grow your network</p>
         </div>
       )}
     </div>

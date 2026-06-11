@@ -56,7 +56,7 @@ export async function GET(req: NextRequest) {
 
     const { data: students, error: studentsError } = await supabase
       .from('users')
-      .select('id, full_name, avatar_url, college_id, branch, year, unique_id')
+      .select('id, full_name, avatar_url, college_id, branch, year, unique_id, last_seen')
       .in('id', studentIds)
 
     if (studentsError) {

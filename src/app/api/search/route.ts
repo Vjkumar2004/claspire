@@ -91,7 +91,7 @@ export async function GET(req: NextRequest) {
     // Fetch matching users/authors first
     const { data: matchedUsers } = await supabase
       .from('users')
-      .select('id, full_name')
+      .select('id, full_name, last_seen')
       .or(`full_name.ilike.%${query}%`)
 
     const matchedUserIds = matchedUsers?.map(u => u.id) || []
@@ -140,7 +140,7 @@ export async function GET(req: NextRequest) {
 
       const { data: users, error } = await supabase
         .from('users')
-        .select(`
+          .select(`
           id,
           full_name,
           role,
@@ -152,6 +152,7 @@ export async function GET(req: NextRequest) {
           rise_points,
           verification_status,
           college_id,
+          last_seen,
           college:college_id ( short_name )
         `)
         .or(peopleOr)

@@ -7,6 +7,7 @@ import {
   Github, ExternalLink, Zap, Info, Check, X,
 } from 'lucide-react'
 import ProfileActionBar from '@/components/profile/ProfileActionBar'
+import { getUserActivityStatus } from '@/hooks/useActivityStatus'
 import {
   parseProfileData,
   getStudentExtras,
@@ -25,6 +26,8 @@ export default function PublicProfilePage() {
   const [loading, setLoading] = useState(true)
   const [data, setData] = useState<any>(null)
   const [error, setError] = useState('')
+  const [viewCount, setViewCount] = useState<number | null>(null)
+  const [visitors, setVisitors] = useState<any[]>([])
 
   useEffect(() => {
     if (uniqueId) fetchPublicProfile()
@@ -37,6 +40,19 @@ export default function PublicProfilePage() {
       if (res.ok) {
         console.log(`[PublicProfilePage] setData — connectionId:${json.connectionId} connectionStatus:${json.connectionStatus}`)
         setData(json)
+
+        // Record profile view (if not own profile)
+        if (!json.isOwnProfile) {
+          fetch(`/api/profile/${json.user.id}/view`, { method: 'POST' }).catch(() => {})
+        }
+
+        // Fetch profile stats
+        fetch(`/api/profile/${json.user.id}/stats`).then(r => r.ok && r.json()).then(s => {
+          if (s) {
+            setViewCount(s.viewCount)
+            setVisitors(s.visitors || [])
+          }
+        }).catch(() => {})
       }
       else setError(json.error || 'User not found')
     } catch {
@@ -263,6 +279,56 @@ export default function PublicProfilePage() {
                 </div>
               )}
             </div>
+
+            {/* Profile Views */}
+            {viewCount !== null && (
+              <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+                <h3 className="text-xs font-extrabold text-[#0F172A] uppercase tracking-wider mb-3 flex items-center gap-2">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-purple-500"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  Profile Views
+                </h3>
+                <p className="text-2xl font-extrabold text-gray-900">{viewCount}</p>
+                {visitors.length > 0 && (
+                  <div className="mt-3 space-y-2">
+                    <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Recent Visitors</p>
+                    <div className="flex -space-x-1.5">
+                      {visitors.slice(0, 6).map((v: any) => (
+                        <div
+                          key={v.viewerId}
+                          onClick={() => v.viewer?.uniqueId && router.push(`/u/${v.viewer.uniqueId}`)}
+                          className="w-7 h-7 rounded-full border-2 border-white bg-gray-100 flex items-center justify-center overflow-hidden cursor-pointer hover:z-10 relative transition-transform hover:scale-110"
+                          title={v.viewer?.fullName || ''}
+                        >
+                          {v.viewer?.avatarUrl ? (
+                            <img src={v.viewer.avatarUrl} alt="" className="w-full h-full object-cover" />
+                          ) : (
+                            <span className="text-[8px] font-black text-gray-400">{v.viewer?.fullName?.substring(0, 2) || '?'}</span>
+                          )}
+                        </div>
+                      ))}
+                      {visitors.length > 6 && (
+                        <div className="w-7 h-7 rounded-full border-2 border-white bg-gray-100 flex items-center justify-center text-[9px] font-bold text-gray-500">
+                          +{visitors.length - 6}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Last Seen */}
+            {data?.user?.last_seen && (
+              <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+                <h3 className="text-xs font-extrabold text-[#0F172A] uppercase tracking-wider mb-2 flex items-center gap-2">
+                  <span className={`inline-block w-2.5 h-2.5 rounded-full ${data.user.last_seen ? 'bg-emerald-500' : 'bg-gray-300'}`} />
+                  Activity Status
+                </h3>
+                <p className={`text-sm font-bold ${getUserActivityStatus(data.user.last_seen).color}`}>
+                  {getUserActivityStatus(data.user.last_seen).label}
+                </p>
+              </div>
+            )}
 
             {isOwnProfile && (
               <button

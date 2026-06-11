@@ -56,7 +56,7 @@ export async function GET(req: NextRequest) {
 
     const { data: seniors, error: seniorsError } = await supabase
       .from('users')
-      .select('id, full_name, avatar_url, company, designation, unique_id')
+      .select('id, full_name, avatar_url, company, designation, unique_id, last_seen')
       .in('id', seniorIds)
 
     if (seniorsError) {

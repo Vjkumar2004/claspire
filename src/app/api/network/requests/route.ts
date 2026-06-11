@@ -40,7 +40,7 @@ export async function GET(req: NextRequest) {
     if (allPeerIds.length > 0) {
       const { data } = await supabase
         .from('users')
-        .select('id, full_name, unique_id, role, avatar_url, banner_url, company, designation, branch, college_id, graduation_year, college:college_id(name, short_name)')
+        .select('id, full_name, unique_id, role, avatar_url, banner_url, company, designation, branch, college_id, graduation_year, last_seen, college:college_id(name, short_name)')
         .in('id', allPeerIds)
       peers = data || []
     }
@@ -65,6 +65,7 @@ export async function GET(req: NextRequest) {
         branch: sender?.branch || null,
         college_id: sender?.college_id || null,
         graduation_year: sender?.graduation_year || null,
+        last_seen: sender?.last_seen || null,
         college: sender?.college || null,
       }
     })
@@ -87,6 +88,7 @@ export async function GET(req: NextRequest) {
         branch: receiver?.branch || null,
         college_id: receiver?.college_id || null,
         graduation_year: receiver?.graduation_year || null,
+        last_seen: receiver?.last_seen || null,
         college: receiver?.college || null,
       }
     })

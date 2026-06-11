@@ -25,7 +25,8 @@ const PERSON_SELECT = `
     name,
     short_name,
     location
-  )
+  ),
+  last_seen
 `
 
 export async function GET(req: NextRequest) {
@@ -194,6 +195,7 @@ export async function GET(req: NextRequest) {
         isFollowing: followedIds.has(person.id),
         mutualConnections,
         score: Math.round(score),
+        last_seen: person.last_seen,
       }
     })
 

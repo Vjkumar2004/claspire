@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { useRouter } from 'next/navigation'
-import { Users, UserPlus, HeartHandshake, Compass, UserCheck } from 'lucide-react'
+import { Users, UserPlus, HeartHandshake, Compass, UserCheck, ChevronRight, GraduationCap, Settings, ExternalLink } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 
 interface NetworkSidebarProps {
@@ -24,17 +24,36 @@ export default function NetworkSidebar({ activeTab, onTabChange, connections, fo
     { id: 'following', label: 'Following', icon: HeartHandshake, count: following },
   ]
 
+  const profileStrength = [
+    user?.avatar_url,
+    user?.banner_url,
+    user?.bio,
+    user?.branch,
+    user?.college_id,
+  ].filter(Boolean).length
+
+  const strengthPercent = Math.round((profileStrength / 5) * 100)
+
+  const strengthColor = strengthPercent >= 80
+    ? 'from-emerald-400 to-emerald-500'
+    : strengthPercent >= 50
+      ? 'from-amber-400 to-amber-500'
+      : 'from-gray-300 to-gray-400'
+
   return (
-    <div className="space-y-4">
-      {/* Profile Summary Card */}
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-        <div className={`h-24 ${user?.banner_url ? '' : 'bg-gradient-to-r from-purple-500/10 to-blue-500/10'}`}>
+    <div className="space-y-3">
+      {/* Profile Card - Glassmorphism */}
+      <div className="backdrop-blur-xl bg-white/80 rounded-2xl border border-white/40 shadow-sm overflow-hidden">
+        <div className={`h-16 ${user?.banner_url ? '' : 'bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-fuchsia-500/10'}`}>
           {user?.banner_url && (
-            <img src={user.banner_url} alt="Profile Banner" className="w-full h-full object-cover" />
+            <img src={user.banner_url} alt="Banner" className="w-full h-full object-cover" />
           )}
         </div>
-        <div className="px-4 pb-4 -mt-10">
-          <div className="w-14 h-14 rounded-full border-2 border-white bg-gray-100 flex items-center justify-center text-base font-black text-gray-500 overflow-hidden shadow-md mx-auto">
+        <div className="px-4 pb-4 -mt-8">
+          <div
+            className="w-[64px] h-[64px] rounded-full border-[3px] border-white/80 bg-gray-100 flex items-center justify-center text-sm font-black text-gray-500 overflow-hidden shadow-lg mx-auto cursor-pointer ring-1 ring-black/5 backdrop-blur-sm"
+            onClick={() => router.push(`/u/${user?.unique_id}`)}
+          >
             {user?.avatar_url ? (
               <img src={user.avatar_url} alt={user?.full_name} className="w-full h-full object-cover" />
             ) : (
@@ -47,22 +66,59 @@ export default function NetworkSidebar({ activeTab, onTabChange, connections, fo
           >
             {user?.full_name}
           </h3>
-          <p className="text-[11px] text-gray-500 text-center font-medium">{user?.role === 'senior' ? 'Senior' : 'Student'}</p>
-          <div className="flex items-center justify-center gap-4 mt-3 pt-3 border-t border-gray-100">
+          <p className="text-[11px] text-gray-500 text-center font-medium capitalize">
+            {user?.role || 'Student'}
+          </p>
+
+          {/* Profile Strength */}
+          <div className="mt-3 px-0.5">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-[9px] font-semibold text-gray-400 uppercase tracking-wider">Profile Strength</span>
+              <span className="text-[10px] font-bold text-gray-500">{strengthPercent}%</span>
+            </div>
+            <div className="h-1.5 rounded-full bg-gray-100/80 overflow-hidden">
+              <div
+                className={`h-full rounded-full bg-gradient-to-r ${strengthColor} transition-all duration-700 ease-out`}
+                style={{ width: `${strengthPercent}%` }}
+              />
+            </div>
+          </div>
+
+          {/* Stats Row */}
+          <div className="flex items-center justify-center gap-3 mt-3 pt-3 border-t border-gray-100/80">
             <div className="text-center">
               <p className="text-sm font-extrabold text-gray-900">{connections}</p>
-              <p className="text-[10px] text-gray-500 font-semibold">Connections</p>
+              <p className="text-[9px] text-gray-500 font-medium">Connections</p>
             </div>
+            <div className="w-px h-7 bg-gray-100" />
             <div className="text-center">
               <p className="text-sm font-extrabold text-gray-900">{following}</p>
-              <p className="text-[10px] text-gray-500 font-semibold">Following</p>
+              <p className="text-[9px] text-gray-500 font-medium">Following</p>
             </div>
+          </div>
+
+          {/* Quick Actions */}
+          <div className="flex items-center gap-2 mt-3">
+            <button
+              onClick={() => router.push(`/settings/profile`)}
+              className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-[11px] font-semibold text-gray-500 bg-gray-50/80 border border-gray-200/60 hover:bg-gray-100 hover:text-gray-700 transition-all"
+            >
+              <Settings size={12} />
+              Edit Profile
+            </button>
+            <button
+              onClick={() => router.push(`/u/${user?.unique_id}`)}
+              className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-[11px] font-semibold text-purple-600 bg-purple-50/80 border border-purple-200/60 hover:bg-purple-100 hover:text-purple-700 transition-all"
+            >
+              <ExternalLink size={12} />
+              View Profile
+            </button>
           </div>
         </div>
       </div>
 
-      {/* Quick Links */}
-      <div className="bg-white border border-gray-200 rounded-xl p-2">
+      {/* Navigation - Glassmorphism */}
+      <div className="backdrop-blur-xl bg-white/80 rounded-2xl border border-white/40 shadow-sm p-1.5">
         {links.map((link) => {
           const Icon = link.icon
           const isActive = activeTab === link.id
@@ -70,10 +126,10 @@ export default function NetworkSidebar({ activeTab, onTabChange, connections, fo
             <button
               key={link.id}
               onClick={() => onTabChange(link.id)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all text-left ${
+              className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-[13px] font-semibold transition-all text-left ${
                 isActive
-                  ? 'bg-purple-50 text-purple-700'
-                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                  ? 'bg-gradient-to-r from-purple-50 to-purple-50/50 text-purple-700 shadow-sm'
+                  : 'text-gray-500 hover:bg-gray-50/80 hover:text-gray-900'
               }`}
             >
               <Icon size={16} />
@@ -84,11 +140,23 @@ export default function NetworkSidebar({ activeTab, onTabChange, connections, fo
                 </span>
               )}
               {link.count !== undefined && link.count > 0 && !link.badge && (
-                <span className="text-xs font-semibold text-gray-400">{link.count}</span>
+                <span className="text-xs font-medium text-gray-400">{link.count}</span>
               )}
             </button>
           )
         })}
+      </div>
+
+      {/* Quick links - Glassmorphism */}
+      <div className="backdrop-blur-xl bg-white/80 rounded-2xl border border-white/40 shadow-sm p-3">
+        <button
+          onClick={() => router.push(`/u/${user?.unique_id}`)}
+          className="w-full flex items-center gap-2.5 text-[11px] font-semibold text-gray-400 hover:text-purple-600 transition-colors"
+        >
+          <GraduationCap size={13} />
+          <span className="flex-1 text-left">View My Profile</span>
+          <ChevronRight size={12} />
+        </button>
       </div>
     </div>
   )

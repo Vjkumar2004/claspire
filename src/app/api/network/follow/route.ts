@@ -37,7 +37,7 @@ export async function GET(req: NextRequest) {
 
     const { data: users, error: usersError } = await supabase
       .from('users')
-      .select('id, full_name, unique_id, role, avatar_url, company, designation, branch, college_id, graduation_year')
+      .select('id, full_name, unique_id, role, avatar_url, banner_url, company, designation, branch, college_id, graduation_year, last_seen')
       .in('id', followingIds)
 
     if (usersError) {
@@ -55,11 +55,13 @@ export async function GET(req: NextRequest) {
         unique_id: u?.unique_id || '',
         role: u?.role || 'student',
         avatar_url: u?.avatar_url || null,
+        banner_url: u?.banner_url || null,
         company: u?.company || null,
         designation: u?.designation || null,
         branch: u?.branch || null,
         college_id: u?.college_id || null,
         graduation_year: u?.graduation_year || null,
+        last_seen: u?.last_seen || null,
         followed_at: f.created_at,
       }
     })

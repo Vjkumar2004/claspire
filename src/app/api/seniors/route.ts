@@ -19,6 +19,7 @@ const SENIOR_SELECT = `
   rise_points,
   avatar_url,
   created_at,
+  last_seen,
   college:college_id (
     name,
     short_name,

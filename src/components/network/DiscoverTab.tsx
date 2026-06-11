@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { Search, Filter, Loader2, Users, RefreshCw } from 'lucide-react'
+import { Search, SlidersHorizontal, Loader2, Users, ChevronRight } from 'lucide-react'
 import PeopleCard from './PeopleCard'
 
 interface Person {
@@ -23,6 +23,7 @@ interface Person {
   isFollowing?: boolean
   mutualConnections: number
   score?: number
+  last_seen?: string | null
 }
 
 interface DiscoverCache {
@@ -111,7 +112,6 @@ export default function DiscoverTab({ onConnectAction }: DiscoverTabProps) {
         offset: newOffset,
         fetchedAt: Date.now(),
       })
-      console.log('[Discover] Cache updated')
     } catch { } finally {
       setLoading(false)
       setLoadingMore(false)
@@ -121,7 +121,6 @@ export default function DiscoverTab({ onConnectAction }: DiscoverTabProps) {
   useEffect(() => {
     const cached = getDiscoverCache()
     if (cached) {
-      console.log('[Discover] Using cached data')
       peopleRef.current = cached.people
       setPeople(cached.people)
       setTotal(cached.total)
@@ -130,7 +129,6 @@ export default function DiscoverTab({ onConnectAction }: DiscoverTabProps) {
       setLoading(false)
       return
     }
-    console.log('[Discover] Cache expired, fetching fresh data')
     fetchPeople(false, '', '')
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -155,63 +153,115 @@ export default function DiscoverTab({ onConnectAction }: DiscoverTabProps) {
       peopleRef.current = updated
       setPeople(updated)
       setDiscoverCache({ people: updated, total, hasMore, offset, fetchedAt: Date.now() })
-      console.log('[Discover] Cache updated')
     }
     return ok
   }
 
+  const filterChips = [
+    { value: '', label: 'All' },
+    { value: 'student', label: 'Students' },
+    { value: 'senior', label: 'Seniors' },
+    { value: 'alumni', label: 'Alumni' },
+  ]
+
   return (
     <div>
-      <div className="flex flex-col sm:flex-row gap-3 mb-6">
+      {/* Search & Filter Bar */}
+      <div className="bg-white rounded-2xl border border-gray-200/80 shadow-sm p-3 lg:p-4 mb-4 lg:mb-6 flex items-center gap-2 lg:gap-3 transition-all duration-300">
+        {/* Search Input */}
         <div className="flex-1 relative">
-          <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
           <input
             type="text"
-            placeholder="Search people, colleges, departments, alumni..."
+            placeholder="Search..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') handleSearch() }}
-            className="w-full pl-10 pr-4 py-2.5 text-sm border border-gray-200 rounded-lg bg-white text-gray-900 outline-none focus:border-purple-300 focus:ring-2 focus:ring-purple-100 transition-all"
+            className="w-full h-10 lg:h-[52px] pl-9 lg:pl-11 pr-8 lg:pr-20 text-xs lg:text-sm border border-gray-200 rounded-xl bg-white text-gray-900 outline-none focus:border-purple-400 focus:ring-[3px] focus:ring-purple-500/15 transition-all duration-200 font-medium placeholder:text-gray-400"
           />
+          <div className="hidden lg:flex absolute right-3.5 top-1/2 -translate-y-1/2 items-center gap-1.5 text-[10px] font-semibold text-gray-400 bg-gray-100/80 border border-gray-200/60 rounded-lg px-2 py-1 pointer-events-none">
+            <span className="text-[9px]">⌘</span>K
+          </div>
         </div>
-        <select
-          value={roleFilter}
-          onChange={(e) => {
-            setRoleFilter(e.target.value)
-            setOffset(0)
-            fetchPeople(false, searchQuery.trim(), e.target.value)
-          }}
-          className="px-3 py-2.5 text-sm border border-gray-200 rounded-lg bg-white text-gray-700 outline-none focus:border-purple-300 focus:ring-2 focus:ring-purple-100 transition-all"
-        >
-          <option value="">All Roles</option>
-          <option value="student">Students</option>
-          <option value="senior">Seniors</option>
-        </select>
+
+        {/* Filter Chips - Desktop only */}
+        <div className="hidden lg:flex items-center gap-1.5 overflow-x-auto hide-scrollbar flex-shrink-0">
+          {filterChips.map((chip) => (
+            <button
+              key={chip.value}
+              onClick={() => {
+                setRoleFilter(chip.value)
+                setOffset(0)
+                fetchPeople(false, searchQuery.trim(), chip.value)
+              }}
+              className={`px-4 py-2.5 text-xs font-semibold rounded-full border transition-all whitespace-nowrap ${
+                roleFilter === chip.value
+                  ? 'filter-chip-active'
+                  : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+              }`}
+            >
+              {chip.label}
+            </button>
+          ))}
+
+          {/* Filters Button (desktop) */}
+          <button className="flex items-center gap-1.5 px-4 py-2.5 text-xs font-semibold rounded-full border border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50 transition-all whitespace-nowrap">
+            <SlidersHorizontal size={13} />
+            Filters
+          </button>
+        </div>
+
+        {/* Filter Button (mobile only) */}
+        <button className="flex lg:hidden items-center justify-center w-10 h-10 rounded-xl border border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50 transition-all flex-shrink-0">
+          <SlidersHorizontal size={16} />
+        </button>
       </div>
 
       {loading ? (
-        <div className="grid grid-cols-2 md:grid-cols-2 xl:grid-cols-2 gap-3 md:gap-4">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-[260px] bg-gray-100 rounded-xl border border-gray-200 animate-pulse" />
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-2 2xl:grid-cols-3 gap-3 lg:gap-5">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <div key={i} className="bg-white rounded-xl border border-gray-200/90 overflow-hidden animate-pulse shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+              <div className="h-[80px] lg:h-[90px] bg-gray-100" />
+              <div className="px-3 lg:px-4 pb-2.5 lg:pb-3 pt-1 lg:pt-1.5 space-y-1.5 lg:space-y-2">
+                <div className="flex justify-center -mt-[21px] lg:-mt-8 mb-1">
+                  <div className="w-[42px] h-[42px] lg:w-16 lg:h-16 rounded-full border-[3px] lg:border-[4px] border-white bg-gray-100 shadow-md" />
+                </div>
+                <div className="h-3 lg:h-3.5 bg-gray-100 rounded w-2/3 mx-auto" />
+                <div className="h-2 lg:h-2.5 bg-gray-50 rounded w-1/2 mx-auto" />
+                <div className="h-2 bg-gray-50 rounded w-1/3 mx-auto" />
+                <div className="mt-1.5 lg:mt-2 pt-1.5 lg:pt-2 border-t border-gray-100">
+                  <div className="h-7 lg:h-8 bg-gray-100 rounded-lg w-full" />
+                </div>
+              </div>
+            </div>
           ))}
         </div>
       ) : people.length > 0 ? (
         <>
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-bold text-gray-700 flex items-center gap-2">
-              People You May Know
-              <span className="text-xs font-semibold text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
-                {total}
-              </span>
-            </h3>
+          {/* Section Header */}
+          <div className="flex items-center justify-between mb-4 lg:mb-5">
+            <div>
+              <h3 className="text-sm lg:text-lg font-bold text-gray-900 flex items-center gap-2">
+                People You May Know
+                <span className="text-[10px] lg:text-xs font-semibold text-gray-400 bg-gray-100 px-2 lg:px-3 py-0.5 lg:py-1 rounded-full">
+                  {total}
+                </span>
+              </h3>
+              <p className="hidden lg:block text-sm text-gray-500 mt-1">Professionals and students relevant to your network</p>
+            </div>
+            <button className="hidden lg:flex text-sm font-semibold text-purple-600 hover:text-purple-700 items-center gap-1">
+              View all <ChevronRight size={14} />
+            </button>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-2 xl:grid-cols-2 gap-3 md:gap-4">
-            {people.map((person) => (
+          {/* People Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-2 2xl:grid-cols-3 gap-3 lg:gap-5">
+            {people.map((person, i) => (
               <PeopleCard
                 key={person.id}
                 person={person}
                 onConnect={handleConnect}
+                index={i}
               />
             ))}
           </div>
@@ -221,7 +271,7 @@ export default function DiscoverTab({ onConnectAction }: DiscoverTabProps) {
               <button
                 onClick={loadMore}
                 disabled={loadingMore}
-                className="px-8 py-2.5 rounded-lg text-sm font-bold text-white bg-purple-600 hover:bg-purple-700 disabled:opacity-60 transition-colors flex items-center gap-2 shadow-sm"
+                className="px-8 py-2.5 rounded-xl text-sm font-bold btn-connect flex items-center gap-2 disabled:opacity-60"
               >
                 {loadingMore ? (
                   <><Loader2 size={16} className="animate-spin" /> Loading...</>
@@ -233,9 +283,9 @@ export default function DiscoverTab({ onConnectAction }: DiscoverTabProps) {
           )}
         </>
       ) : (
-        <div className="text-center py-16 bg-white border border-dashed border-gray-200 rounded-xl">
-          <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-gray-100">
-            <Users size={24} className="text-gray-300" />
+        <div className="text-center py-16 network-card">
+          <div className="w-16 h-16 bg-purple-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <Users size={24} className="text-purple-400" />
           </div>
           <h3 className="text-base font-bold text-gray-900 mb-2">No people found</h3>
           <p className="text-gray-500 text-sm mb-4">Try adjusting your search or filters</p>
