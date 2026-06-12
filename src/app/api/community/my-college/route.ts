@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { getAuthenticatedUser } from '@/lib/session'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -8,30 +9,16 @@ const supabase = createClient(
 
 export async function GET(request: NextRequest) {
   try {
-    console.log('=== /api/community/my-college called ===')
-    
-    // Get current user from session
-    const session = request.cookies.get('claspire_session')
-    
-    if (!session?.value) {
-      console.log('No session found')
+    const user = await getAuthenticatedUser(request)
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-    
-    let currentUser
-    try {
-      currentUser = JSON.parse(session.value)
-      console.log('Current user:', currentUser.id)
-    } catch {
-      console.log('Invalid session format')
-      return NextResponse.json({ error: 'Invalid session' }, { status: 401 })
     }
 
     // Get user's college ID
     const { data: userData, error: userError } = await supabase
       .from('users')
       .select('college_id')
-      .eq('id', currentUser.id)
+      .eq('id', user.id)
       .single()
 
     if (userError) {
