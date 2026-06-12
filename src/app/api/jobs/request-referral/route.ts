@@ -36,12 +36,20 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'You have already requested a referral for this job' }, { status: 400 })
     }
 
-    // 2. Fetch job details for notification/email context
+    // 2. Fetch job details and verify senior ownership
     const { data: job } = await supabase
       .from('jobs')
-      .select('company_name, role')
+      .select('company_name, role, posted_by')
       .eq('id', jobId)
       .single()
+
+    if (!job) {
+      return NextResponse.json({ error: 'Job not found' }, { status: 404 })
+    }
+
+    if (seniorId !== job.posted_by) {
+      return NextResponse.json({ error: 'Invalid referral target' }, { status: 403 })
+    }
 
     // 3. Create request
     const { error: requestError } = await supabase
