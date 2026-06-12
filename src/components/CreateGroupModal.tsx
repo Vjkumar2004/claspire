@@ -376,14 +376,6 @@ export default function CreateGroupModal({ isOpen, onClose, onSuccess, currentUs
                                 </div>
                               </div>
                             </div>
-                            {!canCreatePublic && (
-                              <div className="absolute inset-0 bg-white/80 rounded-2xl flex items-center justify-center">
-                                <div className="text-center">
-                                  <Lock size={16} className="text-gray-400 mx-auto mb-1" />
-                                  <p className="text-xs text-gray-600">Premium only</p>
-                                </div>
-                              </div>
-                            )}
                           </label>
 
                           {/* Private Option */}

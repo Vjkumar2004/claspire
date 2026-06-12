@@ -70,7 +70,6 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
   const [requestLoading, setRequestLoading] = useState(false)
   const [joining, setJoining] = useState(false)
   const [hasJoined, setHasJoined] = useState(false)
-  const [showPremiumModal, setShowPremiumModal] = useState(false)
   const [studentGroups, setStudentGroups] = useState<any[]>([])
   const [groupsLoading, setGroupsLoading] = useState(true)
   const [showMembersModal, setShowMembersModal] = useState(false)
@@ -773,12 +772,8 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                               <button
                                 type="button"
                                 onClick={() => {
-                                  if (userRole === 'other_college') {
-                                    setShowPremiumModal(true)
-                                  } else {
-                                    setSelectedJob(job)
-                                    setReferralConfirmOpen(true)
-                                  }
+                                  setSelectedJob(job)
+                                  setReferralConfirmOpen(true)
                                 }}
                                 className="flex-1 py-2.5 rounded-xl bg-[#7C3AED] hover:bg-purple-700 text-white text-xs font-bold border-none cursor-pointer transition-colors"
                               >
@@ -1069,68 +1064,6 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
       </div>
 
       {/* ── MODALS ── */}
-      {/* Premium Upgrade Modal */}
-      {showPremiumModal && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
-          <div
-            style={{ position: 'absolute', inset: 0, background: 'rgba(15, 23, 42, 0.6)', backdropFilter: 'blur(8px)' }}
-            onClick={() => setShowPremiumModal(false)}
-          />
-          <div style={{ position: 'relative', background: 'white', width: '100%', maxWidth: 480, borderRadius: 32, overflow: 'hidden', boxShadow: '0 40px 80px rgba(0,0,0,0.4)', animation: 'fadeIn 0.3s ease-out' }}>
-            <div style={{ background: 'linear-gradient(135deg, #0F172A, #1E1B4B)', padding: '40px 32px', textAlign: 'center', position: 'relative', color: 'white' }}>
-              <div style={{ position: 'absolute', top: 20, right: 20, color: 'rgba(255,255,255,0.1)' }}>
-                <Globe size={120} />
-              </div>
-              <div style={{ position: 'relative', zIndex: 1 }}>
-                <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', padding: '4px 12px', borderRadius: 100, marginBottom: 24 }}>
-                  <Sparkles size={14} className="text-cyan-400" />
-                  <span style={{ fontSize: 10, fontWeight: 800, color: 'white', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Premium Network</span>
-                </div>
-                <h3 style={{ fontSize: 24, fontWeight: 800, color: 'white', marginBottom: 8 }}>Unlock Global Access</h3>
-                <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', maxWidth: 280, margin: '0 auto', lineHeight: 1.5 }}>
-                  Get referrals from seniors across all colleges in the Claspire network.
-                </p>
-              </div>
-            </div>
-
-            <div style={{ padding: 40 }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 32 }}>
-                {[
-                  'Unlimited referrals from 10,000+ seniors',
-                  'Direct messaging with verified experts',
-                  'Access to exclusive premium job pool',
-                  'Advanced profile boost for recruiters'
-                ].map((feature, i) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <div style={{ width: 22, height: 22, background: '#F0FDF4', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <CheckCircle size={14} color="#10B981" />
-                    </div>
-                    <span style={{ fontSize: 14, fontWeight: 600, color: '#334155' }}>{feature}</span>
-                  </div>
-                ))}
-              </div>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                <button
-                  onClick={() => router.push('/pricing')}
-                  style={{ width: '100%', background: '#0F172A', color: 'white', border: 'none', padding: '16px', borderRadius: 16, fontSize: 14, fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, transition: 'transform 0.2s' }}
-                  onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
-                  onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
-                >
-                  Upgrade to Premium <ArrowRight size={16} />
-                </button>
-                <button
-                  onClick={() => setShowPremiumModal(false)}
-                  style={{ width: '100%', background: 'none', border: 'none', color: '#94A3B8', padding: '12px', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}
-                >
-                  Maybe Later
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
       <PostModal
         isOpen={showPostModal}
         onClose={() => setShowPostModal(false)}

@@ -111,23 +111,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to check existing groups' }, { status: 500 })
     }
 
-    // Apply group creation limits (free users: 1 public group, premium: unlimited)
-    const publicCount = existingGroups?.filter((g: any) => !g.is_private).length || 0
-    const privateCount = existingGroups?.filter((g: any) => g.is_private).length || 0
-    const isPremium = userData.is_premium === true || userData.role === 'senior' // Check both is_premium flag and senior role
-
-    if (!isPremium && scope === 'private') {
-      return NextResponse.json({ 
-        error: 'Private groups are available for Premium users only' 
-      }, { status: 400 })
-    }
-
-    if (!isPremium && scope === 'public' && publicCount >= 1) {
-      return NextResponse.json({ 
-        error: 'Free users can only create 1 public group. Upgrade to premium for unlimited groups.' 
-      }, { status: 400 })
-    }
-
     // Ensure slug is unique - TEMPORARILY DISABLED
     console.log('=== Skipping slug uniqueness check (temporarily disabled) ===')
     

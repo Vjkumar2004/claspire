@@ -95,7 +95,7 @@ export default function JobsPage() {
   const [activeJobTypes, setActiveJobTypes] = useState<Set<string>>(new Set())
   const [remoteFilter, setRemoteFilter] = useState(false)
   const [selectedJob, setSelectedJob] = useState<Job | null>(null)
-  const [showPremiumModal, setShowPremiumModal] = useState(false)
+
   const [referring, setReferring] = useState(false)
   const [referralSuccess, setReferralSuccess] = useState(false)
   const [stats, setStats] = useState<Stats | null>(null)
@@ -171,10 +171,7 @@ export default function JobsPage() {
 
   const handleReferralClick = (job: Job) => {
     if (!user) { router.push('/login'); return }
-    const isSameCollege = user?.college_id === job.senior.college_id
-    const isPremiumUser = (user as any)?.is_premium || (user as any)?.premium_plan === 'premium'
-    if (isSameCollege || isPremiumUser) setSelectedJob(job)
-    else setShowPremiumModal(true)
+    setSelectedJob(job)
   }
 
   const confirmReferral = async () => {
@@ -217,11 +214,7 @@ export default function JobsPage() {
         <div className="sticky top-0 z-30 bg-white/90 backdrop-blur-lg border-b border-slate-100">
           <div className="flex items-start justify-between px-4 py-3 gap-3">
             <div className="min-w-0 flex-1">
-              <div className="inline-flex items-center gap-1.5 px-2 py-1 bg-[#7C3AED]/10 rounded-full border border-[#7C3AED]/20 mb-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#7C3AED] animate-pulse" />
-                <span className="text-[9px] font-bold text-[#7C3AED] uppercase tracking-wider">Premium</span>
-              </div>
-              <h1 className="text-[17px] font-extrabold text-[#0F172A] tracking-tight leading-tight m-0">
+<h1 className="text-[17px] font-extrabold text-[#0F172A] tracking-tight leading-tight m-0">
                 Get Referred &{' '}
                 <span className="bg-gradient-to-r from-[#7C3AED] to-[#A78BFA] bg-clip-text text-transparent">Get Hired</span>
               </h1>
@@ -417,9 +410,7 @@ export default function JobsPage() {
                 <div className="space-y-3">
                   {sortedJobs.map((job, index) => {
                     const isOwnJob = user?.id === job.senior.id
-                    const isOwnCollege = user?.college_id === job.senior.college_id
-                    const isPremiumUser = (user as any)?.is_premium || (user as any)?.premium_plan === 'premium'
-                    const canRefer = isOwnCollege || isPremiumUser
+                    const canRefer = true
 
                     return (
                       <div
@@ -676,11 +667,10 @@ export default function JobsPage() {
             {/* Left: Text + Search */}
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-2">
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/10 border border-white/15">
-                  <Sparkles size={11} className="text-white/60" />
-                  <span className="text-[9px] font-bold text-white/60 uppercase tracking-[0.12em]">Premium Opportunities</span>
-                </div>
-                <span className="text-[10px] font-medium text-white/50">by Claspire</span>
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/10 border border-white/15">
+                <Sparkles size={11} className="text-white/60" />
+                <span className="text-[9px] font-bold text-white/60 uppercase tracking-[0.12em]">Opportunities</span>
+              </div>
               </div>
 
               <h1 className="text-[28px] md:text-[34px] font-extrabold text-white leading-[1.15] tracking-tight mb-2 m-0">
@@ -871,9 +861,7 @@ export default function JobsPage() {
                 <div className="space-y-2.5">
                   {sortedJobs.map((job, index) => {
                     const isOwnJob = user?.id === job.senior.id
-                    const isOwnCollege = user?.college_id === job.senior.college_id
-                    const isPremiumUser = (user as any)?.is_premium || (user as any)?.premium_plan === 'premium'
-                    const canRefer = isOwnCollege || isPremiumUser
+                    const canRefer = true
 
                     return (
                       <div
@@ -1156,62 +1144,7 @@ export default function JobsPage() {
         </div>
       )}
 
-      {/* ─── PREMIUM UPGRADE MODAL ─── */}
-      {showPremiumModal && (
-        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-6">
-          <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={() => setShowPremiumModal(false)} />
-          <div className="relative bg-white w-full max-w-sm rounded-2xl overflow-hidden shadow-xl border border-slate-200">
-            <div className="bg-gradient-to-br from-[#1F1F2E] to-[#0F0F1A] p-6 text-center relative border-b border-slate-800">
-              <div className="absolute top-3 right-3 text-white/[0.03]">
-                <Briefcase size={80} />
-              </div>
-              <div className="relative z-10">
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white/10 rounded-full border border-white/20 mb-4">
-                  <Sparkles size={11} className="text-cyan-400" />
-                  <span className="text-[9px] font-bold text-white uppercase tracking-widest">Premium Feature</span>
-                </div>
-                <h3 className="text-base font-bold text-white mb-1 m-0 tracking-tight">Unlock Global Network</h3>
-                <p className="text-white/60 text-[11px] max-w-[220px] mx-auto leading-relaxed m-0">
-                  Get referrals from seniors across all colleges.
-                </p>
-              </div>
-            </div>
-
-            <div className="p-6">
-              <div className="space-y-2.5 mb-5">
-                {[
-                  'Unlimited referrals from 10,000+ seniors',
-                  'Direct messaging with verified experts',
-                  'Access to exclusive premium job pool',
-                  'Advanced profile boost for recruiters',
-                ].map((feature, i) => (
-                  <div key={i} className="flex items-center gap-2">
-                    <div className="w-4 h-4 rounded-full bg-emerald-50 flex items-center justify-center border border-emerald-100 shrink-0">
-                      <CheckCircle size={9} className="text-emerald-500" />
-                    </div>
-                    <span className="text-[11px] font-semibold text-slate-700">{feature}</span>
-                  </div>
-                ))}
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <Link href="/pricing" className="no-underline">
-                  <button className="w-full py-2.5 rounded-xl bg-[#7C3AED] text-white text-xs font-bold border-none cursor-pointer hover:bg-[#6D28D9] transition-all flex items-center justify-center gap-2">
-                    Upgrade to Premium
-                    <ArrowRight size={13} />
-                  </button>
-                </Link>
-                <button
-                  onClick={() => setShowPremiumModal(false)}
-                  className="w-full py-1.5 text-[11px] font-semibold text-slate-400 hover:text-slate-600 transition-colors cursor-pointer border-none bg-transparent"
-                >
-                  Maybe Later
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      
     </div>
   )
 }

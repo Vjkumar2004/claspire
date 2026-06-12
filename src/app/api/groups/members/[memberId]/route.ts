@@ -21,7 +21,6 @@ export async function DELETE(
     const userId = user.id
 
     // Get member details to check group and permissions
-    console.log('Looking up member with ID:', memberId)
     const { data: member, error: memberError } = await supabase
       .from('student_group_members')
       .select(`
@@ -29,7 +28,7 @@ export async function DELETE(
         group_id,
         role,
         user_id,
-        student_groups!inner(
+        student_groups(
           created_by,
           member_count
         )
@@ -37,12 +36,13 @@ export async function DELETE(
       .eq('id', memberId)
       .single()
 
-    console.log('Member lookup result:', { member, memberError })
-
     if (memberError || !member) {
-      console.error('Member not found error details:', memberError)
       return NextResponse.json({ error: 'Member not found' }, { status: 404 })
     }
+
+    const groupInfo = Array.isArray(member.student_groups)
+      ? member.student_groups[0]
+      : member.student_groups
 
     // Check if user is admin or creator
     const { data: userMembership } = await supabase
@@ -52,7 +52,7 @@ export async function DELETE(
       .eq('user_id', userId)
       .single()
 
-    const isAdmin = userMembership?.role === 'admin' || member.student_groups[0].created_by === userId
+    const isAdmin = userMembership?.role === 'admin' || groupInfo?.created_by === userId
 
     if (!isAdmin) {
       return NextResponse.json({ error: 'Access denied' }, { status: 403 })
@@ -74,11 +74,13 @@ export async function DELETE(
       return NextResponse.json({ error: 'Failed to remove member' }, { status: 500 })
     }
 
-    // Update group member count
-    await supabase
-      .from('student_groups')
-      .update({ member_count: Math.max(0, (member.student_groups[0].member_count || 0) - 1) })
-      .eq('id', member.group_id)
+    // Update group member count (skip if group was already deleted)
+    if (groupInfo) {
+      await supabase
+        .from('student_groups')
+        .update({ member_count: Math.max(0, (groupInfo.member_count || 0) - 1) })
+        .eq('id', member.group_id)
+    }
 
     return NextResponse.json({ 
       success: true,
