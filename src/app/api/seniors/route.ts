@@ -9,7 +9,6 @@ const supabase = createClient(
 const SENIOR_SELECT = `
   id,
   full_name,
-  email,
   unique_id,
   role,
   college_id,
@@ -18,8 +17,6 @@ const SENIOR_SELECT = `
   graduation_year,
   rise_points,
   avatar_url,
-  created_at,
-  last_seen,
   college:college_id (
     name,
     short_name,

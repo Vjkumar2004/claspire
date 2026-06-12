@@ -74,7 +74,6 @@ export function verifySessionCookie(cookieValue: string): { userId: string; isLe
   try {
     // Decode URL-encoded cookie first to handle both encoded and non-encoded formats
     const decodedCookie = decodeURIComponent(cookieValue)
-    console.log('[VERIFY] Decoded cookie:', decodedCookie)
     
     // Try new format: base64(payload).signature
     // Split only on the FIRST dot to handle URL-encoded cookies correctly
@@ -84,25 +83,11 @@ export function verifySessionCookie(cookieValue: string): { userId: string; isLe
     } else {
       const payloadB64 = decodedCookie.substring(0, firstDotIndex)
       const signature = decodedCookie.substring(firstDotIndex + 1)
-      console.log('[Session] Cookie parts count: 2 (split on first dot)')
-      console.log('[VERIFY] Raw cookie:', cookieValue)
-      console.log('[VERIFY] Payload B64:', payloadB64)
-      console.log('[VERIFY] Signature:', signature)
-      console.log('[VERIFY] Payload B64 length:', payloadB64.length)
-      console.log('[VERIFY] Signature length:', signature.length)
-      
-      // Verify signature
-      const hmac = createHmac('sha256', SESSION_SECRET)
-      hmac.update(payloadB64)
-      const expectedSignature = hmac.digest('hex')
-      console.log('[VERIFY] Expected Signature:', expectedSignature)
       
       const isValid = verifySignature(payloadB64, signature)
-      console.log('[VERIFY] Signature verification result:', isValid)
       
       if (isValid) {
         const payload = JSON.parse(Buffer.from(payloadB64, 'base64').toString())
-        console.log('[Session] Decoded payload:', payload)
         
         // Validate payload structure
         if (payload.uid && payload.ver === SESSION_VERSION && payload.iat) {
@@ -115,7 +100,6 @@ export function verifySessionCookie(cookieValue: string): { userId: string; isLe
             return null
           }
           
-          console.log('[Session] Valid signed session for user:', payload.uid, 'age:', sessionAge, 'seconds')
           return { userId: payload.uid, isLegacy: false }
         } else {
           console.log('[Session] Payload validation failed - missing required fields or wrong version')
@@ -129,14 +113,10 @@ export function verifySessionCookie(cookieValue: string): { userId: string; isLe
     // Only attempt JSON.parse if the cookie doesn't look like a signed cookie
     // Signed cookies start with base64 which typically doesn't start with '{'
     if (!decodedCookie.startsWith('ey') && !decodedCookie.includes('.')) {
-      console.log('[Session] Attempting legacy JSON fallback')
       const oldSession = JSON.parse(decodedCookie)
       if (oldSession.id) {
-        console.log('[Session] Migrating legacy session cookie for user:', oldSession.id)
         return { userId: oldSession.id, isLegacy: true }
       }
-    } else {
-      console.log('[Session] Skipping legacy fallback - cookie appears to be signed format')
     }
     
     return null
