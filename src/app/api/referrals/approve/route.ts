@@ -44,6 +44,12 @@ export async function POST(req: NextRequest) {
     }
 
     const ref = referral as any
+
+    // Authorization: Only the assigned senior may approve this referral
+    if (user.id !== ref.senior_id) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
     const juniorId = ref.requester_id
     const seniorName = ref.senior?.full_name || 'A senior'
     const jobRole = ref.job?.role || 'the job'
