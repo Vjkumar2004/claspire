@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { cookies } from 'next/headers'
+import { getAuthenticatedUser } from '@/lib/session'
 
 export async function DELETE(
   request: NextRequest,
@@ -8,28 +8,17 @@ export async function DELETE(
 ) {
   try {
     const { memberId } = await params
-    console.log('DELETE request received for memberId:', memberId)
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     )
 
-    // Auth check
-    const cookiesStore = await cookies()
-    const sessionCookie = cookiesStore.get('claspire_session')
-    
-    if (!sessionCookie?.value) {
+    const user = await getAuthenticatedUser(request)
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    let cookieUser
-    try {
-      cookieUser = JSON.parse(sessionCookie.value)
-    } catch (parseError) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    const userId = cookieUser.id
+    const userId = user.id
 
     // Get member details to check group and permissions
     console.log('Looking up member with ID:', memberId)
