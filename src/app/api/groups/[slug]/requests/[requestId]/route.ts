@@ -29,7 +29,7 @@ export async function PATCH(
       .eq('slug', slug)
       .single()
 
-    if (!group || group.created_by !== cookieUser.id) {
+    if (!group || group.created_by !== user.id) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
