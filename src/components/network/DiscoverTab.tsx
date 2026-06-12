@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { Search, SlidersHorizontal, Loader2, Users, ChevronRight } from 'lucide-react'
+import { Search, Loader2, Users, ChevronRight } from 'lucide-react'
 import PeopleCard from './PeopleCard'
 
 interface Person {
@@ -204,17 +204,7 @@ export default function DiscoverTab({ onConnectAction }: DiscoverTabProps) {
             </button>
           ))}
 
-          {/* Filters Button (desktop) */}
-          <button className="flex items-center gap-1.5 px-4 py-2.5 text-xs font-semibold rounded-full border border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50 transition-all whitespace-nowrap">
-            <SlidersHorizontal size={13} />
-            Filters
-          </button>
         </div>
-
-        {/* Filter Button (mobile only) */}
-        <button className="flex lg:hidden items-center justify-center w-10 h-10 rounded-xl border border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50 transition-all flex-shrink-0">
-          <SlidersHorizontal size={16} />
-        </button>
       </div>
 
       {loading ? (

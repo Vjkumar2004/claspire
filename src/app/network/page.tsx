@@ -153,16 +153,19 @@ export default function NetworkPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#FAFBFF] via-[#F8F9FE] to-[#F6F7FC]">
-      <div className="pt-20 pb-16 max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="pt-4 sm:pt-6 pb-16 max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* ===== FULL-WIDTH HERO SECTION ===== */}
-        <NetworkHero
-          platformStats={sidebarData?.platformStats}
-          recentSeniors={sidebarData?.recentSeniors || []}
-        />
+        <div className="hidden md:block mb-6 lg:mb-8">
+          <NetworkHero
+            platformStats={sidebarData?.platformStats}
+            recentSeniors={sidebarData?.recentSeniors || []}
+            featuredMentor={null}
+          />
+        </div>
 
         {/* ===== TAB NAVIGATION ===== */}
-        <div className="mt-4 lg:mt-8 mb-4 lg:mb-8">
+        <div className="xl:hidden mt-4 lg:mt-8 mb-4 lg:mb-8">
           <div className="inline-flex bg-white/90 backdrop-blur-sm border border-gray-200/70 rounded-xl lg:rounded-2xl p-1 shadow-sm w-full lg:w-auto overflow-x-auto scrollbar-none">
             {tabs.map((tab, i) => {
               const Icon = tab.icon
