@@ -1,4 +1,4 @@
-import { supabase, supabaseAdmin } from './supabase'
+import { supabase, supabaseAnonClient } from './supabase'
 
 // 1. Send OTP to email
 export async function sendOTP(email: string) {
