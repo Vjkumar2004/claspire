@@ -4,9 +4,11 @@ import { DeleteObjectCommand } from '@aws-sdk/client-s3'
 import { r2Client, R2_BUCKET } from '@/lib/r2'
 import {
   embedProfileInBio,
+  migrateProfileData,
   resolveDisplayBio,
   resolveProfileData,
   stripProfileFromBio,
+  CURRENT_VERSION,
   type UserProfileData,
 } from '@/lib/profile-data'
 import { getAuthenticatedUser } from '@/lib/session'
@@ -88,7 +90,15 @@ export async function PATCH(req: NextRequest) {
     }
 
     if (profile_data !== undefined) {
-      updateData.profile_data = profile_data
+      const migrated = migrateProfileData({ ...profile_data, version: CURRENT_VERSION })
+      updateData.profile_data = migrated
+
+      // Sync social_links.linkedin to top-level linkedin_url column for backward compat
+      const linkedin = migrated.student?.social_links?.linkedin || migrated.senior?.social_links?.linkedin
+      if (linkedin) {
+        updateData.linkedin_url = linkedin
+      }
+
       const bioForStrip =
         body.bio !== undefined
           ? String(body.bio)

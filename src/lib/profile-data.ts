@@ -1,3 +1,5 @@
+export const CURRENT_VERSION = 1
+
 export type CertificationItem = {
   name: string
   issuer?: string
@@ -7,7 +9,9 @@ export type CertificationItem = {
 export type ProjectItem = {
   title: string
   description?: string
-  link?: string
+  github_url?: string
+  live_url?: string
+  tech_stack?: string[]
 }
 
 export type AreasLookingFor = {
@@ -23,13 +27,23 @@ export type MentorshipOptions = {
   available_for_mock_interviews: boolean
 }
 
+export type SocialLinks = {
+  linkedin?: string
+  github?: string
+  portfolio?: string
+  website?: string
+  twitter?: string
+  leetcode?: string
+  codeforces?: string
+}
+
 export type StudentProfileExtras = {
   skills: string[]
   certifications: CertificationItem[]
   projects: ProjectItem[]
-  github_url?: string
   resume_url?: string
   areas_looking_for: AreasLookingFor
+  social_links?: SocialLinks
 }
 
 export type SeniorProfileExtras = {
@@ -37,12 +51,14 @@ export type SeniorProfileExtras = {
   experience_years?: number
   skills: string[]
   certifications: CertificationItem[]
-  portfolio_url?: string
-  github_url?: string
+  projects: ProjectItem[]
+  resume_url?: string
   mentorship: MentorshipOptions
+  social_links?: SocialLinks
 }
 
 export type UserProfileData = {
+  version?: number
   student?: Partial<StudentProfileExtras>
   senior?: Partial<SeniorProfileExtras>
 }
@@ -99,14 +115,70 @@ export function embedProfileInBio(bio: string, profileData: UserProfileData): st
   return `${clean}${PROFILE_MARKER}${JSON.stringify(profileData)}`
 }
 
-/** Read profile extras from profile_data column, or legacy bio embed when column is missing. */
+/** Migrate raw profile_data to latest schema version */
+export function migrateProfileData(data: unknown): UserProfileData {
+  const base = parseProfileData(data)
+  if (!hasProfileContent(base)) return { version: CURRENT_VERSION }
+
+  const version = base.version || 0
+  if (version >= CURRENT_VERSION) return base
+
+  let result: Record<string, unknown> = { ...base }
+
+  if (version < 1) {
+    const student = result.student ? { ...(result.student as Record<string, unknown>) } : undefined
+    const senior = result.senior ? { ...(result.senior as Record<string, unknown>) } : undefined
+
+    if (student) {
+      const social: SocialLinks = { ...((student.social_links as SocialLinks) || {}) }
+      if (student.github_url && !social.github) {
+        social.github = student.github_url as string
+      }
+      delete student.github_url
+
+      if (student.projects) {
+        student.projects = (student.projects as Array<Record<string, unknown>>).map((p) => {
+          const next = { ...p }
+          if (p.link && !p.github_url) {
+            next.github_url = p.link
+          }
+          delete next.link
+          return next
+        })
+      }
+      student.social_links = social
+      result.student = student
+    }
+
+    if (senior) {
+      const social: SocialLinks = { ...((senior.social_links as SocialLinks) || {}) }
+      if (senior.github_url && !social.github) {
+        social.github = senior.github_url as string
+      }
+      if (senior.portfolio_url && !social.portfolio) {
+        social.portfolio = senior.portfolio_url as string
+      }
+      delete senior.github_url
+      delete senior.portfolio_url
+      senior.social_links = social
+      result.senior = senior
+    }
+
+    result.version = 1
+  }
+
+  return result as unknown as UserProfileData
+}
+
+/** Read profile extras from profile_data column (migrated), or legacy bio embed when column is empty. */
 export function resolveProfileData(user: {
   profile_data?: unknown
   bio?: string | null
 }): UserProfileData {
   const fromColumn = parseProfileData(user.profile_data)
-  if (hasProfileContent(fromColumn)) return fromColumn
-  return extractProfileFromBio(user.bio || '')
+  if (hasProfileContent(fromColumn)) return migrateProfileData(fromColumn)
+  const legacy = extractProfileFromBio(user.bio || '')
+  return migrateProfileData(legacy)
 }
 
 /** Bio text shown on profile (strips embedded JSON payload). */
@@ -128,25 +200,30 @@ export const AREAS_LOOKING_LABELS: Record<keyof AreasLookingFor, string> = {
 }
 
 export function getStudentExtras(data: UserProfileData): StudentProfileExtras {
+  const student = data.student || {}
+  const social = student.social_links || {}
   return {
-    skills: data.student?.skills || [],
-    certifications: data.student?.certifications || [],
-    projects: data.student?.projects || [],
-    github_url: data.student?.github_url || '',
-    resume_url: data.student?.resume_url || '',
-    areas_looking_for: { ...DEFAULT_AREAS, ...(data.student?.areas_looking_for || {}) },
+    skills: student.skills || [],
+    certifications: student.certifications || [],
+    projects: student.projects || [],
+    resume_url: student.resume_url || '',
+    areas_looking_for: { ...DEFAULT_AREAS, ...(student.areas_looking_for || {}) },
+    social_links: social,
   }
 }
 
 export function getSeniorExtras(data: UserProfileData): SeniorProfileExtras {
+  const senior = data.senior || {}
+  const social = senior.social_links || {}
   return {
-    industry: data.senior?.industry || '',
-    experience_years: data.senior?.experience_years,
-    skills: data.senior?.skills || [],
-    certifications: data.senior?.certifications || [],
-    portfolio_url: data.senior?.portfolio_url || '',
-    github_url: data.senior?.github_url || '',
-    mentorship: { ...DEFAULT_MENTORSHIP, ...(data.senior?.mentorship || {}) },
+    industry: senior.industry || '',
+    experience_years: senior.experience_years,
+    skills: senior.skills || [],
+    certifications: senior.certifications || [],
+    projects: senior.projects || [],
+    resume_url: senior.resume_url || '',
+    mentorship: { ...DEFAULT_MENTORSHIP, ...(senior.mentorship || {}) },
+    social_links: social,
   }
 }
 

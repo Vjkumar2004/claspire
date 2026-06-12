@@ -52,7 +52,6 @@ import FeedPost from '@/components/community/FeedPost'
 import LeftSidebar from '@/components/community/LeftSidebar'
 import RightSidebar from '@/components/community/RightSidebar'
 import LikesModal from '@/components/community/LikesModal'
-import { resolveDisplayBio } from '@/lib/profile-data'
 
 // Utility function to convert URLs to clickable links and preserve line breaks
 

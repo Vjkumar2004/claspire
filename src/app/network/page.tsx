@@ -164,6 +164,21 @@ export default function NetworkPage() {
           />
         </div>
 
+        {/* ===== MOBILE HEADING (md:hidden) ===== */}
+        <div className="md:hidden mb-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-purple-100/80 rounded-full border border-purple-200/50 mb-3">
+            <span className="w-2 h-2 rounded-full bg-purple-600 animate-pulse" />
+            <span className="text-[11px] font-bold text-purple-700 uppercase tracking-wider">India&apos;s Student Network</span>
+          </div>
+          <h1 className="text-xl font-extrabold text-gray-900 tracking-tight leading-tight m-0">
+            Build Your{' '}
+            <span className="bg-gradient-to-r from-purple-600 to-fuchsia-500 bg-clip-text text-transparent">Professional Network</span>
+          </h1>
+          <p className="text-sm text-gray-500 font-medium mt-1 m-0 max-w-md">
+            Connect with students, seniors, alumni and mentors across India and grow together.
+          </p>
+        </div>
+
         {/* ===== TAB NAVIGATION ===== */}
         <div className="xl:hidden mt-4 lg:mt-8 mb-4 lg:mb-8">
           <div className="inline-flex bg-white/90 backdrop-blur-sm border border-gray-200/70 rounded-xl lg:rounded-2xl p-1 shadow-sm w-full lg:w-auto overflow-x-auto scrollbar-none">

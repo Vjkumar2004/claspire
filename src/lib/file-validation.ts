@@ -309,6 +309,10 @@ function detectImageType(bytes: Uint8Array): string | null {
 export function generateSafeFilename(originalName: string, userId: string, type: string, detectedType?: string, mimeType?: string): string {
   // Determine extension using detectedType as primary source
   let extension = ''
+  const isResume = type === 'resume'
+  const allowedExtensions = isResume
+    ? ['pdf']
+    : ['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp', 'tif', 'tiff', 'svg', 'heic', 'heif', 'ico']
   
   // Priority 1: Use detectedType from validation (most reliable)
   if (detectedType) {
@@ -318,16 +322,13 @@ export function generateSafeFilename(originalName: string, userId: string, type:
     const fileName = originalName.toLowerCase()
     const fileExtension = fileName.split('.').pop() || ''
     
-    // Only use filename extension if it's a valid image extension
-    const allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp', 'tif', 'tiff', 'svg', 'heic', 'heif', 'ico']
     if (fileExtension && allowedExtensions.includes(fileExtension)) {
       extension = fileExtension
     } else if (mimeType) {
       // Priority 3: Extract from MIME type
       const mimeExtension = mimeType.split('/')[1]?.toLowerCase()
       if (mimeExtension) {
-        // Normalize common MIME type extensions
-        const mimeMapping: { [key: string]: string } = {
+        const mimeMapping: { [key: string]: string } = isResume ? {} : {
           'jpeg': 'jpg',
           'pjpeg': 'jpg',
           'x-png': 'png',
@@ -344,8 +345,6 @@ export function generateSafeFilename(originalName: string, userId: string, type:
     throw new Error('Unable to determine file extension from filename, detected type, or MIME type')
   }
   
-  // Only allow image extensions (security validation)
-  const allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp', 'tif', 'tiff', 'svg', 'heic', 'heif', 'ico']
   if (!allowedExtensions.includes(extension)) {
     throw new Error(`Invalid extension: .${extension}`)
   }

@@ -2,19 +2,35 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { 
-  Briefcase, MapPin, Building2, Search, 
-  ChevronRight, Filter, Globe, Sparkles,
-  Zap, ArrowRight, Lock, CheckCircle2,
-  Calendar, Users, Clock, ExternalLink, Star, CheckCircle, AlertCircle, TrendingUp, DollarSign
+import {
+  Briefcase, MapPin, Search, Building2, Eye,
+  ArrowRight, Zap, Lock, CheckCircle, Clock, Sparkles,
+  ExternalLink, ChevronDown, Loader2,
+  DollarSign, UserCheck, Globe, Filter, Award
 } from 'lucide-react'
-import { createClient } from '@supabase/supabase-js'
 import { useAuth } from '@/hooks/useAuth'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder'
-)
+interface JobSenior {
+  id: string
+  full_name: string
+  company: string
+  designation: string
+  college_id: string
+  avatar_url?: string
+  is_verified?: boolean
+}
+
+interface JobCommunityCollege {
+  name: string
+  short_name: string
+  location: string
+}
+
+interface JobCommunity {
+  display_name: string
+  slug: string
+  colleges: JobCommunityCollege
+}
 
 interface Job {
   id: string
@@ -28,50 +44,73 @@ interface Job {
   posted_date: string
   created_at: string
   referral_available: boolean
-  senior: {
-    id: string
-    full_name: string
-    company: string
-    designation: string
-    college_id: string
-  }
-  community: {
-    display_name: string
-    slug: string
-    colleges: {
-      name: string
-      short_name: string
-      location: string
-    }
-  }
+  skills: string[]
+  referral_count: number
+  senior: JobSenior
+  community: JobCommunity
+}
+
+interface Stats {
+  totalJobs: number
+  totalReferrals: number
+  totalCompanies: number
+  totalApplications: number
+}
+
+interface TopReferrer {
+  id: string
+  full_name: string
+  company: string
+  designation: string
+  avatar_url?: string
+  referral_count: number
+}
+
+const avatarGradients = [
+  'from-[#7C3AED] to-[#4F46E5]',
+  'from-[#6D28D9] to-[#4338CA]',
+  'from-[#8B5CF6] to-[#7C3AED]',
+  'from-white/30 to-white/10',
+  'from-[#7C3AED] to-[#6D28D9]',
+  'from-[#9333EA] to-[#7C3AED]',
+]
+
+const jobTypeLabels: Record<string, string> = {
+  internship: 'Internship',
+  'full-time': 'Full Time',
+  'part-time': 'Part Time',
+  remote: 'Remote',
+  contract: 'Contract',
 }
 
 export default function JobsPage() {
   const { user } = useAuth()
+  const router = useRouter()
   const [jobs, setJobs] = useState<Job[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
+  const [sortBy, setSortBy] = useState('most_recent')
+  const [showSortDropdown, setShowSortDropdown] = useState(false)
+  const [showMoreFilters, setShowMoreFilters] = useState(false)
+  const [activeJobTypes, setActiveJobTypes] = useState<Set<string>>(new Set())
+  const [remoteFilter, setRemoteFilter] = useState(false)
   const [selectedJob, setSelectedJob] = useState<Job | null>(null)
   const [showPremiumModal, setShowPremiumModal] = useState(false)
   const [referring, setReferring] = useState(false)
   const [referralSuccess, setReferralSuccess] = useState(false)
-  
-  // Filter states
-  const [showFilterDropdown, setShowFilterDropdown] = useState(false)
-  const [selectedJobType, setSelectedJobType] = useState<string>('all')
-  const [selectedLocation, setSelectedLocation] = useState<string>('all')
-  const [selectedSalaryRange, setSelectedSalaryRange] = useState<string>('all')
-  const [remoteOnly, setRemoteOnly] = useState(false)
-  const filterDropdownRef = useRef<HTMLDivElement>(null)
+  const [stats, setStats] = useState<Stats | null>(null)
+  const [topReferrers, setTopReferrers] = useState<TopReferrer[]>([])
+  const [howOpen, setHowOpen] = useState(false)
+  const getInitials = (name: string) => name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
 
-  // Close dropdown when clicking outside
+  const sortRef = useRef<HTMLDivElement>(null)
+  const moreFiltersRef = useRef<HTMLDivElement>(null)
+
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (filterDropdownRef.current && !filterDropdownRef.current.contains(event.target as Node)) {
-        setShowFilterDropdown(false)
-      }
+    const handleClickOutside = (e: MouseEvent) => {
+      if (sortRef.current && !sortRef.current.contains(e.target as Node)) setShowSortDropdown(false)
+      if (moreFiltersRef.current && !moreFiltersRef.current.contains(e.target as Node)) setShowMoreFilters(false)
     }
-
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
@@ -85,7 +124,9 @@ export default function JobsPage() {
       const res = await fetch('/api/jobs')
       if (res.ok) {
         const data = await res.json()
-        setJobs(data)
+        setJobs(data.jobs || [])
+        setStats(data.stats || null)
+        setTopReferrers(data.topReferrers || [])
       }
     } catch (err) {
       console.error('Error fetching jobs:', err)
@@ -94,43 +135,63 @@ export default function JobsPage() {
     }
   }
 
-  const handleReferralClick = (job: Job) => {
-    if (!user) {
-      window.location.href = '/login'
-      return
-    }
+  const toggleJobType = (type: string) => {
+    const next = new Set(activeJobTypes)
+    if (next.has(type)) next.delete(type)
+    else next.add(type)
+    setActiveJobTypes(next)
+  }
 
-    // Gating Logic: Same college OR Premium user
+  const filteredJobs = jobs.filter(job => {
+    const matchesSearch = !searchQuery ||
+      job.role.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      job.company_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      job.location.toLowerCase().includes(searchQuery.toLowerCase())
+
+    const matchesType = activeJobTypes.size === 0 ||
+      activeJobTypes.has(job.job_type.toLowerCase())
+
+    const matchesRemote = !remoteFilter ||
+      job.location.toLowerCase().includes('remote') ||
+      job.job_type.toLowerCase().includes('remote')
+
+    return matchesSearch && matchesType && matchesRemote
+  })
+
+  const sortedJobs = [...filteredJobs].sort((a, b) => {
+    if (sortBy === 'most_recent') return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    if (sortBy === 'salary_high') {
+      const aNum = parseInt(a.salary_range.replace(/[^0-9]/g, '')) || 0
+      const bNum = parseInt(b.salary_range.replace(/[^0-9]/g, '')) || 0
+      return bNum - aNum
+    }
+    if (sortBy === 'most_referrals') return b.referral_count - a.referral_count
+    return 0
+  })
+
+  const handleReferralClick = (job: Job) => {
+    if (!user) { router.push('/login'); return }
     const isSameCollege = user?.college_id === job.senior.college_id
     const isPremiumUser = (user as any)?.is_premium || (user as any)?.premium_plan === 'premium'
-
-    if (isSameCollege || isPremiumUser) {
-      setSelectedJob(job)
-    } else {
-      setShowPremiumModal(true)
-    }
+    if (isSameCollege || isPremiumUser) setSelectedJob(job)
+    else setShowPremiumModal(true)
   }
 
   const confirmReferral = async () => {
     if (!selectedJob || !user) return
-    
     setReferring(true)
     try {
       const res = await fetch('/api/jobs/request-referral', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          jobId: selectedJob.id,
-          seniorId: selectedJob.senior.id
-        })
+        body: JSON.stringify({ jobId: selectedJob.id, seniorId: selectedJob.senior.id })
       })
-
       if (res.ok) {
         setReferralSuccess(true)
-        setTimeout(() => {
-          setReferralSuccess(false)
-          setSelectedJob(null)
-        }, 2000)
+        setJobs(prev => prev.map(j =>
+          j.id === selectedJob.id ? { ...j, referral_count: j.referral_count + 1 } : j
+        ))
+        setTimeout(() => { setReferralSuccess(false); setSelectedJob(null) }, 2000)
       }
     } catch (err) {
       console.error('Referral error:', err)
@@ -139,397 +200,953 @@ export default function JobsPage() {
     }
   }
 
-  const filteredJobs = jobs.filter(job => {
-    // Search query filter
-    const matchesSearch = 
-      job.company_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      job.role.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      job.location.toLowerCase().includes(searchQuery.toLowerCase())
-    
-    // Job type filter
-    const matchesJobType = selectedJobType === 'all' || job.job_type.toLowerCase() === selectedJobType.toLowerCase()
-    
-    // Location filter
-    const matchesLocation = selectedLocation === 'all' || 
-      job.location.toLowerCase().includes(selectedLocation.toLowerCase())
-    
-    // Salary range filter
-    const matchesSalary = selectedSalaryRange === 'all' || 
-      (selectedSalaryRange === '0-5' && job.salary_range.includes('LPA')) ||
-      (selectedSalaryRange === '5-10' && (job.salary_range.includes('5') || job.salary_range.includes('6') || job.salary_range.includes('7') || job.salary_range.includes('8') || job.salary_range.includes('9'))) ||
-      (selectedSalaryRange === '10+' && (job.salary_range.includes('10') || job.salary_range.includes('15') || job.salary_range.includes('20') || job.salary_range.includes('25')))
-    
-    // Remote only filter
-    const matchesRemote = !remoteOnly || job.location.toLowerCase().includes('remote') || job.job_type.toLowerCase().includes('remote')
-    
-    return matchesSearch && matchesJobType && matchesLocation && matchesSalary && matchesRemote
-  })
-
-  // Get unique values for filter options
-  const getJobTypes = () => {
-    const types = [...new Set(jobs.map(job => job.job_type))]
-    return types.filter(Boolean)
+  const timeAgo = (dateStr: string) => {
+    const days = Math.floor((Date.now() - new Date(dateStr).getTime()) / (1000 * 60 * 60 * 24))
+    if (days === 0) return 'Today'
+    if (days === 1) return '1d ago'
+    return `${days}d ago`
   }
 
-  const getLocations = () => {
-    const locations = [...new Set(jobs.map(job => job.location))]
-    return locations.filter(Boolean).slice(0, 10) // Limit to top 10 locations
-  }
-
-  const clearFilters = () => {
-    setSelectedJobType('all')
-    setSelectedLocation('all')
-    setSelectedSalaryRange('all')
-    setRemoteOnly(false)
-  }
-
-  const hasActiveFilters = selectedJobType !== 'all' || selectedLocation !== 'all' || 
-    selectedSalaryRange !== 'all' || remoteOnly
+  const hasActiveFilters = activeJobTypes.size > 0 || remoteFilter
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
-
-      {/* Hero Section */}
-      <div className="relative pt-28 pb-16 overflow-hidden">
-        {/* Animated Background Gradients */}
-        <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-purple-100/30 rounded-full blur-[120px] -z-10 animate-pulse" />
-        <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-purple-50/30 rounded-full blur-[100px] -z-10" />
-
-        <div className="max-w-7xl mx-auto px-6 text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-purple-50 rounded-full border border-purple-100 mb-6">
-            <Sparkles size={14} className="text-[#7C3AED]" />
-            <span className="text-[12px] font-bold text-[#7C3AED] uppercase tracking-wider">Premium Opportunities</span>
-          </div>
-          
-          <h1 className="font-extrabold text-4xl md:text-5xl text-gray-900 mb-6 leading-[1.2] tracking-tight">
-            Find your next <span className="text-[#7C3AED]">career move</span><br />
-            with a trusted referral.
-          </h1>
-          
-          <p className="text-gray-500 max-w-2xl mx-auto text-base md:text-lg mb-10 font-medium">
-            Skip the ATS. Connect with seniors from your college and top companies 
-            who are ready to refer you directly to the hiring manager.
-          </p>
-
-          {/* Search Bar */}
-          <div className="max-w-2xl mx-auto relative group">
-            <div className="absolute inset-0 bg-[#7C3AED]/5 rounded-xl blur-xl group-hover:bg-[#7C3AED]/10 transition-all" />
-            <div className="relative bg-white border border-gray-200 rounded-lg p-2 flex items-center shadow-sm">
-              <div className="pl-4 pr-2 text-gray-400">
-                <Search size={20} />
+      {/* ─── MOBILE LAYOUT (lg:hidden) ─── */}
+      <div className="lg:hidden min-h-screen bg-white pb-20">
+        {/* Header */}
+        <div className="sticky top-0 z-30 bg-white/90 backdrop-blur-lg border-b border-slate-100">
+          <div className="flex items-start justify-between px-4 py-3 gap-3">
+            <div className="min-w-0 flex-1">
+              <div className="inline-flex items-center gap-1.5 px-2 py-1 bg-[#7C3AED]/10 rounded-full border border-[#7C3AED]/20 mb-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#7C3AED] animate-pulse" />
+                <span className="text-[9px] font-bold text-[#7C3AED] uppercase tracking-wider">Premium</span>
               </div>
-              <input 
-                type="text" 
-                placeholder="Search by role, company or location..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="flex-1 py-3 text-black outline-none bg-transparent"
-              />
+              <h1 className="text-[17px] font-extrabold text-[#0F172A] tracking-tight leading-tight m-0">
+                Get Referred &{' '}
+                <span className="bg-gradient-to-r from-[#7C3AED] to-[#A78BFA] bg-clip-text text-transparent">Get Hired</span>
+              </h1>
+              <p className="text-[10px] text-slate-500 font-medium mt-0.5 m-0">
+                {stats?.totalJobs || 0} open job{stats?.totalJobs !== 1 ? 's' : ''} &bull; {stats?.totalReferrals || 0} referral{stats?.totalReferrals !== 1 ? 's' : ''} available
+              </p>
             </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Jobs Grid */}
-      <div className="max-w-7xl mx-auto px-6 pb-32">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2 tracking-tight">
-              Latest Openings
-              <span className="text-xs font-semibold text-gray-500 bg-gray-200 px-2 py-0.5 rounded-full">
-                {filteredJobs.length}
-              </span>
-            </h2>
-          </div>
-          
-          <div className="flex gap-3">
-            <div className="relative" ref={filterDropdownRef}>
-              <button 
-                onClick={() => setShowFilterDropdown(!showFilterDropdown)}
-                className={`flex items-center gap-2 px-4 py-2 border rounded-md text-sm font-bold transition-colors ${
-                  hasActiveFilters 
-                    ? 'border-purple-300 bg-purple-50 text-purple-700' 
-                    : 'border-gray-200 text-gray-600 hover:bg-gray-50'
-                }`}
-              >
-                <Filter size={16} />
-                Filters
-                {hasActiveFilters && (
-                  <span className="bg-purple-600 text-white text-xs rounded-full px-1.5 py-0">
-                    {[selectedJobType, selectedLocation, selectedSalaryRange, remoteOnly ? 'remote' : null].filter(f => f && f !== 'all').length}
-                  </span>
-                )}
-              </button>
-              
-              {/* Filter Dropdown */}
-              {showFilterDropdown && (
-                <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 bg-white border border-gray-200 rounded-md shadow-md z-50 p-4">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="font-bold text-black">Filter Jobs</h3>
-                    {hasActiveFilters && (
-                      <button 
-                        onClick={clearFilters}
-                        className="text-xs text-[#7C3AED] hover:text-[#6D28D9] font-medium"
-                      >
-                        Clear All
-                      </button>
-                    )}
-                  </div>
-                  
-                  {/* Job Type Filter */}
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Job Type</label>
-                    <select 
-                      value={selectedJobType}
-                      onChange={(e) => setSelectedJobType(e.target.value)}
-                      className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:border-[#7C3AED]"
-                    >
-                      <option value="all">All Types</option>
-                      {getJobTypes().map(type => (
-                        <option key={type} value={type}>{type}</option>
-                      ))}
-                    </select>
-                  </div>
-                  
-                  {/* Location Filter */}
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
-                    <select 
-                      value={selectedLocation}
-                      onChange={(e) => setSelectedLocation(e.target.value)}
-                      className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:border-[#7C3AED]"
-                    >
-                      <option value="all">All Locations</option>
-                      {getLocations().map(location => (
-                        <option key={location} value={location}>{location}</option>
-                      ))}
-                    </select>
-                  </div>
-                  
-                  {/* Salary Range Filter */}
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Salary Range</label>
-                    <select 
-                      value={selectedSalaryRange}
-                      onChange={(e) => setSelectedSalaryRange(e.target.value)}
-                      className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:border-[#7C3AED]"
-                    >
-                      <option value="all">All Salaries</option>
-                      <option value="0-5">0-5 LPA</option>
-                      <option value="5-10">5-10 LPA</option>
-                      <option value="10+">10+ LPA</option>
-                    </select>
-                  </div>
-                  
-                  {/* Remote Only Filter */}
-                  <div className="mb-4">
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input 
-                        type="checkbox"
-                        checked={remoteOnly}
-                        onChange={(e) => setRemoteOnly(e.target.checked)}
-                        className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
-                      />
-                      <span className="text-sm font-medium text-gray-700">Remote jobs only</span>
-                    </label>
-                  </div>
-                  
-                  <div className="flex gap-2">
-                    <button 
-                      onClick={() => setShowFilterDropdown(false)}
-                      className="flex-1 bg-gray-150 text-gray-750 py-2 rounded-md font-medium text-sm hover:bg-gray-200 transition-colors border border-gray-250"
-                    >
-                      Cancel
-                    </button>
-                    <button 
-                      onClick={() => setShowFilterDropdown(false)}
-                      className="flex-1 bg-[#7C3AED] text-white py-2 rounded-md font-medium text-sm hover:bg-[#6D28D9] transition-colors"
-                    >
-                      Apply Filters
-                    </button>
-                  </div>
+            <div className="flex items-center gap-2 shrink-0 pt-0.5">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+              {user?.avatar_url ? (
+                <img src={user.avatar_url} alt="" className="w-7 h-7 rounded-full object-cover ring-2 ring-slate-200" />
+              ) : (
+                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#7C3AED] to-[#4F46E5] flex items-center justify-center text-white text-[10px] font-bold ring-2 ring-slate-200">
+                  {user?.full_name ? user.full_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : 'U'}
                 </div>
               )}
             </div>
-            
-            <button 
-              onClick={() => setRemoteOnly(!remoteOnly)}
-              className={`flex items-center gap-2 px-4 py-2 border rounded-md text-sm font-bold transition-colors ${
-                remoteOnly 
-                  ? 'border-purple-300 bg-purple-50 text-purple-700' 
-                  : 'border-gray-200 text-gray-600 hover:bg-gray-50'
+          </div>
+        </div>
+
+        {/* Search */}
+        <div className="sticky top-14 z-30 bg-white border-b border-slate-100 px-4 py-3">
+          <div className="flex items-center gap-2">
+            <div className="flex-1 relative">
+              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Search jobs, skills, roles..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full h-10 pl-9 pr-3 rounded-xl border border-slate-200 bg-[#F8FAFC] text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:border-[#7C3AED] focus:ring-1 focus:ring-[#7C3AED]/20 transition-all"
+              />
+            </div>
+            <button
+              onClick={() => setShowMoreFilters(!showMoreFilters)}
+              className="h-10 w-10 rounded-xl bg-[#F8FAFC] border border-slate-200 flex items-center justify-center cursor-pointer hover:bg-slate-100 transition-all shrink-0"
+            >
+              <Filter size={15} className="text-[#7C3AED]" />
+            </button>
+          </div>
+          {/* Mobile filter dropdown */}
+          {showMoreFilters && (
+            <div className="mt-2 bg-white rounded-xl border border-slate-200 shadow-lg p-4">
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="text-xs font-bold text-[#0F172A] m-0">Filters</h4>
+                <button
+                  onClick={() => { setActiveJobTypes(new Set()); setRemoteFilter(false); setShowMoreFilters(false) }}
+                  className="text-[10px] text-[#7C3AED] font-semibold cursor-pointer bg-transparent border-none hover:text-[#6D28D9]"
+                >
+                  Clear All
+                </button>
+              </div>
+              <div className="space-y-3">
+                <div>
+                  <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-2 m-0">Job Type</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {Object.entries(jobTypeLabels).map(([value, label]) => (
+                      <button
+                        key={value}
+                        onClick={() => toggleJobType(value)}
+                        className={`px-2.5 py-1 rounded-md text-[10px] font-semibold border transition-all cursor-pointer ${
+                          activeJobTypes.has(value)
+                            ? 'bg-[#7C3AED]/5 border-[#7C3AED]/20 text-[#7C3AED]'
+                            : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300'
+                        }`}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-2 m-0">Location</p>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="filter-remote-mobile"
+                      checked={remoteFilter}
+                      onChange={(e) => setRemoteFilter(e.target.checked)}
+                      className="rounded border-slate-300 text-[#7C3AED] focus:ring-[#7C3AED]/30 w-3.5 h-3.5"
+                    />
+                    <label htmlFor="filter-remote-mobile" className="text-xs font-medium text-slate-600 cursor-pointer">Remote Only</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Filter Chips */}
+        <div className="overflow-x-auto scrollbar-hide border-b border-slate-50 px-4 py-2.5">
+          <div className="flex items-center gap-2 min-w-max">
+            <button
+              onClick={() => setRemoteFilter(!remoteFilter)}
+              className={`px-3.5 py-1.5 rounded-full text-[11px] font-semibold border transition-all cursor-pointer whitespace-nowrap ${
+                remoteFilter
+                  ? 'bg-[#7C3AED] border-[#7C3AED] text-white'
+                  : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300'
               }`}
             >
-              <Globe size={16} />
-              Remote First
+              <Globe size={11} className="inline mr-1 -mt-0.5" /> Remote
+            </button>
+            {['internship', 'full-time', 'part-time'].map((type) => (
+              <button
+                key={type}
+                onClick={() => toggleJobType(type)}
+                className={`px-3.5 py-1.5 rounded-full text-[11px] font-semibold border transition-all cursor-pointer whitespace-nowrap ${
+                  activeJobTypes.has(type)
+                    ? 'bg-[#7C3AED] border-[#7C3AED] text-white'
+                    : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300'
+                }`}
+              >
+                {jobTypeLabels[type] || type}
+              </button>
+            ))}
+            <div className="w-px h-5 bg-slate-200 mx-1" />
+            <button
+              onClick={() => setShowMoreFilters(!showMoreFilters)}
+              className="px-3.5 py-1.5 rounded-full text-[11px] font-semibold border border-slate-200 text-slate-500 hover:border-slate-300 bg-white hover:bg-slate-50 transition-all cursor-pointer whitespace-nowrap flex items-center gap-1"
+            >
+              <Filter size={11} /> Filters
             </button>
           </div>
         </div>
 
+        {/* Stats Row */}
+        <div className="grid grid-cols-4 gap-2 px-4 py-3">
+          {[
+            { label: 'Open Jobs', value: stats?.totalJobs || 0, icon: Briefcase },
+            { label: 'Referrals', value: stats?.totalReferrals || 0, icon: UserCheck },
+            { label: 'Companies', value: stats?.totalCompanies || 0, icon: Building2 },
+            { label: 'Applications', value: stats?.totalApplications || 0, icon: Eye },
+          ].map((stat) => (
+            <div key={stat.label} className="bg-white rounded-xl border border-slate-100 p-2.5 text-center shadow-sm">
+              <div className="w-7 h-7 rounded-lg bg-[#7C3AED]/5 flex items-center justify-center mx-auto mb-1">
+                <stat.icon size={13} className="text-[#7C3AED]" />
+              </div>
+              <p className="text-base font-extrabold text-[#0F172A] m-0 leading-none">
+                {stat.value.toLocaleString()}
+              </p>
+              <p className="text-[8px] font-medium text-slate-400 m-0 mt-0.5 truncate">{stat.label}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Loading */}
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1, 2, 3, 4, 5, 6].map(i => (
-              <div key={i} className="h-64 bg-gray-50 rounded-md border border-gray-200 animate-pulse" />
-            ))}
-          </div>
-        ) : filteredJobs.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredJobs.map((job) => {
-              const date = new Date(job.created_at)
-              const timeAgo = Math.floor((Date.now() - date.getTime()) / (1000 * 60 * 60 * 24))
-              const isOwnCollege = user?.college_id === job.senior.college_id
-
-              return (
-                <div 
-                  key={job.id}
-                  className="group bg-white border border-gray-200 rounded-md p-6 hover:border-purple-300 hover:shadow-md transition-all duration-200 relative overflow-hidden flex flex-col justify-between h-full shadow-[0_1px_3px_rgba(0,0,0,0.05)]"
-                >
-                  <div>
-                    {/* Company/Role Info */}
-                    <div className="flex items-start justify-between mb-6">
-                      <div className="w-12 h-12 bg-gray-50 rounded-md flex items-center justify-center border border-gray-200 text-base font-bold text-gray-500 group-hover:bg-purple-50 group-hover:border-purple-200 transition-colors flex-shrink-0">
-                        {job.company_name[0].toUpperCase()}
-                      </div>
-                      <div className="flex flex-col items-end">
-                        <span className="text-[10px] font-black text-purple-700 uppercase tracking-wider bg-purple-50 px-2.5 py-1 rounded-md mb-2 border border-purple-100">
-                          {job.job_type}
-                        </span>
-                        <span className="text-[11px] font-bold text-gray-400">
-                          {timeAgo === 0 ? 'Today' : `${timeAgo}d ago`}
-                        </span>
-                      </div>
-                    </div>
-
-                    <h3 className="text-base font-bold text-gray-900 mb-1 group-hover:text-[#7C3AED] transition-colors leading-snug tracking-tight">
-                      {job.role}
-                    </h3>
-                    <p className="text-xs font-semibold text-gray-500 mb-4">{job.company_name}</p>
-
-                    <div className="space-y-2.5 mb-6">
-                      <div className="flex items-center gap-2 text-sm text-gray-500">
-                        <MapPin size={14} className="text-gray-400" />
-                        {job.location}
-                      </div>
-                      <div className="flex items-center gap-2 text-sm text-gray-500">
-                        <span className="text-gray-400 font-bold text-xs">₹</span>
-                        {job.salary_range}
-                      </div>
-                      <div className="flex items-center gap-2 text-sm text-gray-500">
-                        <Users size={14} className="text-gray-400" />
-                        Posted by {job.senior.full_name}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* College/Community context */}
-                  <div className="pt-4 border-t border-gray-150 flex items-center justify-between mt-auto">
-                    <div className="flex items-center gap-2 min-w-0">
-                      <div className="w-6 h-6 rounded-sm bg-purple-100 flex items-center justify-center text-[10px] font-bold text-purple-600 flex-shrink-0">
-                        {job.community.colleges.short_name[0]}
-                      </div>
-                      <span className="text-[12px] font-bold text-gray-600 truncate">
-                        {job.community.colleges.short_name}
-                      </span>
-                    </div>
-                    
-                    <div className="flex items-center gap-2 flex-shrink-0">
-                      <button 
-                        onClick={() => {
-                          const jobLink = job.description || '#'
-                          window.open(jobLink, '_blank')
-                        }}
-                        className="flex items-center gap-1.5 py-1.5 px-3 rounded-md text-xs font-bold border border-green-600 text-green-700 hover:bg-green-50 transition-all bg-transparent"
-                      >
-                        <ArrowRight size={14} />
-                        {user?.id === job.senior.id ? 'View Job' : 'Apply'}
-                      </button>
-                      
-                      <button 
-                        onClick={() => job.referral_available && handleReferralClick(job)}
-                        disabled={!job.referral_available}
-                        className={`flex items-center gap-1.5 py-1.5 px-3 rounded-md text-xs font-bold transition-all relative ${
-                          !job.referral_available
-                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-205'
-                            : isOwnCollege 
-                              ? 'bg-[#7C3AED] text-white hover:bg-[#6D28D9]' 
-                              : 'bg-gray-900 text-white hover:bg-black'
-                        }`}
-                        title={!job.referral_available ? 'Referral not available for this job' : ''}
-                      >
-                        {job.referral_available ? (
-                          isOwnCollege ? <Zap size={14} /> : ((user as any)?.is_premium || (user as any)?.premium_plan === 'premium' ? <Sparkles size={14} /> : <Lock size={14} />)
-                        ) : (
-                          <Lock size={14} />
-                        )}
-                        Get Referral
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )
-            })}
+          <div className="flex items-center justify-center py-16">
+            <Loader2 size={22} className="text-[#7C3AED] animate-spin" />
           </div>
         ) : (
-          <div className="text-center py-20 bg-white border border-dashed border-gray-200 rounded-md">
-            <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-gray-100">
-              <Briefcase size={24} className="text-gray-300" />
+          <>
+            {/* Latest Jobs Section */}
+            <div className="px-4 pt-1 pb-2">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <h2 className="text-sm font-bold text-[#0F172A] m-0">Latest Jobs</h2>
+                  <span className="text-[10px] font-semibold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
+                    {sortedJobs.length}
+                  </span>
+                </div>
+                <div className="relative" ref={sortRef}>
+                  <button
+                    onClick={() => setShowSortDropdown(!showSortDropdown)}
+                    className="flex items-center gap-1 px-2 py-1.5 rounded-lg border border-slate-200 text-[10px] font-semibold text-slate-500 bg-white hover:border-slate-300 transition-all cursor-pointer"
+                  >
+                    {sortBy === 'most_recent' ? 'Most Recent' : sortBy === 'salary_high' ? 'Highest Salary' : 'Most Referrals'}
+                    <ChevronDown size={11} />
+                  </button>
+                  {showSortDropdown && (
+                    <div className="absolute top-full mt-1 right-0 w-36 bg-white rounded-xl border border-slate-200 shadow-lg py-1 z-20">
+                      {[
+                        { value: 'most_recent', label: 'Most Recent' },
+                        { value: 'salary_high', label: 'Highest Salary' },
+                        { value: 'most_referrals', label: 'Most Referrals' },
+                      ].map((opt) => (
+                        <button
+                          key={opt.value}
+                          onClick={() => { setSortBy(opt.value); setShowSortDropdown(false) }}
+                          className={`w-full text-left px-3 py-2 text-[10px] font-semibold transition-colors cursor-pointer border-none ${
+                            sortBy === opt.value ? 'text-[#7C3AED] bg-[#7C3AED]/5' : 'text-slate-500 hover:bg-slate-50'
+                          }`}
+                        >
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {sortedJobs.length > 0 ? (
+                <div className="space-y-3">
+                  {sortedJobs.map((job, index) => {
+                    const isOwnJob = user?.id === job.senior.id
+                    const isOwnCollege = user?.college_id === job.senior.college_id
+                    const isPremiumUser = (user as any)?.is_premium || (user as any)?.premium_plan === 'premium'
+                    const canRefer = isOwnCollege || isPremiumUser
+
+                    return (
+                      <div
+                        key={job.id}
+                        className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-sm"
+                      >
+                        {/* Top: Avatar + Title + Company */}
+                        <div className="flex items-start gap-3">
+                          <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${avatarGradients[index % avatarGradients.length]} flex items-center justify-center text-white text-sm font-bold shrink-0`}>
+                            {job.company_name[0]?.toUpperCase() || '?'}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h3 className="text-sm font-bold text-[#0F172A] m-0 leading-snug">{job.role}</h3>
+                            <p className="text-[11px] font-medium text-slate-500 mt-0.5 m-0">{job.company_name}</p>
+                          </div>
+                          {/* Referral badge */}
+                          {job.referral_available ? (
+                            <div className="flex items-center gap-1 px-2 py-0.5 rounded-lg bg-emerald-50 border border-emerald-200/60 shrink-0">
+                              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                              <span className="text-[10px] font-bold text-emerald-700">{job.referral_count}</span>
+                            </div>
+                          ) : (
+                            <span className="text-[9px] font-medium text-slate-300 shrink-0">Unavailable</span>
+                          )}
+                        </div>
+
+                        {/* Middle: Location, Salary, Date, Type */}
+                        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-2.5 text-[10px] text-slate-400">
+                          <span className="inline-flex items-center gap-1 bg-slate-50 px-2 py-0.5 rounded-md"><MapPin size={10} /> {job.location}</span>
+                          <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 font-semibold px-2 py-0.5 rounded-md"><DollarSign size={10} /> {job.salary_range}</span>
+                          <span className="inline-flex items-center gap-1"><Clock size={10} /> {timeAgo(job.created_at)}</span>
+                          <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-500 text-[9px] font-semibold">
+                            {jobTypeLabels[job.job_type.toLowerCase()] || job.job_type}
+                          </span>
+                        </div>
+
+                        {/* Skills */}
+                        {job.skills && job.skills.length > 0 && (
+                          <div className="flex flex-wrap gap-1 mt-2.5">
+                            {job.skills.slice(0, 3).map((skill) => (
+                              <span key={skill} className="px-2 py-0.5 rounded-full bg-[#F8FAFC] border border-slate-200 text-slate-500 text-[9px] font-medium">
+                                {skill}
+                              </span>
+                            ))}
+                            {job.skills.length > 3 && (
+                              <span className="px-2 py-0.5 text-[9px] font-medium text-slate-400">+{job.skills.length - 3}</span>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Referrer Section */}
+                        <div className="flex items-center gap-2.5 mt-3 pt-3 border-t border-slate-100">
+                          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-[10px] font-bold shrink-0 ring-2 ring-white ${
+                            job.senior.avatar_url ? '' : 'bg-gradient-to-br from-[#7C3AED] to-[#4F46E5]'
+                          }`}>
+                            {job.senior.avatar_url ? (
+                              <img src={job.senior.avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
+                            ) : (
+                              getInitials(job.senior.full_name || '')
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-1.5">
+                              <p className="text-xs font-semibold text-slate-800 m-0 truncate">{job.senior.full_name}</p>
+                              {(job.senior as any).is_verified && (
+                                <CheckCircle size={11} className="text-emerald-500 shrink-0" />
+                              )}
+                            </div>
+                            <p className="text-[10px] font-medium text-slate-400 m-0 truncate">
+                              {job.senior.designation} &middot; {job.community?.colleges?.name || job.community?.display_name || ''}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Bottom: Action Buttons */}
+                        <div className="flex items-center gap-2 mt-3">
+                          {job.description && job.description.startsWith('http') && (
+                            <a
+                              href={job.description}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-xs font-semibold no-underline hover:bg-slate-50 hover:border-slate-300 transition-all"
+                            >
+                              <ExternalLink size={13} /> View Job
+                            </a>
+                          )}
+                          {!isOwnJob && (
+                            <button
+                              onClick={() => handleReferralClick(job)}
+                              disabled={!job.referral_available}
+                              className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold border-none cursor-pointer transition-all ${
+                                !job.referral_available
+                                  ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                                  : canRefer
+                                    ? 'bg-gradient-to-r from-[#7C3AED] to-[#6D28D9] text-white shadow-sm'
+                                    : 'bg-[#0F172A] text-white'
+                              }`}
+                            >
+                              {!job.referral_available ? (
+                                <Lock size={13} />
+                              ) : canRefer ? (
+                                <Zap size={13} />
+                              ) : (
+                                <Lock size={13} />
+                              )}
+                              {canRefer ? 'Request Referral' : 'Unlock Referral'}
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              ) : (
+                <div className="text-center py-12 bg-white rounded-2xl border border-dashed border-slate-200">
+                  <Search size={24} className="text-slate-300 mx-auto mb-3" />
+                  <h3 className="text-sm font-bold text-slate-700 m-0">No jobs match your filters</h3>
+                  <p className="text-xs text-slate-400 mt-1 mb-4 m-0">Try different keywords or browse available jobs</p>
+                  {hasActiveFilters && (
+                    <button
+                      onClick={() => { setActiveJobTypes(new Set()); setRemoteFilter(false); setSearchQuery('') }}
+                      className="px-4 py-2 rounded-lg bg-[#7C3AED]/5 text-[#7C3AED] text-xs font-semibold border border-[#7C3AED]/20 cursor-pointer hover:bg-[#7C3AED]/10 transition-all"
+                    >
+                      Clear All Filters
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
-            <h3 className="text-base font-bold text-gray-900 mb-2">No jobs matched your search</h3>
-            <p className="text-gray-500 text-sm">Try using different keywords or clearing filters</p>
-          </div>
+
+            {/* Referral Benefit */}
+            <div className="px-4 py-2">
+              <div className="bg-gradient-to-r from-[#7C3AED]/5 via-[#7C3AED]/[0.02] to-transparent rounded-2xl border border-[#7C3AED]/10 p-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-[#7C3AED]/10 flex items-center justify-center shrink-0">
+                    <Zap size={15} className="text-[#7C3AED]" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-slate-700 m-0 leading-relaxed">
+                      <span className="font-bold text-[#7C3AED]">Referrals</span> are <span className="font-bold">5x more likely</span> to land interviews than cold applications.
+                    </p>
+                    <p className="text-[10px] text-slate-400 mt-1 m-0">Every job here comes with a direct connection to a verified senior.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Top Referrers */}
+            <div className="px-4 py-2">
+              <h3 className="text-xs font-bold text-[#0F172A] mb-3 m-0">Top Referrers</h3>
+              {topReferrers.length > 0 ? (
+                <div className="overflow-x-auto scrollbar-hide -mx-4 px-4">
+                  <div className="flex gap-3 min-w-max pb-1">
+                    {topReferrers.map((referrer) => (
+                      <div key={referrer.id} className="bg-white rounded-2xl border border-slate-100 p-3.5 w-[130px] shadow-sm text-center">
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white text-xs font-bold mx-auto mb-2 ${
+                          referrer.avatar_url ? '' : 'bg-gradient-to-br from-[#7C3AED] to-[#4F46E5]'
+                        }`}>
+                          {referrer.avatar_url ? (
+                            <img src={referrer.avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
+                          ) : (
+                            getInitials(referrer.full_name || '')
+                          )}
+                        </div>
+                        <p className="text-[11px] font-semibold text-slate-700 m-0 truncate">{referrer.full_name}</p>
+                        <p className="text-[9px] font-medium text-slate-400 m-0 truncate">{referrer.designation}</p>
+                        <div className="mt-1.5 inline-flex items-center gap-1 bg-emerald-50 rounded-lg px-2 py-0.5 border border-emerald-200/60">
+                          <span className="text-xs font-extrabold text-emerald-700">{referrer.referral_count}</span>
+                          <span className="text-[8px] font-medium text-emerald-500">referrals</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-white rounded-2xl border border-slate-100 p-4 text-center shadow-sm">
+                  <Award size={22} className="text-slate-300 mx-auto mb-2" />
+                  <p className="text-xs font-semibold text-slate-600 m-0">Be the first to get referred!</p>
+                  <p className="text-[10px] text-slate-400 mt-1 m-0">Request a referral from any job below.</p>
+                </div>
+              )}
+            </div>
+
+            {/* Job Alerts */}
+            <div className="px-4 py-2">
+              <div className="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-[#7C3AED]/5 flex items-center justify-center shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-xs font-bold text-[#0F172A] m-0">Job Alerts</h3>
+                    <p className="text-[10px] text-slate-500 mt-0.5 mb-2 m-0 leading-relaxed">
+                      Get notified when jobs matching your skills are posted.
+                    </p>
+                    <button className="w-full py-2 rounded-xl bg-[#7C3AED] text-white text-[11px] font-semibold border-none cursor-pointer hover:bg-[#6D28D9] transition-all flex items-center justify-center gap-1.5">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg> Create Job Alert
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* How Referrals Work (Accordion) */}
+            <div className="px-4 py-2">
+              <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                <button
+                  onClick={() => setHowOpen(!howOpen)}
+                  className="w-full flex items-center justify-between px-4 py-3.5 bg-transparent border-none cursor-pointer"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-7 h-7 rounded-lg bg-[#7C3AED]/5 flex items-center justify-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+                    </div>
+                    <span className="text-xs font-bold text-[#0F172A]">How Referrals Work</span>
+                  </div>
+                  <ChevronDown size={14} className={`text-slate-400 transition-transform duration-200 ${howOpen ? 'rotate-180' : ''}`} />
+                </button>
+                {howOpen && (
+                  <div className="px-4 pb-4 space-y-2.5">
+                    {[
+                      { step: '1', text: 'Find a job that matches your skills' },
+                      { step: '2', text: 'Request a referral from a verified senior' },
+                      { step: '3', text: 'Get referred directly to the hiring team' },
+                      { step: '4', text: 'Connect and land your dream role' },
+                    ].map((item) => (
+                      <div key={item.step} className="flex items-start gap-2.5">
+                        <div className="w-5 h-5 rounded-full bg-[#7C3AED]/5 border border-[#7C3AED]/10 flex items-center justify-center text-[9px] font-bold text-[#7C3AED] shrink-0 mt-0.5">
+                          {item.step}
+                        </div>
+                        <p className="text-[11px] text-slate-600 m-0 leading-snug">{item.text}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </>
         )}
       </div>
 
-      {/* Referral Confirmation Modal */}
+      {/* ─── HERO ─── */}
+      <section className="hidden lg:block relative bg-slate-900 border-b border-slate-200/60 overflow-hidden">
+        {/* Full background image */}
+        <div
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: 'url(/jobs-banner.png)' }}
+        />
+        {/* Dark overlay for readability */}
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-900/85 via-slate-900/70 to-slate-900/60" />
+
+        <div className="relative max-w-7xl mx-auto px-6 pt-24 pb-6 z-10">
+          <div className="flex flex-col lg:flex-row gap-6">
+            {/* Left: Text + Search */}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/10 border border-white/15">
+                  <Sparkles size={11} className="text-white/60" />
+                  <span className="text-[9px] font-bold text-white/60 uppercase tracking-[0.12em]">Premium Opportunities</span>
+                </div>
+                <span className="text-[10px] font-medium text-white/50">by Claspire</span>
+              </div>
+
+              <h1 className="text-[28px] md:text-[34px] font-extrabold text-white leading-[1.15] tracking-tight mb-2 m-0">
+                Get referred & get hired.
+              </h1>
+
+              <p className="text-sm text-white/70 leading-relaxed mb-4 m-0 max-w-xl">
+                Skip the ATS queue. Connect with verified seniors who can refer you directly to the hiring team.
+              </p>
+
+              {/* Search + CTA row */}
+              <div className="flex items-center gap-2 max-w-lg">
+                <div className="flex-1 relative">
+                  <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="text"
+                    placeholder="Search jobs, skills, roles..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full h-9 pl-9 pr-3 rounded-lg border border-white/10 bg-white/10 text-xs text-white placeholder:text-white/40 outline-none focus:border-white/30 focus:ring-1 focus:ring-white/20 transition-all "
+                  />
+                </div>
+                <button className="h-9 px-4 rounded-lg bg-white/20 text-white text-xs font-bold border-none cursor-pointer hover:bg-white/30 transition-colors whitespace-nowrap flex items-center gap-1.5">
+                  <Search size={13} /> Search
+                </button>
+              </div>
+
+              {/* Filter Pills */}
+              <div className="flex flex-wrap items-center gap-1.5 mt-3">
+                <button
+                  onClick={() => setRemoteFilter(!remoteFilter)}
+                  className={`px-3 py-1 rounded-full text-[10px] font-semibold border transition-all cursor-pointer ${
+                    remoteFilter
+                      ? 'bg-white/20 border-white/30 text-white'
+                      : 'bg-white/10 border-white/15 text-white/70 hover:bg-white/20'
+                  }`}
+                >
+                  <Globe size={10} className="inline mr-1 -mt-0.5" /> Remote
+                </button>
+                {['internship', 'full-time', 'part-time'].map((type) => (
+                  <button
+                    key={type}
+                    onClick={() => toggleJobType(type)}
+                    className={`px-3 py-1 rounded-full text-[10px] font-semibold border transition-all cursor-pointer ${
+                      activeJobTypes.has(type)
+                        ? 'bg-white/20 border-white/30 text-white'
+                        : 'bg-white/10 border-white/15 text-white/70 hover:bg-white/20'
+                    }`}
+                  >
+                    {jobTypeLabels[type] || type}
+                  </button>
+                ))}
+                <div className="relative" ref={moreFiltersRef}>
+                  <button
+                    onClick={() => setShowMoreFilters(!showMoreFilters)}
+                    className="px-3 py-1 rounded-full text-[10px] font-semibold border border-white/15 text-white/70 hover:bg-white/20 bg-white/10 transition-all cursor-pointer flex items-center gap-1"
+                  >
+                    <Filter size={10} /> More
+                  </button>
+                  {showMoreFilters && (
+                    <div className="absolute top-full mt-2 left-0 w-60 bg-slate-800 rounded-xl border border-white/10 shadow-lg p-4 z-20">
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="text-xs font-bold text-white m-0">Filters</h4>
+                        <button
+                          onClick={() => { setActiveJobTypes(new Set()); setRemoteFilter(false); setShowMoreFilters(false) }}
+                          className="text-[10px] text-white/70 font-semibold cursor-pointer bg-transparent border-none hover:text-white"
+                        >
+                          Clear All
+                        </button>
+                      </div>
+                      <div className="space-y-3">
+                        <div>
+                          <p className="text-[9px] font-bold text-white/50 uppercase tracking-wider mb-2 m-0">Job Type</p>
+                          <div className="flex flex-wrap gap-1.5">
+                            {Object.entries(jobTypeLabels).map(([value, label]) => (
+                              <button
+                                key={value}
+                                onClick={() => toggleJobType(value)}
+                                className={`px-2.5 py-1 rounded-md text-[10px] font-semibold border transition-all cursor-pointer ${
+                                  activeJobTypes.has(value)
+                                    ? 'bg-white/20 border-white/30 text-white'
+                                    : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10'
+                                }`}
+                              >
+                                {label}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                        <div>
+                          <p className="text-[9px] font-bold text-white/50 uppercase tracking-wider mb-2 m-0">Location</p>
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              id="filter-remote"
+                              checked={remoteFilter}
+                              onChange={(e) => setRemoteFilter(e.target.checked)}
+                              className="rounded border-white/20 text-white focus:ring-white/30 w-3.5 h-3.5 bg-white/10"
+                            />
+                            <label htmlFor="filter-remote" className="text-xs font-medium text-white/70 cursor-pointer">Remote Only</label>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Right: Stats */}
+            <div className="flex items-start shrink-0">
+              {/* Stats */}
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  { label: 'Open Jobs', value: stats?.totalJobs || 0, icon: Briefcase, compact: (stats?.totalJobs || 0) < 10 },
+                  { label: 'Referrals', value: stats?.totalReferrals || 0, icon: UserCheck, compact: (stats?.totalReferrals || 0) < 10 },
+                  { label: 'Companies', value: stats?.totalCompanies || 0, icon: Building2, compact: (stats?.totalCompanies || 0) < 10 },
+                  { label: 'Applications', value: stats?.totalApplications || 0, icon: Eye, compact: (stats?.totalApplications || 0) < 10 },
+                ].map((stat) => (
+                  <div key={stat.label} className="bg-white/10 rounded-xl border border-white/10 p-3 min-w-[95px]">
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <div className="w-5 h-5 rounded-md bg-white/20 flex items-center justify-center">
+                        <stat.icon size={10} className="text-white" />
+                      </div>
+                    </div>
+                    <p className={`font-extrabold text-white m-0 leading-none ${stat.compact ? 'text-base' : 'text-xl'}`}>
+                      {stat.value.toLocaleString()}
+                    </p>
+                    <p className="text-[9px] font-medium text-white/50 m-0 mt-0.5">{stat.label}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── MAIN CONTENT ─── */}
+      <section className="hidden lg:block max-w-7xl mx-auto px-6 py-6 pb-20">
+        {loading ? (
+          <div className="flex items-center justify-center py-16">
+            <Loader2 size={22} className="text-[#7C3AED] animate-spin" />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            {/* LEFT: Job Listings */}
+            <div className="lg:col-span-8 space-y-3">
+              {/* Header */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <h2 className="text-sm font-bold text-[#0F172A] m-0">Latest Openings</h2>
+                  <span className="text-[10px] font-semibold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
+                    {sortedJobs.length}
+                  </span>
+                </div>
+                <div className="relative" ref={sortRef}>
+                  <button
+                    onClick={() => setShowSortDropdown(!showSortDropdown)}
+                    className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-slate-200 text-[11px] font-semibold text-slate-500 bg-white hover:border-slate-300 transition-all cursor-pointer"
+                  >
+                    {sortBy === 'most_recent' ? 'Most Recent' : sortBy === 'salary_high' ? 'Highest Salary' : 'Most Referrals'}
+                    <ChevronDown size={12} />
+                  </button>
+                  {showSortDropdown && (
+                    <div className="absolute top-full mt-1 right-0 w-40 bg-white rounded-xl border border-slate-200 shadow-lg py-1 z-20">
+                      {[
+                        { value: 'most_recent', label: 'Most Recent' },
+                        { value: 'salary_high', label: 'Highest Salary' },
+                        { value: 'most_referrals', label: 'Most Referrals' },
+                      ].map((opt) => (
+                        <button
+                          key={opt.value}
+                          onClick={() => { setSortBy(opt.value); setShowSortDropdown(false) }}
+                          className={`w-full text-left px-3.5 py-2 text-[11px] font-semibold transition-colors cursor-pointer border-none ${
+                            sortBy === opt.value ? 'text-[#7C3AED] bg-[#7C3AED]/5' : 'text-slate-500 hover:bg-slate-50'
+                          }`}
+                        >
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Job Cards */}
+              {sortedJobs.length > 0 ? (
+                <div className="space-y-2.5">
+                  {sortedJobs.map((job, index) => {
+                    const isOwnJob = user?.id === job.senior.id
+                    const isOwnCollege = user?.college_id === job.senior.college_id
+                    const isPremiumUser = (user as any)?.is_premium || (user as any)?.premium_plan === 'premium'
+                    const canRefer = isOwnCollege || isPremiumUser
+
+                    return (
+                      <div
+                        key={job.id}
+                        className="bg-white rounded-2xl border border-slate-200/80 px-5 py-4 hover:shadow-md hover:border-slate-200 transition-all duration-200"
+                      >
+                        {/* Row: Avatar | Content | Referral Count */}
+                        <div className="flex items-start gap-3.5">
+                          {/* Company Avatar */}
+                          <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${avatarGradients[index % avatarGradients.length]} flex items-center justify-center text-white text-sm font-bold shrink-0`}>
+                            {job.company_name[0]?.toUpperCase() || '?'}
+                          </div>
+
+                          {/* Content */}
+                          <div className="flex-1 min-w-0">
+                            {/* Title + Company */}
+                            <h3 className="text-base font-bold text-[#0F172A] m-0 leading-snug">{job.role}</h3>
+                            <p className="text-xs font-medium text-slate-500 mt-0.5 m-0">{job.company_name}</p>
+
+                            {/* Meta row — salary highlighted */}
+                            <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 mt-1.5 text-[11px] text-slate-400">
+                              <span className="inline-flex items-center gap-1"><MapPin size={11} /> {job.location}</span>
+                              <span className="inline-flex items-center gap-1 font-bold text-emerald-600"><DollarSign size={11} /> {job.salary_range}</span>
+                              <span className="inline-flex items-center gap-1"><Clock size={11} /> {timeAgo(job.created_at)}</span>
+                              <span className="px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 text-[9px] font-semibold">
+                                {jobTypeLabels[job.job_type.toLowerCase()] || job.job_type}
+                              </span>
+                            </div>
+
+                            {/* Skills */}
+                            {job.skills && job.skills.length > 0 && (
+                              <div className="flex flex-wrap gap-1.5 mt-2.5">
+                                {job.skills.map((skill) => (
+                                  <span key={skill} className="px-2.5 py-0.5 rounded-full bg-[#F8FAFC] border border-slate-200 text-slate-500 text-[10px] font-medium">
+                                    {skill}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Right: Referral Availability */}
+                          <div className="shrink-0 text-right pt-1">
+                            {job.referral_available ? (
+                              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 border border-emerald-200/60">
+                                <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                                <span className="text-[11px] font-bold text-emerald-700">{job.referral_count}</span>
+                                <span className="text-[9px] font-medium text-emerald-500">open</span>
+                              </div>
+                            ) : (
+                              <span className="text-[10px] font-medium text-slate-300">Referral unavailable</span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Bottom: Referrer Section + Actions */}
+                        <div className="flex flex-wrap items-center justify-between gap-2 mt-3.5 pt-3 border-t border-slate-100">
+                          {/* Referrer — prominent */}
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <div className={`w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0 ring-2 ring-white ${
+                              job.senior.avatar_url ? '' : 'bg-gradient-to-br from-[#7C3AED] to-[#4F46E5]'
+                            }`}>
+                              {job.senior.avatar_url ? (
+                                <img src={job.senior.avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
+                              ) : (
+                                getInitials(job.senior.full_name || '')
+                              )}
+                            </div>
+                            <div className="min-w-0">
+                              <div className="flex items-center gap-1.5">
+                                <p className="text-xs font-bold text-slate-800 m-0 truncate">{job.senior.full_name}</p>
+                                {(job.senior as any).is_verified && (
+                                  <span className="text-[9px] font-semibold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded flex items-center gap-0.5">
+                                    <CheckCircle size={8} /> Verified
+                                  </span>
+                                )}
+                                {!isOwnJob && (
+                                  <span className="text-[9px] font-medium text-[#7C3AED] bg-[#7C3AED]/5 px-1.5 py-0.5 rounded">Referrer</span>
+                                )}
+                              </div>
+                              <p className="text-[10px] font-medium text-slate-400 m-0 truncate">
+                                {job.senior.designation} · {job.community?.colleges?.name || job.community?.display_name || ''}
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Actions */}
+                          <div className="flex items-center gap-2 shrink-0">
+                            {job.description && job.description.startsWith('http') && (
+                              <a
+                                href={job.description}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-200 text-slate-500 text-[11px] font-medium no-underline hover:bg-slate-50 hover:border-slate-300 transition-all"
+                              >
+                                <ExternalLink size={12} /> View
+                              </a>
+                            )}
+                            {!isOwnJob && (
+                              <button
+                                onClick={() => handleReferralClick(job)}
+                                disabled={!job.referral_available}
+                                className={`inline-flex items-center gap-1 px-3.5 py-1.5 rounded-lg text-[11px] font-bold border-none cursor-pointer transition-all ${
+                                  !job.referral_available
+                                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                                    : canRefer
+                                      ? 'bg-[#7C3AED] text-white hover:bg-[#6D28D9] shadow-sm'
+                                      : 'bg-[#0F172A] text-white hover:bg-slate-800'
+                                }`}
+                              >
+                                {!job.referral_available ? (
+                                  <Lock size={12} />
+                                ) : canRefer ? (
+                                  <Zap size={12} />
+                                ) : (
+                                  <Lock size={12} />
+                                )}
+                                {canRefer ? 'Get Referral' : 'Unlock Referral'}
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              ) : (
+                <div className="text-center py-12 bg-white rounded-2xl border border-dashed border-slate-200">
+                  <Search size={24} className="text-slate-300 mx-auto mb-3" />
+                  <h3 className="text-sm font-bold text-slate-700 m-0">No openings match your filters</h3>
+                  <p className="text-xs text-slate-400 mt-1 mb-4 m-0">Try different keywords or browse available jobs</p>
+                  {hasActiveFilters && (
+                    <button
+                      onClick={() => { setActiveJobTypes(new Set()); setRemoteFilter(false); setSearchQuery('') }}
+                      className="px-4 py-2 rounded-lg bg-[#7C3AED]/5 text-[#7C3AED] text-xs font-semibold border border-[#7C3AED]/20 cursor-pointer hover:bg-[#7C3AED]/10 transition-all"
+                    >
+                      Clear All Filters
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {/* Social proof: Why use referrals */}
+              <div className="bg-gradient-to-r from-[#7C3AED]/5 via-transparent to-[#10B981]/5 rounded-2xl border border-slate-200/60 p-4">
+                <p className="text-[11px] text-slate-600 m-0 leading-relaxed text-center">
+                  <span className="font-bold text-[#7C3AED]">Referrals</span> are <span className="font-bold">5x more likely</span> to land an interview than cold applications. 
+                  Every job here comes with a direct connection to a verified senior.
+                </p>
+              </div>
+            </div>
+
+            {/* RIGHT: Sidebar */}
+            <div className="lg:col-span-4 space-y-4">
+              {/* Top Referrers — always shows meaningful content */}
+              <div className="bg-white rounded-2xl border border-slate-200/80 p-4">
+                <h3 className="text-xs font-bold text-[#0F172A] mb-3 m-0">Top Referrers</h3>
+                {topReferrers.length > 0 ? (
+                  <div className="space-y-2.5">
+                    {topReferrers.map((referrer) => (
+                      <div key={referrer.id} className="flex items-center justify-between">
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-[10px] font-bold shrink-0 ${
+                            referrer.avatar_url ? '' : 'bg-gradient-to-br from-[#7C3AED] to-[#4F46E5]'
+                          }`}>
+                            {referrer.avatar_url ? (
+                              <img src={referrer.avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
+                            ) : (
+                              getInitials(referrer.full_name || '')
+                            )}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-xs font-semibold text-slate-700 m-0 truncate">{referrer.full_name}</p>
+                            <p className="text-[10px] font-medium text-slate-400 m-0 truncate">{referrer.designation}{referrer.company ? ` at ${referrer.company}` : ''}</p>
+                          </div>
+                        </div>
+                        <div className="shrink-0 bg-emerald-50 rounded-lg px-2 py-1 border border-emerald-200/60">
+                          <p className="text-xs font-extrabold text-emerald-700 m-0 text-center">{referrer.referral_count}</p>
+                          <p className="text-[8px] font-medium text-emerald-500 m-0 leading-none">referrals</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-4">
+                    <Award size={24} className="text-slate-300 mx-auto mb-2" />
+                    <p className="text-xs font-semibold text-slate-600 m-0">Be the first to get referred!</p>
+                    <p className="text-[10px] text-slate-400 mt-1 m-0">Request a referral from any job below to start building your network.</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Job Alerts */}
+              <div className="bg-white rounded-2xl border border-slate-200/80 p-4">
+                <h3 className="text-xs font-bold text-[#0F172A] mb-1 m-0">Job Alerts</h3>
+                <p className="text-[10px] text-slate-500 mb-3 m-0 leading-relaxed">
+                  Get notified when new jobs matching your skills are posted.
+                </p>
+                <button className="w-full py-2 rounded-lg border border-[#7C3AED]/20 text-[#7C3AED] text-xs font-semibold bg-[#7C3AED]/5 hover:bg-[#7C3AED]/10 transition-all cursor-pointer border-none flex items-center justify-center gap-1.5">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg> Create Job Alert
+                </button>
+              </div>
+
+              {/* How Referrals Work */}
+              <div className="bg-white rounded-2xl border border-slate-200/80 p-4">
+                <h3 className="text-xs font-bold text-[#0F172A] mb-2 m-0">How Referrals Work</h3>
+                <div className="space-y-2">
+                  {[
+                    { step: '1', text: 'Find a job that matches your skills' },
+                    { step: '2', text: 'Request a referral from a verified senior' },
+                    { step: '3', text: 'Get referred directly to the hiring team' },
+                    { step: '4', text: 'Connect and land your dream role' },
+                  ].map((item) => (
+                    <div key={item.step} className="flex items-start gap-2">
+                      <div className="w-5 h-5 rounded-full bg-[#7C3AED]/5 border border-[#7C3AED]/10 flex items-center justify-center text-[9px] font-bold text-[#7C3AED] shrink-0 mt-0.5">
+                        {item.step}
+                      </div>
+                      <p className="text-[11px] text-slate-600 m-0 leading-snug">{item.text}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </section>
+
+      {/* ─── REFERRAL CONFIRMATION MODAL ─── */}
       {selectedJob && (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center p-6">
-          <div 
-            className="absolute inset-0 bg-black/40 backdrop-blur-sm" 
-            onClick={() => setSelectedJob(null)}
-          />
-          <div className="relative bg-white w-full max-w-md rounded-md p-8 shadow-xl animate-in zoom-in-95 duration-200 border border-gray-200">
+          <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={() => !referring && setSelectedJob(null)} />
+          <div className="relative bg-white w-full max-w-sm rounded-2xl p-6 shadow-xl border border-slate-200">
             {referralSuccess ? (
-              <div className="text-center py-6">
-                <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-green-100">
-                  <CheckCircle size={32} className="text-green-500" />
+              <div className="text-center py-4">
+                <div className="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center mx-auto mb-3 border border-emerald-100">
+                  <CheckCircle size={24} className="text-emerald-500" />
                 </div>
-                <h3 className="text-xl font-bold text-black mb-2">Request Sent!</h3>
-                <p className="text-gray-500 text-sm">
-                  {selectedJob.senior.full_name.split(' ')[0]} has been notified. 
-                  You'll hear back soon!
+                <h3 className="text-sm font-bold text-[#0F172A] mb-1 m-0">Request Sent!</h3>
+                <p className="text-xs text-slate-500 m-0">
+                  {selectedJob.senior.full_name.split(' ')[0]} has been notified.
                 </p>
               </div>
             ) : (
               <>
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-12 h-12 bg-purple-50 rounded-md flex items-center justify-center text-purple-600 border border-purple-100 flex-shrink-0">
-                    <Users size={20} />
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#7C3AED] to-[#4F46E5] flex items-center justify-center text-white text-sm font-bold shrink-0">
+                    {selectedJob.company_name[0]?.toUpperCase() || '?'}
                   </div>
                   <div className="min-w-0">
-                    <h3 className="text-base font-bold text-gray-900 leading-tight truncate">Request Referral</h3>
-                    <p className="text-xs text-gray-500 truncate">to {selectedJob.company_name}</p>
+                    <h3 className="text-sm font-bold text-[#0F172A] m-0 leading-tight">Request Referral</h3>
+                    <p className="text-[11px] text-slate-500 m-0 truncate">{selectedJob.role} at {selectedJob.company_name}</p>
                   </div>
                 </div>
 
-                <div className="bg-gray-50 rounded-md p-4 mb-6 border border-gray-150">
-                  <p className="text-sm text-gray-650 leading-relaxed italic">
-                    "Hi {selectedJob.senior.full_name.split(' ')[0]}, I'm interested in the <strong>{selectedJob.role}</strong> position at <strong>{selectedJob.company_name}</strong>. Could you please refer me?"
+                <div className="bg-[#F8FAFC] rounded-xl p-3.5 mb-5 border border-slate-100">
+                  <p className="text-xs text-slate-600 leading-relaxed m-0">
+                    Hi {selectedJob.senior.full_name.split(' ')[0]}, I am interested in the <strong>{selectedJob.role}</strong> position at <strong>{selectedJob.company_name}</strong>. Could you please refer me?
                   </p>
                 </div>
 
-                <div className="flex gap-3">
-                  <button 
+                <div className="flex gap-2.5">
+                  <button
                     onClick={() => setSelectedJob(null)}
                     disabled={referring}
-                    className="flex-1 py-2.5 text-sm font-bold text-gray-500 hover:bg-gray-100 rounded-md transition-colors border border-gray-200"
+                    className="flex-1 py-2 rounded-lg border border-slate-200 text-slate-500 text-xs font-semibold bg-white hover:bg-slate-50 transition-all cursor-pointer disabled:opacity-50"
                   >
                     Cancel
                   </button>
-                  <button 
+                  <button
                     onClick={confirmReferral}
                     disabled={referring}
-                    className="flex-1 bg-[#7C3AED] text-white py-2.5 rounded-md font-bold text-sm hover:bg-[#6D28D9] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                    className="flex-1 py-2 rounded-lg bg-[#7C3AED] text-white text-xs font-bold border-none cursor-pointer hover:bg-[#6D28D9] transition-all disabled:opacity-50 flex items-center justify-center gap-1.5"
                   >
+                    {referring ? <Loader2 size={13} className="animate-spin" /> : null}
                     {referring ? 'Sending...' : 'Confirm Request'}
                   </button>
                 </div>
@@ -539,59 +1156,54 @@ export default function JobsPage() {
         </div>
       )}
 
-      {/* Premium Upgrade Modal */}
+      {/* ─── PREMIUM UPGRADE MODAL ─── */}
       {showPremiumModal && (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center p-6">
-          <div 
-            className="absolute inset-0 bg-black/60 backdrop-blur-md" 
-            onClick={() => setShowPremiumModal(false)}
-          />
-          <div className="relative bg-white w-full max-w-lg rounded-lg overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-200 border border-gray-200">
-            {/* Modal Header/Banner */}
-            <div className="bg-gradient-to-br from-[#1F1F2E] to-[#0F0F1A] p-10 text-center relative border-b border-gray-800">
-              <div className="absolute top-4 right-4 text-white/5">
-                <Globe size={120} />
+          <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={() => setShowPremiumModal(false)} />
+          <div className="relative bg-white w-full max-w-sm rounded-2xl overflow-hidden shadow-xl border border-slate-200">
+            <div className="bg-gradient-to-br from-[#1F1F2E] to-[#0F0F1A] p-6 text-center relative border-b border-slate-800">
+              <div className="absolute top-3 right-3 text-white/[0.03]">
+                <Briefcase size={80} />
               </div>
               <div className="relative z-10">
-                <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 rounded-full border border-white/20 mb-6">
-                  <Sparkles size={14} className="text-cyan-400" />
-                  <span className="text-[10px] font-bold text-white uppercase tracking-widest">Premium Feature</span>
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white/10 rounded-full border border-white/20 mb-4">
+                  <Sparkles size={11} className="text-cyan-400" />
+                  <span className="text-[9px] font-bold text-white uppercase tracking-widest">Premium Feature</span>
                 </div>
-                <h3 className="text-2xl font-bold text-white mb-2 tracking-tight">Unlock Global Network</h3>
-                <p className="text-white/60 text-sm max-w-[280px] mx-auto leading-relaxed">
-                  Get referrals from seniors across all colleges in the Claspire network.
+                <h3 className="text-base font-bold text-white mb-1 m-0 tracking-tight">Unlock Global Network</h3>
+                <p className="text-white/60 text-[11px] max-w-[220px] mx-auto leading-relaxed m-0">
+                  Get referrals from seniors across all colleges.
                 </p>
               </div>
             </div>
 
-            {/* Modal Content */}
-            <div className="p-10">
-              <div className="space-y-4 mb-8">
+            <div className="p-6">
+              <div className="space-y-2.5 mb-5">
                 {[
                   'Unlimited referrals from 10,000+ seniors',
                   'Direct messaging with verified experts',
                   'Access to exclusive premium job pool',
-                  'Advanced profile boost for recruiters'
+                  'Advanced profile boost for recruiters',
                 ].map((feature, i) => (
-                  <div key={i} className="flex items-center gap-3">
-                    <div className="w-5 h-5 bg-green-50 rounded-full flex items-center justify-center border border-green-100 flex-shrink-0">
-                      <CheckCircle size={12} className="text-green-500" />
+                  <div key={i} className="flex items-center gap-2">
+                    <div className="w-4 h-4 rounded-full bg-emerald-50 flex items-center justify-center border border-emerald-100 shrink-0">
+                      <CheckCircle size={9} className="text-emerald-500" />
                     </div>
-                    <span className="text-sm font-semibold text-gray-700">{feature}</span>
+                    <span className="text-[11px] font-semibold text-slate-700">{feature}</span>
                   </div>
                 ))}
               </div>
 
-              <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-2">
                 <Link href="/pricing" className="no-underline">
-                  <button className="w-full bg-[#7C3AED] hover:bg-[#6D28D9] text-white py-3.5 rounded-md font-bold text-sm transition-all flex items-center justify-center gap-2 group border-none">
+                  <button className="w-full py-2.5 rounded-xl bg-[#7C3AED] text-white text-xs font-bold border-none cursor-pointer hover:bg-[#6D28D9] transition-all flex items-center justify-center gap-2">
                     Upgrade to Premium
-                    <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                    <ArrowRight size={13} />
                   </button>
                 </Link>
-                <button 
+                <button
                   onClick={() => setShowPremiumModal(false)}
-                  className="w-full py-2.5 text-sm font-bold text-gray-400 hover:text-gray-600 transition-colors border border-transparent"
+                  className="w-full py-1.5 text-[11px] font-semibold text-slate-400 hover:text-slate-600 transition-colors cursor-pointer border-none bg-transparent"
                 >
                   Maybe Later
                 </button>

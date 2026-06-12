@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import {
   Linkedin, GraduationCap, Building2, Briefcase, ShieldCheck,
-  Github, ExternalLink, Zap, Info, Check, X,
+  Github, ExternalLink, Info,
 } from 'lucide-react'
 import ProfileActionBar from '@/components/profile/ProfileActionBar'
 import { getUserActivityStatus } from '@/hooks/useActivityStatus'
@@ -93,177 +93,245 @@ export default function PublicProfilePage() {
   const studentCerts = studentExtras.certifications.filter((c) => c.name?.trim())
   const seniorCerts = seniorExtras.certifications.filter((c) => c.name?.trim())
   const studentProjects = studentExtras.projects.filter((p) => p.title?.trim())
+  const seniorProjects = seniorExtras.projects.filter((p) => p.title?.trim())
   const initials = user.full_name?.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
 
-  const headerLinks = isSenior
-    ? [
-        user.linkedin_url && { label: 'LinkedIn', href: user.linkedin_url, icon: Linkedin, className: 'bg-[#0A66C2] text-white border-transparent' },
-        seniorExtras.portfolio_url && { label: 'Portfolio', href: seniorExtras.portfolio_url, icon: ExternalLink, className: 'bg-white border-slate-200 text-slate-700' },
-        seniorExtras.github_url && { label: 'GitHub', href: seniorExtras.github_url, icon: Github, className: 'bg-slate-900 text-white border-transparent' },
-      ].filter(Boolean) as { label: string; href: string; icon: typeof Linkedin; className: string }[]
-    : [
-        user.linkedin_url && { label: 'LinkedIn', href: user.linkedin_url, icon: Linkedin, className: 'bg-[#0A66C2] text-white border-transparent' },
-        studentExtras.github_url && { label: 'GitHub', href: studentExtras.github_url, icon: Github, className: 'bg-slate-900 text-white border-transparent' },
-        studentExtras.resume_url && { label: 'Resume', href: studentExtras.resume_url, icon: ExternalLink, className: 'bg-purple-600 text-white border-transparent' },
-      ].filter(Boolean) as { label: string; href: string; icon: typeof Linkedin; className: string }[]
+  const linkedinUrl = seniorExtras.social_links?.linkedin || studentExtras.social_links?.linkedin || user.linkedin_url || ''
+  const githubUrl = seniorExtras.social_links?.github || studentExtras.social_links?.github || ''
+  const portfolioUrl = seniorExtras.social_links?.portfolio || ''
+
+  const resumeUrl = studentExtras.resume_url || seniorExtras.resume_url
+
+  const allProjects = (isSenior ? seniorProjects : studentProjects)
+  const allCerts = (isSenior ? seniorCerts : studentCerts)
+  const skills = isSenior ? seniorExtras.skills : studentExtras.skills
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] font-plus-jakarta-sans text-xs">
       <main className="pt-24 pb-20 px-4 max-w-5xl mx-auto">
-        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm mb-8">
-          <div className="relative mb-16">
-            {/* Banner */}
-            <div 
-              className="h-44 rounded-t-2xl overflow-hidden relative"
-              style={{
-                background: user.banner_url 
-                  ? `url(${user.banner_url}) center/cover no-repeat` 
-                  : 'linear-gradient(to right, #f1f5f9, #eef2ff, #faf5ff)'
-              }}
-            />
-            {/* Avatar — positioned outside overflow-hidden banner so it's never clipped */}
-            <div className="absolute -bottom-14 left-6 md:left-10 z-10">
-              <div className={`w-28 h-28 rounded-2xl overflow-hidden border-4 border-white shadow-md ${!user.avatar_url ? 'bg-gradient-to-br from-[#7C3AED] to-[#4F46E5] flex items-center justify-center text-white text-2xl font-black' : ''}`}>
-                {user.avatar_url ? (
-                  <img src={user.avatar_url} alt={user.full_name} className="w-full h-full object-cover" />
-                ) : (
-                  initials
-                )}
-              </div>
-            </div>
-          </div>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          {/* ===== MAIN CONTENT ===== */}
+          <div className="lg:col-span-8 space-y-6">
 
-          <div className="pt-16 pb-8 px-6 md:px-10">
-            <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-6">
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-2">
-                  <h1 className="text-2xl md:text-3xl font-extrabold text-[#0F172A] m-0">{user.full_name}</h1>
+            {/* ─── SECTION 1: HERO CARD ─── */}
+            <div className="bg-white rounded-xl border border-slate-200/80 shadow-sm overflow-hidden">
+              {/* Banner */}
+              <div
+                className="h-40 rounded-t-xl"
+                style={{
+                  background: user.banner_url
+                    ? `url(${user.banner_url}) center/cover no-repeat`
+                    : 'linear-gradient(to right, #f1f5f9, #eef2ff, #faf5ff)'
+                }}
+              />
+              {/* Avatar + Content */}
+              <div className="relative px-6 pb-5">
+                {/* Avatar */}
+                <div className="-mt-14 mb-3">
+                  <div className={`w-28 h-28 rounded-2xl overflow-hidden border-4 border-white shadow-md ${!user.avatar_url ? 'bg-gradient-to-br from-[#7C3AED] to-[#4F46E5] flex items-center justify-center text-white text-2xl font-black' : ''}`}>
+                    {user.avatar_url ? (
+                      <img src={user.avatar_url} alt={user.full_name} className="w-full h-full object-cover" />
+                    ) : (
+                      initials
+                    )}
+                  </div>
+                </div>
+
+                {/* Name + Verified */}
+                <div className="flex items-center gap-2 mb-1">
+                  <h1 className="text-2xl font-extrabold text-[#0F172A] m-0">{user.full_name}</h1>
                   {user.is_verified && <ShieldCheck size={18} className="text-blue-500" />}
                 </div>
-                <p className="text-[11px] font-bold uppercase tracking-wider text-purple-600 mb-3">
-                  {isSenior ? '💼 Professional Profile' : '🎓 Student Profile'}
+
+                {/* Role Badge */}
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-2 m-0">
+                  {isSenior ? 'Professional' : 'Student'}
                 </p>
-                <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs font-semibold text-slate-500">
+
+                {/* College / Company / Location */}
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500 mb-3">
                   {college && (
-                    <span className="flex items-center gap-1.5"><Building2 size={14} className="text-purple-600" /> {college.name}</span>
+                    <span className="inline-flex items-center gap-1"><Building2 size={13} className="text-slate-400" /> {college.name}</span>
                   )}
                   {isSenior && user.company && (
-                    <span className="flex items-center gap-1.5"><Briefcase size={14} className="text-blue-500" /> {user.designation} @ {user.company}</span>
+                    <span className="inline-flex items-center gap-1"><Briefcase size={13} className="text-slate-400" /> {user.designation} @ {user.company}</span>
                   )}
                   {!isSenior && user.branch && (
-                    <span className="flex items-center gap-1.5"><GraduationCap size={14} className="text-emerald-600" /> {user.branch} · Class of {user.passout_year}</span>
+                    <span className="inline-flex items-center gap-1"><GraduationCap size={13} className="text-slate-400" /> {user.branch} · Class of {user.passout_year}</span>
                   )}
                 </div>
-                {user.bio && (
-                  <p className="mt-4 text-sm text-slate-600 leading-relaxed max-w-2xl">{user.bio}</p>
-                )}
-              </div>
 
-              <div className="flex flex-col gap-3 min-w-[240px]">
-                <ProfileActionBar profileUser={user} viewer={viewer} isOwnProfile={isOwnProfile} connectionStatus={connectionStatus} connectionId={connectionId} followStatus={followStatus} />
-                {headerLinks.map((l) => (
-                  <a
-                    key={l.label}
-                    href={l.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-bold text-xs no-underline border ${l.className}`}
-                  >
-                    <l.icon size={16} /> {l.label}
-                  </a>
-                ))}
+                {/* Bio */}
+                {user.bio && (
+                  <p className="text-sm text-slate-600 leading-relaxed m-0 max-w-2xl">{user.bio}</p>
+                )}
+
+                {/* Action Buttons Row */}
+                <div className="flex flex-wrap items-center gap-3 mt-4">
+                  <ProfileActionBar profileUser={user} viewer={viewer} isOwnProfile={isOwnProfile} connectionStatus={connectionStatus} connectionId={connectionId} followStatus={followStatus} />
+                  <div className="flex flex-wrap gap-2">
+                    {linkedinUrl && (
+                      <a href={linkedinUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-slate-500 hover:text-[#0A66C2] hover:border-[#0A66C2]/30 text-xs font-medium no-underline transition-all">
+                        <Linkedin size={13} /> LinkedIn
+                      </a>
+                    )}
+                    {githubUrl && (
+                      <a href={githubUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-slate-500 hover:text-[#333] hover:border-[#333]/30 text-xs font-medium no-underline transition-all">
+                        <Github size={13} /> GitHub
+                      </a>
+                    )}
+                    {portfolioUrl && (
+                      <a href={portfolioUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-slate-500 hover:text-[#7C3AED] hover:border-[#7C3AED]/30 text-xs font-medium no-underline transition-all">
+                        <ExternalLink size={13} /> Portfolio
+                      </a>
+                    )}
+                    {resumeUrl && (
+                      <a href={resumeUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-slate-500 hover:text-[#7C3AED] hover:border-[#7C3AED]/30 text-xs font-medium no-underline transition-all">
+                        <ExternalLink size={13} /> Resume
+                      </a>
+                    )}
+                  </div>
+                </div>
+
+                {/* Integrated: Areas Looking For (Student) / Mentorship (Senior) */}
+                {!isSenior && (
+                  (() => {
+                    const selectedAreas = (Object.keys(AREAS_LOOKING_LABELS) as (keyof AreasLookingFor)[]).filter((k) => studentExtras.areas_looking_for[k])
+                    if (!selectedAreas.length) return null
+                    return (
+                      <div className="flex items-center gap-2 mt-4 pt-4 border-t border-slate-100">
+                        <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Seeking</span>
+                        <div className="flex flex-wrap gap-1.5">
+                          {selectedAreas.map((k: string) => (
+                            <span key={k} className="px-2 py-0.5 rounded-full bg-[#F8FAFC] border border-slate-200 text-slate-500 text-[10px] font-medium">{AREAS_LOOKING_LABELS[k as keyof AreasLookingFor]}</span>
+                          ))}
+                        </div>
+                      </div>
+                    )
+                  })()
+                )}
+                {isSenior && (
+                  (() => {
+                    const activeMentorship = (Object.keys(MENTORSHIP_LABELS) as (keyof MentorshipOptions)[]).filter((k) => seniorExtras.mentorship[k])
+                    if (!activeMentorship.length) return null
+                    return (
+                      <div className="flex items-center gap-2 mt-4 pt-4 border-t border-slate-100">
+                        <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Mentorship</span>
+                        <div className="flex flex-wrap gap-1.5">
+                          {activeMentorship.map((k) => (
+                            <span key={k} className="px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-600 text-[10px] font-medium">{MENTORSHIP_LABELS[k]}</span>
+                          ))}
+                        </div>
+                      </div>
+                    )
+                  })()
+                )}
               </div>
             </div>
-          </div>
-        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          <div className="lg:col-span-8 space-y-6">
-            {!isSenior && (
-              <>
-                <Section title="Education">
-                  <InfoGrid items={[
-                    ['College', college?.name],
-                    ['Branch', user.branch],
-                    ['Graduation Year', user.passout_year],
-                    ['Current Year', user.year ? `Year ${user.year}` : null],
-                  ]} />
-                </Section>
-
-                {studentExtras.skills.length > 0 && (
-                  <Section title="Skills">
-                    <TagList tags={studentExtras.skills} color="purple" />
-                  </Section>
-                )}
-
-                {studentProjects.length > 0 && (
-                  <Section title="Projects">
-                    <div className="space-y-3">
-                      {studentProjects.map((p, i) => (
-                        <div key={i} className="p-4 rounded-xl border border-slate-100 bg-slate-50/50">
-                          <p className="font-bold text-slate-900 m-0">{p.title}</p>
-                          {p.description && <p className="text-slate-600 mt-1 m-0">{p.description}</p>}
-                          {p.link && (
-                            <a href={p.link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-purple-600 font-bold mt-2 no-underline">
-                              View <ExternalLink size={12} />
-                            </a>
+            {/* ─── SECTION 2: FEATURED PROJECT ─── */}
+            {allProjects.length > 0 && (
+              <div className="bg-white rounded-xl border border-slate-200/80 shadow-sm p-6">
+                <h2 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-5 m-0">Featured Project</h2>
+                <div className="flex items-start gap-5">
+                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[#7C3AED]/10 to-[#4F46E5]/10 flex items-center justify-center text-xl font-bold text-[#7C3AED] shrink-0">
+                    {allProjects[0].title[0]}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="text-base font-bold text-slate-900 m-0">{allProjects[0].title}</h3>
+                    {allProjects[0].description && (
+                      <p className="text-sm text-slate-500 mt-1.5 m-0 leading-relaxed">{allProjects[0].description}</p>
+                    )}
+                    {(() => {
+                      const stack = allProjects[0].tech_stack
+                      if (!stack?.length) return null
+                      return (
+                        <div className="flex flex-wrap gap-1.5 mt-3">
+                          {stack.map((t: string) => (
+                            <span key={t} className="px-2.5 py-0.5 rounded-full bg-[#F8FAFC] border border-slate-200 text-slate-500 text-[11px] font-medium">{t}</span>
+                          ))}
+                        </div>
+                      )
+                    })()}
+                    <div className="flex gap-4 mt-3">
+                      {allProjects[0].github_url && (
+                        <a href={allProjects[0].github_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-slate-500 hover:text-[#7C3AED] text-xs font-medium no-underline transition-colors">
+                          <Github size={14} /> GitHub
+                        </a>
+                      )}
+                      {allProjects[0].live_url && (
+                        <a href={allProjects[0].live_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-slate-500 hover:text-[#7C3AED] text-xs font-medium no-underline transition-colors">
+                          <ExternalLink size={14} /> Live Demo
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                {/* Additional Projects */}
+                {allProjects.length > 1 && (
+                  <div className="mt-5 pt-4 border-t border-slate-100 space-y-3">
+                    <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider m-0">More Projects</p>
+                    {allProjects.slice(1).map((p, i) => (
+                      <div key={i} className="flex items-start justify-between gap-4 py-2 first:pt-0">
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-semibold text-slate-800 m-0">{p.title}</p>
+                          {p.description && <p className="text-xs text-slate-400 m-0 mt-0.5 line-clamp-1">{p.description}</p>}
+                        </div>
+                        <div className="flex gap-2 shrink-0">
+                          {p.github_url && (
+                            <a href={p.github_url} target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-[#7C3AED] transition-colors"><Github size={14} /></a>
+                          )}
+                          {p.live_url && (
+                            <a href={p.live_url} target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-[#7C3AED] transition-colors"><ExternalLink size={14} /></a>
                           )}
                         </div>
-                      ))}
-                    </div>
-                  </Section>
+                      </div>
+                    ))}
+                  </div>
                 )}
-
-                {studentCerts.length > 0 && (
-                  <Section title="Certifications">
-                    <CertList items={studentCerts} />
-                  </Section>
-                )}
-
-                <Section title="Areas Looking For">
-                  <AreasLookingDisplay areas={studentExtras.areas_looking_for} />
-                </Section>
-              </>
+              </div>
             )}
 
-            {isSenior && (
-              <>
-                <Section title="Professional Details">
-                  <InfoGrid items={[
+            {/* ─── SECTION 3: SKILLS ─── */}
+            {skills.length > 0 && (
+              <Section title="Skills">
+                <TagList tags={skills} />
+              </Section>
+            )}
+
+            {/* ─── SECTION 4: CERTIFICATIONS ─── */}
+            {allCerts.length > 0 && (
+              <Section title="Certifications">
+                <CertList items={allCerts} />
+              </Section>
+            )}
+
+            {/* ─── SECTION 5: PROFESSIONAL DETAILS / EDUCATION ─── */}
+            <Section title={isSenior ? 'Professional Details' : 'Education'}>
+              <InfoGrid items={isSenior
+                ? [
                     ['Company', user.company],
                     ['Designation', user.designation],
                     ['Experience', seniorExtras.experience_years != null ? `${seniorExtras.experience_years} Years` : null],
                     ['Industry', seniorExtras.industry],
                     ['College', college?.name],
                     ['Graduation', user.graduation_year],
+                  ]
+                : [
+                    ['College', college?.name],
+                    ['Branch', user.branch],
+                    ['Graduation Year', user.passout_year],
+                    ['Current Year', user.year ? `Year ${user.year}` : null],
                   ]} />
-                </Section>
+            </Section>
 
-                {seniorExtras.skills.length > 0 && (
-                  <Section title="Skills">
-                    <TagList tags={seniorExtras.skills} color="cyan" />
-                  </Section>
-                )}
-
-                {seniorCerts.length > 0 && (
-                  <Section title="Certifications">
-                    <CertList items={seniorCerts} />
-                  </Section>
-                )}
-
-                <Section title="Mentorship">
-                  <MentorshipDisplay mentorship={seniorExtras.mentorship} />
-                </Section>
-              </>
-            )}
           </div>
 
+          {/* ===== RIGHT SIDEBAR ===== */}
           <div className="lg:col-span-4 space-y-6">
-            <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
-              <h3 className="text-xs font-extrabold text-[#0F172A] uppercase tracking-wider mb-4 flex items-center gap-2">
-                <Zap size={14} className="text-orange-500" />
-                {isSenior ? 'Community Impact' : 'Community Stats'}
-              </h3>
+
+            {/* Community Impact */}
+            <SidebarCard title={isSenior ? 'Community Impact' : 'Community Stats'}>
               {isSenior ? (
                 <div className="space-y-3">
                   <ImpactStat label="Juniors Mentored" value={user.webinar_count || 0} />
@@ -278,63 +346,56 @@ export default function PublicProfilePage() {
                   <ImpactStat label="Rise Points" value={user.rise_points || 0} highlight />
                 </div>
               )}
-            </div>
+            </SidebarCard>
 
             {/* Profile Views */}
             {viewCount !== null && (
-              <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
-                <h3 className="text-xs font-extrabold text-[#0F172A] uppercase tracking-wider mb-3 flex items-center gap-2">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-purple-500"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                  Profile Views
-                </h3>
-                <p className="text-2xl font-extrabold text-gray-900">{viewCount}</p>
+              <SidebarCard title="Profile Views">
+                <p className="text-2xl font-bold text-slate-900 m-0">{viewCount}</p>
                 {visitors.length > 0 && (
-                  <div className="mt-3 space-y-2">
-                    <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Recent Visitors</p>
+                  <div className="mt-4 space-y-2">
+                    <p className="text-[11px] font-medium text-slate-400 m-0">Recent Visitors</p>
                     <div className="flex -space-x-1.5">
                       {visitors.slice(0, 6).map((v: any) => (
                         <div
                           key={v.viewerId}
                           onClick={() => v.viewer?.uniqueId && router.push(`/u/${v.viewer.uniqueId}`)}
-                          className="w-7 h-7 rounded-full border-2 border-white bg-gray-100 flex items-center justify-center overflow-hidden cursor-pointer hover:z-10 relative transition-transform hover:scale-110"
+                          className="w-7 h-7 rounded-full border-2 border-white bg-slate-100 flex items-center justify-center overflow-hidden cursor-pointer hover:z-10 relative transition-transform hover:scale-110"
                           title={v.viewer?.fullName || ''}
                         >
                           {v.viewer?.avatarUrl ? (
                             <img src={v.viewer.avatarUrl} alt="" className="w-full h-full object-cover" />
                           ) : (
-                            <span className="text-[8px] font-black text-gray-400">{v.viewer?.fullName?.substring(0, 2) || '?'}</span>
+                            <span className="text-[8px] font-bold text-slate-400">{v.viewer?.fullName?.substring(0, 2) || '?'}</span>
                           )}
                         </div>
                       ))}
                       {visitors.length > 6 && (
-                        <div className="w-7 h-7 rounded-full border-2 border-white bg-gray-100 flex items-center justify-center text-[9px] font-bold text-gray-500">
+                        <div className="w-7 h-7 rounded-full border-2 border-white bg-slate-100 flex items-center justify-center text-[9px] font-bold text-slate-500">
                           +{visitors.length - 6}
                         </div>
                       )}
                     </div>
                   </div>
                 )}
-              </div>
+              </SidebarCard>
             )}
 
-            {/* Last Seen */}
+            {/* Activity Status */}
             {data?.user?.last_seen && (
-              <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
-                <h3 className="text-xs font-extrabold text-[#0F172A] uppercase tracking-wider mb-2 flex items-center gap-2">
-                  <span className={`inline-block w-2.5 h-2.5 rounded-full ${data.user.last_seen ? 'bg-emerald-500' : 'bg-gray-300'}`} />
-                  Activity Status
-                </h3>
-                <p className={`text-sm font-bold ${getUserActivityStatus(data.user.last_seen).color}`}>
+              <SidebarCard title="Activity Status">
+                <p className={`text-sm font-semibold m-0 ${getUserActivityStatus(data.user.last_seen).color}`}>
                   {getUserActivityStatus(data.user.last_seen).label}
                 </p>
-              </div>
+              </SidebarCard>
             )}
 
+            {/* Edit Profile */}
             {isOwnProfile && (
               <button
                 type="button"
                 onClick={() => router.push('/profile')}
-                className="w-full py-3 rounded-xl bg-[#7C3AED] text-white text-xs font-bold border-none cursor-pointer hover:bg-purple-700 transition-colors"
+                className="w-full py-2.5 rounded-lg bg-[#7C3AED] text-white text-xs font-semibold border-none cursor-pointer hover:bg-[#6D28D9] transition-colors"
               >
                 Edit Profile
               </button>
@@ -348,8 +409,17 @@ export default function PublicProfilePage() {
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
-      <h2 className="text-sm font-extrabold text-[#0F172A] mb-4 m-0">{title}</h2>
+    <div className="bg-white p-6 rounded-xl border border-slate-200/80 shadow-sm">
+      <h2 className="text-sm font-bold text-slate-800 mb-4 m-0 tracking-tight">{title}</h2>
+      {children}
+    </div>
+  )
+}
+
+function SidebarCard({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="bg-white p-6 rounded-xl border border-slate-200/80 shadow-sm">
+      <h3 className="text-xs font-semibold text-slate-800 mb-4 m-0">{title}</h3>
       {children}
     </div>
   )
@@ -372,17 +442,11 @@ function InfoGrid({ items }: { items: [string, string | number | null | undefine
   )
 }
 
-function TagList({ tags, color }: { tags: string[]; color: 'purple' | 'cyan' | 'emerald' | 'blue' }) {
-  const colors = {
-    purple: 'bg-purple-50 text-purple-700 border-purple-100',
-    cyan: 'bg-cyan-50 text-cyan-700 border-cyan-100',
-    emerald: 'bg-emerald-50 text-emerald-700 border-emerald-100',
-    blue: 'bg-blue-50 text-blue-700 border-blue-100',
-  }
+function TagList({ tags }: { tags: string[] }) {
   return (
     <div className="flex flex-wrap gap-2">
       {tags.map((t) => (
-        <span key={t} className={`px-2.5 py-1 rounded-lg text-[10px] font-bold border ${colors[color]}`}>
+        <span key={t} className="px-3 py-1 rounded-full bg-[#F8FAFC] border border-slate-200 text-slate-600 text-xs font-medium hover:bg-slate-100 hover:border-slate-300 transition-colors">
           {t}
         </span>
       ))}
@@ -392,50 +456,29 @@ function TagList({ tags, color }: { tags: string[]; color: 'purple' | 'cyan' | '
 
 function CertList({ items }: { items: { name: string; issuer?: string; year?: string }[] }) {
   return (
-    <div className="space-y-2">
+    <div className="divide-y divide-slate-100">
       {items.map((c, i) => (
-        <div key={i} className="flex justify-between gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
-          <div>
-            <p className="font-bold text-slate-900 m-0">{c.name}</p>
-            {c.issuer && <p className="text-slate-500 m-0 mt-0.5">{c.issuer}</p>}
+        <div key={i} className="flex items-start justify-between gap-4 py-3 first:pt-0 last:pb-0">
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-semibold text-slate-900 m-0 leading-snug">{c.name}</p>
+            {c.issuer && <p className="text-xs text-slate-500 m-0 mt-0.5">{c.issuer}</p>}
           </div>
-          {c.year && <span className="text-xs font-bold text-slate-400">{c.year}</span>}
+          {c.year && (
+            <span className="flex-shrink-0 px-2 py-0.5 rounded-md bg-slate-100 text-[11px] font-semibold text-slate-500">
+              {c.year}
+            </span>
+          )}
         </div>
       ))}
     </div>
-  )
-}
-
-function MentorshipDisplay({ mentorship }: { mentorship: MentorshipOptions }) {
-  return (
-    <div className="space-y-2">
-      {(Object.keys(MENTORSHIP_LABELS) as (keyof MentorshipOptions)[]).map((key) => (
-        <div key={key} className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100">
-          <span className="text-xs font-semibold text-slate-700">{MENTORSHIP_LABELS[key]}</span>
-          <span className={`inline-flex items-center gap-1 text-[10px] font-bold ${mentorship[key] ? 'text-emerald-600' : 'text-slate-400'}`}>
-            {mentorship[key] ? <><Check size={12} /> Yes</> : <><X size={12} /> No</>}
-          </span>
-        </div>
-      ))}
-    </div>
-  )
-}
-
-function AreasLookingDisplay({ areas }: { areas: AreasLookingFor }) {
-  const selected = (Object.keys(AREAS_LOOKING_LABELS) as (keyof AreasLookingFor)[]).filter((k) => areas[k])
-  if (!selected.length) {
-    return <p className="text-xs text-slate-400 m-0">Not specified yet.</p>
-  }
-  return (
-    <TagList tags={selected.map((k) => AREAS_LOOKING_LABELS[k])} color="emerald" />
   )
 }
 
 function ImpactStat({ label, value, highlight }: { label: string; value: number; highlight?: boolean }) {
   return (
-    <div className={`flex items-center justify-between p-3 rounded-xl ${highlight ? 'bg-purple-50 border border-purple-100' : 'bg-slate-50 border border-slate-100'}`}>
-      <span className="text-xs font-semibold text-slate-600">{label}</span>
-      <span className={`text-lg font-extrabold ${highlight ? 'text-purple-600' : 'text-slate-900'}`}>{value}</span>
+    <div className="flex items-center justify-between">
+      <span className="text-xs text-slate-500">{label}</span>
+      <span className={`text-sm font-semibold ${highlight ? 'text-[#7C3AED]' : 'text-slate-800'}`}>{value}</span>
     </div>
   )
 }

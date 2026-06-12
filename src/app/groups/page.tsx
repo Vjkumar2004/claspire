@@ -139,8 +139,61 @@ export default function GroupsPage() {
   return (
     <div className="min-h-screen bg-[#F4F5F7]">
 
-      {/* ===== HERO ===== */}
-      <section className="max-w-7xl mx-auto px-0 sm:px-4 lg:px-6 pt-0 lg:pt-8">
+      {/* ===== MOBILE HEADER + SEARCH (lg:hidden) ===== */}
+      <div className="lg:hidden bg-white border-b border-slate-100">
+        <div className="px-4 pt-3 pb-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#7C3AED]/10 rounded-full border border-[#7C3AED]/20 mb-2">
+            <span className="w-2 h-2 rounded-full bg-[#7C3AED] animate-pulse" />
+            <span className="text-[10px] font-bold text-[#7C3AED] uppercase tracking-wider">Student Communities</span>
+          </div>
+          <h1 className="text-xl font-extrabold text-[#0F172A] tracking-tight leading-tight m-0">
+            Discover{' '}
+            <span className="bg-gradient-to-r from-[#7C3AED] to-[#A78BFA] bg-clip-text text-transparent">Student Communities</span>
+          </h1>
+          <p className="text-[11px] text-slate-500 font-medium mt-1 m-0">Connect with seniors, get placement referrals, share knowledge, and grow together.</p>
+        </div>
+        <div className="px-4 pb-3">
+          <div className="flex items-center gap-2">
+            <div className="flex-1 relative">
+              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search communities by name..."
+                className="w-full h-10 pl-9 pr-3 rounded-xl border border-slate-200 bg-[#F8FAFC] text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:border-[#7C3AED] focus:ring-1 focus:ring-[#7C3AED]/20 transition-all"
+              />
+            </div>
+            <button className="h-10 px-4 rounded-xl bg-[#7C3AED] text-white text-xs font-bold border-none cursor-pointer hover:bg-[#6D28D9] transition-all flex items-center gap-1.5">
+              <Search size={13} /> Search
+            </button>
+          </div>
+        </div>
+        {stats && (
+          <div className="grid grid-cols-4 gap-2 px-4 pb-3">
+            {[
+              { label: 'Active Groups', value: stats.activeGroups, icon: Hash },
+              { label: 'Members', value: stats.totalMembers, icon: Users },
+              { label: 'Messages', value: stats.totalMessages, icon: MessageSquare },
+              { label: 'Online Now', value: stats.onlineNow, icon: Activity },
+            ].map((s) => {
+              const Icon = s.icon
+              return (
+                <div key={s.label} className="bg-white rounded-xl border border-slate-100 p-2.5 text-center shadow-sm">
+                  <div className="w-7 h-7 rounded-lg bg-[#7C3AED]/5 flex items-center justify-center mx-auto mb-1">
+                    <Icon size={13} className="text-[#7C3AED]" />
+                  </div>
+                  <p className="text-base font-extrabold text-[#0F172A] m-0 leading-none">{s.value.toLocaleString()}</p>
+                  <p className="text-[8px] font-medium text-slate-400 m-0 mt-0.5 truncate">{s.label}</p>
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* ===== HERO (desktop only) ===== */}
+      <section className="hidden lg:block max-w-7xl mx-auto px-0 sm:px-4 lg:px-6 pt-0 lg:pt-8">
         <div className="relative overflow-hidden rounded-none sm:rounded-2xl lg:rounded-3xl bg-gradient-to-br from-[#312E81] via-[#5B21B6] to-[#7C3AED] shadow-2xl shadow-purple-900/20">
           <div className="absolute inset-0 bg-gradient-to-br from-[#312E81]/70 via-[#5B21B6]/60 to-[#7C3AED]/50" />
           <img src="/group-banner.png" alt="" className="absolute inset-0 w-full h-full object-cover" />

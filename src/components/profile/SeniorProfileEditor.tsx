@@ -1,9 +1,9 @@
 'use client'
 
-import { Plus, X } from 'lucide-react'
+import { Plus, X, Upload, Loader2, ExternalLink, Linkedin, Globe, Github, BookOpen, Briefcase, GraduationCap, Calendar, Building2, Pencil, Check, FileText, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { DEFAULT_MENTORSHIP } from '@/lib/profile-data'
-import type { CertificationItem, SeniorProfileExtras } from '@/lib/profile-data'
+import type { CertificationItem, ProjectItem, SeniorProfileExtras, SocialLinks } from '@/lib/profile-data'
 
 type Props = {
   formData: {
@@ -11,7 +11,6 @@ type Props = {
     company: string
     designation: string
     graduation_year: string
-    linkedin_url: string
   }
   extras: SeniorProfileExtras
   onFormChange: (patch: Partial<Props['formData']>) => void
@@ -19,13 +18,7 @@ type Props = {
   collegeName?: string
 }
 
-function SkillsEditor({
-  skills,
-  onChange,
-}: {
-  skills: string[]
-  onChange: (skills: string[]) => void
-}) {
+function SkillsEditor({ skills, onChange }: { skills: string[]; onChange: (skills: string[]) => void }) {
   const [input, setInput] = useState('')
   const add = () => {
     const v = input.trim()
@@ -35,26 +28,32 @@ function SkillsEditor({
   }
   return (
     <div>
-      <div className="flex flex-wrap gap-2 mb-2">
+      <div className="flex flex-wrap gap-2 mb-3">
         {skills.map((s) => (
-          <span key={s} className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-cyan-50 text-cyan-700 text-[10px] font-bold border border-cyan-100">
+          <span key={s} className="skill-pill inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-cyan-50 to-cyan-100/70 text-cyan-700 text-[11px] font-bold border border-cyan-200/60 shadow-sm">
             {s}
-            <button type="button" onClick={() => onChange(skills.filter((x) => x !== s))} className="text-cyan-400 hover:text-cyan-700">
+            <button type="button" onClick={() => onChange(skills.filter((x) => x !== s))} className="text-cyan-400 hover:text-cyan-700 transition-colors">
               <X size={12} />
             </button>
           </span>
         ))}
       </div>
       <div className="flex gap-2">
-        <input
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), add())}
-          placeholder="Add skill"
-          className="flex-1 bg-[#F8FAFC] border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold outline-none focus:border-cyan-500"
-        />
-        <button type="button" onClick={add} className="px-3 py-2 rounded-xl bg-cyan-600 text-white text-xs font-bold">
-          <Plus size={14} />
+        <div className="relative flex-1">
+          <input
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), add())}
+            placeholder="Add a skill (e.g. Java, AWS, System Design...)"
+            className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-semibold outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-100 transition-all placeholder:text-slate-300"
+          />
+        </div>
+        <button
+          type="button"
+          onClick={add}
+          className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-cyan-500 text-white text-xs font-bold hover:shadow-lg hover:shadow-cyan-500/25 transition-all flex items-center gap-1.5"
+        >
+          <Plus size={14} /> Add
         </button>
       </div>
     </div>
@@ -70,7 +69,9 @@ export default function SeniorProfileEditor({
 }: Props) {
   const skills = extras.skills || []
   const certifications = extras.certifications || []
+  const projects = extras.projects || []
   const mentorship = { ...DEFAULT_MENTORSHIP, ...(extras.mentorship || {}) }
+  const [uploadingResume, setUploadingResume] = useState(false)
 
   const updateCert = (index: number, patch: Partial<CertificationItem>) => {
     const next = [...certifications]
@@ -82,199 +83,528 @@ export default function SeniorProfileEditor({
     onExtrasChange({ certifications: certifications.filter((_, i) => i !== index) })
   }
 
-  return (
-    <div className="space-y-8">
-      <section className="bg-white rounded-2xl border border-slate-200/80 p-6 md:p-8 shadow-sm">
-        <div className="flex items-center gap-2 mb-1">
-          <span className="text-lg">💼</span>
-          <h2 className="text-sm font-extrabold text-[#0F172A]">Professional Profile</h2>
-        </div>
-        <p className="text-[10px] font-semibold text-slate-400 mb-6">Goal: Mentoring, Hiring, Networking</p>
+  const updateProject = (index: number, patch: Partial<ProjectItem>) => {
+    const next = [...projects]
+    next[index] = { ...next[index], ...patch }
+    onExtrasChange({ projects: next })
+  }
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <div className="md:col-span-2">
-            <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-2">About Me</label>
-            <textarea
-              value={formData.bio}
-              onChange={(e) => onFormChange({ bio: e.target.value.slice(0, 400) })}
-              placeholder="Share your professional journey and how you help juniors..."
-              className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl px-4 py-3 text-xs font-medium h-24 resize-none outline-none focus:border-cyan-500"
-            />
-          </div>
-          <div>
-            <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-2">Current Company</label>
-            <input
-              value={formData.company}
-              onChange={(e) => onFormChange({ company: e.target.value })}
-              placeholder="Company name"
-              className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl px-4 py-3 text-xs font-bold outline-none focus:border-cyan-500"
-            />
-          </div>
-          <div>
-            <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-2">Designation</label>
-            <input
-              value={formData.designation}
-              onChange={(e) => onFormChange({ designation: e.target.value })}
-              placeholder="Your role"
-              className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl px-4 py-3 text-xs font-bold outline-none focus:border-cyan-500"
-            />
-          </div>
-          <div>
-            <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-2">Experience (Years)</label>
-            <input
-              type="number"
-              min={0}
-              max={50}
-              value={extras.experience_years ?? ''}
-              onChange={(e) => onExtrasChange({ experience_years: e.target.value ? parseInt(e.target.value) : undefined })}
-              placeholder="e.g. 3"
-              className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl px-4 py-3 text-xs font-bold outline-none focus:border-cyan-500"
-            />
-          </div>
-          <div>
-            <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-2">Industry</label>
-            <input
-              value={extras.industry || ''}
-              onChange={(e) => onExtrasChange({ industry: e.target.value })}
-              placeholder="e.g. IT / SaaS"
-              className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl px-4 py-3 text-xs font-bold outline-none focus:border-cyan-500"
-            />
-          </div>
-          <div>
-            <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-2">Alumni College</label>
-            <div className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs font-bold text-slate-600">
-              {collegeName || 'Not assigned'}
-            </div>
-          </div>
-          <div>
-            <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-2">Graduation Year</label>
-            <select
-              value={formData.graduation_year}
-              onChange={(e) => onFormChange({ graduation_year: e.target.value })}
-              className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl px-4 py-3 text-xs font-bold outline-none focus:border-cyan-500"
-            >
-              {[2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025].map((y) => (
-                <option key={y} value={y}>{y}</option>
-              ))}
-            </select>
-          </div>
-        </div>
-      </section>
+  const handleResumeUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploadingResume(true)
+    try {
+      const fd = new FormData()
+      fd.append('file', file)
+      fd.append('type', 'resume')
+      const res = await fetch('/api/upload/resume', { method: 'POST', body: fd })
+      const data = await res.json()
+      if (res.ok && data.url) {
+        onExtrasChange({ resume_url: data.url })
+      } else {
+        alert(data.error || 'Upload failed')
+      }
+    } catch {
+      alert('Upload failed')
+    } finally {
+      setUploadingResume(false)
+    }
+  }
 
-      <section className="bg-white rounded-2xl border border-slate-200/80 p-6 md:p-8 shadow-sm">
-        <h3 className="text-xs font-extrabold text-[#0F172A] mb-4 uppercase tracking-wider">Skills</h3>
-        <SkillsEditor skills={skills} onChange={(nextSkills) => onExtrasChange({ skills: nextSkills })} />
-      </section>
+  const projectColors = ['from-blue-500 to-indigo-600', 'from-emerald-500 to-teal-600', 'from-amber-500 to-orange-600', 'from-purple-500 to-pink-600', 'from-cyan-500 to-blue-600', 'from-rose-500 to-red-600']
 
-      <section className="bg-white rounded-2xl border border-slate-200/80 p-6 md:p-8 shadow-sm space-y-4">
-        <div className="flex items-center justify-between">
-          <h3 className="text-xs font-extrabold text-[#0F172A] uppercase tracking-wider">Certifications</h3>
+  function TechStackInput({ tags, onChange }: { tags: string[]; onChange: (tags: string[]) => void }) {
+    const [input, setInput] = useState('')
+    const add = () => {
+      const v = input.trim()
+      if (!v || tags.includes(v)) return
+      onChange([...tags, v])
+      setInput('')
+    }
+    return (
+      <div>
+        {tags.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mb-2">
+            {tags.map((t) => (
+              <span key={t} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-slate-100 text-slate-600 text-[10px] font-bold border border-slate-200">
+                {t}
+                <button type="button" onClick={() => onChange(tags.filter((x) => x !== t))} className="text-slate-400 hover:text-red-500">
+                  <X size={10} />
+                </button>
+              </span>
+            ))}
+          </div>
+        )}
+        <div className="flex gap-1.5">
+          <input
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), add())}
+            placeholder="Tech stack (e.g. React, Node.js...)"
+            className="flex-1 bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-[10px] font-semibold outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-100 transition-all placeholder:text-slate-300"
+          />
           <button
             type="button"
-            onClick={() => onExtrasChange({ certifications: [...certifications, { name: '' }] })}
-            className="text-[10px] font-bold text-cyan-600 flex items-center gap-1"
+            onClick={add}
+            className="px-2.5 py-1.5 rounded-lg bg-slate-100 text-slate-600 text-[10px] font-bold hover:bg-slate-200 transition-all"
           >
-            <Plus size={14} /> Add
+            <Plus size={12} />
           </button>
         </div>
-        {certifications.length === 0 && (
-          <p className="text-xs text-slate-400 font-medium m-0">No certifications yet. Click Add to add one.</p>
-        )}
-        {certifications.map((c, i) => (
-          <div key={i} className="p-3 rounded-xl border border-slate-100 bg-slate-50/50 space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-[9px] font-bold text-slate-400 uppercase">Certificate {i + 1}</span>
-              <button
-                type="button"
-                onClick={() => removeCert(i)}
-                className="inline-flex items-center gap-1 text-[10px] font-bold text-red-500 hover:text-red-600"
-              >
-                <X size={14} /> Remove
-              </button>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-              <input
-                value={c.name}
-                onChange={(e) => updateCert(i, { name: e.target.value })}
-                placeholder="Certification name"
-                className="bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold outline-none"
-              />
-              <input
-                value={c.issuer || ''}
-                onChange={(e) => updateCert(i, { issuer: e.target.value })}
-                placeholder="Issuer"
-                className="bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs font-semibold outline-none"
-              />
-              <input
-                value={c.year || ''}
-                onChange={(e) => updateCert(i, { year: e.target.value })}
-                placeholder="Year"
-                className="bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs font-semibold outline-none"
-              />
-            </div>
-          </div>
-        ))}
-      </section>
+      </div>
+    )
+  }
 
-      <section className="bg-white rounded-2xl border border-slate-200/80 p-6 md:p-8 shadow-sm">
-        <h3 className="text-xs font-extrabold text-[#0F172A] mb-4 uppercase tracking-wider">Professional Links</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-[9px] font-bold text-slate-400 uppercase mb-2">LinkedIn</label>
-            <input
-              value={formData.linkedin_url}
-              onChange={(e) => onFormChange({ linkedin_url: e.target.value })}
-              placeholder="https://linkedin.com/in/..."
-              className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl px-4 py-3 text-xs font-semibold outline-none focus:border-cyan-500"
-            />
+  return (
+    <div className="space-y-6">
+
+      {/* ===== ABOUT ME ===== */}
+      <section id="about-me" className="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden scroll-mt-20">
+        <div className="px-6 pt-6 pb-4 border-b border-slate-100">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-50 to-cyan-100 flex items-center justify-center">
+              <BookOpen size={15} className="text-cyan-600" />
+            </div>
+            <div>
+              <h2 className="text-sm font-extrabold text-[#0F172A] m-0">About Me</h2>
+              <p className="text-[10px] font-medium text-slate-400 m-0">Share your professional journey</p>
+            </div>
           </div>
-          <div>
-            <label className="block text-[9px] font-bold text-slate-400 uppercase mb-2">Portfolio</label>
-            <input
-              value={extras.portfolio_url || ''}
-              onChange={(e) => onExtrasChange({ portfolio_url: e.target.value })}
-              placeholder="https://yourportfolio.com"
-              className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl px-4 py-3 text-xs font-semibold outline-none focus:border-cyan-500"
-            />
-          </div>
-          <div>
-            <label className="block text-[9px] font-bold text-slate-400 uppercase mb-2">GitHub (optional)</label>
-            <input
-              value={extras.github_url || ''}
-              onChange={(e) => onExtrasChange({ github_url: e.target.value })}
-              placeholder="https://github.com/username"
-              className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl px-4 py-3 text-xs font-semibold outline-none focus:border-cyan-500"
-            />
+        </div>
+        <div className="p-6">
+          <textarea
+            value={formData.bio}
+            onChange={(e) => onFormChange({ bio: e.target.value.slice(0, 400) })}
+            placeholder="Share your professional experience and how you can help juniors..."
+            className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl px-4 py-3.5 text-xs font-medium h-28 resize-none outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-100 transition-all placeholder:text-slate-300"
+          />
+          <div className="flex justify-between items-center mt-2">
+            <p className="text-[10px] text-slate-400 font-medium m-0">Tell juniors about your background</p>
+            <span className="text-[10px] font-semibold text-slate-400">{formData.bio.length}/400</span>
           </div>
         </div>
       </section>
 
-      <section className="bg-white rounded-2xl border border-slate-200/80 p-6 md:p-8 shadow-sm">
-        <h3 className="text-xs font-extrabold text-[#0F172A] mb-4 uppercase tracking-wider">Mentorship Details</h3>
-        <div className="grid grid-cols-1 gap-3">
-          {(
-            [
-              ['available_for_mentorship', 'Available for Mentorship'],
-              ['available_for_referrals', 'Available for Referrals'],
-              ['available_for_mock_interviews', 'Available for Mock Interviews'],
-            ] as const
-          ).map(([key, label]) => (
-            <label key={key} className="flex items-center gap-2 p-3 rounded-xl border border-slate-200 bg-slate-50 cursor-pointer">
+      {/* ===== PROFESSIONAL INFORMATION ===== */}
+      <section id="professional-info" className="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden scroll-mt-20">
+        <div className="px-6 pt-6 pb-4 border-b border-slate-100">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center">
+              <Briefcase size={15} className="text-blue-600" />
+            </div>
+            <div>
+              <h2 className="text-sm font-extrabold text-[#0F172A] m-0">Professional Information</h2>
+              <p className="text-[10px] font-medium text-slate-400 m-0">Your current role and background</p>
+            </div>
+          </div>
+        </div>
+        <div className="p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Current Company</p>
+              <div className="relative">
+                <Building2 size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input
+                  value={formData.company}
+                  onChange={(e) => onFormChange({ company: e.target.value })}
+                  placeholder="Company name"
+                  className="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-4 py-3 text-xs font-bold outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-100 transition-all placeholder:text-slate-300"
+                />
+              </div>
+            </div>
+            <div>
+              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Designation</p>
+              <div className="relative">
+                <Briefcase size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input
+                  value={formData.designation}
+                  onChange={(e) => onFormChange({ designation: e.target.value })}
+                  placeholder="Your role"
+                  className="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-4 py-3 text-xs font-bold outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-100 transition-all placeholder:text-slate-300"
+                />
+              </div>
+            </div>
+            <div>
+              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Experience (Years)</p>
               <input
-                type="checkbox"
-                checked={mentorship[key]}
-                onChange={(e) =>
-                  onExtrasChange({
-                    mentorship: { ...mentorship, [key]: e.target.checked },
-                  })
-                }
-                className="accent-cyan-600"
+                type="number"
+                min={0}
+                max={50}
+                value={extras.experience_years ?? ''}
+                onChange={(e) => onExtrasChange({ experience_years: e.target.value ? parseInt(e.target.value) : undefined })}
+                placeholder="Years of exp"
+                className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-xs font-bold outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-100 transition-all placeholder:text-slate-300"
               />
-              <span className="text-xs font-bold text-slate-700">{label}</span>
-            </label>
+            </div>
+            <div>
+              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Industry</p>
+              <input
+                value={extras.industry || ''}
+                onChange={(e) => onExtrasChange({ industry: e.target.value })}
+                placeholder="e.g. IT / SaaS"
+                className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-xs font-bold outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-100 transition-all placeholder:text-slate-300"
+              />
+            </div>
+            <div>
+              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Alumni College</p>
+              <div className="flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-slate-50 to-slate-100/50 rounded-xl border border-slate-200">
+                <GraduationCap size={14} className="text-slate-400 flex-shrink-0" />
+                <p className="text-xs font-bold text-slate-700 m-0">{collegeName || 'Not assigned'}</p>
+              </div>
+            </div>
+            <div>
+              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Graduation Year</p>
+              <div className="relative">
+                <Calendar size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                <select
+                  value={formData.graduation_year}
+                  onChange={(e) => onFormChange({ graduation_year: e.target.value })}
+                  className="w-full bg-white border border-slate-200 rounded-xl pl-9 pr-4 py-3 text-xs font-bold outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-100 transition-all appearance-none"
+                >
+                  {[2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025].map((y) => (
+                    <option key={y} value={y}>{y}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== SKILLS ===== */}
+      <section id="skills" className="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden scroll-mt-20">
+        <div className="px-6 pt-6 pb-4 border-b border-slate-100">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-50 to-emerald-100 flex items-center justify-center">
+              <Plus size={15} className="text-emerald-600" />
+            </div>
+            <div>
+              <h2 className="text-sm font-extrabold text-[#0F172A] m-0">Skills</h2>
+              <p className="text-[10px] font-medium text-slate-400 m-0">{skills.length} skill{skills.length !== 1 ? 's' : ''} added</p>
+            </div>
+          </div>
+        </div>
+        <div className="p-6">
+          <SkillsEditor skills={skills} onChange={(nextSkills) => onExtrasChange({ skills: nextSkills })} />
+        </div>
+      </section>
+
+      {/* ===== PROJECTS ===== */}
+      <section id="projects" className="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden scroll-mt-20">
+        <div className="px-6 pt-6 pb-4 border-b border-slate-100">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-50 to-amber-100 flex items-center justify-center">
+                <ExternalLink size={15} className="text-amber-600" />
+              </div>
+              <div>
+                <h2 className="text-sm font-extrabold text-[#0F172A] m-0">Projects</h2>
+                <p className="text-[10px] font-medium text-slate-400 m-0">Showcase your work</p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => onExtrasChange({ projects: [...projects, { title: '', description: '', tech_stack: [] }] })}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-cyan-600 to-cyan-500 text-white text-[10px] font-bold hover:shadow-lg hover:shadow-cyan-500/25 transition-all"
+            >
+              <Plus size={13} /> Add Project
+            </button>
+          </div>
+        </div>
+        <div className="p-6 space-y-4">
+          {projects.length === 0 && (
+            <div className="text-center py-8">
+              <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center mx-auto mb-3">
+                <ExternalLink size={20} className="text-slate-400" />
+              </div>
+              <p className="text-xs font-semibold text-slate-400 m-0">No projects yet. Add your first project to showcase your work.</p>
+            </div>
+          )}
+          {projects.map((p, i) => (
+            <div key={i} className="group relative bg-gradient-to-br from-slate-50 to-white rounded-xl border border-slate-200 p-5 hover:border-cyan-200 hover:shadow-md transition-all">
+              <div className="flex items-start gap-4">
+                <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${projectColors[i % projectColors.length]} flex items-center justify-center text-white text-sm font-extrabold flex-shrink-0 shadow-sm`}>
+                  {p.title?.charAt(0)?.toUpperCase() || 'P'}
+                </div>
+                <div className="flex-1 min-w-0 space-y-2.5">
+                  <input
+                    value={p.title}
+                    onChange={(e) => updateProject(i, { title: e.target.value })}
+                    placeholder="Project title"
+                    className="w-full bg-white border border-slate-200 rounded-lg px-3.5 py-2 text-xs font-bold outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-100 transition-all placeholder:text-slate-300"
+                  />
+                  <textarea
+                    value={p.description || ''}
+                    onChange={(e) => updateProject(i, { description: e.target.value })}
+                    placeholder="Brief description of your project..."
+                    className="w-full bg-white border border-slate-200 rounded-lg px-3.5 py-2.5 text-xs font-medium h-16 resize-none outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-100 transition-all placeholder:text-slate-300"
+                  />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <div className="relative">
+                      <Github size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                      <input
+                        value={p.github_url || ''}
+                        onChange={(e) => updateProject(i, { github_url: e.target.value })}
+                        placeholder="GitHub URL"
+                        className="w-full bg-white border border-slate-200 rounded-lg pl-8 pr-3 py-2 text-xs font-semibold outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-100 transition-all placeholder:text-slate-300"
+                      />
+                    </div>
+                    <div className="relative">
+                      <Globe size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                      <input
+                        value={p.live_url || ''}
+                        onChange={(e) => updateProject(i, { live_url: e.target.value })}
+                        placeholder="Live demo URL"
+                        className="w-full bg-white border border-slate-200 rounded-lg pl-8 pr-3 py-2 text-xs font-semibold outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-100 transition-all placeholder:text-slate-300"
+                      />
+                    </div>
+                  </div>
+                  <TechStackInput
+                    tags={p.tech_stack || []}
+                    onChange={(tags) => updateProject(i, { tech_stack: tags })}
+                  />
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  const next = projects.filter((_, idx) => idx !== i)
+                  onExtrasChange({ projects: next })
+                }}
+                className="absolute top-3 right-3 p-1.5 rounded-lg bg-white border border-slate-200 text-slate-400 hover:text-red-500 hover:border-red-200 opacity-0 group-hover:opacity-100 transition-all"
+              >
+                <Trash2 size={13} />
+              </button>
+            </div>
           ))}
         </div>
       </section>
+
+      {/* ===== CERTIFICATIONS ===== */}
+      <section id="certifications" className="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden scroll-mt-20">
+        <div className="px-6 pt-6 pb-4 border-b border-slate-100">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-50 to-amber-100 flex items-center justify-center">
+                <Pencil size={15} className="text-amber-600" />
+              </div>
+              <div>
+                <h2 className="text-sm font-extrabold text-[#0F172A] m-0">Certifications</h2>
+                <p className="text-[10px] font-medium text-slate-400 m-0">{certifications.length} certificat{certifications.length === 1 ? 'ion' : 'ions'}</p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => onExtrasChange({ certifications: [...certifications, { name: '' }] })}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-cyan-600 to-cyan-500 text-white text-[10px] font-bold hover:shadow-lg hover:shadow-cyan-500/25 transition-all"
+            >
+              <Plus size={13} /> Add
+            </button>
+          </div>
+        </div>
+        <div className="p-6 space-y-3">
+          {certifications.length === 0 && (
+            <p className="text-xs font-medium text-slate-400 text-center py-4 m-0">No certifications yet. Click Add to add your certifications.</p>
+          )}
+          {certifications.map((c, i) => (
+            <div key={i} className="group relative bg-gradient-to-br from-slate-50 to-white rounded-xl border border-slate-200 p-4 hover:border-amber-200 hover:shadow-sm transition-all">
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-50 to-amber-100 flex items-center justify-center flex-shrink-0">
+                  <Pencil size={13} className="text-amber-600" />
+                </div>
+                <div className="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                  <input
+                    value={c.name}
+                    onChange={(e) => updateCert(i, { name: e.target.value })}
+                    placeholder="Certification name"
+                    className="bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-100 transition-all placeholder:text-slate-300"
+                  />
+                  <input
+                    value={c.issuer || ''}
+                    onChange={(e) => updateCert(i, { issuer: e.target.value })}
+                    placeholder="Issuer"
+                    className="bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs font-semibold outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-100 transition-all placeholder:text-slate-300"
+                  />
+                  <input
+                    value={c.year || ''}
+                    onChange={(e) => updateCert(i, { year: e.target.value })}
+                    placeholder="Year"
+                    className="bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs font-semibold outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-100 transition-all placeholder:text-slate-300"
+                  />
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => removeCert(i)}
+                className="absolute top-3 right-3 p-1.5 rounded-lg bg-white border border-slate-200 text-slate-400 hover:text-red-500 hover:border-red-200 opacity-0 group-hover:opacity-100 transition-all"
+              >
+                <X size={12} />
+              </button>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ===== PROFESSIONAL LINKS ===== */}
+      <section id="links" className="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden scroll-mt-20">
+        <div className="px-6 pt-6 pb-4 border-b border-slate-100">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-50 to-violet-100 flex items-center justify-center">
+              <ExternalLink size={15} className="text-violet-600" />
+            </div>
+            <div>
+              <h2 className="text-sm font-extrabold text-[#0F172A] m-0">Professional Links</h2>
+              <p className="text-[10px] font-medium text-slate-400 m-0">Connect your profiles</p>
+            </div>
+          </div>
+        </div>
+        <div className="p-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">LinkedIn</p>
+              <div className="relative">
+                <Linkedin size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#0A66C2]" />
+                <input
+                  value={extras.social_links?.linkedin || ''}
+                  onChange={(e) => onExtrasChange({ social_links: { ...extras.social_links, linkedin: e.target.value } as SocialLinks })}
+                  placeholder="https://linkedin.com/in/..."
+                  className="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-4 py-3 text-xs font-semibold outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-100 transition-all placeholder:text-slate-300"
+                />
+              </div>
+            </div>
+            <div>
+              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Portfolio</p>
+              <div className="relative">
+                <Globe size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+                <input
+                  value={extras.social_links?.portfolio || ''}
+                  onChange={(e) => onExtrasChange({ social_links: { ...extras.social_links, portfolio: e.target.value } as SocialLinks })}
+                  placeholder="https://yourportfolio.com"
+                  className="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-4 py-3 text-xs font-semibold outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-100 transition-all placeholder:text-slate-300"
+                />
+              </div>
+            </div>
+            <div>
+              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">GitHub</p>
+              <div className="relative">
+                <Github size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-700" />
+                <input
+                  value={extras.social_links?.github || ''}
+                  onChange={(e) => onExtrasChange({ social_links: { ...extras.social_links, github: e.target.value } as SocialLinks })}
+                  placeholder="https://github.com/username"
+                  className="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-4 py-3 text-xs font-semibold outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-100 transition-all placeholder:text-slate-300"
+                />
+              </div>
+            </div>
+            <div>
+              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Website</p>
+              <div className="relative">
+                <Globe size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+                <input
+                  value={extras.social_links?.website || ''}
+                  onChange={(e) => onExtrasChange({ social_links: { ...extras.social_links, website: e.target.value } as SocialLinks })}
+                  placeholder="https://yourwebsite.com"
+                  className="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-4 py-3 text-xs font-semibold outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-100 transition-all placeholder:text-slate-300"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== RESUME ===== */}
+      <section id="resume" className="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden scroll-mt-20">
+        <div className="px-6 pt-6 pb-4 border-b border-slate-100">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-50 to-violet-100 flex items-center justify-center">
+              <FileText size={15} className="text-violet-600" />
+            </div>
+            <div>
+              <h2 className="text-sm font-extrabold text-[#0F172A] m-0">Resume</h2>
+              <p className="text-[10px] font-medium text-slate-400 m-0">Share your professional background</p>
+            </div>
+          </div>
+        </div>
+        <div className="p-6">
+          <div className="flex flex-wrap items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-slate-50 to-slate-100/50 border border-slate-200">
+            <FileText size={20} className="text-slate-400" />
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-bold text-slate-700 m-0">{extras.resume_url ? 'Resume uploaded' : 'No resume uploaded'}</p>
+              <p className="text-[10px] text-slate-400 m-0">PDF format, max 5MB</p>
+            </div>
+            <label className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-cyan-500 text-white text-xs font-bold cursor-pointer hover:shadow-lg hover:shadow-cyan-500/25 transition-all">
+              {uploadingResume ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />}
+              {extras.resume_url ? 'Replace' : 'Upload'}
+              <input type="file" accept=".pdf" className="hidden" onChange={handleResumeUpload} />
+            </label>
+            {extras.resume_url && (
+              <a
+                href={extras.resume_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-xs font-bold text-cyan-600 hover:text-cyan-700 hover:underline"
+              >
+                <ExternalLink size={12} /> View
+              </a>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* ===== MENTORSHIP DETAILS ===== */}
+      <section id="mentorship" className="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden scroll-mt-20">
+        <div className="px-6 pt-6 pb-4 border-b border-slate-100">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-rose-50 to-rose-100 flex items-center justify-center">
+              <ExternalLink size={15} className="text-rose-600" />
+            </div>
+            <div>
+              <h2 className="text-sm font-extrabold text-[#0F172A] m-0">Mentorship Details</h2>
+              <p className="text-[10px] font-medium text-slate-400 m-0">How you can help juniors</p>
+            </div>
+          </div>
+        </div>
+        <div className="p-6">
+          <div className="grid grid-cols-1 gap-3">
+            {(
+              [
+                ['available_for_mentorship', 'Available for Mentorship', '🎯', 'Guide juniors with career advice and industry insights'],
+                ['available_for_referrals', 'Available for Referrals', '🤝', 'Provide job referrals to qualified juniors'],
+                ['available_for_mock_interviews', 'Available for Mock Interviews', '🎤', 'Conduct mock interviews to help prepare'],
+              ] as const
+            ).map(([key, label, emoji, desc]) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() =>
+                  onExtrasChange({
+                    mentorship: { ...mentorship, [key]: !mentorship[key] },
+                  })
+                }
+                className={`toggle-card text-left p-4 rounded-xl border-2 ${
+                  mentorship[key]
+                    ? 'active border-cyan-300 bg-gradient-to-br from-cyan-50 to-cyan-100/50'
+                    : 'border-slate-200 bg-white hover:bg-slate-50'
+                } transition-all`}
+              >
+                <div className="flex items-center gap-2 mb-1.5">
+                  <span className="text-lg">{emoji}</span>
+                  <span className={`text-xs font-extrabold ${mentorship[key] ? 'text-cyan-700' : 'text-slate-700'}`}>
+                    {label}
+                  </span>
+                  {mentorship[key] && (
+                    <div className="ml-auto w-5 h-5 rounded-full bg-cyan-600 flex items-center justify-center">
+                      <Check size={11} className="text-white" />
+                    </div>
+                  )}
+                </div>
+                <p className="text-[10px] font-medium text-slate-400 m-0 leading-tight">{desc}</p>
+              </button>
+            ))}
+          </div>
+        </div>
+      </section>
+
     </div>
   )
 }

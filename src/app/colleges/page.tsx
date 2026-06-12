@@ -38,8 +38,61 @@ export default function CollegesPage() {
   return (
     <div className="min-h-screen bg-[#F4F5F7]">
 
-      {/* ===== HERO ===== */}
-      <section className="relative rounded-2xl overflow-hidden min-h-[340px] lg:min-h-0 lg:h-[280px] mx-3 sm:mx-6 lg:mx-8 mt-3 sm:mt-6 lg:mt-8 mb-6 lg:mb-0 max-w-7xl lg:mx-auto shadow-xl">
+      {/* ===== MOBILE HEADER + SEARCH (lg:hidden) ===== */}
+      <div className="lg:hidden bg-white border-b border-slate-100">
+        <div className="px-4 pt-3 pb-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#7C3AED]/10 rounded-full border border-[#7C3AED]/20 mb-2">
+            <span className="w-2 h-2 rounded-full bg-[#7C3AED] animate-pulse" />
+            <span className="text-[10px] font-bold text-[#7C3AED] uppercase tracking-wider">College Communities</span>
+          </div>
+          <h1 className="text-xl font-extrabold text-[#0F172A] tracking-tight leading-tight m-0">
+            Find Your{' '}
+            <span className="bg-gradient-to-r from-[#7C3AED] to-[#A78BFA] bg-clip-text text-transparent">College Community</span>
+          </h1>
+          <p className="text-[11px] text-slate-500 font-medium mt-1 m-0">Connect with seniors, get placement guidance, and grow your network.</p>
+        </div>
+        <div className="px-4 pb-3">
+          <div className="flex items-center gap-2">
+            <div className="flex-1 relative">
+              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search your college..."
+                className="w-full h-10 pl-9 pr-3 rounded-xl border border-slate-200 bg-[#F8FAFC] text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:border-[#7C3AED] focus:ring-1 focus:ring-[#7C3AED]/20 transition-all"
+              />
+            </div>
+            <button className="h-10 px-4 rounded-xl bg-[#7C3AED] text-white text-xs font-bold border-none cursor-pointer hover:bg-[#6D28D9] transition-all flex items-center gap-1.5">
+              <Search size={13} /> Search
+            </button>
+          </div>
+        </div>
+        {heroStats && (
+          <div className="grid grid-cols-4 gap-2 px-4 pb-3">
+            {[
+              { label: 'Colleges', value: heroStats.totalColleges, icon: Building2 },
+              { label: 'Students', value: heroStats.totalStudents, icon: Users },
+              { label: 'Seniors', value: heroStats.totalSeniors, icon: GraduationCap },
+              { label: 'Connections', value: heroStats.totalConnections, icon: ArrowUpRight },
+            ].map((stat) => {
+              const Icon = stat.icon
+              return (
+                <div key={stat.label} className="bg-white rounded-xl border border-slate-100 p-2.5 text-center shadow-sm">
+                  <div className="w-7 h-7 rounded-lg bg-[#7C3AED]/5 flex items-center justify-center mx-auto mb-1">
+                    <Icon size={13} className="text-[#7C3AED]" />
+                  </div>
+                  <p className="text-base font-extrabold text-[#0F172A] m-0 leading-none">{stat.value.toLocaleString()}</p>
+                  <p className="text-[8px] font-medium text-slate-400 m-0 mt-0.5 truncate">{stat.label}</p>
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* ===== HERO (desktop only) ===== */}
+      <section className="hidden lg:block relative rounded-2xl overflow-hidden lg:h-[280px] mx-3 sm:mx-6 lg:mx-8 mt-3 sm:mt-6 lg:mt-8 mb-6 lg:mb-0 max-w-7xl lg:mx-auto shadow-xl">
         {/* Background image */}
         <img src="/college-banner.png" alt="" className="absolute inset-0 w-full h-full object-cover" />
         {/* Dark overlay */}
