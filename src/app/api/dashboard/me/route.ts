@@ -44,7 +44,8 @@ export async function GET(req: NextRequest) {
       myPostsResult,
       unreadCountResult,
       myReferralsResult,
-      joinedCommunitiesResult
+      joinedCommunitiesResult,
+      myJobsResult
     ] = await Promise.all([
       supabase.from('users').select(userSelect).eq('id', userId).single(),
       supabase.from('rise_points_log').select('*').eq('user_id', userId).order('created_at', { ascending: false }).limit(6),
@@ -65,7 +66,8 @@ export async function GET(req: NextRequest) {
       supabase.from('community_members').select(`
         id,
         communities ( id, slug, display_name )
-      `).eq('user_id', userId).eq('membership_type', 'joined')
+      `).eq('user_id', userId).eq('membership_type', 'joined'),
+      supabase.from('jobs').select('*').eq('posted_by', userId).order('created_at', { ascending: false })
     ])
 
     let { data: user, error } = userResult;
@@ -150,6 +152,7 @@ export async function GET(req: NextRequest) {
       pendingSeniorConnections: [],
       pendingMessageRequests: [],
       myReferrals: myReferralsResult.data || [],
+      myJobs: myJobsResult.data || [],
       joinedCommunities: joinedCommunitiesResult.data || [],
       webinars: upcomingWebinars,
       unreadCount: unreadCountResult.count || 0

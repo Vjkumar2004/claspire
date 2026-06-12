@@ -162,6 +162,23 @@ export default function SeniorDashboardPage() {
     }
   }
 
+  const handleDeleteJob = async (jobId: string) => {
+    if (!confirm('Are you sure you want to delete this job?')) return
+    try {
+      const res = await fetch(`/api/jobs/${jobId}`, {
+        method: 'DELETE',
+      })
+      if (res.ok) {
+        setDashData((prev: any) => prev ? { ...prev, myJobs: prev.myJobs.filter((j: any) => j.id !== jobId) } : null)
+      } else {
+        const err = await res.json()
+        alert(err.error || 'Failed to delete job')
+      }
+    } catch {
+      alert('Error deleting job')
+    }
+  }
+
   const handlePostJob = async (e: React.FormEvent) => {
     e.preventDefault()
     setJobFormLoading(true)
@@ -381,6 +398,25 @@ export default function SeniorDashboardPage() {
             >
               <Briefcase size={16} className="flex-shrink-0" />
               <span>Post a Job</span>
+            </div>
+            <div
+              onClick={() => {
+                setActiveNav("jobs")
+                router.push('?activeTab=jobs', { scroll: false })
+                setMobileSidebarOpen(false)
+              }}
+              className={`flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold transition-colors ${activeNav === "jobs"
+                  ? "bg-purple-50 text-purple-600"
+                  : "text-gray-500 hover:bg-gray-50 hover:text-gray-700"
+                }`}
+            >
+              <Briefcase size={16} className="flex-shrink-0" />
+              <span>My Jobs</span>
+              {dashData?.myJobs?.length > 0 && (
+                <span className="ml-auto bg-purple-600 text-white rounded-full px-1.5 py-0 text-[10px] font-black">
+                  {dashData.myJobs.length}
+                </span>
+              )}
             </div>
             <div
               onClick={handleOpenReferrals}
@@ -607,6 +643,79 @@ export default function SeniorDashboardPage() {
                     className="inline-flex items-center gap-2 px-5 py-2.5 bg-gray-900 text-white rounded-xl text-sm font-bold hover:bg-black transition-colors"
                   >
                     <Plus size={16} /> Create Your First Post
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        ) : activeNav === "jobs" ? (
+          <div className="max-w-5xl">
+            <div className="flex items-center justify-between mb-8">
+              <div>
+                <h2 className="text-xl font-bold text-gray-900 font-instrument-serif">My Jobs</h2>
+                <p className="text-xs text-gray-400 mt-1">Manage your job openings and referral opportunities.</p>
+              </div>
+              <button
+                onClick={() => setJobModalOpen(true)}
+                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-cyan-500 text-white rounded-xl text-xs font-black hover:shadow-lg transition-all"
+              >
+                <Plus size={14} /> Post a Job
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4">
+              {dashData?.myJobs?.length > 0 ? (
+                dashData.myJobs.map((job: any) => (
+                  <div key={job.id} className="bg-white p-5 rounded-2xl border border-gray-200 hover:shadow-md transition-all">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="bg-purple-50 text-purple-700 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">{job.job_type?.replace('_', ' ')}</span>
+                          <span className="text-[10px] text-gray-400">{timeAgo(job.created_at)}</span>
+                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${job.is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                            {job.is_active ? 'Active' : 'Closed'}
+                          </span>
+                          {job.referral_available && (
+                            <span className="bg-cyan-50 text-cyan-700 px-2 py-0.5 rounded text-[10px] font-bold">Referral Open</span>
+                          )}
+                        </div>
+                        <h3 className="text-base font-bold text-gray-900 leading-tight mb-1">{job.role}</h3>
+                        <p className="text-sm font-semibold text-gray-600 mb-2">@{job.company_name}</p>
+                        <div className="flex items-center gap-4 text-xs text-gray-500">
+                          <span>{job.location || 'Location not specified'}</span>
+                          {job.salary_range && <span className="text-emerald-600 font-bold">{job.salary_range}</span>}
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <button
+                          onClick={() => router.push(`/dashboard/senior/edit-job/${job.id}`)}
+                          className="p-2 bg-purple-50 text-purple-600 hover:bg-purple-100 rounded-lg transition-colors"
+                          title="Edit Job"
+                        >
+                          <Pencil size={14} />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteJob(job.id)}
+                          className="p-2 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
+                          title="Delete Job"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-16 bg-white border border-dashed border-gray-200 rounded-2xl">
+                  <Briefcase size={40} className="mx-auto text-gray-300 mb-4" />
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">No Jobs Posted Yet</h3>
+                  <p className="text-sm text-gray-500 mb-6">Post your first job opening to help students get referred.</p>
+                  <button
+                    onClick={() => setJobModalOpen(true)}
+                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-gray-900 text-white rounded-xl text-sm font-bold hover:bg-black transition-colors"
+                  >
+                    <Plus size={16} /> Post Your First Job
                   </button>
                 </div>
               )}
