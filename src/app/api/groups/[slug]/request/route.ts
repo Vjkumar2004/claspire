@@ -4,7 +4,7 @@ import { getAuthenticatedUser } from '@/lib/session'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  process.env.SUPABASE_SECRET_KEY!
 )
 
 export async function POST(
@@ -72,7 +72,7 @@ export async function POST(
         user_id: userId,
         status: 'pending',
         requested_at: new Date().toISOString()
-      })
+      }, { onConflict: 'group_id,user_id', ignoreDuplicates: false })
 
     if (insertError) {
       console.error('Request insert error:', insertError)

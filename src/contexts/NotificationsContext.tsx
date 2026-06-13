@@ -117,6 +117,10 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
           if (payload.new?.receiver_id !== user?.id) {
             return
           }
+          const type = payload.new?.type as string
+          if (type === 'direct_message' || type === 'message') {
+            return
+          }
           const newNotification = payload.new as Notification
           setNotifications((prev) => [newNotification, ...prev])
         }

@@ -2,8 +2,9 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { MessageSquare, Clock, Loader2, UserPlus, Users, X } from 'lucide-react'
+import { MessageSquare, Clock, Loader2, UserPlus, Users, X, Check } from 'lucide-react'
 import { getUserActivityDot } from '@/hooks/useActivityStatus'
+import { useAuth } from '@/hooks/useAuth'
 
 interface PeopleCardPerson {
   id: string
@@ -32,6 +33,8 @@ interface PeopleCardProps {
   onConnect?: (userId: string) => Promise<boolean>
   onFollow?: (userId: string, follow: boolean) => Promise<void>
   onRemove?: (connectionId: string) => Promise<void>
+  onRespond?: (connectionId: string, action: 'accepted' | 'rejected') => Promise<void>
+  onWithdraw?: (connectionId: string) => Promise<void>
   connectionId?: string
   showActions?: boolean
   index?: number
@@ -49,11 +52,13 @@ function ClaspireBanner() {
   )
 }
 
-export default function PeopleCard({ person, onConnect, onRemove, connectionId, showActions = true }: PeopleCardProps) {
+export default function PeopleCard({ person, onConnect, onRemove, onRespond, onWithdraw, connectionId, showActions = true }: PeopleCardProps) {
   const router = useRouter()
+  const { user } = useAuth()
   const [connecting, setConnecting] = useState(false)
   const [localStatus, setLocalStatus] = useState(person.connectionStatus)
   const [removing, setRemoving] = useState(false)
+  const [responding, setResponding] = useState(false)
 
   const handleConnect = async () => {
     if (!onConnect || connecting) return
@@ -76,8 +81,29 @@ export default function PeopleCard({ person, onConnect, onRemove, connectionId, 
     }
   }
 
+  const handleRespond = async (action: 'accepted' | 'rejected') => {
+    if (!onRespond || !connectionId || responding) return
+    setResponding(true)
+    try {
+      await onRespond(connectionId, action)
+    } catch { } finally {
+      setResponding(false)
+    }
+  }
+
+  const handleWithdraw = async () => {
+    if (!onWithdraw || !connectionId || responding) return
+    setResponding(true)
+    try {
+      await onWithdraw(connectionId)
+    } catch { } finally {
+      setResponding(false)
+    }
+  }
+
   const handleMessage = () => {
-    router.push(`/dashboard/junior/messages?user=${person.id}`)
+    const base = user?.role === 'senior' ? '/dashboard/senior/messages' : '/dashboard/junior/messages'
+    router.push(`${base}?user=${person.id}`)
   }
 
   const headline = person.designation && person.company
@@ -187,22 +213,34 @@ export default function PeopleCard({ person, onConnect, onRemove, connectionId, 
 
             {localStatus === 'pending_sent' && (
               <button
-                disabled
-                className="w-full h-7 lg:h-8 rounded-lg text-[10px] lg:text-xs font-semibold flex items-center justify-center gap-1 cursor-not-allowed bg-amber-50 text-amber-700 border border-amber-200"
+                onClick={(e) => { e.stopPropagation(); handleWithdraw() }}
+                disabled={responding}
+                className="w-full h-7 lg:h-8 rounded-lg text-[10px] lg:text-xs font-semibold flex items-center justify-center gap-1 bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 transition-colors"
               >
-                <Clock size={11} />
-                Pending
+                {responding ? <Loader2 size={11} className="animate-spin" /> : <X size={11} />}
+                {responding ? 'Withdrawing...' : 'Withdraw'}
               </button>
             )}
 
             {localStatus === 'pending_received' && (
-              <button
-                disabled
-                className="w-full h-7 lg:h-8 rounded-lg text-[10px] lg:text-xs font-semibold flex items-center justify-center gap-1 cursor-not-allowed bg-blue-50 text-blue-700 border border-blue-200"
-              >
-                <UserPlus size={11} />
-                Respond
-              </button>
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={(e) => { e.stopPropagation(); handleRespond('accepted') }}
+                  disabled={responding}
+                  className="flex-1 h-7 lg:h-8 rounded-lg text-[10px] lg:text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 transition-all flex items-center justify-center gap-1 disabled:opacity-50"
+                >
+                  {responding ? <Loader2 size={11} className="animate-spin" /> : <Check size={12} />}
+                  Accept
+                </button>
+                <button
+                  onClick={(e) => { e.stopPropagation(); handleRespond('rejected') }}
+                  disabled={responding}
+                  className="flex-1 h-7 lg:h-8 rounded-lg text-[10px] lg:text-xs font-semibold border border-gray-200 bg-white text-gray-500 hover:border-red-200 hover:text-red-500 hover:bg-red-50 transition-all flex items-center justify-center gap-1 disabled:opacity-50"
+                >
+                  {responding ? <Loader2 size={11} className="animate-spin" /> : <X size={12} />}
+                  Ignore
+                </button>
+              </div>
             )}
 
             {localStatus === 'accepted' && (

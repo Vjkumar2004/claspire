@@ -265,8 +265,7 @@ export default function GroupChatPage() {
         if (data.joined) {
           fetchGroupData()
         } else if (data.requested) {
-          setGroupData(prev => prev ? { ...prev, isMember: false, canMessage: false, isAdmin: false } : prev)
-          alert('✅ Join request sent! Waiting for admin approval.')
+          setGroupData(prev => prev ? { ...prev, isMember: false, canMessage: false, isAdmin: false, requestPending: true } : prev)
         }
       } else {
         if (data.collegeRestricted) {

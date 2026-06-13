@@ -4,7 +4,7 @@ import { getAuthenticatedUser } from '@/lib/session'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  process.env.SUPABASE_SECRET_KEY!
 )
 
 export async function GET(
@@ -32,6 +32,8 @@ export async function GET(
       .select('status')
       .eq('group_id', group.id)
       .eq('user_id', user.id)
+      .order('requested_at', { ascending: false })
+      .limit(1)
       .single()
 
     return NextResponse.json({ status: joinRequest?.status ?? null })

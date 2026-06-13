@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { MessageSquare, UserX, Loader2, Users, Briefcase, Search, GraduationCap } from 'lucide-react'
 import { getUserActivityDot } from '@/hooks/useActivityStatus'
+import { useAuth } from '@/hooks/useAuth'
 
 interface Connection {
   connection_id: string
@@ -29,6 +30,7 @@ interface MyNetworkTabProps {
 
 export default function MyNetworkTab({ refreshKey = 0 }: MyNetworkTabProps) {
   const router = useRouter()
+  const { user } = useAuth()
   const [connections, setConnections] = useState<Connection[]>([])
   const [loading, setLoading] = useState(true)
   const [removingId, setRemovingId] = useState<string | null>(null)
@@ -149,7 +151,10 @@ export default function MyNetworkTab({ refreshKey = 0 }: MyNetworkTabProps) {
 
               <div className="flex items-center gap-1.5 flex-shrink-0">
                 <button
-                  onClick={() => router.push(`/dashboard/junior/messages?user=${conn.user_id}`)}
+                  onClick={() => {
+                    const base = user?.role === 'senior' ? '/dashboard/senior/messages' : '/dashboard/junior/messages'
+                    router.push(`${base}?user=${conn.user_id}`)
+                  }}
                   className="px-3 py-1.5 rounded-lg text-xs font-semibold btn-connect flex items-center gap-1"
                 >
                   <MessageSquare size={12} />

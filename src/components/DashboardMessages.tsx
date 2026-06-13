@@ -57,7 +57,11 @@ export default function DashboardMessages({
   const router = useRouter()
 
   const goBackToDashboard = () => {
-    router.push(backHref)
+    if (window.history.length > 1) {
+      router.back()
+    } else {
+      router.push(backHref)
+    }
   }
 
   const fetchConversations = useCallback(async () => {

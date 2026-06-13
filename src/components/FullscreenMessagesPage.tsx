@@ -29,13 +29,15 @@ export default function FullscreenMessagesPage({ role }: FullscreenMessagesPageP
       router.replace('/login')
       return
     }
+    const qs = searchParams.toString()
+    const preserve = qs ? `?${qs}` : ''
     if (!loading && user && role === 'senior' && user.role !== 'senior') {
-      router.replace('/dashboard/junior/messages')
+      router.replace(`/dashboard/junior/messages${preserve}`)
     }
     if (!loading && user && role === 'junior' && user.role === 'senior') {
-      router.replace('/dashboard/senior/messages')
+      router.replace(`/dashboard/senior/messages${preserve}`)
     }
-  }, [loading, user, router, role])
+  }, [loading, user, router, role, searchParams])
 
   if (loading) {
     return (

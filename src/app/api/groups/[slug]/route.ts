@@ -16,7 +16,7 @@ export async function GET(
     // Create admin client for DB queries
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      process.env.SUPABASE_SECRET_KEY!
     )
 
     // SECURITY: Use signed session verification instead of direct cookie parsing

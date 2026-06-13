@@ -140,7 +140,8 @@ export default function RequestsTab({ refreshKey = 0 }: RequestsTabProps) {
                   isFollowing: false,
                 }}
                 onConnect={handleConnectAction}
-                showActions={false}
+                connectionId={req.id}
+                onRespond={handleRespond}
               />
             ))}
           </div>
@@ -178,7 +179,8 @@ export default function RequestsTab({ refreshKey = 0 }: RequestsTabProps) {
                   isFollowing: false,
                 }}
                 onConnect={handleConnectAction}
-                showActions={false}
+                connectionId={req.id}
+                onWithdraw={handleWithdraw}
               />
             ))}
           </div>

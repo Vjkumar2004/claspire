@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { getConversationId } from '@/lib/messages';
-import { createNotification } from '@/lib/notifications';
 import { canUsersMessage } from '@/middleware/checkCanMessage';
 import { getAuthenticatedUser } from '@/lib/session';
 import { applyRateLimit, getUserIdentifier } from '@/lib/rateLimitRedis';
@@ -131,16 +130,6 @@ export async function POST(req: NextRequest) {
       console.error('Message insert error:', sendError);
       return NextResponse.json({ error: sendError.message }, { status: 500 });
     }
-
-    // Create in-app notification (non-blocking)
-    createNotification({
-      receiver_id: receiverId,
-      sender_id: userId,
-      type: 'referral_request',
-      title: `💬 New message from ${senderData.full_name}`,
-      message: `${content.slice(0, 80)}${content.length > 80 ? '...' : ''}`,
-      link: receiverData.role === 'senior' ? '/dashboard/senior/messages' : '/dashboard/junior/messages'
-    }).catch(err => console.error('Notification error:', err));
 
     return NextResponse.json({ success: true, message: savedMessage });
   } catch (err: any) {

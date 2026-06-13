@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { cookies } from 'next/headers'
 import { createNotification, sendPushToUsers } from '@/lib/notifications'
 import { getAuthenticatedUser } from '@/lib/session'
 
@@ -11,7 +10,7 @@ export async function POST(
   try {
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      process.env.SUPABASE_SECRET_KEY!
     )
     const { slug } = await params
 
@@ -81,7 +80,7 @@ export async function POST(
           user_id: userId,
           status: 'pending',
           requested_at: new Date().toISOString()
-        })
+        }, { onConflict: 'group_id,user_id', ignoreDuplicates: false })
 
       if (requestError) {
         return NextResponse.json({ error: 'Failed to send request' }, { status: 500 })

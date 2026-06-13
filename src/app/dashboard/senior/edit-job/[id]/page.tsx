@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { ArrowLeft, Save, Loader2, AlertCircle } from 'lucide-react'
-import { usePoints } from '@/contexts/PointsContext'
+
 
 const JOB_TYPES = [
   { value: 'full_time', label: 'Full Time' },
@@ -16,7 +16,7 @@ export default function EditJobPage() {
   const router = useRouter()
   const params = useParams()
   const jobId = params.id as string
-  const { showAward } = usePoints()
+
 
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -92,7 +92,6 @@ export default function EditJobPage() {
       }
 
       setSuccess('Job updated successfully!')
-      showAward(0, 'Job updated successfully! 💼')
 
       setTimeout(() => {
         router.push('/dashboard/senior?activeTab=jobs')
