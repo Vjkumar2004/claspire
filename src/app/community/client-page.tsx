@@ -169,7 +169,7 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
   const [expandedContent, setExpandedContent] = useState<Record<string, boolean>>(() => validCache?.expandedContent || {})
 
   // Pagination / Load more
-  const [page, setPage] = useState(() => validCache?.page || 1)
+  const [page, setPage] = useState(() => validCache?.page || (initialPosts?.length > 0 ? 2 : 1))
   const [hasMore, setHasMore] = useState(() => validCache?.hasMore !== undefined ? validCache.hasMore : true)
   const [loadingMore, setLoadingMore] = useState(false)
 
@@ -751,7 +751,11 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
 
       if (!postsError && postsData) {
         if (loadMore) {
-          setPosts(prev => [...prev, ...postsData])
+          setPosts(prev => {
+            const existingIds = new Set(prev.map(p => p.id))
+            const newPosts = postsData.filter(p => !existingIds.has(p.id))
+            return [...prev, ...newPosts]
+          })
         } else {
           setPosts(postsData)
         }
