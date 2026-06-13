@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import bcrypt from 'bcryptjs'
+import { createNotification } from '@/lib/notifications'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
@@ -29,7 +30,7 @@ export async function POST(request: NextRequest) {
     // Find user with matching reset token and email
     const { data: user, error: userError } = await supabase
       .from('users')
-      .select('reset_token, reset_token_expiry')
+      .select('id, reset_token, reset_token_expiry')
       .eq('email', email.toLowerCase())
       .eq('reset_token', token)
       .single()
@@ -109,6 +110,43 @@ export async function POST(request: NextRequest) {
         { error: updateError.message || 'Failed to reset password', details: updateError },
         { status: 500 }
       )
+    }
+
+    // Notify user that password was changed
+    try {
+      await createNotification({
+        receiver_id: user.id,
+        type: 'post_in_community',
+        title: 'Password Updated',
+        message: 'Your password was changed successfully.',
+        link: '/login'
+      })
+
+      const { data: pwUser } = await supabase
+        .from('users')
+        .select('onesignal_player_id')
+        .eq('id', user.id)
+        .single()
+
+      if (pwUser?.onesignal_player_id) {
+        await fetch('https://onesignal.com/api/v1/notifications', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Basic ${process.env.ONESIGNAL_REST_API_KEY}`
+          },
+          body: JSON.stringify({
+            app_id: process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID,
+            include_player_ids: [pwUser.onesignal_player_id],
+            headings: { en: 'Password Updated' },
+            contents: { en: 'Your password was changed successfully.' },
+            url: `${process.env.NEXT_PUBLIC_APP_URL}/login`
+          })
+        })
+      }
+    } catch (pwNotifErr) {
+      console.error('Password change notification error:', pwNotifErr)
+      // Don't fail the request if notification fails
     }
 
     return NextResponse.json({

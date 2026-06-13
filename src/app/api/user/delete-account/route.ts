@@ -128,6 +128,60 @@ export async function DELETE(req: NextRequest) {
         .delete()
         .eq('requested_by', userId)
 
+      // DELETE FROM student_group_members WHERE user_id = ?
+      await supabase
+        .from('student_group_members')
+        .delete()
+        .eq('user_id', userId)
+
+      // DELETE FROM follows WHERE follower_id = ? OR following_id = ?
+      await supabase
+        .from('follows')
+        .delete()
+        .or(`follower_id.eq.${userId},following_id.eq.${userId}`)
+
+      // DELETE FROM blocked_users WHERE blocker_id = ? OR blocked_id = ?
+      await supabase
+        .from('blocked_users')
+        .delete()
+        .or(`blocker_id.eq.${userId},blocked_id.eq.${userId}`)
+
+      // DELETE FROM connections WHERE sender_id = ? OR receiver_id = ?
+      await supabase
+        .from('connections')
+        .delete()
+        .or(`sender_id.eq.${userId},receiver_id.eq.${userId}`)
+
+      // DELETE FROM message_requests WHERE student_id = ? OR senior_id = ?
+      await supabase
+        .from('message_requests')
+        .delete()
+        .or(`student_id.eq.${userId},senior_id.eq.${userId}`)
+
+      // DELETE FROM senior_message_requests WHERE sender_id = ? OR receiver_id = ?
+      await supabase
+        .from('senior_message_requests')
+        .delete()
+        .or(`sender_id.eq.${userId},receiver_id.eq.${userId}`)
+
+      // DELETE FROM referral_requests WHERE requester_id = ? OR senior_id = ?
+      await supabase
+        .from('referral_requests')
+        .delete()
+        .or(`requester_id.eq.${userId},senior_id.eq.${userId}`)
+
+      // DELETE FROM profile_views WHERE viewer_id = ? OR viewed_user_id = ?
+      await supabase
+        .from('profile_views')
+        .delete()
+        .or(`viewer_id.eq.${userId},viewed_user_id.eq.${userId}`)
+
+      // DELETE FROM post_views WHERE user_id = ?
+      await supabase
+        .from('post_views')
+        .delete()
+        .eq('user_id', userId)
+
       // UPDATE communities SET member_count = member_count - 1 WHERE id IN (SELECT community_id FROM community_members WHERE user_id = ?)
       const { data: communityMemberships } = await supabase
         .from('community_members')
@@ -136,10 +190,12 @@ export async function DELETE(req: NextRequest) {
 
       if (communityMemberships && communityMemberships.length > 0) {
         for (const membership of communityMemberships) {
-          await supabase
-            .from('communities')
-            .update({ member_count: supabase.rpc('increment', { x: -1 }) })
-            .eq('id', membership.community_id)
+          await supabase.rpc('increment', {
+            table_name: 'communities',
+            column_name: 'member_count',
+            row_id: membership.community_id,
+            x: -1
+          })
         }
       }
 

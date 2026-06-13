@@ -94,39 +94,45 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Community not found or not accessible' }, { status: 404 })
     }
 
-    // Check user's existing groups (for limits) - TEMPORARILY DISABLED
-    console.log('=== Skipping existing groups check (temporarily disabled) ===')
-    console.log('userData.id:', userData.id)
-    console.log('community_id:', community_id)
-    
-    // Temporarily set existingGroups to empty to bypass the check
-    const existingGroups: any[] = []
-    const groupsError = null
-
-    console.log('existingGroups:', existingGroups)
-    console.log('groupsError:', groupsError)
+    // Check user's existing groups for limit enforcement
+    const { data: existingGroups, error: groupsError } = await supabase
+      .from('student_groups')
+      .select('id')
+      .eq('created_by', userData.id)
 
     if (groupsError) {
       console.error('Groups check error:', groupsError)
       return NextResponse.json({ error: 'Failed to check existing groups' }, { status: 500 })
     }
 
-    // Ensure slug is unique - TEMPORARILY DISABLED
-    console.log('=== Skipping slug uniqueness check (temporarily disabled) ===')
-    
+    if (existingGroups && existingGroups.length >= 10) {
+      return NextResponse.json({ error: 'Maximum group limit reached (10 groups per user)' }, { status: 400 })
+    }
+
     // Generate basic slug
     const baseSlug = name
       .toLowerCase()
       .trim()
-      .replace(/[^a-z0-9\s-]/g, '') // Remove special characters except spaces and hyphens
-      .replace(/\s+/g, '-') // Replace spaces with hyphens
-      .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
-      .replace(/^-|-$/g, '') // Remove leading/trailing hyphens
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '')
     
-    console.log('Using slug:', baseSlug)
-    
-    // Temporarily use baseSlug without uniqueness check
-    const slug = baseSlug
+    // Ensure slug uniqueness by appending numeric suffix if needed
+    let slug = baseSlug
+    const { data: existingSlugs } = await supabase
+      .from('student_groups')
+      .select('slug')
+      .like('slug', `${baseSlug}%`)
+
+    if (existingSlugs && existingSlugs.length > 0) {
+      const used = new Set(existingSlugs.map(s => s.slug))
+      let suffix = 1
+      while (used.has(slug)) {
+        slug = `${baseSlug}-${suffix}`
+        suffix++
+      }
+    }
 
     // Prepare group data for student_groups table
     console.log('Creating group in student_groups table...')

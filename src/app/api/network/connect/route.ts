@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { getAuthenticatedUser } from '@/lib/session'
+import { sendPushToUsers } from '@/lib/notifications'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -85,6 +86,14 @@ export async function POST(req: NextRequest) {
     if (notifError) {
       console.error('[Connect] Notification insert error:', notifError)
     }
+
+    // Push notification to receiver
+    await sendPushToUsers(
+      [receiver_id],
+      'New Connection Request',
+      `${user.full_name} wants to connect with you.`,
+      '/network'
+    )
 
     return NextResponse.json({ success: true, connection: newConnection })
   } catch (error) {

@@ -252,6 +252,46 @@ export async function POST(req: NextRequest) {
 
     console.log('Session cookie set:', userData.email, userData.role)
 
+    // Welcome notification
+    try {
+      await supabaseAdmin.from('notifications').insert({
+        receiver_id: userId,
+        user_id: userId,
+        type: 'post_in_community',
+        title: 'Welcome to Claspire 🎉',
+        message: 'Complete your profile and start building your network.',
+        link: '/profile',
+        is_read: false,
+        created_at: new Date().toISOString()
+      })
+
+      const { data: newUser } = await supabaseAdmin
+        .from('users')
+        .select('onesignal_player_id')
+        .eq('id', userId)
+        .single()
+
+      if (newUser?.onesignal_player_id) {
+        await fetch('https://onesignal.com/api/v1/notifications', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Basic ${process.env.ONESIGNAL_REST_API_KEY}`
+          },
+          body: JSON.stringify({
+            app_id: process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID,
+            include_player_ids: [newUser.onesignal_player_id],
+            headings: { en: 'Welcome to Claspire 🎉' },
+            contents: { en: 'Complete your profile and start building your network.' },
+            url: `${process.env.NEXT_PUBLIC_APP_URL}/profile`
+          })
+        })
+      }
+    } catch (welcomeErr) {
+      console.error('Welcome notification error:', welcomeErr)
+      // Don't fail signup if welcome notification fails
+    }
+
     // Add a small delay to ensure cookie is set
     await new Promise(resolve => setTimeout(resolve, 100))
 

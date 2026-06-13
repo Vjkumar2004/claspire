@@ -80,40 +80,70 @@ export async function POST(req: NextRequest) {
         .single()
 
       const isSenior = answerer?.role === 'senior'
+      const isReply = !!parent_answer_id
 
-      // Notify post author
-      await createNotification({
-        type: 'post_answered',
-        title: isSenior ? '🎓 A Senior answered your doubt!' : '💬 Someone answered your post!',
-        message: `${answerer?.full_name || 'Someone'} answered: "${post.title?.slice(0, 50)}"`,
-        receiver_id: post.author_id,
-        sender_id: userId,
-        post_id: post_id,
-        link: `/community/c/${(post.communities as any)?.slug || 'all'}/p/${post_id}`
-      })
+      // Determine notification target
+      let notifyUserId = post.author_id
+      let notifyTitle: string
+      let notifyMessage: string
 
-      // Push to post author
-      const { data: postAuthor } = await supabase
-        .from('users')
-        .select('onesignal_player_id')
-        .eq('id', post.author_id)
-        .single()
+      if (isReply) {
+        // For replies, notify the parent answer author
+        const { data: parentAnswer } = await supabase
+          .from('answers')
+          .select('author_id')
+          .eq('id', parent_answer_id)
+          .single()
 
-      if (postAuthor?.onesignal_player_id) {
-        await fetch('https://onesignal.com/api/v1/notifications', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Basic ${process.env.ONESIGNAL_REST_API_KEY}`
-          },
-          body: JSON.stringify({
-            app_id: process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID,
-            include_player_ids: [postAuthor.onesignal_player_id],
-            headings: { en: isSenior ? '🎓 Senior answered your doubt!' : '💬 Your post got an answer!' },
-            contents: { en: `${answerer?.full_name} answered: "${post.title?.slice(0, 50)}"` },
-            url: `${process.env.NEXT_PUBLIC_APP_URL}/community/c/${(post.communities as any)?.slug || 'all'}/p/${post_id}`
-          })
+        if (parentAnswer) {
+          notifyUserId = parentAnswer.author_id
+        }
+        notifyTitle = isSenior ? '🎓 A Senior replied to your answer!' : '💬 Someone replied to your answer!'
+        notifyMessage = `${answerer?.full_name || 'Someone'} replied: "${post.title?.slice(0, 50)}"`
+      } else {
+        // For top-level answers, notify the post author
+        notifyTitle = isSenior ? '🎓 A Senior answered your doubt!' : '💬 Someone answered your post!'
+        notifyMessage = `${answerer?.full_name || 'Someone'} answered: "${post.title?.slice(0, 50)}"`
+      }
+
+      // Skip notification if answering/replyhing to own content
+      if (notifyUserId !== userId) {
+        await createNotification({
+          type: 'post_answered',
+          title: notifyTitle,
+          message: notifyMessage,
+          receiver_id: notifyUserId,
+          sender_id: userId,
+          post_id: post_id,
+          link: `/community/c/${(post.communities as any)?.slug || 'all'}/p/${post_id}`
         })
+
+        // Push to notify target
+        const { data: targetUser } = await supabase
+          .from('users')
+          .select('onesignal_player_id')
+          .eq('id', notifyUserId)
+          .single()
+
+        if (targetUser?.onesignal_player_id) {
+          const pushTitle = isSenior
+            ? (isReply ? '🎓 Senior replied to your answer!' : '🎓 Senior answered your doubt!')
+            : (isReply ? '💬 Someone replied to your answer!' : '💬 Your post got an answer!')
+          await fetch('https://onesignal.com/api/v1/notifications', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Basic ${process.env.ONESIGNAL_REST_API_KEY}`
+            },
+            body: JSON.stringify({
+              app_id: process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID,
+              include_player_ids: [targetUser.onesignal_player_id],
+              headings: { en: pushTitle },
+              contents: { en: `${answerer?.full_name} ${isReply ? 'replied' : 'answered'}: "${post.title?.slice(0, 50)}"` },
+              url: `${process.env.NEXT_PUBLIC_APP_URL}/community/c/${(post.communities as any)?.slug || 'all'}/p/${post_id}`
+            })
+          })
+        }
       }
 
       // RP for answering

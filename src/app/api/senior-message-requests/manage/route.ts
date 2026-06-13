@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { getAuthenticatedUser } from '@/lib/session'
+import { sendPushToUsers } from '@/lib/notifications'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -82,7 +83,6 @@ export async function POST(request: NextRequest) {
       ? `${currentUser.full_name} accepted your connection request! You can now message each other.`
       : `${currentUser.full_name} declined your connection request.`
 
-    console.log('PATH_E: senior-message-requests/manage direct insert')
     const { error: notificationError } = await supabase
       .from('notifications')
       .insert({
@@ -98,6 +98,14 @@ export async function POST(request: NextRequest) {
       console.error('Error creating notification:', notificationError)
       // Don't fail the request if notification fails
     }
+
+    // Push notification to sender
+    await sendPushToUsers(
+      [messageRequest.sender_id],
+      notificationTitle,
+      notificationMessage,
+      action === 'accept' ? `/dashboard/senior/messages?user=${user.id}` : '/seniors'
+    )
 
     return NextResponse.json({ 
       success: true, 

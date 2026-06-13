@@ -6,21 +6,19 @@ const supabase = createClient(
 )
 
 export type NotificationType = 
-  | 'post_like' 
   | 'post_answered' 
-  | 'job_post' 
-  | 'referral_approved' 
-  | 'referral_request'
   | 'post_in_community'
   | 'post_upvoted'
+  | 'referral_approved' 
+  | 'referral_request'
   | 'new_job'
   | 'group_created'
   | 'group_join_request'
   | 'group_join_accepted'
   | 'group_join_rejected'
-  | 'senior_connect_request'
-  | 'senior_connect_accepted'
-  | 'senior_connect_declined'
+  | 'message_request'
+  | 'message_request_accepted'
+  | 'message_request_rejected'
 
 interface CreateNotificationParams {
   receiver_id: string

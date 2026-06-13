@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { getAuthenticatedUser } from '@/lib/session'
+import { sendPushToUsers } from '@/lib/notifications'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -91,7 +92,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to create request' }, { status: 500 })
     }
 
-    console.log('PATH_D: senior-message-requests/send direct insert')
     await supabase
       .from('notifications')
       .insert({
@@ -102,6 +102,14 @@ export async function POST(request: NextRequest) {
         type: 'message_request',
         link: `/dashboard/senior`,
       })
+
+    // Push notification to receiver
+    await sendPushToUsers(
+      [receiver_id],
+      'New Senior Connect Request',
+      `${currentUser.full_name} wants to connect with you.`,
+      '/dashboard/senior'
+    )
 
     return NextResponse.json({
       success: true,

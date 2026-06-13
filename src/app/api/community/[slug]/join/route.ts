@@ -6,6 +6,7 @@ import {
   normalizeCollegeRelation,
 } from '@/lib/community-stats'
 import { getAuthenticatedUser } from '@/lib/session'
+import { createNotification } from '@/lib/notifications'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -139,6 +140,21 @@ export async function POST(
           rise_points: (rpUser?.rise_points || 0) + 2
         })
         .eq('id', userId)
+    }
+
+    // Welcome notification for joining
+    try {
+      await createNotification({
+        receiver_id: userId,
+        type: 'post_in_community',
+        title: `Welcome to c/${slug} 🎉`,
+        message: isOwnCollege
+          ? 'You joined your college community! Start exploring posts.'
+          : 'You joined this network! Follow discussions and connect with members.',
+        link: `/community/c/${slug}`
+      })
+    } catch (joinNotifErr) {
+      console.error('Join notification error:', joinNotifErr)
     }
 
     return NextResponse.json({

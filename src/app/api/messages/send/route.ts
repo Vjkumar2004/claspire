@@ -4,6 +4,7 @@ import { getConversationId } from '@/lib/messages';
 import { canUsersMessage } from '@/middleware/checkCanMessage';
 import { getAuthenticatedUser } from '@/lib/session';
 import { applyRateLimit, getUserIdentifier } from '@/lib/rateLimitRedis';
+import { sendPushToUsers } from '@/lib/notifications';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -129,6 +130,20 @@ export async function POST(req: NextRequest) {
     } else if (sendError) {
       console.error('Message insert error:', sendError);
       return NextResponse.json({ error: sendError.message }, { status: 500 });
+    }
+
+    // Send push notification to receiver (skip if sending to self)
+    if (userId !== receiverId) {
+      try {
+        await sendPushToUsers(
+          [receiverId],
+          'New Message',
+          `${senderData.full_name} sent you a message.`,
+          `/messages?user=${userId}`
+        )
+      } catch (msgNotifErr) {
+        console.error('Message push notification error:', msgNotifErr)
+      }
     }
 
     return NextResponse.json({ success: true, message: savedMessage });

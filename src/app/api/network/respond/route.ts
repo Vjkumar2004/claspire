@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { getAuthenticatedUser } from '@/lib/session'
+import { sendPushToUsers } from '@/lib/notifications'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -68,6 +69,13 @@ export async function POST(req: NextRequest) {
       type: action === 'accepted' ? 'message_request_accepted' : 'message_request_rejected',
       link: '/network',
     })
+
+    // Push notification to sender
+    const pushTitle = action === 'accepted' ? 'Connection Accepted' : 'Connection Declined'
+    const pushMessage = action === 'accepted'
+      ? `${user.full_name} accepted your connection request.`
+      : `${user.full_name} declined your connection request.`
+    await sendPushToUsers([connection.sender_id], pushTitle, pushMessage, '/network')
 
     return NextResponse.json({ success: true, connection: updated })
   } catch (error) {

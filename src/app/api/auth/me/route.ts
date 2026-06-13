@@ -34,9 +34,10 @@ export async function GET(req: NextRequest) {
       const { userId, isLegacy } = verifiedSession
 
       // Fetch latest user data from Supabase (always fetch from DB now)
+      // Only select non-sensitive columns — auth/security fields are excluded
       const { data: dbUser, error: dbError } = await supabase
         .from('users')
-        .select('*')
+        .select('id, full_name, email, avatar_url, bio, role, unique_id, college_id, branch, year, cgpa, passout_year, company, designation, graduation_year, linkedin_url, is_verified, verification_type, verification_status, community_confirmations, rise_points, rp_level, doubt_count, answer_count, referral_count, webinar_count, is_premium, premium_plan, premium_expires_at, created_at, updated_at, last_visit_date, banner_url, last_seen, profile_data, auth_provider')
         .eq('id', userId)
         .single()
 
@@ -59,7 +60,9 @@ export async function GET(req: NextRequest) {
 
       // ── Global Daily Visit RP ──
       if (dbUser.last_visit_date !== today) {
-        // Update users table first and get the persisted value
+        // Atomically update — the database enforces at-most-once per day.
+        // The WHERE clause (via .or()) checks last_visit_date is still not today,
+        // preventing concurrent requests from awarding multiple bonuses.
         const { data: updatedUser, error: updateError } = await supabase
           .from('users')
           .update({
@@ -68,12 +71,13 @@ export async function GET(req: NextRequest) {
             updated_at: new Date().toISOString()
           })
           .eq('id', userId)
+          .or(`last_visit_date.is.null,last_visit_date.neq.${today}`)
           .select('rise_points, last_visit_date, rp_level')
-          .single()
+          .maybeSingle()
 
-        if (updateError || !updatedUser) {
-          console.error('Daily visit RP update failed:', updateError || 'UPDATE affected 0 rows')
-        } else {
+        if (updateError) {
+          console.error('Daily visit RP update failed:', updateError)
+        } else if (updatedUser) {
           // Only log if the update succeeded
           const { error: logError } = await supabase
             .from('rise_points_log')

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { randomUUID } from 'crypto'
+import { verifySessionCookie } from '@/lib/session'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -50,10 +51,9 @@ export async function POST(
     let userId: string | null = null
     const sessionCookie = req.cookies.get('claspire_session')
     if (sessionCookie) {
-      try {
-        userId = JSON.parse(sessionCookie.value).id || null
-      } catch {
-        userId = null
+      const verified = verifySessionCookie(sessionCookie.value)
+      if (verified) {
+        userId = verified.userId
       }
     }
 
