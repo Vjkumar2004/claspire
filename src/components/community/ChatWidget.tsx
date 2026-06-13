@@ -114,6 +114,18 @@ function ChatWidget({ user, isNavVisible }: ChatWidgetProps) {
       body: JSON.stringify({ conversationId })
     }).catch(console.error)
 
+    // Ping presence
+    const pingPresence = () => {
+      if (document.hidden) return;
+      fetch('/api/messages/presence', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ activeChatUserId: activeChatUser.id })
+      }).catch(() => {});
+    };
+    pingPresence();
+    const presenceInterval = setInterval(pingPresence, 15000);
+
     // Clear local unread state
     setChatThreads(prev => prev.map(t => t.id === activeChatUser.id ? { ...t, unread: false } : t))
 
@@ -178,6 +190,14 @@ function ChatWidget({ user, isNavVisible }: ChatWidgetProps) {
     return () => {
       isMounted = false
       supabase.removeChannel(channel)
+      clearInterval(presenceInterval)
+      // Clear presence
+      fetch('/api/messages/presence', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        keepalive: true,
+        body: JSON.stringify({ activeChatUserId: null })
+      }).catch(() => {});
     }
   }, [activeChatUser, user?.id])
 
@@ -494,10 +514,10 @@ function ChatWidget({ user, isNavVisible }: ChatWidgetProps) {
         {/* Header */}
         <div
           onClick={() => {
-            setChatExpanded(!chatExpanded)
-            if (!chatExpanded) {
+            if (chatExpanded) {
               setActiveChatUser(null)
             }
+            setChatExpanded(!chatExpanded)
           }}
           className="bg-slate-900 text-white flex items-center justify-between px-3.5 py-3 cursor-pointer select-none"
         >

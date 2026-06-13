@@ -1,7 +1,7 @@
 'use client'
 import React from 'react'
 import { motion } from 'framer-motion'
-import { Zap, MessageSquare, Share2, CheckCircle, ArrowRight } from 'lucide-react'
+import { ArrowBigUp, MessageSquare, Share2, CheckCircle, ArrowRight } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import MediaGallery from '@/components/MediaGallery'
 
@@ -411,13 +411,19 @@ export default function FeedPost({
         <div className="flex justify-center w-full">
           <button
             onClick={() => onVote(post.id, 'upvote')}
-            className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+            className={`group flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-extrabold transition-all duration-300 cursor-pointer border ${
               voteData?.userVote === 'upvote'
-                ? 'bg-purple-100 text-[#7C3AED] shadow-sm'
-                : 'hover:bg-slate-100 text-slate-500'
+                ? 'bg-gradient-to-br from-purple-100 to-indigo-50 border-purple-200 text-[#7C3AED] shadow-[0_2px_8px_-2px_rgba(124,58,237,0.3)]'
+                : 'bg-white border-slate-200 hover:border-purple-300 hover:bg-purple-50 text-slate-500 hover:text-[#7C3AED] shadow-sm hover:shadow'
             }`}
           >
-            <Zap className="w-3.5 h-3.5" />
+            <ArrowBigUp 
+              className={`w-4 h-4 transition-transform duration-300 ${
+                voteData?.userVote === 'upvote' 
+                  ? 'fill-[#7C3AED] text-[#7C3AED] -translate-y-0.5' 
+                  : 'text-slate-400 group-hover:-translate-y-0.5 group-hover:text-[#7C3AED] group-hover:fill-purple-100'
+              }`} 
+            />
             <span>{voteData?.upvotes || 0} RP</span>
           </button>
         </div>

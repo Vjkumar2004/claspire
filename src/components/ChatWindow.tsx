@@ -158,6 +158,33 @@ export default function ChatWindow({
     fetchBlockStatus()
   }, [otherUserId])
 
+  useEffect(() => {
+    if (!currentUserId || !otherUserId) return;
+
+    const pingPresence = () => {
+      if (document.hidden) return;
+      fetch('/api/messages/presence', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ activeChatUserId: otherUserId })
+      }).catch(() => {});
+    };
+
+    pingPresence();
+    const interval = setInterval(pingPresence, 15000);
+
+    return () => {
+      clearInterval(interval);
+      // Clear presence when closing chat
+      fetch('/api/messages/presence', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        keepalive: true,
+        body: JSON.stringify({ activeChatUserId: null })
+      }).catch(() => {});
+    };
+  }, [currentUserId, otherUserId]);
+
   const clearComposerState = () => {
     setReplyingTo(null)
     setEditingMessage(null)

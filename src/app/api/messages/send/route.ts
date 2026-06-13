@@ -3,7 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import { getConversationId } from '@/lib/messages';
 import { canUsersMessage } from '@/middleware/checkCanMessage';
 import { getAuthenticatedUser } from '@/lib/session';
-import { applyRateLimit, getUserIdentifier } from '@/lib/rateLimitRedis';
+import { applyRateLimit, getUserIdentifier, getRedisClient } from '@/lib/rateLimitRedis';
 import { sendPushToUsers } from '@/lib/notifications';
 
 const supabase = createClient(
@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
     // Fetch sender and receiver info
     const [senderResult, receiverResult] = await Promise.all([
       supabase.from('users').select('role, full_name').eq('id', userId).single(),
-      supabase.from('users').select('role, full_name').eq('id', receiverId).single()
+      supabase.from('users').select('role, full_name, last_seen, onesignal_player_id').eq('id', receiverId).single()
     ]);
 
     const senderData = senderResult.data;
@@ -135,12 +135,47 @@ export async function POST(req: NextRequest) {
     // Send push notification to receiver (skip if sending to self)
     if (userId !== receiverId) {
       try {
-        await sendPushToUsers(
-          [receiverId],
-          'New Message',
-          `${senderData.full_name} sent you a message.`,
-          `/messages?user=${userId}`
-        )
+        let isOffline = true;
+        if (receiverData.last_seen) {
+          const lastSeenDate = new Date(receiverData.last_seen).getTime();
+          const diffMinutes = (Date.now() - lastSeenDate) / (1000 * 60);
+          isOffline = diffMinutes > 5;
+        }
+
+        let isActiveInChat = false;
+        let isThrottled = false;
+        const throttleKey = `push_throttle:${receiverId}:${userId}`;
+
+        try {
+          const redis = getRedisClient();
+          
+          // Check active chat presence
+          const activeChatUserId = await redis.get(`chat_presence:${receiverId}`);
+          isActiveInChat = activeChatUserId === userId;
+
+          // Check push throttling
+          isThrottled = Boolean(await redis.get(throttleKey));
+        } catch (redisErr) {
+          console.warn('Redis check failed, falling back to unthrottled push:', redisErr);
+        }
+
+        // Smart Notification: Only send if offline (>5 mins), not actively chatting, not throttled, and has player ID
+        if (isOffline && !isActiveInChat && !isThrottled && receiverData.onesignal_player_id) {
+          try {
+            const redis = getRedisClient();
+            // Set throttle flag (60 seconds TTL)
+            await redis.set(throttleKey, '1', { ex: 60 });
+          } catch (redisErr) {
+            // Ignore failure to throttle
+          }
+          
+          await sendPushToUsers(
+            [receiverId],
+            'New Message',
+            `${senderData.full_name} sent you a message`,
+            `/messages?user=${userId}`
+          )
+        }
       } catch (msgNotifErr) {
         console.error('Message push notification error:', msgNotifErr)
       }
