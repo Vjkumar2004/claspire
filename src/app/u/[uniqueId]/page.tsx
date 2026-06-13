@@ -117,10 +117,10 @@ export default function PublicProfilePage() {
             <div className="bg-white rounded-xl border border-slate-200/80 shadow-sm overflow-hidden">
               {/* Banner */}
               <div
-                className="h-40 rounded-t-xl"
+                className="h-28 rounded-t-xl bg-slate-100"
                 style={{
                   background: user.banner_url
-                    ? `url(${user.banner_url}) center/cover no-repeat`
+                    ? `url(${user.banner_url}) center/contain no-repeat`
                     : 'linear-gradient(to right, #f1f5f9, #eef2ff, #faf5ff)'
                 }}
               />

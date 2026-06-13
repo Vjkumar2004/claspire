@@ -11,6 +11,7 @@ import {
   Briefcase, Clock, Share2, Plus, FileText, Camera, Linkedin, Github, Globe, Loader2,
 } from 'lucide-react'
 import AvatarUpload from '@/components/AvatarUpload'
+import { showToast } from '@/components/Toast'
 import StudentProfileEditor from '@/components/profile/StudentProfileEditor'
 import SeniorProfileEditor from '@/components/profile/SeniorProfileEditor'
 import {
@@ -21,6 +22,47 @@ import {
   mergeSeniorExtras,
   type UserProfileData,
 } from '@/lib/profile-data'
+
+async function compressImage(file: File): Promise<File> {
+  return new Promise((resolve, reject) => {
+    const img = new Image()
+    const url = URL.createObjectURL(file)
+    img.src = url
+    img.onload = () => {
+      URL.revokeObjectURL(url)
+      let w = img.naturalWidth
+      let h = img.naturalHeight
+      const MAX_W = 1920
+      const MAX_H = 1080
+      if (w > MAX_W || h > MAX_H) {
+        const ratio = Math.min(MAX_W / w, MAX_H / h)
+        w = Math.round(w * ratio)
+        h = Math.round(h * ratio)
+      }
+      const canvas = document.createElement('canvas')
+      canvas.width = w
+      canvas.height = h
+      const ctx = canvas.getContext('2d')!
+      ctx.drawImage(img, 0, 0, w, h)
+      const tryQuality = (q: number): Promise<Blob> =>
+        new Promise(r => canvas.toBlob(b => r(b!), 'image/jpeg', q))
+      tryQuality(0.8).then(async blob => {
+        let quality = 0.8
+        let finalBlob = blob
+        while (finalBlob.size > 2 * 1024 * 1024 && quality > 0.1) {
+          quality = Math.round((quality - 0.1) * 10) / 10
+          finalBlob = await tryQuality(quality)
+        }
+        const fileName = file.name.replace(/\.[^.]+$/, '.jpg') || 'banner.jpg'
+        resolve(new File([finalBlob], fileName, { type: 'image/jpeg' }))
+      }).catch(reject)
+    }
+    img.onerror = () => {
+      URL.revokeObjectURL(url)
+      reject(new Error('Failed to load image'))
+    }
+  })
+}
 
 export default function ProfilePage() {
   const router = useRouter()
@@ -64,20 +106,31 @@ export default function ProfilePage() {
     setBannerError('')
     setBannerUploading(true)
 
-    if (file.size > 5 * 1024 * 1024) {
-      setBannerError('File must be less than 5MB')
-      setBannerUploading(false)
-      return
-    }
-
     if (!file.type.startsWith('image/')) {
       setBannerError('Invalid file type. Please upload an image')
       setBannerUploading(false)
       return
     }
 
+    let uploadFile = file
+    if (file.size > 2 * 1024 * 1024) {
+      try {
+        uploadFile = await compressImage(file)
+      } catch {
+        setBannerError('Failed to compress image')
+        setBannerUploading(false)
+        return
+      }
+      if (uploadFile.size > 2 * 1024 * 1024) {
+        setBannerError('Image too large. Please upload an image under 2MB')
+        showToast({ type: 'error', title: 'Image too large', message: 'Please upload an image under 2MB' })
+        setBannerUploading(false)
+        return
+      }
+    }
+
     const fd = new FormData()
-    fd.append('file', file)
+    fd.append('file', uploadFile)
     fd.append('type', 'banner')
     try {
       const res = await fetch('/api/upload', { method: 'POST', body: fd })
@@ -323,9 +376,9 @@ export default function ProfilePage() {
         {/* ===== MOBILE HERO ===== */}
       <div className="lg:hidden">
         {/* Banner */}
-        <div className="relative h-[180px]">
+        <div className="relative h-28">
           <div
-            className="absolute inset-0 bg-cover bg-center"
+            className="absolute inset-0 bg-contain bg-center bg-slate-100"
             style={{
               backgroundImage: user.banner_url
                 ? 'linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.25)), url(' + user.banner_url + ')'
