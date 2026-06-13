@@ -3,8 +3,16 @@ import type { Metadata } from "next";
 import { Mail, Phone } from 'lucide-react';
 
 export const metadata: Metadata = {
+  title: "Contact Us | Claspire",
+  description: "Get in touch with the Claspire team. Reach out for support, partnerships, press inquiries, or general questions.",
   alternates: {
     canonical: "https://claspire.in/contact",
+  },
+  openGraph: {
+    title: "Contact Us | Claspire",
+    description: "Get in touch with the Claspire team.",
+    url: "https://claspire.in/contact",
+    type: "website",
   },
 }
 

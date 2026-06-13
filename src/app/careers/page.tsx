@@ -2,8 +2,16 @@ import Link from 'next/link';
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
+  title: "Careers at Claspire — Join Our Team",
+  description: "Join the Claspire team and help build India's largest college senior community platform. We're hiring for engineering, design, and community roles.",
   alternates: {
     canonical: "https://claspire.in/careers",
+  },
+  openGraph: {
+    title: "Careers at Claspire — Join Our Team",
+    description: "Help build India's college senior community platform. We're hiring!",
+    url: "https://claspire.in/careers",
+    type: "website",
   },
 }
 

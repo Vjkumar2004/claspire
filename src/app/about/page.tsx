@@ -2,8 +2,16 @@ import Link from 'next/link';
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
+  title: "About Claspire — India's College Senior Community Platform",
+  description: "Claspire connects college students with verified seniors from their own college for placement guidance, job referrals, and mentorship. Built by students, for students.",
   alternates: {
     canonical: "https://claspire.in/about",
+  },
+  openGraph: {
+    title: "About Claspire — College Senior Community Platform",
+    description: "Built by students, for students. Connect with verified seniors from your college.",
+    url: "https://claspire.in/about",
+    type: "website",
   },
 }
 

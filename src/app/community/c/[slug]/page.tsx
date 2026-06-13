@@ -101,9 +101,11 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
 
   useEffect(() => {
     if (slug) {
-      fetchCommunity()
-      fetchCurrentUser()
-      fetchStudentGroups()
+      Promise.all([
+        fetchCommunity(),
+        fetchCurrentUser(),
+        fetchStudentGroups(),
+      ])
     }
   }, [slug])
 

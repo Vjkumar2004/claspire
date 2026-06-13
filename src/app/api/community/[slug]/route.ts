@@ -276,22 +276,12 @@ export async function GET(
     let userRole = 'guest'
 
     if (currentUser) {
-      // Fetch latest user data from DB to ensure user status is synced
-      const { data: dbUser } = await supabase
-        .from('users')
-        .select('is_verified, role, college_id')
-        .eq('id', currentUser.id)
-        .single()
-
-      const userToUse = dbUser || currentUser
-      const isSenior = userToUse.role === 'senior'
-      const isVerified = userToUse.is_verified
-      const userCollegeId = userToUse.college_id
+      const isSenior = currentUser.role === 'senior'
+      const isVerified = currentUser.is_verified
+      const userCollegeId = currentUser.college_id
 
       isOwnCollege =
         !!resolvedCollegeId && userCollegeId === resolvedCollegeId
-
-      console.log('User permissions refreshed from DB:', { isVerified, isOwnCollege, resolvedCollegeId })
 
       if (isOwnCollege && isVerified && isSenior) {
         userRole = 'own_senior'

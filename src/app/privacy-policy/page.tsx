@@ -1,4 +1,19 @@
 import Link from 'next/link';
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Privacy Policy | Claspire",
+  description: "Claspire's privacy policy explains how we collect, use, and protect your personal information when you use our college community platform.",
+  alternates: {
+    canonical: "https://claspire.in/privacy-policy",
+  },
+  openGraph: {
+    title: "Privacy Policy | Claspire",
+    description: "How Claspire collects, uses, and protects your personal information.",
+    url: "https://claspire.in/privacy-policy",
+    type: "website",
+  },
+}
 
 export default function PrivacyPolicyPage() {
   return (

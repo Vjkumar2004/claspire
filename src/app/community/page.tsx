@@ -41,6 +41,11 @@ interface FeedStateCache {
   expandedContent: Record<string, boolean>
   userId: string | null
   timestamp: number
+  todayPosts?: number
+  todayAnswers?: number
+  todayReferrals?: number
+  todaySeniors?: number
+  campusJobs?: any[]
 }
 
 let communityFeedCache: FeedStateCache | null = null
@@ -240,6 +245,12 @@ function CommunityPageContent() {
 
   // Fetch real campus placement jobs
   useEffect(() => {
+    const validCache = getValidCache()
+    if (validCache?.campusJobs) {
+      setCampusJobs(validCache.campusJobs)
+      return
+    }
+
     const fetchJobs = async () => {
       try {
         const { data, error } = await supabase
@@ -260,6 +271,15 @@ function CommunityPageContent() {
 
   // Fetch community activity metrics
   useEffect(() => {
+    const validCache = getValidCache()
+    if (validCache?.todayPosts !== undefined) {
+      setTodayPosts(validCache.todayPosts)
+      setTodayAnswers(validCache.todayAnswers ?? 0)
+      setTodayReferrals(validCache.todayReferrals ?? 0)
+      setTodaySeniors(validCache.todaySeniors ?? 0)
+      return
+    }
+
     const fetchActivityMetrics = async () => {
       const today = new Date()
       today.setHours(0, 0, 0, 0)
@@ -838,10 +858,15 @@ function CommunityPageContent() {
         postAnswers,
         expandedContent,
         userId: authLoading ? (communityFeedCache?.userId || null) : (user?.id || null),
-        timestamp: communityFeedCache?.timestamp || Date.now()
+        timestamp: communityFeedCache?.timestamp || Date.now(),
+        todayPosts,
+        todayAnswers,
+        todayReferrals,
+        todaySeniors,
+        campusJobs,
       }
     }
-  }, [posts, communities, page, hasMore, filter, feedSearchQuery, votes, recentUpvoters, expandedPost, postAnswers, expandedContent, user?.id, loading, authLoading])
+  }, [posts, communities, page, hasMore, filter, feedSearchQuery, votes, recentUpvoters, expandedPost, postAnswers, expandedContent, user?.id, loading, authLoading, todayPosts, todayAnswers, todayReferrals, todaySeniors, campusJobs])
 
   // Track scroll position
   useEffect(() => {

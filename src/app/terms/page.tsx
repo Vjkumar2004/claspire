@@ -1,4 +1,19 @@
 import Link from 'next/link';
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Terms of Service | Claspire",
+  description: "Claspire's terms of service govern your use of our college senior community platform. By using Claspire, you agree to these terms.",
+  alternates: {
+    canonical: "https://claspire.in/terms",
+  },
+  openGraph: {
+    title: "Terms of Service | Claspire",
+    description: "Terms governing your use of the Claspire platform.",
+    url: "https://claspire.in/terms",
+    type: "website",
+  },
+}
 
 export default function TermsPage() {
   return (

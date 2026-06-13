@@ -69,25 +69,19 @@ export async function GET(req: NextRequest) {
     }
 
     // Stats
-    const { count: totalJobs } = await supabase
-      .from('jobs')
-      .select('*', { count: 'exact', head: true })
-      .eq('is_active', true)
+    const totalJobs = (jobs || []).length
 
     const referralAvailableCount = jobs?.filter(j => j.referral_available).length || 0
 
     const uniqueCompanies = new Set((jobs || []).map(j => j.company_name).filter(Boolean))
     const totalCompanies = uniqueCompanies.size
 
-    const { count: totalApplications } = await supabase
-      .from('referral_requests')
-      .select('*', { count: 'exact', head: true })
-
     // Top referrers (seniors with most referral requests)
     const { data: allReferralRequests } = await supabase
       .from('referral_requests')
       .select('senior_id')
-      .not('senior_id', 'is', null)
+
+    const totalApplications = allReferralRequests?.length || 0
 
     const seniorCounts: Record<string, number> = {}
     allReferralRequests?.forEach(r => {

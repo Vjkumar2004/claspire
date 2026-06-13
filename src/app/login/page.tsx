@@ -225,7 +225,7 @@ export default function LoginPage() {
         </div>
 
         <p className="text-center text-xs text-gray-300 font-medium">
-          © 2024 Claspire · India's College Community
+          © 2026 Claspire · India's College Community
         </p>
       </div>
     </AuthLayout>
