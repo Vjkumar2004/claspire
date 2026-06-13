@@ -257,7 +257,7 @@ export async function POST(req: NextRequest) {
       await supabaseAdmin.from('notifications').insert({
         receiver_id: userId,
         user_id: userId,
-        type: 'post_in_community',
+        type: 'welcome',
         title: 'Welcome to Claspire 🎉',
         message: 'Complete your profile and start building your network.',
         link: '/profile',

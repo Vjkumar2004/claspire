@@ -116,7 +116,7 @@ export async function POST(request: NextRequest) {
     try {
       await createNotification({
         receiver_id: user.id,
-        type: 'post_in_community',
+        type: 'password_changed',
         title: 'Password Updated',
         message: 'Your password was changed successfully.',
         link: '/login'

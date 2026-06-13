@@ -19,6 +19,8 @@ export type NotificationType =
   | 'message_request'
   | 'message_request_accepted'
   | 'message_request_rejected'
+  | 'welcome'
+  | 'password_changed'
 
 interface CreateNotificationParams {
   receiver_id: string
@@ -245,7 +247,6 @@ export async function notifyGroupCreated({
       .select('id, onesignal_player_id')
       .eq('college_id', collegeId)
       .neq('id', creatorId)
-      .eq('role', 'student') // Only notify students
       .not('onesignal_player_id', 'is', null)
 
     if (!collegeUsers?.length) return

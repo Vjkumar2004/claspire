@@ -135,6 +135,28 @@ export async function POST(
       })
       .eq('id', group.id)
 
+    // Notify group creator about new member
+    if (group.created_by && group.created_by !== userId) {
+      try {
+        await createNotification({
+          receiver_id: group.created_by,
+          sender_id: userId,
+          type: 'group_join_request',
+          title: 'New Group Member',
+          message: `${user.full_name || user.name || 'Someone'} joined your group ${group.name}.`,
+          link: `/groups/${group.slug}`
+        })
+        await sendPushToUsers(
+          [group.created_by],
+          'New Group Member',
+          `${user.full_name || user.name || 'Someone'} joined your group ${group.name}.`,
+          `/groups/${group.slug}`
+        )
+      } catch (memberNotifErr) {
+        console.error('New member notification error:', memberNotifErr)
+      }
+    }
+
     return NextResponse.json({ joined: true })
 
   } catch (error) {
