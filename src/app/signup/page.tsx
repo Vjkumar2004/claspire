@@ -138,8 +138,7 @@ export default function SignupPage() {
       sessionStorage.removeItem('google_signup_email')
       sessionStorage.removeItem('google_signup_id')
 
-      localStorage.setItem('claspire_user', JSON.stringify(createData.user))
-      router.push(activeRole === 'senior' ? '/dashboard/senior' : '/dashboard/junior')
+      router.push('/login')
 
     } catch (err) {
       console.error('Verify error:', err)
@@ -543,7 +542,7 @@ export default function SignupPage() {
         return
       }
 
-      router.push(activeRole === 'senior' ? '/dashboard/senior' : '/dashboard/junior')
+      router.push('/login')
 
     } catch (err) {
       console.error('Verify error:', err)

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { Search, Loader2, Users, ChevronRight } from 'lucide-react'
 import PeopleCard from './PeopleCard'
 
@@ -73,21 +73,18 @@ export default function DiscoverTab({ onConnectAction }: DiscoverTabProps) {
 
   const [searchQuery, setSearchQuery] = useState('')
   const [roleFilter, setRoleFilter] = useState('')
-  const [appliedQuery, setAppliedQuery] = useState('')
 
   const peopleRef = useRef<Person[]>([])
 
   const LIMIT = 20
 
-  const fetchPeople = useCallback(async (append: boolean = false, query: string = '', role: string = '') => {
+  const fetchPeople = useCallback(async (append: boolean = false) => {
     if (append) setLoadingMore(true)
     else setLoading(true)
 
     const params = new URLSearchParams()
     params.set('limit', String(LIMIT))
     params.set('offset', append ? String(offset) : '0')
-    if (query) params.set('q', query)
-    if (role) params.set('role', role)
 
     try {
       const res = await fetch(`/api/network/discover?${params.toString()}`)
@@ -129,19 +126,28 @@ export default function DiscoverTab({ onConnectAction }: DiscoverTabProps) {
       setLoading(false)
       return
     }
-    fetchPeople(false, '', '')
+    fetchPeople(false)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const handleSearch = () => {
-    setOffset(0)
-    fetchPeople(false, searchQuery.trim(), roleFilter)
-    setAppliedQuery(searchQuery.trim())
-  }
+  const filteredPeople = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase()
+    return people.filter((p) => {
+      if (roleFilter && p.role?.toLowerCase() !== roleFilter) return false
+      if (!q) return true
+      return (
+        p.full_name?.toLowerCase().includes(q) ||
+        p.unique_id?.toLowerCase().includes(q) ||
+        p.company?.toLowerCase().includes(q) ||
+        p.designation?.toLowerCase().includes(q) ||
+        p.branch?.toLowerCase().includes(q)
+      )
+    })
+  }, [people, searchQuery, roleFilter])
 
   const loadMore = () => {
     if (!hasMore || loadingMore) return
-    fetchPeople(true, appliedQuery, roleFilter)
+    fetchPeople(true)
   }
 
   const handleConnect = async (userId: string): Promise<boolean> => {
@@ -176,7 +182,6 @@ export default function DiscoverTab({ onConnectAction }: DiscoverTabProps) {
             placeholder="Search..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyDown={(e) => { if (e.key === 'Enter') handleSearch() }}
             className="w-full h-10 lg:h-[52px] pl-9 lg:pl-11 pr-8 lg:pr-20 text-xs lg:text-sm border border-gray-200 rounded-xl bg-white text-gray-900 outline-none focus:border-purple-400 focus:ring-[3px] focus:ring-purple-500/15 transition-all duration-200 font-medium placeholder:text-gray-400"
           />
           <div className="hidden lg:flex absolute right-3.5 top-1/2 -translate-y-1/2 items-center gap-1.5 text-[10px] font-semibold text-gray-400 bg-gray-100/80 border border-gray-200/60 rounded-lg px-2 py-1 pointer-events-none">
@@ -189,11 +194,7 @@ export default function DiscoverTab({ onConnectAction }: DiscoverTabProps) {
           {filterChips.map((chip) => (
             <button
               key={chip.value}
-              onClick={() => {
-                setRoleFilter(chip.value)
-                setOffset(0)
-                fetchPeople(false, searchQuery.trim(), chip.value)
-              }}
+              onClick={() => setRoleFilter(chip.value)}
               className={`px-4 py-2.5 text-xs font-semibold rounded-full border transition-all whitespace-nowrap ${
                 roleFilter === chip.value
                   ? 'filter-chip-active'
@@ -226,7 +227,7 @@ export default function DiscoverTab({ onConnectAction }: DiscoverTabProps) {
             </div>
           ))}
         </div>
-      ) : people.length > 0 ? (
+      ) : filteredPeople.length > 0 ? (
         <>
           {/* Section Header */}
           <div className="flex items-center justify-between mb-4 lg:mb-5">
@@ -234,7 +235,7 @@ export default function DiscoverTab({ onConnectAction }: DiscoverTabProps) {
               <h3 className="text-sm lg:text-lg font-bold text-gray-900 flex items-center gap-2">
                 People You May Know
                 <span className="text-[10px] lg:text-xs font-semibold text-gray-400 bg-gray-100 px-2 lg:px-3 py-0.5 lg:py-1 rounded-full">
-                  {total}
+                  {filteredPeople.length}
                 </span>
               </h3>
               <p className="hidden lg:block text-sm text-gray-500 mt-1">Professionals and students relevant to your network</p>
@@ -246,7 +247,7 @@ export default function DiscoverTab({ onConnectAction }: DiscoverTabProps) {
 
           {/* People Grid */}
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-2 2xl:grid-cols-3 gap-3 lg:gap-5">
-            {people.map((person, i) => (
+            {filteredPeople.map((person, i) => (
               <PeopleCard
                 key={person.id}
                 person={person}
@@ -279,14 +280,11 @@ export default function DiscoverTab({ onConnectAction }: DiscoverTabProps) {
           </div>
           <h3 className="text-base font-bold text-gray-900 mb-2">No people found</h3>
           <p className="text-gray-500 text-sm mb-4">Try adjusting your search or filters</p>
-          {appliedQuery && (
+          {(searchQuery || roleFilter) && (
             <button
               onClick={() => {
                 setSearchQuery('')
                 setRoleFilter('')
-                setAppliedQuery('')
-                setOffset(0)
-                fetchPeople(false, '', '')
               }}
               className="text-sm font-bold text-purple-600 hover:underline"
             >

@@ -152,7 +152,6 @@ export async function POST(request: NextRequest) {
       message: 'OTP verified successfully',
     })
   } catch (error) {
-    console.error('Verify OTP error:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

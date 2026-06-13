@@ -8,7 +8,7 @@ import {
   BarChart3, Eye, Trophy, Target, Medal, BookOpen,
   Menu, X, Sparkles, HelpCircle, Star, Zap,
   Award, UserPlus, Circle, CheckCircle,
-  Briefcase, Clock, Share2, Plus, FileText, Camera, Linkedin, Github, Globe,
+  Briefcase, Clock, Share2, Plus, FileText, Camera, Linkedin, Github, Globe, Loader2,
 } from 'lucide-react'
 import AvatarUpload from '@/components/AvatarUpload'
 import StudentProfileEditor from '@/components/profile/StudentProfileEditor'
@@ -31,6 +31,8 @@ export default function ProfilePage() {
   const [success, setSuccess] = useState('')
   const [avatarUrl, setAvatarUrl] = useState('')
   const [profileData, setProfileData] = useState<UserProfileData>({})
+  const [bannerUploading, setBannerUploading] = useState(false)
+  const [bannerError, setBannerError] = useState('')
 
   const [copied, setCopied] = useState(false)
   const [viewCount, setViewCount] = useState(0)
@@ -58,16 +60,38 @@ export default function ProfilePage() {
   const handleBannerUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file || !user) return
+
+    setBannerError('')
+    setBannerUploading(true)
+
+    if (file.size > 5 * 1024 * 1024) {
+      setBannerError('File must be less than 5MB')
+      setBannerUploading(false)
+      return
+    }
+
+    if (!file.type.startsWith('image/')) {
+      setBannerError('Invalid file type. Please upload an image')
+      setBannerUploading(false)
+      return
+    }
+
     const fd = new FormData()
     fd.append('file', file)
     fd.append('type', 'banner')
     try {
       const res = await fetch('/api/upload', { method: 'POST', body: fd })
       const data = await res.json()
-      if (res.ok && data.url) {
+      if (!res.ok) {
+        setBannerError(data.error || 'Upload failed')
+      } else if (data.url) {
         setUser({ ...user, banner_url: data.url })
       }
-    } catch {}
+    } catch {
+      setBannerError('Upload failed. Try again.')
+    } finally {
+      setBannerUploading(false)
+    }
   }
 
   useEffect(() => {
@@ -308,6 +332,16 @@ export default function ProfilePage() {
                 : 'linear-gradient(160deg, #0F172A 0%, #1E1B4B 50%, #0F172A 100%)'
             }}
           />
+          {bannerUploading && (
+            <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-20 backdrop-blur-sm">
+              <Loader2 size={28} color="white" className="animate-spin" />
+            </div>
+          )}
+          {bannerError && (
+            <div className="absolute top-3 left-1/2 -translate-x-1/2 z-30 bg-red-50 border border-red-200 rounded-lg px-3 py-1.5 text-[11px] text-red-600 font-bold whitespace-nowrap shadow-sm">
+              ⚠️ {bannerError}
+            </div>
+          )}
           {/* Edit Banner button */}
           <input ref={bannerFileRef} type="file" accept="image/*" className="hidden" onChange={handleBannerUpload} />
           <button
@@ -415,6 +449,16 @@ export default function ProfilePage() {
                   : 'linear-gradient(160deg, #0F172A 0%, #1E1B4B 50%, #0F172A 100%)'
               }}
             />
+            {bannerUploading && (
+              <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-20 backdrop-blur-sm">
+                <Loader2 size={28} color="white" className="animate-spin" />
+              </div>
+            )}
+            {bannerError && (
+              <div className="absolute top-3 left-1/2 -translate-x-1/2 z-30 bg-red-50 border border-red-200 rounded-lg px-3 py-1.5 text-[11px] text-red-600 font-bold whitespace-nowrap shadow-sm">
+                ⚠️ {bannerError}
+              </div>
+            )}
             <div className="absolute inset-0 z-10">
               <div className="h-full max-w-[1400px] mx-auto px-5 sm:px-8 lg:px-10">
                 <div className="h-full flex items-center gap-6">

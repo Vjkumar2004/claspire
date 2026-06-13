@@ -4,9 +4,14 @@ import bcrypt from 'bcryptjs'
 import { createSessionCookie } from '@/lib/session'
 import { applyRateLimit, getClientIdentifier } from '@/lib/rateLimitRedis'
 
-const supabase = createClient(
+const supabaseAnon = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+)
+
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SECRET_KEY!
 )
 
 export async function POST(req: NextRequest) {
@@ -29,7 +34,7 @@ export async function POST(req: NextRequest) {
 
     // Check OTP was verified (only if NOT signing up with Google)
     if (!google_id) {
-      const { data: otpData, error: otpError } = await supabase
+      const { data: otpData, error: otpError } = await supabaseAnon
         .from('otp_store')
         .select('*')
         .eq('email', email)
@@ -45,7 +50,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Check user already exists
-    const { data: existingUser } = await supabase
+    const { data: existingUser } = await supabaseAdmin
       .from('users')
       .select('id')
       .eq('email', email)
@@ -94,7 +99,7 @@ export async function POST(req: NextRequest) {
     console.log('Creating user with college_id:', collegeId, '-> safeCollegeId:', safeCollegeId)
 
     // Insert user
-    const { data: user, error: userError } = await supabase
+    const { data: user, error: userError } = await supabaseAdmin
       .from('users')
       .insert({
         id: userId,
@@ -125,14 +130,14 @@ export async function POST(req: NextRequest) {
     }
 
     // Log rise points
-    await supabase.from('rise_points_log').insert({
+    await supabaseAnon.from('rise_points_log').insert({
       user_id: userId,
       points: 50,
       reason: 'Joined Claspire 🎉'
     })
 
     // Give join bonus +1 RP
-    await supabase
+    await supabaseAnon
       .from('rise_points_log')
       .insert({
         user_id: userId,
@@ -143,7 +148,7 @@ export async function POST(req: NextRequest) {
 
     // Update rise_points to 51
     // (50 default + 1 join bonus)
-    await supabase
+    await supabaseAdmin
       .from('users')
       .update({
         rise_points: 51,
@@ -155,7 +160,7 @@ export async function POST(req: NextRequest) {
     // Auto-join own college community
     if (safeCollegeId) {
       // Get community id
-      const { data: comm } = await supabase
+      const { data: comm } = await supabaseAnon
         .from('communities')
         .select('id, member_count, senior_count')
         .eq('college_id', safeCollegeId)
@@ -163,7 +168,7 @@ export async function POST(req: NextRequest) {
 
       if (comm) {
         // Check if already a member
-        const { data: existingMember } = await supabase
+        const { data: existingMember } = await supabaseAnon
           .from('community_members')
           .select('id')
           .eq('community_id', comm.id)
@@ -173,7 +178,7 @@ export async function POST(req: NextRequest) {
         // Only insert if not already a member
         if (!existingMember) {
           // Insert member
-          await supabase
+          await supabaseAnon
             .from('community_members')
             .insert({
               community_id: comm.id,
@@ -189,7 +194,7 @@ export async function POST(req: NextRequest) {
             ? (comm.senior_count || 0) + 1
             : comm.senior_count || 0
 
-          await supabase
+          await supabaseAnon
             .from('communities')
             .update({
               member_count: newMemberCount,
@@ -224,7 +229,7 @@ export async function POST(req: NextRequest) {
     console.log('User data being stored:', userData)
 
     // Clean up OTP
-    await supabase
+    await supabaseAnon
       .from('otp_store')
       .delete()
       .eq('email', email)

@@ -392,13 +392,14 @@ export default function SeniorDashboardPage() {
                 </span>
               )}
             </div>
-            <div
+            <button
+              type="button"
               onClick={() => setJobModalOpen(true)}
-              className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors"
+              className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors"
             >
               <Briefcase size={16} className="flex-shrink-0" />
               <span>Post a Job</span>
-            </div>
+            </button>
             <div
               onClick={() => {
                 setActiveNav("jobs")
@@ -656,6 +657,7 @@ export default function SeniorDashboardPage() {
                 <p className="text-xs text-gray-400 mt-1">Manage your job openings and referral opportunities.</p>
               </div>
               <button
+                type="button"
                 onClick={() => setJobModalOpen(true)}
                 className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-cyan-500 text-white rounded-xl text-xs font-black hover:shadow-lg transition-all"
               >
@@ -712,6 +714,7 @@ export default function SeniorDashboardPage() {
                   <h3 className="text-lg font-bold text-gray-900 mb-2">No Jobs Posted Yet</h3>
                   <p className="text-sm text-gray-500 mb-6">Post your first job opening to help students get referred.</p>
                   <button
+                    type="button"
                     onClick={() => setJobModalOpen(true)}
                     className="inline-flex items-center gap-2 px-5 py-2.5 bg-gray-900 text-white rounded-xl text-sm font-bold hover:bg-black transition-colors"
                   >
@@ -994,6 +997,9 @@ export default function SeniorDashboardPage() {
         {/* My Student Groups */}
         <MyGroupsList />
         
+      </div>
+    )}
+    
         {/* Job Posting Modal */}
         {jobModalOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
@@ -1216,8 +1222,6 @@ export default function SeniorDashboardPage() {
                 </div>
               </div>
             </div>
-          </div>
-        )}
           </div>
         )}
       </div>
