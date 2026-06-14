@@ -940,7 +940,9 @@ export default function JuniorDashboard() {
                     </button>
                     <button onClick={async () => {
                       try { await fetch('/api/auth/signout', { method: 'POST' }); } catch(e) {}
+                      sessionStorage.clear();
                       localStorage.removeItem('claspire_user');
+                      localStorage.removeItem('claspire_recent_searches');
                       router.push('/login');
                     }} className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-bold text-red-400 hover:bg-red-500/10 transition-all group cursor-pointer">
                       <div className="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center group-hover:scale-105 transition-transform">

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { MessageSquare, Clock, CheckCircle, XCircle, Loader2 } from 'lucide-react'
+import { useAuth } from '@/hooks/useAuth'
 
 interface MessageRequestButtonProps {
   seniorId: string
@@ -11,24 +12,30 @@ interface MessageRequestButtonProps {
 
 type RequestStatus = 'loading' | 'none' | 'pending' | 'accepted' | 'declined'
 
-const STORAGE_KEY_PREFIX = 'msg_req_status_'
+function storageKey(userId: string, seniorId: string) {
+  return `msg_req_status_${userId}_${seniorId}`
+}
 
 export default function MessageRequestButton({ seniorId, seniorName }: MessageRequestButtonProps) {
+  const { user } = useAuth()
+  const userId = user?.id
   const [status, setStatus] = useState<RequestStatus>('loading')
   const [sending, setSending] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
+    if (!userId) return
     // Load cached status immediately to avoid flash
-    const cached = localStorage.getItem(`${STORAGE_KEY_PREFIX}${seniorId}`)
+    const cached = localStorage.getItem(storageKey(userId, seniorId))
     if (cached && cached !== 'none') {
       setStatus(cached as RequestStatus)
     }
     // Always verify with server
     checkRequestStatus()
-  }, [seniorId])
+  }, [seniorId, userId])
 
   const checkRequestStatus = async () => {
+    if (!userId) return
     try {
       const res = await fetch(`/api/message-requests/status?senior_id=${seniorId}`)
       if (res.ok) {
@@ -36,10 +43,10 @@ export default function MessageRequestButton({ seniorId, seniorName }: MessageRe
         const serverStatus = data.status as RequestStatus
         setStatus(serverStatus)
         // Persist to localStorage so page reloads don't flash Connect
-        localStorage.setItem(`${STORAGE_KEY_PREFIX}${seniorId}`, serverStatus)
+        localStorage.setItem(storageKey(userId, seniorId), serverStatus)
       } else {
         // If API fails, fall back to cached value rather than 'none'
-        const cached = localStorage.getItem(`${STORAGE_KEY_PREFIX}${seniorId}`)
+        const cached = localStorage.getItem(storageKey(userId, seniorId))
         if (cached) {
           setStatus(cached as RequestStatus)
         } else {
@@ -48,7 +55,7 @@ export default function MessageRequestButton({ seniorId, seniorName }: MessageRe
       }
     } catch (error) {
       console.error('Failed to check request status:', error)
-      const cached = localStorage.getItem(`${STORAGE_KEY_PREFIX}${seniorId}`)
+      const cached = localStorage.getItem(storageKey(userId, seniorId))
       if (cached) {
         setStatus(cached as RequestStatus)
       } else {
@@ -58,7 +65,7 @@ export default function MessageRequestButton({ seniorId, seniorName }: MessageRe
   }
 
   const handleSendRequest = async () => {
-    if (sending || status !== 'none') return
+    if (!userId || sending || status !== 'none') return
 
     setSending(true)
     try {
@@ -72,12 +79,12 @@ export default function MessageRequestButton({ seniorId, seniorName }: MessageRe
 
       if (res.ok && data.success) {
         setStatus('pending')
-        localStorage.setItem(`${STORAGE_KEY_PREFIX}${seniorId}`, 'pending')
+        localStorage.setItem(storageKey(userId, seniorId), 'pending')
       } else {
         if (data.error === 'already_requested') {
           const s = data.status as RequestStatus
           setStatus(s)
-          localStorage.setItem(`${STORAGE_KEY_PREFIX}${seniorId}`, s)
+          localStorage.setItem(storageKey(userId, seniorId), s)
         } else {
           alert(data.error || 'Failed to send request')
         }

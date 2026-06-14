@@ -138,7 +138,12 @@ export default function SignupPage() {
       sessionStorage.removeItem('google_signup_email')
       sessionStorage.removeItem('google_signup_id')
 
-      router.push('/login')
+      localStorage.setItem('claspire_user', JSON.stringify(createData.user))
+      if (createData.user?.role === 'senior') {
+        router.push('/dashboard/senior')
+      } else {
+        router.push('/dashboard/junior')
+      }
 
     } catch (err) {
       console.error('Verify error:', err)
@@ -542,7 +547,12 @@ export default function SignupPage() {
         return
       }
 
-      router.push('/login')
+      localStorage.setItem('claspire_user', JSON.stringify(createData.user))
+      if (createData.user?.role === 'senior') {
+        router.push('/dashboard/senior')
+      } else {
+        router.push('/dashboard/junior')
+      }
 
     } catch (err) {
       console.error('Verify error:', err)

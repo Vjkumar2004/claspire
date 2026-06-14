@@ -12,7 +12,9 @@ interface SeniorMessageRequestButtonProps {
 
 type RequestStatus = 'loading' | 'none' | 'pending' | 'accepted' | 'declined'
 
-const STORAGE_KEY_PREFIX = 'senior_req_status_'
+function storageKey(userId: string, targetSeniorId: string) {
+  return `senior_req_status_${userId}_${targetSeniorId}`
+}
 
 export default function SeniorMessageRequestButton({ targetSeniorId, targetSeniorName }: SeniorMessageRequestButtonProps) {
   const [status, setStatus] = useState<RequestStatus>('loading')
@@ -21,6 +23,7 @@ export default function SeniorMessageRequestButton({ targetSeniorId, targetSenio
   const [message, setMessage] = useState('')
   const router = useRouter()
   const { user } = useAuth()
+  const userId = user?.id
 
   useEffect(() => {
     checkRequestStatus()
@@ -28,9 +31,10 @@ export default function SeniorMessageRequestButton({ targetSeniorId, targetSenio
     const onFocus = () => checkRequestStatus()
     window.addEventListener('focus', onFocus)
     return () => window.removeEventListener('focus', onFocus)
-  }, [targetSeniorId])
+  }, [targetSeniorId, userId])
 
   const checkRequestStatus = async () => {
+    if (!userId) return
     try {
       const res = await fetch(
         `/api/senior-message-requests/status?receiver_id=${targetSeniorId}`,
@@ -40,22 +44,22 @@ export default function SeniorMessageRequestButton({ targetSeniorId, targetSenio
         const data = await res.json()
         const serverStatus = data.status as RequestStatus
         setStatus(serverStatus)
-        localStorage.setItem(`${STORAGE_KEY_PREFIX}${targetSeniorId}`, serverStatus)
+        localStorage.setItem(storageKey(userId, targetSeniorId), serverStatus)
       } else {
-        const cached = localStorage.getItem(`${STORAGE_KEY_PREFIX}${targetSeniorId}`)
+        const cached = localStorage.getItem(storageKey(userId, targetSeniorId))
         if (cached) setStatus(cached as RequestStatus)
         else setStatus('none')
       }
     } catch (error) {
       console.error('Failed to check request status:', error)
-      const cached = localStorage.getItem(`${STORAGE_KEY_PREFIX}${targetSeniorId}`)
+      const cached = localStorage.getItem(storageKey(userId, targetSeniorId))
       if (cached) setStatus(cached as RequestStatus)
       else setStatus('none')
     }
   }
 
   const handleSendRequest = async () => {
-    if (sending || status !== 'none' || !message.trim()) return
+    if (!userId || sending || status !== 'none' || !message.trim()) return
 
     setSending(true)
     try {
@@ -72,7 +76,7 @@ export default function SeniorMessageRequestButton({ targetSeniorId, targetSenio
       
       if (res.ok && data.success) {
         setStatus('pending')
-        localStorage.setItem(`${STORAGE_KEY_PREFIX}${targetSeniorId}`, 'pending')
+        localStorage.setItem(storageKey(userId, targetSeniorId), 'pending')
         setShowModal(false)
         setMessage('')
         alert('Connection request sent successfully! 🎯')
@@ -80,7 +84,7 @@ export default function SeniorMessageRequestButton({ targetSeniorId, targetSenio
         if (data.error === 'already_requested') {
           const s = data.status as RequestStatus
           setStatus(s)
-          localStorage.setItem(`${STORAGE_KEY_PREFIX}${targetSeniorId}`, s)
+          localStorage.setItem(storageKey(userId, targetSeniorId), s)
         } else {
           alert(data.error || 'Failed to send request')
         }

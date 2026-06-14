@@ -281,8 +281,6 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
 
   const handlePostSuccess = () => {
     fetchCommunity()
-    // Set flag to refresh profile page if user came from there
-    localStorage.setItem('profile_refresh_needed', 'true')
   }
 
   // No auto-open effect here anymore

@@ -20,13 +20,14 @@ export function getRedisClient(): Redis {
     const token = process.env.UPSTASH_REDIS_REST_TOKEN
 
     if (!url || !token) {
-      console.warn('WARNING: Upstash Redis credentials not configured. Rate limiting will be disabled.')
-      throw new Error('Upstash Redis not configured')
+      console.warn('WARNING: Upstash Redis credentials not configured. Redis features (rate limiting, presence, push throttling) will be disabled.')
     }
 
+    // Always create a client, even without credentials, so getRedisClient() never throws
+    // Redis operations will fail with network errors which callers should catch gracefully
     redis = new Redis({
-      url,
-      token,
+      url: url || 'http://redis-not-configured.local',
+      token: token || 'placeholder',
     })
   }
 

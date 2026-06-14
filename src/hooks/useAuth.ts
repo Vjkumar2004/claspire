@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { usePoints } from '@/contexts/PointsContext'
 import { setAccessTokenProvider } from '@/lib/supabase'
+import { useQueryClient } from '@tanstack/react-query'
 
 interface User {
   id: string
@@ -90,6 +91,7 @@ export function useAuth() {
   const [loading, setLoading] = useState(globalLoading)
   const router = useRouter()
   const { showAward } = usePoints()
+  const queryClient = useQueryClient()
 
   useEffect(() => {
     const handleChange = () => {
@@ -116,6 +118,12 @@ export function useAuth() {
     globalUser = null
     globalLoading = false
     notifySubscribers()
+    queryClient.clear()
+    if (typeof window !== 'undefined') {
+      sessionStorage.clear()
+      localStorage.removeItem('claspire_user')
+      localStorage.removeItem('claspire_recent_searches')
+    }
     router.push('/')
   }
 

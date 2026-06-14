@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { Search, Loader2, Users, ChevronRight } from 'lucide-react'
+import { useAuth } from '@/hooks/useAuth'
 import PeopleCard from './PeopleCard'
 
 interface Person {
@@ -34,17 +35,20 @@ interface DiscoverCache {
   fetchedAt: number
 }
 
-const CACHE_KEY = 'network_discover_cache'
 const CACHE_TTL = 300000
 
-function getDiscoverCache(): DiscoverCache | null {
+function getCacheKey(userId: string): string {
+  return `network_discover_cache_${userId}`
+}
+
+function getDiscoverCache(userId: string): DiscoverCache | null {
   if (typeof window === 'undefined') return null
   try {
-    const raw = sessionStorage.getItem(CACHE_KEY)
+    const raw = sessionStorage.getItem(getCacheKey(userId))
     if (!raw) return null
     const cache: DiscoverCache = JSON.parse(raw)
     if (Date.now() - cache.fetchedAt > CACHE_TTL) {
-      sessionStorage.removeItem(CACHE_KEY)
+      sessionStorage.removeItem(getCacheKey(userId))
       return null
     }
     return cache
@@ -53,9 +57,9 @@ function getDiscoverCache(): DiscoverCache | null {
   }
 }
 
-function setDiscoverCache(data: DiscoverCache): void {
+function setDiscoverCache(userId: string, data: DiscoverCache): void {
   try {
-    sessionStorage.setItem(CACHE_KEY, JSON.stringify(data))
+    sessionStorage.setItem(getCacheKey(userId), JSON.stringify(data))
   } catch {}
 }
 
@@ -64,6 +68,9 @@ interface DiscoverTabProps {
 }
 
 export default function DiscoverTab({ onConnectAction }: DiscoverTabProps) {
+  const { user } = useAuth()
+  const userId = user?.id
+
   const [people, setPeople] = useState<Person[]>([])
   const [loading, setLoading] = useState(true)
   const [loadingMore, setLoadingMore] = useState(false)
@@ -79,6 +86,7 @@ export default function DiscoverTab({ onConnectAction }: DiscoverTabProps) {
   const LIMIT = 20
 
   const fetchPeople = useCallback(async (append: boolean = false) => {
+    if (!userId) return
     if (append) setLoadingMore(true)
     else setLoading(true)
 
@@ -102,7 +110,7 @@ export default function DiscoverTab({ onConnectAction }: DiscoverTabProps) {
       setHasMore(newHasMore)
       setOffset(newOffset)
 
-      setDiscoverCache({
+      setDiscoverCache(userId, {
         people: updatedPeople,
         total: newTotal,
         hasMore: newHasMore,
@@ -113,10 +121,11 @@ export default function DiscoverTab({ onConnectAction }: DiscoverTabProps) {
       setLoading(false)
       setLoadingMore(false)
     }
-  }, [offset])
+  }, [offset, userId])
 
   useEffect(() => {
-    const cached = getDiscoverCache()
+    if (!userId) return
+    const cached = getDiscoverCache(userId)
     if (cached) {
       peopleRef.current = cached.people
       setPeople(cached.people)
@@ -128,7 +137,7 @@ export default function DiscoverTab({ onConnectAction }: DiscoverTabProps) {
     }
     fetchPeople(false)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [userId])
 
   const filteredPeople = useMemo(() => {
     const q = searchQuery.trim().toLowerCase()
@@ -150,15 +159,15 @@ export default function DiscoverTab({ onConnectAction }: DiscoverTabProps) {
     fetchPeople(true)
   }
 
-  const handleConnect = async (userId: string): Promise<boolean> => {
-    const ok = await onConnectAction(userId)
-    if (ok) {
+  const handleConnect = async (targetUserId: string): Promise<boolean> => {
+    const ok = await onConnectAction(targetUserId)
+    if (ok && userId) {
       const updated = peopleRef.current.map((p) =>
-        p.id === userId ? { ...p, connectionStatus: 'pending_sent' } : p
+        p.id === targetUserId ? { ...p, connectionStatus: 'pending_sent' } : p
       )
       peopleRef.current = updated
       setPeople(updated)
-      setDiscoverCache({ people: updated, total, hasMore, offset, fetchedAt: Date.now() })
+      setDiscoverCache(userId, { people: updated, total, hasMore, offset, fetchedAt: Date.now() })
     }
     return ok
   }
