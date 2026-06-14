@@ -9,8 +9,8 @@ export default function CollegeNotFound() {
           <GraduationCap className="w-10 h-10 text-purple-600" />
         </div>
         
-        <h1 className="text-3xl font-bold text-gray-900 mb-4">College Not Found</h1>
-        <p className="text-gray-600 mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">College Not Found</h1>
+        <p className="text-gray-600 dark:text-[#B0B7BE] mb-8">
           The college community you're looking for doesn't exist or hasn't been added to Claspire yet.
         </p>
 
@@ -23,7 +23,7 @@ export default function CollegeNotFound() {
             Browse All Colleges
           </Link>
           
-          <div className="text-sm text-gray-500">
+          <div className="text-sm text-gray-500 dark:text-[#B0B7BE]">
             Or{' '}
             <Link 
               href="/signup" 
@@ -35,8 +35,8 @@ export default function CollegeNotFound() {
           </div>
         </div>
 
-        <div className="mt-12 p-4 bg-white rounded-xl border border-gray-200">
-          <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
+        <div className="mt-12 p-4 bg-white dark:bg-[#283036] rounded-xl border border-gray-200 dark:border-[#38434F]">
+          <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-[#B0B7BE] mb-2">
             <Search className="w-4 h-4" />
             <span className="font-medium">Popular Colleges</span>
           </div>
@@ -45,7 +45,7 @@ export default function CollegeNotFound() {
               <Link
                 key={college}
                 href={`/colleges/${college.toLowerCase().replace(/\s+/g, '')}`}
-                className="text-xs bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-full transition-colors"
+                className="text-xs bg-gray-100 dark:bg-[#283036] hover:bg-gray-200 dark:hover:bg-[#1D2226] px-3 py-1 rounded-full transition-colors"
               >
                 {college}
               </Link>

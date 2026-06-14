@@ -423,10 +423,10 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-[#F5F4FF] to-white flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-b from-[#F5F4FF] to-white dark:to-[#1D2226] flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="w-10 h-10 border-[3px] border-purple-100 border-t-[#7C3AED] rounded-full animate-spin" />
-          <p className="text-sm text-slate-400 font-semibold">Loading post...</p>
+          <p className="text-sm text-slate-400 dark:text-[#B0B7BE] font-semibold">Loading post...</p>
         </div>
       </div>
     )
@@ -446,7 +446,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
       key={answer.id}
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`${isReply ? 'py-3 border-b border-slate-100 last:border-b-0' : 'bg-white rounded-xl border border-slate-200 p-4 mb-3 shadow-sm'} ${
+      className={`${isReply ? 'py-3 border-b border-slate-100 dark:border-[#38434F] last:border-b-0' : 'bg-white dark:bg-[#283036] rounded-xl border border-slate-200 dark:border-[#38434F] dark:border-[#38434F] p-4 mb-3 shadow-sm'} ${
         answer.is_accepted && !isReply ? 'border-emerald-200 bg-emerald-50/30' : ''
       }`}
     >
@@ -473,7 +473,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
           <div className="flex items-center gap-2 flex-wrap mb-1">
             <button
               onClick={() => router.push(`/u/${answer.users?.unique_id}`)}
-              className="text-sm font-bold text-slate-900 hover:text-[#7C3AED] transition-colors"
+              className="text-sm font-bold text-slate-900 dark:text-white hover:text-[#7C3AED] transition-colors"
             >
               {answer.users?.full_name}
             </button>
@@ -482,10 +482,10 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
                 Senior
               </span>
             )}
-            <span className="text-[10px] text-slate-400 font-medium">{timeAgo(answer.created_at)}</span>
+            <span className="text-[10px] text-slate-400 dark:text-[#B0B7BE] font-medium">{timeAgo(answer.created_at)}</span>
           </div>
 
-          <div className={`text-sm text-slate-600 leading-relaxed ${isReply ? '' : ''}`}>
+          <div className={`text-sm text-slate-600 dark:text-[#B0B7BE] leading-relaxed ${isReply ? '' : ''}`}>
             {convertUrlsToLinks(answer.content)}
           </div>
 
@@ -496,7 +496,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
                   setReplyToAnswerId(replyToAnswerId === answer.id ? null : answer.id)
                   if (replyToAnswerId !== answer.id) setNewAnswer('')
                 }}
-                className="text-xs font-bold text-slate-400 hover:text-[#7C3AED] transition-colors"
+                className="text-xs font-bold text-slate-400 dark:text-[#B0B7BE] hover:text-[#7C3AED] transition-colors"
               >
                 Reply
               </button>
@@ -516,7 +516,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
       </div>
 
       {!isReply && expandedReplies[answer.id] && replies.filter((r: any) => r.parent_answer_id === answer.id).length > 0 && (
-        <div className="mt-3 ml-4 pl-4 border-l-2 border-slate-100">
+        <div className="mt-3 ml-4 pl-4 border-l-2 border-slate-100 dark:border-[#38434F]">
           {replies.filter((r: any) => r.parent_answer_id === answer.id).map((reply: any) => renderAnswer(reply, true))}
         </div>
       )}
@@ -524,13 +524,13 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
   )
 
   const sidebarCardClass =
-    'bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden'
+    'bg-white dark:bg-[#283036] rounded-2xl border border-slate-200 dark:border-[#38434F] dark:border-[#38434F] shadow-sm overflow-hidden'
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#F5F4FF] via-white to-slate-50">
+    <div className="min-h-screen bg-gradient-to-b from-[#F5F4FF] via-white dark:via-[#283036] to-slate-50 dark:to-[#1D2226]">
       {/* Breadcrumb */}
-      <div className="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-purple-100/60">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center gap-2 text-xs font-semibold text-slate-400">
+      <div className="sticky top-0 z-20 bg-white/80 dark:bg-[#283036]/80 backdrop-blur-md border-b border-purple-100/60">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center gap-2 text-xs font-semibold text-slate-400 dark:text-[#B0B7BE]">
           <button onClick={() => router.push('/community')} className="text-[#7C3AED] hover:underline">
             Community
           </button>
@@ -539,14 +539,14 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
             c/{slug}
           </button>
           <ChevronRight className="w-3 h-3 shrink-0" />
-          <span className="text-slate-500 truncate">{post.title}</span>
+          <span className="text-slate-500 dark:text-[#B0B7BE] truncate">{post.title}</span>
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 pb-28">
         <button
           onClick={() => router.back()}
-          className="inline-flex items-center gap-2 text-sm font-bold text-[#7C3AED] bg-white border border-purple-100 rounded-xl px-4 py-2 mb-6 hover:bg-purple-50 transition-colors shadow-sm"
+          className="inline-flex items-center gap-2 text-sm font-bold text-[#7C3AED] bg-white dark:bg-[#283036] border border-purple-100 rounded-xl px-4 py-2 mb-6 hover:bg-purple-50 transition-colors shadow-sm"
         >
           <ArrowLeft className="w-4 h-4" />
           Back
@@ -560,7 +560,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
-              className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden"
+              className="bg-white dark:bg-[#283036] rounded-2xl border border-slate-200 dark:border-[#38434F] dark:border-[#38434F] shadow-sm overflow-hidden"
             >
               <div className="h-1.5 bg-gradient-to-r from-[#7C3AED] via-violet-400 to-cyan-400" />
 
@@ -582,7 +582,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
                       <div className="flex items-center gap-2 flex-wrap">
                         <button
                           onClick={() => router.push(`/u/${post.users?.unique_id}`)}
-                          className="font-bold text-slate-900 hover:text-[#7C3AED] transition-colors text-sm"
+                          className="font-bold text-slate-900 dark:text-white hover:text-[#7C3AED] transition-colors text-sm"
                         >
                           {post.users?.full_name}
                         </button>
@@ -601,14 +601,14 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
                           )}
                         </span>
                       </div>
-                      <div className="flex items-center gap-2 mt-0.5 flex-wrap text-[10px] text-slate-400 font-semibold">
+                      <div className="flex items-center gap-2 mt-0.5 flex-wrap text-[10px] text-slate-400 dark:text-[#B0B7BE] font-semibold">
                         <span className="flex items-center gap-1">
                           <Clock className="w-3 h-3" />
                           {timeAgo(post.created_at)}
                         </span>
                         {/* Community/college on mobile only */}
                         <span className="lg:hidden flex items-center gap-2">
-                          <span className="text-slate-300">•</span>
+                          <span className="text-slate-300 dark:text-[#B0B7BE]">•</span>
                           <button
                             onClick={() => router.push(`/community/c/${slug}`)}
                             className="text-[#7C3AED] bg-purple-50 px-2 py-0.5 rounded-full hover:bg-purple-100 transition-colors"
@@ -617,7 +617,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
                           </button>
                           {collegeName && (
                             <>
-                              <span className="text-slate-300">•</span>
+                              <span className="text-slate-300 dark:text-[#B0B7BE]">•</span>
                               <span className="flex items-center gap-1">
                                 <GraduationCap className="w-3 h-3" />
                                 {collegeName}
@@ -638,11 +638,11 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
                   </span>
                 </div>
 
-                <h1 className="text-xl sm:text-2xl lg:text-[1.65rem] font-extrabold text-slate-950 leading-snug tracking-tight mb-4">
+                <h1 className="text-xl sm:text-2xl lg:text-[1.65rem] font-extrabold text-slate-950 dark:text-white leading-snug tracking-tight mb-4">
                   {post.title}
                 </h1>
 
-                <div className="text-sm sm:text-[15px] text-slate-600 leading-relaxed mb-5 whitespace-pre-wrap">
+                <div className="text-sm sm:text-[15px] text-slate-600 dark:text-[#B0B7BE] leading-relaxed mb-5 whitespace-pre-wrap">
                   {convertUrlsToLinks(post.content)}
                 </div>
 
@@ -670,7 +670,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
                       {recentUpvoters.slice(0, 3).map((upvoter, i) => (
                         <div
                           key={upvoter.id}
-                          className="w-7 h-7 rounded-full border-2 border-white bg-slate-100 flex items-center justify-center text-[9px] font-black text-slate-600 overflow-hidden"
+                          className="w-7 h-7 rounded-full border-2 border-white dark:border-[#38434F] bg-slate-100 dark:bg-[#283036] dark:bg-[#283036] flex items-center justify-center text-[9px] font-black text-slate-600 dark:text-[#B0B7BE] overflow-hidden"
                           style={{ zIndex: 3 - i }}
                         >
                           {upvoter.avatar_url ? (
@@ -681,14 +681,14 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
                         </div>
                       ))}
                     </div>
-                    <span className="text-xs text-slate-500 font-semibold group-hover:text-[#7C3AED] transition-colors">
+                    <span className="text-xs text-slate-500 dark:text-[#B0B7BE] font-semibold group-hover:text-[#7C3AED] transition-colors">
                       {formatCount(post.upvote_count || 0)} appreciation{(post.upvote_count || 0) !== 1 ? 's' : ''} — tap to see who
                     </span>
                   </button>
                 )}
 
                 {/* Interactive engagement row */}
-                <div className="flex flex-wrap items-center gap-2 pt-4 border-t border-slate-100">
+                <div className="flex flex-wrap items-center gap-2 pt-4 border-t border-slate-100 dark:border-[#38434F]">
                 {/* Appreciation button */}
                 <button
                   onClick={() => handleVote('upvote')}
@@ -696,7 +696,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                     userVote === 'upvote'
                       ? 'bg-purple-100 text-[#7C3AED] shadow-sm'
-                      : 'hover:bg-slate-100 text-slate-500'
+                      : 'hover:bg-slate-100 dark:hover:bg-[#1D2226] dark:bg-[#283036] text-slate-500 dark:text-[#B0B7BE]'
                   } ${voteLoading ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}
                 >
                   <Zap className="w-3.5 h-3.5" />
@@ -708,7 +708,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
                     className={`lg:hidden flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border ${
                       post.is_answered
                         ? 'bg-emerald-50 text-emerald-600 border-emerald-200'
-                        : 'bg-slate-50 text-slate-500 border-slate-200'
+                        : 'bg-slate-50 dark:bg-[#1D2226] text-slate-500 dark:text-[#B0B7BE] border-slate-200 dark:border-[#38434F]'
                     }`}
                   >
                     <MessageCircle className="w-3.5 h-3.5" />
@@ -716,14 +716,14 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
                     {post.is_answered && <CheckCircle className="w-3 h-3" />}
                   </div>
 
-                  <div className="lg:hidden flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-slate-50 text-slate-500 border border-slate-200">
+                  <div className="lg:hidden flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-slate-50 dark:bg-[#1D2226] text-slate-500 dark:text-[#B0B7BE] border border-slate-200 dark:border-[#38434F]">
                     <Eye className="w-3.5 h-3.5" />
                     {formatCount(viewCount)} {viewCount === 1 ? 'view' : 'views'}
                   </div>
 
                   <button
                     onClick={handleShare}
-                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-slate-50 text-slate-500 border border-slate-200 hover:bg-purple-50 hover:text-[#7C3AED] hover:border-purple-200 transition-colors ml-auto"
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-slate-50 dark:bg-[#1D2226] text-slate-500 dark:text-[#B0B7BE] border border-slate-200 dark:border-[#38434F] hover:bg-purple-50 hover:text-[#7C3AED] hover:border-purple-200 transition-colors ml-auto"
                   >
                     <Share2 className="w-3.5 h-3.5" />
                     Share
@@ -734,19 +734,19 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
 
             {/* Discussion */}
             <section>
-              <h2 className="text-base font-extrabold text-slate-900 flex items-center gap-2 mb-4">
+              <h2 className="text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2 mb-4">
                 <MessageCircle className="w-4 h-4 text-[#7C3AED]" />
                 Discussion
-                <span className="text-sm font-bold text-slate-400">({answers.length})</span>
+                <span className="text-sm font-bold text-slate-400 dark:text-[#B0B7BE]">({answers.length})</span>
               </h2>
 
               {answers.length === 0 ? (
-                <div className="bg-white rounded-2xl border border-dashed border-slate-200 p-10 text-center">
+                <div className="bg-white dark:bg-[#283036] rounded-2xl border border-slate-200 dark:border-[#38434F] dark:border-[#38434F] p-10 text-center">
                   <div className="w-12 h-12 rounded-full bg-purple-50 flex items-center justify-center mx-auto mb-3">
                     <Sparkles className="w-5 h-5 text-[#7C3AED]" />
                   </div>
-                  <p className="text-sm font-bold text-slate-600 mb-1">No answers yet</p>
-                  <p className="text-xs text-slate-400">Be the first to help — share your experience!</p>
+                  <p className="text-sm font-bold text-slate-600 dark:text-[#B0B7BE] mb-1">No answers yet</p>
+                  <p className="text-xs text-slate-400 dark:text-[#B0B7BE]">Be the first to help — share your experience!</p>
                 </div>
               ) : (
                 topLevelAnswers.map((answer: any) => renderAnswer(answer, false))
@@ -755,30 +755,30 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
 
             {/* Answer composer */}
             {currentUser ? (
-              <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm sticky bottom-4">
+              <div className="bg-white dark:bg-[#283036] rounded-2xl border border-slate-200 dark:border-[#38434F] dark:border-[#38434F] p-5 shadow-sm sticky bottom-4">
                 {replyToAnswerId ? (
-                  <div className="flex items-center justify-between mb-3 bg-slate-50 px-3 py-2 rounded-lg">
-                    <span className="text-xs text-slate-500 font-medium">
+                  <div className="flex items-center justify-between mb-3 bg-slate-50 dark:bg-[#1D2226] px-3 py-2 rounded-lg">
+                    <span className="text-xs text-slate-500 dark:text-[#B0B7BE] font-medium">
                       Replying to{' '}
-                      <span className="font-bold text-slate-800">
+                      <span className="font-bold text-slate-800 dark:text-white">
                         {answers.find((a) => a.id === replyToAnswerId)?.users?.full_name}
                       </span>
                     </span>
                     <button
                       onClick={() => setReplyToAnswerId(null)}
-                      className="text-xs font-bold text-slate-400 hover:text-slate-600"
+                      className="text-xs font-bold text-slate-400 dark:text-[#B0B7BE] hover:text-slate-600 dark:text-[#B0B7BE]"
                     >
                       Cancel
                     </button>
                   </div>
                 ) : (
-                  <p className="text-sm font-bold text-slate-800 mb-3">Your Answer</p>
+                  <p className="text-sm font-bold text-slate-800 dark:text-white mb-3">Your Answer</p>
                 )}
                 <textarea
                   value={newAnswer}
                   onChange={(e) => setNewAnswer(e.target.value)}
                   placeholder={replyToAnswerId ? 'Write your reply...' : 'Write your answer here...'}
-                  className="w-full min-h-[80px] p-3 rounded-xl border border-slate-200 text-sm text-slate-700 outline-none resize-y focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 transition-all"
+                  className="w-full min-h-[80px] p-3 rounded-xl border border-slate-200 dark:border-[#38434F] text-sm text-slate-700 dark:text-[#B0B7BE] outline-none resize-y focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 transition-all"
                 />
                 <button
                   onClick={handleSubmitAnswer}
@@ -790,8 +790,8 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
                 </button>
               </div>
             ) : (
-              <div className="bg-white rounded-2xl border border-slate-200 p-8 text-center shadow-sm">
-                <p className="text-sm text-slate-500 font-medium mb-4">Login to post your answer</p>
+              <div className="bg-white dark:bg-[#283036] rounded-2xl border border-slate-200 dark:border-[#38434F] dark:border-[#38434F] p-8 text-center shadow-sm">
+                <p className="text-sm text-slate-500 dark:text-[#B0B7BE] font-medium mb-4">Login to post your answer</p>
                 <button
                   onClick={() => router.push('/login')}
                   className="text-sm font-bold text-white bg-gradient-to-r from-[#7C3AED] to-cyan-500 rounded-xl px-6 py-2.5 hover:shadow-lg hover:shadow-purple-200 transition-all"
@@ -806,8 +806,8 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
           <aside className="hidden lg:block sticky top-6 self-start space-y-4 w-[320px]">
             {/* About Author */}
             <div className={sidebarCardClass}>
-              <div className="px-4 py-3 border-b border-slate-100">
-                <h3 className="text-xs font-extrabold text-slate-900 uppercase tracking-wide">About Author</h3>
+              <div className="px-4 py-3 border-b border-slate-100 dark:border-[#38434F]">
+                <h3 className="text-xs font-extrabold text-slate-900 dark:text-white uppercase tracking-wide">About Author</h3>
               </div>
               <div className="p-4">
                 <button
@@ -822,7 +822,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
                     )}
                   </div>
                   <div className="min-w-0">
-                    <p className="font-bold text-slate-900 group-hover:text-[#7C3AED] transition-colors truncate">
+                    <p className="font-bold text-slate-900 dark:text-white group-hover:text-[#7C3AED] transition-colors truncate">
                       {post.users?.full_name}
                     </p>
                     <div className="flex flex-wrap gap-1 mt-1">
@@ -842,22 +842,22 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
                 </button>
                 <dl className="space-y-2.5 text-xs">
                   <div>
-                    <dt className="text-slate-400 font-semibold mb-0.5">Role</dt>
-                    <dd className="font-bold text-slate-700 capitalize">
+                    <dt className="text-slate-400 dark:text-[#B0B7BE] font-semibold mb-0.5">Role</dt>
+                    <dd className="font-bold text-slate-700 dark:text-[#B0B7BE] capitalize">
                       {post.users?.role === 'senior' ? 'Senior Mentor' : 'Student / Mentee'}
                     </dd>
                   </div>
                   {collegeName && (
                     <div>
-                      <dt className="text-slate-400 font-semibold mb-0.5">College</dt>
-                      <dd className="font-bold text-slate-700 flex items-center gap-1">
-                        <GraduationCap className="w-3.5 h-3.5 text-slate-400" />
+                      <dt className="text-slate-400 dark:text-[#B0B7BE] font-semibold mb-0.5">College</dt>
+                      <dd className="font-bold text-slate-700 dark:text-[#B0B7BE] flex items-center gap-1">
+                        <GraduationCap className="w-3.5 h-3.5 text-slate-400 dark:text-[#B0B7BE]" />
                         {collegeName}
                       </dd>
                     </div>
                   )}
                   <div>
-                    <dt className="text-slate-400 font-semibold mb-0.5">Community</dt>
+                    <dt className="text-slate-400 dark:text-[#B0B7BE] font-semibold mb-0.5">Community</dt>
                     <dd>
                       <button
                         onClick={() => router.push(`/community/c/${slug}`)}
@@ -873,8 +873,8 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
 
             {/* Community */}
             <div className={sidebarCardClass}>
-              <div className="px-4 py-3 border-b border-slate-100">
-                <h3 className="text-xs font-extrabold text-slate-900 uppercase tracking-wide">Community</h3>
+              <div className="px-4 py-3 border-b border-slate-100 dark:border-[#38434F]">
+                <h3 className="text-xs font-extrabold text-slate-900 dark:text-white uppercase tracking-wide">Community</h3>
               </div>
               <div className="p-4">
                 <button
@@ -885,19 +885,19 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
                     <Building2 className="w-5 h-5 text-[#7C3AED]" />
                   </div>
                   <div className="min-w-0">
-                    <p className="font-bold text-slate-900 group-hover:text-[#7C3AED] transition-colors truncate">
+                    <p className="font-bold text-slate-900 dark:text-white group-hover:text-[#7C3AED] transition-colors truncate">
                       {communityName}
                     </p>
-                    <p className="text-[11px] text-slate-400 font-semibold mt-0.5">c/{slug}</p>
+                    <p className="text-[11px] text-slate-400 dark:text-[#B0B7BE] font-semibold mt-0.5">c/{slug}</p>
                     {collegeName && (
-                      <p className="text-xs text-slate-500 font-medium mt-2 flex items-center gap-1">
-                        <GraduationCap className="w-3.5 h-3.5 text-slate-400" />
+                      <p className="text-xs text-slate-500 dark:text-[#B0B7BE] font-medium mt-2 flex items-center gap-1">
+                        <GraduationCap className="w-3.5 h-3.5 text-slate-400 dark:text-[#B0B7BE]" />
                         {post.communities?.colleges?.name || collegeName}
                       </p>
                     )}
                     {typeof memberCount === 'number' && (
-                      <p className="text-xs text-slate-500 font-medium mt-2 flex items-center gap-1">
-                        <Users className="w-3.5 h-3.5 text-slate-400" />
+                      <p className="text-xs text-slate-500 dark:text-[#B0B7BE] font-medium mt-2 flex items-center gap-1">
+                        <Users className="w-3.5 h-3.5 text-slate-400 dark:text-[#B0B7BE]" />
                         {formatCount(memberCount)} members
                       </p>
                     )}
@@ -908,26 +908,26 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
 
             {/* Engagement stats */}
             <div className={sidebarCardClass}>
-              <div className="px-4 py-3 border-b border-slate-100">
-                <h3 className="text-xs font-extrabold text-slate-900 uppercase tracking-wide">Engagement</h3>
+              <div className="px-4 py-3 border-b border-slate-100 dark:border-[#38434F]">
+                <h3 className="text-xs font-extrabold text-slate-900 dark:text-white uppercase tracking-wide">Engagement</h3>
               </div>
               <div className="p-4 space-y-3">
                 <button
                   onClick={() => (post.upvote_count || 0) > 0 && setLikesModalOpen(true)}
-                  className={`flex items-center justify-between w-full text-left ${(post.upvote_count || 0) > 0 ? 'hover:bg-slate-50 -mx-2 px-2 py-1 rounded-lg transition-colors cursor-pointer' : ''}`}
+                  className={`flex items-center justify-between w-full text-left ${(post.upvote_count || 0) > 0 ? 'hover:bg-slate-50 dark:hover:bg-[#1D2226] dark:bg-[#1D2226] -mx-2 px-2 py-1 rounded-lg transition-colors cursor-pointer' : ''}`}
                 >
-                  <span className="text-xs font-semibold text-slate-500 flex items-center gap-2">
+                  <span className="text-xs font-semibold text-slate-500 dark:text-[#B0B7BE] flex items-center gap-2">
                     <Zap className="w-3.5 h-3.5" />
                     Appreciations
                   </span>
-                  <span className="text-sm font-extrabold text-slate-900">{formatCount(post.upvote_count || 0)}</span>
+                  <span className="text-sm font-extrabold text-slate-900 dark:text-white">{formatCount(post.upvote_count || 0)}</span>
                 </button>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-slate-500 flex items-center gap-2">
+                  <span className="text-xs font-semibold text-slate-500 dark:text-[#B0B7BE] flex items-center gap-2">
                     <MessageCircle className="w-3.5 h-3.5" />
                     Answers
                   </span>
-                  <span className={`text-sm font-extrabold ${post.is_answered ? 'text-emerald-600' : 'text-slate-900'}`}>
+                  <span className={`text-sm font-extrabold ${post.is_answered ? 'text-emerald-600' : 'text-slate-900 dark:text-white'}`}>
                     {post.answer_count || 0}
                     {post.is_answered && (
                       <CheckCircle className="w-3.5 h-3.5 inline ml-1 -mt-0.5" />
@@ -935,11 +935,11 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-slate-500 flex items-center gap-2">
+                  <span className="text-xs font-semibold text-slate-500 dark:text-[#B0B7BE] flex items-center gap-2">
                     <Eye className="w-3.5 h-3.5" />
                     Views
                   </span>
-                  <span className="text-sm font-extrabold text-slate-900">{formatCount(viewCount)}</span>
+                  <span className="text-sm font-extrabold text-slate-900 dark:text-white">{formatCount(viewCount)}</span>
                 </div>
               </div>
             </div>

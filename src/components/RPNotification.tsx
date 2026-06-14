@@ -31,9 +31,9 @@ export default function RPNotification() {
             zIndex: 9999,
           }}
         >
-          <div className="bg-white rounded-2xl shadow-[0_20px_50px_rgba(124,58,237,0.15)] border border-purple-100 p-6 flex items-center gap-6 min-w-[320px] overflow-hidden relative">
+          <div className="bg-white dark:bg-[#283036] rounded-2xl shadow-[0_20px_50px_rgba(124,58,237,0.15)] border border-purple-100 dark:border-[#38434F] p-6 flex items-center gap-6 min-w-[320px] overflow-hidden relative">
             {/* Background elements */}
-            <div className="absolute top-0 right-0 w-24 h-24 bg-purple-50 rounded-full -mr-12 -mt-12 opacity-50" />
+            <div className="absolute top-0 right-0 w-24 h-24 bg-purple-50 dark:bg-purple-900/20 rounded-full -mr-12 -mt-12 opacity-50" />
             
             {/* Icon stack */}
             <div className="relative">
@@ -56,10 +56,10 @@ export default function RPNotification() {
                 <Trophy size={10} className="text-amber-500" />
                 Congratulations!
               </h4>
-              <div className="font-instrument-serif text-3xl text-gray-900 leading-none">
+              <div className="font-instrument-serif text-3xl text-gray-900 dark:text-white leading-none">
                 +{award.points} <span className="text-lg font-sans font-black text-purple-600 ml-1">RP</span>
               </div>
-              <p className="text-gray-500 text-xs mt-1 font-medium">
+              <p className="text-gray-500 dark:text-[#B0B7BE] text-xs mt-1 font-medium">
                 {award.reason}
               </p>
             </div>
@@ -67,7 +67,7 @@ export default function RPNotification() {
             {/* Close button (optional) */}
             <button 
               onClick={clearAward}
-              className="absolute top-2 right-2 text-gray-300 hover:text-gray-500 transition-colors p-1"
+              className="absolute top-2 right-2 text-gray-300 dark:text-[#6B7B8B] hover:text-gray-500 dark:hover:text-[#B0B7BE] transition-colors p-1"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M18 6L6 18M6 6l12 12" />

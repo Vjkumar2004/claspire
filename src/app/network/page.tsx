@@ -121,8 +121,8 @@ export default function NetworkPage() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-[#FAFBFF] to-[#F6F7FC] flex items-center justify-center">
-        <div className="animate-pulse text-gray-400 text-sm font-semibold">Loading...</div>
+      <div className="min-h-screen bg-gradient-to-b from-[#FAFBFF] to-[#F6F7FC] dark:from-[#151b23] dark:to-[#1D2226] flex items-center justify-center">
+        <div className="animate-pulse text-gray-400 dark:text-[#B0B7BE] text-sm font-semibold">Loading...</div>
       </div>
     )
   }
@@ -152,7 +152,7 @@ export default function NetworkPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#FAFBFF] via-[#F8F9FE] to-[#F6F7FC]">
+    <div className="min-h-screen bg-gradient-to-b from-[#FAFBFF] via-[#F8F9FE] to-[#F6F7FC] dark:from-[#151b23] dark:via-[#1D2226] dark:to-[#151b23]">
       <div className="pt-4 sm:pt-6 pb-16 max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* ===== FULL-WIDTH HERO SECTION ===== */}
@@ -170,18 +170,18 @@ export default function NetworkPage() {
             <span className="w-2 h-2 rounded-full bg-purple-600 animate-pulse" />
             <span className="text-[11px] font-bold text-purple-700 uppercase tracking-wider">India&apos;s Student Network</span>
           </div>
-          <h1 className="text-xl font-extrabold text-gray-900 tracking-tight leading-tight m-0">
+          <h1 className="text-xl font-extrabold text-gray-900 dark:text-white tracking-tight leading-tight m-0">
             Build Your{' '}
             <span className="bg-gradient-to-r from-purple-600 to-fuchsia-500 bg-clip-text text-transparent">Professional Network</span>
           </h1>
-          <p className="text-sm text-gray-500 font-medium mt-1 m-0 max-w-md">
+          <p className="text-sm text-gray-500 dark:text-[#B0B7BE] font-medium mt-1 m-0 max-w-md">
             Connect with students, seniors, alumni and mentors across India and grow together.
           </p>
         </div>
 
         {/* ===== TAB NAVIGATION ===== */}
         <div className="xl:hidden mt-4 lg:mt-8 mb-4 lg:mb-8">
-          <div className="inline-flex bg-white/90 backdrop-blur-sm border border-gray-200/70 rounded-xl lg:rounded-2xl p-1 shadow-sm w-full lg:w-auto overflow-x-auto scrollbar-none">
+          <div className="inline-flex bg-white/90 dark:bg-[#283036]/90 backdrop-blur-sm border border-gray-200/70 dark:border-[#38434F]/70 rounded-xl lg:rounded-2xl p-1 shadow-sm w-full lg:w-auto overflow-x-auto scrollbar-none">
             {tabs.map((tab, i) => {
               const Icon = tab.icon
               const isActive = activeTab === tab.id
@@ -193,7 +193,7 @@ export default function NetworkPage() {
                   className={`relative flex items-center gap-1.5 lg:gap-2 px-3 lg:px-6 py-2 lg:py-2.5 text-xs lg:text-sm font-semibold rounded-lg lg:rounded-xl transition-all duration-200 flex-shrink-0 ${
                     isActive
                       ? 'text-white'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                      : 'text-gray-600 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-[#1D2226] dark:text-[#B0B7BE]'
                   }`}
                 >
                   {isActive && (

@@ -6,11 +6,13 @@ import { useUnreadMessages } from '@/contexts/UnreadMessagesContext'
 import { useNotifications } from '@/contexts/NotificationsContext'
 import Link from 'next/link'
 import { useRouter, usePathname } from 'next/navigation'
-import { X, Menu, Users, GraduationCap, Briefcase, DollarSign, LayoutDashboard, User, LogOut, ChevronRight, MessageSquare, Building2, Search, ArrowLeft } from 'lucide-react'
+import { X, Menu, Users, GraduationCap, Briefcase, DollarSign, LayoutDashboard, User, LogOut, ChevronRight, MessageSquare, Building2, Search, ArrowLeft, Sun, Moon } from 'lucide-react'
 import NotificationBell from './NotificationBell'
 import SearchBar from './search/SearchBar'
+import { useTheme } from '@/contexts/ThemeContext'
 
 export default function Navbar() {
+  const { theme, setTheme } = useTheme()
   const { user, loading, signOut } = useAuth()
   const { unreadMessageCount } = useUnreadMessages()
   const { pendingNetworkRequestsCount } = useNotifications()
@@ -55,10 +57,10 @@ export default function Navbar() {
 
   return (
     <>
-    <nav className="fixed top-0 left-0 right-0 h-14 z-[999] bg-white/90 border-b border-gray-200 backdrop-blur-[12px]">
+    <nav className="fixed top-0 left-0 right-0 h-14 z-[999] bg-white/90 dark:bg-[#1D2226]/90 border-b border-gray-200 dark:border-[#38434F] backdrop-blur-[12px]">
       <div className="flex items-center justify-between h-full px-6 max-w-7xl mx-auto w-full">
         <div className="flex items-center gap-3 flex-shrink-0">
-          <Link href="/" className="font-plus-jakarta-sans font-extrabold text-xl text-black no-underline hover:no-underline tracking-tight flex items-center">
+          <Link href="/" className="font-plus-jakarta-sans font-extrabold text-xl text-black dark:text-white no-underline hover:no-underline tracking-tight flex items-center">
             cl<span className="text-[#7C3AED]">aspire</span>
           </Link>
         </div>
@@ -81,7 +83,7 @@ export default function Navbar() {
             className={`flex items-center gap-1.5 px-2 xl:px-3 h-full text-[13px] font-semibold transition-all border-b-2 ${
             pathname === '/community' 
               ? 'text-[#7C3AED] border-[#7C3AED]' 
-              : 'text-gray-500 border-transparent hover:text-black hover:border-gray-200'
+              : 'text-gray-500 dark:text-[#8B949E] border-transparent hover:text-black dark:hover:text-white hover:border-gray-200 dark:hover:border-[#38434F]'
           }`}>
             <Users size={16} />
             <span className="hidden lg:block">Community</span>
@@ -89,7 +91,7 @@ export default function Navbar() {
           <Link href="/groups" className={`flex items-center gap-1.5 px-2 xl:px-3 h-full text-[13px] font-semibold transition-all border-b-2 ${
             pathname === '/groups' 
               ? 'text-[#7C3AED] border-[#7C3AED]' 
-              : 'text-gray-500 border-transparent hover:text-black hover:border-gray-200'
+              : 'text-gray-500 dark:text-[#8B949E] border-transparent hover:text-black dark:hover:text-white hover:border-gray-200 dark:hover:border-[#38434F]'
           }`}>
             <Building2 size={16} />
             <span className="hidden lg:block">Groups</span>
@@ -97,7 +99,7 @@ export default function Navbar() {
           <Link href={user?.role === 'senior' ? '/dashboard/senior' : '/dashboard/junior'} className={`flex items-center gap-1.5 px-2 xl:px-3 h-full text-[13px] font-semibold transition-all border-b-2 ${
             pathname === '/dashboard/senior' || pathname === '/dashboard/junior'
               ? 'text-[#7C3AED] border-[#7C3AED]' 
-              : 'text-gray-500 border-transparent hover:text-black hover:border-gray-200'
+              : 'text-gray-500 dark:text-[#8B949E] border-transparent hover:text-black dark:hover:text-white hover:border-gray-200 dark:hover:border-[#38434F]'
           }`}>
             <LayoutDashboard size={16} />
             <span className="hidden lg:block">Dashboard</span>
@@ -105,7 +107,7 @@ export default function Navbar() {
           <Link href="/network" className={`relative flex items-center gap-1.5 px-2 xl:px-3 h-full text-[13px] font-semibold transition-all border-b-2 ${
             pathname === '/network' || pathname === '/seniors'
               ? 'text-[#7C3AED] border-[#7C3AED]' 
-              : 'text-gray-500 border-transparent hover:text-black hover:border-gray-200'
+              : 'text-gray-500 dark:text-[#8B949E] border-transparent hover:text-black dark:hover:text-white hover:border-gray-200 dark:hover:border-[#38434F]'
           }`}>
             <span className="relative">
               <Users size={16} />
@@ -120,7 +122,7 @@ export default function Navbar() {
           <Link href="/jobs" className={`flex items-center gap-1.5 px-2 xl:px-3 h-full text-[13px] font-semibold transition-all border-b-2 ${
             pathname === '/jobs' 
               ? 'text-[#7C3AED] border-[#7C3AED]' 
-              : 'text-gray-500 border-transparent hover:text-black hover:border-gray-200'
+              : 'text-gray-500 dark:text-[#8B949E] border-transparent hover:text-black dark:hover:text-white hover:border-gray-200 dark:hover:border-[#38434F]'
           }`}>
             <Briefcase size={16} />
             <span className="hidden lg:block">Jobs</span>
@@ -128,7 +130,7 @@ export default function Navbar() {
           <Link href="/colleges" className={`flex items-center gap-1.5 px-2 xl:px-3 h-full text-[13px] font-semibold transition-all border-b-2 ${
             pathname === '/colleges' 
               ? 'text-[#7C3AED] border-[#7C3AED]' 
-              : 'text-gray-500 border-transparent hover:text-black hover:border-gray-200'
+              : 'text-gray-500 dark:text-[#8B949E] border-transparent hover:text-black dark:hover:text-white hover:border-gray-200 dark:hover:border-[#38434F]'
           }`}>
             <GraduationCap size={16} />
             <span className="hidden lg:block">Colleges</span>
@@ -146,10 +148,17 @@ export default function Navbar() {
             }} />
           ) : user ? (
             <div className="flex items-center gap-2 lg:gap-4">
+              <button
+                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                className="p-2 rounded-full text-gray-600 dark:text-[#B0B7BE] hover:text-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#283036] transition-colors cursor-pointer"
+                title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+              >
+                {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+              </button>
               <NotificationBell dark />
               <Link 
                 href={user?.role === 'senior' ? '/dashboard/senior/messages' : '/dashboard/junior/messages'}
-                className="relative p-2 rounded-full text-gray-600 hover:text-black hover:bg-gray-100 transition-colors"
+                className="relative p-2 rounded-full text-gray-600 dark:text-[#B0B7BE] hover:text-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#283036] transition-colors"
               >
                 <MessageSquare size={20} />
                 {unreadMessageCount > 0 && (
@@ -161,17 +170,7 @@ export default function Navbar() {
               <div style={{ position: 'relative' }}>
                 <button
                   onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 8,
-                    background: 'none',
-                    border: '1.5px solid #E5E7EB',
-                    borderRadius: 100,
-                    padding: '6px 12px 6px 6px',
-                    cursor: 'pointer',
-                    transition: 'border-color 0.15s'
-                  }}
+                  className="flex items-center gap-2 bg-transparent border-[1.5px] border-[#E5E7EB] dark:border-[#38434F] rounded-full p-[6px] pr-3 cursor-pointer transition-colors hover:border-gray-300 dark:hover:border-gray-600"
                 >
                   <div style={{
                     width: 28, height: 28,
@@ -203,7 +202,7 @@ export default function Navbar() {
                         .slice(0, 2) || 'U'
                     )}
                   </div>
-                  <span style={{ fontSize: 13, fontWeight: 600, color: '#0A0A0A' }} className="hidden xl:block">
+                  <span style={{ fontSize: 13, fontWeight: 600 }} className="text-[#0A0A0A] hidden xl:block dark:text-white">
                     {user.full_name?.split(' ')[0]}
                   </span>
                   <svg width="12" height="12" viewBox="0 0 12 12" fill="none"
@@ -224,21 +223,18 @@ export default function Navbar() {
                     <div style={{
                       position: 'absolute',
                       right: 0, top: 'calc(100% + 8px)',
-                      background: 'white',
-                      border: '1px solid #E5E7EB',
                       borderRadius: 12,
                       padding: 8,
                       minWidth: 200,
                       boxShadow: '0 4px 24px rgba(0,0,0,0.08)',
                       zIndex: 50
-                    }}>
-                      <div style={{
+                    }} className="bg-white border border-[#E5E7EB] dark:bg-[#283036] dark:border-[#38434F]">
+                      <div className="border-b border-[#F3F4F6] dark:border-[#38434F]" style={{
                         padding: '8px 12px 12px',
-                        borderBottom: '1px solid #F3F4F6',
                         marginBottom: 4
                       }}>
-                        <div style={{ fontSize: 13, fontWeight: 700, color: '#0A0A0A' }}>{user.full_name}</div>
-                        <div style={{ fontSize: 11, color: '#9CA3AF', marginTop: 2, fontFamily: 'monospace' }}>{user.unique_id}</div>
+                        <div className="text-[#0A0A0A] dark:text-white" style={{ fontSize: 13, fontWeight: 700 }}>{user.full_name}</div>
+                        <div className="text-[#9CA3AF] dark:text-[#8B949E]" style={{ fontSize: 11, marginTop: 2, fontFamily: 'monospace' }}>{user.unique_id}</div>
                         <div style={{
                           display: 'inline-flex',
                           alignItems: 'center',
@@ -271,17 +267,16 @@ export default function Navbar() {
                             borderRadius: 8,
                             fontSize: 13,
                             fontWeight: 600,
-                            color: '#374151',
                             textDecoration: 'none',
                             transition: 'background 0.1s'
                           }}
-                          className="hover:bg-gray-50"
+                          className="text-[#374151] dark:text-[#B0B7BE] hover:bg-gray-50 dark:hover:bg-[#1D2226]"
                         >
-                          <item.icon size={16} color="#6B7280" />
+                          <item.icon size={16} className="text-[#6B7280] dark:text-[#8B949E]" />
                           {item.label}
                         </Link>
                       ))}
-                      <div style={{ height: 1, background: '#F3F4F6', margin: '4px 0' }} />
+                      <div style={{ height: 1, margin: '4px 0' }} className="bg-[#F3F4F6] dark:bg-[#38434F]" />
                       <button
                         onClick={() => {
                           setProfileDropdownOpen(false)
@@ -303,7 +298,7 @@ export default function Navbar() {
                           textAlign: 'left',
                           transition: 'background 0.1s'
                         }}
-                        className="hover:bg-red-50"
+                        className="hover:bg-red-50 dark:hover:bg-red-950/30"
                       >
                         <LogOut size={16} color="#EF4444" />
                         Sign Out
@@ -396,18 +391,9 @@ export default function Navbar() {
 
           <button
             onClick={() => setMobileMenuOpen(true)}
-            style={{
-              width: 36, height: 36,
-              borderRadius: 8,
-              border: '1.5px solid #E5E7EB',
-              background: 'white',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer'
-            }}
+            className="flex items-center justify-center w-9 h-9 rounded-lg cursor-pointer bg-white dark:bg-[#283036] border-[1.5px] border-[#E5E7EB] dark:border-[#38434F]"
           >
-            <Menu size={20} color="#374151" />
+            <Menu size={20} className="text-[#374151] dark:text-[#B0B7BE]" />
           </button>
         </div>
       </div>
@@ -432,34 +418,20 @@ export default function Navbar() {
           left: 0,
           height: '100dvh',
           width: '280px',
-          background: 'white',
           zIndex: 9999,
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden',
           boxShadow: '4px 0 24px rgba(0,0,0,0.12)',
           animation: 'slideInLeft 0.3s ease-out',
-        }}>
+        }} className="bg-white dark:bg-[#1D2226]">
 
-          {/* Panel Header */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '20px 20px',
-            borderBottom: '1px solid #F3F4F6'
-          }}>
+          <div className="flex items-center justify-between p-5 border-b border-[#F3F4F6] dark:border-[#38434F]">
             {/* Logo */}
             <Link
               href="/"
               onClick={() => setMobileMenuOpen(false)}
-              style={{
-                fontSize: 18,
-                fontWeight: 800,
-                color: '#0A0A0A',
-                textDecoration: 'none',
-                fontFamily: 'Plus Jakarta Sans, sans-serif'
-              }}
+              className="text-[18px] font-extrabold text-[#0A0A0A] dark:text-white no-underline font-plus-jakarta-sans"
             >
               cl<span style={{ color: '#7C3AED' }}>aspire</span>
             </Link>
@@ -467,28 +439,14 @@ export default function Navbar() {
             {/* Close button */}
             <button
               onClick={() => setMobileMenuOpen(false)}
-              style={{
-                width: 32, height: 32,
-                borderRadius: '50%',
-                border: '1px solid #E5E7EB',
-                background: 'white',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer'
-              }}
+              className="flex items-center justify-center w-8 h-8 rounded-full cursor-pointer bg-white dark:bg-[#283036] border border-[#E5E7EB] dark:border-[#38434F]"
             >
-              <X size={16} color="#6B7280" />
+              <X size={16} className="text-[#6B7280] dark:text-[#B0B7BE]" />
             </button>
           </div>
 
-          {/* User card (if logged in) */}
           {user && (
-            <div style={{
-              padding: '16px 20px',
-              borderBottom: '1px solid #F3F4F6',
-              background: '#F9FAFB'
-            }}>
+            <div className="px-5 py-4 bg-[#F9FAFB] dark:bg-[#283036] border-b border-[#F3F4F6] dark:border-[#38434F]">
               <div style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -527,11 +485,7 @@ export default function Navbar() {
                 </div>
 
                 <div>
-                  <div style={{
-                    fontSize: 14,
-                    fontWeight: 700,
-                    color: '#0A0A0A'
-                  }}>
+                  <div className="text-[14px] font-bold text-[#0A0A0A] dark:text-white">
                     {user.full_name}
                   </div>
                   <div style={{
@@ -690,6 +644,45 @@ export default function Navbar() {
               </>
             )}
 
+            {/* Theme Toggle */}
+            <p style={{
+              fontSize: 10,
+              fontWeight: 700,
+              letterSpacing: '0.08em',
+              textTransform: 'uppercase',
+              color: '#9CA3AF',
+              padding: '16px 8px 4px',
+              margin: 0
+            }} className="dark:text-[#B0B7BE]">
+              Appearance
+            </p>
+
+            <button
+              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                padding: '12px 10px',
+                borderRadius: 8,
+                fontSize: 14,
+                fontWeight: 600,
+                color: '#374151',
+                textDecoration: 'none',
+                marginBottom: 2,
+                gap: 12,
+                width: '100%',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                textAlign: 'left',
+                fontFamily: 'inherit'
+              }}
+              className="dark:text-[#B0B7BE] dark:hover:bg-[#283036]"
+            >
+              {theme === 'dark' ? <Sun size={18} className="text-gray-400 dark:text-[#B0B7BE]" /> : <Moon size={18} className="text-gray-400 dark:text-[#B0B7BE]" />}
+              {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+            </button>
+
             {/* Pricing */}
             <p style={{
               fontSize: 10,
@@ -725,10 +718,7 @@ export default function Navbar() {
           </div>
 
           {/* Bottom section */}
-          <div style={{
-            padding: '16px 20px',
-            borderTop: '1px solid #F3F4F6'
-          }}>
+          <div className="px-5 py-4 border-t border-[#F3F4F6] dark:border-[#38434F]">
             {user ? (
               // Sign out button
               <button
@@ -736,22 +726,7 @@ export default function Navbar() {
                   setMobileMenuOpen(false)
                   signOut()
                 }}
-                style={{
-                  width: '100%',
-                  padding: '12px',
-                  borderRadius: 10,
-                  border: '1.5px solid #FECACA',
-                  background: '#FEF2F2',
-                  color: '#EF4444',
-                  fontSize: 14,
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  fontFamily: 'Plus Jakarta Sans',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 8
-                }}
+                className="w-full flex items-center justify-center gap-2 p-3 rounded-[10px] border-[1.5px] border-[#FECACA] dark:border-red-900/50 bg-[#FEF2F2] dark:bg-red-950/30 text-[#EF4444] text-[14px] font-bold cursor-pointer font-plus-jakarta-sans hover:bg-[#FEE2E2] dark:hover:bg-red-900/40 transition-colors"
               >
                 <LogOut size={18} />
                 Sign Out

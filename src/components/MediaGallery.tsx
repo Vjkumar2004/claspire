@@ -34,13 +34,13 @@ export default function MediaGallery({ imageUrls }: MediaGalleryProps) {
         return (
           <div
             onClick={() => openViewer(0)}
-            className="relative overflow-hidden rounded-lg cursor-pointer group"
+            className="relative overflow-hidden rounded-none cursor-pointer group"
           >
             <img
               src={urls[0]}
               alt="Post media"
               loading="lazy"
-              className="w-full object-cover max-h-[600px] md:max-h-[450px] group-hover:scale-[1.01] transition-transform duration-300 rounded-lg"
+              className="w-full object-cover max-h-[600px] md:max-h-[450px] group-hover:scale-[1.01] transition-transform duration-300 rounded-none"
             />
           </div>
         )
@@ -51,13 +51,13 @@ export default function MediaGallery({ imageUrls }: MediaGalleryProps) {
               <div
                 key={i}
                 onClick={() => openViewer(i)}
-                className="relative overflow-hidden rounded-lg cursor-pointer group aspect-[4/3]"
+                className="relative overflow-hidden rounded-none cursor-pointer group aspect-[4/3]"
               >
                 <img
                   src={url}
                   alt={`Post media ${i + 1}`}
                   loading="lazy"
-                  className="w-full h-full object-cover group-hover:scale-[1.01] transition-transform duration-300 rounded-lg"
+                  className="w-full h-full object-cover group-hover:scale-[1.01] transition-transform duration-300 rounded-none"
                 />
               </div>
             ))}
@@ -65,16 +65,16 @@ export default function MediaGallery({ imageUrls }: MediaGalleryProps) {
         )
       case 3:
         return (
-          <div className="flex gap-1.5 rounded-lg overflow-hidden">
+          <div className="flex gap-1.5 rounded-none overflow-hidden">
             <div
               onClick={() => openViewer(0)}
-              className="w-[65%] aspect-[4/3] relative overflow-hidden cursor-pointer group rounded-lg"
+              className="w-[65%] aspect-[4/3] relative overflow-hidden cursor-pointer group rounded-none"
             >
               <img
                 src={urls[0]}
                 alt="Post media 1"
                 loading="lazy"
-                className="w-full h-full object-cover group-hover:scale-[1.01] transition-transform duration-300 rounded-lg"
+                className="w-full h-full object-cover group-hover:scale-[1.01] transition-transform duration-300 rounded-none"
               />
             </div>
             <div className="flex-1 flex flex-col gap-1.5">
@@ -82,13 +82,13 @@ export default function MediaGallery({ imageUrls }: MediaGalleryProps) {
                 <div
                   key={i}
                   onClick={() => openViewer(i + 1)}
-                  className="flex-1 relative overflow-hidden cursor-pointer group rounded-lg"
+                  className="flex-1 relative overflow-hidden cursor-pointer group rounded-none"
                 >
                   <img
                     src={url}
                     alt={`Post media ${i + 2}`}
                     loading="lazy"
-                    className="w-full h-full object-cover group-hover:scale-[1.01] transition-transform duration-300 rounded-lg"
+                    className="w-full h-full object-cover group-hover:scale-[1.01] transition-transform duration-300 rounded-none"
                   />
                 </div>
               ))}
@@ -102,13 +102,13 @@ export default function MediaGallery({ imageUrls }: MediaGalleryProps) {
               <div
                 key={i}
                 onClick={() => openViewer(i)}
-                className="relative overflow-hidden rounded-lg cursor-pointer group aspect-[4/3]"
+                className="relative overflow-hidden rounded-none cursor-pointer group aspect-[4/3]"
               >
                 <img
                   src={url}
                   alt={`Post media ${i + 1}`}
                   loading="lazy"
-                  className="w-full h-full object-cover group-hover:scale-[1.01] transition-transform duration-300 rounded-lg"
+                  className="w-full h-full object-cover group-hover:scale-[1.01] transition-transform duration-300 rounded-none"
                 />
               </div>
             ))}
@@ -124,16 +124,16 @@ export default function MediaGallery({ imageUrls }: MediaGalleryProps) {
                 <div
                   key={i}
                   onClick={() => openViewer(i)}
-                  className="relative overflow-hidden rounded-lg cursor-pointer group aspect-[4/3]"
+                  className="relative overflow-hidden rounded-none cursor-pointer group aspect-[4/3]"
                 >
                   <img
                     src={url}
                     alt={`Post media ${i + 1}`}
                     loading="lazy"
-                    className={`w-full h-full object-cover group-hover:scale-[1.01] transition-transform duration-300 rounded-lg ${isLastOverlay ? 'opacity-80' : ''}`}
+                    className={`w-full h-full object-cover group-hover:scale-[1.01] transition-transform duration-300 rounded-none ${isLastOverlay ? 'opacity-80' : ''}`}
                   />
                   {isLastOverlay && (
-                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-lg">
+                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-none">
                       <span className="text-white text-base md:text-lg font-bold">+{remaining} more</span>
                     </div>
                   )}
@@ -148,7 +148,7 @@ export default function MediaGallery({ imageUrls }: MediaGalleryProps) {
 
   return (
     <>
-      <div className="mb-3">{renderGallery()}</div>
+      <div>{renderGallery()}</div>
       {viewerOpen && (
         <ImageViewer
           images={urls}

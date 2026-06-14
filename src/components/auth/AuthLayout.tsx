@@ -10,7 +10,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           backgroundRepeat: 'no-repeat'
         }}
       />
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 lg:p-10 overflow-y-auto bg-[#FAFAFA]">
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 lg:p-10 overflow-y-auto bg-[#FAFAFA] dark:bg-[#1D2226]">
         <div className="w-full max-w-[420px] py-8">
           {children}
         </div>

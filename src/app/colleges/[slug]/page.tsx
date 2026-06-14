@@ -259,9 +259,9 @@ export default async function CollegePage({ params }: { params: Promise<{ slug: 
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       
-      <div className="min-h-screen bg-[#F8FAFC]">
+      <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#1D2226]">
         {/* Header */}
-        <div className="bg-white border-b border-gray-200">
+        <div className="bg-white dark:bg-[#283036] border-b border-gray-200 dark:border-[#38434F]">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
             <Link 
               href="/colleges" 
@@ -279,7 +279,7 @@ export default async function CollegePage({ params }: { params: Promise<{ slug: 
               {/* Left Section: Identity Block */}
               <div className="md:col-span-3 flex flex-col items-center md:items-start text-center md:text-left">
                 {collegeLogo && (
-                  <div className="w-24 h-24 rounded-md overflow-hidden bg-white border border-gray-200 p-2.5 shadow-[0_2px_4px_rgba(0,0,0,0.04)] mb-4 flex-shrink-0 flex items-center justify-center">
+                  <div className="w-24 h-24 rounded-md overflow-hidden bg-white dark:bg-[#283036] border border-gray-200 dark:border-[#38434F] p-2.5 shadow-[0_2px_4px_rgba(0,0,0,0.04)] mb-4 flex-shrink-0 flex items-center justify-center">
                     <Image
                       src={collegeLogo}
                       alt={`${collegeName} logo`}
@@ -289,10 +289,10 @@ export default async function CollegePage({ params }: { params: Promise<{ slug: 
                     />
                   </div>
                 )}
-                <h1 className="text-xl sm:text-2xl font-black text-gray-900 tracking-tight leading-snug">
+                <h1 className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white tracking-tight leading-snug">
                   {collegeName}
                 </h1>
-                <p className="text-xs font-bold text-gray-500 mt-1.5 tracking-wide uppercase">Institution</p>
+                <p className="text-xs font-bold text-gray-500 dark:text-[#B0B7BE] mt-1.5 tracking-wide uppercase">Institution</p>
               </div>
 
               {/* Center Section: Community Information */}
@@ -308,43 +308,43 @@ export default async function CollegePage({ params }: { params: Promise<{ slug: 
                   </span>
                 </div>
                 
-                <h2 className="text-base sm:text-lg font-bold text-gray-800 tracking-tight mb-2.5">
+                <h2 className="text-base sm:text-lg font-bold text-gray-800 dark:text-white tracking-tight mb-2.5">
                   Welcome to the {collegeName} Community.
                 </h2>
-                <p className="text-gray-500 text-sm leading-relaxed max-w-xl font-medium">
+                <p className="text-gray-500 dark:text-[#B0B7BE] text-sm leading-relaxed max-w-xl font-medium">
                   Connect with verified seniors, alumni, and students for placements, mentorship, discussions, and exclusive career opportunities. Join our growing ecosystem of professionals today.
                 </p>
               </div>
 
               {/* Right Section: Statistics Panel */}
               <div className="md:col-span-4 w-full">
-                <div className="bg-gray-50 rounded-md border border-gray-200 p-5 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
-                  <h3 className="text-xs font-bold text-gray-900 uppercase tracking-wider mb-4 pb-3 border-b border-gray-200/80">
+                <div className="bg-gray-50 dark:bg-[#1D2226] rounded-md border border-gray-200 dark:border-[#38434F] p-5 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
+                  <h3 className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-4 pb-3 border-b border-gray-200/80 dark:border-[#38434F]">
                     Community Overview
                   </h3>
                   <div className="space-y-3.5">
                     <div className="flex items-center justify-between group">
-                      <div className="flex items-center gap-2.5 text-gray-600">
-                        <Users size={16} className="text-gray-400 group-hover:text-[#7C3AED] transition-colors" />
+                      <div className="flex items-center gap-2.5 text-gray-600 dark:text-[#B0B7BE]">
+                        <Users size={16} className="text-gray-400 dark:text-[#B0B7BE] group-hover:text-[#7C3AED] transition-colors" />
                         <span className="text-sm font-semibold">Total Members</span>
                       </div>
-                      <span className="text-sm font-bold text-gray-900 bg-white px-2 py-0.5 rounded border border-gray-200 shadow-sm">{community.member_count || 0}+</span>
+                      <span className="text-sm font-bold text-gray-900 dark:text-white bg-white dark:bg-[#283036] px-2 py-0.5 rounded border border-gray-200 dark:border-[#38434F] shadow-sm">{community.member_count || 0}+</span>
                     </div>
                     
                     <div className="flex items-center justify-between group">
-                      <div className="flex items-center gap-2.5 text-gray-600">
-                        <Award size={16} className="text-gray-400 group-hover:text-blue-500 transition-colors" />
+                      <div className="flex items-center gap-2.5 text-gray-600 dark:text-[#B0B7BE]">
+                        <Award size={16} className="text-gray-400 dark:text-[#B0B7BE] group-hover:text-blue-500 transition-colors" />
                         <span className="text-sm font-semibold">Verified Seniors</span>
                       </div>
-                      <span className="text-sm font-bold text-gray-900 bg-white px-2 py-0.5 rounded border border-gray-200 shadow-sm">{community.senior_count || 0}+</span>
+                      <span className="text-sm font-bold text-gray-900 dark:text-white bg-white dark:bg-[#283036] px-2 py-0.5 rounded border border-gray-200 dark:border-[#38434F] shadow-sm">{community.senior_count || 0}+</span>
                     </div>
                     
                     <div className="flex items-center justify-between group">
-                      <div className="flex items-center gap-2.5 text-gray-600">
-                        <MessageSquare size={16} className="text-gray-400 group-hover:text-green-500 transition-colors" />
+                      <div className="flex items-center gap-2.5 text-gray-600 dark:text-[#B0B7BE]">
+                        <MessageSquare size={16} className="text-gray-400 dark:text-[#B0B7BE] group-hover:text-green-500 transition-colors" />
                         <span className="text-sm font-semibold">Active Discussions</span>
                       </div>
-                      <span className="text-sm font-bold text-gray-900 bg-white px-2 py-0.5 rounded border border-gray-200 shadow-sm">{community.doubt_count || 0}+</span>
+                      <span className="text-sm font-bold text-gray-900 dark:text-white bg-white dark:bg-[#283036] px-2 py-0.5 rounded border border-gray-200 dark:border-[#38434F] shadow-sm">{community.doubt_count || 0}+</span>
                     </div>
                   </div>
                 </div>
@@ -362,52 +362,52 @@ export default async function CollegePage({ params }: { params: Promise<{ slug: 
               
               {/* Stats Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div className="bg-white rounded-md p-4 sm:p-5 border border-gray-200 hover:shadow-md transition-all shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
+                <div className="bg-white dark:bg-[#283036] rounded-md p-4 sm:p-5 border border-gray-200 dark:border-[#38434F] hover:shadow-md transition-all shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-purple-50 rounded-md flex items-center justify-center border border-purple-100">
                       <Users className="w-5 h-5 text-purple-600" />
                     </div>
                     <div>
-                      <p className="text-lg font-bold text-gray-900 leading-tight">{seniors.length}+</p>
-                      <p className="text-xs text-gray-500 font-semibold mt-0.5">Verified Seniors</p>
+                      <p className="text-lg font-bold text-gray-900 dark:text-white leading-tight">{seniors.length}+</p>
+                      <p className="text-xs text-gray-500 dark:text-[#B0B7BE] font-semibold mt-0.5">Verified Seniors</p>
                     </div>
                   </div>
                 </div>
                 
-                <div className="bg-white rounded-md p-4 sm:p-5 border border-gray-200 hover:shadow-md transition-all shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
+                <div className="bg-white dark:bg-[#283036] rounded-md p-4 sm:p-5 border border-gray-200 dark:border-[#38434F] hover:shadow-md transition-all shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-blue-50 rounded-md flex items-center justify-center border border-blue-100">
                       <MessageCircle className="w-5 h-5 text-blue-600" />
                     </div>
                     <div>
-                      <p className="text-lg font-bold text-gray-900 leading-tight">{posts.length}+</p>
-                      <p className="text-xs text-gray-500 font-semibold mt-0.5">Community Posts</p>
+                      <p className="text-lg font-bold text-gray-900 dark:text-white leading-tight">{posts.length}+</p>
+                      <p className="text-xs text-gray-500 dark:text-[#B0B7BE] font-semibold mt-0.5">Community Posts</p>
                     </div>
                   </div>
                 </div>
                 
-                <div className="bg-white rounded-md p-4 sm:p-5 border border-gray-200 hover:shadow-md transition-all shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
+                <div className="bg-white dark:bg-[#283036] rounded-md p-4 sm:p-5 border border-gray-200 dark:border-[#38434F] hover:shadow-md transition-all shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-green-50 rounded-md flex items-center justify-center border border-green-100">
                       <Star className="w-5 h-5 text-green-600" />
                     </div>
                     <div>
-                      <p className="text-lg font-bold text-gray-900 leading-tight">4.8/5</p>
-                      <p className="text-xs text-gray-500 font-semibold mt-0.5">Student Rating</p>
+                      <p className="text-lg font-bold text-gray-900 dark:text-white leading-tight">4.8/5</p>
+                      <p className="text-xs text-gray-500 dark:text-[#B0B7BE] font-semibold mt-0.5">Student Rating</p>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Recent Posts */}
-              <div className="bg-white rounded-md border border-gray-200 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
-                <div className="p-4 sm:p-5 border-b border-gray-200">
-                  <h2 className="text-base font-bold text-gray-900 tracking-tight">Recent Community Posts</h2>
+              <div className="bg-white dark:bg-[#283036] rounded-md border border-gray-200 dark:border-[#38434F] shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
+                <div className="p-4 sm:p-5 border-b border-gray-200 dark:border-[#38434F]">
+                  <h2 className="text-base font-bold text-gray-900 dark:text-white tracking-tight">Recent Community Posts</h2>
                 </div>
                 <div className="p-4 sm:p-5 space-y-4">
                   {posts.length > 0 ? (
                     posts.map((post: any) => (
-                      <div key={post.id} className="border-b border-gray-150 pb-4 last:border-b-0 last:pb-0">
+                      <div key={post.id} className="border-b border-gray-150 dark:border-[#38434F] pb-4 last:border-b-0 last:pb-0">
                         <div className="flex items-start gap-3">
                           <div className="w-8 h-8 bg-purple-50 rounded-md flex items-center justify-center flex-shrink-0 mt-1 border border-purple-100">
                             {post.type === 'doubt' ? (
@@ -419,14 +419,14 @@ export default async function CollegePage({ params }: { params: Promise<{ slug: 
                             )}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <h3 className="font-bold text-gray-900 text-sm sm:text-base truncate leading-snug tracking-tight">
+                            <h3 className="font-bold text-gray-900 dark:text-white text-sm sm:text-base truncate leading-snug tracking-tight">
                               {post.title || 'Community Discussion'}
                             </h3>
                             <p className="text-xs sm:text-sm text-gray-550 mt-1.5 line-clamp-2 sm:line-clamp-3 leading-relaxed font-medium">
                               {post.content}
                             </p>
-                            <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-gray-500">
-                              <span className="font-semibold text-gray-700">{post.users?.full_name || 'Community Member'}</span>
+                            <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-gray-500 dark:text-[#B0B7BE]">
+                              <span className="font-semibold text-gray-700 dark:text-[#B0B7BE]">{post.users?.full_name || 'Community Member'}</span>
                               <span>•</span>
                               <span>{new Date(post.created_at).toLocaleDateString()}</span>
                               {post.upvote_count > 0 && (
@@ -446,8 +446,8 @@ export default async function CollegePage({ params }: { params: Promise<{ slug: 
                         size={32}
                         className="mx-auto mb-4 text-purple-200"
                       />
-                      <p className="text-sm font-bold text-gray-900 mb-1">No posts yet</p>
-                      <p className="text-xs text-gray-500">Be the first to start the conversation!</p>
+                      <p className="text-sm font-bold text-gray-900 dark:text-white mb-1">No posts yet</p>
+                      <p className="text-xs text-gray-500 dark:text-[#B0B7BE]">Be the first to start the conversation!</p>
                     </div>
                   )}
                 </div>
@@ -488,9 +488,9 @@ export default async function CollegePage({ params }: { params: Promise<{ slug: 
               </div>
 
               {/* Verified Seniors */}
-              <div className="bg-white rounded-md border border-gray-200 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
-                <div className="p-4 sm:p-5 border-b border-gray-200">
-                  <h3 className="text-sm font-bold text-gray-900 tracking-tight">Verified Seniors</h3>
+              <div className="bg-white dark:bg-[#283036] rounded-md border border-gray-200 dark:border-[#38434F] shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
+                <div className="p-4 sm:p-5 border-b border-gray-200 dark:border-[#38434F]">
+                  <h3 className="text-sm font-bold text-gray-900 dark:text-white tracking-tight">Verified Seniors</h3>
                 </div>
                 <div className="p-4 sm:p-5 space-y-4">
                   {seniors.length > 0 ? (
@@ -506,8 +506,8 @@ export default async function CollegePage({ params }: { params: Promise<{ slug: 
                           />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="font-bold text-gray-900 truncate text-xs">{senior.full_name}</p>
-                          <p className="text-[11px] text-gray-500 font-semibold truncate mt-0.5">
+                          <p className="font-bold text-gray-900 dark:text-white truncate text-xs">{senior.full_name}</p>
+                          <p className="text-[11px] text-gray-500 dark:text-[#B0B7BE] font-semibold truncate mt-0.5">
                             {senior.company} • {senior.role}
                           </p>
                         </div>
@@ -519,12 +519,12 @@ export default async function CollegePage({ params }: { params: Promise<{ slug: 
                   ) : (
                     <div className="text-center py-6 sm:py-8">
                       <Users className="w-8 h-8 text-gray-300 mx-auto mb-3" />
-                      <p className="text-xs font-semibold text-gray-500">No verified seniors yet</p>
+                      <p className="text-xs font-semibold text-gray-500 dark:text-[#B0B7BE]">No verified seniors yet</p>
                     </div>
                   )}
                 </div>
                 {seniors.length > 6 && (
-                  <div className="p-3 sm:p-4 border-t border-gray-200 bg-gray-50/50">
+                  <div className="p-3 sm:p-4 border-t border-gray-200 dark:border-[#38434F] bg-gray-50/50">
                     <Link 
                       href={`/community/c/${slug}`}
                       className="text-[#7C3AED] hover:text-[#6D28D9] text-xs font-bold no-underline flex items-center justify-center gap-1"
@@ -536,28 +536,28 @@ export default async function CollegePage({ params }: { params: Promise<{ slug: 
               </div>
 
               {/* Benefits */}
-              <div className="bg-white rounded-md border border-gray-200 p-4 sm:p-5 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
-                <h3 className="text-sm font-bold text-gray-900 mb-4 tracking-tight">Why Join Claspire?</h3>
+              <div className="bg-white dark:bg-[#283036] rounded-md border border-gray-200 dark:border-[#38434F] p-4 sm:p-5 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
+                <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-4 tracking-tight">Why Join Claspire?</h3>
                 <div className="space-y-3.5">
                   <div className="flex items-start gap-3">
                     <TrendingUp className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
                     <div>
-                      <p className="font-bold text-gray-900 text-xs">Career Growth</p>
-                      <p className="text-[11px] text-gray-500 mt-0.5 leading-snug">Get guidance from industry professionals</p>
+                      <p className="font-bold text-gray-900 dark:text-white text-xs">Career Growth</p>
+                      <p className="text-[11px] text-gray-500 dark:text-[#B0B7BE] mt-0.5 leading-snug">Get guidance from industry professionals</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
                     <Star className="w-4 h-4 text-yellow-500 flex-shrink-0 mt-0.5" />
                     <div>
-                      <p className="font-bold text-gray-900 text-xs">Verified Network</p>
-                      <p className="text-[11px] text-gray-500 mt-0.5 leading-snug">All seniors are verified professionals</p>
+                      <p className="font-bold text-gray-900 dark:text-white text-xs">Verified Network</p>
+                      <p className="text-[11px] text-gray-500 dark:text-[#B0B7BE] mt-0.5 leading-snug">All seniors are verified professionals</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
                     <MessageCircle className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
                     <div>
-                      <p className="font-bold text-gray-900 text-xs">24/7 Support</p>
-                      <p className="text-[11px] text-gray-500 mt-0.5 leading-snug">Get help whenever you need it</p>
+                      <p className="font-bold text-gray-900 dark:text-white text-xs">24/7 Support</p>
+                      <p className="text-[11px] text-gray-500 dark:text-[#B0B7BE] mt-0.5 leading-snug">Get help whenever you need it</p>
                     </div>
                   </div>
                 </div>

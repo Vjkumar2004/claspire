@@ -32,9 +32,9 @@ function TrendingDiscussionsCard({ posts }: TrendingDiscussionsCardProps) {
   }
 
   return (
-    <div className="bg-white rounded-md border border-slate-200 overflow-hidden shadow-sm">
-      <div className="p-3.5 border-b border-slate-100 flex items-center justify-between">
-        <h4 className="font-bold text-slate-900 text-xs flex items-center gap-1.5">
+    <div className="bg-white dark:bg-[#283036] rounded-md border border-slate-200 dark:border-[#38434F] overflow-hidden shadow-sm">
+      <div className="p-3.5 border-b border-slate-100 dark:border-[#38434F] flex items-center justify-between">
+        <h4 className="font-bold text-slate-900 dark:text-white text-xs flex items-center gap-1.5">
           <TrendingUp className="w-4 h-4 text-purple-600" />
           Trending Discussions
         </h4>
@@ -46,21 +46,21 @@ function TrendingDiscussionsCard({ posts }: TrendingDiscussionsCardProps) {
             <div
               key={post.id}
               onClick={() => handleClick(post)}
-              className="flex items-start gap-2.5 p-2 rounded hover:bg-slate-50 cursor-pointer transition-colors"
+              className="flex items-start gap-2.5 p-2 rounded hover:bg-slate-50 dark:hover:bg-[#1D2226] cursor-pointer transition-colors"
             >
               <MessageSquare className="w-4 h-4 text-purple-500 flex-shrink-0 mt-0.5" />
               <div className="flex-1 min-w-0">
-                <h5 className="font-bold text-xs text-slate-800 line-clamp-2 leading-tight">
+                <h5 className="font-bold text-xs text-slate-800 dark:text-white line-clamp-2 leading-tight">
                   {post.title || 'Untitled Discussion'}
                 </h5>
-                <p className="text-[9px] text-slate-400 font-semibold mt-0.5 flex items-center gap-1">
+                <p className="text-[9px] text-slate-400 dark:text-[#B0B7BE] font-semibold mt-0.5 flex items-center gap-1">
                   {post.answer_count} {post.answer_count === 1 ? 'answer' : 'answers'}
                 </p>
               </div>
             </div>
           ))
         ) : (
-          <p className="text-slate-400 text-[10px] text-center py-3">No discussions yet</p>
+          <p className="text-slate-400 dark:text-[#B0B7BE] text-[10px] text-center py-3">No discussions yet</p>
         )}
       </div>
     </div>

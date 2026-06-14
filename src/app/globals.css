@@ -1,6 +1,8 @@
 @import "tailwindcss";
 @plugin "../../node_modules/@tailwindcss/typography";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* STRICT CSS RULES */
 * {
   box-sizing: border-box;
@@ -81,6 +83,16 @@ body {
   background: var(--white);
 }
 
+.dark body {
+  background: #1D2226;
+  color: #FFFFFF;
+}
+
+/* Smooth theme transitions */
+*, *::before, *::after {
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
 h1,
 h2,
 h3,
@@ -133,6 +145,16 @@ h6 {
 
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
+}
+
+/* Dark mode scrollbar */
+.dark ::-webkit-scrollbar-thumb {
+  background: #38434F;
+  border-radius: 4px;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #1D2226;
 }
 
 /* MOBILE */
@@ -189,6 +211,11 @@ h6 {
   transition: box-shadow 0.3s ease, transform 0.3s ease, border-color 0.3s ease;
 }
 
+.dark .network-card {
+  background: #283036;
+  border-color: #38434F;
+}
+
 .network-card:hover {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
 }
@@ -210,6 +237,11 @@ h6 {
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(229, 231, 235, 0.6);
   border-radius: 16px;
+}
+
+.dark .glass-card {
+  background: rgba(40, 48, 54, 0.85);
+  border-color: rgba(56, 67, 79, 0.6);
 }
 
 .hero-blob {
@@ -241,6 +273,11 @@ h6 {
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 16px;
+}
+
+.dark .glass-card-premium {
+  background: rgba(40, 48, 54, 0.75);
+  border-color: rgba(56, 67, 79, 0.3);
 }
 
 @keyframes float {
@@ -278,10 +315,20 @@ h6 {
   border-color: #7C3AED;
 }
 
+.dark .filter-chip-active {
+  background: #0A66C2;
+  border-color: #0A66C2;
+}
+
 .sidebar-nav-active {
   background: #F3F0FF;
   color: #7C3AED;
   font-weight: 700;
+}
+
+.dark .sidebar-nav-active {
+  background: rgba(10, 102, 194, 0.15);
+  color: #FFFFFF;
 }
 
 .strength-bar-fill {
@@ -383,6 +430,11 @@ h6 {
   border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
+.dark .premium-glass {
+  background: rgba(40, 48, 54, 0.7);
+  border-color: rgba(56, 67, 79, 0.3);
+}
+
 /* Skill pill hover */
 .skill-pill {
   transition: all 0.2s ease;
@@ -431,9 +483,20 @@ h6 {
   background: linear-gradient(135deg, #F5F3FF 0%, #EDE9FE 100%);
   box-shadow: 0 2px 8px rgba(124, 58, 237, 0.15);
 }
+
+.dark .toggle-card.active {
+  border-color: #0A66C2;
+  background: rgba(10, 102, 194, 0.15);
+}
+
 .toggle-card:not(.active):hover {
   border-color: #D8B4FE;
   background: #FAFAFA;
+}
+
+.dark .toggle-card:not(.active):hover {
+  border-color: #38434F;
+  background: #283036;
 }
 
 /* Badge shimmer effect */

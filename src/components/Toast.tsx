@@ -71,11 +71,11 @@ function ToastComponent({ toast, onRemove }: ToastComponentProps) {
       `}>
         {getIcon()}
         <div className="flex-1 min-w-0">
-          <h4 className="text-sm font-semibold text-gray-900">
+          <h4 className="text-sm font-semibold text-gray-900 dark:text-white">
             {toast.title}
           </h4>
           {toast.message && (
-            <p className="text-sm text-gray-600 mt-1">
+            <p className="text-sm text-gray-600 dark:text-[#B0B7BE] mt-1">
               {toast.message}
             </p>
           )}
@@ -85,7 +85,7 @@ function ToastComponent({ toast, onRemove }: ToastComponentProps) {
             setIsVisible(false)
             setTimeout(() => onRemove(toast.id), 300)
           }}
-          className="flex-shrink-0 p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-200/50 transition-colors"
+          className="flex-shrink-0 p-1 rounded-md text-gray-400 hover:text-gray-600 dark:hover:text-white dark:text-[#B0B7BE] hover:bg-gray-200/50 dark:hover:bg-[#1D2226]/50 transition-colors"
         >
           <X size={16} />
         </button>

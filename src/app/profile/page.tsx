@@ -289,7 +289,7 @@ export default function ProfilePage() {
 
   if (loading || !user) {
     return (
-      <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center">
+      <div className="min-h-screen bg-[#F3F4F6] dark:bg-[#1D2226] flex items-center justify-center">
         <div className="relative">
           <div className="w-12 h-12 border-3 border-[#7C3AED] border-t-transparent rounded-full animate-spin" />
           <div className="absolute inset-0 w-12 h-12 border-3 border-[#A78BFA] border-t-transparent rounded-full animate-spin" style={{ animationDirection: 'reverse', animationDuration: '0.8s', opacity: 0.5 }} />
@@ -299,23 +299,23 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F3F4F6] font-plus-jakarta-sans">
+    <div className="min-h-screen bg-[#F3F4F6] dark:bg-[#1D2226] font-plus-jakarta-sans">
 
       {/* ===== DESKTOP SIDEBAR ===== */}
-      <aside className="fixed left-0 top-16 bottom-0 w-[260px] bg-white border-r border-slate-200/80 shadow-sm hidden lg:flex flex-col z-50">
-        <div className="p-6 border-b border-slate-100">
+      <aside className="fixed left-0 top-16 bottom-0 w-[260px] bg-white dark:bg-[#283036] border-r border-slate-200/80 dark:border-[#38434F]/80 shadow-sm hidden lg:flex flex-col z-50">
+        <div className="p-6 border-b border-slate-100 dark:border-[#38434F]">
           <div className="flex items-center gap-3">
             <div className={`w-10 h-10 rounded-xl ${avatarUrl ? 'bg-transparent' : 'bg-gradient-to-br from-[#7C3AED] to-[#6D28D9]'} flex items-center justify-center text-white font-extrabold text-sm overflow-hidden shadow-md`}>
               {avatarUrl ? <img src={avatarUrl} alt="" className="w-full h-full object-cover" /> : initials}
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-bold text-[#0F172A] truncate leading-tight">{user.full_name}</p>
+              <p className="text-sm font-bold text-[#0F172A] dark:text-white truncate leading-tight">{user.full_name}</p>
               <p className="text-[10px] font-semibold text-[#7C3AED] uppercase tracking-wider mt-0.5">{isSenior ? 'Senior' : 'Student'}</p>
             </div>
           </div>
         </div>
 
-        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest px-4 pt-2 pb-1">On this page</p>
+        <p className="text-[9px] font-bold text-slate-400 dark:text-[#B0B7BE] uppercase tracking-widest px-4 pt-2 pb-1">On this page</p>
         <nav className="flex-1 py-1 px-3 space-y-0.5">
           {sectionLinks.map((item) => (
             <button
@@ -325,10 +325,10 @@ export default function ProfilePage() {
               className={`sidebar-nav-item w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold border-none cursor-pointer ${
                 activeSection === item.id
                   ? 'active bg-[#F5F3FF] text-[#7C3AED]'
-                  : 'text-slate-500 hover:bg-slate-50 hover:text-slate-700'
+                  : 'text-slate-500 dark:text-[#B0B7BE] hover:bg-slate-50 dark:hover:bg-[#1D2226] hover:text-slate-700'
               }`}
             >
-              <item.icon size={16} className={activeSection === item.id ? 'text-[#7C3AED]' : 'text-slate-400'} />
+              <item.icon size={16} className={activeSection === item.id ? 'text-[#7C3AED]' : 'text-slate-400 dark:text-[#B0B7BE]'} />
               <span>{item.label}</span>
               {activeSection === item.id && (
                 <span className="ml-auto w-1.5 h-5 rounded-full bg-gradient-to-b from-[#7C3AED] to-[#6D28D9]" />
@@ -337,7 +337,7 @@ export default function ProfilePage() {
           ))}
         </nav>
 
-        <div className="p-4 border-t border-slate-100">
+        <div className="p-4 border-t border-slate-100 dark:border-[#38434F]">
           <button
             type="button"
             onClick={async () => {
@@ -356,12 +356,12 @@ export default function ProfilePage() {
       </aside>
 
       {/* ===== MOBILE HEADER ===== */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 h-14 bg-white/95 backdrop-blur-lg border-b border-slate-100 z-50 px-4 flex items-center justify-between">
+      <div className="lg:hidden fixed top-0 left-0 right-0 h-14 bg-white/95 dark:bg-[#283036]/95 backdrop-blur-lg border-b border-slate-100 dark:border-[#38434F] z-50 px-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className={`w-7 h-7 rounded-lg ${avatarUrl ? '' : 'bg-gradient-to-br from-[#7C3AED] to-[#6D28D9]'} flex items-center justify-center text-white font-bold text-[10px] overflow-hidden shadow-sm`}>
             {avatarUrl ? <img src={avatarUrl} alt="" className="w-full h-full object-cover" /> : initials}
           </div>
-          <span className="text-sm font-bold text-[#0F172A]">Edit Profile</span>
+          <span className="text-sm font-bold text-[#0F172A] dark:text-white">Edit Profile</span>
         </div>
         <button
           type="button"
@@ -426,18 +426,18 @@ export default function ProfilePage() {
         {/* Profile info */}
         <div className="px-4 text-center">
           <div className="flex items-center justify-center gap-2 mb-0.5">
-            <h1 className="text-2xl font-bold text-[#0F172A] m-0 tracking-tight">{user.full_name}</h1>
+            <h1 className="text-2xl font-bold text-[#0F172A] dark:text-white m-0 tracking-tight">{user.full_name}</h1>
             {user.is_verified && (
               <ShieldCheck size={18} className="text-emerald-500 flex-shrink-0" fill="#10B981" fillOpacity="0.2" />
             )}
           </div>
-          <p className="text-sm font-semibold text-slate-500 m-0">
+          <p className="text-sm font-semibold text-slate-500 dark:text-[#B0B7BE] m-0">
             {isSenior
               ? `${user.designation || 'Professional'}${user.company ? ` at ${user.company}` : ''}`
               : `${user.branch || 'Student'}${user.passout_year ? ` · Class of ${user.passout_year}` : ''}`
             }
           </p>
-          <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-0.5 text-xs text-slate-400 mt-1">
+          <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-0.5 text-xs text-slate-400 dark:text-[#B0B7BE] mt-1">
             {collegeName && (
               <span className="flex items-center gap-1"><GraduationCap size={12} /> {collegeName}</span>
             )}
@@ -449,22 +449,22 @@ export default function ProfilePage() {
           {/* Social icons row */}
           <div className="flex items-center justify-center gap-2.5 mt-3">
             {socialLinks.linkedin && (
-              <a href={socialLinks.linkedin} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-200 hover:text-slate-800 transition-all">
+              <a href={socialLinks.linkedin} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-slate-100 border border-slate-200 dark:border-[#38434F] flex items-center justify-center text-slate-600 dark:text-[#B0B7BE] hover:bg-slate-200 hover:text-slate-800 transition-all">
                 <Linkedin size={15} />
               </a>
             )}
             {socialLinks.github && (
-              <a href={socialLinks.github} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-200 hover:text-slate-800 transition-all">
+              <a href={socialLinks.github} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-slate-100 border border-slate-200 dark:border-[#38434F] flex items-center justify-center text-slate-600 dark:text-[#B0B7BE] hover:bg-slate-200 hover:text-slate-800 transition-all">
                 <Github size={15} />
               </a>
             )}
             {socialLinks.portfolio && (
-              <a href={socialLinks.portfolio} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-200 hover:text-slate-800 transition-all">
+              <a href={socialLinks.portfolio} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-slate-100 border border-slate-200 dark:border-[#38434F] flex items-center justify-center text-slate-600 dark:text-[#B0B7BE] hover:bg-slate-200 hover:text-slate-800 transition-all">
                 <Globe size={15} />
               </a>
             )}
             {socialLinks.website && !socialLinks.portfolio && (
-              <a href={socialLinks.website} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-200 hover:text-slate-800 transition-all">
+              <a href={socialLinks.website} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-slate-100 border border-slate-200 dark:border-[#38434F] flex items-center justify-center text-slate-600 dark:text-[#B0B7BE] hover:bg-slate-200 hover:text-slate-800 transition-all">
                 <Globe size={15} />
               </a>
             )}
@@ -484,7 +484,7 @@ export default function ProfilePage() {
             <button
               type="button"
               onClick={() => router.push(`/u/${user.unique_id}`)}
-              className="inline-flex items-center justify-center gap-2 h-12 rounded-2xl bg-white border border-slate-200 text-slate-700 text-sm font-bold hover:bg-slate-50 transition-all shadow-sm cursor-pointer"
+              className="inline-flex items-center justify-center gap-2 h-12 rounded-2xl bg-white dark:bg-[#283036] border border-slate-200 dark:border-[#38434F] text-slate-700 text-sm font-bold hover:bg-slate-50 dark:hover:bg-[#1D2226] transition-all shadow-sm cursor-pointer"
             >
               <ExternalLink size={15} />
               View Profile
@@ -555,7 +555,7 @@ export default function ProfilePage() {
                         type="button"
                         onClick={handleSave}
                         disabled={saving}
-                        className="inline-flex items-center justify-center gap-2 px-5 py-2 rounded-xl bg-white text-[#0F172A] text-xs font-bold hover:bg-slate-100 transition-all disabled:opacity-50 shadow-lg cursor-pointer"
+                        className="inline-flex items-center justify-center gap-2 px-5 py-2 rounded-xl bg-white dark:bg-[#283036] text-[#0F172A] dark:text-white text-xs font-bold hover:bg-slate-100 dark:hover:bg-[#1D2226] transition-all disabled:opacity-50 shadow-lg cursor-pointer"
                       >
                         <Sparkles size={14} />
                         {saving ? 'Saving...' : 'Save Changes'}
@@ -611,19 +611,19 @@ export default function ProfilePage() {
               { icon: <UserPlus size={14} />, value: 0, label: 'C', color: 'from-pink-500 to-rose-600' },
               { icon: <Target size={14} />, value: user.rp_level ? `Lv.${user.rp_level}` : '--', label: 'LV', color: 'from-cyan-500 to-blue-600' },
             ].map((stat, i) => (
-              <div key={stat.label} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-3 flex flex-col items-center text-center">
+              <div key={stat.label} className="bg-white dark:bg-[#283036] rounded-2xl border border-slate-100 dark:border-[#38434F] shadow-sm p-3 flex flex-col items-center text-center">
                 <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${stat.color} flex items-center justify-center text-white mb-1.5 shadow-sm`}>
                   {stat.icon}
                 </div>
-                <p className="text-base font-extrabold text-[#0F172A] m-0 leading-tight">{stat.value}</p>
-                <p className="text-[9px] font-semibold text-slate-400 m-0">{stat.label}</p>
+                <p className="text-base font-extrabold text-[#0F172A] dark:text-white m-0 leading-tight">{stat.value}</p>
+                <p className="text-[9px] font-semibold text-slate-400 dark:text-[#B0B7BE] m-0">{stat.label}</p>
               </div>
             ))}
           </div>
         </div>
 
         {/* ===== MOBILE STICKY TABS ===== */}
-        <div className="lg:hidden sticky top-14 z-30 bg-[#F3F4F6] border-b border-slate-100 mt-4">
+        <div className="lg:hidden sticky top-14 z-30 bg-[#F3F4F6] dark:bg-[#1D2226] border-b border-slate-100 dark:border-[#38434F] mt-4">
           <div className="flex overflow-x-auto gap-1 px-4 py-2 scrollbar-hide">
             {sectionLinks.map((item) => (
               <button
@@ -637,7 +637,7 @@ export default function ProfilePage() {
                 className={`flex-shrink-0 px-3.5 py-1.5 rounded-full text-[11px] font-bold whitespace-nowrap border-none cursor-pointer transition-all ${
                   activeSection === item.id
                     ? 'bg-[#7C3AED] text-white shadow-sm'
-                    : 'bg-white text-slate-500 hover:bg-slate-100 border border-slate-200'
+                    : 'bg-white dark:bg-[#283036] text-slate-500 dark:text-[#B0B7BE] hover:bg-slate-100 dark:hover:bg-[#1D2226] border border-slate-200 dark:border-[#38434F]'
                 }`}
               >
                 {item.label}
@@ -657,12 +657,12 @@ export default function ProfilePage() {
               { icon: <UserPlus size={15} />, value: 0, label: 'Connections', color: 'from-pink-500 to-rose-600' },
               { icon: <Target size={15} />, value: user.rp_level ? `Lv.${user.rp_level}` : '--', label: 'Level', color: 'from-cyan-500 to-blue-600' },
             ].map((stat, i) => (
-              <div key={stat.label} className="group bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5 hover:-translate-y-1 hover:shadow-md transition-all duration-200">
+              <div key={stat.label} className="group bg-white dark:bg-[#283036] rounded-2xl border border-slate-200/80 dark:border-[#38434F]/80 shadow-sm p-5 hover:-translate-y-1 hover:shadow-md transition-all duration-200">
                 <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center text-white mb-3 shadow-sm`}>
                   {stat.icon}
                 </div>
-                <p className="text-2xl font-extrabold text-[#0F172A] m-0 leading-tight">{stat.value}</p>
-                <p className="text-[11px] font-semibold text-slate-400 m-0 mt-0.5">{stat.label}</p>
+                <p className="text-2xl font-extrabold text-[#0F172A] dark:text-white m-0 leading-tight">{stat.value}</p>
+                <p className="text-[11px] font-semibold text-slate-400 dark:text-[#B0B7BE] m-0 mt-0.5">{stat.label}</p>
               </div>
             ))}
           </div>
@@ -769,17 +769,17 @@ export default function ProfilePage() {
               </div>
 
               {/* CARD 2: Claspire ID */}
-              <div className="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6">
+              <div className="bg-white dark:bg-[#283036] rounded-3xl border border-slate-200/80 dark:border-[#38434F]/80 shadow-sm p-6">
                 <div className="flex items-center gap-2 mb-3">
                   <Share2 size={14} className="text-purple-600" />
-                  <h3 className="text-xs font-extrabold text-[#0F172A] m-0">Claspire ID</h3>
+                  <h3 className="text-xs font-extrabold text-[#0F172A] dark:text-white m-0">Claspire ID</h3>
                 </div>
                 <p className="text-lg font-black text-purple-600 font-mono tracking-wider m-0">{user.unique_id}</p>
-                <p className="text-[10px] text-slate-400 mt-2 font-medium">
+                <p className="text-[10px] text-slate-400 dark:text-[#B0B7BE] mt-2 font-medium">
                   Share your public profile link
                 </p>
                 <div className="flex items-center gap-2 mt-3">
-                  <div className="flex-1 bg-slate-50 rounded-xl px-3 py-2.5 border border-slate-200 text-xs font-mono text-slate-500 truncate">
+                  <div className="flex-1 bg-slate-50 dark:bg-[#1D2226] rounded-xl px-3 py-2.5 border border-slate-200 dark:border-[#38434F] text-xs font-mono text-slate-500 dark:text-[#B0B7BE] truncate">
                     /u/{user.unique_id}
                   </div>
                   <button
@@ -793,23 +793,23 @@ export default function ProfilePage() {
               </div>
 
               {/* CARD 3: Recent Badges */}
-              <div className="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6">
+              <div className="bg-white dark:bg-[#283036] rounded-3xl border border-slate-200/80 dark:border-[#38434F]/80 shadow-sm p-6">
                 <div className="flex items-center gap-2 mb-4">
                   <Award size={14} className="text-amber-500" />
-                  <h3 className="text-xs font-extrabold text-[#0F172A] m-0">Achievements</h3>
+                  <h3 className="text-xs font-extrabold text-[#0F172A] dark:text-white m-0">Achievements</h3>
                 </div>
                 <div className="grid grid-cols-3 gap-3">
                   {[
-                    { emoji: '🏆', label: 'Top Contributor', color: 'from-amber-50 to-amber-100/50', textColor: 'text-amber-700', earned: user.doubt_count >= 5 },
-                    { emoji: '⭐', label: 'Rise Star', color: 'from-purple-50 to-purple-100/50', textColor: 'text-purple-700', earned: (user.rise_points || 0) >= 100 },
-                    { emoji: '🎓', label: 'Scholar', color: 'from-blue-50 to-blue-100/50', textColor: 'text-blue-700', earned: true },
-                    { emoji: '🤝', label: 'Connector', color: 'from-emerald-50 to-emerald-100/50', textColor: 'text-emerald-700', earned: false },
-                    { emoji: '💡', label: 'Innovator', color: 'from-cyan-50 to-cyan-100/50', textColor: 'text-cyan-700', earned: false },
-                    { emoji: '🚀', label: 'Early Adopter', color: 'from-rose-50 to-rose-100/50', textColor: 'text-rose-700', earned: true },
+                    { emoji: '🏆', label: 'Top Contributor', color: 'from-amber-50 to-amber-100/50 dark:from-amber-900/20 dark:to-amber-800/10', textColor: 'text-amber-700 dark:text-amber-400', earned: user.doubt_count >= 5 },
+                    { emoji: '⭐', label: 'Rise Star', color: 'from-purple-50 to-purple-100/50 dark:from-purple-900/20 dark:to-purple-800/10', textColor: 'text-purple-700 dark:text-purple-400', earned: (user.rise_points || 0) >= 100 },
+                    { emoji: '🎓', label: 'Scholar', color: 'from-blue-50 to-blue-100/50 dark:from-blue-900/20 dark:to-blue-800/10', textColor: 'text-blue-700 dark:text-blue-400', earned: true },
+                    { emoji: '🤝', label: 'Connector', color: 'from-emerald-50 to-emerald-100/50 dark:from-emerald-900/20 dark:to-emerald-800/10', textColor: 'text-emerald-700 dark:text-emerald-400', earned: false },
+                    { emoji: '💡', label: 'Innovator', color: 'from-cyan-50 to-cyan-100/50 dark:from-cyan-900/20 dark:to-cyan-800/10', textColor: 'text-cyan-700 dark:text-cyan-400', earned: false },
+                    { emoji: '🚀', label: 'Early Adopter', color: 'from-rose-50 to-rose-100/50 dark:from-rose-900/20 dark:to-rose-800/10', textColor: 'text-rose-700 dark:text-rose-400', earned: true },
                   ].map((badge) => (
                     <div
                       key={badge.label}
-                      className={`flex flex-col items-center gap-1.5 p-3 rounded-xl bg-gradient-to-br ${badge.color} border ${badge.earned ? 'border-slate-200' : 'border-slate-100 opacity-40'}`}
+                      className={`flex flex-col items-center gap-1.5 p-3 rounded-xl bg-gradient-to-br ${badge.color} border ${badge.earned ? 'border-slate-200 dark:border-[#38434F]' : 'border-slate-100 dark:border-[#38434F] opacity-40'}`}
                     >
                       <span className="text-lg">{badge.emoji}</span>
                       <span className={`text-[9px] font-bold ${badge.textColor} text-center leading-tight`}>{badge.label}</span>
@@ -822,11 +822,11 @@ export default function ProfilePage() {
               </div>
 
               {/* CARD 4: Profile Completion */}
-              <div className="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6">
+              <div className="bg-white dark:bg-[#283036] rounded-3xl border border-slate-200/80 dark:border-[#38434F]/80 shadow-sm p-6">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
                     <Target size={14} className="text-purple-600" />
-                    <h3 className="text-xs font-extrabold text-[#0F172A] m-0">Profile Completion</h3>
+                    <h3 className="text-xs font-extrabold text-[#0F172A] dark:text-white m-0">Profile Completion</h3>
                   </div>
                   <span className="text-lg font-extrabold text-[#7C3AED]">{completion}%</span>
                 </div>
@@ -834,7 +834,7 @@ export default function ProfilePage() {
                 <div className="flex items-center gap-6">
                   <div className="relative flex-shrink-0">
                     <svg width="96" height="96" viewBox="0 0 96 96" className="transform -rotate-90">
-                      <circle cx="48" cy="48" r={completionRadius} fill="none" stroke="#F1F5F9" strokeWidth="6" />
+                      <circle cx="48" cy="48" r={completionRadius} fill="none" className="stroke-slate-100 dark:stroke-[#38434F]" strokeWidth="6" />
                       <circle
                         cx="48" cy="48" r={completionRadius}
                         fill="none"
@@ -871,7 +871,7 @@ export default function ProfilePage() {
                           ? <CheckCircle size={13} className="text-emerald-500 flex-shrink-0" />
                           : <Circle size={13} className="text-slate-300 flex-shrink-0" />
                         }
-                        <span className={`text-[11px] font-semibold ${item.done ? 'text-slate-700' : 'text-slate-400'}`}>
+                        <span className={`text-[11px] font-semibold ${item.done ? 'text-slate-700 dark:text-white' : 'text-slate-400 dark:text-[#B0B7BE]'}`}>
                           {item.label}
                         </span>
                       </div>

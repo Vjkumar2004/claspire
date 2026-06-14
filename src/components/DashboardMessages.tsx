@@ -242,47 +242,47 @@ export default function DashboardMessages({
 
   if (!currentUserId) {
     return (
-      <div className={`flex items-center justify-center ${fullscreen ? 'fixed inset-0 bg-white' : 'h-64'}`}>
+      <div className={`flex items-center justify-center ${fullscreen ? 'fixed inset-0 bg-white dark:bg-[#283036]' : 'h-64'}`}>
         <Loader2 className="animate-spin text-purple-600" size={24} />
       </div>
     )
   }
 
   const rootClass = fullscreen
-    ? 'fixed inset-0 z-[1000] flex flex-row w-full h-dvh bg-white'
+    ? 'fixed inset-0 z-[1000] flex flex-row w-full h-dvh bg-white dark:bg-[#283036]'
     : 'flex flex-row w-full h-[calc(100dvh-140px)] md:h-[600px] gap-0 md:gap-6 antialiased'
 
   const listClass = fullscreen
-    ? `${selectedChat ? 'hidden md:flex' : 'flex'} w-full md:w-[360px] lg:w-[400px] flex-shrink-0 flex-col bg-white border-r border-gray-100 overflow-hidden`
-    : `${selectedChat ? 'hidden md:flex' : 'flex'} w-full md:w-80 flex-shrink-0 flex-col bg-white border border-gray-100 rounded-3xl shadow-sm overflow-hidden`
+    ? `${selectedChat ? 'hidden md:flex' : 'flex'} w-full md:w-[360px] lg:w-[400px] flex-shrink-0 flex-col bg-white dark:bg-[#283036] border-r border-gray-100 dark:border-[#38434F] overflow-hidden`
+    : `${selectedChat ? 'hidden md:flex' : 'flex'} w-full md:w-80 flex-shrink-0 flex-col bg-white dark:bg-[#283036] border border-gray-100 dark:border-[#38434F] rounded-3xl shadow-sm dark:shadow-[#1D2226]/50 overflow-hidden`
 
   const chatPanelClass = fullscreen
-    ? `flex-1 min-w-0 h-full flex-col bg-white ${!selectedChat ? 'hidden md:flex' : 'flex'}`
+    ? `flex-1 min-w-0 h-full flex-col bg-white dark:bg-[#283036] ${!selectedChat ? 'hidden md:flex' : 'flex'}`
     : `flex-1 min-w-0 h-full flex-col ${!selectedChat ? 'hidden md:flex' : 'flex'}`
 
   const chatHeaderClass = fullscreen
-    ? 'flex flex-shrink-0 items-center gap-3 px-3 py-3 bg-[#f0f2f5] border-b border-gray-200'
-    : 'md:hidden flex-shrink-0 flex items-center gap-3 px-4 py-3 bg-white border-b border-gray-100 shadow-sm'
+    ? 'flex flex-shrink-0 items-center gap-3 px-3 py-3 bg-[#f0f2f5] dark:bg-[#1D2226] border-b border-gray-200 dark:border-[#38434F]'
+    : 'md:hidden flex-shrink-0 flex items-center gap-3 px-4 py-3 bg-white dark:bg-[#283036] border-b border-gray-100 dark:border-[#38434F] shadow-sm dark:shadow-[#1D2226]/50'
 
   return (
     <div className={rootClass}>
       {/* Sidebar: Conversation List */}
       <div className={listClass}>
         {fullscreen && (
-          <div className="flex-shrink-0 flex items-center gap-3 px-3 py-3 bg-[#f0f2f5] border-b border-gray-200">
+          <div className="flex-shrink-0 flex items-center gap-3 px-3 py-3 bg-[#f0f2f5] dark:bg-[#1D2226] border-b border-gray-200 dark:border-[#38434F]">
             <button
               onClick={goBackToDashboard}
-              className="p-2 rounded-full hover:bg-black/5 text-gray-700 transition-colors flex-shrink-0"
+              className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/5 text-gray-700 dark:text-[#B0B7BE] transition-colors flex-shrink-0"
               aria-label="Back to dashboard"
             >
               <ArrowLeft size={20} />
             </button>
-            <h2 className="flex-1 text-base font-bold text-gray-900">
+            <h2 className="flex-1 text-base font-bold text-gray-900 dark:text-white">
               {role === 'senior' ? 'Messages' : 'Mentors'}
             </h2>
             <button
               onClick={() => setShowNewMessage(!showNewMessage)}
-              className="p-2 rounded-full hover:bg-black/5 text-gray-700 transition-colors"
+              className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/5 text-gray-700 dark:text-[#B0B7BE] transition-colors"
               title="New Message"
             >
               {showNewMessage ? <X size={20} /> : <Plus size={20} />}
@@ -290,10 +290,10 @@ export default function DashboardMessages({
           </div>
         )}
 
-        <div className={`${fullscreen ? 'p-3' : 'p-4'} border-b border-gray-100`}>
+        <div className={`${fullscreen ? 'p-3' : 'p-4'} border-b border-gray-100 dark:border-[#38434F]`}>
           {!fullscreen && (
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-black text-black flex items-center gap-2">
+              <h2 className="text-lg font-black text-black dark:text-white flex items-center gap-2">
                 <MessageSquare size={20} className="text-purple-600" />
                 {role === 'senior' ? 'Messages' : 'Mentors'}
               </h2>
@@ -310,11 +310,11 @@ export default function DashboardMessages({
           {/* New Message Search */}
           {showNewMessage ? (
             <div className="space-y-2">
-              <p className="text-[10px] font-black text-gray-400 uppercase tracking-wider">
+              <p className="text-[10px] font-black text-gray-400 dark:text-[#B0B7BE] uppercase tracking-wider">
                 Search {role === 'junior' ? 'Seniors' : 'Users'} to message
               </p>
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-[#B0B7BE]" size={16} />
                 <input
                   type="text"
                   placeholder={`Type a name...`}
@@ -327,13 +327,13 @@ export default function DashboardMessages({
             </div>
           ) : (
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-[#B0B7BE]" size={16} />
               <input
                 type="text"
                 placeholder="Search chats..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-gray-50 border border-gray-100 rounded-xl pl-10 pr-4 py-2 text-xs focus:outline-none focus:border-purple-600 transition-colors"
+                className="w-full bg-gray-50 dark:bg-[#1D2226] border border-gray-100 dark:border-[#38434F] rounded-xl pl-10 pr-4 py-2 text-xs focus:outline-none focus:border-purple-600 transition-colors"
               />
             </div>
           )}
@@ -348,22 +348,22 @@ export default function DashboardMessages({
                   <Loader2 className="animate-spin text-purple-600" size={20} />
                 </div>
               ) : userSearchQuery.length < 2 ? (
-                <div className="p-6 text-center text-gray-400">
+                <div className="p-6 text-center text-gray-400 dark:text-[#B0B7BE]">
                   <p className="text-xs">Type at least 2 characters to search</p>
                 </div>
               ) : searchResults.length === 0 ? (
-                <div className="p-6 text-center text-gray-400">
+                <div className="p-6 text-center text-gray-400 dark:text-[#B0B7BE]">
                   <p className="text-xs">No users found for &quot;{userSearchQuery}&quot;</p>
                 </div>
               ) : (
-                <div className="divide-y divide-gray-50">
+                <div className="divide-y divide-gray-50 dark:divide-[#38434F]">
                   {searchResults.map((user) => (
                     <div
                       key={user.id}
                       onClick={() => startNewChat(user)}
                       className="p-4 cursor-pointer hover:bg-purple-50 transition-colors flex gap-3"
                     >
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden ${user.avatar_url ? 'bg-transparent shadow-sm' : 'bg-red-500 text-white'
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden ${user.avatar_url ? 'bg-transparent shadow-sm dark:shadow-[#1D2226]/50' : 'bg-red-500 text-white'
                         }`}>
                         {user.avatar_url ? (
                           <img src={user.avatar_url} alt={user.full_name} className="w-full h-full object-cover" />
@@ -373,10 +373,10 @@ export default function DashboardMessages({
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
-                          <h3 className="text-sm font-bold text-gray-900 truncate">{user.full_name}</h3>
+                          <h3 className="text-sm font-bold text-gray-900 dark:text-white truncate">{user.full_name}</h3>
                           {user.is_verified && <ShieldCheck size={14} className="text-blue-500 flex-shrink-0" />}
                         </div>
-                        <p className="text-[10px] text-gray-400 font-medium truncate mt-0.5">
+                        <p className="text-[10px] text-gray-400 dark:text-[#B0B7BE] font-medium truncate mt-0.5">
                           {user.role === 'senior' && user.company
                             ? `${user.designation || ''} @ ${user.company}`
                             : user.unique_id
@@ -402,12 +402,12 @@ export default function DashboardMessages({
                   <Loader2 className="animate-spin text-purple-600" size={20} />
                 </div>
               ) : filteredConversations.length === 0 ? (
-                <div className="p-8 text-center text-gray-400">
-                  <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <MessageSquare size={24} className="text-gray-300" />
+                <div className="p-8 text-center text-gray-400 dark:text-[#B0B7BE]">
+                  <div className="w-12 h-12 bg-gray-100 dark:bg-[#1D2226] rounded-full flex items-center justify-center mx-auto mb-3">
+                    <MessageSquare size={24} className="text-gray-300 dark:text-[#B0B7BE]" />
                   </div>
                   <p className="text-sm font-medium">No conversations yet</p>
-                  <p className="text-xs text-gray-400 mt-1 mb-4">
+                  <p className="text-xs text-gray-400 dark:text-[#B0B7BE] mt-1 mb-4">
                     {role === 'senior'
                       ? 'Students will appear here when they message you'
                       : 'Start a conversation with a senior mentor'}
@@ -420,17 +420,17 @@ export default function DashboardMessages({
                   </button>
                 </div>
               ) : (
-                <div className="divide-y divide-gray-50">
+                <div className="divide-y divide-gray-50 dark:divide-[#38434F]">
                   {filteredConversations.map((conv) => (
                     <div
                       key={conv.id}
                       onClick={() => setSelectedChat(conv)}
-                      className={`p-4 cursor-pointer hover:bg-gray-50 transition-colors flex gap-3 relative ${selectedChat?.id === conv.id ? 'bg-purple-50/50' : ''}`}
+                      className={`p-4 cursor-pointer hover:bg-gray-50 dark:bg-[#1D2226] dark:hover:bg-[#1D2226] transition-colors flex gap-3 relative ${selectedChat?.id === conv.id ? 'bg-purple-50/50' : ''}`}
                     >
                       {conv.unread && (
                         <div className="absolute left-0 top-0 bottom-0 w-1 bg-purple-600 rounded-r" />
                       )}
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden ${conv.otherUser.avatar_url ? 'bg-transparent shadow-sm' : 'bg-red-500 text-white'
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden ${conv.otherUser.avatar_url ? 'bg-transparent shadow-sm dark:shadow-[#1D2226]/50' : 'bg-red-500 text-white'
                         }`}>
                         {conv.otherUser.avatar_url ? (
                           <img src={conv.otherUser.avatar_url} alt={conv.otherUser.full_name} className="w-full h-full object-cover" />
@@ -440,14 +440,14 @@ export default function DashboardMessages({
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between gap-2">
-                          <h3 className={`text-sm truncate ${conv.unread ? 'font-black text-gray-900' : 'font-bold text-gray-700'}`}>
+                          <h3 className={`text-sm truncate ${conv.unread ? 'font-black text-gray-900 dark:text-white' : 'font-bold text-gray-700 dark:text-[#B0B7BE]'}`}>
                             {conv.otherUser.full_name}
                           </h3>
-                          <span className="text-[10px] text-gray-400 whitespace-nowrap">
+                          <span className="text-[10px] text-gray-400 dark:text-[#B0B7BE] whitespace-nowrap">
                             {formatTime(conv.timestamp)}
                           </span>
                         </div>
-                        <p className={`text-xs truncate mt-0.5 ${conv.unread ? 'text-gray-800 font-semibold' : 'text-gray-500'}`}>
+                        <p className={`text-xs truncate mt-0.5 ${conv.unread ? 'text-gray-800 dark:text-[#B0B7BE] font-semibold' : 'text-gray-500 dark:text-[#B0B7BE]'}`}>
                           {conv.lastMessage}
                         </p>
                       </div>
@@ -468,7 +468,7 @@ export default function DashboardMessages({
             <div className={chatHeaderClass}>
               <button
                 onClick={() => setSelectedChat(null)}
-                className="p-2 rounded-full hover:bg-black/5 text-gray-700 transition-colors flex-shrink-0"
+                className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/5 text-gray-700 dark:text-[#B0B7BE] transition-colors flex-shrink-0"
                 aria-label="Back to conversations"
               >
                 <ArrowLeft size={20} />
@@ -487,7 +487,7 @@ export default function DashboardMessages({
               </div>
 
               <div className="flex-1 min-w-0">
-                <p className="text-[15px] font-semibold text-gray-900 truncate">
+                <p className="text-[15px] font-semibold text-gray-900 dark:text-white truncate">
                   {selectedChat.otherUser.full_name}
                 </p>
               </div>
@@ -506,12 +506,12 @@ export default function DashboardMessages({
             </div>
           </div>
         ) : (
-          <div className={`h-full w-full flex flex-col items-center justify-center text-center p-8 ${fullscreen ? 'bg-[#efeae2]' : 'bg-white border border-gray-100 rounded-3xl shadow-sm'}`}>
+          <div className={`h-full w-full flex flex-col items-center justify-center text-center p-8 ${fullscreen ? 'bg-[#efeae2] dark:bg-[#1D2226]' : 'bg-white dark:bg-[#283036] border border-gray-100 dark:border-[#38434F] rounded-3xl shadow-sm dark:shadow-[#1D2226]/50'}`}>
             <div className="w-20 h-20 bg-purple-50 rounded-full flex items-center justify-center mb-4">
               <MessageSquare size={40} className="text-purple-600" />
             </div>
-            <h3 className="text-xl font-bold text-black mb-2">Start a Conversation</h3>
-            <p className="text-gray-500 max-w-xs mx-auto mb-6">
+            <h3 className="text-xl font-bold text-black dark:text-white mb-2">Start a Conversation</h3>
+            <p className="text-gray-500 dark:text-[#B0B7BE] max-w-xs mx-auto mb-6">
               Click the <strong className="text-purple-600">+</strong> button to search for {role === 'senior' ? 'students' : 'seniors'} and start messaging.
             </p>
             <button

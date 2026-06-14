@@ -317,8 +317,8 @@ export default function SignupPage() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#FAFAFA]">
-        <div className="w-10 h-10 border-3 border-gray-200 border-t-purple-600 rounded-full animate-spin" />
+      <div className="min-h-screen flex items-center justify-center bg-[#FAFAFA] dark:bg-[#1D2226]">
+        <div className="w-10 h-10 border-3 border-gray-200 dark:border-[#38434F] border-t-purple-600 rounded-full animate-spin" />
       </div>
     )
   }
@@ -582,13 +582,13 @@ export default function SignupPage() {
     <AuthLayout>
       <div className="space-y-6">
         <div className="space-y-1">
-          <h1 className="text-[28px] font-bold text-gray-900 font-plus-jakarta-sans">
+          <h1 className="text-[28px] font-bold text-gray-900 dark:text-white font-plus-jakarta-sans">
             Join Claspire
           </h1>
-          <p className="text-[15px] text-gray-400 font-plus-jakarta-sans">
+          <p className="text-[15px] text-gray-400 dark:text-[#B0B7BE] font-plus-jakarta-sans">
             Build your college network
           </p>
-          <p className="text-sm text-gray-400 font-plus-jakarta-sans pt-1">
+          <p className="text-sm text-gray-400 dark:text-[#B0B7BE] font-plus-jakarta-sans pt-1">
             Already have an account?{' '}
             <Link href="/login" className="font-semibold text-purple-600 hover:text-purple-700 no-underline">
               Sign in
@@ -596,18 +596,18 @@ export default function SignupPage() {
           </p>
         </div>
 
-        <button 
-          onClick={() => router.push('/colleges')}
-          className="w-full bg-gray-50 text-gray-600 h-10 rounded-xl text-sm font-medium hover:bg-gray-100 transition-colors border border-gray-200 cursor-pointer"
+          <button 
+            onClick={() => router.push('/colleges')}
+            className="w-full bg-gray-50 dark:bg-[#1D2226] text-gray-600 dark:text-[#B0B7BE] h-10 rounded-xl text-sm font-medium hover:bg-gray-100 dark:hover:bg-[#283036] transition-colors border border-gray-200 dark:border-[#38434F] cursor-pointer"
         >
           🏫 Browse Colleges First
         </button>
 
-        <div className="flex bg-gray-100 rounded-xl p-1 gap-1">
+        <div className="flex bg-gray-100 dark:bg-[#1D2226] rounded-xl p-1 gap-1">
           <button
             onClick={() => { setActiveRole("student"); setOtpSent(false); setAgreedToTerms(false); }}
             className={`flex-1 h-9 rounded-lg text-sm font-semibold transition-all cursor-pointer border-none ${
-              activeRole === "student" ? "bg-white text-gray-900 shadow-sm" : "bg-transparent text-gray-400"
+              activeRole === "student" ? "bg-white dark:bg-[#283036] text-gray-900 dark:text-white shadow-sm" : "bg-transparent text-gray-400 dark:text-[#B0B7BE]"
             }`}
           >
             🎓 Student
@@ -615,7 +615,7 @@ export default function SignupPage() {
           <button
             onClick={() => { setActiveRole("senior"); setOtpSent(false); setAgreedToTerms(false); }}
             className={`flex-1 h-9 rounded-lg text-sm font-semibold transition-all cursor-pointer border-none ${
-              activeRole === "senior" ? "bg-white text-gray-900 shadow-sm" : "bg-transparent text-gray-400"
+              activeRole === "senior" ? "bg-white dark:bg-[#283036] text-gray-900 dark:text-white shadow-sm" : "bg-transparent text-gray-400 dark:text-[#B0B7BE]"
             }`}
           >
             👔 Senior
@@ -625,10 +625,10 @@ export default function SignupPage() {
         {!otpSent && (
           <div>
             {googleId ? (
-              <div className="bg-green-50 border border-green-200 text-green-700 text-xs rounded-xl p-3.5 flex items-center justify-between">
+              <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-400 text-xs rounded-xl p-3.5 flex items-center justify-between">
                 <div>
                   <span className="font-bold">✓ Google Connected</span>
-                  <p className="text-[10px] text-green-600 mt-0.5">We pre-verified your email. Complete fields below.</p>
+                  <p className="text-[10px] text-green-600 dark:text-green-400 mt-0.5">We pre-verified your email. Complete fields below.</p>
                 </div>
                 <button 
                   type="button"
@@ -639,7 +639,7 @@ export default function SignupPage() {
                     sessionStorage.removeItem('google_signup_email');
                     sessionStorage.removeItem('google_signup_id');
                   }}
-                  className="text-green-700 font-bold hover:underline text-[10px] ml-2 bg-transparent border-none cursor-pointer"
+                  className="text-green-700 dark:text-green-400 font-bold hover:underline text-[10px] ml-2 bg-transparent border-none cursor-pointer"
                 >
                   Disconnect
                 </button>
@@ -653,10 +653,10 @@ export default function SignupPage() {
                 />
                 <div className="relative my-5">
                   <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-gray-200" />
+                    <div className="w-full border-t border-gray-200 dark:border-[#38434F]" />
                   </div>
                   <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-[#FAFAFA] px-3 text-gray-400 font-medium">or sign up with email</span>
+                    <span className="bg-[#FAFAFA] dark:bg-[#1D2226] px-3 text-gray-400 dark:text-[#B0B7BE] font-medium">or sign up with email</span>
                   </div>
                 </div>
               </>
@@ -670,19 +670,19 @@ export default function SignupPage() {
               {!otpSent && (
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">Full Name</label>
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-[#B0B7BE] mb-1.5">Full Name</label>
                     <input
                       type="text"
                       placeholder="Arun Kumar"
                       value={studentData.full_name}
                       onChange={(e) => setStudentData({...studentData, full_name: e.target.value})}
-                      className="w-full h-11 px-3.5 text-sm text-gray-900 placeholder:text-gray-400 border border-gray-200 rounded-xl outline-none transition-all duration-150 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 bg-white"
+                      className="w-full h-11 px-3.5 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:text-[#B0B7BE] border border-gray-200 dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 bg-white dark:bg-[#283036]"
                       required
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">College</label>
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-[#B0B7BE] mb-1.5">College</label>
                     <div className="relative">
                       <input
                         type="text"
@@ -693,12 +693,12 @@ export default function SignupPage() {
                           setShowStudentCollegeDropdown(true);
                         }}
                         onFocus={() => setShowStudentCollegeDropdown(true)}
-                        className="w-full h-11 px-3.5 text-sm text-gray-900 placeholder:text-gray-400 border border-gray-200 rounded-xl outline-none transition-all duration-150 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 bg-white"
+                        className="w-full h-11 px-3.5 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:text-[#B0B7BE] border border-gray-200 dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 bg-white dark:bg-[#283036]"
                       />
                       {showStudentCollegeDropdown && studentData.college_name && (
-                        <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl mt-1.5 max-h-48 overflow-y-auto z-10 shadow-sm">
+                        <div className="absolute top-full left-0 right-0 bg-white dark:bg-[#283036] border border-gray-200 dark:border-[#38434F] rounded-xl mt-1.5 max-h-48 overflow-y-auto z-10 shadow-sm">
                           {collegesLoading ? (
-                            <div className="p-3.5 text-center text-sm text-gray-400">Loading...</div>
+                            <div className="p-3.5 text-center text-sm text-gray-400 dark:text-[#B0B7BE]">Loading...</div>
                           ) : colleges.filter(c => 
                             c.short_name.toLowerCase().includes(studentData.college_name.toLowerCase()) ||
                             c.name.toLowerCase().includes(studentData.college_name.toLowerCase())
@@ -713,9 +713,9 @@ export default function SignupPage() {
                                   setStudentData({...studentData, college_id: college.id, college_name: college.name});
                                   setShowStudentCollegeDropdown(false);
                                 }}
-                                className="flex items-center gap-2.5 p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-none"
+                                className="flex items-center gap-2.5 p-3 hover:bg-gray-50 dark:hover:bg-[#1D2226] dark:bg-[#1D2226] cursor-pointer border-b border-gray-100 dark:border-[#38434F] last:border-none"
                               >
-                                <div className="w-8 h-8 rounded-lg bg-gray-50 border border-gray-100 flex items-center justify-center overflow-hidden flex-shrink-0">
+                                <div className="w-8 h-8 rounded-lg bg-gray-50 dark:bg-[#1D2226] border border-gray-100 dark:border-[#38434F] flex items-center justify-center overflow-hidden flex-shrink-0">
                                   {getCollegeLogo(college) ? (
                                     <img 
                                       src={getCollegeLogo(college)!} 
@@ -729,13 +729,13 @@ export default function SignupPage() {
                                   )}
                                 </div>
                                 <div>
-                                  <div className="text-[13px] font-bold text-gray-900 leading-tight">{college.name}</div>
-                                  <div className="text-[11px] text-gray-400 mt-0.5">{college.location}, {college.state}</div>
+                                  <div className="text-[13px] font-bold text-gray-900 dark:text-white leading-tight">{college.name}</div>
+                                  <div className="text-[11px] text-gray-400 dark:text-[#B0B7BE] mt-0.5">{college.location}, {college.state}</div>
                                 </div>
                               </div>
                             ))
                           ) : (
-                            <div className="p-3.5 text-center text-sm text-gray-400">No college found</div>
+                            <div className="p-3.5 text-center text-sm text-gray-400 dark:text-[#B0B7BE]">No college found</div>
                           )}
                         </div>
                       )}
@@ -743,11 +743,11 @@ export default function SignupPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">Branch</label>
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-[#B0B7BE] mb-1.5">Branch</label>
                     <select
                       value={studentData.branch}
                       onChange={(e) => setStudentData({...studentData, branch: e.target.value})}
-                      className="w-full h-11 px-3.5 text-sm text-gray-900 border border-gray-200 rounded-xl outline-none transition-all duration-150 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 bg-white"
+                      className="w-full h-11 px-3.5 text-sm text-gray-900 dark:text-white border border-gray-200 dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 bg-white dark:bg-[#283036]"
                     >
                       <option value="">Select Branch</option>
                       <optgroup label="Engineering & Technology">
@@ -927,11 +927,11 @@ export default function SignupPage() {
 
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-1.5">Current Year</label>
+                      <label className="block text-sm font-semibold text-gray-700 dark:text-[#B0B7BE] mb-1.5">Current Year</label>
                       <select
                         value={studentData.year}
                         onChange={(e) => setStudentData({...studentData, year: e.target.value})}
-                        className="w-full h-11 px-3.5 text-sm text-gray-900 border border-gray-200 rounded-xl outline-none transition-all duration-150 focus:border-purple-500 bg-white"
+                        className="w-full h-11 px-3.5 text-sm text-gray-900 dark:text-white border border-gray-200 dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-purple-500 bg-white dark:bg-[#283036]"
                       >
                         <option value="">Select Year</option>
                         <optgroup label="Bachelor's">
@@ -957,11 +957,11 @@ export default function SignupPage() {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-1.5">Passout Year</label>
+                      <label className="block text-sm font-semibold text-gray-700 dark:text-[#B0B7BE] mb-1.5">Passout Year</label>
                       <select
                         value={studentData.passout_year}
                         onChange={(e) => setStudentData({...studentData, passout_year: e.target.value})}
-                        className="w-full h-11 px-3.5 text-sm text-gray-900 border border-gray-200 rounded-xl outline-none transition-all duration-150 focus:border-purple-500 bg-white"
+                        className="w-full h-11 px-3.5 text-sm text-gray-900 dark:text-white border border-gray-200 dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-purple-500 bg-white dark:bg-[#283036]"
                       >
                         <option value="">Year</option>
                         {[2025, 2026, 2027, 2028, 2029, 2030, 2031, 2032, 2033, 2034, 2035].map(y => <option key={y} value={y}>{y}</option>)}
@@ -970,31 +970,31 @@ export default function SignupPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">Email Address</label>
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-[#B0B7BE] mb-1.5">Email Address</label>
                     <input
                       type="email"
                       placeholder="yourname@gmail.com"
                       value={studentData.email}
                       onChange={(e) => setStudentData({...studentData, email: e.target.value})}
-                      className={`w-full h-11 px-3.5 text-sm border border-gray-200 rounded-xl outline-none transition-all duration-150 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 bg-white placeholder:text-gray-400 ${googleId ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'text-gray-900'}`}
+                      className={`w-full h-11 px-3.5 text-sm border border-gray-200 dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 bg-white dark:bg-[#283036] placeholder:text-gray-400 dark:text-[#B0B7BE] ${googleId ? 'bg-gray-100 text-gray-400 dark:text-[#B0B7BE] cursor-not-allowed' : 'text-gray-900 dark:text-white'}`}
                       readOnly={!!googleId}
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">Password</label>
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-[#B0B7BE] mb-1.5">Password</label>
                     <div className="relative">
                       <input
                         type={showPassword ? 'text' : 'password'}
                         placeholder="Minimum 6 characters"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="w-full h-11 px-3.5 pr-11 text-sm text-gray-900 placeholder:text-gray-400 border border-gray-200 rounded-xl outline-none transition-all duration-150 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 bg-white"
+                        className="w-full h-11 px-3.5 pr-11 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:text-[#B0B7BE] border border-gray-200 dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 bg-white dark:bg-[#283036]"
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 bg-transparent border-none cursor-pointer p-0"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-[#B0B7BE] hover:text-gray-600 dark:hover:text-[#B0B7BE] bg-transparent border-none cursor-pointer p-0"
                       >
                         {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                       </button>
@@ -1002,19 +1002,19 @@ export default function SignupPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">Confirm Password</label>
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-[#B0B7BE] mb-1.5">Confirm Password</label>
                     <div className="relative">
                       <input
                         type={showConfirmPassword ? 'text' : 'password'}
                         placeholder="Confirm password"
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
-                        className="w-full h-11 px-3.5 pr-11 text-sm text-gray-900 placeholder:text-gray-400 border border-gray-200 rounded-xl outline-none transition-all duration-150 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 bg-white"
+                        className="w-full h-11 px-3.5 pr-11 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:text-[#B0B7BE] border border-gray-200 dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 bg-white dark:bg-[#283036]"
                       />
                       <button
                         type="button"
                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 bg-transparent border-none cursor-pointer p-0"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-[#B0B7BE] hover:text-gray-600 dark:hover:text-[#B0B7BE] bg-transparent border-none cursor-pointer p-0"
                       >
                         {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                       </button>
@@ -1022,8 +1022,8 @@ export default function SignupPage() {
                   </div>
 
                   {error && (
-                    <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3">
-                      <p className="text-xs font-medium text-red-600">{error}</p>
+                    <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl px-4 py-3">
+                      <p className="text-xs font-medium text-red-600 dark:text-red-400">{error}</p>
                     </div>
                   )}
 
@@ -1037,7 +1037,7 @@ export default function SignupPage() {
                     />
                     <label 
                       htmlFor="terms-student" 
-                      className="text-xs text-gray-500 leading-relaxed cursor-pointer"
+                      className="text-xs text-gray-500 dark:text-[#B0B7BE] leading-relaxed cursor-pointer"
                     >
                       I agree to Claspire's{' '}
                       <Link 
@@ -1084,7 +1084,7 @@ export default function SignupPage() {
               {!otpSent && (
                 <div className="space-y-4">
                   <div>
-                    <p className="text-xs font-semibold text-gray-500 mb-3">How would you like to verify?</p>
+                    <p className="text-xs font-semibold text-gray-500 dark:text-[#B0B7BE] mb-3">How would you like to verify?</p>
                     <div className="space-y-2.5">
                       {[
                         { key: 'work_email', icon: '✉️', title: 'Work Email', desc: 'Instant verification via company email', badge: 'Instant', available: true },
@@ -1095,16 +1095,16 @@ export default function SignupPage() {
                           key={method.key}
                           onClick={() => method.available && setVerifyMethod(method.key as any)}
                           className={`flex items-center gap-3 p-3.5 border rounded-xl cursor-pointer transition-all ${
-                            verifyMethod === method.key ? "border-purple-500 bg-purple-50/50" : "border-gray-200 hover:border-purple-200"
+                            verifyMethod === method.key ? "border-purple-500 bg-purple-50/50 dark:bg-purple-900/20" : "border-gray-200 dark:border-[#38434F] hover:border-purple-200 dark:hover:border-purple-700"
                           } ${!method.available && 'opacity-60 cursor-not-allowed'}`}
                         >
-                          <div className="w-9 h-9 bg-white rounded-lg flex items-center justify-center text-base border border-gray-100">{method.icon}</div>
+                          <div className="w-9 h-9 bg-white dark:bg-[#283036] rounded-lg flex items-center justify-center text-base border border-gray-100 dark:border-[#38434F]">{method.icon}</div>
                           <div className="flex-1 min-w-0">
-                            <div className="text-sm font-bold text-gray-900">{method.title}</div>
-                            <div className="text-[11px] text-gray-400">{method.desc}</div>
+                            <div className="text-sm font-bold text-gray-900 dark:text-white">{method.title}</div>
+                            <div className="text-[11px] text-gray-400 dark:text-[#B0B7BE]">{method.desc}</div>
                           </div>
                           <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0 ${
-                            method.available ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-600'
+                            method.available ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' : 'bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400'
                           }`}>{method.badge}</span>
                         </div>
                       ))}
@@ -1115,7 +1115,7 @@ export default function SignupPage() {
                     <div className="space-y-4">
                       <div>
                         <div className="flex justify-between items-center mb-1.5">
-                          <label className="block text-sm font-semibold text-gray-700">{seniorData.is_fresher ? 'Email' : 'Work Email'}</label>
+                          <label className="block text-sm font-semibold text-gray-700 dark:text-[#B0B7BE]">{seniorData.is_fresher ? 'Email' : 'Work Email'}</label>
                           <label className="flex items-center gap-1.5 cursor-pointer">
                             <input 
                               type="checkbox" 
@@ -1123,7 +1123,7 @@ export default function SignupPage() {
                               onChange={e => setSeniorData({...seniorData, is_fresher: e.target.checked})}
                               className="w-3.5 h-3.5 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
                             />
-                            <span className="text-[11px] font-medium text-gray-500">I don't have work email (Fresher)</span>
+                            <span className="text-[11px] font-medium text-gray-500 dark:text-[#B0B7BE]">I don't have work email (Fresher)</span>
                           </label>
                         </div>
                         <input
@@ -1131,25 +1131,25 @@ export default function SignupPage() {
                           placeholder={seniorData.is_fresher ? "yourname@gmail.com" : "name@company.com"}
                           value={seniorData.work_email}
                           onChange={e => setSeniorData({...seniorData, work_email: e.target.value})}
-                          className={`w-full h-11 px-3.5 text-sm border border-gray-200 rounded-xl outline-none transition-all duration-150 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 bg-white placeholder:text-gray-400 ${googleId ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'text-gray-900'}`}
+                          className={`w-full h-11 px-3.5 text-sm border border-gray-200 dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 bg-white dark:bg-[#283036] placeholder:text-gray-400 dark:text-[#B0B7BE] ${googleId ? 'bg-gray-100 text-gray-400 dark:text-[#B0B7BE] cursor-not-allowed' : 'text-gray-900 dark:text-white'}`}
                           readOnly={!!googleId}
                         />
-                        {!seniorData.is_fresher && !googleId && <p className="text-[10px] text-gray-400 mt-0.5">Use office email for instant approval</p>}
+                        {!seniorData.is_fresher && !googleId && <p className="text-[10px] text-gray-400 dark:text-[#B0B7BE] mt-0.5">Use office email for instant approval</p>}
                       </div>
 
                       <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-1.5">Full Name</label>
+                        <label className="block text-sm font-semibold text-gray-700 dark:text-[#B0B7BE] mb-1.5">Full Name</label>
                         <input
                           type="text"
                           placeholder="Full Name"
                           value={seniorData.full_name}
                           onChange={e => setSeniorData({...seniorData, full_name: e.target.value})}
-                          className="w-full h-11 px-3.5 text-sm text-gray-900 placeholder:text-gray-400 border border-gray-200 rounded-xl outline-none transition-all duration-150 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 bg-white"
+                          className="w-full h-11 px-3.5 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:text-[#B0B7BE] border border-gray-200 dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 bg-white dark:bg-[#283036]"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-1.5">College graduated from</label>
+                        <label className="block text-sm font-semibold text-gray-700 dark:text-[#B0B7BE] mb-1.5">College graduated from</label>
                         <div className="relative">
                           <input
                             type="text"
@@ -1160,12 +1160,12 @@ export default function SignupPage() {
                               setShowSeniorCollegeDropdown(true);
                             }}
                             onFocus={() => setShowSeniorCollegeDropdown(true)}
-                            className="w-full h-11 px-3.5 text-sm text-gray-900 placeholder:text-gray-400 border border-gray-200 rounded-xl outline-none transition-all duration-150 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 bg-white"
+                            className="w-full h-11 px-3.5 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:text-[#B0B7BE] border border-gray-200 dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 bg-white dark:bg-[#283036]"
                           />
                           {showSeniorCollegeDropdown && seniorData.college_name && (
-                            <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl mt-1.5 max-h-48 overflow-y-auto z-10 shadow-sm">
+                            <div className="absolute top-full left-0 right-0 bg-white dark:bg-[#283036] border border-gray-200 dark:border-[#38434F] rounded-xl mt-1.5 max-h-48 overflow-y-auto z-10 shadow-sm">
                               {collegesLoading ? (
-                                <div className="p-3.5 text-center text-sm text-gray-400">Loading...</div>
+                                <div className="p-3.5 text-center text-sm text-gray-400 dark:text-[#B0B7BE]">Loading...</div>
                               ) : colleges.filter(c => 
                                 c.short_name.toLowerCase().includes(seniorData.college_name.toLowerCase()) ||
                                 c.name.toLowerCase().includes(seniorData.college_name.toLowerCase())
@@ -1180,9 +1180,9 @@ export default function SignupPage() {
                                       setSeniorData({...seniorData, college_id: college.id, college_name: college.name});
                                       setShowSeniorCollegeDropdown(false);
                                     }}
-                                    className="flex items-center gap-2.5 p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-none"
+                                    className="flex items-center gap-2.5 p-3 hover:bg-gray-50 dark:hover:bg-[#1D2226] dark:bg-[#1D2226] cursor-pointer border-b border-gray-100 dark:border-[#38434F] last:border-none"
                                   >
-                                    <div className="w-8 h-8 rounded-lg bg-gray-50 border border-gray-100 flex items-center justify-center overflow-hidden flex-shrink-0">
+                                    <div className="w-8 h-8 rounded-lg bg-gray-50 dark:bg-[#1D2226] border border-gray-100 dark:border-[#38434F] flex items-center justify-center overflow-hidden flex-shrink-0">
                                       {getCollegeLogo(college) ? (
                                         <img 
                                           src={getCollegeLogo(college)!} 
@@ -1196,13 +1196,13 @@ export default function SignupPage() {
                                       )}
                                     </div>
                                     <div>
-                                      <div className="text-[13px] font-bold text-gray-900 leading-tight">{college.name}</div>
-                                      <div className="text-[11px] text-gray-400 mt-0.5">{college.location}, {college.state}</div>
+                                      <div className="text-[13px] font-bold text-gray-900 dark:text-white leading-tight">{college.name}</div>
+                                      <div className="text-[11px] text-gray-400 dark:text-[#B0B7BE] mt-0.5">{college.location}, {college.state}</div>
                                     </div>
                                   </div>
                                 ))
                               ) : (
-                                <div className="p-3.5 text-center text-sm text-gray-400">No college found</div>
+                                <div className="p-3.5 text-center text-sm text-gray-400 dark:text-[#B0B7BE]">No college found</div>
                               )}
                             </div>
                           )}
@@ -1211,48 +1211,48 @@ export default function SignupPage() {
 
                       <div className="grid grid-cols-2 gap-3">
                         <div>
-                          <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-                            Company {seniorData.is_fresher && <span className="text-gray-400 font-normal">(Optional)</span>}
+                          <label className="block text-sm font-semibold text-gray-700 dark:text-[#B0B7BE] mb-1.5">
+                            Company {seniorData.is_fresher && <span className="text-gray-400 dark:text-[#B0B7BE] font-normal">(Optional)</span>}
                           </label>
                           <input
                             type="text"
                             placeholder="Google, etc."
                             value={seniorData.company}
                             onChange={e => setSeniorData({...seniorData, company: e.target.value})}
-                            className="w-full h-11 px-3.5 text-sm text-gray-900 placeholder:text-gray-400 border border-gray-200 rounded-xl outline-none transition-all duration-150 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 bg-white"
+                            className="w-full h-11 px-3.5 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:text-[#B0B7BE] border border-gray-200 dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 bg-white dark:bg-[#283036]"
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-                            Designation {seniorData.is_fresher && <span className="text-gray-400 font-normal">(Optional)</span>}
+                          <label className="block text-sm font-semibold text-gray-700 dark:text-[#B0B7BE] mb-1.5">
+                            Designation {seniorData.is_fresher && <span className="text-gray-400 dark:text-[#B0B7BE] font-normal">(Optional)</span>}
                           </label>
                           <input
                             type="text"
                             placeholder="Software Engineer"
                             value={seniorData.designation}
                             onChange={e => setSeniorData({...seniorData, designation: e.target.value})}
-                            className="w-full h-11 px-3.5 text-sm text-gray-900 placeholder:text-gray-400 border border-gray-200 rounded-xl outline-none transition-all duration-150 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 bg-white"
+                            className="w-full h-11 px-3.5 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:text-[#B0B7BE] border border-gray-200 dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 bg-white dark:bg-[#283036]"
                           />
                         </div>
                       </div>
 
                       <div className="grid grid-cols-2 gap-3">
                         <div>
-                          <label className="block text-sm font-semibold text-gray-700 mb-1.5">Branch</label>
+                          <label className="block text-sm font-semibold text-gray-700 dark:text-[#B0B7BE] mb-1.5">Branch</label>
                           <input
                             type="text"
                             placeholder="CSE, BA, B.Com, B.Sc, etc."
                             value={seniorData.branch}
                             onChange={e => setSeniorData({...seniorData, branch: e.target.value})}
-                            className="w-full h-11 px-3.5 text-sm text-gray-900 placeholder:text-gray-400 border border-gray-200 rounded-xl outline-none transition-all duration-150 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 bg-white"
+                            className="w-full h-11 px-3.5 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:text-[#B0B7BE] border border-gray-200 dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 bg-white dark:bg-[#283036]"
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-semibold text-gray-700 mb-1.5">Passout Year</label>
+                          <label className="block text-sm font-semibold text-gray-700 dark:text-[#B0B7BE] mb-1.5">Passout Year</label>
                           <select 
                             value={seniorData.passout_year}
                             onChange={e => setSeniorData({...seniorData, passout_year: e.target.value})}
-                            className="w-full h-11 px-3.5 text-sm text-gray-900 border border-gray-200 rounded-xl outline-none transition-all duration-150 focus:border-purple-500 bg-white"
+                            className="w-full h-11 px-3.5 text-sm text-gray-900 dark:text-white border border-gray-200 dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-purple-500 bg-white dark:bg-[#283036]"
                           >
                             <option value="">Year</option>
                             {[2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018].map(y => <option key={y} value={y}>{y}</option>)}
@@ -1261,19 +1261,19 @@ export default function SignupPage() {
                       </div>
 
                       <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-1.5">Password</label>
+                        <label className="block text-sm font-semibold text-gray-700 dark:text-[#B0B7BE] mb-1.5">Password</label>
                         <div className="relative">
                           <input
                             type={showPassword ? 'text' : 'password'}
                             placeholder="Minimum 6 characters"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            className="w-full h-11 px-3.5 pr-11 text-sm text-gray-900 placeholder:text-gray-400 border border-gray-200 rounded-xl outline-none transition-all duration-150 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 bg-white"
+                            className="w-full h-11 px-3.5 pr-11 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:text-[#B0B7BE] border border-gray-200 dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 bg-white dark:bg-[#283036]"
                           />
                           <button
                             type="button"
                             onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 bg-transparent border-none cursor-pointer p-0"
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-[#B0B7BE] hover:text-gray-600 dark:hover:text-[#B0B7BE] bg-transparent border-none cursor-pointer p-0"
                           >
                             {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                           </button>
@@ -1281,19 +1281,19 @@ export default function SignupPage() {
                       </div>
 
                       <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-1.5">Confirm Password</label>
+                        <label className="block text-sm font-semibold text-gray-700 dark:text-[#B0B7BE] mb-1.5">Confirm Password</label>
                         <div className="relative">
                           <input
                             type={showConfirmPassword ? 'text' : 'password'}
                             placeholder="Confirm password"
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
-                            className="w-full h-11 px-3.5 pr-11 text-sm text-gray-900 placeholder:text-gray-400 border border-gray-200 rounded-xl outline-none transition-all duration-150 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 bg-white"
+                            className="w-full h-11 px-3.5 pr-11 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:text-[#B0B7BE] border border-gray-200 dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 bg-white dark:bg-[#283036]"
                           />
                           <button
                             type="button"
                             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 bg-transparent border-none cursor-pointer p-0"
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-[#B0B7BE] hover:text-gray-600 dark:hover:text-[#B0B7BE] bg-transparent border-none cursor-pointer p-0"
                           >
                             {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                           </button>
@@ -1301,8 +1301,8 @@ export default function SignupPage() {
                       </div>
 
                       {error && (
-                        <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3">
-                          <p className="text-xs font-medium text-red-600">{error}</p>
+                        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl px-4 py-3">
+                          <p className="text-xs font-medium text-red-600 dark:text-red-400">{error}</p>
                         </div>
                       )}
 
@@ -1316,7 +1316,7 @@ export default function SignupPage() {
                         />
                         <label 
                           htmlFor="terms-senior" 
-                          className="text-xs text-gray-500 leading-relaxed cursor-pointer"
+                          className="text-xs text-gray-500 dark:text-[#B0B7BE] leading-relaxed cursor-pointer"
                         >
                           I agree to Claspire's{' '}
                           <Link 
@@ -1365,8 +1365,8 @@ export default function SignupPage() {
           {otpSent && step === 'form' && (
             <div className="text-center pt-4 space-y-6">
               <div className="space-y-2">
-                <h2 className="text-xl font-bold text-gray-900 font-plus-jakarta-sans">Check your email 📧</h2>
-                <p className="text-sm text-gray-500">
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white font-plus-jakarta-sans">Check your email 📧</h2>
+                <p className="text-sm text-gray-500 dark:text-[#B0B7BE]">
                   Enter the code sent to{' '}
                   <span className="font-bold text-purple-600">
                     {activeRole === 'student' ? studentData.email : seniorData.work_email}
@@ -1374,7 +1374,7 @@ export default function SignupPage() {
                 </p>
               </div>
 
-              <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-4 py-2.5 inline-block">
+              <p className="text-xs text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl px-4 py-2.5 inline-block">
                 ⚠️ Don't forget to check your spam folder too!
               </p>
 
@@ -1388,14 +1388,14 @@ export default function SignupPage() {
                     value={digit}
                     onChange={e => handleOtpChange(index, e.target.value)}
                     onKeyDown={e => handleOtpKeyDown(index, e)}
-                    className="w-11 h-13 border border-gray-200 rounded-xl text-center text-lg font-bold focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 outline-none bg-white text-gray-900"
+                    className="w-11 h-13 border border-gray-200 dark:border-[#38434F] rounded-xl text-center text-lg font-bold focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 outline-none bg-white dark:bg-[#283036] text-gray-900 dark:text-white"
                   />
                 ))}
               </div>
 
               {error && (
-                <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3">
-                  <p className="text-xs font-medium text-red-600">{error}</p>
+                <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl px-4 py-3">
+                  <p className="text-xs font-medium text-red-600 dark:text-red-400">{error}</p>
                 </div>
               )}
 
@@ -1415,9 +1415,9 @@ export default function SignupPage() {
               </button>
 
               <div className="flex justify-between items-center">
-                <button onClick={() => setOtpSent(false)} className="text-xs text-gray-400 hover:text-purple-600 bg-transparent border-none cursor-pointer">← Change Email</button>
+                <button onClick={() => setOtpSent(false)} className="text-xs text-gray-400 dark:text-[#B0B7BE] hover:text-purple-600 bg-transparent border-none cursor-pointer">← Change Email</button>
                 {resendTimer > 0 ? (
-                  <span className="text-xs text-gray-400">Resend in {resendTimer}s</span>
+                  <span className="text-xs text-gray-400 dark:text-[#B0B7BE]">Resend in {resendTimer}s</span>
                 ) : (
                   <button onClick={sendOTP} className="text-xs text-purple-600 font-bold hover:underline bg-transparent border-none cursor-pointer">Resend code</button>
                 )}
@@ -1426,7 +1426,7 @@ export default function SignupPage() {
           )}
         </div>
 
-        <p className="text-center text-xs text-gray-300 font-medium pt-2">
+        <p className="text-center text-xs text-gray-300 dark:text-[#B0B7BE] font-medium pt-2">
           © 2026 Claspire · India's College Community
         </p>
       </div>

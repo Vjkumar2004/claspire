@@ -73,12 +73,12 @@ export default function MyNetworkTab({ refreshKey = 0 }: MyNetworkTabProps) {
       <div className="space-y-3">
         {[1, 2, 3].map((i) => (
           <div key={i} className="network-card p-4 flex items-center gap-4 animate-pulse">
-            <div className="w-11 h-11 rounded-full bg-gray-100" />
+            <div className="w-11 h-11 rounded-full bg-gray-100 dark:bg-[#1D2226]" />
             <div className="flex-1 space-y-2">
-              <div className="h-3 bg-gray-100 rounded w-1/3" />
-              <div className="h-2.5 bg-gray-50 rounded w-1/4" />
+              <div className="h-3 bg-gray-100 dark:bg-[#1D2226] rounded w-1/3" />
+              <div className="h-2.5 bg-gray-50 dark:bg-[#1D2226] rounded w-1/4" />
             </div>
-            <div className="h-8 w-24 bg-gray-100 rounded-lg" />
+            <div className="h-8 w-24 bg-gray-100 dark:bg-[#1D2226] rounded-lg" />
           </div>
         ))}
       </div>
@@ -88,11 +88,11 @@ export default function MyNetworkTab({ refreshKey = 0 }: MyNetworkTabProps) {
   if (connections.length === 0) {
     return (
       <div className="text-center py-12 network-card">
-        <div className="w-14 h-14 bg-purple-50 rounded-2xl flex items-center justify-center mx-auto mb-3">
-          <Users size={22} className="text-purple-400" />
+        <div className="w-14 h-14 bg-purple-50 dark:bg-purple-900/20 rounded-2xl flex items-center justify-center mx-auto mb-3">
+          <Users size={22} className="text-purple-400 dark:text-purple-300" />
         </div>
-        <h3 className="text-sm font-bold text-gray-900 mb-1">No connections yet</h3>
-        <p className="text-xs text-gray-500">Discover people to connect with in the Discover tab</p>
+        <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-1">No connections yet</h3>
+        <p className="text-xs text-gray-500 dark:text-[#B0B7BE]">Discover people to connect with in the Discover tab</p>
       </div>
     )
   }
@@ -103,8 +103,8 @@ export default function MyNetworkTab({ refreshKey = 0 }: MyNetworkTabProps) {
       <div className="mb-6">
         <div className="flex items-center gap-2 mb-3">
           {icon}
-          <h3 className="text-sm font-bold text-gray-700">{title}</h3>
-          <span className="text-xs font-semibold text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">{items.length}</span>
+          <h3 className="text-sm font-bold text-gray-700 dark:text-white">{title}</h3>
+          <span className="text-xs font-semibold text-gray-400 dark:text-[#B0B7BE] bg-gray-100 dark:bg-[#1D2226] px-2 py-0.5 rounded-full">{items.length}</span>
         </div>
         <div className="space-y-2">
           {items.map((conn) => (
@@ -114,7 +114,7 @@ export default function MyNetworkTab({ refreshKey = 0 }: MyNetworkTabProps) {
             >
               <div
                 onClick={() => router.push(`/u/${conn.unique_id}`)}
-                className="w-11 h-11 rounded-full bg-gray-100 flex items-center justify-center text-xs font-black text-gray-400 border border-gray-200 overflow-hidden cursor-pointer flex-shrink-0"
+                className="w-11 h-11 rounded-full bg-gray-100 dark:bg-[#1D2226] flex items-center justify-center text-xs font-black text-gray-400 dark:text-[#B0B7BE] border border-gray-200 dark:border-[#38434F] overflow-hidden cursor-pointer flex-shrink-0"
               >
                 {conn.avatar_url ? (
                   <img src={conn.avatar_url} alt={conn.full_name} className="w-full h-full object-cover" loading="lazy" />
@@ -127,7 +127,7 @@ export default function MyNetworkTab({ refreshKey = 0 }: MyNetworkTabProps) {
                 <div className="flex items-center gap-2">
                   <h4
                     onClick={() => router.push(`/u/${conn.unique_id}`)}
-                    className="text-sm font-bold text-gray-900 hover:text-purple-600 cursor-pointer truncate flex items-center gap-1.5"
+                    className="text-sm font-bold text-gray-900 dark:text-white hover:text-purple-600 cursor-pointer truncate flex items-center gap-1.5"
                   >
                     <span className="truncate">{conn.full_name}</span>
                     {conn.last_seen && (
@@ -142,7 +142,7 @@ export default function MyNetworkTab({ refreshKey = 0 }: MyNetworkTabProps) {
                     {conn.role === 'senior' ? 'Senior' : 'Student'}
                   </span>
                 </div>
-                <p className="text-xs text-gray-500 mt-0.5 truncate">
+                <p className="text-xs text-gray-500 dark:text-[#B0B7BE] mt-0.5 truncate">
                   {conn.designation && conn.company
                     ? `${conn.designation} at ${conn.company}`
                     : conn.college?.short_name || conn.branch || ''}
@@ -162,14 +162,14 @@ export default function MyNetworkTab({ refreshKey = 0 }: MyNetworkTabProps) {
                 </button>
                 <button
                   onClick={() => router.push(`/u/${conn.unique_id}`)}
-                  className="px-3 py-1.5 rounded-lg text-xs font-semibold text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 hover:border-gray-300 transition-colors"
+                  className="px-3 py-1.5 rounded-lg text-xs font-semibold text-gray-600 dark:text-[#B0B7BE] bg-white dark:bg-[#283036] border border-gray-200 dark:border-[#38434F] hover:bg-gray-50 dark:bg-[#1D2226] dark:hover:bg-[#1D2226] hover:border-gray-300 transition-colors"
                 >
                   Profile
                 </button>
                 <button
                   onClick={() => handleRemove(conn.connection_id)}
                   disabled={removingId === conn.connection_id}
-                  className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+                  className="p-1.5 rounded-lg text-gray-400 dark:text-[#B0B7BE] hover:text-red-500 hover:bg-red-50 transition-colors"
                   title="Remove connection"
                 >
                   {removingId === conn.connection_id ? (
@@ -190,23 +190,23 @@ export default function MyNetworkTab({ refreshKey = 0 }: MyNetworkTabProps) {
     <div>
       {/* Search */}
       <div className="relative mb-4">
-        <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+        <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-[#B0B7BE]" />
         <input
           type="text"
           placeholder="Search your connections..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full pl-10 pr-3 py-2.5 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 outline-none focus:border-purple-300 focus:ring-2 focus:ring-purple-50 transition-all font-medium"
+          className="w-full pl-10 pr-3 py-2.5 text-sm border border-gray-200 dark:border-[#38434F] rounded-xl bg-white dark:bg-[#283036] text-gray-900 dark:text-white outline-none focus:border-purple-300 focus:ring-2 focus:ring-purple-50 dark:focus:ring-purple-900/30 transition-all font-medium"
         />
       </div>
 
       {searchQuery && filtered.length === 0 ? (
         <div className="text-center py-12 network-card">
-          <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center mx-auto mb-3">
-            <Search size={20} className="text-blue-400" />
+          <div className="w-12 h-12 bg-blue-50 dark:bg-blue-900/20 rounded-xl flex items-center justify-center mx-auto mb-3">
+            <Search size={20} className="text-blue-400 dark:text-blue-300" />
           </div>
-          <h3 className="text-sm font-bold text-gray-900 mb-1">No matching connections</h3>
-          <p className="text-xs text-gray-500">Try a different search term</p>
+          <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-1">No matching connections</h3>
+          <p className="text-xs text-gray-500 dark:text-[#B0B7BE]">Try a different search term</p>
         </div>
       ) : (
         <>

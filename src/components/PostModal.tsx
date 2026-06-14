@@ -347,7 +347,7 @@ export default function PostModal({
           borderRadius: '20px 20px 0 0'
         }}>
           <div>
-            <h2 className="text-xl font-bold text-gray-900 font-instrument-serif">{editData ? 'Edit Post' : 'Create a Post'}</h2>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white font-instrument-serif">{editData ? 'Edit Post' : 'Create a Post'}</h2>
             <p style={{
               fontSize: 11,
               color: '#9CA3AF',

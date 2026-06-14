@@ -91,15 +91,15 @@ export default function GroupJoinRequestsSection({ onCountChange }: GroupJoinReq
   }
 
   return (
-    <section className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-      <div className="p-4 border-b border-gray-100 flex items-center justify-between gap-3">
+    <section className="bg-white dark:bg-[#283036] border border-gray-200 dark:border-[#38434F] rounded-xl overflow-hidden">
+      <div className="p-4 border-b border-gray-100 dark:border-[#38434F] flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <div className="w-9 h-9 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
             <Lock size={16} />
           </div>
           <div>
-            <h2 className="text-sm font-black text-gray-900 m-0">Private Group Requests</h2>
-            <p className="text-xs text-gray-500 m-0">Review who can enter your private groups.</p>
+            <h2 className="text-sm font-black text-gray-900 dark:text-white m-0">Private Group Requests</h2>
+            <p className="text-xs text-gray-500 dark:text-[#B0B7BE] m-0">Review who can enter your private groups.</p>
           </div>
         </div>
         {requests.length > 0 && (
@@ -110,12 +110,12 @@ export default function GroupJoinRequestsSection({ onCountChange }: GroupJoinReq
       </div>
 
       {loading ? (
-        <div className="p-8 text-center text-xs text-gray-400">Loading requests...</div>
+        <div className="p-8 text-center text-xs text-gray-400 dark:text-[#B0B7BE]">Loading requests...</div>
       ) : requests.length === 0 ? (
         <div className="p-8 text-center">
           <Clock size={26} className="mx-auto text-gray-300 mb-3" />
-          <p className="text-sm font-bold text-gray-500 m-0">No private group requests</p>
-          <p className="text-xs text-gray-400 m-0 mt-1">New requests will show up here.</p>
+          <p className="text-sm font-bold text-gray-500 dark:text-[#B0B7BE] m-0">No private group requests</p>
+          <p className="text-xs text-gray-400 dark:text-[#B0B7BE] m-0 mt-1">New requests will show up here.</p>
         </div>
       ) : (
         <div className="divide-y divide-gray-100">
@@ -135,15 +135,15 @@ export default function GroupJoinRequestsSection({ onCountChange }: GroupJoinReq
                   </div>
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                      <h3 className="text-sm font-black text-gray-900 m-0 truncate">{user?.full_name || 'Unknown user'}</h3>
-                      <span className="text-[10px] font-bold uppercase bg-gray-100 text-gray-600 rounded px-1.5 py-0.5">
+                      <h3 className="text-sm font-black text-gray-900 dark:text-white m-0 truncate">{user?.full_name || 'Unknown user'}</h3>
+                      <span className="text-[10px] font-bold uppercase bg-gray-100 text-gray-600 dark:text-[#B0B7BE] rounded px-1.5 py-0.5">
                         {user?.role || 'student'}
                       </span>
                     </div>
-                    <p className="text-xs text-gray-500 m-0 mt-1">
+                    <p className="text-xs text-gray-500 dark:text-[#B0B7BE] m-0 mt-1">
                       Wants to join <span className="font-bold text-gray-800">{request.group?.name || 'your group'}</span>
                     </p>
-                    <p className="text-[11px] text-gray-400 m-0 mt-1">
+                    <p className="text-[11px] text-gray-400 dark:text-[#B0B7BE] m-0 mt-1">
                       {user?.unique_id || 'No ID'} • {getCollegeName(user)}{user?.branch ? ` • ${user.branch}` : ''}{user?.year ? ` • Year ${user.year}` : ''}
                     </p>
                   </div>

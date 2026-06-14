@@ -17,8 +17,8 @@ function YourImpactCard({ doubtCount, answerCount, referralCount, upvotesReceive
   ]
 
   return (
-    <div className="bg-white rounded-md border border-slate-200 p-3.5 shadow-sm">
-      <h4 className="font-bold text-slate-900 text-xs mb-3 flex items-center gap-1.5">
+    <div className="bg-white dark:bg-[#283036] rounded-md border border-slate-200 dark:border-[#38434F] p-3.5 shadow-sm">
+      <h4 className="font-bold text-slate-900 dark:text-white text-xs mb-3 flex items-center gap-1.5">
         <MessageCircle className="w-4 h-4 text-indigo-500" />
         Your Impact
       </h4>
@@ -26,11 +26,11 @@ function YourImpactCard({ doubtCount, answerCount, referralCount, upvotesReceive
         {metrics.map((metric) => (
           <div
             key={metric.label}
-            className="bg-slate-50 rounded-md p-2.5 border border-slate-100"
+            className="bg-slate-50 dark:bg-[#1D2226] rounded-md p-2.5 border border-slate-100 dark:border-[#38434F]"
           >
             <metric.icon className={`w-4 h-4 ${metric.color} mb-1`} />
-            <p className="text-lg font-bold text-slate-900 leading-none">{metric.value}</p>
-            <p className="text-[9px] text-slate-500 font-semibold mt-0.5 leading-tight">
+            <p className="text-lg font-bold text-slate-900 dark:text-white leading-none">{metric.value}</p>
+            <p className="text-[9px] text-slate-500 dark:text-[#B0B7BE] font-semibold mt-0.5 leading-tight">
               {metric.label}
             </p>
           </div>

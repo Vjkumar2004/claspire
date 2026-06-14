@@ -26,7 +26,7 @@ export default function DeleteAccountModal({ isOpen, onClose, onConfirm, isLoadi
         </h2>
 
         {/* Subtext */}
-        <p className="text-gray-400 text-sm text-center">
+        <p className="text-gray-400 dark:text-[#B0B7BE] text-sm text-center">
           This action is permanent and cannot be undone. All your posts, answers, rise points, and profile data will be permanently deleted.
         </p>
 

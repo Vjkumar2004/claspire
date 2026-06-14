@@ -27,7 +27,7 @@ export default function GroupWarningModal({ isOpen, onContinue, onCancel }: Grou
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="relative bg-white rounded-[24px] w-full max-w-sm sm:max-w-md shadow-2xl overflow-hidden"
+            className="relative bg-white dark:bg-[#283036] rounded-[24px] w-full max-w-sm sm:max-w-md shadow-2xl overflow-hidden"
           >
             {/* Header */}
             <div className="bg-gradient-to-r from-amber-50 to-orange-50 p-4 sm:p-6 border-b border-amber-100">
@@ -36,13 +36,13 @@ export default function GroupWarningModal({ isOpen, onContinue, onCancel }: Grou
                   <div className="w-10 h-10 sm:w-12 sm:h-12 bg-amber-100 rounded-full flex items-center justify-center">
                     <AlertTriangle size={18} className="sm:size-6 text-amber-600" />
                   </div>
-                  <h2 className="text-lg sm:text-xl font-black text-gray-900 font-instrument-serif">
+                  <h2 className="text-lg sm:text-xl font-black text-gray-900 dark:text-white font-instrument-serif">
                     Community Guidelines ⚠️
                   </h2>
                 </div>
                 <button
                   onClick={onCancel}
-                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                  className="text-gray-400 dark:text-[#B0B7BE] hover:text-gray-600 dark:text-[#B0B7BE] transition-colors"
                 >
                   <X size={18} className="sm:size-5" />
                 </button>
@@ -52,7 +52,7 @@ export default function GroupWarningModal({ isOpen, onContinue, onCancel }: Grou
             {/* Content */}
             <div className="p-4 sm:p-6">
               <div className="space-y-4">
-                <p className="text-xs sm:text-sm font-medium text-gray-600 leading-relaxed">
+                <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-[#B0B7BE] leading-relaxed">
                   Before creating your student group, please read and agree to our community guidelines:
                 </p>
 
@@ -82,8 +82,8 @@ export default function GroupWarningModal({ isOpen, onContinue, onCancel }: Grou
                     <div key={index} className="flex gap-3">
                       <div className="text-base sm:text-lg flex-shrink-0">{rule.icon}</div>
                       <div>
-                        <h4 className="text-xs sm:text-sm font-bold text-gray-900">{rule.title}</h4>
-                        <p className="text-xs text-gray-600 mt-0.5">{rule.description}</p>
+                        <h4 className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white">{rule.title}</h4>
+                        <p className="text-xs text-gray-600 dark:text-[#B0B7BE] mt-0.5">{rule.description}</p>
                       </div>
                     </div>
                   ))}
@@ -100,7 +100,7 @@ export default function GroupWarningModal({ isOpen, onContinue, onCancel }: Grou
               <div className="flex gap-3 mt-6">
                 <button
                   onClick={onCancel}
-                  className="flex-1 px-3 py-2.5 sm:px-4 sm:py-3 rounded-xl sm:rounded-2xl border border-gray-200 text-gray-600 font-bold text-xs sm:text-sm hover:bg-gray-50 transition-colors"
+                  className="flex-1 px-3 py-2.5 sm:px-4 sm:py-3 rounded-xl sm:rounded-2xl border border-gray-200 dark:border-[#38434F] text-gray-600 dark:text-[#B0B7BE] font-bold text-xs sm:text-sm hover:bg-gray-50 dark:hover:bg-[#1D2226] transition-colors"
                 >
                   Cancel
                 </button>

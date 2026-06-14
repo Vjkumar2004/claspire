@@ -1052,84 +1052,84 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#F8FAFC] font-plus-jakarta-sans antialiased">
+      <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#0A0E14] font-plus-jakarta-sans antialiased">
         <div className="w-full max-w-[1600px] mx-auto px-0 sm:px-6 lg:px-8 mt-0 sm:mt-6">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6">
             <aside className="hidden md:block md:col-span-3 space-y-4">
-              <div className="bg-white rounded-md border border-slate-200 p-5 shadow-sm animate-pulse">
-                <div className="w-16 h-16 bg-slate-200 rounded-full mx-auto mb-3" />
-                <div className="h-4 bg-slate-200 rounded w-24 mx-auto mb-2" />
-                <div className="h-3 bg-slate-200 rounded w-32 mx-auto" />
+              <div className="bg-white dark:bg-[#283036] rounded-md border border-slate-200 dark:border-[#38434F] p-5 shadow-sm animate-pulse">
+                <div className="w-16 h-16 bg-slate-200 dark:bg-[#38434F] rounded-full mx-auto mb-3" />
+                <div className="h-4 bg-slate-200 dark:bg-[#38434F] rounded w-24 mx-auto mb-2" />
+                <div className="h-3 bg-slate-200 dark:bg-[#38434F] rounded w-32 mx-auto" />
               </div>
-              <div className="bg-white rounded-md border border-slate-200 p-4 shadow-sm animate-pulse space-y-3">
+              <div className="bg-white dark:bg-[#283036] rounded-md border border-slate-200 dark:border-[#38434F] p-4 shadow-sm animate-pulse space-y-3">
                 {Array.from({ length: 5 }).map((_, i) => (
-                  <div key={i} className="h-3 bg-slate-200 rounded w-full" />
+                  <div key={i} className="h-3 bg-slate-200 dark:bg-[#38434F] rounded w-full" />
                 ))}
               </div>
-              <div className="bg-white rounded-md border border-slate-200 p-4 shadow-sm animate-pulse space-y-3">
-                <div className="h-4 bg-slate-200 rounded w-28 mb-3" />
+              <div className="bg-white dark:bg-[#283036] rounded-md border border-slate-200 dark:border-[#38434F] p-4 shadow-sm animate-pulse space-y-3">
+                <div className="h-4 bg-slate-200 dark:bg-[#38434F] rounded w-28 mb-3" />
                 {Array.from({ length: 4 }).map((_, i) => (
                   <div key={i} className="flex items-center gap-2">
-                    <div className="w-6 h-6 bg-slate-200 rounded-full" />
-                    <div className="h-3 bg-slate-200 rounded flex-1" />
+                    <div className="w-6 h-6 bg-slate-200 dark:bg-[#38434F] rounded-full" />
+                    <div className="h-3 bg-slate-200 dark:bg-[#38434F] rounded flex-1" />
                   </div>
                 ))}
               </div>
             </aside>
             <main className="md:col-span-9 lg:col-span-6 space-y-4">
-              <div className="bg-white rounded-none sm:rounded-md border-y sm:border border-slate-200 p-5 shadow-sm animate-pulse space-y-4">
+              <div className="bg-white dark:bg-[#283036] rounded-none sm:rounded-md border-y sm:border border-slate-200 dark:border-[#38434F] p-5 shadow-sm animate-pulse space-y-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 bg-slate-200 rounded-full" />
-                  <div className="h-10 bg-slate-200 rounded-full flex-1" />
-                  <div className="w-10 h-10 bg-slate-200 rounded-full" />
+                  <div className="w-9 h-9 bg-slate-200 dark:bg-[#38434F] rounded-full" />
+                  <div className="h-10 bg-slate-200 dark:bg-[#38434F] rounded-full flex-1" />
+                  <div className="w-10 h-10 bg-slate-200 dark:bg-[#38434F] rounded-full" />
                 </div>
                 <div className="flex gap-2 overflow-x-auto">
                   {Array.from({ length: 5 }).map((_, i) => (
-                    <div key={i} className="h-8 bg-slate-200 rounded-full w-24 flex-shrink-0" />
+                    <div key={i} className="h-8 bg-slate-200 dark:bg-[#38434F] rounded-full w-24 flex-shrink-0" />
                   ))}
                 </div>
               </div>
               {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="bg-white rounded-md border border-slate-200 p-5 shadow-sm animate-pulse space-y-3">
+                <div key={i} className="bg-white dark:bg-[#283036] rounded-md border border-slate-200 dark:border-[#38434F] p-5 shadow-sm animate-pulse space-y-3">
                   <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 bg-slate-200 rounded-full" />
-                    <div className="h-3 bg-slate-200 rounded w-32" />
+                    <div className="w-8 h-8 bg-slate-200 dark:bg-[#38434F] rounded-full" />
+                    <div className="h-3 bg-slate-200 dark:bg-[#38434F] rounded w-32" />
                   </div>
-                  <div className="h-4 bg-slate-200 rounded w-3/4" />
-                  <div className="h-3 bg-slate-200 rounded w-full" />
-                  <div className="h-3 bg-slate-200 rounded w-2/3" />
+                  <div className="h-4 bg-slate-200 dark:bg-[#38434F] rounded w-3/4" />
+                  <div className="h-3 bg-slate-200 dark:bg-[#38434F] rounded w-full" />
+                  <div className="h-3 bg-slate-200 dark:bg-[#38434F] rounded w-2/3" />
                   <div className="flex gap-2 pt-2">
-                    <div className="h-8 bg-slate-200 rounded w-16" />
-                    <div className="h-8 bg-slate-200 rounded w-20" />
-                    <div className="h-8 bg-slate-200 rounded w-16" />
+                    <div className="h-8 bg-slate-200 dark:bg-[#38434F] rounded w-16" />
+                    <div className="h-8 bg-slate-200 dark:bg-[#38434F] rounded w-20" />
+                    <div className="h-8 bg-slate-200 dark:bg-[#38434F] rounded w-16" />
                   </div>
                 </div>
               ))}
             </main>
             <aside className="hidden lg:block lg:col-span-3 space-y-4">
-              <div className="bg-white rounded-md border border-slate-200 p-4 shadow-sm animate-pulse space-y-3">
-                <div className="h-4 bg-slate-200 rounded w-28 mb-3" />
+              <div className="bg-white dark:bg-[#283036] rounded-md border border-slate-200 dark:border-[#38434F] p-4 shadow-sm animate-pulse space-y-3">
+                <div className="h-4 bg-slate-200 dark:bg-[#38434F] rounded w-28 mb-3" />
                 {Array.from({ length: 4 }).map((_, i) => (
-                  <div key={i} className="space-y-2 pb-2 border-b border-slate-100 last:border-0">
-                    <div className="h-3 bg-slate-200 rounded w-full" />
-                    <div className="h-3 bg-slate-200 rounded w-1/2" />
+                  <div key={i} className="space-y-2 pb-2 border-b border-slate-100 dark:border-[#38434F] last:border-0">
+                    <div className="h-3 bg-slate-200 dark:bg-[#38434F] rounded w-full" />
+                    <div className="h-3 bg-slate-200 dark:bg-[#38434F] rounded w-1/2" />
                   </div>
                 ))}
               </div>
-              <div className="bg-white rounded-md border border-slate-200 p-4 shadow-sm animate-pulse space-y-3">
-                <div className="h-4 bg-slate-200 rounded w-24 mb-3" />
+              <div className="bg-white dark:bg-[#283036] rounded-md border border-slate-200 dark:border-[#38434F] p-4 shadow-sm animate-pulse space-y-3">
+                <div className="h-4 bg-slate-200 dark:bg-[#38434F] rounded w-24 mb-3" />
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-slate-200 rounded-full" />
+                  <div className="w-8 h-8 bg-slate-200 dark:bg-[#38434F] rounded-full" />
                   <div className="flex-1 space-y-1">
-                    <div className="h-3 bg-slate-200 rounded w-20" />
-                    <div className="h-2 bg-slate-200 rounded w-32" />
+                    <div className="h-3 bg-slate-200 dark:bg-[#38434F] rounded w-20" />
+                    <div className="h-2 bg-slate-200 dark:bg-[#38434F] rounded w-32" />
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-slate-200 rounded-full" />
+                  <div className="w-8 h-8 bg-slate-200 dark:bg-[#38434F] rounded-full" />
                   <div className="flex-1 space-y-1">
-                    <div className="h-3 bg-slate-200 rounded w-24" />
-                    <div className="h-2 bg-slate-200 rounded w-28" />
+                    <div className="h-3 bg-slate-200 dark:bg-[#38434F] rounded w-24" />
+                    <div className="h-2 bg-slate-200 dark:bg-[#38434F] rounded w-28" />
                   </div>
                 </div>
               </div>
@@ -1142,7 +1142,7 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
   }
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] font-plus-jakarta-sans text-[#1E293B] antialiased pb-12">
+    <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#0A0E14] font-plus-jakarta-sans text-[#1E293B] dark:text-[#E4E8EC] antialiased pb-12">
 
       {/* Global Navbar Header dynamic search triggers */}
       {showSearch && (
@@ -1151,18 +1151,18 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
           onClick={() => setShowSearch(false)}
         >
           <div
-            className="w-full max-w-xl bg-white rounded-xl shadow-2xl overflow-hidden border border-slate-100"
+            className="w-full max-w-xl bg-white dark:bg-[#283036] rounded-xl shadow-2xl overflow-hidden border border-slate-100 dark:border-[#38434F]"
             onClick={e => e.stopPropagation()}
           >
             <div className="flex items-center gap-3 p-4">
-              <Search className="text-slate-400 w-5 h-5 flex-shrink-0" />
+              <Search className="text-slate-400 dark:text-[#B0B7BE] w-5 h-5 flex-shrink-0" />
               <input
                 type="text"
                 placeholder="Search globally across people, groups, posts..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 autoFocus
-                className="flex-1 text-sm outline-none text-slate-900 placeholder-slate-400 font-medium"
+                className="flex-1 text-sm outline-none text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 font-medium"
               />
               <button
                 onClick={() => setShowSearch(false)}
@@ -1192,10 +1192,10 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
           <main className="md:col-span-8 lg:col-span-6 space-y-3 sm:space-y-4">
 
             {/* Dedicated LinkedIn-Style Feed Search & Filter Bar */}
-            <div className="bg-white rounded-none sm:rounded-md border-y border-x-0 sm:border border-slate-200 p-4 sm:p-5 shadow-sm space-y-4">
+            <div className="bg-white dark:bg-[#283036] rounded-none sm:rounded-md border-y border-x-0 sm:border border-slate-200 dark:border-[#38434F] p-4 sm:p-5 shadow-sm space-y-4">
               <div className="flex items-center gap-3">
                 {/* Circular Profile Avatar */}
-                <div className="w-9 h-9 sm:w-8 sm:h-8 rounded-full bg-slate-100 flex items-center justify-center font-bold text-slate-800 text-xs overflow-hidden flex-shrink-0 border border-slate-100">
+                <div className="w-9 h-9 sm:w-8 sm:h-8 rounded-full bg-slate-100 dark:bg-[#1D2226] flex items-center justify-center font-bold text-slate-800 dark:text-white text-xs overflow-hidden flex-shrink-0 border border-slate-100 dark:border-[#38434F]">
                   {user?.avatar_url ? (
                     <img src={user.avatar_url} alt="Profile" className="w-full h-full object-cover" />
                   ) : (
@@ -1204,14 +1204,14 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
                 </div>
 
                 {/* Local search input block */}
-                <div className="flex-1 flex items-center gap-2 bg-slate-50 border border-slate-200 hover:border-slate-300 rounded-full px-4 py-2.5 transition-all focus-within:border-[#7C3AED] focus-within:ring-1 focus-within:ring-[#7C3AED]/20">
-                  <Search className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                <div className="flex-1 flex items-center gap-2 bg-slate-50 dark:bg-[#1D2226] border border-slate-200 dark:border-[#38434F] hover:border-slate-300 dark:hover:border-[#38434F] rounded-full px-4 py-2.5 transition-all focus-within:border-[#7C3AED] focus-within:ring-1 focus-within:ring-[#7C3AED]/20">
+                  <Search className="w-4 h-4 text-slate-400 dark:text-[#B0B7BE] flex-shrink-0" />
                   <input
                     type="text"
                     value={feedSearchQuery}
                     onChange={(e) => setFeedSearchQuery(e.target.value)}
                     placeholder="Search feed by title, tag, keywords, author, or campus..."
-                    className="flex-1 bg-transparent border-none outline-none text-xs font-semibold text-slate-805 placeholder-slate-400"
+                    className="flex-1 bg-transparent border-none outline-none text-xs font-semibold text-slate-805 placeholder-slate-400 dark:placeholder-slate-500"
                   />
                   {feedSearchQuery && (
                     <button
@@ -1226,7 +1226,7 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
                 {/* Circular Post creator button */}
                 <button
                   onClick={() => router.push('?create=true')}
-                  className="w-10 h-10 sm:w-8 sm:h-8 bg-purple-50 hover:bg-purple-100 text-[#7C3AED] rounded-full border border-purple-100 transition-colors flex items-center justify-center cursor-pointer flex-shrink-0"
+                  className="w-10 h-10 sm:w-8 sm:h-8 bg-purple-50 dark:bg-purple-900/30 hover:bg-purple-100 dark:hover:bg-purple-900/50 text-[#7C3AED] rounded-full border border-purple-100 dark:border-purple-800 transition-colors flex items-center justify-center cursor-pointer flex-shrink-0"
                   title="Create a new post"
                 >
                   <Plus className="w-4 h-4" />
@@ -1234,7 +1234,7 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
               </div>
 
               {/* Interactive Feed Filters row - Keep as only system of filters */}
-              <div className="flex items-center gap-2 overflow-x-auto pt-3 border-t border-slate-100 scrollbar-none select-none px-1">
+              <div className="flex items-center gap-2 overflow-x-auto pt-3 border-t border-slate-100 dark:border-[#38434F] scrollbar-none select-none px-1">
                 {[
                   { key: 'photo', label: 'Photos Only', icon: Image, color: 'text-sky-500' },
                   { key: 'doubt', label: 'Doubts', icon: HelpCircle, color: 'text-purple-500' },
@@ -1249,8 +1249,8 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
                       key={btn.key}
                       onClick={() => setFilter(isActive ? 'all' : btn.key)}
                       className={`flex items-center gap-2 px-4 py-2 sm:px-3 sm:py-1.5 rounded-full transition-all font-semibold text-xs whitespace-nowrap cursor-pointer ${isActive
-                        ? 'bg-purple-100 text-[#7C3AED] border border-purple-200'
-                        : 'bg-white border border-slate-200 hover:bg-slate-50 text-slate-600'
+                        ? 'bg-purple-100 dark:bg-purple-900/40 text-[#7C3AED] border border-purple-200 dark:border-purple-800'
+                        : 'bg-white dark:bg-[#283036] border border-slate-200 dark:border-[#38434F] hover:bg-slate-50 dark:hover:bg-[#1D2226] text-slate-600 dark:text-[#B0B7BE]'
                         }`}
                     >
                       <btn.icon className={`w-4 h-4 sm:w-3.5 sm:h-3.5 ${isActive ? 'text-[#7C3AED]' : btn.color}`} />
@@ -1263,8 +1263,8 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
 
             {/* Filter query status information */}
             {(feedSearchQuery || filter !== 'all') && (
-              <div className="bg-purple-50 border border-purple-100 rounded-md px-3 py-2 flex items-center justify-between text-[11px] font-bold">
-                <span className="text-purple-950 flex items-center gap-2">
+              <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-100 dark:border-purple-800 rounded-md px-3 py-2 flex items-center justify-between text-[11px] font-bold">
+                <span className="text-purple-950 dark:text-purple-200 flex items-center gap-2">
                   <Activity className="w-3.5 h-3.5 text-[#7C3AED]" />
                   <span>
                     Showing filtered feed (
@@ -1289,9 +1289,9 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
             {(isRefreshingFeed || newPostsQueue.length > 0) && (
               <div className="flex justify-center my-3.5 h-9">
                 {isRefreshingFeed ? (
-                  <div className="flex items-center justify-center px-4 py-2 bg-white border border-slate-200 rounded-full shadow-sm gap-2">
+                  <div className="flex items-center justify-center px-4 py-2 bg-white dark:bg-[#283036] border border-slate-200 dark:border-[#38434F] rounded-full shadow-sm gap-2">
                     <div className="w-4 h-4 border-2 border-purple-100 border-t-[#7C3AED] rounded-full animate-spin" />
-                    <span className="text-[10px] font-bold text-slate-500">Refreshing feed...</span>
+                    <span className="text-[10px] font-bold text-slate-500 dark:text-[#B0B7BE]">Refreshing feed...</span>
                   </div>
                 ) : (
                   <button
@@ -1307,12 +1307,12 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
 
             {/* High-density interactive Post cards */}
             {filteredPosts.length === 0 ? (
-              <div className="bg-white rounded-md border border-slate-200 p-10 text-center shadow-sm">
-                <div className="w-12 h-12 bg-slate-50 border border-slate-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <MessageSquare className="w-6 h-6 text-slate-400" />
+              <div className="bg-white dark:bg-[#283036] rounded-md border border-slate-200 dark:border-[#38434F] p-10 text-center shadow-sm">
+                <div className="w-12 h-12 bg-slate-50 dark:bg-[#1D2226] border border-slate-100 dark:border-[#38434F] rounded-full flex items-center justify-center mx-auto mb-3">
+                  <MessageSquare className="w-6 h-6 text-slate-400 dark:text-[#B0B7BE]" />
                 </div>
-                <h4 className="font-bold text-slate-800 text-xs">No matching posts in view</h4>
-                <p className="text-slate-400 text-[10px] mt-1 font-semibold">Try modifying your filters or search keywords above.</p>
+                <h4 className="font-bold text-slate-800 dark:text-white text-xs">No matching posts in view</h4>
+                <p className="text-slate-400 dark:text-[#B0B7BE] text-[10px] mt-1 font-semibold">Try modifying your filters or search keywords above.</p>
               </div>
             ) : (
               <div className="space-y-3">
@@ -1347,7 +1347,7 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
                 )}
 
                 {!hasMore && posts.length > 0 && (
-                  <div className="text-center py-6 text-slate-400 font-bold text-xs">
+                  <div className="text-center py-6 text-slate-400 dark:text-[#B0B7BE] font-bold text-xs">
                     You've caught up with the entire community feed! 🎉
                   </div>
                 )}
@@ -1393,7 +1393,7 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
 export default function CommunityPageClient({ initialCommunities, initialPosts, initialCampusJobs }: CommunityPageClientProps) {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center gap-3 font-plus-jakarta-sans">
+      <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#0A0E14] flex flex-col items-center justify-center gap-3 font-plus-jakarta-sans dark:text-white">
         <div className="w-10 h-10 border-4 border-purple-100 border-t-purple-600 rounded-full animate-spin" />
         <p className="text-xs text-slate-500 font-semibold">Loading community hub...</p>
       </div>

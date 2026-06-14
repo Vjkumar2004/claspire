@@ -5,7 +5,7 @@ export default function JuniorMessagesPage() {
   return (
     <Suspense
       fallback={
-        <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-white">
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-white dark:bg-[#283036]">
           <div className="w-8 h-8 border-2 border-purple-600 border-t-transparent rounded-full animate-spin" />
         </div>
       }

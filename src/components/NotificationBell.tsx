@@ -139,14 +139,14 @@ export default function NotificationBell({ align = 'right', dark = false }: Noti
         onClick={handleBellClick}
         className={`relative p-2 rounded-full transition-colors focus:outline-none ${
           dark 
-            ? 'text-gray-600 hover:bg-gray-100' 
+            ? 'text-gray-600 dark:text-[#B0B7BE] hover:bg-gray-100 dark:hover:bg-[#1D2226]' 
             : 'text-white hover:bg-white/10'
         }`}
       >
         <Bell size={20} />
         {unreadCount > 0 && (
           <span className={`absolute top-1.5 right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white ring-2 ${
-            dark ? 'ring-white' : 'ring-indigo-900'
+            dark ? 'ring-white dark:ring-[#1D2226]' : 'ring-indigo-900'
           }`}>
             {unreadCount}
           </span>
@@ -174,13 +174,13 @@ export default function NotificationBell({ align = 'right', dark = false }: Noti
               } as React.CSSProperties}
               className={`
                 max-h-[calc(100vh-100px)] md:max-h-[480px] 
-                bg-white rounded-2xl border border-gray-200 shadow-2xl z-[9999] 
+                bg-white dark:bg-[#283036] rounded-2xl border border-gray-200 dark:border-[#38434F] shadow-2xl z-[9999] 
                 overflow-hidden flex flex-col
               `}
             >
               {/* Header */}
-              <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-white/50 backdrop-blur-sm sticky top-0 z-10">
-                <h3 className="text-sm font-bold text-gray-900">Notifications</h3>
+              <div className="p-4 border-b border-gray-100 dark:border-[#38434F] flex items-center justify-between bg-white/50 dark:bg-[#283036]/50 backdrop-blur-sm sticky top-0 z-10">
+                <h3 className="text-sm font-bold text-gray-900 dark:text-white">Notifications</h3>
                 <div className="flex items-center gap-2">
                   {unreadCount > 0 && (
                     <button
@@ -217,19 +217,19 @@ export default function NotificationBell({ align = 'right', dark = false }: Noti
               <div className="overflow-y-auto flex-1 custom-scrollbar relative">
                 {notifications.length === 0 ? (
                   <div className="p-12 text-center">
-                    <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3">
-                      <Bell size={24} className="text-gray-300" />
+                    <div className="w-12 h-12 bg-gray-50 dark:bg-[#1D2226] rounded-full flex items-center justify-center mx-auto mb-3">
+                      <Bell size={24} className="text-gray-300 dark:text-[#B0B7BE]" />
                     </div>
-                    <p className="text-sm font-medium text-gray-500">No notifications yet</p>
-                    <p className="text-xs text-gray-400 mt-1">We'll let you know when something happens</p>
+                    <p className="text-sm font-medium text-gray-500 dark:text-[#B0B7BE]">No notifications yet</p>
+                    <p className="text-xs text-gray-400 dark:text-[#B0B7BE] mt-1">We'll let you know when something happens</p>
                   </div>
                 ) : (
-                  <div className="divide-y divide-gray-50">
+                  <div className="divide-y divide-gray-50 dark:divide-[#38434F]">
                     {notifications.map((notif) => (
                       <div
                         key={notif.id}
                         onClick={() => !notif.is_read && markAsRead(notif.id)}
-                        className={`p-4 hover:bg-gray-50 transition-all cursor-pointer group relative ${!notif.is_read ? 'bg-purple-50/30' : ''}`}
+                        className={`p-4 hover:bg-gray-50 dark:hover:bg-[#1D2226] transition-all cursor-pointer group relative ${!notif.is_read ? 'bg-purple-50/30' : ''}`}
                       >
                         {!notif.is_read && (
                           <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-purple-500" />
@@ -238,15 +238,15 @@ export default function NotificationBell({ align = 'right', dark = false }: Noti
                         <div className="flex gap-3">
                           <div className="flex-1">
                             <div className="flex items-start justify-between gap-2">
-                               <p className={`text-[13px] leading-tight mb-1 ${!notif.is_read ? 'font-bold text-gray-900' : 'font-semibold text-gray-700'}`}>
+                               <p className={`text-[13px] leading-tight mb-1 ${!notif.is_read ? 'font-bold text-gray-900 dark:text-white' : 'font-semibold text-gray-700 dark:text-[#B0B7BE]'}`}>
                                   {notif.title}
                                 </p>
-                               <span className="text-[10px] text-gray-400 whitespace-nowrap flex items-center gap-1 mt-0.5">
+                               <span className="text-[10px] text-gray-400 dark:text-[#B0B7BE] whitespace-nowrap flex items-center gap-1 mt-0.5">
                                  <Clock size={10} />
                                  {getTimeAgo(notif.created_at)}
                                </span>
                             </div>
-                            <p className="text-xs text-gray-500 leading-normal line-clamp-2">
+                            <p className="text-xs text-gray-500 dark:text-[#B0B7BE] leading-normal line-clamp-2">
                               {notif.message}
                             </p>
                             
@@ -270,7 +270,7 @@ export default function NotificationBell({ align = 'right', dark = false }: Noti
                         <div className="h-5 w-5 border-2 border-purple-400 border-t-transparent rounded-full animate-spin" />
                       )}
                       {!hasMore && notifications.length >= 50 && (
-                        <p className="text-[10px] text-gray-400">All caught up</p>
+                        <p className="text-[10px] text-gray-400 dark:text-[#B0B7BE]">All caught up</p>
                       )}
                     </div>
                   </div>
@@ -282,12 +282,12 @@ export default function NotificationBell({ align = 'right', dark = false }: Noti
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="absolute inset-0 bg-white/95 backdrop-blur-sm z-20 flex items-center justify-center p-6"
+                    className="absolute inset-0 bg-white/95 dark:bg-[#283036]/95 backdrop-blur-sm z-20 flex items-center justify-center p-6"
                     style={{ borderRadius: 'inherit' }}
                   >
                     <div className="text-center">
-                      <p className="text-sm font-bold text-gray-900 mb-2">Clear all notifications?</p>
-                      <p className="text-xs text-gray-500 mb-4">This action cannot be undone.</p>
+                      <p className="text-sm font-bold text-gray-900 dark:text-white mb-2">Clear all notifications?</p>
+                      <p className="text-xs text-gray-500 dark:text-[#B0B7BE] mb-4">This action cannot be undone.</p>
                       <div className="flex gap-2 justify-center">
                         <button
                           onClick={handleConfirmClear}
@@ -298,7 +298,7 @@ export default function NotificationBell({ align = 'right', dark = false }: Noti
                         </button>
                         <button
                           onClick={() => setConfirmingClear(false)}
-                          className="px-4 py-2 bg-gray-100 text-gray-700 text-xs font-bold rounded-lg hover:bg-gray-200 transition-colors"
+                          className="px-4 py-2 bg-gray-100 dark:bg-[#1D2226] text-gray-700 dark:text-[#B0B7BE] text-xs font-bold rounded-lg hover:bg-gray-200 dark:hover:bg-[#1D2226] transition-colors"
                         >
                           Cancel
                         </button>
@@ -309,11 +309,11 @@ export default function NotificationBell({ align = 'right', dark = false }: Noti
               </div>
 
               {/* Footer */}
-              <div className="p-3 border-t border-gray-100 bg-gray-50/50 text-center">
+              <div className="p-3 border-t border-gray-100 dark:border-[#38434F] bg-gray-50/50 dark:bg-[#1D2226]/50 text-center">
                   <Link 
                      href={user?.role === 'senior' ? '/dashboard/senior' : '/dashboard/junior'}
                      onClick={() => setIsOpen(false)}
-                     className="text-[11px] font-bold text-gray-400 uppercase tracking-wider hover:text-purple-600 transition-colors no-underline block"
+                     className="text-[11px] font-bold text-gray-400 dark:text-[#B0B7BE] uppercase tracking-wider hover:text-purple-600 transition-colors no-underline block"
                   >
                      View All Activity
                   </Link>

@@ -57,7 +57,7 @@ export default function CTA() {
           whileTap={{ scale: 0.98 }}
           transition={{ duration: 0.15 }}
           onClick={() => window.location.href = '/colleges'}
-          className="bg-white text-gray-900 px-8 py-3.5 rounded-md text-sm font-bold border-none cursor-pointer mx-auto w-full max-w-[320px] md:w-auto hover:bg-gray-100 transition-all shadow-sm"
+          className="bg-white dark:bg-[#283036] text-gray-900 dark:text-white px-8 py-3.5 rounded-md text-sm font-bold border-none cursor-pointer mx-auto w-full max-w-[320px] md:w-auto hover:bg-gray-100 dark:hover:bg-[#1D2226] transition-all shadow-sm"
         >
           Find your college →
         </motion.button>

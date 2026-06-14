@@ -297,12 +297,12 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
   }
 
   const LockScreen = ({ title, description, ctaText, ctaAction }: { title: string; description: string; userRole?: string; ctaText: string; ctaAction: () => void }) => (
-    <div className="bg-white rounded-2xl border border-purple-100/80 shadow-sm py-16 px-6 sm:px-10 text-center">
+    <div className="bg-white dark:bg-[#1D2226] rounded-2xl border border-purple-100/80 shadow-sm py-16 px-6 sm:px-10 text-center">
       <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#7C3AED] to-cyan-500 flex items-center justify-center mx-auto mb-5 text-white shadow-lg shadow-purple-200/50">
         <Lock size={32} />
       </div>
-      <h3 className="text-xl font-extrabold text-slate-900 m-0 mb-3">{title}</h3>
-      <p className="text-sm text-slate-500 max-w-md mx-auto m-0 mb-8 leading-relaxed">{description}</p>
+      <h3 className="text-xl font-extrabold text-slate-900 dark:text-white m-0 mb-3">{title}</h3>
+      <p className="text-sm text-slate-500 dark:text-[#B0B7BE] max-w-md mx-auto m-0 mb-8 leading-relaxed">{description}</p>
       <button
         type="button"
         onClick={ctaAction}
@@ -358,14 +358,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2, flexWrap: 'wrap' }}>
-          <p
-            style={{
-              fontSize: 14,
-              fontWeight: 600,
-              color: '#0F172A',
-              margin: 0,
-            }}
-          >
+          <p className="text-slate-900 dark:text-white" style={{ fontSize: 14, fontWeight: 600, margin: 0 }}>
             {member.full_name}
           </p>
           {member.is_verified && (
@@ -397,7 +390,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
             </span>
           )}
         </div>
-        <p style={{ fontSize: 12, color: '#64748B', margin: 0 }}>
+        <p className="text-slate-500 dark:text-[#B0B7BE]" style={{ fontSize: 12, margin: 0 }}>
           {member.member_category === 'other_college' ? (
             <>
               {member.college_short_name || member.college_name || 'Other college'}
@@ -410,7 +403,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
           )}
         </p>
         {member.unique_id && (
-          <p style={{ fontSize: 11, color: '#94A3B8', margin: '2px 0 0' }}>@{member.unique_id}</p>
+          <p className="text-slate-400 dark:text-[#B0B7BE]" style={{ fontSize: 11, margin: '2px 0 0' }}>@{member.unique_id}</p>
         )}
       </div>
     </div>
@@ -433,9 +426,9 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
   }, [data?.posts])
 
   if (loading) return (
-    <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center gap-3 font-plus-jakarta-sans">
+    <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#1D2226] flex flex-col items-center justify-center gap-3 font-plus-jakarta-sans">
       <div className="w-10 h-10 border-4 border-purple-100 border-t-purple-600 rounded-full animate-spin" />
-      <p className="text-xs text-slate-500 font-semibold">Loading community...</p>
+      <p className="text-xs text-slate-500 dark:text-[#B0B7BE] font-semibold">Loading community...</p>
     </div>
   )
 
@@ -480,22 +473,22 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
   const collegeLocation = [community.colleges?.location, community.colleges?.state].filter(Boolean).join(', ')
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] font-plus-jakarta-sans text-sm text-slate-800 pb-24 lg:pb-8">
+    <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#1D2226] font-plus-jakarta-sans text-sm text-slate-800 dark:text-white pb-24 lg:pb-8">
       {/* Hero */}
-      <header className="border-b border-slate-200/80 bg-white">
-        <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-br from-purple-50/80 via-white to-cyan-50/40 pointer-events-none" />
+      <header className="border-b border-slate-200 dark:border-[#38434F]/80 bg-white dark:bg-[#1D2226]">
+        <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-br from-purple-50/80 via-white to-cyan-50/40 dark:from-purple-900/10 dark:via-[#1D2226] dark:to-cyan-900/10 pointer-events-none" />
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 pt-6 pb-8">
-          <nav className="flex items-center gap-2 text-xs font-semibold text-slate-500 mb-6">
+          <nav className="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-[#B0B7BE] mb-6">
             <button type="button" onClick={() => router.push('/community')} className="hover:text-[#7C3AED] transition-colors border-none bg-transparent cursor-pointer p-0">
               Communities
             </button>
-            <ChevronRight size={14} className="text-slate-300 shrink-0" />
-            <span className="text-slate-900 truncate">c/{community.slug}</span>
+            <ChevronRight size={14} className="text-slate-300 dark:text-[#B0B7BE] shrink-0" />
+            <span className="text-slate-900 dark:text-white truncate">c/{community.slug}</span>
           </nav>
 
           <div className="flex flex-col md:flex-row gap-6 md:items-start">
-            <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl border border-slate-200/80 bg-white shadow-sm p-2 shrink-0 mx-auto md:mx-0">
-              <div className={`w-full h-full rounded-xl flex items-center justify-center overflow-hidden text-3xl font-black ${collegeLogo ? 'bg-white' : 'bg-gradient-to-br from-[#7C3AED] to-[#4F46E5] text-white'}`}>
+            <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl border border-slate-200 dark:border-[#38434F]/80 bg-white dark:bg-[#1D2226] shadow-sm p-2 shrink-0 mx-auto md:mx-0">
+              <div className={`w-full h-full rounded-xl flex items-center justify-center overflow-hidden text-3xl font-black ${collegeLogo ? 'bg-white dark:bg-[#1D2226]' : 'bg-gradient-to-br from-[#7C3AED] to-[#4F46E5] text-white'}`}>
                 {collegeLogo ? (
                   <img src={collegeLogo} alt={collegeShort || community.slug} className="w-full h-full object-contain" />
                 ) : (
@@ -509,27 +502,27 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                 <span className="text-[10px] font-bold uppercase tracking-wider text-purple-700 bg-purple-50 border border-purple-100 px-2.5 py-1 rounded-full">
                   Official College Hub
                 </span>
-                <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 bg-slate-50 border border-slate-200 px-2.5 py-1 rounded-full">
+                <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-[#B0B7BE] bg-slate-50 dark:bg-[#283036] border border-slate-200 dark:border-[#38434F] px-2.5 py-1 rounded-full">
                   <Users size={13} className="text-purple-600" />
                   {displayMemberCount} members
                 </span>
-                <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 bg-slate-50 border border-slate-200 px-2.5 py-1 rounded-full">
+                <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-[#B0B7BE] bg-slate-50 dark:bg-[#283036] border border-slate-200 dark:border-[#38434F] px-2.5 py-1 rounded-full">
                   <Crown size={13} className="text-amber-500" />
                   {displaySeniorCount} seniors
                 </span>
               </div>
 
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-[#0F172A] tracking-tight m-0 mb-1">
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-[#0F172A] dark:text-white tracking-tight m-0 mb-1">
                 {collegeName}
               </h1>
               {(collegeShort || collegeLocation) && (
-                <p className="text-sm text-slate-500 font-medium m-0 mb-4 flex flex-wrap items-center justify-center md:justify-start gap-x-3 gap-y-1">
+                <p className="text-sm text-slate-500 dark:text-[#B0B7BE] font-medium m-0 mb-4 flex flex-wrap items-center justify-center md:justify-start gap-x-3 gap-y-1">
                   {collegeShort && <span className="inline-flex items-center gap-1"><GraduationCap size={14} /> {collegeShort}</span>}
                   {collegeLocation && <span className="inline-flex items-center gap-1"><MapPin size={14} /> {collegeLocation}</span>}
                 </p>
               )}
               {community.description && (
-                <p className="text-sm text-slate-600 leading-relaxed max-w-2xl mx-auto md:mx-0 mb-5 line-clamp-2">
+                <p className="text-sm text-slate-600 dark:text-[#B0B7BE] leading-relaxed max-w-2xl mx-auto md:mx-0 mb-5 line-clamp-2">
                   {community.description}
                 </p>
               )}
@@ -567,7 +560,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                 <button
                   type="button"
                   onClick={() => { fetchCommunityMembers(); setShowMembersModal(true) }}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-bold cursor-pointer transition-colors"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white dark:bg-[#1D2226] border border-slate-200 dark:border-[#38434F] text-slate-700 dark:text-white hover:bg-slate-50 dark:bg-[#283036] dark:hover:bg-[#1D2226] text-xs font-bold cursor-pointer transition-colors"
                 >
                   <Users size={14} /> View Members
                 </button>
@@ -578,7 +571,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
       </header>
 
       {/* Tabs */}
-      <div className="sticky top-14 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200/80 shadow-sm">
+      <div className="sticky top-14 z-40 bg-white dark:bg-[#1D2226]/90 dark:bg-[#1D2226]/90 backdrop-blur-md border-b border-slate-200 dark:border-[#38434F]/80 shadow-sm">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="flex gap-1 overflow-x-auto scrollbar-hide -mb-px">
             {tabs.map((tab) => (
@@ -589,10 +582,10 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                 disabled={tab.locked}
                 className={`relative flex items-center gap-2 px-4 py-3.5 text-xs font-bold whitespace-nowrap border-none bg-transparent transition-colors ${
                   tab.locked
-                    ? 'text-slate-300 cursor-not-allowed'
+                    ? 'text-slate-300 dark:text-[#B0B7BE] cursor-not-allowed'
                     : activeTab === tab.id
                       ? 'text-[#7C3AED] cursor-pointer'
-                      : 'text-slate-500 hover:text-slate-800 cursor-pointer'
+                      : 'text-slate-500 dark:text-[#B0B7BE] hover:text-slate-800 dark:text-white dark:hover:text-white cursor-pointer'
                 }`}
               >
                 {tab.icon}
@@ -633,7 +626,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                     <article
                       key={post.id}
                       onClick={() => router.push(`/community/c/${community.slug}/p/${post.id}`)}
-                      className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-4 sm:p-5 cursor-pointer hover:border-purple-200 hover:shadow-md transition-all"
+                      className="bg-white dark:bg-[#1D2226] rounded-2xl border border-slate-200 dark:border-[#38434F]/80 shadow-sm p-4 sm:p-5 cursor-pointer hover:border-purple-200 hover:shadow-md transition-all"
                     >
                       <div className="flex items-start justify-between gap-3 mb-3">
                         <div className="flex items-center gap-3 min-w-0">
@@ -645,7 +638,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                             }}
                             className={`w-10 h-10 rounded-xl shrink-0 overflow-hidden flex items-center justify-center text-sm font-bold text-white border-none cursor-pointer ${
                               post.users?.avatar_url
-                                ? 'bg-slate-100'
+                                ? 'bg-slate-100 dark:bg-[#283036]'
                                 : post.users?.role === 'senior'
                                   ? 'bg-gradient-to-br from-emerald-500 to-teal-400'
                                   : 'bg-gradient-to-br from-[#7C3AED] to-indigo-500'
@@ -664,7 +657,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                                 e.stopPropagation()
                                 router.push(`/u/${post.users?.unique_id}`)
                               }}
-                              className="text-sm font-bold text-slate-900 hover:text-[#7C3AED] flex items-center gap-1.5 border-none bg-transparent cursor-pointer p-0 truncate max-w-full"
+                              className="text-sm font-bold text-slate-900 dark:text-white hover:text-[#7C3AED] flex items-center gap-1.5 border-none bg-transparent cursor-pointer p-0 truncate max-w-full"
                             >
                               {post.users?.full_name}
                               {post.users?.role === 'senior' && <Crown size={12} className="text-amber-500 shrink-0" />}
@@ -674,24 +667,24 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                                 <span className="text-[9px] font-bold uppercase text-purple-700 bg-purple-50 border border-purple-100 px-2 py-0.5 rounded-full">Network</span>
                               )}
                               <span className="text-[9px] font-bold uppercase px-2 py-0.5 rounded-full border" style={{ color: s.color, background: s.bg, borderColor: s.border }}>{s.label}</span>
-                              <span className="text-[10px] text-slate-400 font-semibold inline-flex items-center gap-1">
+                              <span className="text-[10px] text-slate-400 dark:text-[#B0B7BE] font-semibold inline-flex items-center gap-1">
                                 <Clock size={10} /> {timeAgo(post.created_at)}
                               </span>
                             </div>
                           </div>
                         </div>
-                        <button type="button" onClick={(e) => e.stopPropagation()} className="text-slate-300 hover:text-slate-500 border-none bg-transparent cursor-pointer p-1 shrink-0">
+                        <button type="button" onClick={(e) => e.stopPropagation()} className="text-slate-300 dark:text-[#B0B7BE] hover:text-slate-500 dark:text-[#B0B7BE] dark:hover:text-[#B0B7BE] border-none bg-transparent cursor-pointer p-1 shrink-0">
                           <MoreHorizontal size={18} />
                         </button>
                       </div>
 
                       {post.title && (
-                        <h2 className="text-base sm:text-lg font-extrabold text-slate-900 m-0 mb-2 leading-snug">{post.title}</h2>
+                        <h2 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white m-0 mb-2 leading-snug">{post.title}</h2>
                       )}
-                      <div className="text-sm text-slate-600 leading-relaxed line-clamp-3 mb-3">{convertUrlsToLinks(post.content)}</div>
+                      <div className="text-sm text-slate-600 dark:text-[#B0B7BE] leading-relaxed line-clamp-3 mb-3">{convertUrlsToLinks(post.content)}</div>
                       <MediaGallery imageUrls={post.image_url} />
 
-                      <div className="flex flex-wrap items-center gap-4 pt-3 mt-3 border-t border-slate-100 text-xs font-semibold text-slate-500">
+                      <div className="flex flex-wrap items-center gap-4 pt-3 mt-3 border-t border-slate-100 dark:border-[#38434F] text-xs font-semibold text-slate-500 dark:text-[#B0B7BE]">
                         <span className="inline-flex items-center gap-1.5">
                           <ArrowUp size={14} className="text-purple-600" />
                           {post.upvote_count ?? 0} upvotes
@@ -704,7 +697,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                           <Activity size={14} className="opacity-50" />
                           {post.view_count || 0} views
                         </span>
-                        <button type="button" onClick={(e) => e.stopPropagation()} className="ml-auto text-slate-400 hover:text-slate-600 border-none bg-transparent cursor-pointer p-1">
+                        <button type="button" onClick={(e) => e.stopPropagation()} className="ml-auto text-slate-400 dark:text-[#B0B7BE] hover:text-slate-600 dark:text-[#B0B7BE] dark:hover:text-[#B0B7BE] border-none bg-transparent cursor-pointer p-1">
                           <Share2 size={15} />
                         </button>
                       </div>
@@ -712,12 +705,12 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                   )
                 })
               ) : (
-                <div className="text-center py-16 px-6 bg-white rounded-2xl border border-slate-200/80">
+                <div className="text-center py-16 px-6 bg-white dark:bg-[#1D2226] rounded-2xl border border-slate-200 dark:border-[#38434F]/80">
                   <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-purple-50 flex items-center justify-center text-[#7C3AED]">
                     <MessageSquare size={32} />
                   </div>
-                  <h3 className="text-lg font-extrabold text-slate-900 m-0 mb-2">No posts yet</h3>
-                  <p className="text-sm text-slate-500 max-w-sm mx-auto m-0 leading-relaxed">Be the first to start a conversation in your college community.</p>
+                  <h3 className="text-lg font-extrabold text-slate-900 dark:text-white m-0 mb-2">No posts yet</h3>
+                  <p className="text-sm text-slate-500 dark:text-[#B0B7BE] max-w-sm mx-auto m-0 leading-relaxed">Be the first to start a conversation in your college community.</p>
                 </div>
               )}
             </div>
@@ -730,9 +723,9 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                   {jobs && jobs.length > 0 ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {jobs.map((job: any) => (
-                        <article key={job.id} className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5 hover:border-purple-200 hover:shadow-md transition-all">
+                        <article key={job.id} className="bg-white dark:bg-[#1D2226] rounded-2xl border border-slate-200 dark:border-[#38434F]/80 shadow-sm p-5 hover:border-purple-200 hover:shadow-md transition-all">
                           <div className="flex justify-between items-start gap-3 mb-4">
-                            <div className="w-12 h-12 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-2xl shrink-0">
+                            <div className="w-12 h-12 rounded-xl bg-slate-50 dark:bg-[#283036] border border-slate-100 dark:border-[#38434F] flex items-center justify-center text-2xl shrink-0">
                               🏢
                             </div>
                             {job.referral_available && (
@@ -742,18 +735,18 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                             )}
                           </div>
 
-                          <h3 className="text-base font-extrabold text-slate-900 m-0 mb-0.5 leading-snug">{job.role}</h3>
-                          <p className="text-sm font-semibold text-slate-500 m-0 mb-4">{job.company_name}</p>
+                          <h3 className="text-base font-extrabold text-slate-900 dark:text-white m-0 mb-0.5 leading-snug">{job.role}</h3>
+                          <p className="text-sm font-semibold text-slate-500 dark:text-[#B0B7BE] m-0 mb-4">{job.company_name}</p>
 
                           <div className="flex flex-wrap gap-2 mb-5">
-                            <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-slate-600 bg-slate-50 px-2.5 py-1 rounded-lg">
+                            <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-slate-600 dark:text-[#B0B7BE] bg-slate-50 dark:bg-[#283036] px-2.5 py-1 rounded-lg">
                               <MapPin size={12} className="opacity-60" /> {job.location || 'Remote'}
                             </span>
-                            <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-slate-600 bg-slate-50 px-2.5 py-1 rounded-lg">
+                            <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-slate-600 dark:text-[#B0B7BE] bg-slate-50 dark:bg-[#283036] px-2.5 py-1 rounded-lg">
                               <Clock size={12} className="opacity-60" /> {job.job_type?.replace('_', ' ')}
                             </span>
                             {job.salary_range && (
-                              <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-slate-600 bg-slate-50 px-2.5 py-1 rounded-lg">
+                              <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-slate-600 dark:text-[#B0B7BE] bg-slate-50 dark:bg-[#283036] px-2.5 py-1 rounded-lg">
                                 <DollarSign size={12} className="opacity-60" /> {job.salary_range}
                               </span>
                             )}
@@ -785,12 +778,12 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                       ))}
                     </div>
                   ) : (
-                    <div className="text-center py-16 px-6 bg-white rounded-2xl border border-slate-200/80">
+                    <div className="text-center py-16 px-6 bg-white dark:bg-[#1D2226] rounded-2xl border border-slate-200 dark:border-[#38434F]/80">
                       <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600">
                         <Briefcase size={32} />
                       </div>
-                      <h3 className="text-lg font-extrabold text-slate-900 m-0 mb-2">Seeking opportunities</h3>
-                      <p className="text-sm text-slate-500 max-w-sm mx-auto m-0 leading-relaxed">Internal referrals from seniors and alumni will appear here once posted.</p>
+                      <h3 className="text-lg font-extrabold text-slate-900 dark:text-white m-0 mb-2">Seeking opportunities</h3>
+                      <p className="text-sm text-slate-500 dark:text-[#B0B7BE] max-w-sm mx-auto m-0 leading-relaxed">Internal referrals from seniors and alumni will appear here once posted.</p>
                     </div>
                   )}
                 </>
@@ -803,12 +796,12 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
           {activeTab === 'webinars' && (
             <div className="space-y-4">
               {canViewWebinars ? (
-                <div className="text-center py-16 px-6 bg-white rounded-2xl border border-slate-200/80">
+                <div className="text-center py-16 px-6 bg-white dark:bg-[#1D2226] rounded-2xl border border-slate-200 dark:border-[#38434F]/80">
                   <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-red-50 flex items-center justify-center text-red-500">
                     <Video size={32} />
                   </div>
-                  <h3 className="text-lg font-extrabold text-slate-900 m-0 mb-2">Academy Live</h3>
-                  <p className="text-sm text-slate-500 max-w-sm mx-auto m-0 leading-relaxed">Live expert sessions and alumni workshops are being curated for your campus.</p>
+                  <h3 className="text-lg font-extrabold text-slate-900 dark:text-white m-0 mb-2">Academy Live</h3>
+                  <p className="text-sm text-slate-500 dark:text-[#B0B7BE] max-w-sm mx-auto m-0 leading-relaxed">Live expert sessions and alumni workshops are being curated for your campus.</p>
                 </div>
               ) : (
                 <LockScreen title="Claspire Academy Locked" description="Unlock live career masterclasses, alumni webinars, and doubt-clearing sessions." userRole={userRole} ctaText="Enter Academy" ctaAction={() => router.push('/onboarding')} />
@@ -820,8 +813,8 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
           <section className="space-y-4 pt-2">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div>
-                <h2 className="text-lg font-extrabold text-slate-900 m-0">Student Groups</h2>
-                <p className="text-sm text-slate-500 font-medium mt-1 m-0">Focused discussions within your campus</p>
+                <h2 className="text-lg font-extrabold text-slate-900 dark:text-white m-0">Student Groups</h2>
+                <p className="text-sm text-slate-500 dark:text-[#B0B7BE] font-medium mt-1 m-0">Focused discussions within your campus</p>
               </div>
               {currentUser && isUserCollege && (
                 <button
@@ -838,16 +831,16 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
             {groupsLoading ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {[1, 2, 3].map((i) => (
-                  <div key={i} className="bg-white rounded-2xl border border-slate-200/80 p-5 animate-pulse">
+                  <div key={i} className="bg-white dark:bg-[#1D2226] rounded-2xl border border-slate-200 dark:border-[#38434F]/80 p-5 animate-pulse">
                     <div className="flex gap-3 mb-4">
-                      <div className="w-11 h-11 rounded-full bg-slate-100 shrink-0" />
+                      <div className="w-11 h-11 rounded-full bg-slate-100 dark:bg-[#283036] shrink-0" />
                       <div className="flex-1 space-y-2">
-                        <div className="h-3.5 w-3/5 rounded bg-slate-100" />
-                        <div className="h-2.5 w-2/5 rounded bg-slate-100" />
+                        <div className="h-3.5 w-3/5 rounded bg-slate-100 dark:bg-[#283036]" />
+                        <div className="h-2.5 w-2/5 rounded bg-slate-100 dark:bg-[#283036]" />
                       </div>
                     </div>
-                    <div className="h-3 w-full rounded bg-slate-100 mb-2" />
-                    <div className="h-3 w-4/5 rounded bg-slate-100" />
+                    <div className="h-3 w-full rounded bg-slate-100 dark:bg-[#283036] mb-2" />
+                    <div className="h-3 w-4/5 rounded bg-slate-100 dark:bg-[#283036]" />
                   </div>
                 ))}
               </div>
@@ -860,11 +853,11 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                     tabIndex={0}
                     onClick={() => router.push(`/community/c/${slug}/group/${group.slug}`)}
                     onKeyDown={(e) => e.key === 'Enter' && router.push(`/community/c/${slug}/group/${group.slug}`)}
-                    className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-4 sm:p-5 cursor-pointer hover:border-purple-200 hover:shadow-md transition-all"
+                    className="bg-white dark:bg-[#1D2226] rounded-2xl border border-slate-200 dark:border-[#38434F]/80 shadow-sm p-4 sm:p-5 cursor-pointer hover:border-purple-200 hover:shadow-md transition-all"
                   >
                     <div className="flex items-center gap-3 mb-3">
                       <div className="relative shrink-0">
-                        <div className="w-11 h-11 rounded-full overflow-hidden flex items-center justify-center text-sm font-bold text-white border-2 border-slate-100 bg-gradient-to-br from-[#7C3AED] to-cyan-500">
+                        <div className="w-11 h-11 rounded-full overflow-hidden flex items-center justify-center text-sm font-bold text-white border-2 border-slate-100 dark:border-[#38434F] bg-gradient-to-br from-[#7C3AED] to-cyan-500">
                           {group.creator?.avatar_url ? (
                             <img src={group.creator.avatar_url} alt="" className="w-full h-full object-cover" />
                           ) : (
@@ -872,21 +865,21 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                           )}
                         </div>
                         {group.creator?.role === 'senior' && (
-                          <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-amber-500 rounded-full flex items-center justify-center border-2 border-white">
+                          <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-amber-500 rounded-full flex items-center justify-center border-2 border-white dark:border-[#38434F]">
                             <Crown size={8} className="text-white" />
                           </span>
                         )}
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-1.5 min-w-0">
-                          <p className="text-sm font-bold text-slate-900 m-0 truncate">{group.creator?.full_name || 'Group Admin'}</p>
+                          <p className="text-sm font-bold text-slate-900 dark:text-white m-0 truncate">{group.creator?.full_name || 'Group Admin'}</p>
                           <span className={`text-[9px] font-bold uppercase px-1.5 py-0.5 rounded shrink-0 ${
                             group.creator?.role === 'senior' ? 'bg-amber-50 text-amber-700' : 'bg-purple-50 text-purple-700'
                           }`}>
                             {group.creator?.role === 'senior' ? 'Senior' : 'Admin'}
                           </span>
                         </div>
-                        <p className="text-[10px] text-slate-400 font-medium m-0 mt-0.5">
+                        <p className="text-[10px] text-slate-400 dark:text-[#B0B7BE] font-medium m-0 mt-0.5">
                           Created {new Date(group.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                         </p>
                       </div>
@@ -894,7 +887,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
 
                     <div className="mb-3">
                       <div className="flex items-start justify-between gap-2 mb-1.5">
-                        <h3 className="text-base font-extrabold text-slate-900 m-0 leading-snug flex-1">{group.name}</h3>
+                        <h3 className="text-base font-extrabold text-slate-900 dark:text-white m-0 leading-snug flex-1">{group.name}</h3>
                         {(group.scope === 'private' || group.is_private) ? (
                           <Lock size={14} className="text-amber-600 shrink-0" />
                         ) : group.scope === 'college' ? (
@@ -903,13 +896,13 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                           <Globe size={14} className="text-emerald-500 shrink-0" />
                         )}
                       </div>
-                      <p className="text-xs text-slate-600 m-0 line-clamp-2 leading-relaxed">
+                      <p className="text-xs text-slate-600 dark:text-[#B0B7BE] m-0 line-clamp-2 leading-relaxed">
                         {group.description || 'No description provided'}
                       </p>
                     </div>
 
                     <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
-                      <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-500">
+                      <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-500 dark:text-[#B0B7BE]">
                         <Users size={12} /> {group.member_count} members
                       </span>
                       {(group.scope === 'private' || group.is_private) ? (
@@ -949,12 +942,12 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                 ))}
               </div>
             ) : (
-              <div className="text-center py-16 px-6 bg-white rounded-2xl border border-slate-200/80">
+              <div className="text-center py-16 px-6 bg-white dark:bg-[#1D2226] rounded-2xl border border-slate-200 dark:border-[#38434F]/80">
                 <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-purple-50 flex items-center justify-center text-[#7C3AED]">
                   <Users size={32} />
                 </div>
-                <h3 className="text-lg font-extrabold text-slate-900 m-0 mb-2">No groups yet</h3>
-                <p className="text-sm text-slate-500 max-w-sm mx-auto m-0 mb-6 leading-relaxed">
+                <h3 className="text-lg font-extrabold text-slate-900 dark:text-white m-0 mb-2">No groups yet</h3>
+                <p className="text-sm text-slate-500 dark:text-[#B0B7BE] max-w-sm mx-auto m-0 mb-6 leading-relaxed">
                   Be the first to create a student group in your community.
                 </p>
                 {currentUser && isUserCollege ? (
@@ -967,8 +960,8 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                     Create first group
                   </button>
                 ) : currentUser ? (
-                  <div className="max-w-sm mx-auto px-4 py-3 rounded-xl bg-slate-50 border border-slate-200">
-                    <p className="text-sm text-slate-500 m-0">
+                  <div className="max-w-sm mx-auto px-4 py-3 rounded-xl bg-slate-50 dark:bg-[#283036] border border-slate-200 dark:border-[#38434F]">
+                    <p className="text-sm text-slate-500 dark:text-[#B0B7BE] m-0">
                       Only students from {data?.community?.colleges?.name || 'this college'} can create groups here.
                     </p>
                   </div>
@@ -988,7 +981,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
 
         {/* Sidebar */}
         <aside className="hidden lg:flex flex-col gap-4 lg:sticky lg:top-[7.5rem] lg:self-start">
-          <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-4">
+          <div className="bg-white dark:bg-[#1D2226] rounded-2xl border border-slate-200 dark:border-[#38434F]/80 shadow-sm p-4">
             <h4 className="text-[10px] font-bold uppercase tracking-wider text-purple-600 mb-3 flex items-center gap-1.5 m-0">
               <Zap size={12} /> Community pulse
             </h4>
@@ -999,18 +992,18 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                 { label: 'Posts', val: posts?.length || 0, icon: <MessageCircle size={14} className="text-amber-600" />, bg: 'bg-amber-50' },
                 { label: 'Jobs', val: jobs?.length || 0, icon: <Target size={14} className="text-emerald-600" />, bg: 'bg-emerald-50' },
               ].map((s) => (
-                <div key={s.label} className="p-3 rounded-xl bg-slate-50 border border-slate-100">
+                <div key={s.label} className="p-3 rounded-xl bg-slate-50 dark:bg-[#283036] border border-slate-100 dark:border-[#38434F]">
                   <div className={`w-8 h-8 rounded-lg ${s.bg} flex items-center justify-center mb-2`}>{s.icon}</div>
-                  <p className="text-lg font-extrabold text-slate-900 m-0 leading-none">{s.val}</p>
-                  <p className="text-[10px] font-semibold text-slate-500 mt-1 m-0">{s.label}</p>
+                  <p className="text-lg font-extrabold text-slate-900 dark:text-white m-0 leading-none">{s.val}</p>
+                  <p className="text-[10px] font-semibold text-slate-500 dark:text-[#B0B7BE] mt-1 m-0">{s.label}</p>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-4">
+          <div className="bg-white dark:bg-[#1D2226] rounded-2xl border border-slate-200 dark:border-[#38434F]/80 shadow-sm p-4">
             <div className="flex items-center justify-between mb-3">
-              <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-800 m-0">Top contributors</h4>
+              <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-800 dark:text-white m-0">Top contributors</h4>
               <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full inline-flex items-center gap-1">
                 <Star size={10} fill="currentColor" /> Weekly
               </span>
@@ -1020,7 +1013,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                 <div key={id} className={`flex items-center gap-3 p-2 rounded-xl ${i === 0 ? 'bg-purple-50/80' : ''}`}>
                   <div className="relative shrink-0">
                     <div className={`w-9 h-9 rounded-lg overflow-hidden flex items-center justify-center text-xs font-bold text-white ${
-                      c.avatar_url ? 'bg-slate-100' : c.role === 'senior' ? 'bg-gradient-to-br from-emerald-500 to-teal-500' : 'bg-gradient-to-br from-purple-600 to-indigo-600'
+                      c.avatar_url ? 'bg-slate-100 dark:bg-[#283036]' : c.role === 'senior' ? 'bg-gradient-to-br from-emerald-500 to-teal-500' : 'bg-gradient-to-br from-purple-600 to-indigo-600'
                     }`}>
                       {c.avatar_url ? <img src={c.avatar_url} alt="" className="w-full h-full object-cover" /> : c.name[0]}
                     </div>
@@ -1029,19 +1022,19 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-bold text-slate-800 m-0 truncate">{c.name}</p>
-                    <p className="text-[10px] text-slate-400 font-semibold m-0">{c.count} posts</p>
+                    <p className="text-xs font-bold text-slate-800 dark:text-white m-0 truncate">{c.name}</p>
+                    <p className="text-[10px] text-slate-400 dark:text-[#B0B7BE] font-semibold m-0">{c.count} posts</p>
                   </div>
                   {i === 0 && <Award size={16} className="text-amber-500 shrink-0" />}
                 </div>
               )) : (
-                <p className="text-xs text-slate-400 text-center py-4 m-0">No contributors yet</p>
+                <p className="text-xs text-slate-400 dark:text-[#B0B7BE] text-center py-4 m-0">No contributors yet</p>
               )}
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-4">
-            <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-800 mb-3 flex items-center gap-1.5 m-0">
+          <div className="bg-white dark:bg-[#1D2226] rounded-2xl border border-slate-200 dark:border-[#38434F]/80 shadow-sm p-4">
+            <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-800 dark:text-white mb-3 flex items-center gap-1.5 m-0">
               <Shield size={14} className="text-red-500" /> Guidelines
             </h4>
             <ul className="space-y-3 m-0 p-0 list-none">
@@ -1053,8 +1046,8 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                 <li key={i} className="flex gap-3">
                   <span className="text-xs font-extrabold text-purple-300 w-4 shrink-0">{i + 1}</span>
                   <div>
-                    <p className="text-xs font-bold text-slate-700 m-0">{r.t}</p>
-                    <p className="text-[11px] text-slate-500 m-0 mt-0.5 leading-relaxed">{r.d}</p>
+                    <p className="text-xs font-bold text-slate-700 dark:text-white m-0">{r.t}</p>
+                    <p className="text-[11px] text-slate-500 dark:text-[#B0B7BE] m-0 mt-0.5 leading-relaxed">{r.d}</p>
                   </div>
                 </li>
               ))}
@@ -1076,12 +1069,12 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
       {/* Referral Confirmation Modal */}
       {referralConfirmOpen && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(12px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
-          <div className="animate-fade" style={{ background: 'white', width: '100%', maxWidth: 400, borderRadius: 28, overflow: 'hidden', boxShadow: '0 40px 80px rgba(0,0,0,0.4)', padding: 32, textAlign: 'center' }}>
+          <div className="animate-fade bg-white dark:bg-[#1D2226]" style={{ width: '100%', maxWidth: 400, borderRadius: 28, overflow: 'hidden', boxShadow: '0 40px 80px rgba(0,0,0,0.4)', padding: 32, textAlign: 'center' }}>
             <div style={{ width: 64, height: 64, background: '#F5F3FF', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', color: '#7C3AED' }}>
               <Target size={32} />
             </div>
-            <h3 style={{ fontSize: 20, fontWeight: 800, color: '#0F172A', marginBottom: 12 }}>Confirm Referral Request</h3>
-            <p style={{ fontSize: 14, color: '#64748B', lineHeight: 1.6, marginBottom: 24 }}>
+            <h3 className="text-slate-900 dark:text-white" style={{ fontSize: 20, fontWeight: 800, marginBottom: 12 }}>Confirm Referral Request</h3>
+            <p className="text-slate-500 dark:text-[#B0B7BE]" style={{ fontSize: 14, lineHeight: 1.6, marginBottom: 24 }}>
               Requesting a referral for <b>{selectedJob?.role}</b> at <b>{selectedJob?.company_name}</b>.
               Your profile will be shared with the senior for review.
             </p>
@@ -1089,7 +1082,8 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
               <button
                 onClick={() => setReferralConfirmOpen(false)}
                 disabled={requestLoading}
-                style={{ flex: 1, background: '#F8FAFC', color: '#64748B', border: '1px solid #E2E8F0', padding: '12px', borderRadius: 14, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}
+                style={{ flex: 1, border: '1px solid #E2E8F0', padding: '12px', borderRadius: 14, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}
+                className="bg-[#F8FAFC] dark:bg-[#1D2226] text-slate-500 dark:text-[#B0B7BE]"
               >
                 Cancel
               </button>
@@ -1108,19 +1102,20 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
       {/* Members Modal */}
       {showMembersModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(12px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
-          <div className="animate-fade" style={{ background: 'white', width: '100%', maxWidth: 600, maxHeight: '80vh', borderRadius: 28, overflow: 'hidden', boxShadow: '0 40px 80px rgba(0,0,0,0.4)', display: 'flex', flexDirection: 'column' }}>
+          <div className="animate-fade bg-white dark:bg-[#1D2226]" style={{ width: '100%', maxWidth: 600, maxHeight: '80vh', borderRadius: 28, overflow: 'hidden', boxShadow: '0 40px 80px rgba(0,0,0,0.4)', display: 'flex', flexDirection: 'column' }}>
             {/* Header */}
-            <div style={{ padding: '24px 24px 16px', borderBottom: '1px solid #F1F5F9' }}>
+            <div style={{ padding: '24px 24px 16px' }} className="border-b border-slate-100 dark:border-[#38434F]">
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div>
-                  <h3 style={{ fontSize: 20, fontWeight: 800, color: '#0F172A', margin: 0, marginBottom: 4 }}>Community Members</h3>
-                  <p style={{ fontSize: 13, color: '#64748B', margin: 0 }}>
+                  <h3 className="text-slate-900 dark:text-white" style={{ fontSize: 20, fontWeight: 800, margin: 0, marginBottom: 4 }}>Community Members</h3>
+                  <p className="text-slate-500 dark:text-[#B0B7BE]" style={{ fontSize: 13, margin: 0 }}>
                     {memberCounts.total} total · {memberCounts.ownStudents} own students · {memberCounts.ownSeniors} seniors · {memberCounts.otherCollege} other colleges
                   </p>
                 </div>
                 <button
                   onClick={() => setShowMembersModal(false)}
-                  style={{ background: 'transparent', border: 'none', color: '#64748B', cursor: 'pointer', padding: 8, borderRadius: 8, transition: 'all 0.2s' }}
+                  style={{ border: 'none', cursor: 'pointer', padding: 8, borderRadius: 8, transition: 'all 0.2s' }}
+                  className="bg-transparent text-slate-500 dark:text-[#B0B7BE]"
                   onMouseEnter={e => e.currentTarget.style.background = '#F8FAFC'}
                   onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                 >
@@ -1134,11 +1129,11 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
               {membersLoading ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                   {[1, 2, 3, 4, 5].map((i) => (
-                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 12, background: '#F8FAFC', borderRadius: 12 }}>
-                      <div style={{ width: 40, height: 40, background: '#E2E8F0', borderRadius: '50%', animation: 'pulse 2s infinite' }} />
+                    <div key={i} className="flex items-center gap-3 p-3 bg-[#F8FAFC] dark:bg-[#1D2226] rounded-xl" style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 12, borderRadius: 12 }}>
+                      <div className="bg-slate-200 dark:bg-[#283036]" style={{ width: 40, height: 40, borderRadius: '50%', animation: 'pulse 2s infinite' }} />
                       <div style={{ flex: 1 }}>
-                        <div style={{ width: '60%', height: 12, background: '#E2E8F0', borderRadius: 6, marginBottom: 6, animation: 'pulse 2s infinite' }} />
-                        <div style={{ width: '40%', height: 10, background: '#E2E8F0', borderRadius: 6, animation: 'pulse 2s infinite' }} />
+                        <div className="bg-slate-200 dark:bg-[#283036]" style={{ width: '60%', height: 12, borderRadius: 6, marginBottom: 6, animation: 'pulse 2s infinite' }} />
+                        <div className="bg-slate-200 dark:bg-[#283036]" style={{ width: '40%', height: 10, borderRadius: 6, animation: 'pulse 2s infinite' }} />
                       </div>
                     </div>
                   ))}
@@ -1162,7 +1157,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                         )}
                       </div>
                     ) : (
-                      <p style={{ fontSize: 12, color: '#94A3B8', margin: 0, padding: '8px 12px', background: '#F8FAFC', borderRadius: 10 }}>
+                      <p className="text-slate-400 dark:text-[#B0B7BE] dark:bg-[#1D2226]" style={{ fontSize: 12, margin: 0, padding: '8px 12px', background: '#F8FAFC', borderRadius: 10 }}>
                         No students from this college yet.
                       </p>
                     )}
@@ -1185,7 +1180,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                         )}
                       </div>
                     ) : (
-                      <p style={{ fontSize: 12, color: '#94A3B8', margin: 0, padding: '8px 12px', background: '#F8FAFC', borderRadius: 10 }}>
+                      <p className="text-slate-400 dark:text-[#B0B7BE] dark:bg-[#1D2226]" style={{ fontSize: 12, margin: 0, padding: '8px 12px', background: '#F8FAFC', borderRadius: 10 }}>
                         No seniors from this college yet.
                       </p>
                     )}
@@ -1208,7 +1203,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                         )}
                       </div>
                     ) : (
-                      <p style={{ fontSize: 12, color: '#94A3B8', margin: 0, padding: '8px 12px', background: '#F8FAFC', borderRadius: 10 }}>
+                      <p className="text-slate-400 dark:text-[#B0B7BE] dark:bg-[#1D2226]" style={{ fontSize: 12, margin: 0, padding: '8px 12px', background: '#F8FAFC', borderRadius: 10 }}>
                         No members from other colleges have joined yet.
                       </p>
                     )}
@@ -1216,8 +1211,8 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
 
                   {memberCounts.total === 0 && !membersLoading && (
                     <div style={{ textAlign: 'center', padding: '40px 20px' }}>
-                      <Users size={48} style={{ color: '#CBD5E1', margin: '0 auto 16px' }} />
-                      <p style={{ fontSize: 16, color: '#64748B', margin: 0 }}>No members found</p>
+                      <Users size={48} className="text-slate-300 dark:text-[#B0B7BE]" style={{ margin: '0 auto 16px' }} />
+                      <p className="text-slate-500 dark:text-[#B0B7BE]" style={{ fontSize: 16, margin: 0 }}>No members found</p>
                     </div>
                   )}
                 </div>
@@ -1255,9 +1250,9 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
 export default function CommunityPage({ params }: { params: Promise<{ slug: string }> }) {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center gap-3 font-plus-jakarta-sans">
+      <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#1D2226] flex flex-col items-center justify-center gap-3 font-plus-jakarta-sans">
         <div className="w-10 h-10 border-4 border-purple-100 border-t-purple-600 rounded-full animate-spin" />
-        <p className="text-xs text-slate-500 font-semibold">Loading community...</p>
+        <p className="text-xs text-slate-500 dark:text-[#B0B7BE] font-semibold">Loading community...</p>
       </div>
     }>
       <CommunityPageContent params={params} />

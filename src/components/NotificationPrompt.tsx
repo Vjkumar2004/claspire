@@ -39,78 +39,28 @@ export default function NotificationPrompt() {
   if (!show) return null
 
   return (
-    <div style={{
-      position: 'fixed',
-      bottom: '88px',
-      left: '50%',
-      transform: 'translateX(-50%)',
-      width: '320px',
-      zIndex: 9999,
-    }}>
-      <div style={{
-        background: 'white',
-        border: '1px solid #e5e7eb',
-        borderRadius: '12px',
-        padding: '16px',
-        boxShadow: '0 4px 24px rgba(0,0,0,0.12)',
-        display: 'flex',
-        gap: '12px',
-        alignItems: 'flex-start',
-      }}>
-        <div style={{
-          width: '38px', height: '38px',
-          background: '#7C3AED18',
-          borderRadius: '8px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: '18px',
-          flexShrink: 0,
-        }}>🔔</div>
-        <div style={{ flex: 1 }}>
-          <p style={{
-            fontSize: '13px',
-            fontWeight: '600',
-            color: '#111827',
-            marginBottom: '3px',
-          }}>
+    <div className="fixed bottom-[88px] left-1/2 -translate-x-1/2 w-[320px] z-[9999]">
+      <div className="bg-white dark:bg-[#283036] border border-gray-200 dark:border-[#38434F] rounded-xl p-4 shadow-[0_4px_24px_rgba(0,0,0,0.12)] dark:shadow-[0_4px_24px_rgba(0,0,0,0.3)] flex gap-3 items-start">
+        <div className="w-[38px] h-[38px] bg-purple-600/10 rounded-lg flex items-center justify-center text-lg flex-shrink-0">
+          🔔
+        </div>
+        <div className="flex-1">
+          <p className="text-[13px] font-semibold text-gray-900 dark:text-white mb-[3px]">
             Don't miss senior replies
           </p>
-          <p style={{
-            fontSize: '12px',
-            color: '#6b7280',
-            marginBottom: '10px',
-            lineHeight: '1.5',
-          }}>
+          <p className="text-[12px] text-gray-500 dark:text-[#B0B7BE] mb-[10px] leading-relaxed">
             Get notified instantly when a senior answers your doubt or sends a referral.
           </p>
-          <div style={{ display: 'flex', gap: '8px' }}>
+          <div className="flex gap-2">
             <button
               onClick={handleEnable}
-              style={{
-                background: '#7C3AED',
-                color: '#fff',
-                border: 'none',
-                borderRadius: '6px',
-                padding: '6px 16px',
-                fontSize: '12px',
-                fontWeight: '600',
-                cursor: 'pointer',
-              }}
+              className="bg-[#7C3AED] text-white border-none rounded-md px-4 py-1.5 text-xs font-semibold cursor-pointer"
             >
               Enable Notifications
             </button>
             <button
               onClick={handleLater}
-              style={{
-                background: 'transparent',
-                color: '#6b7280',
-                border: '1px solid #e5e7eb',
-                borderRadius: '6px',
-                padding: '6px 12px',
-                fontSize: '12px',
-                cursor: 'pointer',
-              }}
+              className="bg-transparent text-gray-500 dark:text-[#B0B7BE] border border-gray-200 dark:border-[#38434F] rounded-md px-3 py-1.5 text-xs cursor-pointer hover:bg-gray-50 dark:hover:bg-[#1D2226] transition-colors"
             >
               Later
             </button>

@@ -112,16 +112,16 @@ export default function CollegeRequestPage() {
            <motion.div 
              initial={{ opacity: 0, scale: 0.9 }}
              animate={{ opacity: 1, scale: 1 }}
-             className="max-w-xl w-full bg-white rounded-[40px] shadow-2xl p-10 md:p-16 text-center border border-[#EEEBFF]"
+             className="max-w-xl w-full bg-white dark:bg-[#283036] rounded-[40px] shadow-2xl p-10 md:p-16 text-center border border-[#EEEBFF] dark:border-[#38434F]"
            >
               <div className="w-24 h-24 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-8">
                  <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center text-white shadow-lg shadow-green-200">
                     <Check size={32} strokeWidth={3} />
                  </div>
               </div>
-              <h2 className="text-3xl font-black text-[#0F172A] mb-4 font-instrument-serif">Request Submitted!</h2>
-              <p className="text-gray-500 font-medium leading-relaxed mb-10">
-                Your request to add <span className="text-[#0F172A] font-black">{formData.college_name}</span> has been received. Our team will verify it shortly.
+              <h2 className="text-3xl font-black text-[#0F172A] dark:text-white mb-4 font-instrument-serif">Request Submitted!</h2>
+              <p className="text-gray-500 dark:text-[#B0B7BE] font-medium leading-relaxed mb-10">
+                Your request to add <span className="text-[#0F172A] dark:text-white font-black">{formData.college_name}</span> has been received. Our team will verify it shortly.
               </p>
               
               <motion.div 
@@ -182,14 +182,14 @@ export default function CollegeRequestPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="bg-white rounded-[40px] border border-[#EEEBFF] shadow-2xl p-8 md:p-12"
+            className="bg-white dark:bg-[#283036] rounded-[40px] border border-[#EEEBFF] dark:border-[#38434F] shadow-2xl p-8 md:p-12"
         >
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
             
             {/* Left Column: Form */}
             <div className="lg:col-span-8">
-                <h2 className="text-2xl font-black text-[#0F172A] font-instrument-serif m-0 mb-2">College Details</h2>
-                <p className="text-sm text-gray-500 mb-8">Fill in the information accurately to help us setup the community faster.</p>
+                <h2 className="text-2xl font-black text-[#0F172A] dark:text-white font-instrument-serif m-0 mb-2">College Details</h2>
+                <p className="text-sm text-gray-500 dark:text-[#B0B7BE] mb-8">Fill in the information accurately to help us setup the community faster.</p>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -200,7 +200,7 @@ export default function CollegeRequestPage() {
                             value={formData.college_name}
                             onChange={(e) => setFormData({...formData, college_name: e.target.value})}
                             placeholder="e.g. SRM Institute of Science and Technology"
-                            className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-5 py-4 text-sm text-[#0F172A] outline-none focus:bg-white focus:border-purple-600 focus:shadow-[0_0_0_4px_rgba(124,58,237,0.05)] transition-all font-bold"
+                            className="w-full bg-gray-50 dark:bg-[#222B31] border border-gray-100 dark:border-[#38434F] rounded-2xl px-5 py-4 text-sm text-[#0F172A] dark:text-white outline-none focus:bg-white dark:focus:bg-[#283036] focus:border-purple-600 focus:shadow-[0_0_0_4px_rgba(124,58,237,0.05)] transition-all font-bold dark:placeholder:text-[#8B949E]"
                         />
                         </div>
                         <div>
@@ -210,7 +210,7 @@ export default function CollegeRequestPage() {
                             value={formData.short_name}
                             onChange={(e) => setFormData({...formData, short_name: e.target.value})}
                             placeholder="e.g. SRM"
-                            className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-5 py-4 text-sm text-[#0F172A] outline-none focus:bg-white focus:border-purple-600 focus:shadow-[0_0_0_4px_rgba(124,58,237,0.05)] transition-all font-bold"
+                            className="w-full bg-gray-50 dark:bg-[#222B31] border border-gray-100 dark:border-[#38434F] rounded-2xl px-5 py-4 text-sm text-[#0F172A] dark:text-white outline-none focus:bg-white dark:focus:bg-[#283036] focus:border-purple-600 focus:shadow-[0_0_0_4px_rgba(124,58,237,0.05)] transition-all font-bold dark:placeholder:text-[#8B949E]"
                         />
                         </div>
                         <div>
@@ -218,7 +218,7 @@ export default function CollegeRequestPage() {
                         <select 
                             value={formData.college_type}
                             onChange={(e) => setFormData({...formData, college_type: e.target.value})}
-                            className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-5 py-4 text-sm text-[#0F172A] outline-none focus:bg-white focus:border-purple-600 focus:shadow-[0_0_0_4px_rgba(124,58,237,0.05)] transition-all appearance-none cursor-pointer font-bold"
+                            className="w-full bg-gray-50 dark:bg-[#222B31] border border-gray-100 dark:border-[#38434F] rounded-2xl px-5 py-4 text-sm text-[#0F172A] dark:text-white outline-none focus:bg-white dark:focus:bg-[#283036] focus:border-purple-600 focus:shadow-[0_0_0_4px_rgba(124,58,237,0.05)] transition-all appearance-none cursor-pointer font-bold dark:placeholder:text-[#8B949E]"
                         >
                             {collegeTypes.map(t => <option key={t} value={t}>{t}</option>)}
                         </select>
@@ -230,7 +230,7 @@ export default function CollegeRequestPage() {
                             value={formData.location}
                             onChange={(e) => setFormData({...formData, location: e.target.value})}
                             placeholder="e.g. Chennai"
-                            className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-5 py-4 text-sm text-[#0F172A] outline-none focus:bg-white focus:border-purple-600 focus:shadow-[0_0_0_4px_rgba(124,58,237,0.05)] transition-all font-bold"
+                            className="w-full bg-gray-50 dark:bg-[#222B31] border border-gray-100 dark:border-[#38434F] rounded-2xl px-5 py-4 text-sm text-[#0F172A] dark:text-white outline-none focus:bg-white dark:focus:bg-[#283036] focus:border-purple-600 focus:shadow-[0_0_0_4px_rgba(124,58,237,0.05)] transition-all font-bold dark:placeholder:text-[#8B949E]"
                         />
                         </div>
                         <div>
@@ -238,7 +238,7 @@ export default function CollegeRequestPage() {
                         <select 
                             required value={formData.state}
                             onChange={(e) => setFormData({...formData, state: e.target.value})}
-                            className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-5 py-4 text-sm text-[#0F172A] outline-none focus:bg-white focus:border-purple-600 focus:shadow-[0_0_0_4px_rgba(124,58,237,0.05)] transition-all appearance-none cursor-pointer font-bold"
+                            className="w-full bg-gray-50 dark:bg-[#222B31] border border-gray-100 dark:border-[#38434F] rounded-2xl px-5 py-4 text-sm text-[#0F172A] dark:text-white outline-none focus:bg-white dark:focus:bg-[#283036] focus:border-purple-600 focus:shadow-[0_0_0_4px_rgba(124,58,237,0.05)] transition-all appearance-none cursor-pointer font-bold dark:placeholder:text-[#8B949E]"
                         >
                             <option value="">Select State</option>
                             {states.map(s => <option key={s} value={s}>{s}</option>)}
@@ -251,7 +251,7 @@ export default function CollegeRequestPage() {
                             value={formData.email_domain}
                             onChange={(e) => setFormData({...formData, email_domain: e.target.value})}
                             placeholder="e.g. srmist.edu.in"
-                            className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-5 py-4 text-sm text-[#0F172A] outline-none focus:bg-white focus:border-purple-600 focus:shadow-[0_0_0_4px_rgba(124,58,237,0.05)] transition-all font-bold"
+                            className="w-full bg-gray-50 dark:bg-[#222B31] border border-gray-100 dark:border-[#38434F] rounded-2xl px-5 py-4 text-sm text-[#0F172A] dark:text-white outline-none focus:bg-white dark:focus:bg-[#283036] focus:border-purple-600 focus:shadow-[0_0_0_4px_rgba(124,58,237,0.05)] transition-all font-bold dark:placeholder:text-[#8B949E]"
                         />
                         </div>
                         <div>
@@ -261,7 +261,7 @@ export default function CollegeRequestPage() {
                             value={formData.website_url}
                             onChange={(e) => setFormData({...formData, website_url: e.target.value})}
                             placeholder="https://www.college.ac.in"
-                            className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-5 py-4 text-sm text-[#0F172A] outline-none focus:bg-white focus:border-purple-600 focus:shadow-[0_0_0_4px_rgba(124,58,237,0.05)] transition-all font-bold"
+                            className="w-full bg-gray-50 dark:bg-[#222B31] border border-gray-100 dark:border-[#38434F] rounded-2xl px-5 py-4 text-sm text-[#0F172A] dark:text-white outline-none focus:bg-white dark:focus:bg-[#283036] focus:border-purple-600 focus:shadow-[0_0_0_4px_rgba(124,58,237,0.05)] transition-all font-bold dark:placeholder:text-[#8B949E]"
                         />
                         </div>
                         <div className="md:col-span-2">
@@ -270,7 +270,7 @@ export default function CollegeRequestPage() {
                             value={formData.additional_info}
                             onChange={(e) => setFormData({...formData, additional_info: e.target.value})}
                             placeholder="Anything else we should know?"
-                            className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-5 py-4 text-sm text-[#0F172A] outline-none focus:bg-white focus:border-purple-600 transition-all h-24 resize-none font-medium"
+                            className="w-full bg-gray-50 dark:bg-[#222B31] border border-gray-100 dark:border-[#38434F] rounded-2xl px-5 py-4 text-sm text-[#0F172A] dark:text-white outline-none focus:bg-white dark:focus:bg-[#283036] focus:border-purple-600 transition-all h-24 resize-none font-medium dark:placeholder:text-[#8B949E]"
                         />
                         </div>
                     </div>
@@ -294,7 +294,7 @@ export default function CollegeRequestPage() {
                     >
                         {loading ? 'Submitting Request...' : <><Send size={18} /> Send Request for Approval</>}
                     </button>
-                    <p className="text-center text-[10px] text-gray-400 font-bold uppercase tracking-widest">Administrator review is required for all new campus hubs</p>
+                    <p className="text-center text-[10px] text-gray-400 dark:text-[#B0B7BE] font-bold uppercase tracking-widest">Administrator review is required for all new campus hubs</p>
                 </form>
             </div>
 
@@ -302,16 +302,16 @@ export default function CollegeRequestPage() {
             <div className="lg:col-span-4">
                 <div className="sticky top-24 space-y-8">
                     {/* Logo Section */}
-                    <div className="bg-gray-50 rounded-[32px] p-8 border border-gray-100 text-center">
-                        <h3 className="text-lg font-black text-[#0F172A] font-instrument-serif mb-2">College Logo</h3>
-                        <p className="text-xs text-gray-500 mb-8 font-medium">Upload a clear logo for your college community.</p>
+                    <div className="bg-gray-50 dark:bg-[#1D2226] rounded-[32px] p-8 border border-gray-100 dark:border-[#38434F] text-center">
+                        <h3 className="text-lg font-black text-[#0F172A] dark:text-white font-instrument-serif mb-2">College Logo</h3>
+                        <p className="text-xs text-gray-500 dark:text-[#B0B7BE] mb-8 font-medium">Upload a clear logo for your college community.</p>
                         
                         <div className="relative group mx-auto mb-8">
-                            <div className="w-32 h-32 md:w-36 md:h-36 bg-white rounded-[32px] border-2 border-dashed border-gray-200 flex items-center justify-center overflow-hidden transition-all group-hover:border-purple-400">
+                            <div className="w-32 h-32 md:w-36 md:h-36 bg-white dark:bg-[#283036] rounded-[32px] border-2 border-dashed border-gray-200 dark:border-[#38434F] flex items-center justify-center overflow-hidden transition-all group-hover:border-purple-400">
                                 {logoPreview ? (
                                     <img src={logoPreview} alt="Logo Preview" className="w-full h-full object-contain p-4" />
                                 ) : (
-                                    <div className="flex flex-col items-center gap-2 text-gray-300 group-hover:text-purple-400">
+                                    <div className="flex flex-col items-center gap-2 text-gray-300 dark:text-[#B0B7BE] group-hover:text-purple-400">
                                         <Upload size={32} />
                                         <span className="text-[10px] font-black uppercase tracking-widest">PNG / JPG</span>
                                     </div>
@@ -335,29 +335,29 @@ export default function CollegeRequestPage() {
                     </div>
 
                     {/* Recent Requests */}
-                    <div className="bg-white rounded-3xl border border-gray-100 p-6">
+                    <div className="bg-white dark:bg-[#283036] rounded-3xl border border-gray-100 dark:border-[#38434F] p-6">
                        <div className="flex items-center gap-3 mb-6">
                            <div className="w-8 h-8 rounded-xl bg-orange-50 text-orange-500 flex items-center justify-center">
                               <Clock size={16} />
                            </div>
-                           <h3 className="text-sm font-black text-[#0F172A] uppercase tracking-wider">Recent Requests</h3>
+                           <h3 className="text-sm font-black text-[#0F172A] dark:text-white uppercase tracking-wider">Recent Requests</h3>
                        </div>
 
                        <div className="space-y-3">
                           {dataLoading ? (
-                             [1,2].map(i => <div key={i} className="h-12 bg-gray-50 rounded-2xl animate-pulse" />)
+                             [1,2].map(i => <div key={i} className="h-12 bg-gray-50 dark:bg-[#1D2226] rounded-2xl animate-pulse" />)
                           ) : requests.length > 0 ? (
                              requests.slice(0, 3).map(req => (
-                                <div key={req.id} className="flex items-center justify-between gap-3 p-3 bg-gray-50 rounded-2xl border border-transparent hover:border-orange-100 transition-colors">
+                                <div key={req.id} className="flex items-center justify-between gap-3 p-3 bg-gray-50 dark:bg-[#1D2226] rounded-2xl border border-transparent hover:border-orange-100 transition-colors">
                                    <div className="min-w-0">
-                                      <p className="text-xs font-bold text-[#0F172A] truncate m-0">{req.short_name || req.college_name}</p>
-                                      <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">{req.status}</p>
+                                      <p className="text-xs font-bold text-[#0F172A] dark:text-white truncate m-0">{req.short_name || req.college_name}</p>
+                                      <p className="text-[9px] text-gray-400 dark:text-[#B0B7BE] font-bold uppercase tracking-widest mt-0.5">{req.status}</p>
                                    </div>
                                    {req.status === 'approved' && <CheckCircle2 size={14} className="text-green-500 flex-shrink-0" />}
                                 </div>
                              ))
                           ) : (
-                             <p className="text-[10px] text-gray-400 italic">No recent requests</p>
+                             <p className="text-[10px] text-gray-400 dark:text-[#B0B7BE] italic">No recent requests</p>
                           )}
                        </div>
                     </div>

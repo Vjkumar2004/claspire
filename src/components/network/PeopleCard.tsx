@@ -126,16 +126,16 @@ export default function PeopleCard({ person, onConnect, onRemove, onRespond, onW
         ? 'text-purple-600 bg-purple-50 border-purple-200'
         : matchScore >= 50
           ? 'text-amber-600 bg-amber-50 border-amber-200'
-          : 'text-gray-500 bg-gray-50 border-gray-200'
+          : 'text-gray-500 dark:text-[#B0B7BE] bg-gray-50 dark:bg-[#1D2226] border-gray-200 dark:border-[#38434F]'
     : ''
 
   return (
     <div
       onClick={() => router.push(`/u/${person.unique_id}`)}
-      className="group bg-white rounded-xl border border-gray-200/90 shadow-[0_1px_3px_rgba(0,0,0,0.06)] overflow-hidden hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(0,0,0,0.09)] transition-all duration-300 relative cursor-pointer"
+      className="group bg-white dark:bg-[#283036] rounded-xl border border-gray-200 dark:border-[#38434F]/90 dark:border-[#38434F]/90 shadow-[0_1px_3px_rgba(0,0,0,0.06)] overflow-hidden hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(0,0,0,0.09)] transition-all duration-300 relative cursor-pointer"
     >
       {/* Banner */}
-      <div className="relative h-[80px] lg:h-[90px] overflow-hidden bg-gray-100">
+      <div className="relative h-[80px] lg:h-[90px] overflow-hidden bg-gray-100 dark:bg-[#1D2226]">
         {person.banner_url ? (
           <img
             src={person.banner_url}
@@ -151,11 +151,11 @@ export default function PeopleCard({ person, onConnect, onRemove, onRespond, onW
 
       {/* Avatar */}
       <div className="flex justify-center -mt-[26px] lg:-mt-8 relative z-[2]">
-        <div className="w-[52px] h-[52px] lg:w-16 lg:h-16 rounded-full border-[3px] lg:border-[4px] border-white bg-gray-100 flex items-center justify-center overflow-hidden shadow-md cursor-pointer hover:shadow-lg transition-shadow ring-1 ring-black/10">
+        <div className="w-[52px] h-[52px] lg:w-16 lg:h-16 rounded-full border-[3px] lg:border-[4px] border-white bg-gray-100 dark:bg-[#1D2226] flex items-center justify-center overflow-hidden shadow-md cursor-pointer hover:shadow-lg transition-shadow ring-1 ring-black/10 dark:ring-[#1D2226]/10">
           {person.avatar_url ? (
             <img src={person.avatar_url} alt={person.full_name} className="w-full h-full object-cover" loading="lazy" />
           ) : (
-            <span className="text-sm lg:text-base font-black text-gray-400">
+            <span className="text-sm lg:text-base font-black text-gray-400 dark:text-[#B0B7BE]">
               {person.full_name?.substring(0, 2).toUpperCase() || '?'}
             </span>
           )}
@@ -164,18 +164,18 @@ export default function PeopleCard({ person, onConnect, onRemove, onRespond, onW
 
       {/* Content */}
       <div className="px-3 lg:px-4 pb-2.5 lg:pb-3 pt-1 lg:pt-1.5 relative z-[2]">
-        <h3 className="text-xs lg:text-sm font-bold text-gray-900 text-center leading-tight truncate flex items-center justify-center gap-1.5">
+        <h3 className="text-xs lg:text-sm font-bold text-gray-900 dark:text-white text-center leading-tight truncate flex items-center justify-center gap-1.5">
           <span className="truncate">{person.full_name}</span>
           {person.last_seen && (
             <span className={`inline-block w-[6px] h-[6px] rounded-full flex-shrink-0 ${getUserActivityDot(person.last_seen)}`} />
           )}
         </h3>
 
-        <p className="text-[10px] lg:text-xs text-gray-500 font-medium text-center truncate leading-snug">{headline}</p>
+        <p className="text-[10px] lg:text-xs text-gray-500 dark:text-[#B0B7BE] font-medium text-center truncate leading-snug">{headline}</p>
 
         {collegeName && (
           <div className="flex items-center justify-center mt-0.5">
-            <span className="text-[9px] lg:text-[10px] text-gray-400 truncate leading-snug">
+            <span className="text-[9px] lg:text-[10px] text-gray-400 dark:text-[#B0B7BE] truncate leading-snug">
               {collegeName}{year ? `, ${year}` : ''}
             </span>
           </div>
@@ -199,7 +199,7 @@ export default function PeopleCard({ person, onConnect, onRemove, onRespond, onW
 
         {/* Actions */}
         {showActions && (
-          <div className="mt-2 lg:mt-2.5 pt-2 lg:pt-2 border-t border-gray-100">
+          <div className="mt-2 lg:mt-2.5 pt-2 lg:pt-2 border-t border-gray-100 dark:border-[#38434F]">
             {localStatus === 'none' && (
               <button
                 onClick={(e) => { e.stopPropagation(); handleConnect() }}
@@ -235,7 +235,7 @@ export default function PeopleCard({ person, onConnect, onRemove, onRespond, onW
                 <button
                   onClick={(e) => { e.stopPropagation(); handleRespond('rejected') }}
                   disabled={responding}
-                  className="flex-1 h-7 lg:h-8 rounded-lg text-[10px] lg:text-xs font-semibold border border-gray-200 bg-white text-gray-500 hover:border-red-200 hover:text-red-500 hover:bg-red-50 transition-all flex items-center justify-center gap-1 disabled:opacity-50"
+                  className="flex-1 h-7 lg:h-8 rounded-lg text-[10px] lg:text-xs font-semibold border border-gray-200 dark:border-[#38434F] bg-white dark:bg-[#283036] text-gray-500 dark:text-[#B0B7BE] hover:border-red-200 hover:text-red-500 hover:bg-red-50 transition-all flex items-center justify-center gap-1 disabled:opacity-50"
                 >
                   {responding ? <Loader2 size={11} className="animate-spin" /> : <X size={12} />}
                   Ignore
@@ -256,7 +256,7 @@ export default function PeopleCard({ person, onConnect, onRemove, onRespond, onW
                   <button
                     onClick={(e) => { e.stopPropagation(); handleRemove() }}
                     disabled={removing}
-                    className="h-7 lg:h-8 px-2 rounded-lg text-[10px] lg:text-xs font-semibold border border-gray-200 bg-white text-gray-500 transition-all flex items-center justify-center hover:border-red-200 hover:text-red-500 hover:bg-red-50"
+                    className="h-7 lg:h-8 px-2 rounded-lg text-[10px] lg:text-xs font-semibold border border-gray-200 dark:border-[#38434F] bg-white dark:bg-[#283036] text-gray-500 dark:text-[#B0B7BE] transition-all flex items-center justify-center hover:border-red-200 hover:text-red-500 hover:bg-red-50"
                   >
                     {removing ? <Loader2 size={11} className="animate-spin" /> : <X size={12} />}
                   </button>

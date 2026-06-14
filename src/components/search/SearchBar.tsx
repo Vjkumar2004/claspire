@@ -208,9 +208,9 @@ export default function SearchBar({ isMobileOverlay = false, onCloseMobile }: { 
       case 'group':
         return <Users className="w-4 h-4 text-cyan-600" />
       case 'post':
-        return <MessageSquare className="w-4 h-4 text-gray-600" />
+        return <MessageSquare className="w-4 h-4 text-gray-600 dark:text-[#B0B7BE]" />
       default:
-        return <FileText className="w-4 h-4 text-gray-400" />
+        return <FileText className="w-4 h-4 text-gray-400 dark:text-[#B0B7BE]" />
     }
   }
 
@@ -229,9 +229,9 @@ export default function SearchBar({ isMobileOverlay = false, onCloseMobile }: { 
       case 'group':
         return 'bg-cyan-50 border-cyan-100 text-cyan-700'
       case 'post':
-        return 'bg-gray-50 border-gray-100 text-gray-700'
+        return 'bg-gray-50 dark:bg-[#1D2226] border-gray-100 dark:border-[#38434F] text-gray-700 dark:text-[#B0B7BE]'
       default:
-        return 'bg-gray-50 border-gray-100 text-gray-700'
+        return 'bg-gray-50 dark:bg-[#1D2226] border-gray-100 dark:border-[#38434F] text-gray-700 dark:text-[#B0B7BE]'
     }
   }
 
@@ -259,11 +259,11 @@ export default function SearchBar({ isMobileOverlay = false, onCloseMobile }: { 
           onFocus={() => setIsOpen(true)}
           onKeyDown={handleKeyDown}
           placeholder="Search people, jobs, groups, colleges..."
-          className={`w-full bg-[#EEF3F8] text-gray-800 text-[13px] font-semibold pl-10 pr-10 py-1.5 sm:py-2 rounded-md border border-transparent focus:border-gray-300 focus:bg-white focus:outline-none focus:ring-1 focus:ring-gray-300 transition-all duration-200 ${
+          className={`w-full bg-[#EEF3F8] dark:bg-[#283036] text-gray-800 dark:text-[#B0B7BE] text-[13px] font-semibold pl-10 pr-10 py-1.5 sm:py-2 rounded-md border border-transparent focus:border-gray-300 dark:focus:border-[#38434F] focus:bg-white dark:focus:bg-[#283036] focus:outline-none focus:ring-1 focus:ring-gray-300 dark:focus:ring-[#38434F] transition-all duration-200 ${
             isMobileOverlay ? 'h-11 sm:h-12' : 'h-9'
           }`}
         />
-        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 dark:text-[#B0B7BE]" />
         
         {query && (
           <button
@@ -272,7 +272,7 @@ export default function SearchBar({ isMobileOverlay = false, onCloseMobile }: { 
               setSuggestions([])
               inputRef.current?.focus()
             }}
-            className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
+            className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-[#B0B7BE] hover:text-gray-600 dark:text-[#B0B7BE] dark:hover:text-white cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -281,11 +281,11 @@ export default function SearchBar({ isMobileOverlay = false, onCloseMobile }: { 
 
       {/* Autocomplete suggestion popup dropdown */}
       {isOpen && (
-        <div className={`absolute top-full left-0 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg z-[9999] overflow-hidden ${
+        <div className={`absolute top-full left-0 mt-1 w-full bg-white dark:bg-[#283036] border border-gray-200 dark:border-[#38434F] rounded-md shadow-lg z-[9999] overflow-hidden ${
           isMobileOverlay ? 'w-full min-w-0' : 'min-w-[360px] lg:min-w-[400px]'
         }`}>
           {loading && suggestions.length === 0 ? (
-            <div className="p-4 flex items-center justify-center gap-2 text-gray-500 font-bold">
+            <div className="p-4 flex items-center justify-center gap-2 text-gray-500 dark:text-[#B0B7BE] font-bold">
               <RefreshCw className="w-4 h-4 animate-spin text-[#7C3AED]" />
               Searching Clasipire...
             </div>
@@ -293,7 +293,7 @@ export default function SearchBar({ isMobileOverlay = false, onCloseMobile }: { 
             // 1. Rich LinkedIn-Style Recent Searches Dropdown
             recentSearches.length > 0 ? (
               <div className="p-2 space-y-0.5">
-                <div className="flex justify-between items-center px-2.5 py-1.5 text-gray-400 font-bold tracking-wider uppercase text-[10px]">
+                <div className="flex justify-between items-center px-2.5 py-1.5 text-gray-400 dark:text-[#B0B7BE] font-bold tracking-wider uppercase text-[10px]">
                   <span>Recent Searches</span>
                   <button onClick={clearRecentSearches} className="hover:text-red-500 cursor-pointer">
                     Clear All
@@ -302,8 +302,8 @@ export default function SearchBar({ isMobileOverlay = false, onCloseMobile }: { 
                 {recentSearches.map((item, i) => (
                   <div
                     key={item.id}
-                    className={`w-full flex items-center justify-between px-3 py-1.5 rounded-md hover:bg-gray-50 group cursor-pointer ${
-                      i === activeIndex ? 'bg-gray-50' : ''
+                    className={`w-full flex items-center justify-between px-3 py-1.5 rounded-md hover:bg-gray-50 dark:bg-[#1D2226] dark:hover:bg-[#1D2226] group cursor-pointer ${
+                      i === activeIndex ? 'bg-gray-50 dark:bg-[#1D2226]' : ''
                     }`}
                     onClick={() => {
                       saveRecentSearch(item)
@@ -314,11 +314,11 @@ export default function SearchBar({ isMobileOverlay = false, onCloseMobile }: { 
                   >
                     <div className="flex items-center gap-3 min-w-0 flex-1">
                       {item.type === 'query' ? (
-                        <div className="w-8 h-8 rounded bg-gray-50 border border-gray-150 flex items-center justify-center flex-shrink-0">
-                          <History className="w-4 h-4 text-gray-400" />
+                        <div className="w-8 h-8 rounded bg-gray-50 dark:bg-[#1D2226] border border-gray-150 flex items-center justify-center flex-shrink-0">
+                          <History className="w-4 h-4 text-gray-400 dark:text-[#B0B7BE]" />
                         </div>
                       ) : (
-                        <div className="w-8 h-8 rounded bg-gray-50 border border-gray-150 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                        <div className="w-8 h-8 rounded bg-gray-50 dark:bg-[#1D2226] border border-gray-150 flex items-center justify-center flex-shrink-0 overflow-hidden">
                           {item.imageUrl ? (
                             <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover" />
                           ) : (
@@ -327,7 +327,7 @@ export default function SearchBar({ isMobileOverlay = false, onCloseMobile }: { 
                         </div>
                       )}
                       <div className="min-w-0 flex-1">
-                        <p className="font-bold text-gray-900 leading-tight text-xs flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
+                        <p className="font-bold text-gray-900 dark:text-white leading-tight text-xs flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
                           <span className="truncate">{item.title}</span>
                           {item.type !== 'query' && (
                             <span className={`text-[8px] font-bold px-1 py-0.2 rounded border uppercase tracking-wider ${getRecentBadgeStyle(item.type)}`}>
@@ -336,7 +336,7 @@ export default function SearchBar({ isMobileOverlay = false, onCloseMobile }: { 
                           )}
                         </p>
                         {item.subtitle && (
-                          <p className="text-[10px] text-gray-500 font-semibold mt-0.5 leading-none truncate">{item.subtitle}</p>
+                          <p className="text-[10px] text-gray-500 dark:text-[#B0B7BE] font-semibold mt-0.5 leading-none truncate">{item.subtitle}</p>
                         )}
                       </div>
                     </div>
@@ -346,7 +346,7 @@ export default function SearchBar({ isMobileOverlay = false, onCloseMobile }: { 
                         e.stopPropagation()
                         deleteRecentItem(e, item.id)
                       }}
-                      className="opacity-0 group-hover:opacity-100 p-1 text-gray-400 hover:text-red-500 rounded hover:bg-gray-250 transition-all cursor-pointer flex-shrink-0"
+                      className="opacity-0 group-hover:opacity-100 p-1 text-gray-400 dark:text-[#B0B7BE] hover:text-red-500 rounded hover:bg-gray-250 transition-all cursor-pointer flex-shrink-0"
                     >
                       <X className="w-3.5 h-3.5" />
                     </button>
@@ -354,27 +354,27 @@ export default function SearchBar({ isMobileOverlay = false, onCloseMobile }: { 
                 ))}
               </div>
             ) : (
-              <div className="p-4 text-center text-gray-400 font-bold">
+              <div className="p-4 text-center text-gray-400 dark:text-[#B0B7BE] font-bold">
                 Try searching for names, roles, or colleges!
               </div>
             )
           ) : suggestions.length > 0 ? (
             // 2. Segmented Search Suggestions
-            <div className="max-h-[420px] overflow-y-auto divide-y divide-gray-100">
+            <div className="max-h-[420px] overflow-y-auto divide-y divide-gray-100 dark:divide-[#38434F]">
               
               {/* LinkedIn-Style Top Match block */}
               {topMatch && (
                 <div className="p-3 bg-gradient-to-br from-purple-50/40 to-white">
-                  <div className="text-gray-400 font-bold tracking-wider uppercase text-[9px] mb-2 px-1">
+                  <div className="text-gray-400 dark:text-[#B0B7BE] font-bold tracking-wider uppercase text-[9px] mb-2 px-1">
                     Top Match
                   </div>
                   <button
                     onClick={() => handleSuggestionClick(topMatch)}
-                    className={`w-full flex items-center gap-3.5 p-2 text-left rounded-md border border-purple-100/80 bg-white hover:bg-purple-50/20 transition-all cursor-pointer shadow-[0_1px_3px_rgba(124,58,237,0.03)] ${
+                    className={`w-full flex items-center gap-3.5 p-2 text-left rounded-md border border-purple-100/80 bg-white dark:bg-[#283036] hover:bg-purple-50/20 transition-all cursor-pointer shadow-[0_1px_3px_rgba(124,58,237,0.03)] ${
                       activeIndex === 0 ? 'bg-purple-50/30 border-purple-300' : ''
                     }`}
                   >
-                    <div className="w-10 h-10 rounded-md bg-white border border-gray-150 flex items-center justify-center flex-shrink-0 overflow-hidden shadow-sm">
+                    <div className="w-10 h-10 rounded-md bg-white dark:bg-[#283036] border border-gray-150 flex items-center justify-center flex-shrink-0 overflow-hidden shadow-sm dark:shadow-[#1D2226]/50">
                       {topMatch.imageUrl ? (
                         <img 
                           src={topMatch.imageUrl} 
@@ -388,13 +388,13 @@ export default function SearchBar({ isMobileOverlay = false, onCloseMobile }: { 
                       )}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="font-extrabold text-gray-900 leading-snug text-[13px] flex items-center gap-1.5">
+                      <p className="font-extrabold text-gray-900 dark:text-white leading-snug text-[13px] flex items-center gap-1.5">
                         {topMatch.title}
                         <span className={`text-[8px] font-bold px-1.5 py-0.2 rounded border uppercase tracking-wider ${getRecentBadgeStyle(topMatch.type)}`}>
                           {topMatch.type === 'senior' ? 'Senior' : topMatch.type}
                         </span>
                       </p>
-                      <p className="text-[10px] text-gray-500 font-semibold mt-0.5 truncate">{topMatch.subtitle}</p>
+                      <p className="text-[10px] text-gray-500 dark:text-[#B0B7BE] font-semibold mt-0.5 truncate">{topMatch.subtitle}</p>
                     </div>
                   </button>
                 </div>
@@ -403,7 +403,7 @@ export default function SearchBar({ isMobileOverlay = false, onCloseMobile }: { 
               {/* Related Colleges & Communities & Groups Section */}
               {communities.length > 0 && (
                 <div className="p-1.5">
-                  <div className="px-2 py-1 text-gray-400 font-bold tracking-wider uppercase text-[9px] mb-0.5">
+                  <div className="px-2 py-1 text-gray-400 dark:text-[#B0B7BE] font-bold tracking-wider uppercase text-[9px] mb-0.5">
                     Related Communities & Colleges
                   </div>
                   {communities.map((item, idx) => {
@@ -412,11 +412,11 @@ export default function SearchBar({ isMobileOverlay = false, onCloseMobile }: { 
                       <button
                         key={item.id}
                         onClick={() => handleSuggestionClick(item)}
-                        className={`w-full flex items-center gap-3 px-2 py-1.5 text-left rounded hover:bg-gray-50 cursor-pointer ${
-                          globalIdx === activeIndex ? 'bg-gray-50' : ''
+                        className={`w-full flex items-center gap-3 px-2 py-1.5 text-left rounded hover:bg-gray-50 dark:bg-[#1D2226] dark:hover:bg-[#1D2226] cursor-pointer ${
+                          globalIdx === activeIndex ? 'bg-gray-50 dark:bg-[#1D2226]' : ''
                         }`}
                       >
-                        <div className="w-8 h-8 rounded bg-white border border-gray-150 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                        <div className="w-8 h-8 rounded bg-white dark:bg-[#283036] border border-gray-150 flex items-center justify-center flex-shrink-0 overflow-hidden">
                           {item.imageUrl ? (
                             <img 
                               src={item.imageUrl} 
@@ -430,13 +430,13 @@ export default function SearchBar({ isMobileOverlay = false, onCloseMobile }: { 
                           )}
                         </div>
                         <div className="min-w-0">
-                          <p className="font-bold text-gray-900 leading-tight text-xs flex items-center gap-1.5">
+                          <p className="font-bold text-gray-900 dark:text-white leading-tight text-xs flex items-center gap-1.5">
                             {item.title}
                             <span className={`text-[8px] font-bold px-1.5 py-0.2 rounded border uppercase tracking-wider ${getRecentBadgeStyle(item.type)}`}>
                               {item.type}
                             </span>
                           </p>
-                          <p className="text-[10px] text-gray-500 font-semibold mt-0.5 truncate">{item.subtitle}</p>
+                          <p className="text-[10px] text-gray-500 dark:text-[#B0B7BE] font-semibold mt-0.5 truncate">{item.subtitle}</p>
                         </div>
                       </button>
                     )
@@ -447,7 +447,7 @@ export default function SearchBar({ isMobileOverlay = false, onCloseMobile }: { 
               {/* Related People Section */}
               {people.length > 0 && (
                 <div className="p-1.5">
-                  <div className="px-2 py-1 text-gray-400 font-bold tracking-wider uppercase text-[9px] mb-0.5">
+                  <div className="px-2 py-1 text-gray-400 dark:text-[#B0B7BE] font-bold tracking-wider uppercase text-[9px] mb-0.5">
                     Related People (Seniors & Students)
                   </div>
                   {people.map((item, idx) => {
@@ -456,11 +456,11 @@ export default function SearchBar({ isMobileOverlay = false, onCloseMobile }: { 
                       <button
                         key={item.id}
                         onClick={() => handleSuggestionClick(item)}
-                        className={`w-full flex items-center gap-3 px-2 py-1.5 text-left rounded hover:bg-gray-50 cursor-pointer ${
-                          globalIdx === activeIndex ? 'bg-gray-50' : ''
+                        className={`w-full flex items-center gap-3 px-2 py-1.5 text-left rounded hover:bg-gray-50 dark:bg-[#1D2226] dark:hover:bg-[#1D2226] cursor-pointer ${
+                          globalIdx === activeIndex ? 'bg-gray-50 dark:bg-[#1D2226]' : ''
                         }`}
                       >
-                        <div className="w-8 h-8 rounded-full bg-gray-50 border border-gray-100 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                        <div className="w-8 h-8 rounded-full bg-gray-50 dark:bg-[#1D2226] border border-gray-100 dark:border-[#38434F] flex items-center justify-center flex-shrink-0 overflow-hidden">
                           {item.imageUrl ? (
                             <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover" />
                           ) : (
@@ -468,7 +468,7 @@ export default function SearchBar({ isMobileOverlay = false, onCloseMobile }: { 
                           )}
                         </div>
                         <div className="min-w-0">
-                          <p className="font-bold text-gray-900 leading-tight text-xs flex items-center gap-1.5">
+                          <p className="font-bold text-gray-900 dark:text-white leading-tight text-xs flex items-center gap-1.5">
                             {item.title}
                             {item.type === 'senior' && (
                               <span className="text-[8px] font-bold text-emerald-700 bg-emerald-50 px-1 py-0.2 rounded border border-emerald-100 uppercase">
@@ -476,7 +476,7 @@ export default function SearchBar({ isMobileOverlay = false, onCloseMobile }: { 
                               </span>
                             )}
                           </p>
-                          <p className="text-[10px] text-gray-500 font-semibold mt-0.5 truncate">{item.subtitle}</p>
+                          <p className="text-[10px] text-gray-500 dark:text-[#B0B7BE] font-semibold mt-0.5 truncate">{item.subtitle}</p>
                         </div>
                       </button>
                     )
@@ -487,7 +487,7 @@ export default function SearchBar({ isMobileOverlay = false, onCloseMobile }: { 
               {/* Jobs Section */}
               {jobs.length > 0 && (
                 <div className="p-1.5">
-                  <div className="px-2 py-1 text-gray-400 font-bold tracking-wider uppercase text-[9px] mb-0.5">
+                  <div className="px-2 py-1 text-gray-400 dark:text-[#B0B7BE] font-bold tracking-wider uppercase text-[9px] mb-0.5">
                     Jobs & Openings
                   </div>
                   {jobs.map((item, idx) => {
@@ -496,16 +496,16 @@ export default function SearchBar({ isMobileOverlay = false, onCloseMobile }: { 
                       <button
                         key={item.id}
                         onClick={() => handleSuggestionClick(item)}
-                        className={`w-full flex items-center gap-3 px-2 py-1.5 text-left rounded hover:bg-gray-50 cursor-pointer ${
-                          globalIdx === activeIndex ? 'bg-gray-50' : ''
+                        className={`w-full flex items-center gap-3 px-2 py-1.5 text-left rounded hover:bg-gray-50 dark:bg-[#1D2226] dark:hover:bg-[#1D2226] cursor-pointer ${
+                          globalIdx === activeIndex ? 'bg-gray-50 dark:bg-[#1D2226]' : ''
                         }`}
                       >
-                        <div className="w-8 h-8 rounded bg-gray-50 border border-gray-100 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                        <div className="w-8 h-8 rounded bg-gray-50 dark:bg-[#1D2226] border border-gray-100 dark:border-[#38434F] flex items-center justify-center flex-shrink-0 overflow-hidden">
                           <Briefcase className="w-4 h-4 text-amber-600" />
                         </div>
                         <div className="min-w-0">
-                          <p className="font-bold text-gray-900 leading-tight text-xs">{item.title}</p>
-                          <p className="text-[10px] text-gray-500 font-semibold mt-0.5 truncate">{item.subtitle}</p>
+                          <p className="font-bold text-gray-900 dark:text-white leading-tight text-xs">{item.title}</p>
+                          <p className="text-[10px] text-gray-500 dark:text-[#B0B7BE] font-semibold mt-0.5 truncate">{item.subtitle}</p>
                         </div>
                       </button>
                     )
@@ -516,7 +516,7 @@ export default function SearchBar({ isMobileOverlay = false, onCloseMobile }: { 
               {/* Related Posts Section */}
               {posts.length > 0 && (
                 <div className="p-1.5">
-                  <div className="px-2 py-1 text-gray-400 font-bold tracking-wider uppercase text-[9px] mb-0.5">
+                  <div className="px-2 py-1 text-gray-400 dark:text-[#B0B7BE] font-bold tracking-wider uppercase text-[9px] mb-0.5">
                     Related Posts & Activity
                   </div>
                   {posts.map((item, idx) => {
@@ -525,16 +525,16 @@ export default function SearchBar({ isMobileOverlay = false, onCloseMobile }: { 
                       <button
                         key={item.id}
                         onClick={() => handleSuggestionClick(item)}
-                        className={`w-full flex items-center gap-3 px-2 py-1.5 text-left rounded hover:bg-gray-50 cursor-pointer ${
-                          globalIdx === activeIndex ? 'bg-gray-50' : ''
+                        className={`w-full flex items-center gap-3 px-2 py-1.5 text-left rounded hover:bg-gray-50 dark:bg-[#1D2226] dark:hover:bg-[#1D2226] cursor-pointer ${
+                          globalIdx === activeIndex ? 'bg-gray-50 dark:bg-[#1D2226]' : ''
                         }`}
                       >
-                        <div className="w-8 h-8 rounded bg-gray-50 border border-gray-100 flex items-center justify-center flex-shrink-0 overflow-hidden">
-                          <MessageSquare className="w-4 h-4 text-gray-500" />
+                        <div className="w-8 h-8 rounded bg-gray-50 dark:bg-[#1D2226] border border-gray-100 dark:border-[#38434F] flex items-center justify-center flex-shrink-0 overflow-hidden">
+                          <MessageSquare className="w-4 h-4 text-gray-500 dark:text-[#B0B7BE]" />
                         </div>
                         <div className="min-w-0">
-                          <p className="font-bold text-gray-900 leading-tight text-xs">{item.title}</p>
-                          <p className="text-[10px] text-gray-500 font-semibold mt-0.5 truncate">{item.subtitle}</p>
+                          <p className="font-bold text-gray-900 dark:text-white leading-tight text-xs">{item.title}</p>
+                          <p className="text-[10px] text-gray-500 dark:text-[#B0B7BE] font-semibold mt-0.5 truncate">{item.subtitle}</p>
                         </div>
                       </button>
                     )
@@ -543,7 +543,7 @@ export default function SearchBar({ isMobileOverlay = false, onCloseMobile }: { 
               )}
 
               {/* Bottom "Search all results" block */}
-              <div className="p-1.5 bg-gray-50">
+              <div className="p-1.5 bg-gray-50 dark:bg-[#1D2226]">
                 <button
                   onClick={() => handleSearchSubmit(query)}
                   className="w-full py-2 text-center text-[#7C3AED] hover:text-[#6D28D9] font-bold text-xs hover:underline cursor-pointer"
@@ -554,7 +554,7 @@ export default function SearchBar({ isMobileOverlay = false, onCloseMobile }: { 
 
             </div>
           ) : (
-            <div className="p-4 text-center text-gray-400 font-bold">
+            <div className="p-4 text-center text-gray-400 dark:text-[#B0B7BE] font-bold">
               No matching suggestions. Press enter to search anyway.
             </div>
           )}

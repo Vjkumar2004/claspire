@@ -122,25 +122,25 @@ export default function LikesModal({ isOpen, onClose, postId, totalLikes, curren
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ duration: 0.2 }}
-            className="bg-white rounded-xl shadow-2xl w-full max-w-md max-h-[80vh] flex flex-col"
+            className="bg-white dark:bg-[#283036] rounded-xl shadow-2xl w-full max-w-md max-h-[80vh] flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-gray-100">
+            <div className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-[#38434F]">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center">
                   <ThumbsUp className="w-4 h-4 text-blue-600" />
                 </div>
                 <div>
-                  <h2 className="font-bold text-sm text-gray-900">Found this helpful</h2>
-                  <p className="text-xs text-gray-500">{totalLikes} {totalLikes === 1 ? 'person' : 'people'}</p>
+                  <h2 className="font-bold text-sm text-gray-900 dark:text-white">Found this helpful</h2>
+                  <p className="text-xs text-gray-500 dark:text-[#B0B7BE]">{totalLikes} {totalLikes === 1 ? 'person' : 'people'}</p>
                 </div>
               </div>
               <button
                 onClick={onClose}
-                className="w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center transition-colors"
+                className="w-8 h-8 rounded-full hover:bg-gray-100 dark:hover:bg-[#1D2226] flex items-center justify-center transition-colors"
               >
-                <X className="w-4 h-4 text-gray-500" />
+                <X className="w-4 h-4 text-gray-500 dark:text-[#B0B7BE]" />
               </button>
             </div>
 
@@ -162,10 +162,10 @@ export default function LikesModal({ isOpen, onClose, postId, totalLikes, curren
                 <div className="space-y-3">
                   {[...Array(5)].map((_, i) => (
                     <div key={i} className="flex items-center gap-3 p-2">
-                      <div className="w-10 h-10 rounded-full bg-gray-200 animate-pulse" />
+                      <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-[#283036] animate-pulse" />
                       <div className="flex-1 space-y-2">
-                        <div className="h-3 bg-gray-200 rounded animate-pulse w-3/4" />
-                        <div className="h-2 bg-gray-200 rounded animate-pulse w-1/2" />
+                        <div className="h-3 bg-gray-200 dark:bg-[#283036] rounded animate-pulse w-3/4" />
+                        <div className="h-2 bg-gray-200 dark:bg-[#283036] rounded animate-pulse w-1/2" />
                       </div>
                     </div>
                   ))}
@@ -174,7 +174,7 @@ export default function LikesModal({ isOpen, onClose, postId, totalLikes, curren
 
               {!loading && voters.length === 0 && !error && (
                 <div className="text-center py-8">
-                  <p className="text-sm text-gray-500">No voters yet</p>
+                  <p className="text-sm text-gray-500 dark:text-[#B0B7BE]">No voters yet</p>
                 </div>
               )}
 
@@ -182,9 +182,9 @@ export default function LikesModal({ isOpen, onClose, postId, totalLikes, curren
                 <button
                   key={voter.id}
                   onClick={() => handleUserClick(voter.unique_id)}
-                  className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors text-left"
+                  className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-[#1D2226] transition-colors text-left"
                 >
-                  <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden flex-shrink-0 border border-gray-200">
+                  <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-[#283036] flex items-center justify-center overflow-hidden flex-shrink-0 border border-gray-200 dark:border-[#38434F]">
                     {voter.avatar_url ? (
                       <img
                         src={voter.avatar_url}
@@ -192,7 +192,7 @@ export default function LikesModal({ isOpen, onClose, postId, totalLikes, curren
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <span className="text-sm font-bold text-gray-600">
+                      <span className="text-sm font-bold text-gray-600 dark:text-[#B0B7BE]">
                         {voter.full_name?.[0]?.toUpperCase() || 'U'}
                       </span>
                     )}
@@ -200,7 +200,7 @@ export default function LikesModal({ isOpen, onClose, postId, totalLikes, curren
                   
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-semibold text-sm text-gray-900 truncate">
+                      <span className="font-semibold text-sm text-gray-900 dark:text-white truncate">
                         {voter.full_name}
                       </span>
                       {voter.id === currentUser?.id && (
@@ -221,7 +221,7 @@ export default function LikesModal({ isOpen, onClose, postId, totalLikes, curren
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-gray-500 truncate">@{voter.unique_id}</p>
+                    <p className="text-xs text-gray-500 dark:text-[#B0B7BE] truncate">@{voter.unique_id}</p>
                   </div>
                 </button>
               ))}
@@ -230,10 +230,10 @@ export default function LikesModal({ isOpen, onClose, postId, totalLikes, curren
                 <div className="space-y-3 pt-2">
                   {[...Array(3)].map((_, i) => (
                     <div key={i} className="flex items-center gap-3 p-2">
-                      <div className="w-10 h-10 rounded-full bg-gray-200 animate-pulse" />
+                      <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-[#283036] animate-pulse" />
                       <div className="flex-1 space-y-2">
-                        <div className="h-3 bg-gray-200 rounded animate-pulse w-3/4" />
-                        <div className="h-2 bg-gray-200 rounded animate-pulse w-1/2" />
+                        <div className="h-3 bg-gray-200 dark:bg-[#283036] rounded animate-pulse w-3/4" />
+                        <div className="h-2 bg-gray-200 dark:bg-[#283036] rounded animate-pulse w-1/2" />
                       </div>
                     </div>
                   ))}
@@ -242,7 +242,7 @@ export default function LikesModal({ isOpen, onClose, postId, totalLikes, curren
 
               {!hasMore && voters.length > 0 && (
                 <div className="text-center py-4">
-                  <p className="text-xs text-gray-400">End of list</p>
+                  <p className="text-xs text-gray-400 dark:text-[#B0B7BE]">End of list</p>
                 </div>
               )}
 

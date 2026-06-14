@@ -24,11 +24,11 @@ export default function NetworkStats({ connections, following, requests, communi
         return (
           <div
             key={stat.label}
-            className="flex items-center gap-1.5 bg-white border border-gray-200 rounded-lg px-3 py-1.5"
+            className="flex items-center gap-1.5 bg-white dark:bg-[#283036] border border-gray-200 dark:border-[#38434F] rounded-lg px-3 py-1.5"
           >
-            <Icon size={13} className="text-gray-400" />
-            <span className="text-sm font-extrabold text-gray-900">{stat.value}</span>
-            <span className="text-[11px] font-medium text-gray-500 hidden sm:inline">{stat.label}</span>
+            <Icon size={13} className="text-gray-400 dark:text-[#B0B7BE]" />
+            <span className="text-sm font-extrabold text-gray-900 dark:text-white">{stat.value}</span>
+            <span className="text-[11px] font-medium text-gray-500 dark:text-[#B0B7BE] hidden sm:inline">{stat.label}</span>
           </div>
         )
       })}

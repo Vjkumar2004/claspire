@@ -34,8 +34,8 @@ function CommunityActivityCard({
   ].filter(m => m.value > 0)
 
   return (
-    <div className="bg-white rounded-md border border-slate-200 p-3.5 shadow-sm">
-      <h4 className="font-bold text-slate-900 text-xs mb-3 flex items-center gap-1.5">
+    <div className="bg-white dark:bg-[#283036] rounded-md border border-slate-200 dark:border-[#38434F] p-3.5 shadow-sm">
+      <h4 className="font-bold text-slate-900 dark:text-white text-xs mb-3 flex items-center gap-1.5">
         <Activity className="w-4 h-4 text-rose-500" />
         Community Activity
       </h4>
@@ -44,29 +44,29 @@ function CommunityActivityCard({
         {primaryActivities.map((activity) => (
           <div
             key={activity.label}
-            className="bg-slate-50 rounded-md p-2.5 border border-slate-100"
+            className="bg-slate-50 dark:bg-[#1D2226] rounded-md p-2.5 border border-slate-100 dark:border-[#38434F]"
           >
             <activity.icon className={`w-4 h-4 ${activity.color} mb-1`} />
-            <p className="text-lg font-bold text-slate-900 leading-none">{activity.value}</p>
-            <p className="text-[9px] text-slate-500 font-semibold mt-0.5">{activity.label}</p>
+            <p className="text-lg font-bold text-slate-900 dark:text-white leading-none">{activity.value}</p>
+            <p className="text-[9px] text-slate-500 dark:text-[#B0B7BE] font-semibold mt-0.5">{activity.label}</p>
           </div>
         ))}
       </div>
 
       {optionalMetrics.length > 0 && (
         <>
-          <div className="border-t border-slate-100 my-3" />
+          <div className="border-t border-slate-100 dark:border-[#38434F] my-3" />
           <div className="space-y-2">
             {optionalMetrics.map((metric) => (
               <div
                 key={metric.label}
                 className="flex items-center justify-between text-[10px]"
               >
-                <span className="text-slate-500 font-semibold flex items-center gap-1.5">
+                <span className="text-slate-500 dark:text-[#B0B7BE] font-semibold flex items-center gap-1.5">
                   <metric.icon className={`w-3.5 h-3.5 ${metric.color}`} />
                   {metric.label}
                 </span>
-                <span className="text-slate-900 font-bold">{metric.value}</span>
+                <span className="text-slate-900 dark:text-white font-bold">{metric.value}</span>
               </div>
             ))}
           </div>

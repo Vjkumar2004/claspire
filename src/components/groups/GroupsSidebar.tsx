@@ -27,8 +27,8 @@ function GroupItem({ group, isActive, onClick }: { group: GroupListItem; isActiv
   return (
     <button
       onClick={onClick}
-      className={`w-full text-left px-3 py-2.5 flex items-center gap-3 transition-colors hover:bg-gray-100 active:bg-gray-200 ${
-        isActive ? 'bg-gray-100' : ''
+      className={`w-full text-left px-3 py-2.5 flex items-center gap-3 transition-colors hover:bg-gray-100 dark:hover:bg-[#1D2226] dark:bg-[#1D2226] active:bg-gray-200 dark:active:bg-[#1D2226] ${
+        isActive ? 'bg-gray-100 dark:bg-[#1D2226]' : ''
       }`}
     >
       <div className="relative flex-shrink-0">
@@ -36,22 +36,22 @@ function GroupItem({ group, isActive, onClick }: { group: GroupListItem; isActiv
           {group.name[0]?.toUpperCase()}
         </div>
         {hasUnread && (
-          <span className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-white" />
+          <span className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-[#283036]" />
         )}
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between gap-2">
-          <span className={`text-sm truncate ${hasUnread ? 'font-bold text-gray-900' : 'font-semibold text-gray-800'}`}>
+          <span className={`text-sm truncate ${hasUnread ? 'font-bold text-gray-900 dark:text-white' : 'font-semibold text-gray-800 dark:text-white'}`}>
             {group.name}
           </span>
           {group.last_message && (
-            <span className="text-[10px] text-gray-400 flex-shrink-0">
+            <span className="text-[10px] text-gray-400 dark:text-[#B0B7BE] flex-shrink-0">
               {formatGroupTime(group.last_message.created_at)}
             </span>
           )}
         </div>
         <div className="flex items-center justify-between gap-2 mt-0.5">
-          <span className={`text-xs truncate ${hasUnread ? 'font-semibold text-gray-600' : 'text-gray-500'}`}>
+          <span className={`text-xs truncate ${hasUnread ? 'font-semibold text-gray-600 dark:text-[#B0B7BE]' : 'text-gray-500 dark:text-[#B0B7BE]'}`}>
             {group.last_message
               ? group.last_message.content.length > 45
                 ? group.last_message.content.slice(0, 45) + '...'
@@ -90,27 +90,27 @@ export default function GroupsSidebar({ currentGroupSlug, onClose }: GroupsSideb
   }
 
   return (
-    <div className="w-full h-full flex flex-col bg-white border-r border-gray-200">
-      <div className="flex-shrink-0 px-4 py-3 border-b border-gray-100 bg-white">
+    <div className="w-full h-full flex flex-col bg-white dark:bg-[#283036] border-r border-gray-200 dark:border-r-[#38434F]">
+      <div className="flex-shrink-0 px-4 py-3 border-b border-gray-100 dark:border-b-[#38434F] bg-white dark:bg-[#283036]">
         <div className="flex items-center justify-between mb-3">
-          <h1 className="text-lg font-bold text-gray-900">Groups</h1>
+          <h1 className="text-lg font-bold text-gray-900 dark:text-white">Groups</h1>
           <div className="flex items-center gap-2">
             {onClose && (
-              <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded-full lg:hidden">
-                <X size={18} className="text-gray-400" />
+              <button onClick={onClose} className="p-1 hover:bg-gray-100 dark:hover:bg-[#1D2226] dark:bg-[#1D2226] rounded-full lg:hidden">
+                <X size={18} className="text-gray-400 dark:text-[#B0B7BE]" />
               </button>
             )}
-            <ChevronLeft size={20} className="text-gray-400" />
+            <ChevronLeft size={20} className="text-gray-400 dark:text-[#B0B7BE]" />
           </div>
         </div>
         <div className="relative">
-          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-[#B0B7BE]" />
           <input
             type="text"
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search groups..."
-            className="w-full bg-gray-100 rounded-xl pl-9 pr-3 py-2 text-sm outline-none focus:ring-2 focus:ring-purple-300 focus:bg-white transition-colors placeholder:text-gray-400"
+            className="w-full bg-gray-100 dark:bg-[#1D2226] rounded-xl pl-9 pr-3 py-2 text-sm outline-none focus:ring-2 focus:ring-purple-300 focus:bg-white dark:bg-[#283036] transition-colors placeholder:text-gray-400 dark:text-[#B0B7BE]"
           />
         </div>
       </div>
@@ -121,13 +121,13 @@ export default function GroupsSidebar({ currentGroupSlug, onClose }: GroupsSideb
           </div>
         ) : filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
-            <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-3">
-              <MessageSquare size={22} className="text-gray-300" />
+            <div className="w-12 h-12 bg-gray-100 dark:bg-[#1D2226] rounded-full flex items-center justify-center mb-3">
+              <MessageSquare size={22} className="text-gray-300 dark:text-[#B0B7BE]" />
             </div>
-            <p className="text-sm font-semibold text-gray-500">
+            <p className="text-sm font-semibold text-gray-500 dark:text-[#B0B7BE]">
               {search ? 'No groups match your search' : 'No groups yet'}
             </p>
-            <p className="text-xs text-gray-400 mt-1">
+            <p className="text-xs text-gray-400 dark:text-[#B0B7BE] mt-1">
               {search ? 'Try a different name' : 'Join a group to get started'}
             </p>
           </div>

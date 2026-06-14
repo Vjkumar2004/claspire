@@ -43,7 +43,7 @@ export default function Hero() {
   };
 
   return (
-    <section className="bg-gradient-to-b from-white to-[#F8FAFC] overflow-hidden min-h-[calc(100dvh-56px)] flex flex-col justify-center lg:justify-start lg:min-h-0 border-b border-gray-100">
+    <section className="bg-gradient-to-b from-white to-[#F8FAFC] dark:from-[#1D2226] dark:to-[#1D2226] overflow-hidden min-h-[calc(100dvh-56px)] flex flex-col justify-center lg:justify-start lg:min-h-0 border-b border-gray-100 dark:border-[#38434F]">
       <div className="container py-8 lg:py-0">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-0 items-center">
           {/* Left Content */}
@@ -60,18 +60,18 @@ export default function Hero() {
               </motion.div>
 
               {/* H1 */}
-              <motion.h1 variants={itemVariants} className="font-extrabold text-[clamp(36px,4.5vw,56px)] leading-[1.1] text-gray-900 mt-5 mb-0 text-center lg:text-left tracking-tight">
+              <motion.h1 variants={itemVariants} className="font-extrabold text-[clamp(36px,4.5vw,56px)] leading-[1.1] text-gray-900 dark:text-white mt-5 mb-0 text-center lg:text-left tracking-tight">
                 Claspire — India's College<br />
                 <span className="text-[#7C3AED] block sm:inline">Senior-Student Community Platform</span>
               </motion.h1>
 
               {/* H2 - SEO Subheading */}
-              <motion.h2 variants={itemVariants} className="text-base sm:text-lg font-semibold text-gray-600 mt-4 mb-0 text-center lg:text-left">
+              <motion.h2 variants={itemVariants} className="text-base sm:text-lg font-semibold text-gray-600 dark:text-[#B0B7BE] mt-4 mb-0 text-center lg:text-left">
                 Your senior knows the exact path. You just need to ask.
               </motion.h2>
 
               {/* Subtext */}
-              <motion.p variants={itemVariants} className="text-base text-gray-500 leading-relaxed max-w-[480px] mt-4 mb-0 text-center lg:text-left mx-auto lg:mx-0 font-medium">
+              <motion.p variants={itemVariants} className="text-base text-gray-500 dark:text-[#B0B7BE] leading-relaxed max-w-[480px] mt-4 mb-0 text-center lg:text-left mx-auto lg:mx-0 font-medium">
                 Connect with verified seniors from your own college. Real answers to real questions — placements, referrals, career paths.
               </motion.p>
 
@@ -87,7 +87,7 @@ export default function Hero() {
                     const element = document.getElementById('the-process');
                     element?.scrollIntoView({ behavior: 'smooth' });
                   }}
-                  className="bg-white border border-gray-200 text-gray-700 px-6 py-3 rounded-md text-sm font-semibold cursor-pointer hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm w-full sm:w-auto"
+                  className="bg-white dark:bg-[#283036] border border-gray-200 dark:border-[#38434F] text-gray-700 dark:text-white px-6 py-3 rounded-md text-sm font-semibold cursor-pointer hover:bg-gray-50 dark:hover:bg-[#1D2226] hover:border-gray-300 transition-all shadow-sm w-full sm:w-auto"
                 >
                   See how it works
                 </button>
@@ -97,26 +97,26 @@ export default function Hero() {
               <motion.div variants={itemVariants} className="flex flex-col sm:flex-row items-center gap-3 mt-8">
                 {/* Avatars */}
                 <div className="flex">
-                  <div className="w-8 h-8 rounded-full bg-[#7C3AED] border-2 border-white flex items-center justify-center text-white text-[10px] font-bold shadow-sm" style={{ marginLeft: '0' }}>
+                  <div className="w-8 h-8 rounded-full bg-[#7C3AED] border-2 border-white dark:border-[#1D2226] flex items-center justify-center text-white text-[10px] font-bold shadow-sm" style={{ marginLeft: '0' }}>
                     AK
                   </div>
-                  <div className="w-8 h-8 rounded-full bg-[#06B6D4] border-2 border-white flex items-center justify-center text-white text-[10px] font-bold shadow-sm" style={{ marginLeft: '-8px' }}>
+                  <div className="w-8 h-8 rounded-full bg-[#06B6D4] border-2 border-white dark:border-[#1D2226] flex items-center justify-center text-white text-[10px] font-bold shadow-sm" style={{ marginLeft: '-8px' }}>
                     RS
                   </div>
-                  <div className="w-8 h-8 rounded-full bg-[#F59E0B] border-2 border-white flex items-center justify-center text-white text-[10px] font-bold shadow-sm" style={{ marginLeft: '-8px' }}>
+                  <div className="w-8 h-8 rounded-full bg-[#F59E0B] border-2 border-white dark:border-[#1D2226] flex items-center justify-center text-white text-[10px] font-bold shadow-sm" style={{ marginLeft: '-8px' }}>
                     MP
                   </div>
-                  <div className="w-8 h-8 rounded-full bg-[#10B981] border-2 border-white flex items-center justify-center text-white text-[10px] font-bold shadow-sm" style={{ marginLeft: '-8px' }}>
+                  <div className="w-8 h-8 rounded-full bg-[#10B981] border-2 border-white dark:border-[#1D2226] flex items-center justify-center text-white text-[10px] font-bold shadow-sm" style={{ marginLeft: '-8px' }}>
                     SK
                   </div>
-                  <div className="w-8 h-8 rounded-full bg-[#EF4444] border-2 border-white flex items-center justify-center text-white text-[10px] font-bold shadow-sm" style={{ marginLeft: '-8px' }}>
+                  <div className="w-8 h-8 rounded-full bg-[#EF4444] border-2 border-white dark:border-[#1D2226] flex items-center justify-center text-white text-[10px] font-bold shadow-sm" style={{ marginLeft: '-8px' }}>
                     PT
                   </div>
                 </div>
                 
                 {/* Text */}
-                <span className="text-sm text-gray-500 text-center sm:text-left font-medium">
-                  <strong className="text-gray-900 font-bold">2,400+ students</strong> already connected this month
+                <span className="text-sm text-gray-500 dark:text-[#B0B7BE] text-center sm:text-left font-medium">
+                  <strong className="text-gray-900 dark:text-white font-bold">2,400+ students</strong> already connected this month
                 </span>
               </motion.div>
             </motion.div>
@@ -132,7 +132,7 @@ export default function Hero() {
             >
               {/* Header */}
               <div className="flex justify-between items-center mb-4">
-                <div className="text-[11px] font-bold tracking-[0.08em] uppercase text-gray-400">
+                <div className="text-[11px] font-bold tracking-[0.08em] uppercase text-gray-400 dark:text-[#B0B7BE]">
                   LIVE FROM LOCAL COLLEGES
                 </div>
                 <div className="flex items-center gap-1.5">
@@ -144,21 +144,21 @@ export default function Hero() {
               {/* Feed Cards */}
               <div className="flex flex-col gap-3">
                 {/* Card 1 - Doubt Post */}
-                <motion.div variants={feedItemVariants} className="bg-white border border-gray-200 rounded-lg p-5 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
+                <motion.div variants={feedItemVariants} className="bg-white dark:bg-[#283036] border border-gray-200 dark:border-[#38434F] rounded-lg p-5 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
                   <div className="flex items-center gap-3 mb-3">
                     <div className="w-9 h-9 rounded-full bg-[#7C3AED] flex items-center justify-center text-white text-xs font-bold shadow-sm">
                       VK
                     </div>
                     <div>
-                      <div className="text-sm font-bold text-gray-900">Vijayalakshmi K.</div>
-                      <div className="text-xs text-gray-500 font-medium">4th Year · CSE · KARE</div>
+                      <div className="text-sm font-bold text-gray-900 dark:text-white">Vijayalakshmi K.</div>
+                      <div className="text-xs text-gray-500 dark:text-[#B0B7BE] font-medium">4th Year · CSE · KARE</div>
                     </div>
                   </div>
-                  <div className="text-[14px] text-gray-900 font-semibold mb-3 leading-snug">
+                  <div className="text-[14px] text-gray-900 dark:text-white font-semibold mb-3 leading-snug">
                     How tough is Zoho off-campus for 2025 batch? CGPA 7.8 here
                   </div>
-                  <div className="flex items-center justify-between border-t border-gray-100 pt-3">
-                    <div className="text-xs text-gray-400 font-medium">
+                  <div className="flex items-center justify-between border-t border-gray-100 dark:border-[#38434F] pt-3">
+                    <div className="text-xs text-gray-400 dark:text-[#B0B7BE] font-medium">
                       💬 2 answers · 3 hours ago
                     </div>
                     <div className="bg-[#ECFDF5] border border-[#A7F3D0] rounded-full px-2.5 py-0.5 text-xs font-semibold text-[#059669] flex items-center gap-1 shadow-sm">
@@ -168,49 +168,49 @@ export default function Hero() {
                 </motion.div>
 
                 {/* Card 2 - Senior Answer (Indented nested style) */}
-                <motion.div variants={feedItemVariants} className="bg-[#FAFAFE] border-l-2 border-[#7C3AED] border-y border-r border-gray-200 rounded-r-lg p-4 ml-4 shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
+                <motion.div variants={feedItemVariants} className="bg-[#FAFAFE] dark:bg-[#283036] border-l-2 border-[#7C3AED] border-y border-r border-gray-200 dark:border-y-[#38434F] dark:border-r-[#38434F] rounded-r-lg p-4 ml-4 shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
                   <div className="flex items-center gap-2.5 mb-2.5">
                     <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#7C3AED] to-[#06B6D4] flex items-center justify-center text-white text-[9px] font-black">
                       SA
                     </div>
                     <div>
                       <div className="flex items-center gap-1.5">
-                        <span className="text-xs font-bold text-gray-900">Santhosh A.</span>
+                        <span className="text-xs font-bold text-gray-900 dark:text-white">Santhosh A.</span>
                         <span className="bg-[#F3F0FF] rounded px-1.5 py-0.2 text-[9px] font-extrabold text-[#7C3AED] border border-[#DDD6FE]">
                           Verified Senior
                         </span>
                       </div>
-                      <div className="text-[10px] text-gray-400 font-medium">
+                      <div className="text-[10px] text-gray-400 dark:text-[#B0B7BE] font-medium">
                         SDE-1 @ TCS · 2023 Passout
                       </div>
                     </div>
                   </div>
-                  <div className="text-xs text-gray-600 leading-relaxed font-medium">
+                  <div className="text-xs text-gray-600 dark:text-[#B0B7BE] leading-relaxed font-medium">
                     7.8 is good! Zoho focuses on problem-solving and communication. Prepare DSA well and be clear on projects. DM me for tips!
                   </div>
-                  <div className="text-[10px] text-gray-400 font-semibold mt-2.5 flex items-center gap-1 border-t border-gray-100 pt-2">
+                  <div className="text-[10px] text-gray-400 dark:text-[#B0B7BE] font-semibold mt-2.5 flex items-center gap-1 border-t border-gray-100 dark:border-[#38434F] pt-2">
                     👍 18 helpful · <span className="text-[#7C3AED]">Placement Help</span>
                   </div>
                 </motion.div>
 
                 {/* Card 3 - Job Post */}
-                <motion.div variants={feedItemVariants} className="bg-white border-t-[3px] border-[#06B6D4] border-x border-b border-gray-200 rounded-b-lg rounded-t-sm p-5 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
+                <motion.div variants={feedItemVariants} className="bg-white dark:bg-[#283036] border-t-[3px] border-[#06B6D4] border-x border-b border-gray-200 dark:border-x-[#38434F] dark:border-b-[#38434F] rounded-b-lg rounded-t-sm p-5 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
                   <div className="flex items-center gap-3 mb-3">
                     <div className="w-9 h-9 rounded-full bg-[#06B6D4] flex items-center justify-center text-white text-xs font-bold shadow-sm">
                       MP
                     </div>
                     <div>
-                      <div className="text-sm font-bold text-gray-900">Manikandan P.</div>
-                      <div className="text-xs text-gray-500 font-medium">SDE @ Infosys · ANJAC 2022</div>
+                      <div className="text-sm font-bold text-gray-900 dark:text-white">Manikandan P.</div>
+                      <div className="text-xs text-gray-500 dark:text-[#B0B7BE] font-medium">SDE @ Infosys · ANJAC 2022</div>
                     </div>
                   </div>
-                  <div className="text-[14px] font-bold text-gray-900 mb-1 leading-snug">
+                  <div className="text-[14px] font-bold text-gray-900 dark:text-white mb-1 leading-snug">
                     Infosys — System Engineer Trainee
                   </div>
-                  <div className="text-xs text-gray-500 mb-3 font-medium">
+                  <div className="text-xs text-gray-500 dark:text-[#B0B7BE] mb-3 font-medium">
                     ₹3.5 LPA · Chennai · Training: 6 months
                   </div>
-                  <div className="flex items-center justify-between border-t border-gray-100 pt-3">
+                  <div className="flex items-center justify-between border-t border-gray-100 dark:border-[#38434F] pt-3">
                     <div className="bg-[#EFF6FF] text-[#2563EB] border border-[#BFDBFE] rounded-full px-2.5 py-0.5 text-xs font-semibold">
                       Referral available
                     </div>

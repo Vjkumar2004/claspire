@@ -121,7 +121,7 @@ const BottomNavbar = () => {
       className={`md:hidden fixed bottom-0 left-0 w-full z-[999] bottom-navbar transition-transform duration-300 ease-in-out ${isVisible ? 'translate-y-0' : 'translate-y-full'
         }`}
     >
-      <div className="bg-white/80 backdrop-blur-xl border border-gray-200/50 rounded-[28px] shadow-[0_8px_32px_rgba(0,0,0,0.12)] px-2 py-2">
+      <div className="bg-white/80 dark:bg-[#1D2226]/80 backdrop-blur-xl border border-gray-200/50 dark:border-[#38434F]/50 rounded-[28px] shadow-[0_8px_32px_rgba(0,0,0,0.12)] px-2 py-2">
         <div className="flex items-center justify-between gap-1">
           {navItems.map((item, index) => {
             // Type guard functions
@@ -166,7 +166,7 @@ const BottomNavbar = () => {
                   }}
                   className="flex-1 flex flex-col items-center py-2 no-underline group relative"
                 >
-                  <div className={`transition-all duration-200 ${isActive ? 'text-purple-600 scale-110' : 'text-gray-400 group-hover:text-gray-600'}`}>
+                  <div className={`transition-all duration-200 ${isActive ? 'text-purple-600 scale-110' : 'text-gray-400 group-hover:text-gray-600 dark:text-[#6B7B8B] dark:group-hover:text-[#B0B7BE]'}`}>
                     <Icon size={22} strokeWidth={isActive ? 2.5 : 2} />
 
                     {/* Notification Badge */}
@@ -176,7 +176,7 @@ const BottomNavbar = () => {
                       </span>
                     )}
                   </div>
-                  <span className={`text-[10px] mt-1 font-bold tracking-tight transition-colors duration-200 ${isActive ? 'text-purple-600' : 'text-gray-400 group-hover:text-gray-600'}`}>
+                  <span className={`text-[10px] mt-1 font-bold tracking-tight transition-colors duration-200 ${isActive ? 'text-purple-600' : 'text-gray-400 group-hover:text-gray-600 dark:text-[#6B7B8B] dark:group-hover:text-[#B0B7BE]'}`}>
                     {item.label}
                   </span>
                 </Link>

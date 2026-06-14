@@ -72,8 +72,8 @@ export default function LoginPage() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#FAFAFA]">
-        <div className="w-10 h-10 border-3 border-gray-200 border-t-purple-600 rounded-full animate-spin" />
+      <div className="min-h-screen flex items-center justify-center bg-[#FAFAFA] dark:bg-[#1D2226]">
+        <div className="w-10 h-10 border-3 border-gray-200 dark:border-[#38434F] border-t-purple-600 rounded-full animate-spin" />
       </div>
     )
   }
@@ -123,12 +123,12 @@ export default function LoginPage() {
     <AuthLayout>
       <div className="space-y-8">
         <div className="space-y-2">
-          <h1 className="text-[28px] font-bold text-gray-900 font-plus-jakarta-sans">
+          <h1 className="text-[28px] font-bold text-gray-900 dark:text-white font-plus-jakarta-sans">
             Welcome back <span className="inline-block">👋</span>
           </h1>
-          <p className="text-[15px] text-gray-400 font-plus-jakarta-sans">
+          <p className="text-[15px] text-gray-400 dark:text-[#B0B7BE] font-plus-jakarta-sans">
             Continue your journey on{' '}
-            <span className="font-semibold text-gray-600">Claspire</span>
+            <span className="font-semibold text-gray-600 dark:text-[#B0B7BE]">Claspire</span>
           </p>
         </div>
 
@@ -141,16 +141,16 @@ export default function LoginPage() {
 
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-200" />
+              <div className="w-full border-t border-gray-200 dark:border-[#38434F]" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-[#FAFAFA] px-3 text-gray-400 font-medium">or sign in with email</span>
+              <span className="bg-[#FAFAFA] dark:bg-[#1D2226] px-3 text-gray-400 dark:text-[#B0B7BE] font-medium">or sign in with email</span>
             </div>
           </div>
 
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+              <label className="block text-sm font-semibold text-gray-700 dark:text-[#B0B7BE] mb-1.5">
                 Email
               </label>
               <input
@@ -159,13 +159,13 @@ export default function LoginPage() {
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handleLogin()}
-                className="w-full h-11 px-3.5 text-sm text-gray-900 placeholder:text-gray-400 border border-gray-200 rounded-xl outline-none transition-all duration-150 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 bg-white"
+                className="w-full h-11 px-3.5 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:text-[#B0B7BE] border border-gray-200 dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 bg-white dark:bg-[#283036]"
               />
             </div>
 
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label className="text-sm font-semibold text-gray-700">
+                <label className="text-sm font-semibold text-gray-700 dark:text-[#B0B7BE]">
                   Password
                 </label>
                 <Link
@@ -182,12 +182,12 @@ export default function LoginPage() {
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && handleLogin()}
-                  className="w-full h-11 px-3.5 pr-11 text-sm text-gray-900 placeholder:text-gray-400 border border-gray-200 rounded-xl outline-none transition-all duration-150 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 bg-white"
+                  className="w-full h-11 px-3.5 pr-11 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:text-[#B0B7BE] border border-gray-200 dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 bg-white dark:bg-[#283036]"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 bg-transparent border-none cursor-pointer p-0"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-[#B0B7BE] hover:text-gray-600 dark:hover:text-[#B0B7BE] bg-transparent border-none cursor-pointer p-0"
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
@@ -196,8 +196,8 @@ export default function LoginPage() {
           </div>
 
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3">
-              <p className="text-xs font-medium text-red-600">{error}</p>
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl px-4 py-3">
+              <p className="text-xs font-medium text-red-600 dark:text-red-400">{error}</p>
             </div>
           )}
 
@@ -216,7 +216,7 @@ export default function LoginPage() {
             )}
           </button>
 
-          <p className="text-center text-sm text-gray-400">
+          <p className="text-center text-sm text-gray-400 dark:text-[#B0B7BE]">
             Don't have an account?{' '}
             <Link href="/signup" className="font-semibold text-purple-600 hover:text-purple-700 no-underline">
               Sign up free
@@ -224,7 +224,7 @@ export default function LoginPage() {
           </p>
         </div>
 
-        <p className="text-center text-xs text-gray-300 font-medium">
+        <p className="text-center text-xs text-gray-300 dark:text-[#B0B7BE] font-medium">
           © 2026 Claspire · India's College Community
         </p>
       </div>

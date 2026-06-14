@@ -36,7 +36,7 @@ export default function CollegeBar() {
   if (loading || colleges.length === 0) return null;
 
   return (
-    <section className="bg-gray-50 border-t border-gray-200 border-b border-gray-200 py-5 overflow-hidden">
+    <section className="bg-gray-50 dark:bg-[#1D2226] border-t border-gray-200 dark:border-[#38434F] border-b border-gray-200 dark:border-[#38434F] py-5 overflow-hidden">
       <div className="container">
         {/* Label */}
         <motion.div
@@ -46,7 +46,7 @@ export default function CollegeBar() {
           transition={{ duration: 0.6 }}
           className="text-center mb-3.5"
         >
-          <div className="text-[11px] font-bold tracking-[0.1em] uppercase text-gray-400">
+          <div className="text-[11px] font-bold tracking-[0.1em] uppercase text-gray-400 dark:text-[#B0B7BE]">
             STUDENTS FROM THESE COLLEGES ARE ALREADY ON CLASPIRE
           </div>
         </motion.div>
@@ -68,9 +68,9 @@ export default function CollegeBar() {
               return (
                 <div
                   key={`${college.id}-${index}`}
-                  className="inline-flex items-center gap-2 whitespace-nowrap bg-white border border-gray-200 rounded-lg px-3.5 py-2 flex-shrink-0 shadow-sm"
+                  className="inline-flex items-center gap-2 whitespace-nowrap bg-white dark:bg-[#283036] border border-gray-200 dark:border-[#38434F] rounded-lg px-3.5 py-2 flex-shrink-0 shadow-sm"
                 >
-                  <div className="w-7 h-7 rounded-full overflow-hidden flex-shrink-0 bg-gray-50 border border-gray-100 flex items-center justify-center">
+                  <div className="w-7 h-7 rounded-full overflow-hidden flex-shrink-0 bg-gray-50 dark:bg-[#1D2226] border border-gray-100 dark:border-[#38434F] flex items-center justify-center">
                     {logo ? (
                       <img
                         src={logo}
@@ -83,7 +83,7 @@ export default function CollegeBar() {
                       </span>
                     )}
                   </div>
-                  <span className="text-sm font-semibold text-gray-700 whitespace-nowrap">
+                  <span className="text-sm font-semibold text-gray-700 dark:text-white whitespace-nowrap">
                     {college.name}
                   </span>
                 </div>

@@ -36,31 +36,31 @@ export default function CollegesPage() {
   const heroStats = data?.heroStats
 
   return (
-    <div className="min-h-screen bg-[#F4F5F7]">
+    <div className="min-h-screen bg-[#F4F5F7] dark:bg-[#1D2226]">
 
       {/* ===== MOBILE HEADER + SEARCH (lg:hidden) ===== */}
-      <div className="lg:hidden bg-white border-b border-slate-100">
+      <div className="lg:hidden bg-white dark:bg-[#283036] border-b border-slate-100 dark:border-[#38434F] dark:border-[#38434F]">
         <div className="px-4 pt-3 pb-2">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#7C3AED]/10 rounded-full border border-[#7C3AED]/20 mb-2">
             <span className="w-2 h-2 rounded-full bg-[#7C3AED] animate-pulse" />
             <span className="text-[10px] font-bold text-[#7C3AED] uppercase tracking-wider">College Communities</span>
           </div>
-          <h1 className="text-xl font-extrabold text-[#0F172A] tracking-tight leading-tight m-0">
+          <h1 className="text-xl font-extrabold text-[#0F172A] dark:text-white tracking-tight leading-tight m-0">
             Find Your{' '}
             <span className="bg-gradient-to-r from-[#7C3AED] to-[#A78BFA] bg-clip-text text-transparent">College Community</span>
           </h1>
-          <p className="text-[11px] text-slate-500 font-medium mt-1 m-0">Connect with seniors, get placement guidance, and grow your network.</p>
+          <p className="text-[11px] text-slate-500 dark:text-[#B0B7BE] font-medium mt-1 m-0">Connect with seniors, get placement guidance, and grow your network.</p>
         </div>
         <div className="px-4 pb-3">
           <div className="flex items-center gap-2">
             <div className="flex-1 relative">
-              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-[#B0B7BE]" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search your college..."
-                className="w-full h-10 pl-9 pr-3 rounded-xl border border-slate-200 bg-[#F8FAFC] text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:border-[#7C3AED] focus:ring-1 focus:ring-[#7C3AED]/20 transition-all"
+                className="w-full h-10 pl-9 pr-3 rounded-xl border border-slate-200 dark:border-[#38434F] bg-[#F8FAFC] dark:bg-[#1D2226] text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-[#B0B7BE] dark:text-[#B0B7BE] outline-none focus:border-[#7C3AED] focus:ring-1 focus:ring-[#7C3AED]/20 transition-all"
               />
             </div>
             <button className="h-10 px-4 rounded-xl bg-[#7C3AED] text-white text-xs font-bold border-none cursor-pointer hover:bg-[#6D28D9] transition-all flex items-center gap-1.5">
@@ -78,12 +78,12 @@ export default function CollegesPage() {
             ].map((stat) => {
               const Icon = stat.icon
               return (
-                <div key={stat.label} className="bg-white rounded-xl border border-slate-100 p-2.5 text-center shadow-sm">
+                <div key={stat.label} className="bg-white dark:bg-[#283036] rounded-xl border border-slate-100 dark:border-[#38434F] p-2.5 text-center shadow-sm">
                   <div className="w-7 h-7 rounded-lg bg-[#7C3AED]/5 flex items-center justify-center mx-auto mb-1">
                     <Icon size={13} className="text-[#7C3AED]" />
                   </div>
-                  <p className="text-base font-extrabold text-[#0F172A] m-0 leading-none">{stat.value.toLocaleString()}</p>
-                  <p className="text-[8px] font-medium text-slate-400 m-0 mt-0.5 truncate">{stat.label}</p>
+                  <p className="text-base font-extrabold text-[#0F172A] dark:text-white m-0 leading-none">{stat.value.toLocaleString()}</p>
+                  <p className="text-[8px] font-medium text-slate-400 dark:text-[#B0B7BE] m-0 mt-0.5 truncate">{stat.label}</p>
                 </div>
               )
             })}
@@ -102,7 +102,7 @@ export default function CollegesPage() {
           {/* ===== LEFT SIDE (40%) — badge + heading + subtitle + desktop stats ===== */}
           <div className="lg:w-2/5">
             {/* Badge */}
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white/15 backdrop-blur-sm rounded-full border border-white/15 mb-2.5">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white/15 dark:bg-[#283036]/15 backdrop-blur-sm rounded-full border border-white/15 dark:border-[#38434F]/15 mb-2.5">
               <Building2 size={11} className="text-purple-300" />
               <span className="text-[10px] font-bold text-purple-200 uppercase tracking-wider">College Communities</span>
             </div>
@@ -129,7 +129,7 @@ export default function CollegesPage() {
                 ].map((stat) => {
                   const Icon = stat.icon
                   return (
-                    <div key={stat.label} className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white/10 backdrop-blur-xl rounded-lg border border-white/10">
+                    <div key={stat.label} className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white/10 dark:bg-[#283036]/10 backdrop-blur-xl rounded-lg border border-white/10 dark:border-[#38434F]/10">
                       <Icon size={12} className="text-purple-300" />
                       <span className="text-xs font-bold text-white">{stat.value.toLocaleString()}</span>
                       <span className="text-[10px] text-white/50 font-medium">{stat.label}</span>
@@ -144,8 +144,8 @@ export default function CollegesPage() {
           <div className="hidden lg:flex w-3/5 h-full items-center justify-end">
             <div className="relative w-[520px]">
               <div className="absolute -inset-1 bg-gradient-to-r from-purple-500 to-fuchsia-500 rounded-xl opacity-25 blur-md" />
-              <div className="relative flex items-stretch bg-white rounded-xl overflow-hidden shadow-2xl shadow-purple-900/20 h-12">
-                <div className="flex items-center justify-center pl-4 pr-2 text-gray-400">
+              <div className="relative flex items-stretch bg-white dark:bg-[#283036] rounded-xl overflow-hidden shadow-2xl shadow-purple-900/20 h-12">
+                <div className="flex items-center justify-center pl-4 pr-2 text-gray-400 dark:text-[#B0B7BE]">
                   <Search size={18} />
                 </div>
                 <input
@@ -153,7 +153,7 @@ export default function CollegesPage() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search your college by name, slug, or city..."
-                  className="flex-1 min-w-0 px-0 text-sm text-gray-900 outline-none bg-transparent placeholder:text-gray-400 font-medium"
+                  className="flex-1 min-w-0 px-0 text-sm text-gray-900 dark:text-white outline-none bg-transparent placeholder:text-gray-400 dark:placeholder:text-[#B0B7BE] dark:text-[#B0B7BE] font-medium"
                 />
               </div>
             </div>
@@ -166,8 +166,8 @@ export default function CollegesPage() {
           <div className="lg:hidden mb-5">
             <div className="relative">
               <div className="absolute -inset-1 bg-gradient-to-r from-purple-500 to-fuchsia-500 rounded-xl opacity-25 blur-md" />
-              <div className="relative flex items-stretch bg-white rounded-xl overflow-hidden shadow-2xl shadow-purple-900/20 h-11">
-                <div className="flex items-center justify-center pl-3.5 pr-2 text-gray-400">
+              <div className="relative flex items-stretch bg-white dark:bg-[#283036] rounded-xl overflow-hidden shadow-2xl shadow-purple-900/20 h-11">
+                <div className="flex items-center justify-center pl-3.5 pr-2 text-gray-400 dark:text-[#B0B7BE]">
                   <Search size={16} />
                 </div>
                 <input
@@ -175,7 +175,7 @@ export default function CollegesPage() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search your college..."
-                  className="flex-1 min-w-0 px-0 text-sm text-gray-900 outline-none bg-transparent placeholder:text-gray-400 font-medium"
+                  className="flex-1 min-w-0 px-0 text-sm text-gray-900 dark:text-white outline-none bg-transparent placeholder:text-gray-400 dark:placeholder:text-[#B0B7BE] dark:text-[#B0B7BE] font-medium"
                 />
                 <button className="flex-shrink-0 px-5 bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white text-xs font-bold flex items-center justify-center">
                   Search
@@ -186,7 +186,7 @@ export default function CollegesPage() {
 
           {/* ===== MOBILE: Stats panel at bottom ===== */}
           {heroStats && (
-            <div className="lg:hidden bg-white/10 backdrop-blur-xl rounded-xl border border-white/10 px-3.5 py-2.5">
+            <div className="lg:hidden bg-white/10 dark:bg-[#283036]/10 backdrop-blur-xl rounded-xl border border-white/10 dark:border-[#38434F]/10 px-3.5 py-2.5">
               <div className="grid grid-cols-4 gap-2">
                 {[
                   { label: 'Colleges', value: heroStats.totalColleges, icon: Building2 },
@@ -217,10 +217,10 @@ export default function CollegesPage() {
             {/* Section header */}
             <div className="flex items-center justify-between mb-4 sm:mb-6">
               <div className="flex items-center gap-2">
-                <h2 className="text-base sm:text-lg font-extrabold text-gray-900 tracking-tight">
+                <h2 className="text-base sm:text-lg font-extrabold text-gray-900 dark:text-white tracking-tight">
                   {searchQuery ? `Results for "${searchQuery}"` : 'All Colleges'}
                 </h2>
-                <span className="text-[11px] sm:text-xs font-bold text-gray-500 bg-gray-200/70 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full">
+                <span className="text-[11px] sm:text-xs font-bold text-gray-500 dark:text-[#B0B7BE] bg-gray-200 dark:bg-[#283036]/70 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full">
                   {filtered.length}
                 </span>
                 {/* Mobile Filters button */}
@@ -245,39 +245,39 @@ export default function CollegesPage() {
                 {/* Mobile skeleton */}
                 <div className="flex sm:hidden flex-col gap-3">
                   {Array(6).fill(0).map((_, i) => (
-                    <div key={i} className="bg-white rounded-[20px] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.08)] animate-pulse p-3.5 flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-xl bg-gray-100 flex-shrink-0" />
+                    <div key={i} className="bg-white dark:bg-[#283036] rounded-[20px] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.08)] animate-pulse p-3.5 flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-xl bg-gray-100 dark:bg-[#283036] flex-shrink-0" />
                       <div className="flex-1 min-w-0 space-y-2">
-                        <div className="h-3.5 bg-gray-200 rounded w-3/4" />
-                        <div className="h-3 bg-gray-100 rounded w-1/2" />
+                        <div className="h-3.5 bg-gray-200 dark:bg-[#283036] rounded w-3/4" />
+                        <div className="h-3 bg-gray-100 dark:bg-[#283036] rounded w-1/2" />
                         <div className="flex gap-3 pt-1">
-                          <div className="h-3 bg-gray-100 rounded w-12" />
-                          <div className="h-3 bg-gray-100 rounded w-12" />
-                          <div className="h-3 bg-gray-100 rounded w-12" />
+                          <div className="h-3 bg-gray-100 dark:bg-[#283036] rounded w-12" />
+                          <div className="h-3 bg-gray-100 dark:bg-[#283036] rounded w-12" />
+                          <div className="h-3 bg-gray-100 dark:bg-[#283036] rounded w-12" />
                         </div>
                       </div>
-                      <div className="w-9 h-9 rounded-full bg-gray-100 flex-shrink-0" />
+                      <div className="w-9 h-9 rounded-full bg-gray-100 dark:bg-[#283036] flex-shrink-0" />
                     </div>
                   ))}
                 </div>
                 {/* Desktop skeleton */}
                 <div className="hidden sm:grid sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-5">
                   {Array(8).fill(0).map((_, i) => (
-                    <div key={i} className="bg-white rounded-xl border border-gray-200/80 shadow-sm animate-pulse flex flex-col">
+                    <div key={i} className="bg-white dark:bg-[#283036] rounded-xl border border-gray-200 dark:border-[#38434F]/80 dark:border-[#38434F] shadow-sm animate-pulse flex flex-col">
                       <div className="flex justify-center pt-7">
-                        <div className="w-[68px] h-[68px] rounded-xl bg-gray-100 border border-gray-100 shadow-sm" />
+                        <div className="w-[68px] h-[68px] rounded-xl bg-gray-100 dark:bg-[#283036] border border-gray-100 dark:border-[#38434F] shadow-sm" />
                       </div>
                       <div className="px-5 pb-5 pt-5 flex flex-col items-center flex-1">
-                        <div className="mt-3 h-4 bg-gray-200 rounded w-3/4" />
-                        <div className="mt-1.5 h-3 bg-gray-100 rounded w-1/2" />
-                        <div className="mt-3 h-4 bg-gray-200 rounded w-20" />
+                        <div className="mt-3 h-4 bg-gray-200 dark:bg-[#283036] rounded w-3/4" />
+                        <div className="mt-1.5 h-3 bg-gray-100 dark:bg-[#283036] rounded w-1/2" />
+                        <div className="mt-3 h-4 bg-gray-200 dark:bg-[#283036] rounded w-20" />
                         <div className="flex-1" />
-                        <div className="mt-4 w-full border-t border-gray-100 pt-3.5 flex justify-center gap-5">
-                          <div className="h-3 bg-gray-100 rounded w-14" />
-                          <div className="h-3 bg-gray-100 rounded w-14" />
-                          <div className="h-3 bg-gray-100 rounded w-14" />
+                        <div className="mt-4 w-full border-t border-gray-100 dark:border-[#38434F] pt-3.5 flex justify-center gap-5">
+                          <div className="h-3 bg-gray-100 dark:bg-[#283036] rounded w-14" />
+                          <div className="h-3 bg-gray-100 dark:bg-[#283036] rounded w-14" />
+                          <div className="h-3 bg-gray-100 dark:bg-[#283036] rounded w-14" />
                         </div>
-                        <div className="mt-4 h-9 bg-gray-100 rounded-lg w-full" />
+                        <div className="mt-4 h-9 bg-gray-100 dark:bg-[#283036] rounded-lg w-full" />
                       </div>
                     </div>
                   ))}
@@ -292,11 +292,11 @@ export default function CollegesPage() {
                     return (
                       <div
                         key={c.id}
-                        className="bg-white rounded-xl border border-gray-200/80 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 cursor-pointer flex flex-col"
+                        className="bg-white dark:bg-[#283036] rounded-xl border border-gray-200 dark:border-[#38434F]/80 dark:border-[#38434F] shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 cursor-pointer flex flex-col"
                         onClick={() => router.push(`/colleges/${c.slug}`)}
                       >
                         <div className="flex justify-center pt-7">
-                          <div className="w-[68px] h-[68px] rounded-xl border border-gray-100 bg-white flex items-center justify-center overflow-hidden shadow-sm">
+                          <div className="w-[68px] h-[68px] rounded-xl border border-gray-100 dark:border-[#38434F] bg-white flex items-center justify-center overflow-hidden shadow-sm">
                             {logoUrl ? (
                               <img src={logoUrl} alt={c.colleges?.short_name || c.slug} className="w-full h-full object-contain p-2" />
                             ) : (
@@ -307,12 +307,12 @@ export default function CollegesPage() {
                           </div>
                         </div>
                         <div className="px-5 pb-5 pt-5 flex flex-col items-center flex-1">
-                          <h3 className="mt-3 text-base font-bold text-gray-900 text-center leading-snug line-clamp-2">
+                          <h3 className="mt-3 text-base font-bold text-gray-900 dark:text-white text-center leading-snug line-clamp-2">
                             {c.colleges?.name}
                           </h3>
                           {c.colleges?.location && (
-                            <div className="flex items-center gap-1 mt-1.5 text-xs text-gray-500 font-medium">
-                              <MapPin size={12} className="text-gray-400 flex-shrink-0" />
+                            <div className="flex items-center gap-1 mt-1.5 text-xs text-gray-500 dark:text-[#B0B7BE] font-medium">
+                              <MapPin size={12} className="text-gray-400 dark:text-[#B0B7BE] flex-shrink-0" />
                               <span>{c.colleges.location}</span>
                             </div>
                           )}
@@ -322,19 +322,19 @@ export default function CollegesPage() {
                             </span>
                           )}
                           <div className="flex-1" />
-                          <div className="w-full border-t border-gray-100 pt-3.5 mt-4">
+                          <div className="w-full border-t border-gray-100 dark:border-[#38434F] pt-3.5 mt-4">
                             <div className="flex items-center justify-center gap-5">
-                              <div className="flex items-center gap-1.5 text-xs text-gray-500 font-medium">
+                              <div className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-[#B0B7BE] font-medium">
                                 <Users size={13} className="text-blue-500" />
-                                <span className="font-bold text-gray-800">{c.member_count?.toLocaleString() || 0}</span>
+                                <span className="font-bold text-gray-800 dark:text-white">{c.member_count?.toLocaleString() || 0}</span>
                               </div>
-                              <div className="flex items-center gap-1.5 text-xs text-gray-500 font-medium">
+                              <div className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-[#B0B7BE] font-medium">
                                 <GraduationCap size={13} className="text-emerald-500" />
-                                <span className="font-bold text-gray-800">{c.senior_count || 0}</span>
+                                <span className="font-bold text-gray-800 dark:text-white">{c.senior_count || 0}</span>
                               </div>
-                              <div className="flex items-center gap-1.5 text-xs text-gray-500 font-medium">
+                              <div className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-[#B0B7BE] font-medium">
                                 <MessageSquare size={13} className="text-purple-500" />
-                                <span className="font-bold text-gray-800">{c.doubt_count || 0}</span>
+                                <span className="font-bold text-gray-800 dark:text-white">{c.doubt_count || 0}</span>
                               </div>
                             </div>
                           </div>
@@ -358,11 +358,11 @@ export default function CollegesPage() {
                     return (
                       <div
                         key={c.id}
-                        className="bg-white rounded-[20px] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.08)] p-3.5 flex items-center gap-3 cursor-pointer active:scale-[0.98] transition-transform"
+                        className="bg-white dark:bg-[#283036] rounded-[20px] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.08)] p-3.5 flex items-center gap-3 cursor-pointer active:scale-[0.98] transition-transform"
                         onClick={() => router.push(`/colleges/${c.slug}`)}
                       >
                         {/* Left: Logo */}
-                        <div className="w-12 h-12 rounded-xl border border-gray-100 bg-white flex-shrink-0 flex items-center justify-center overflow-hidden shadow-sm">
+                        <div className="w-12 h-12 rounded-xl border border-gray-100 dark:border-[#38434F] bg-white flex-shrink-0 flex items-center justify-center overflow-hidden shadow-sm">
                           {logoUrl ? (
                             <img src={logoUrl} alt={c.colleges?.short_name || c.slug} className="w-full h-full object-contain p-1.5" />
                           ) : (
@@ -374,25 +374,25 @@ export default function CollegesPage() {
 
                         {/* Center: Info */}
                         <div className="flex-1 min-w-0">
-                          <h3 className="text-sm font-bold text-gray-900 leading-snug line-clamp-1">{c.colleges?.name}</h3>
+                          <h3 className="text-sm font-bold text-gray-900 dark:text-white leading-snug line-clamp-1">{c.colleges?.name}</h3>
                           {c.colleges?.location && (
                             <div className="flex items-center gap-1 mt-0.5">
-                              <MapPin size={10} className="text-gray-400 flex-shrink-0" />
-                              <span className="text-[11px] text-gray-500 font-medium truncate">{c.colleges.location}</span>
+                              <MapPin size={10} className="text-gray-400 dark:text-[#B0B7BE] flex-shrink-0" />
+                              <span className="text-[11px] text-gray-500 dark:text-[#B0B7BE] font-medium truncate">{c.colleges.location}</span>
                             </div>
                           )}
                           <div className="flex items-center gap-3 mt-1.5">
-                            <span className="text-[11px] text-gray-500 font-medium flex items-center gap-1">
+                            <span className="text-[11px] text-gray-500 dark:text-[#B0B7BE] font-medium flex items-center gap-1">
                               <Users size={11} className="text-blue-500" />
-                              <span className="font-bold text-gray-700">{c.member_count?.toLocaleString() || 0}</span>
+                              <span className="font-bold text-gray-700 dark:text-[#B0B7BE]">{c.member_count?.toLocaleString() || 0}</span>
                             </span>
-                            <span className="text-[11px] text-gray-500 font-medium flex items-center gap-1">
+                            <span className="text-[11px] text-gray-500 dark:text-[#B0B7BE] font-medium flex items-center gap-1">
                               <GraduationCap size={11} className="text-emerald-500" />
-                              <span className="font-bold text-gray-700">{c.senior_count || 0}</span>
+                              <span className="font-bold text-gray-700 dark:text-[#B0B7BE]">{c.senior_count || 0}</span>
                             </span>
-                            <span className="text-[11px] text-gray-500 font-medium flex items-center gap-1">
+                            <span className="text-[11px] text-gray-500 dark:text-[#B0B7BE] font-medium flex items-center gap-1">
                               <MessageSquare size={11} className="text-purple-500" />
-                              <span className="font-bold text-gray-700">{c.doubt_count || 0}</span>
+                              <span className="font-bold text-gray-700 dark:text-[#B0B7BE]">{c.doubt_count || 0}</span>
                             </span>
                           </div>
                         </div>
@@ -414,8 +414,8 @@ export default function CollegesPage() {
                         <Sparkles size={15} className="text-purple-600" />
                       </div>
                       <div className="min-w-0">
-                        <p className="text-sm font-bold text-gray-900">Can't find your college?</p>
-                        <p className="text-xs text-gray-500 font-medium hidden sm:block">Request it and we'll verify within 24 hours.</p>
+                        <p className="text-sm font-bold text-gray-900 dark:text-white">Can't find your college?</p>
+                        <p className="text-xs text-gray-500 dark:text-[#B0B7BE] font-medium hidden sm:block">Request it and we'll verify within 24 hours.</p>
                       </div>
                     </div>
                     <button
@@ -430,12 +430,12 @@ export default function CollegesPage() {
               </>
             ) : (
               /* Empty State */
-              <div className="text-center py-16 sm:py-20 bg-white rounded-xl sm:rounded-2xl border border-dashed border-gray-200 shadow-sm px-4">
-                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4 border border-gray-100">
-                  <Search size={20} className="text-gray-300" />
+              <div className="text-center py-16 sm:py-20 bg-white rounded-xl sm:rounded-2xl border border-dashed border-gray-200 dark:border-[#38434F] shadow-sm px-4">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-50 dark:bg-[#1D2226] rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4 border border-gray-100 dark:border-[#38434F]">
+                  <Search size={20} className="text-gray-300 dark:text-[#B0B7BE]" />
                 </div>
-                <h3 className="text-sm sm:text-base font-bold text-gray-900 mb-1 sm:mb-2">No colleges found</h3>
-                <p className="text-xs sm:text-sm text-gray-500 font-medium mb-5 sm:mb-6">We couldn't find any college matching &quot;{searchQuery}&quot;</p>
+                <h3 className="text-sm sm:text-base font-bold text-gray-900 dark:text-white mb-1 sm:mb-2">No colleges found</h3>
+                <p className="text-xs sm:text-sm text-gray-500 dark:text-[#B0B7BE] font-medium mb-5 sm:mb-6">We couldn't find any college matching &quot;{searchQuery}&quot;</p>
                 <button
                   onClick={() => router.push('/colleges/request')}
                   className="text-xs sm:text-sm font-bold text-white bg-purple-600 hover:bg-purple-700 px-4 sm:px-5 py-2 sm:py-2.5 rounded-lg transition-all shadow-sm"
@@ -451,12 +451,12 @@ export default function CollegesPage() {
             <div className="space-y-5 sticky top-28">
               {/* Trending Colleges */}
               {data?.trending && data.trending.length > 0 && (
-                <div className="bg-white rounded-xl border border-gray-200/80 shadow-sm p-5">
+                <div className="bg-white dark:bg-[#283036] rounded-xl border border-gray-200 dark:border-[#38434F]/80 dark:border-[#38434F] shadow-sm p-5">
                   <div className="flex items-center gap-2 mb-4">
                     <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-sm">
                       <TrendingUp size={13} className="text-white" />
                     </div>
-                    <h3 className="text-sm font-bold text-gray-900">Trending Colleges</h3>
+                    <h3 className="text-sm font-bold text-gray-900 dark:text-white">Trending Colleges</h3>
                   </div>
                   <div className="space-y-1">
                     {data.trending.map((college: any, i: number) => {
@@ -467,7 +467,7 @@ export default function CollegesPage() {
                           onClick={() => router.push(`/colleges/${college.slug}`)}
                           className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-gradient-to-r hover:from-purple-50/60 hover:to-transparent cursor-pointer transition-all group hover:-translate-y-0.5 hover:shadow-sm duration-200"
                         >
-                          <div className="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center overflow-hidden flex-shrink-0 ring-2 ring-gray-100 group-hover:ring-purple-300 transition-all text-[10px] font-black text-gray-400">
+                          <div className="w-9 h-9 rounded-xl bg-gray-100 dark:bg-[#283036] flex items-center justify-center overflow-hidden flex-shrink-0 ring-2 ring-gray-100 dark:ring-[#38434F] group-hover:ring-purple-300 transition-all text-[10px] font-black text-gray-400 dark:text-[#B0B7BE]">
                             {logoUrl ? (
                               <img src={logoUrl} alt="" className="w-full h-full object-contain p-1" />
                             ) : (
@@ -475,16 +475,16 @@ export default function CollegesPage() {
                             )}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-xs font-bold text-gray-900 truncate group-hover:text-purple-600 transition-colors">
+                            <p className="text-xs font-bold text-gray-900 dark:text-white truncate group-hover:text-purple-600 transition-colors">
                               {college.colleges?.short_name || college.display_name}
                             </p>
                             <div className="flex items-center gap-2 mt-0.5">
-                              <span className="text-[10px] text-gray-500 font-medium">{college.member_count?.toLocaleString()} members</span>
+                              <span className="text-[10px] text-gray-500 dark:text-[#B0B7BE] font-medium">{college.member_count?.toLocaleString()} members</span>
                               <span className="w-1 h-1 rounded-full bg-gray-300" />
                               <span className="text-[10px] font-semibold text-amber-500">#{i + 1}</span>
                             </div>
                           </div>
-                          <ChevronRight size={13} className="text-gray-300 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
+                          <ChevronRight size={13} className="text-gray-300 dark:text-[#B0B7BE] flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
                         </div>
                       )
                     })}
@@ -494,12 +494,12 @@ export default function CollegesPage() {
 
               {/* Fastest Growing */}
               {data?.fastestGrowing && data.fastestGrowing.length > 0 && (
-                <div className="bg-white rounded-xl border border-gray-200/80 shadow-sm p-5">
+                <div className="bg-white dark:bg-[#283036] rounded-xl border border-gray-200 dark:border-[#38434F]/80 dark:border-[#38434F] shadow-sm p-5">
                   <div className="flex items-center gap-2 mb-4">
                     <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shadow-sm">
                       <Zap size={13} className="text-white" />
                     </div>
-                    <h3 className="text-sm font-bold text-gray-900">Fastest Growing</h3>
+                    <h3 className="text-sm font-bold text-gray-900 dark:text-white">Fastest Growing</h3>
                   </div>
                   <div className="space-y-1">
                     {data.fastestGrowing.map((college: any, i: number) => {
@@ -510,7 +510,7 @@ export default function CollegesPage() {
                           onClick={() => router.push(`/colleges/${college.slug}`)}
                           className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-gradient-to-r hover:from-emerald-50/60 hover:to-transparent cursor-pointer transition-all group hover:-translate-y-0.5 hover:shadow-sm duration-200"
                         >
-                          <div className="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center overflow-hidden flex-shrink-0 ring-2 ring-gray-100 group-hover:ring-emerald-300 transition-all text-[10px] font-black text-gray-400">
+                          <div className="w-9 h-9 rounded-xl bg-gray-100 dark:bg-[#283036] flex items-center justify-center overflow-hidden flex-shrink-0 ring-2 ring-gray-100 dark:ring-[#38434F] group-hover:ring-emerald-300 transition-all text-[10px] font-black text-gray-400 dark:text-[#B0B7BE]">
                             {logoUrl ? (
                               <img src={logoUrl} alt="" className="w-full h-full object-contain p-1" />
                             ) : (
@@ -518,16 +518,16 @@ export default function CollegesPage() {
                             )}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-xs font-bold text-gray-900 truncate group-hover:text-emerald-600 transition-colors">
+                            <p className="text-xs font-bold text-gray-900 dark:text-white truncate group-hover:text-emerald-600 transition-colors">
                               {college.colleges?.short_name || college.display_name}
                             </p>
                             <div className="flex items-center gap-2 mt-0.5">
-                              <span className="text-[10px] text-gray-500 font-medium">{college.senior_count} seniors</span>
+                              <span className="text-[10px] text-gray-500 dark:text-[#B0B7BE] font-medium">{college.senior_count} seniors</span>
                               <span className="w-1 h-1 rounded-full bg-gray-300" />
                               <span className="text-[10px] font-semibold text-emerald-500">{Math.round((college.senior_count / (college.member_count || 1)) * 100)}% seniors</span>
                             </div>
                           </div>
-                          <ChevronRight size={13} className="text-gray-300 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
+                          <ChevronRight size={13} className="text-gray-300 dark:text-[#B0B7BE] flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
                         </div>
                       )
                     })}
@@ -537,12 +537,12 @@ export default function CollegesPage() {
 
               {/* Recently Active */}
               {data?.recentlyActive && data.recentlyActive.length > 0 && (
-                <div className="bg-white rounded-xl border border-gray-200/80 shadow-sm p-5">
+                <div className="bg-white dark:bg-[#283036] rounded-xl border border-gray-200 dark:border-[#38434F]/80 dark:border-[#38434F] shadow-sm p-5">
                   <div className="flex items-center gap-2 mb-4">
                     <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center shadow-sm">
                       <Clock size={13} className="text-white" />
                     </div>
-                    <h3 className="text-sm font-bold text-gray-900">Recently Active</h3>
+                    <h3 className="text-sm font-bold text-gray-900 dark:text-white">Recently Active</h3>
                   </div>
                   <div className="space-y-1">
                     {data.recentlyActive.map((college: any) => {
@@ -553,7 +553,7 @@ export default function CollegesPage() {
                           onClick={() => router.push(`/colleges/${college.slug}`)}
                           className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-gradient-to-r hover:from-blue-50/60 hover:to-transparent cursor-pointer transition-all group hover:-translate-y-0.5 hover:shadow-sm duration-200"
                         >
-                          <div className="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center overflow-hidden flex-shrink-0 ring-2 ring-gray-100 group-hover:ring-blue-300 transition-all text-[10px] font-black text-gray-400">
+                          <div className="w-9 h-9 rounded-xl bg-gray-100 dark:bg-[#283036] flex items-center justify-center overflow-hidden flex-shrink-0 ring-2 ring-gray-100 dark:ring-[#38434F] group-hover:ring-blue-300 transition-all text-[10px] font-black text-gray-400 dark:text-[#B0B7BE]">
                             {logoUrl ? (
                               <img src={logoUrl} alt="" className="w-full h-full object-contain p-1" />
                             ) : (
@@ -561,14 +561,14 @@ export default function CollegesPage() {
                             )}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-xs font-bold text-gray-900 truncate group-hover:text-blue-600 transition-colors">
+                            <p className="text-xs font-bold text-gray-900 dark:text-white truncate group-hover:text-blue-600 transition-colors">
                               {college.colleges?.short_name || college.display_name}
                             </p>
-                            <p className="text-[10px] text-gray-500 font-medium mt-0.5">
+                            <p className="text-[10px] text-gray-500 dark:text-[#B0B7BE] font-medium mt-0.5">
                               {college.doubt_count} discussions
                             </p>
                           </div>
-                          <ChevronRight size={13} className="text-gray-300 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
+                          <ChevronRight size={13} className="text-gray-300 dark:text-[#B0B7BE] flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
                         </div>
                       )
                     })}

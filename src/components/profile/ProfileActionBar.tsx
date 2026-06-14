@@ -179,8 +179,8 @@ export default function ProfileActionBar({ profileUser, viewer, isOwnProfile, co
         disabled={loading}
         className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-colors ${
           localFollow === 'following'
-            ? 'bg-gray-100 text-gray-600 border border-gray-200 hover:bg-gray-200'
-            : 'bg-white border border-slate-200 text-slate-700 hover:bg-purple-50 hover:border-purple-200 hover:text-purple-600'
+            ? 'bg-gray-100 dark:bg-[#283036] text-gray-600 dark:text-[#B0B7BE] border border-gray-200 dark:border-[#38434F] hover:bg-gray-200 dark:hover:bg-[#1D2226]'
+            : 'bg-white dark:bg-[#283036] border border-slate-200 dark:border-[#38434F] text-slate-700 dark:text-[#B0B7BE] hover:bg-purple-50 dark:hover:bg-[#1D2226] hover:border-purple-200 hover:text-purple-600'
         }`}
       >
         {loading ? (
@@ -212,7 +212,7 @@ export default function ProfileActionBar({ profileUser, viewer, isOwnProfile, co
             {loading ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
             Accept
           </button>
-          <button onClick={handleIgnore} disabled={loading} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-red-200 text-red-600 text-xs font-bold hover:bg-red-50 transition-colors disabled:opacity-50">
+          <button onClick={handleIgnore} disabled={loading} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-[#283036] border border-red-200 dark:border-[#38434F] text-red-600 text-xs font-bold hover:bg-red-50 dark:hover:bg-[#1D2226] transition-colors disabled:opacity-50">
             <X size={14} />
             Ignore
           </button>
@@ -233,21 +233,21 @@ export default function ProfileActionBar({ profileUser, viewer, isOwnProfile, co
                 console.log('dropdown opened')
                 setShowDropdown(!showDropdown)
               }} 
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-700 text-xs font-bold hover:border-emerald-200 hover:text-emerald-600 transition-colors"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-[#283036] border border-slate-200 dark:border-[#38434F] text-slate-700 dark:text-[#B0B7BE] text-xs font-bold hover:border-emerald-200 hover:text-emerald-600 transition-colors"
             >
               <CheckCircle size={14} />
               Connected
               <ChevronDown size={12} />
             </button>
             {showDropdown && (
-              <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-slate-200 rounded-xl shadow-lg z-50 py-1">
+              <div className="absolute right-0 top-full mt-1 w-48 bg-white dark:bg-[#283036] border border-slate-200 dark:border-[#38434F] rounded-xl shadow-lg z-50 py-1">
                 <button
                   onClick={() => {
                     console.log('remove clicked')
                     handleRemove()
                   }}
                   disabled={removing}
-                  className="w-full flex items-center gap-2 px-4 py-2.5 text-xs font-semibold text-red-600 hover:bg-red-50 transition-colors"
+                  className="w-full flex items-center gap-2 px-4 py-2.5 text-xs font-semibold text-red-600 hover:bg-red-50 dark:hover:bg-[#1D2226] transition-colors"
                 >
                   {removing ? <Loader2 size={14} className="animate-spin" /> : <X size={14} />}
                   Remove Connection
@@ -260,7 +260,7 @@ export default function ProfileActionBar({ profileUser, viewer, isOwnProfile, co
     }
 
     return (
-      <button onClick={handleConnect} disabled={loading} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-700 text-xs font-bold hover:bg-purple-50 hover:border-purple-200 hover:text-purple-600 transition-colors disabled:opacity-50">
+      <button onClick={handleConnect} disabled={loading} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-[#283036] border border-slate-200 dark:border-[#38434F] text-slate-700 dark:text-[#B0B7BE] text-xs font-bold hover:bg-purple-50 dark:hover:bg-[#1D2226] hover:border-purple-200 hover:text-purple-600 transition-colors disabled:opacity-50">
         {loading ? <Loader2 size={14} className="animate-spin" /> : <Users size={14} />}
         Connect
       </button>
@@ -276,7 +276,7 @@ export default function ProfileActionBar({ profileUser, viewer, isOwnProfile, co
         </button>
         {connectionButtons()}
         {followButton()}
-        <button onClick={openMessages} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-700 text-xs font-bold hover:bg-slate-50 transition-colors">
+        <button onClick={openMessages} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-[#283036] border border-slate-200 dark:border-[#38434F] text-slate-700 dark:text-[#B0B7BE] text-xs font-bold hover:bg-slate-50 dark:hover:bg-[#1D2226] transition-colors">
           <MessageSquare size={14} />
           Ask Question
         </button>

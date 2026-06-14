@@ -82,18 +82,18 @@ export default function ForgotPasswordPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gray-50 dark:bg-[#1D2226] flex items-center justify-center p-4">
         <div className="w-full max-w-md">
-          <div className="bg-white rounded-2xl shadow-lg p-8 text-center">
+          <div className="bg-white dark:bg-[#283036] rounded-2xl shadow-lg p-8 text-center">
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
               <CheckCircle size={32} className="text-green-600" />
             </div>
             
-            <h1 className="text-2xl font-bold text-gray-900 mb-4">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
               OTP Verified Successfully
             </h1>
             
-            <p className="text-gray-600 mb-6">
+            <p className="text-gray-600 dark:text-[#B0B7BE] mb-6">
               Your OTP has been verified. You can now reset your password.
             </p>
             
@@ -105,7 +105,7 @@ export default function ForgotPasswordPage() {
             </Link>
           </div>
           
-          <p className="text-center text-xs text-gray-400 mt-6">
+          <p className="text-center text-xs text-gray-400 dark:text-[#B0B7BE] mt-6">
             © 2024 Claspire · India's College Community
           </p>
         </div>
@@ -114,20 +114,20 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gray-50 dark:bg-[#1D2226] flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Logo */}
         <Link href="/" className="flex justify-center mb-8">
-          <span className="font-plus-jakarta-sans font-bold text-2xl text-black">
+          <span className="font-plus-jakarta-sans font-bold text-2xl text-black dark:text-white">
             cl<span style={{ color: '#7C3AED' }}>aspire</span>
           </span>
         </Link>
 
-        <div className="bg-white rounded-2xl shadow-lg p-8">
+        <div className="bg-white dark:bg-[#283036] rounded-2xl shadow-lg p-8">
           {/* Back Button */}
           <Link 
             href="/login"
-            className="inline-flex items-center gap-2 text-gray-500 hover:text-gray-700 mb-6 text-sm font-medium transition-colors"
+            className="inline-flex items-center gap-2 text-gray-500 dark:text-[#B0B7BE] hover:text-gray-700 dark:hover:text-white mb-6 text-sm font-medium transition-colors"
           >
             <ArrowLeft size={16} />
             Back to login
@@ -143,11 +143,11 @@ export default function ForgotPasswordPage() {
               )}
             </div>
             
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
               {step === 'email' ? 'Forgot your password?' : 'Enter OTP'}
             </h1>
             
-            <p className="text-gray-600 text-sm">
+            <p className="text-gray-600 dark:text-[#B0B7BE] text-sm">
               {step === 'email' 
                 ? 'Enter your email address and we\'ll send you an OTP to reset your password.'
                 : `We've sent a 6-digit OTP to ${email}`
@@ -165,7 +165,7 @@ export default function ForgotPasswordPage() {
               )}
 
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-[#B0B7BE] mb-2">
                   Email Address
                 </label>
                 <input
@@ -175,7 +175,7 @@ export default function ForgotPasswordPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-[#38434F] rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-[#222B31] dark:text-white dark:placeholder:text-[#8B949E] dark:focus:bg-[#283036]"
                   placeholder="Enter your email address"
                 />
               </div>
@@ -204,7 +204,7 @@ export default function ForgotPasswordPage() {
               )}
 
               <div>
-                <label htmlFor="otp" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="otp" className="block text-sm font-medium text-gray-700 dark:text-[#B0B7BE] mb-2">
                   Enter 6-digit OTP
                 </label>
                 <input
@@ -215,7 +215,7 @@ export default function ForgotPasswordPage() {
                   onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
                   required
                   maxLength={6}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-center text-xl font-semibold tracking-widest"
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-[#38434F] rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-center text-xl font-semibold tracking-widest dark:bg-[#222B31] dark:text-white dark:placeholder:text-[#8B949E] dark:focus:bg-[#283036]"
                   placeholder="000000"
                 />
               </div>
@@ -242,7 +242,7 @@ export default function ForgotPasswordPage() {
                     setStep('email')
                     setOtp('')
                   }}
-                  className="w-full bg-gray-100 text-gray-700 py-3 rounded-lg text-sm font-semibold hover:bg-gray-200 transition-colors"
+                  className="w-full bg-gray-100 dark:bg-[#283036] text-gray-700 dark:text-[#B0B7BE] py-3 rounded-lg text-sm font-semibold hover:bg-gray-200 dark:hover:bg-[#1D2226] transition-colors"
                 >
                   Back to Email
                 </button>
@@ -252,7 +252,7 @@ export default function ForgotPasswordPage() {
 
           {/* Footer */}
           <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-600 dark:text-[#B0B7BE]">
               Remember your password?{' '}
               <Link href="/login" className="text-purple-600 font-semibold hover:underline">
                 Sign in
@@ -261,7 +261,7 @@ export default function ForgotPasswordPage() {
           </div>
         </div>
 
-        <p className="text-center text-xs text-gray-400 mt-6">
+        <p className="text-center text-xs text-gray-400 dark:text-[#B0B7BE] mt-6">
           © 2024 Claspire · India's College Community
         </p>
       </div>

@@ -28,9 +28,9 @@ function TopContributorsCard({ contributors }: TopContributorsCardProps) {
   }
 
   return (
-    <div className="bg-white rounded-md border border-slate-200 overflow-hidden shadow-sm">
-      <div className="p-3.5 border-b border-slate-100 flex items-center justify-between">
-        <h4 className="font-bold text-slate-900 text-xs flex items-center gap-1.5">
+    <div className="bg-white dark:bg-[#283036] rounded-md border border-slate-200 dark:border-[#38434F] overflow-hidden shadow-sm">
+      <div className="p-3.5 border-b border-slate-100 dark:border-[#38434F] flex items-center justify-between">
+        <h4 className="font-bold text-slate-900 dark:text-white text-xs flex items-center gap-1.5">
           <Award className="w-4 h-4 text-amber-500" />
           Top Contributors
         </h4>
@@ -42,10 +42,10 @@ function TopContributorsCard({ contributors }: TopContributorsCardProps) {
             <div
               key={contributor.id}
               onClick={() => router.push(`/u/${contributor.unique_id}`)}
-              className="flex items-center gap-2.5 p-2 rounded hover:bg-slate-50 cursor-pointer transition-colors"
+              className="flex items-center gap-2.5 p-2 rounded hover:bg-slate-50 dark:hover:bg-[#1D2226] cursor-pointer transition-colors"
             >
               <span className="text-sm flex-shrink-0">{getRankEmoji(index)}</span>
-              <div className="w-7 h-7 rounded-full bg-purple-50 border border-slate-100 flex items-center justify-center font-bold text-[#7C3AED] overflow-hidden text-[10px] flex-shrink-0">
+              <div className="w-7 h-7 rounded-full bg-purple-50 dark:bg-purple-900/30 border border-slate-100 dark:border-[#38434F] flex items-center justify-center font-bold text-[#7C3AED] overflow-hidden text-[10px] flex-shrink-0">
                 {contributor.avatar_url ? (
                   <img src={contributor.avatar_url} alt={contributor.full_name} className="w-full h-full object-cover" />
                 ) : (
@@ -53,13 +53,13 @@ function TopContributorsCard({ contributors }: TopContributorsCardProps) {
                 )}
               </div>
               <div className="flex-1 min-w-0">
-                <h5 className="font-bold text-xs text-slate-800 truncate">{contributor.full_name}</h5>
-                <p className="text-[9px] text-slate-400 font-semibold">{contributor.rise_points} RP • Level {contributor.rp_level}</p>
+                <h5 className="font-bold text-xs text-slate-800 dark:text-white truncate">{contributor.full_name}</h5>
+                <p className="text-[9px] text-slate-400 dark:text-[#B0B7BE] font-semibold">{contributor.rise_points} RP • Level {contributor.rp_level}</p>
               </div>
             </div>
           ))
         ) : (
-          <p className="text-slate-400 text-[10px] text-center py-3">No contributors yet</p>
+          <p className="text-slate-400 dark:text-[#B0B7BE] text-[10px] text-center py-3">No contributors yet</p>
         )}
       </div>
     </div>

@@ -341,7 +341,7 @@ export default function ChatWindow({
       msg.reply_to.sender_id === currentUserId ? 'You' : otherUserName
     return (
       <div
-        className={`mb-2 pl-2 border-l-2 text-[11px] leading-snug ${isMine ? 'border-white/60 text-white/90' : 'border-purple-500 text-gray-500'
+        className={`mb-2 pl-2 border-l-2 text-[11px] leading-snug ${isMine ? 'border-white/60 text-white/90' : 'border-purple-500 text-gray-500 dark:text-[#B0B7BE]'
           }`}
       >
         <p className="font-bold truncate">{author}</p>
@@ -351,11 +351,11 @@ export default function ChatWindow({
   }
 
   return (
-    <div className={`flex flex-col h-full overflow-hidden ${flat ? 'bg-[#efeae2]' : 'bg-white border border-gray-100 rounded-3xl shadow-sm'}`}>
+    <div className={`flex flex-col h-full overflow-hidden ${flat ? 'bg-[#efeae2] dark:bg-[#1D2226]' : 'bg-white dark:bg-[#283036] border border-gray-100 dark:border-[#38434F] rounded-3xl shadow-sm dark:shadow-[#1D2226]/50'}`}>
       {!hideHeader && (
-        <div className="hidden md:flex flex-shrink-0 p-4 border-b border-gray-100 items-center justify-between bg-white/50 backdrop-blur-sm">
+        <div className="hidden md:flex flex-shrink-0 p-4 border-b border-gray-100 dark:border-[#38434F] items-center justify-between bg-white/50 dark:bg-[#283036]/50 backdrop-blur-sm">
           <div className="flex items-center gap-3">
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0 ${otherUserAvatar ? 'bg-transparent shadow-sm' : 'bg-red-500 text-white'}`}>
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0 ${otherUserAvatar ? 'bg-transparent shadow-sm dark:shadow-[#1D2226]/50' : 'bg-red-500 text-white'}`}>
               {otherUserAvatar ? (
                 <img src={otherUserAvatar} alt={otherUserName} className="w-full h-full object-cover" />
               ) : (
@@ -363,7 +363,7 @@ export default function ChatWindow({
               )}
             </div>
             <div>
-              <h3 className="text-sm font-bold text-gray-900">{otherUserName}</h3>
+              <h3 className="text-sm font-bold text-gray-900 dark:text-white">{otherUserName}</h3>
             </div>
           </div>
         </div>
@@ -371,7 +371,7 @@ export default function ChatWindow({
 
       <div
         ref={scrollRef}
-        className={`flex-1 overflow-y-auto p-4 space-y-2 custom-scrollbar ${flat ? 'bg-[#efeae2]' : 'bg-gray-50/30'}`}
+        className={`flex-1 overflow-y-auto p-4 space-y-2 custom-scrollbar ${flat ? 'bg-[#efeae2] dark:bg-[#1D2226]' : 'bg-gray-50/30 dark:bg-[#1D2226]/30'}`}
       >
         {loading ? (
           <div className="flex items-center justify-center h-full">
@@ -379,11 +379,11 @@ export default function ChatWindow({
           </div>
         ) : messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center p-8">
-            <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-3">
-              <Send size={24} className="text-gray-300" />
+            <div className="w-12 h-12 bg-gray-100 dark:bg-[#1D2226] rounded-full flex items-center justify-center mb-3">
+              <Send size={24} className="text-gray-300 dark:text-[#B0B7BE]" />
             </div>
-            <p className="text-sm font-medium text-gray-500">No messages yet</p>
-            <p className="text-xs text-gray-400 mt-1">Start a conversation with {otherUserName}</p>
+            <p className="text-sm font-medium text-gray-500 dark:text-[#B0B7BE]">No messages yet</p>
+            <p className="text-xs text-gray-400 dark:text-[#B0B7BE] mt-1">Start a conversation with {otherUserName}</p>
           </div>
         ) : (
           messages.map((msg) => {
@@ -410,12 +410,12 @@ export default function ChatWindow({
                     }}
                     className={`w-full text-left p-3 rounded-2xl text-sm transition-transform active:scale-[0.99] ${isMine
                         ? `bg-purple-600 text-white rounded-br-none`
-                        : 'bg-white border border-gray-100 text-gray-800 rounded-bl-none shadow-sm'
+                        : 'bg-white dark:bg-[#283036] border border-gray-100 dark:border-[#38434F] text-gray-800 dark:text-[#B0B7BE] rounded-bl-none shadow-sm dark:shadow-[#1D2226]/50'
                       } ${failed ? 'ring-2 ring-red-400 cursor-pointer' : ''}`}
                   >
                     {renderReplyQuote(msg, isMine)}
                     <p className="whitespace-pre-wrap break-words">{msg.content}</p>
-                    <div className={`flex items-center justify-end gap-1.5 mt-1 ${isMine ? 'text-white/75' : 'text-gray-400'}`}>
+                    <div className={`flex items-center justify-end gap-1.5 mt-1 ${isMine ? 'text-white/75' : 'text-gray-400 dark:text-[#B0B7BE]'}`}>
                       {msg.edited_at && (
                         <span className="text-[9px] italic">edited</span>
                       )}
@@ -435,13 +435,13 @@ export default function ChatWindow({
                   {showMenu && !failed && (
                     <div
                       ref={menuRef}
-                      className={`absolute z-20 min-w-[140px] bg-white border border-gray-200 rounded-xl shadow-xl overflow-hidden ${isMine ? 'right-0 top-full mt-1' : 'left-0 top-full mt-1'
+                      className={`absolute z-20 min-w-[140px] bg-white dark:bg-[#283036] border border-gray-200 dark:border-[#38434F] rounded-xl shadow-xl overflow-hidden ${isMine ? 'right-0 top-full mt-1' : 'left-0 top-full mt-1'
                         }`}
                     >
                       <button
                         type="button"
                         onClick={() => handleReply(msg)}
-                        className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
+                        className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 dark:text-[#B0B7BE] hover:bg-gray-50 dark:hover:bg-[#1D2226]"
                       >
                         <Reply size={15} /> Reply
                       </button>
@@ -450,14 +450,14 @@ export default function ChatWindow({
                           <button
                             type="button"
                             onClick={() => handleEdit(msg)}
-                            className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 border-t border-gray-100"
+                            className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 dark:text-[#B0B7BE] hover:bg-gray-50 dark:hover:bg-[#1D2226] border-t border-gray-100 dark:border-[#38434F]"
                           >
                             <Pencil size={15} /> Edit
                           </button>
                           <button
                             type="button"
                             onClick={() => handleDelete(msg)}
-                            className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 border-t border-gray-100"
+                            className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 border-t border-gray-100 dark:border-[#38434F]"
                           >
                             <Trash2 size={15} /> Delete
                           </button>
@@ -473,21 +473,21 @@ export default function ChatWindow({
         <div ref={messagesEndRef} />
       </div>
 
-      <div className={`flex-shrink-0 ${flat ? 'pb-[max(0.75rem,env(safe-area-inset-bottom))] bg-[#f0f2f5] border-t border-gray-200' : 'bg-white border-t border-gray-100'}`}>
+      <div className={`flex-shrink-0 ${flat ? 'pb-[max(0.75rem,env(safe-area-inset-bottom))] bg-[#f0f2f5] dark:bg-[#1D2226] border-t border-gray-200 dark:border-[#38434F]' : 'bg-white dark:bg-[#283036] border-t border-gray-100 dark:border-[#38434F]'}`}>
         {(replyingTo || editingMessage) && (
           <div className="flex items-start gap-2 px-3 pt-3">
             <div className="flex-1 rounded-xl bg-purple-50 border border-purple-100 px-3 py-2">
               <p className="text-[10px] font-black uppercase tracking-wide text-purple-600">
                 {editingMessage ? 'Editing message' : `Replying to ${replyingTo?.sender_id === currentUserId ? 'yourself' : otherUserName}`}
               </p>
-              <p className="text-xs text-gray-600 truncate mt-0.5">
+              <p className="text-xs text-gray-600 dark:text-[#B0B7BE] truncate mt-0.5">
                 {(editingMessage || replyingTo)?.content}
               </p>
             </div>
             <button
               type="button"
               onClick={clearComposerState}
-              className="p-2 rounded-full hover:bg-gray-200 text-gray-500"
+              className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-[#1D2226] text-gray-500 dark:text-[#B0B7BE]"
             >
               <X size={16} />
             </button>
@@ -495,7 +495,7 @@ export default function ChatWindow({
         )}
 
         {blockStatus === 'blocked' ? (
-          <div className="p-4 text-center text-gray-500 text-sm">
+          <div className="p-4 text-center text-gray-500 dark:text-[#B0B7BE] text-sm">
             You can&apos;t send messages to this user.
           </div>
         ) : (
@@ -507,7 +507,7 @@ export default function ChatWindow({
               onChange={(e) => setNewMessage(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && sendMessage()}
               placeholder={editingMessage ? 'Edit your message...' : replyingTo ? 'Write a reply...' : 'Type a message...'}
-              className="flex-1 bg-white border border-gray-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-purple-600 transition-colors"
+              className="flex-1 bg-white dark:bg-[#283036] border border-gray-200 dark:border-[#38434F] rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-purple-600 transition-colors"
             />
             <button
               onClick={sendMessage}
