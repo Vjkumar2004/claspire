@@ -12,7 +12,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { data: post } = await supabase
     .from('posts')
     .select(`
-      title, content, image_url,
+      title, content, image_url, is_college_post,
       users!posts_author_id_fkey ( full_name, unique_id ),
       communities ( slug, display_name )
     `)

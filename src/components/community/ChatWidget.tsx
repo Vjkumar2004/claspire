@@ -1,18 +1,13 @@
 'use client'
 import React, { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@supabase/supabase-js'
+import { supabase } from '@/lib/supabase'
 import {
   MessageCircle, MessageSquare, Send, X,
   ChevronRight, ChevronUp, ChevronDown,
   AlertTriangle, RefreshCw
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder'
-)
 
 interface ChatWidgetProps {
   user: any

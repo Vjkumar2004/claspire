@@ -280,48 +280,79 @@ export default function FeedPost({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.98 }}
       transition={{ duration: 0.2 }}
-      className="bg-white dark:bg-[#283036] rounded-none sm:rounded-xl border-y border-x-0 sm:border border-slate-200 dark:border-[#38434F] p-4 sm:p-5 shadow-none sm:shadow-sm hover:border-slate-300 dark:hover:border-[#38434F] transition-colors"
+      className="bg-white dark:bg-[#283036] rounded-xl border border-slate-200/80 dark:border-[#38434F]/80 p-3.5 sm:p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] sm:shadow-sm hover:border-slate-300 dark:hover:border-[#38434F] transition-all duration-200 active:scale-[0.99]"
     >
       {/* Feed Card Header details */}
-      <div className="flex items-start justify-between gap-3 mb-4">
-        <div className="flex items-center gap-3">
-          {/* Author avatar */}
-          <div
-            onClick={() => router.push(`/u/${post.users?.unique_id}`)}
-            className="w-10 h-10 rounded-full bg-slate-100 dark:bg-[#283036] flex items-center justify-center font-bold text-slate-800 dark:text-white text-sm overflow-hidden flex-shrink-0 cursor-pointer border border-slate-100 dark:border-[#38434F]"
-          >
-            {post.users?.avatar_url ? (
-              <img src={post.users.avatar_url} alt={post.users?.full_name} className="w-full h-full object-cover" />
-            ) : (
-              post.users?.full_name?.[0] || 'U'
-            )}
-          </div>
-
-          <div>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => router.push(`/u/${post.users?.unique_id}`)}
-                className="font-bold text-slate-900 dark:text-white hover:text-[#7C3AED] hover:underline text-sm text-left leading-none"
+      <div className="flex items-start justify-between gap-2 mb-3">
+        <div className="flex items-center gap-2.5 min-w-0 flex-1">
+          {post.is_college_post ? (
+            <>
+              <div
+                onClick={() => router.push(`/colleges/${post.communities?.colleges?.slug || post.communities?.slug}`)}
+                className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-slate-100 dark:bg-[#283036] flex items-center justify-center font-bold text-slate-800 dark:text-white text-sm overflow-hidden flex-shrink-0 cursor-pointer border border-slate-100 dark:border-[#38434F] ring-2 ring-purple-100 dark:ring-purple-900/40"
               >
-                {post.users?.full_name}
-              </button>
-              <span className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded-full border ${post.users?.role === 'senior' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-slate-50 dark:bg-[#1D2226] text-slate-600 dark:text-[#B0B7BE] border border-slate-100 dark:border-[#38434F]'}`}>
-                {post.users?.role === 'senior' ? 'Senior' : 'Mentee'}
-              </span>
-            </div>
-            <p className="text-xs text-slate-500 dark:text-[#B0B7BE] font-medium mt-1">
-              {post.communities?.colleges?.short_name || 'Campus'} Hub • {timeAgo(post.created_at)}
-            </p>
-          </div>
+                {post.communities?.colleges?.logo_url ? (
+                  <img src={post.communities.colleges.logo_url} alt={post.communities.colleges.name} className="w-full h-full object-cover" />
+                ) : (
+                  post.communities?.colleges?.name?.[0] || post.communities?.colleges?.short_name?.[0] || 'C'
+                )}
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-1.5">
+                  <button
+                    onClick={() => router.push(`/colleges/${post.communities?.colleges?.slug || post.communities?.slug}`)}
+                    className="font-bold text-slate-900 dark:text-white hover:text-[#7C3AED] text-sm text-left leading-none truncate"
+                  >
+                    {post.communities?.colleges?.name || post.communities?.colleges?.short_name || 'College'}
+                  </button>
+                  <span className="text-[8px] font-bold uppercase px-1.5 py-0.5 rounded-full border bg-purple-50 text-purple-700 border-purple-200 shrink-0">
+                    Official
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-500 dark:text-[#B0B7BE] font-medium mt-0.5 truncate">
+                  {post.communities?.colleges?.short_name || 'Campus'} Hub • {timeAgo(post.created_at)}
+                </p>
+              </div>
+            </>
+          ) : (
+            <>
+              <div
+                onClick={() => router.push(`/u/${post.users?.unique_id}`)}
+                className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-slate-100 dark:bg-[#283036] flex items-center justify-center font-bold text-slate-800 dark:text-white text-sm overflow-hidden flex-shrink-0 cursor-pointer border border-slate-100 dark:border-[#38434F]"
+              >
+                {post.users?.avatar_url ? (
+                  <img src={post.users.avatar_url} alt={post.users?.full_name} className="w-full h-full object-cover" />
+                ) : (
+                  post.users?.full_name?.[0] || 'U'
+                )}
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-1.5">
+                  <button
+                    onClick={() => router.push(`/u/${post.users?.unique_id}`)}
+                    className="font-bold text-slate-900 dark:text-white hover:text-[#7C3AED] text-sm text-left leading-none truncate"
+                  >
+                    {post.users?.full_name}
+                  </button>
+                  <span className={`text-[8px] font-bold uppercase px-1.5 py-0.5 rounded-full border shrink-0 ${post.users?.role === 'senior' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-slate-50 dark:bg-[#1D2226] text-slate-600 dark:text-[#B0B7BE] border border-slate-100 dark:border-[#38434F]'}`}>
+                    {post.users?.role === 'senior' ? 'Senior' : 'Mentee'}
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-500 dark:text-[#B0B7BE] font-medium mt-0.5 truncate">
+                  {post.communities?.colleges?.short_name || 'Campus'} Hub • {timeAgo(post.created_at)}
+                </p>
+              </div>
+            </>
+          )}
         </div>
 
         {/* Post type badging */}
         <span
           style={{ background: ts.bg, color: ts.color, borderColor: ts.border }}
-          className="text-[8px] font-bold uppercase px-2 py-0.5 rounded border tracking-wide whitespace-nowrap flex items-center gap-1"
+          className="text-[7px] sm:text-[8px] font-bold uppercase px-1.5 sm:px-2 py-0.5 rounded border tracking-wide whitespace-nowrap flex items-center gap-0.5 sm:gap-1 shrink-0"
         >
-          <span>{ts.icon}</span>
-          <span>{ts.label}</span>
+          <span className="text-[10px] sm:text-[12px]">{ts.icon}</span>
+          <span className="hidden sm:inline">{ts.label}</span>
         </span>
       </div>
 
@@ -329,14 +360,14 @@ export default function FeedPost({
       {post.title && (
         <h4
           onClick={() => router.push(`/community/c/${post.communities?.slug}/p/${post.id}`)}
-          className="font-bold text-slate-950 dark:text-white text-sm sm:text-base hover:text-[#7C3AED] transition-colors leading-snug tracking-tight mb-2 cursor-pointer"
+          className="font-extrabold text-slate-950 dark:text-white text-sm sm:text-base hover:text-[#7C3AED] transition-colors leading-snug tracking-tight mb-1.5 cursor-pointer line-clamp-2"
         >
           {post.title}
         </h4>
       )}
 
       {/* Content text */}
-      <div className="text-sm text-slate-800 dark:text-white leading-relaxed font-normal mb-3">
+      <div className="text-[13px] sm:text-sm text-slate-700 dark:text-[#CBD5E1] leading-[1.65] font-normal mb-2.5">
         <p className={expandedContent ? '' : 'line-clamp-3 whitespace-pre-wrap'}>
           {convertUrlsToLinks(post.content)}
         </p>
@@ -344,7 +375,7 @@ export default function FeedPost({
         {post.content && post.content.length > 180 && (
           <button
             onClick={() => onToggleContent(post.id)}
-            className="text-[#7C3AED] font-bold hover:underline mt-1.5 cursor-pointer block text-xs"
+            className="text-[#7C3AED] font-bold hover:underline mt-1 cursor-pointer block text-[11px]"
           >
             {expandedContent ? 'Show less' : 'Read more'}
           </button>
@@ -353,16 +384,16 @@ export default function FeedPost({
 
       {/* Attached media inside card via MediaGallery */}
       {post.image_url && post.image_url.length > 0 && (
-        <div className="-mx-4 sm:-mx-5 mb-3">
+        <div className="-mx-3.5 sm:-mx-5 mb-2.5">
           <MediaGallery imageUrls={post.image_url} />
         </div>
       )}
 
       {/* Tags line */}
       {post.tags?.length > 0 && (
-        <div className="flex flex-wrap gap-1.5 mb-3">
+        <div className="flex flex-wrap gap-1 mb-2.5">
           {post.tags.map((t: string) => (
-            <span key={t} className="text-[10px] font-semibold text-slate-500 dark:text-[#B0B7BE] bg-slate-50 dark:bg-[#1D2226] border border-slate-200 dark:border-[#38434F] px-2.5 py-0.5 rounded-full">
+            <span key={t} className="text-[9px] sm:text-[10px] font-semibold text-slate-500 dark:text-[#B0B7BE] bg-slate-50 dark:bg-[#1D2226] border border-slate-200 dark:border-[#38434F] px-2 sm:px-2.5 py-0.5 rounded-full">
               #{t}
             </span>
           ))}
@@ -407,54 +438,52 @@ export default function FeedPost({
         </div>
       )}
 
-      {/* Low Opacity action footer bar */}
-      <div className="grid grid-cols-4 items-center border-t border-slate-100 dark:border-[#38434F] pt-2 mt-2 w-full text-slate-600 dark:text-[#B0B7BE]">
+      {/* Action footer bar */}
+      <div className="flex items-center justify-between gap-1 border-t border-slate-100 dark:border-[#38434F] pt-2.5 mt-1 w-full text-slate-500 dark:text-[#B0B7BE]">
         {/* Appreciation button */}
-        <div className="flex justify-center w-full">
-          <button
-            onClick={() => onVote(post.id, 'upvote')}
-            className={`group flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-extrabold transition-all duration-300 cursor-pointer border ${
-              voteData?.userVote === 'upvote'
-                ? 'bg-gradient-to-br from-purple-100 to-indigo-50 border-purple-200 text-[#7C3AED] shadow-[0_2px_8px_-2px_rgba(124,58,237,0.3)]'
-                : 'bg-white dark:bg-[#283036] border-slate-200 dark:border-[#38434F] hover:border-purple-300 hover:bg-purple-50 text-slate-500 dark:text-[#B0B7BE] hover:text-[#7C3AED] shadow-sm hover:shadow'
-            }`}
-          >
-            <ArrowBigUp 
-              className={`w-4 h-4 transition-transform duration-300 ${
-                voteData?.userVote === 'upvote' 
-                  ? 'fill-[#7C3AED] text-[#7C3AED] -translate-y-0.5' 
-                  : 'text-slate-400 dark:text-[#B0B7BE] group-hover:-translate-y-0.5 group-hover:text-[#7C3AED] group-hover:fill-purple-100'
-              }`} 
-            />
-            <span>{voteData?.upvotes || 0} RP</span>
-          </button>
-        </div>
+        <button
+          onClick={() => onVote(post.id, 'upvote')}
+          className={`group flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full text-[10px] sm:text-[11px] font-extrabold transition-all duration-200 cursor-pointer border ${
+            voteData?.userVote === 'upvote'
+              ? 'bg-gradient-to-br from-purple-100 to-indigo-50 border-purple-200 text-[#7C3AED] shadow-[0_2px_8px_-2px_rgba(124,58,237,0.3)]'
+              : 'bg-transparent border-transparent hover:border-purple-200 hover:bg-purple-50 dark:hover:bg-purple-900/20 text-slate-500 dark:text-[#B0B7BE] hover:text-[#7C3AED]'
+          }`}
+        >
+          <ArrowBigUp 
+            className={`w-[18px] h-[18px] sm:w-4 sm:h-4 transition-all duration-200 ${
+              voteData?.userVote === 'upvote' 
+                ? 'fill-[#7C3AED] text-[#7C3AED] scale-110' 
+                : 'text-slate-400 dark:text-[#B0B7BE] group-hover:scale-110 group-hover:text-[#7C3AED]'
+            }`} 
+          />
+          <span>{voteData?.upvotes || 0}</span>
+        </button>
 
-        {/* Answers buttons */}
+        {/* Answers button */}
         <button
           onClick={() => onToggleAnswerSection(post.id)}
-          className="flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1.5 py-2 hover:bg-slate-50 dark:hover:bg-[#1D2226] text-slate-600 dark:text-[#B0B7BE] rounded-lg transition-colors cursor-pointer w-full text-center"
+          className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full text-[10px] sm:text-[11px] font-bold hover:bg-slate-50 dark:hover:bg-[#1D2226] hover:text-slate-700 dark:hover:text-white transition-all duration-200 cursor-pointer"
         >
-          <MessageSquare className="w-3.5 h-3.5" />
-          <span className="text-[10px] sm:text-xs">{post.answer_count || 0} Answers</span>
+          <MessageSquare className="w-[16px] h-[16px] sm:w-3.5 sm:h-3.5" />
+          <span>{post.answer_count || 0}</span>
         </button>
 
-        {/* Share buttons */}
+        {/* Share button */}
         <button
           onClick={() => onSharePost(post)}
-          className="flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1.5 py-2 hover:bg-slate-50 dark:hover:bg-[#1D2226] text-slate-600 dark:text-[#B0B7BE] rounded-lg transition-colors cursor-pointer w-full text-center"
+          className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full text-[10px] sm:text-[11px] font-bold hover:bg-slate-50 dark:hover:bg-[#1D2226] hover:text-slate-700 dark:hover:text-white transition-all duration-200 cursor-pointer"
         >
-          <Share2 className="w-3.5 h-3.5" />
-          <span className="text-[10px] sm:text-xs">Share</span>
+          <Share2 className="w-[16px] h-[16px] sm:w-3.5 sm:h-3.5" />
+          <span className="hidden sm:inline">Share</span>
         </button>
 
-        {/* Explore Detail buttons */}
+        {/* Detail button */}
         <button
           onClick={() => router.push(`/community/c/${post.communities?.slug}/p/${post.id}`)}
-          className="flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1.5 py-2 hover:bg-slate-50 dark:hover:bg-[#1D2226] text-[#7C3AED] hover:text-[#6D28D9] rounded-lg transition-colors cursor-pointer w-full text-center"
+          className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full text-[10px] sm:text-[11px] font-bold text-[#7C3AED] hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-all duration-200 cursor-pointer"
         >
-          <ArrowRight className="w-3.5 h-3.5" />
-          <span className="font-bold text-[10px] sm:text-xs whitespace-nowrap">Detail</span>
+          <span className="hidden sm:inline">Detail</span>
+          <ArrowRight className="w-[16px] h-[16px] sm:w-3.5 sm:h-3.5" />
         </button>
       </div>
 

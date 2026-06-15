@@ -201,11 +201,11 @@ export default function CreateGroupModal({ isOpen, onClose, onSuccess, currentUs
               ) : (
                 <>
                   {/* Header */}
-                  <div className="bg-gradient-to-r from-purple-50 to-indigo-50 p-6 border-b border-purple-100">
+                  <div className="bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-500/10 dark:to-indigo-500/10 p-6 border-b border-purple-100 dark:border-[#38434F]">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-                          <Users size={24} className="text-purple-600" />
+                        <div className="w-12 h-12 bg-purple-100 dark:bg-purple-500/20 rounded-full flex items-center justify-center">
+                          <Users size={24} className="text-purple-600 dark:text-purple-300" />
                         </div>
                         <div>
                           <h2 className="text-xl font-black text-gray-900 dark:text-white font-instrument-serif">
@@ -228,20 +228,20 @@ export default function CreateGroupModal({ isOpen, onClose, onSuccess, currentUs
 
                   {/* Warning if community not available */}
                   {!isCommunityAvailable && (
-                    <div className="mx-6 mt-6 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+                    <div className="mx-6 mt-6 p-4 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 rounded-xl">
                       <div className="flex gap-3">
-                        <div className="w-5 h-5 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <div className="w-5 h-5 bg-amber-100 dark:bg-amber-500/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                           {fetchingCommunity ? (
                             <div className="w-2 h-2 border-2 border-amber-600 border-t-transparent rounded-full animate-spin" />
                           ) : (
-                            <span className="text-amber-600 text-xs font-bold">!</span>
+                            <span className="text-amber-600 dark:text-amber-400 text-xs font-bold">!</span>
                           )}
                         </div>
                         <div>
-                          <p className="text-sm font-medium text-amber-900">
+                          <p className="text-sm font-medium text-amber-900 dark:text-amber-200">
                             {fetchingCommunity ? 'Loading Community Information...' : 'Community Information Required'}
                           </p>
-                          <p className="text-xs text-amber-700 mt-1">
+                          <p className="text-xs text-amber-700 dark:text-amber-300 mt-1">
                             {fetchingCommunity 
                               ? 'Please wait while we load your community information.'
                               : 'Please refresh the page to load your community information before creating a group.'
@@ -267,7 +267,7 @@ export default function CreateGroupModal({ isOpen, onClose, onSuccess, currentUs
                           placeholder="e.g. Study Squad, Project Team"
                           value={formData.name}
                           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                          className="w-full px-4 py-3 rounded-2xl border border-gray-200 dark:border-[#38434F] focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all text-sm"
+                          className="w-full px-4 py-3 rounded-2xl border border-gray-200 dark:border-[#38434F] bg-white dark:bg-[#283036] text-gray-900 dark:text-white focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all text-sm"
                           disabled={loading}
                         />
                         <p className="text-xs text-gray-500 dark:text-[#B0B7BE]">
@@ -287,7 +287,7 @@ export default function CreateGroupModal({ isOpen, onClose, onSuccess, currentUs
                           placeholder="What's this group about?"
                           value={formData.description}
                           onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                          className="w-full px-4 py-3 rounded-2xl border border-gray-200 dark:border-[#38434F] focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all text-sm resize-none"
+                          className="w-full px-4 py-3 rounded-2xl border border-gray-200 dark:border-[#38434F] bg-white dark:bg-[#283036] text-gray-900 dark:text-white focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all text-sm resize-none"
                           disabled={loading}
                         />
                         <p className="text-xs text-gray-500 dark:text-[#B0B7BE]">
@@ -305,7 +305,7 @@ export default function CreateGroupModal({ isOpen, onClose, onSuccess, currentUs
                           {/* College-only Option */}
                           <label className={`relative block p-4 rounded-2xl border-2 transition-all cursor-pointer ${
                             formData.scope === 'college'
-                              ? 'border-purple-500 bg-purple-50'
+                              ? 'border-purple-500 bg-purple-50 dark:bg-purple-500/20'
                               : 'border-gray-200 dark:border-[#38434F] hover:border-gray-300'
                           } ${!canCreateCollege ? 'opacity-50 cursor-not-allowed' : ''}`}>
                             <div className="flex items-center gap-3">
@@ -347,7 +347,7 @@ export default function CreateGroupModal({ isOpen, onClose, onSuccess, currentUs
                           {/* Public Option */}
                           <label className={`relative block p-4 rounded-2xl border-2 transition-all cursor-pointer ${
                             formData.scope === 'public'
-                              ? 'border-purple-500 bg-purple-50'
+                              ? 'border-purple-500 bg-purple-50 dark:bg-purple-500/20'
                               : 'border-gray-200 dark:border-[#38434F] hover:border-gray-300'
                           } ${!canCreatePublic ? 'opacity-50 cursor-not-allowed' : ''}`}>
                             <div className="flex items-center gap-3">
@@ -381,7 +381,7 @@ export default function CreateGroupModal({ isOpen, onClose, onSuccess, currentUs
                           {/* Private Option */}
                           <label className={`relative block p-4 rounded-2xl border-2 transition-all cursor-pointer ${
                             formData.scope === 'private'
-                              ? 'border-purple-500 bg-purple-50'
+                              ? 'border-purple-500 bg-purple-50 dark:bg-purple-500/20'
                               : 'border-gray-200 dark:border-[#38434F] hover:border-gray-300'
                           } ${!canCreatePrivate ? 'opacity-50 cursor-not-allowed' : ''}`}>
                             <div className="flex items-center gap-3">
@@ -430,7 +430,7 @@ export default function CreateGroupModal({ isOpen, onClose, onSuccess, currentUs
                         
                         <label className={`relative block p-4 rounded-2xl border-2 transition-all cursor-pointer ${
                           formData.is_ephemeral 
-                            ? 'border-purple-500 bg-purple-50' 
+                            ? 'border-purple-500 bg-purple-50 dark:bg-purple-500/20' 
                             : 'border-gray-200 dark:border-[#38434F] hover:border-gray-300'
                         }`}>
                           <div className="flex items-center gap-3">
@@ -442,7 +442,7 @@ export default function CreateGroupModal({ isOpen, onClose, onSuccess, currentUs
                               className="sr-only"
                             />
                             <div className={`w-12 h-6 rounded-full transition-colors ${
-                              formData.is_ephemeral ? 'bg-purple-500' : 'bg-gray-300'
+                              formData.is_ephemeral ? 'bg-purple-500' : 'bg-gray-300 dark:bg-[#38434F]'
                             }`}>
                               <div className={`w-5 h-5 bg-white dark:bg-[#283036] rounded-full shadow-sm transition-transform ${
                                 formData.is_ephemeral ? 'translate-x-6' : 'translate-x-0.5'
@@ -462,14 +462,14 @@ export default function CreateGroupModal({ isOpen, onClose, onSuccess, currentUs
                       </div>
 
                       {/* Info Box */}
-                      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4">
+                      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-500/10 dark:to-indigo-500/10 border border-blue-200 dark:border-blue-500/30 rounded-xl p-4">
                         <div className="flex gap-3">
-                          <Sparkles size={16} className="text-blue-600 flex-shrink-0" />
+                          <Sparkles size={16} className="text-blue-600 dark:text-blue-300 flex-shrink-0" />
                           <div>
-                            <p className="text-xs font-medium text-blue-900 mb-1">
+                            <p className="text-xs font-medium text-blue-900 dark:text-blue-200 mb-1">
                               Group Auto-deletion
                             </p>
-                            <p className="text-xs text-blue-700">
+                            <p className="text-xs text-blue-700 dark:text-blue-300">
                               All groups automatically delete after 7 days of inactivity to keep the platform fresh.
                             </p>
                           </div>

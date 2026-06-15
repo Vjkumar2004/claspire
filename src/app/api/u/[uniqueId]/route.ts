@@ -33,7 +33,7 @@ export async function GET(
       bio, branch, year, avatar_url, banner_url,
       company, designation, graduation_year, passout_year, linkedin_url,
       last_seen,
-      colleges ( id, name, short_name, slug, location, state )
+      colleges!users_college_id_fkey ( id, name, short_name, slug, location, state )
     `
 
     let { data: user, error } = await supabase

@@ -576,8 +576,8 @@ export async function GET(req: NextRequest) {
           type,
           view_count,
           community_id,
-          created_at,
-          communities ( slug, display_name ),
+          created_at, is_college_post,
+          communities ( slug, display_name, colleges ( name, short_name, logo_url ) ),
           author:author_id ( full_name, avatar_url )
         `)
         .eq('visibility', 'public')

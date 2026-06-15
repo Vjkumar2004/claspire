@@ -5,7 +5,7 @@ import { getAuthenticatedUser } from '@/lib/session'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  process.env.SUPABASE_SECRET_KEY!
 )
 
 export async function POST(request: NextRequest) {
@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
     // Get user details including role and college info
     const { data: userData, error: userError } = await supabase
       .from('users')
-      .select('id, role, unique_id, full_name, college_id, is_premium, colleges!inner(id, name)')
+      .select('id, role, unique_id, full_name, college_id, is_premium')
       .eq('id', cookieUser.id)
       .single()
 
@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
-    if (!userData.colleges) {
+    if (!userData.college_id) {
       return NextResponse.json({ error: 'User must be associated with a college' }, { status: 400 })
     }
 

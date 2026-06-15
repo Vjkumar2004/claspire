@@ -21,8 +21,8 @@ function formatGroupTime(dateStr: string) {
 }
 
 function GroupItem({ group, isActive, onClick }: { group: GroupListItem; isActive: boolean; onClick: () => void }) {
-  const hasUnread = group.unread_count > 0
-  const badge = group.unread_count > 99 ? '99+' : group.unread_count > 0 ? String(group.unread_count) : null
+  const hasUnread = !isActive && group.unread_count > 0
+  const badge = !isActive && group.unread_count > 0 ? (group.unread_count > 99 ? '99+' : String(group.unread_count)) : null
 
   return (
     <button

@@ -37,9 +37,9 @@ async function fetchInitialData(): Promise<InitialData> {
       const result = await supabase
         .from('posts')
         .select(`
-          id, title, content, type, created_at, upvote_count, downvote_count, answer_count, is_answered, tags, image_url, author_id,
+          id, title, content, type, created_at, upvote_count, downvote_count, answer_count, is_answered, tags, image_url, author_id, is_college_post,
           users!posts_author_id_fkey ( full_name, unique_id, role, is_verified, avatar_url ),
-          communities ( slug, colleges ( name, short_name ) )
+          communities ( slug, colleges ( name, short_name, logo_url ) )
         `)
         .eq('visibility', 'public')
         .order('created_at', { ascending: false })

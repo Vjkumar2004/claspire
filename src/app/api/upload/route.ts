@@ -170,6 +170,70 @@ export async function POST(req: NextRequest) {
       return response
     }
 
+    // College logo/banner → update college record
+    if (type === 'college_logo' || type === 'college_banner') {
+      const collegeId = formData.get('college_id') as string
+      if (!collegeId) {
+        return NextResponse.json({ error: 'college_id is required for college uploads' }, { status: 400 })
+      }
+
+      // Verify user is college admin
+      const { data: adminEntry } = await supabase
+        .from('college_admins')
+        .select('id')
+        .eq('college_id', collegeId)
+        .eq('user_id', userId)
+        .eq('status', 'approved')
+        .maybeSingle()
+
+      if (!adminEntry) {
+        return NextResponse.json({ error: 'Not authorized to update this college' }, { status: 403 })
+      }
+
+      const columnToUpdate = type === 'college_logo' ? 'logo_url' : 'banner_url'
+
+      // Delete old file from R2 if it exists
+      const { data: college } = await supabase
+        .from('colleges')
+        .select('logo_url, banner_url')
+        .eq('id', collegeId)
+        .single()
+
+      const oldUrl = columnToUpdate === 'logo_url' ? (college as any)?.logo_url : (college as any)?.banner_url
+      if (oldUrl?.includes('.r2.dev')) {
+        const oldKey = oldUrl.split('.r2.dev/')[1]
+        if (oldKey) {
+          try {
+            await r2Client.send(
+              new DeleteObjectCommand({
+                Bucket: R2_BUCKET,
+                Key: oldKey
+              })
+            )
+            console.log(`Old college ${type} deleted:`, oldKey)
+          } catch (e) {
+            console.warn(`Failed to delete old college ${type}:`, e)
+          }
+        }
+      }
+
+      const { error: dbError } = await supabase
+        .from('colleges')
+        .update({ [columnToUpdate]: publicUrl })
+        .eq('id', collegeId)
+
+      if (dbError) {
+        console.error('College DB update failed:', dbError)
+        throw dbError
+      }
+
+      return NextResponse.json({
+        success: true,
+        url: publicUrl,
+        message: `College ${type === 'college_logo' ? 'logo' : 'banner'} uploaded successfully`
+      })
+    }
+
     console.log('File upload completed successfully:', publicUrl)
     return NextResponse.json({
       success: true,

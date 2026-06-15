@@ -41,7 +41,8 @@ export async function POST(req: NextRequest) {
       visibility = 'public',
       tags = [],
       is_pinned = false,
-      image_url = null
+      image_url = null,
+      is_college_post = false
     } = body
 
     // Ensure content is a string
@@ -72,6 +73,7 @@ export async function POST(req: NextRequest) {
 
     // Check user is member of community (same logic as community API)
     let isMember = false
+    let communityCollegeId: string | null | undefined
     if (currentUser) {
       // Get user and community details for role checking
       const { data: userData } = await supabase
@@ -87,6 +89,7 @@ export async function POST(req: NextRequest) {
         .single()
 
       let effectiveCommunity = communityData
+      communityCollegeId = communityData?.college_id
 
       if (userData && !effectiveCommunity) {
         const { data: collegeData } = await supabase
@@ -120,6 +123,7 @@ export async function POST(req: NextRequest) {
             .single()
 
           effectiveCommunity = createdCommunity
+          communityCollegeId = createdCommunity?.college_id
         }
       }
 
@@ -130,8 +134,23 @@ export async function POST(req: NextRequest) {
         const isVerified = userData.is_verified
         const isSenior = userData.role === 'senior'
 
-        // Only own-college members can post (other colleges may join as followers, read-only)
+        // Check if user is a college admin (can post even if not verified)
+        let isCollegeAdmin = false
+        if (effectiveCommunity.college_id) {
+          const { data: adminEntry } = await supabase
+            .from('college_admins')
+            .select('id')
+            .eq('college_id', effectiveCommunity.college_id)
+            .eq('user_id', userId)
+            .eq('status', 'approved')
+            .maybeSingle()
+          isCollegeAdmin = !!adminEntry
+        }
+
+        // Only own-college members or college admins can post
         if (isOwnCollege && (isVerified || isSenior)) {
+          isMember = true
+        } else if (isCollegeAdmin) {
           isMember = true
         } else {
           isMember = false
@@ -144,6 +163,34 @@ export async function POST(req: NextRequest) {
         { error: 'Not a member of this community' },
         { status: 403 }
       )
+    }
+
+    // College admin post check
+    let collegeId: string | null = null
+    if (is_college_post) {
+      if (!communityCollegeId) {
+        return NextResponse.json(
+          { error: 'This community is not associated with a college' },
+          { status: 400 }
+        )
+      }
+
+      const { data: adminEntry } = await supabase
+        .from('college_admins')
+        .select('id')
+        .eq('college_id', communityCollegeId)
+        .eq('user_id', userId)
+        .eq('status', 'approved')
+        .maybeSingle()
+
+      if (!adminEntry) {
+        return NextResponse.json(
+          { error: 'You are not an approved admin for this college' },
+          { status: 403 }
+        )
+      }
+
+      collegeId = communityCollegeId
     }
 
     // Create post
@@ -164,6 +211,8 @@ export async function POST(req: NextRequest) {
         answer_count: 0,
         view_count: 0,
         is_answered: false,
+        is_college_post,
+        college_id: collegeId,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       })

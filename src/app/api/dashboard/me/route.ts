@@ -3,11 +3,12 @@ import { createClient } from '@supabase/supabase-js'
 import { resolveDisplayBio, resolveProfileData } from '@/lib/profile-data'
 import { getAuthenticatedUser } from '@/lib/session'
 
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SECRET_KEY!
+)
+
 export async function GET(req: NextRequest) {
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  )
   try {
     const authenticatedUser = await getAuthenticatedUser(req)
     if (!authenticatedUser) {
@@ -30,7 +31,7 @@ export async function GET(req: NextRequest) {
       passout_year, linkedin_url,
       company, designation, graduation_year,
       last_visit_date,
-      colleges (
+      colleges!users_college_id_fkey (
         id, name, short_name, slug
       )
     `
@@ -53,9 +54,9 @@ export async function GET(req: NextRequest) {
         id, title, content, type, image_url,
         visibility, tags, community_id,
         upvote_count, answer_count,
-        is_answered, created_at,
-        communities ( display_name, slug ),
-        users:author_id ( full_name, avatar_url, unique_id )
+        is_answered, is_college_post, created_at,
+        communities ( display_name, slug, colleges ( name, short_name, slug, logo_url ) ),
+        users!posts_author_id_fkey ( full_name, avatar_url, unique_id )
       `).eq('author_id', userId).order('created_at', { ascending: false }).limit(5),
       supabase.from('notifications').select('*', { count: 'exact', head: true }).eq('receiver_id', userId).eq('is_read', false),
       supabase.from('referral_requests').select(`
@@ -72,24 +73,30 @@ export async function GET(req: NextRequest) {
 
     let { data: user, error } = userResult;
 
-    if (error?.message?.includes('profile_data')) {
-      const { data: fallbackData, error: fallbackError } = await supabase
+    if (error || !user) {
+      // Fallback 1: try without profile_data (column may not exist)
+      const { data: fallbackData } = await supabase
         .from('users')
         .select(baseSelect)
         .eq('id', userId)
         .single()
-      if (fallbackError || !fallbackData) {
-        return NextResponse.json(
-          { error: 'User not found' },
-          { status: 404 }
-        )
+      if (fallbackData) {
+        user = { ...fallbackData, profile_data: fallbackData.profile_data || {} }
+      } else {
+        // Fallback 2: try without any nested joins (colleges relationship may not exist)
+        const { data: bareUser } = await supabase
+          .from('users')
+          .select(`id, full_name, email, role, unique_id, rise_points, rp_level, doubt_count, answer_count, referral_count, webinar_count, is_verified, verification_status, is_premium, avatar_url, banner_url, bio, branch, year, passout_year, linkedin_url, company, designation, graduation_year, last_visit_date, college_id, profile_data`)
+          .eq('id', userId)
+          .single()
+        if (!bareUser) {
+          return NextResponse.json(
+            { error: 'User not found' },
+            { status: 404 }
+          )
+        }
+        user = bareUser
       }
-      user = { ...fallbackData, profile_data: {} }
-    } else if (error || !user) {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
-      )
     }
 
     // --- PHASE 2: Conditional fetches ---
@@ -99,14 +106,14 @@ export async function GET(req: NextRequest) {
 
     const phase2Promises: any[] = []
 
-    const userCollege = Array.isArray(user.colleges) ? user.colleges[0] : user.colleges
+    const userCollege = Array.isArray(user.colleges) ? user.colleges[0] : (user.colleges || user.college_id ? { id: user.college_id } : undefined)
     if (user.role === 'senior' && userCollege?.id) {
       phase2Promises.push(
         supabase.from('communities').select('id').eq('college_id', userCollege.id).maybeSingle().then(async (commRes) => {
           if (commRes.data) {
             const [doubtsRes, refRes] = await Promise.all([
               supabase.from('posts').select(`
-                id, title, content, created_at,
+                id, title, content, created_at, is_college_post, community_id,
                 users:author_id ( id, full_name, role, avatar_url, unique_id )
               `).eq('community_id', commRes.data.id).eq('type', 'doubt').eq('is_answered', false).neq('author_id', userId).order('created_at', { ascending: false }).limit(5),
 

@@ -121,7 +121,7 @@ export async function PATCH(req: NextRequest) {
         bio, branch, year, cgpa, linkedin_url, passout_year,
         company, designation, graduation_year,
         avatar_url, onesignal_player_id, profile_data,
-        colleges ( id, name, short_name, slug, location, state )
+        colleges!users_college_id_fkey ( id, name, short_name, slug, location, state )
       `)
       .single()
 
@@ -149,7 +149,7 @@ export async function PATCH(req: NextRequest) {
           bio, branch, year, cgpa, linkedin_url, passout_year,
           company, designation, graduation_year,
           avatar_url, onesignal_player_id,
-          colleges ( id, name, short_name, slug, location, state )
+          colleges!users_college_id_fkey ( id, name, short_name, slug, location, state )
         `)
         .single()
       updatedUser = retry.data ? { ...retry.data, profile_data: pd } : null

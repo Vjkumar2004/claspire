@@ -105,23 +105,30 @@ export default function GroupChatPage() {
         },
         (payload) => {
           const senderId = payload.new.sender_id
-          const sender = groupData.members.find(m => m.id === senderId)
-          
-          const newMessage: Message = {
-            id: payload.new.id,
-            content: payload.new.content,
-            created_at: payload.new.created_at,
-            sender: {
-              id: senderId,
-              full_name: sender?.full_name || 'Unknown User',
-              avatar_url: sender?.avatar_url,
-              role: sender?.role || 'student',
-              unique_id: sender?.unique_id || '',
-            }
-          }
 
           setMessages((prev) => {
-            if (prev.some(m => m.id === newMessage.id)) return prev
+            // If an optimistic temp message from this sender exists,
+            // remove it — the POST response handler will add the real one
+            const hasTempFromSender = prev.some(m => m.id.startsWith('temp-') && m.sender?.id === senderId)
+            if (hasTempFromSender) {
+              return prev.filter(m => !(m.id.startsWith('temp-') && m.sender?.id === senderId))
+            }
+
+            if (prev.some(m => m.id === payload.new.id)) return prev
+
+            const sender = groupData.members.find(m => m.id === senderId)
+            const newMessage: Message = {
+              id: payload.new.id,
+              content: payload.new.content,
+              created_at: payload.new.created_at,
+              sender: {
+                id: senderId,
+                full_name: sender?.full_name || 'Unknown User',
+                avatar_url: sender?.avatar_url,
+                role: sender?.role || 'student',
+                unique_id: sender?.unique_id || '',
+              }
+            }
             return [...prev, newMessage]
           })
         }
@@ -222,32 +229,68 @@ export default function GroupChatPage() {
   }
 
   const handleSendMessage = async (e: React.FormEvent) => {
-  e.preventDefault()
-  if (!newMessage.trim() || sending || !groupData?.canMessage) return
+    e.preventDefault()
+    if (!newMessage.trim() || sending || !groupData?.canMessage) return
 
-  const content = newMessage.trim()
-  setNewMessage('')
-  setSending(true)
+    const content = newMessage.trim()
+    const tempId = `temp-${Date.now()}-${Math.random()}`
 
-  try {
-    const res = await fetch(`/api/groups/${groupSlug}/message`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content })
-    })
-
-    if (!res.ok) {
-      const error = await res.json()
-      alert(error.error || 'Failed to send message')
-      setNewMessage(content)
+    const optimisticMessage: Message = {
+      id: tempId,
+      content,
+      created_at: new Date().toISOString(),
+      sender: {
+        id: currentUser?.id || '',
+        full_name: currentUser?.full_name || 'You',
+        avatar_url: currentUser?.avatar_url,
+        role: currentUser?.role || 'student',
+        unique_id: currentUser?.unique_id || '',
+      }
     }
-  } catch (error) {
-    alert('Something went wrong')
-    setNewMessage(content)
-  } finally {
-    setSending(false)
+
+    setMessages((prev) => [...prev, optimisticMessage])
+    setNewMessage('')
+    setSending(true)
+
+    try {
+      const res = await fetch(`/api/groups/${groupSlug}/message`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content })
+      })
+
+      if (!res.ok) {
+        const error = await res.json()
+        alert(error.error || 'Failed to send message')
+        setMessages((prev) => prev.filter(m => m.id !== tempId))
+      } else {
+        const data = await res.json()
+        if (data.message) {
+          setMessages((prev) => prev.map(m =>
+            m.id === tempId
+              ? {
+                  id: data.message.id,
+                  content: data.message.content,
+                  created_at: data.message.created_at,
+                  sender: {
+                    id: data.message.sender_id,
+                    full_name: currentUser?.full_name || 'You',
+                    avatar_url: currentUser?.avatar_url,
+                    role: currentUser?.role || 'student',
+                    unique_id: currentUser?.unique_id || '',
+                  }
+                }
+              : m
+          ))
+        }
+      }
+    } catch (error) {
+      alert('Something went wrong')
+      setMessages((prev) => prev.filter(m => m.id !== tempId))
+    } finally {
+      setSending(false)
+    }
   }
-}
 
   const handleJoin = async () => {
     if (joining) return

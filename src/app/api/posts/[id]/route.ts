@@ -34,8 +34,8 @@ export async function GET(
         id, title, content, type, image_url,
         visibility, tags, community_id,
         upvote_count, answer_count,
-        is_answered, created_at, author_id,
-        communities ( display_name, slug ),
+        is_answered, is_college_post, created_at, author_id,
+        communities ( display_name, slug, colleges ( name, short_name, logo_url ) ),
         users:author_id ( full_name, avatar_url, unique_id )
       `)
       .eq('id', postId)

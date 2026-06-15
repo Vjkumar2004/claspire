@@ -32,7 +32,9 @@ export async function GET(
         *,
         colleges (
           id, name, short_name, slug,
-          type, location, state, logo_url
+          type, location, state, logo_url,
+          banner_url, avg_package, description,
+          website_url, is_verified, email_domain
         )
       `)
       .eq('slug', slug)
@@ -50,7 +52,9 @@ export async function GET(
             *,
             colleges (
               id, name, short_name, slug,
-              type, location, state, logo_url
+              type, location, state, logo_url,
+              banner_url, avg_package, description,
+              website_url, is_verified, email_domain
             )
           )
         `)
@@ -272,6 +276,20 @@ export async function GET(
       console.log('Is already member (from DB):', isAlreadyMember)
     }
 
+    // Check if user is a college admin
+    let isCollegeAdmin = false
+    if (currentUser && resolvedCollegeId) {
+      const { data: adminEntry } = await supabase
+        .from('college_admins')
+        .select('id')
+        .eq('college_id', resolvedCollegeId)
+        .eq('user_id', currentUser.id)
+        .eq('status', 'approved')
+        .maybeSingle()
+      
+      isCollegeAdmin = !!adminEntry
+    }
+
     // 4. Compute userRole
     let userRole = 'guest'
 
@@ -307,9 +325,13 @@ export async function GET(
         upvote_count, answer_count,
         view_count, is_answered,
         is_pinned, created_at, tags,
+        is_college_post,
         users!posts_author_id_fkey (
           full_name, unique_id,
           role, is_verified, avatar_url
+        ),
+        communities (
+          slug, colleges ( name, short_name, logo_url )
         )
       `
 
@@ -382,6 +404,7 @@ export async function GET(
       isJoined: isAlreadyMember,
       canPost: ['own_junior', 'own_senior']
         .includes(userRole),
+      isCollegeAdmin,
       canAnswer: userRole === 'own_senior',
       canPostJob: userRole === 'own_senior',
       canHostWebinar: userRole === 'own_senior',

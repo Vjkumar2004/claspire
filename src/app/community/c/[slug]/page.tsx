@@ -447,6 +447,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
     canViewJobs,
     canViewWebinars,
     isAlreadyMember,
+    isCollegeAdmin,
     totalMembers = 0
   } = data || {}
 
@@ -474,9 +475,19 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#1D2226] font-plus-jakarta-sans text-sm text-slate-800 dark:text-white pb-24 lg:pb-8">
+      {/* College Banner */}
+      {community.colleges?.banner_url && (
+        <div className="h-40 sm:h-48 w-full overflow-hidden bg-gradient-to-br from-purple-600 to-indigo-700">
+          <img
+            src={community.colleges.banner_url}
+            alt={`${community.colleges.name} banner`}
+            className="w-full h-full object-cover"
+          />
+        </div>
+      )}
+
       {/* Hero */}
       <header className="border-b border-slate-200 dark:border-[#38434F]/80 bg-white dark:bg-[#1D2226]">
-        <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-br from-purple-50/80 via-white to-cyan-50/40 dark:from-purple-900/10 dark:via-[#1D2226] dark:to-cyan-900/10 pointer-events-none" />
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 pt-6 pb-8">
           <nav className="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-[#B0B7BE] mb-6">
             <button type="button" onClick={() => router.push('/community')} className="hover:text-[#7C3AED] transition-colors border-none bg-transparent cursor-pointer p-0">
@@ -630,48 +641,92 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                     >
                       <div className="flex items-start justify-between gap-3 mb-3">
                         <div className="flex items-center gap-3 min-w-0">
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              router.push(`/u/${post.users?.unique_id}`)
-                            }}
-                            className={`w-10 h-10 rounded-xl shrink-0 overflow-hidden flex items-center justify-center text-sm font-bold text-white border-none cursor-pointer ${
-                              post.users?.avatar_url
-                                ? 'bg-slate-100 dark:bg-[#283036]'
-                                : post.users?.role === 'senior'
-                                  ? 'bg-gradient-to-br from-emerald-500 to-teal-400'
-                                  : 'bg-gradient-to-br from-[#7C3AED] to-indigo-500'
-                            }`}
-                          >
-                            {post.users?.avatar_url ? (
-                              <img src={post.users.avatar_url} alt="" className="w-full h-full object-cover" />
-                            ) : (
-                              post.users?.full_name?.[0]
-                            )}
-                          </button>
-                          <div className="min-w-0">
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                router.push(`/u/${post.users?.unique_id}`)
-                              }}
-                              className="text-sm font-bold text-slate-900 dark:text-white hover:text-[#7C3AED] flex items-center gap-1.5 border-none bg-transparent cursor-pointer p-0 truncate max-w-full"
-                            >
-                              {post.users?.full_name}
-                              {post.users?.role === 'senior' && <Crown size={12} className="text-amber-500 shrink-0" />}
-                            </button>
-                            <div className="flex flex-wrap items-center gap-1.5 mt-0.5">
-                              {post.is_network_post && (
-                                <span className="text-[9px] font-bold uppercase text-purple-700 bg-purple-50 border border-purple-100 px-2 py-0.5 rounded-full">Network</span>
-                              )}
-                              <span className="text-[9px] font-bold uppercase px-2 py-0.5 rounded-full border" style={{ color: s.color, background: s.bg, borderColor: s.border }}>{s.label}</span>
-                              <span className="text-[10px] text-slate-400 dark:text-[#B0B7BE] font-semibold inline-flex items-center gap-1">
-                                <Clock size={10} /> {timeAgo(post.created_at)}
-                              </span>
-                            </div>
-                          </div>
+                          {post.is_college_post ? (
+                            <>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  router.push(`/colleges/${post.communities?.colleges?.slug || post.communities?.slug}`)
+                                }}
+                                className="w-10 h-10 rounded-xl shrink-0 overflow-hidden flex items-center justify-center text-sm font-bold text-white border-none cursor-pointer bg-slate-100 dark:bg-[#283036]"
+                              >
+                                {post.communities?.colleges?.logo_url ? (
+                                  <img src={post.communities.colleges.logo_url} alt="" className="w-full h-full object-cover" />
+                                ) : (
+                                  post.communities?.colleges?.name?.[0] || post.communities?.colleges?.short_name?.[0] || 'C'
+                                )}
+                              </button>
+                              <div className="min-w-0">
+                                <div className="flex items-center gap-1.5">
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      router.push(`/colleges/${post.communities?.colleges?.slug || post.communities?.slug}`)
+                                    }}
+                                    className="text-sm font-bold text-slate-900 dark:text-white hover:text-[#7C3AED] border-none bg-transparent cursor-pointer p-0 truncate max-w-full"
+                                  >
+                                    {post.communities?.colleges?.name || post.communities?.colleges?.short_name || 'College'}
+                                  </button>
+                                  <span className="text-[9px] font-bold uppercase px-2 py-0.5 rounded-full border bg-purple-50 text-purple-700 border-purple-200">
+                                    Official
+                                  </span>
+                                </div>
+                                <div className="flex flex-wrap items-center gap-1.5 mt-0.5">
+                                  <span className="text-[9px] font-bold uppercase px-2 py-0.5 rounded-full border" style={{ color: s.color, background: s.bg, borderColor: s.border }}>{s.label}</span>
+                                  <span className="text-[10px] text-slate-400 dark:text-[#B0B7BE] font-semibold inline-flex items-center gap-1">
+                                    <Clock size={10} /> {timeAgo(post.created_at)}
+                                  </span>
+                                </div>
+                              </div>
+                            </>
+                          ) : (
+                            <>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  router.push(`/u/${post.users?.unique_id}`)
+                                }}
+                                className={`w-10 h-10 rounded-xl shrink-0 overflow-hidden flex items-center justify-center text-sm font-bold text-white border-none cursor-pointer ${
+                                  post.users?.avatar_url
+                                    ? 'bg-slate-100 dark:bg-[#283036]'
+                                    : post.users?.role === 'senior'
+                                      ? 'bg-gradient-to-br from-emerald-500 to-teal-400'
+                                      : 'bg-gradient-to-br from-[#7C3AED] to-indigo-500'
+                                }`}
+                              >
+                                {post.users?.avatar_url ? (
+                                  <img src={post.users.avatar_url} alt="" className="w-full h-full object-cover" />
+                                ) : (
+                                  post.users?.full_name?.[0]
+                                )}
+                              </button>
+                              <div className="min-w-0">
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    router.push(`/u/${post.users?.unique_id}`)
+                                  }}
+                                  className="text-sm font-bold text-slate-900 dark:text-white hover:text-[#7C3AED] flex items-center gap-1.5 border-none bg-transparent cursor-pointer p-0 truncate max-w-full"
+                                >
+                                  {post.users?.full_name}
+                                  {post.users?.role === 'senior' && <Crown size={12} className="text-amber-500 shrink-0" />}
+                                </button>
+                                <div className="flex flex-wrap items-center gap-1.5 mt-0.5">
+                                  {post.is_network_post && (
+                                    <span className="text-[9px] font-bold uppercase text-purple-700 bg-purple-50 border border-purple-100 px-2 py-0.5 rounded-full">Network</span>
+                                  )}
+                                  <span className="text-[9px] font-bold uppercase px-2 py-0.5 rounded-full border" style={{ color: s.color, background: s.bg, borderColor: s.border }}>{s.label}</span>
+                                  <span className="text-[10px] text-slate-400 dark:text-[#B0B7BE] font-semibold inline-flex items-center gap-1">
+                                    <Clock size={10} /> {timeAgo(post.created_at)}
+                                  </span>
+                                </div>
+                              </div>
+                            </>
+                          )}
                         </div>
                         <button type="button" onClick={(e) => e.stopPropagation()} className="text-slate-300 dark:text-[#B0B7BE] hover:text-slate-500 dark:text-[#B0B7BE] dark:hover:text-[#B0B7BE] border-none bg-transparent cursor-pointer p-1 shrink-0">
                           <MoreHorizontal size={18} />
@@ -1064,6 +1119,10 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
         communitySlug={community.slug}
         onSuccess={handlePostSuccess}
         userRole={userRole}
+        canPostAsCollege={!!isCollegeAdmin}
+        collegeName={community.colleges?.name}
+        collegeLogo={community.colleges?.logo_url}
+        collegeSlug={community.colleges?.slug}
       />
 
       {/* Referral Confirmation Modal */}

@@ -1,7 +1,6 @@
 'use client'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@supabase/supabase-js'
 import { motion } from 'framer-motion'
 import {
   ArrowLeft, Zap, MessageCircle,
@@ -10,11 +9,7 @@ import {
 } from 'lucide-react'
 import MediaGallery from '@/components/MediaGallery'
 import LikesModal from '@/components/community/LikesModal'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+import { supabase } from '@/lib/supabase'
 
 interface RecentUpvoter {
   id: string
@@ -86,21 +81,16 @@ const formatCount = (n: number) => {
   return String(n)
 }
 
+const typeStyles: Record<string, { label: string; icon: string; classes: string }> = {
+  doubt: { label: 'Doubt', icon: '❓', classes: 'bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-500/30' },
+  discussion: { label: 'Discussion', icon: '💬', classes: 'bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-500/30' },
+  experience: { label: 'Experience', icon: '⭐', classes: 'bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-500/30' },
+  referral_hunt: { label: 'Referral Hunt', icon: '🎯', classes: 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-500/30' },
+  resource: { label: 'Resource', icon: '📚', classes: 'bg-red-100 dark:bg-red-500/20 text-red-700 dark:text-red-300 border-red-200 dark:border-red-500/30' },
+}
+
 const getTypeStyle = (type: string) => {
-  switch (type) {
-    case 'doubt':
-      return { label: 'Doubt', color: '#2563EB', bg: '#EFF6FF', border: '#BFDBFE', icon: '❓' }
-    case 'discussion':
-      return { label: 'Discussion', color: '#7C3AED', bg: '#F5F3FF', border: '#DDD6FE', icon: '💬' }
-    case 'experience':
-      return { label: 'Experience', color: '#D97706', bg: '#FFFBEB', border: '#FDE68A', icon: '⭐' }
-    case 'referral_hunt':
-      return { label: 'Referral Hunt', color: '#059669', bg: '#ECFDF5', border: '#A7F3D0', icon: '🎯' }
-    case 'resource':
-      return { label: 'Resource', color: '#DC2626', bg: '#FEF2F2', border: '#FECACA', icon: '📚' }
-    default:
-      return { label: type, color: '#6B7280', bg: '#F9FAFB', border: '#F3F4F6', icon: '📝' }
-  }
+  return typeStyles[type] || { label: type, icon: '📝', classes: 'bg-gray-100 dark:bg-gray-500/20 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-500/30' }
 }
 
 export default function PostDetailPage({ params }: { params: Promise<{ slug: string; postId: string }> }) {
@@ -171,12 +161,13 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
             id, full_name, unique_id,
             role, is_verified, avatar_url
           ),
-          communities (
-            slug,
-            display_name,
-            member_count,
-            colleges ( name, short_name )
-          )
+            communities (
+              slug,
+              display_name,
+              member_count,
+              colleges ( name, short_name, logo_url )
+            ),
+            is_college_post
         `)
         .eq('id', postId)
         .single()
@@ -423,7 +414,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-[#F5F4FF] to-white dark:to-[#1D2226] flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-b from-[#F5F4FF] dark:from-[#1D2226] to-white dark:to-[#1D2226] flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="w-10 h-10 border-[3px] border-purple-100 border-t-[#7C3AED] rounded-full animate-spin" />
           <p className="text-sm text-slate-400 dark:text-[#B0B7BE] font-semibold">Loading post...</p>
@@ -527,9 +518,9 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
     'bg-white dark:bg-[#283036] rounded-2xl border border-slate-200 dark:border-[#38434F] dark:border-[#38434F] shadow-sm overflow-hidden'
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#F5F4FF] via-white dark:via-[#283036] to-slate-50 dark:to-[#1D2226]">
+    <div className="min-h-screen bg-gradient-to-b from-[#F5F4FF] dark:from-[#1D2226] via-white dark:via-[#283036] to-slate-50 dark:to-[#1D2226]">
       {/* Breadcrumb */}
-      <div className="sticky top-0 z-20 bg-white/80 dark:bg-[#283036]/80 backdrop-blur-md border-b border-purple-100/60">
+      <div className="sticky top-0 z-20 bg-white/80 dark:bg-[#1D2226]/80 backdrop-blur-md border-b border-purple-100/60 dark:border-[#38434F]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center gap-2 text-xs font-semibold text-slate-400 dark:text-[#B0B7BE]">
           <button onClick={() => router.push('/community')} className="text-[#7C3AED] hover:underline">
             Community
@@ -546,7 +537,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 pb-28">
         <button
           onClick={() => router.back()}
-          className="inline-flex items-center gap-2 text-sm font-bold text-[#7C3AED] bg-white dark:bg-[#283036] border border-purple-100 rounded-xl px-4 py-2 mb-6 hover:bg-purple-50 transition-colors shadow-sm"
+          className="inline-flex items-center gap-2 text-sm font-bold text-[#7C3AED] dark:text-purple-300 bg-white dark:bg-[#283036] border border-purple-100 dark:border-[#38434F] rounded-xl px-4 py-2 mb-6 hover:bg-purple-50 dark:hover:bg-[#1D2226] transition-colors shadow-sm"
         >
           <ArrowLeft className="w-4 h-4" />
           Back
@@ -568,71 +559,122 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
                 {/* Compact author header — full context on mobile, minimal on desktop */}
                 <div className="flex items-start justify-between gap-3 mb-5">
                   <div className="flex items-center gap-3 min-w-0">
-                    <button
-                      onClick={() => router.push(`/u/${post.users?.unique_id}`)}
-                      className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-[#7C3AED] to-cyan-400 flex items-center justify-center font-bold text-white text-sm overflow-hidden shrink-0 hover:scale-105 transition-transform shadow-md"
-                    >
-                      {post.users?.avatar_url ? (
-                        <img src={post.users.avatar_url} alt={post.users.full_name} className="w-full h-full object-cover" />
-                      ) : (
-                        post.users?.full_name?.[0] || 'U'
-                      )}
-                    </button>
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
+                    {post.is_college_post ? (
+                      <>
+                        <button
+                          onClick={() => router.push(`/colleges/${post.communities?.colleges?.slug || post.communities?.slug}`)}
+                          className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-slate-100 dark:bg-[#283036] flex items-center justify-center font-bold text-slate-800 dark:text-white text-sm overflow-hidden shrink-0 hover:scale-105 transition-transform shadow-md"
+                        >
+                          {post.communities?.colleges?.logo_url ? (
+                            <img src={post.communities.colleges.logo_url} alt={post.communities.colleges.name} className="w-full h-full object-cover" />
+                          ) : (
+                            post.communities?.colleges?.name?.[0] || post.communities?.colleges?.short_name?.[0] || 'C'
+                          )}
+                        </button>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <button
+                              onClick={() => router.push(`/colleges/${post.communities?.colleges?.slug || post.communities?.slug}`)}
+                              className="font-bold text-slate-900 dark:text-white hover:text-[#7C3AED] transition-colors text-sm"
+                            >
+                              {post.communities?.colleges?.name || post.communities?.colleges?.short_name || 'College'}
+                            </button>
+                            <span className="lg:hidden inline-flex items-center gap-0.5 text-[8px] font-black uppercase bg-purple-50 dark:bg-purple-500/20 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-500/30 px-1.5 py-0.5 rounded">
+                              Official
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2 mt-0.5 flex-wrap text-[10px] text-slate-400 dark:text-[#B0B7BE] font-semibold">
+                            <span className="flex items-center gap-1">
+                              <Clock className="w-3 h-3" />
+                              {timeAgo(post.created_at)}
+                            </span>
+                            <span className="lg:hidden flex items-center gap-2">
+                              <span className="text-slate-300 dark:text-[#B0B7BE]">•</span>
+                              <button
+                                onClick={() => router.push(`/community/c/${slug}`)}
+                                className="text-[#7C3AED] bg-purple-50 px-2 py-0.5 rounded-full hover:bg-purple-100 transition-colors"
+                              >
+                                c/{slug}
+                              </button>
+                              {collegeName && (
+                                <>
+                                  <span className="text-slate-300 dark:text-[#B0B7BE]">•</span>
+                                  <span className="flex items-center gap-1">
+                                    <GraduationCap className="w-3 h-3" />
+                                    {collegeName}
+                                  </span>
+                                </>
+                              )}
+                            </span>
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <>
                         <button
                           onClick={() => router.push(`/u/${post.users?.unique_id}`)}
-                          className="font-bold text-slate-900 dark:text-white hover:text-[#7C3AED] transition-colors text-sm"
+                          className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-[#7C3AED] to-cyan-400 flex items-center justify-center font-bold text-white text-sm overflow-hidden shrink-0 hover:scale-105 transition-transform shadow-md"
                         >
-                          {post.users?.full_name}
+                          {post.users?.avatar_url ? (
+                            <img src={post.users.avatar_url} alt={post.users.full_name} className="w-full h-full object-cover" />
+                          ) : (
+                            post.users?.full_name?.[0] || 'U'
+                          )}
                         </button>
-                        {/* Badges visible on mobile only — desktop sidebar has full author card */}
-                        <span className="lg:hidden flex items-center gap-1.5 flex-wrap">
-                          {post.users?.role === 'senior' && (
-                            <span className="inline-flex items-center gap-0.5 text-[8px] font-black uppercase bg-emerald-50 text-emerald-600 border border-emerald-100 px-1.5 py-0.5 rounded">
-                              <Crown className="w-2.5 h-2.5" />
-                              Senior
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <button
+                              onClick={() => router.push(`/u/${post.users?.unique_id}`)}
+                              className="font-bold text-slate-900 dark:text-white hover:text-[#7C3AED] transition-colors text-sm"
+                            >
+                              {post.users?.full_name}
+                            </button>
+                            {/* Badges visible on mobile only — desktop sidebar has full author card */}
+                            <span className="lg:hidden flex items-center gap-1.5 flex-wrap">
+                              {post.users?.role === 'senior' && (
+                                <span className="inline-flex items-center gap-0.5 text-[8px] font-black uppercase bg-emerald-50 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-500/30 px-1.5 py-0.5 rounded">
+                                  <Crown className="w-2.5 h-2.5" />
+                                  Senior
+                                </span>
+                              )}
+                              {post.users?.is_verified && (
+                                <span className="text-[8px] font-black uppercase bg-purple-50 dark:bg-purple-500/20 text-[#7C3AED] dark:text-purple-300 border border-purple-100 dark:border-purple-500/30 px-1.5 py-0.5 rounded">
+                                  Verified
+                                </span>
+                              )}
                             </span>
-                          )}
-                          {post.users?.is_verified && (
-                            <span className="text-[8px] font-black uppercase bg-purple-50 text-[#7C3AED] border border-purple-100 px-1.5 py-0.5 rounded">
-                              Verified
+                          </div>
+                          <div className="flex items-center gap-2 mt-0.5 flex-wrap text-[10px] text-slate-400 dark:text-[#B0B7BE] font-semibold">
+                            <span className="flex items-center gap-1">
+                              <Clock className="w-3 h-3" />
+                              {timeAgo(post.created_at)}
                             </span>
-                          )}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2 mt-0.5 flex-wrap text-[10px] text-slate-400 dark:text-[#B0B7BE] font-semibold">
-                        <span className="flex items-center gap-1">
-                          <Clock className="w-3 h-3" />
-                          {timeAgo(post.created_at)}
-                        </span>
-                        {/* Community/college on mobile only */}
-                        <span className="lg:hidden flex items-center gap-2">
-                          <span className="text-slate-300 dark:text-[#B0B7BE]">•</span>
-                          <button
-                            onClick={() => router.push(`/community/c/${slug}`)}
-                            className="text-[#7C3AED] bg-purple-50 px-2 py-0.5 rounded-full hover:bg-purple-100 transition-colors"
-                          >
-                            c/{slug}
-                          </button>
-                          {collegeName && (
-                            <>
+                            {/* Community/college on mobile only */}
+                            <span className="lg:hidden flex items-center gap-2">
                               <span className="text-slate-300 dark:text-[#B0B7BE]">•</span>
-                              <span className="flex items-center gap-1">
-                                <GraduationCap className="w-3 h-3" />
-                                {collegeName}
-                              </span>
-                            </>
-                          )}
-                        </span>
-                      </div>
-                    </div>
+                              <button
+                                onClick={() => router.push(`/community/c/${slug}`)}
+                                className="text-[#7C3AED] bg-purple-50 px-2 py-0.5 rounded-full hover:bg-purple-100 transition-colors"
+                              >
+                                c/{slug}
+                              </button>
+                              {collegeName && (
+                                <>
+                                  <span className="text-slate-300 dark:text-[#B0B7BE]">•</span>
+                                  <span className="flex items-center gap-1">
+                                    <GraduationCap className="w-3 h-3" />
+                                    {collegeName}
+                                  </span>
+                                </>
+                              )}
+                            </span>
+                          </div>
+                        </div>
+                      </>
+                    )}
                   </div>
 
-                  <span
-                    style={{ background: ts.bg, color: ts.color, borderColor: ts.border }}
-                    className="text-[9px] font-black uppercase px-2.5 py-1 rounded-full border tracking-wide flex items-center gap-1 shrink-0"
-                  >
+                  <span className={`text-[9px] font-black uppercase px-2.5 py-1 rounded-full border tracking-wide flex items-center gap-1 shrink-0 ${ts.classes}`}>
                     <span>{ts.icon}</span>
                     {ts.label}
                   </span>
@@ -653,7 +695,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
                     {post.tags.map((tag: string) => (
                       <span
                         key={tag}
-                        className="text-[10px] font-bold text-[#7C3AED] bg-purple-50 border border-purple-100 px-2 py-0.5 rounded-full"
+                        className="text-[10px] font-bold text-[#7C3AED] dark:text-purple-300 bg-purple-50 dark:bg-purple-500/20 border border-purple-100 dark:border-purple-500/30 px-2 py-0.5 rounded-full"
                       >
                         #{tag}
                       </span>
@@ -695,7 +737,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
                   disabled={voteLoading}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                     userVote === 'upvote'
-                      ? 'bg-purple-100 text-[#7C3AED] shadow-sm'
+                       ? 'bg-purple-100 dark:bg-purple-500/20 text-[#7C3AED] dark:text-purple-300 shadow-sm'
                       : 'hover:bg-slate-100 dark:hover:bg-[#1D2226] dark:bg-[#283036] text-slate-500 dark:text-[#B0B7BE]'
                   } ${voteLoading ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}
                 >
@@ -742,8 +784,8 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
 
               {answers.length === 0 ? (
                 <div className="bg-white dark:bg-[#283036] rounded-2xl border border-slate-200 dark:border-[#38434F] dark:border-[#38434F] p-10 text-center">
-                  <div className="w-12 h-12 rounded-full bg-purple-50 flex items-center justify-center mx-auto mb-3">
-                    <Sparkles className="w-5 h-5 text-[#7C3AED]" />
+                  <div className="w-12 h-12 rounded-full bg-purple-50 dark:bg-purple-500/20 flex items-center justify-center mx-auto mb-3">
+                    <Sparkles className="w-5 h-5 text-[#7C3AED] dark:text-purple-300" />
                   </div>
                   <p className="text-sm font-bold text-slate-600 dark:text-[#B0B7BE] mb-1">No answers yet</p>
                   <p className="text-xs text-slate-400 dark:text-[#B0B7BE]">Be the first to help — share your experience!</p>
@@ -778,7 +820,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
                   value={newAnswer}
                   onChange={(e) => setNewAnswer(e.target.value)}
                   placeholder={replyToAnswerId ? 'Write your reply...' : 'Write your answer here...'}
-                  className="w-full min-h-[80px] p-3 rounded-xl border border-slate-200 dark:border-[#38434F] text-sm text-slate-700 dark:text-[#B0B7BE] outline-none resize-y focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 transition-all"
+                  className="w-full min-h-[80px] p-3 rounded-xl border border-slate-200 dark:border-[#38434F] bg-white dark:bg-[#283036] text-sm text-slate-700 dark:text-[#B0B7BE] outline-none resize-y focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100 dark:focus:ring-purple-500/20 transition-all"
                 />
                 <button
                   onClick={handleSubmitAnswer}
@@ -804,49 +846,86 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
 
           {/* ── Sidebar: desktop only, sticky ── */}
           <aside className="hidden lg:block sticky top-6 self-start space-y-4 w-[320px]">
-            {/* About Author */}
+            {/* About Author / College */}
             <div className={sidebarCardClass}>
               <div className="px-4 py-3 border-b border-slate-100 dark:border-[#38434F]">
-                <h3 className="text-xs font-extrabold text-slate-900 dark:text-white uppercase tracking-wide">About Author</h3>
+                <h3 className="text-xs font-extrabold text-slate-900 dark:text-white uppercase tracking-wide">
+                  {post.is_college_post ? 'Official Post' : 'About Author'}
+                </h3>
               </div>
               <div className="p-4">
-                <button
-                  onClick={() => router.push(`/u/${post.users?.unique_id}`)}
-                  className="flex items-center gap-3 w-full text-left group mb-4"
-                >
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#7C3AED] to-cyan-400 flex items-center justify-center font-bold text-white text-lg overflow-hidden shrink-0 group-hover:scale-105 transition-transform">
-                    {post.users?.avatar_url ? (
-                      <img src={post.users.avatar_url} alt={post.users.full_name} className="w-full h-full object-cover" />
-                    ) : (
-                      post.users?.full_name?.[0] || 'U'
-                    )}
-                  </div>
-                  <div className="min-w-0">
-                    <p className="font-bold text-slate-900 dark:text-white group-hover:text-[#7C3AED] transition-colors truncate">
-                      {post.users?.full_name}
-                    </p>
-                    <div className="flex flex-wrap gap-1 mt-1">
-                      {post.users?.role === 'senior' && (
-                        <span className="inline-flex items-center gap-0.5 text-[8px] font-black uppercase bg-emerald-50 text-emerald-600 border border-emerald-100 px-1.5 py-0.5 rounded">
-                          <Crown className="w-2.5 h-2.5" />
-                          Senior
-                        </span>
-                      )}
-                      {post.users?.is_verified && (
-                        <span className="text-[8px] font-black uppercase bg-purple-50 text-[#7C3AED] border border-purple-100 px-1.5 py-0.5 rounded">
-                          Verified
-                        </span>
+                {post.is_college_post ? (
+                  <button
+                    onClick={() => router.push(`/colleges/${post.communities?.colleges?.slug || post.communities?.slug}`)}
+                    className="flex items-center gap-3 w-full text-left group mb-4"
+                  >
+                    <div className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-[#1D2226] flex items-center justify-center font-bold text-slate-800 dark:text-white text-lg overflow-hidden shrink-0 group-hover:scale-105 transition-transform">
+                      {post.communities?.colleges?.logo_url ? (
+                        <img src={post.communities.colleges.logo_url} alt={post.communities.colleges.name} className="w-full h-full object-cover" />
+                      ) : (
+                        post.communities?.colleges?.name?.[0] || post.communities?.colleges?.short_name?.[0] || 'C'
                       )}
                     </div>
-                  </div>
-                </button>
+                    <div className="min-w-0">
+                      <p className="font-bold text-slate-900 dark:text-white group-hover:text-[#7C3AED] transition-colors truncate">
+                        {post.communities?.colleges?.name || post.communities?.colleges?.short_name || 'College'}
+                      </p>
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        <span className="inline-flex items-center gap-0.5 text-[8px] font-black uppercase bg-purple-50 dark:bg-purple-500/20 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-500/30 px-1.5 py-0.5 rounded">
+                          Official
+                        </span>
+                      </div>
+                    </div>
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => router.push(`/u/${post.users?.unique_id}`)}
+                    className="flex items-center gap-3 w-full text-left group mb-4"
+                  >
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#7C3AED] to-cyan-400 flex items-center justify-center font-bold text-white text-lg overflow-hidden shrink-0 group-hover:scale-105 transition-transform">
+                      {post.users?.avatar_url ? (
+                        <img src={post.users.avatar_url} alt={post.users.full_name} className="w-full h-full object-cover" />
+                      ) : (
+                        post.users?.full_name?.[0] || 'U'
+                      )}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-bold text-slate-900 dark:text-white group-hover:text-[#7C3AED] transition-colors truncate">
+                        {post.users?.full_name}
+                      </p>
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {post.users?.role === 'senior' && (
+                          <span className="inline-flex items-center gap-0.5 text-[8px] font-black uppercase bg-emerald-50 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-500/30 px-1.5 py-0.5 rounded">
+                            <Crown className="w-2.5 h-2.5" />
+                            Senior
+                          </span>
+                        )}
+                        {post.users?.is_verified && (
+                          <span className="text-[8px] font-black uppercase bg-purple-50 dark:bg-purple-500/20 text-[#7C3AED] dark:text-purple-300 border border-purple-100 dark:border-purple-500/30 px-1.5 py-0.5 rounded">
+                            Verified
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </button>
+                )}
                 <dl className="space-y-2.5 text-xs">
-                  <div>
-                    <dt className="text-slate-400 dark:text-[#B0B7BE] font-semibold mb-0.5">Role</dt>
-                    <dd className="font-bold text-slate-700 dark:text-[#B0B7BE] capitalize">
-                      {post.users?.role === 'senior' ? 'Senior Mentor' : 'Student / Mentee'}
-                    </dd>
-                  </div>
+                  {post.is_college_post ? (
+                    <div>
+                      <dt className="text-slate-400 dark:text-[#B0B7BE] font-semibold mb-0.5">Type</dt>
+                      <dd className="font-bold text-slate-700 dark:text-[#B0B7BE] flex items-center gap-1">
+                        <Building2 className="w-3.5 h-3.5 text-slate-400 dark:text-[#B0B7BE]" />
+                        College Official Post
+                      </dd>
+                    </div>
+                  ) : (
+                    <div>
+                      <dt className="text-slate-400 dark:text-[#B0B7BE] font-semibold mb-0.5">Role</dt>
+                      <dd className="font-bold text-slate-700 dark:text-[#B0B7BE] capitalize">
+                        {post.users?.role === 'senior' ? 'Senior Mentor' : 'Student / Mentee'}
+                      </dd>
+                    </div>
+                  )}
                   {collegeName && (
                     <div>
                       <dt className="text-slate-400 dark:text-[#B0B7BE] font-semibold mb-0.5">College</dt>
@@ -859,12 +938,12 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
                   <div>
                     <dt className="text-slate-400 dark:text-[#B0B7BE] font-semibold mb-0.5">Community</dt>
                     <dd>
-                      <button
-                        onClick={() => router.push(`/community/c/${slug}`)}
-                        className="font-bold text-[#7C3AED] hover:underline"
-                      >
-                        c/{slug}
-                      </button>
+                              <button
+                                onClick={() => router.push(`/community/c/${slug}`)}
+                                className="text-[#7C3AED] dark:text-purple-300 bg-purple-50 dark:bg-purple-500/20 px-2 py-0.5 rounded-full hover:bg-purple-100 dark:hover:bg-purple-500/30 transition-colors"
+                              >
+                                c/{slug}
+                              </button>
                     </dd>
                   </div>
                 </dl>
@@ -881,7 +960,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
                   onClick={() => router.push(`/community/c/${slug}`)}
                   className="flex items-start gap-3 w-full text-left group"
                 >
-                  <div className="w-10 h-10 rounded-xl bg-purple-50 border border-purple-100 flex items-center justify-center shrink-0">
+                  <div className="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-500/20 border border-purple-100 dark:border-purple-500/30 flex items-center justify-center shrink-0">
                     <Building2 className="w-5 h-5 text-[#7C3AED]" />
                   </div>
                   <div className="min-w-0">
@@ -914,7 +993,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
               <div className="p-4 space-y-3">
                 <button
                   onClick={() => (post.upvote_count || 0) > 0 && setLikesModalOpen(true)}
-                  className={`flex items-center justify-between w-full text-left ${(post.upvote_count || 0) > 0 ? 'hover:bg-slate-50 dark:hover:bg-[#1D2226] dark:bg-[#1D2226] -mx-2 px-2 py-1 rounded-lg transition-colors cursor-pointer' : ''}`}
+                  className={`flex items-center justify-between w-full text-left ${(post.upvote_count || 0) > 0 ? 'hover:bg-slate-50 dark:hover:bg-[#1D2226] -mx-2 px-2 py-1 rounded-lg transition-colors cursor-pointer' : ''}`}
                 >
                   <span className="text-xs font-semibold text-slate-500 dark:text-[#B0B7BE] flex items-center gap-2">
                     <Zap className="w-3.5 h-3.5" />

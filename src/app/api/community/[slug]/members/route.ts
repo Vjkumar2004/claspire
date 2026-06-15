@@ -82,7 +82,7 @@ export async function GET(
       is_verified,
       created_at,
       college_id,
-      colleges ( name, short_name )
+      colleges!users_college_id_fkey ( name, short_name )
     `
 
     const ownStudents: MemberRow[] = []
@@ -181,7 +181,7 @@ export async function GET(
       })(),
     })
   } catch (error) {
-    console.error('Community members API error:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    console.error('Community members API error:', error instanceof Error ? error.message : error, error instanceof Error ? error.stack : '')
+    return NextResponse.json({ error: 'Internal server error', detail: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 })
   }
 }

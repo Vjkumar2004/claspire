@@ -112,11 +112,9 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
           event: 'INSERT',
           schema: 'public',
           table: 'notifications',
+          filter: `receiver_id=eq.${user.id}`,
         },
         (payload) => {
-          if (payload.new?.receiver_id !== user?.id) {
-            return
-          }
           const type = payload.new?.type as string
           if (type === 'direct_message' || type === 'message') {
             return
