@@ -19,6 +19,7 @@ interface PeopleCardPerson {
   designation?: string | null
   graduation_year?: number | null
   passout_year?: number | null
+  experience_years?: number | null
   rise_points?: number | null
   college?: { name: string; short_name: string } | null
   connectionStatus: string
@@ -63,10 +64,14 @@ export default function PeopleCard({ person, onConnect, onRemove, onRespond, onW
   const handleConnect = async () => {
     if (!onConnect || connecting) return
     setConnecting(true)
+    const prevStatus = localStatus
+    setLocalStatus('pending_sent')
     try {
       const ok = await onConnect(person.id)
-      if (ok) setLocalStatus('pending_sent')
-    } catch { } finally {
+      if (!ok) setLocalStatus(prevStatus)
+    } catch {
+      setLocalStatus(prevStatus)
+    } finally {
       setConnecting(false)
     }
   }
@@ -84,9 +89,14 @@ export default function PeopleCard({ person, onConnect, onRemove, onRespond, onW
   const handleRespond = async (action: 'accepted' | 'rejected') => {
     if (!onRespond || !connectionId || responding) return
     setResponding(true)
+    const prevStatus = localStatus
+    if (action === 'accepted') setLocalStatus('accepted')
+    else setLocalStatus('none')
     try {
       await onRespond(connectionId, action)
-    } catch { } finally {
+    } catch {
+      setLocalStatus(prevStatus)
+    } finally {
       setResponding(false)
     }
   }
@@ -94,9 +104,13 @@ export default function PeopleCard({ person, onConnect, onRemove, onRespond, onW
   const handleWithdraw = async () => {
     if (!onWithdraw || !connectionId || responding) return
     setResponding(true)
+    const prevStatus = localStatus
+    setLocalStatus('none')
     try {
       await onWithdraw(connectionId)
-    } catch { } finally {
+    } catch {
+      setLocalStatus(prevStatus)
+    } finally {
       setResponding(false)
     }
   }

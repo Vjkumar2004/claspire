@@ -5,6 +5,42 @@ const supabase = createClient(
   process.env.SUPABASE_SECRET_KEY!
 )
 
+const ONESIGNAL_API = 'https://onesignal.com/api/v1/notifications'
+
+async function sendOneSignalPush(body: Record<string, any>, label: string) {
+  try {
+    const res = await fetch(ONESIGNAL_API, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Basic ${process.env.ONESIGNAL_REST_API_KEY}`
+      },
+      body: JSON.stringify(body)
+    })
+
+    const result = await res.json()
+
+    if (!res.ok || result.errors) {
+      console.error(`[OneSignal] API error [${label}]:`, {
+        status: res.status,
+        errors: result.errors,
+        recipientCount: body.include_player_ids?.length || body.include_external_user_ids?.length || 0
+      })
+      return
+    }
+
+    console.log(`[OneSignal] Push sent [${label}]:`, {
+      id: result.id,
+      recipients: result.recipients,
+      success: result.successful,
+      failed: result.failed,
+      converted: result.converted
+    })
+  } catch (err) {
+    console.error(`[OneSignal] Fetch error [${label}]:`, err)
+  }
+}
+
 export type NotificationType = 
   | 'post_answered' 
   | 'post_in_community'
@@ -115,14 +151,12 @@ export async function notifyNewPost({
       created_at: new Date().toISOString()
     }))
 
-    // Bulk insert with chunks to avoid size limits
     for (let i = 0; i < notifs.length; i += 50) {
       await supabase
         .from('notifications')
         .insert(notifs.slice(i, i + 50))
     }
 
-    // Push notification via OneSignal
     const { data: playerIds } = await supabase
       .from('users')
       .select('onesignal_player_id')
@@ -130,20 +164,16 @@ export async function notifyNewPost({
       .not('onesignal_player_id', 'is', null)
 
     if (playerIds?.length) {
-      await fetch('https://onesignal.com/api/v1/notifications', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Basic ${process.env.ONESIGNAL_REST_API_KEY}`
-        },
-        body: JSON.stringify({
-          app_id: process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID,
-          include_player_ids: playerIds.map(u => u.onesignal_player_id),
-          headings: { en: title },
-          contents: { en: message },
-          url: `${process.env.NEXT_PUBLIC_APP_URL}/community/c/${communitySlug}`
-        })
-      })
+      console.log(`[OneSignal] Sending new post notification to ${playerIds.length} users`)
+      await sendOneSignalPush({
+        app_id: process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID,
+        include_player_ids: playerIds.map(u => u.onesignal_player_id),
+        headings: { en: title },
+        contents: { en: message },
+        url: `${process.env.NEXT_PUBLIC_APP_URL}/community/c/${communitySlug}`
+      }, 'notifyNewPost')
+    } else {
+      console.log('[OneSignal] No player IDs for new post notification (no subscribers)')
     }
   } catch (err) {
     console.error('Notify post error:', err)
@@ -200,22 +230,22 @@ export async function sendPushToUsers(
 
     const playerIds = users?.map(u => u.onesignal_player_id).filter(Boolean) || []
 
-    if (!playerIds.length) return
-
-    await fetch('https://onesignal.com/api/v1/notifications', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Basic ${process.env.ONESIGNAL_REST_API_KEY}`
-      },
-      body: JSON.stringify({
-        app_id: process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID,
-        include_player_ids: playerIds,
-        headings: { en: title },
-        contents: { en: message },
-        url: `${process.env.NEXT_PUBLIC_APP_URL}${link}`
+    if (!playerIds.length) {
+      console.log(`[OneSignal] No player IDs for users [${userIds.length} target(s)]`, {
+        userIds,
+        label: 'sendPushToUsers'
       })
-    })
+      return
+    }
+
+    console.log(`[OneSignal] Sending push to ${playerIds.length} device(s) for ${userIds.length} user(s)`)
+    await sendOneSignalPush({
+      app_id: process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID,
+      include_player_ids: playerIds,
+      headings: { en: title },
+      contents: { en: message },
+      url: `${process.env.NEXT_PUBLIC_APP_URL}${link}`
+    }, 'sendPushToUsers')
   } catch (err) {
     console.error('Push send error:', err)
   }
@@ -241,7 +271,6 @@ export async function notifyGroupCreated({
   scope: string
 }) {
   try {
-    // Get all users from the same college except the creator
     const { data: collegeUsers } = await supabase
       .from('users')
       .select('id, onesignal_player_id')
@@ -249,14 +278,16 @@ export async function notifyGroupCreated({
       .neq('id', creatorId)
       .not('onesignal_player_id', 'is', null)
 
-    if (!collegeUsers?.length) return
+    if (!collegeUsers?.length) {
+      console.log('[OneSignal] No college users with player IDs for group notification')
+      return
+    }
 
     const title = `New Group: ${groupName}`
     const scopeText = scope === 'private' ? 'Private' : scope === 'college' ? 'College Only' : 'Public'
     const message = `${creatorName} created a ${scopeText.toLowerCase()} group. Join now!`
     const link = `/groups/${groupSlug}`
 
-    // Create in-app notifications
     const notifications = collegeUsers.map(user => ({
       type: 'group_created' as const,
       title,
@@ -269,38 +300,29 @@ export async function notifyGroupCreated({
       created_at: new Date().toISOString()
     }))
 
-    // Bulk insert notifications in chunks
     for (let i = 0; i < notifications.length; i += 50) {
       await supabase
         .from('notifications')
         .insert(notifications.slice(i, i + 50))
     }
 
-    // Send push notifications
     const playerIds = collegeUsers.map(u => u.onesignal_player_id).filter(Boolean)
     
     if (playerIds.length) {
-      await fetch('https://onesignal.com/api/v1/notifications', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Basic ${process.env.ONESIGNAL_REST_API_KEY}`
-        },
-        body: JSON.stringify({
-          app_id: process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID,
-          include_player_ids: playerIds,
-          headings: { en: title },
-          contents: { en: message },
-          url: `${process.env.NEXT_PUBLIC_APP_URL}${link}`,
-          data: {
-            type: 'group_created',
-            groupId,
-            groupSlug
-          }
-        })
-      })
+      console.log(`[OneSignal] Sending group notification to ${playerIds.length} user(s)`)
+      await sendOneSignalPush({
+        app_id: process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID,
+        include_player_ids: playerIds,
+        headings: { en: title },
+        contents: { en: message },
+        url: `${process.env.NEXT_PUBLIC_APP_URL}${link}`,
+        data: {
+          type: 'group_created',
+          groupId,
+          groupSlug
+        }
+      }, 'notifyGroupCreated')
     }
-
   } catch (err) {
     console.error('Group creation notification error:', err)
   }

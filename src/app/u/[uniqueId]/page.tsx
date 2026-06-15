@@ -120,7 +120,7 @@ export default function PublicProfilePage() {
                 className="h-28 rounded-t-xl bg-slate-100 dark:bg-[#283036]"
                 style={{
                   background: user.banner_url
-                    ? `url(${user.banner_url}) center/contain no-repeat`
+                    ? `url(${user.banner_url}) center/cover no-repeat`
                     : 'linear-gradient(to right, #f1f5f9, #eef2ff, #faf5ff)'
                 }}
               />

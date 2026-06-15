@@ -136,9 +136,10 @@ export async function POST(req: NextRequest) {
     if (userId !== receiverId) {
       try {
         let isOffline = true;
+        let diffMinutes = Infinity;
         if (receiverData.last_seen) {
           const lastSeenDate = new Date(receiverData.last_seen).getTime();
-          const diffMinutes = (Date.now() - lastSeenDate) / (1000 * 60);
+          diffMinutes = (Date.now() - lastSeenDate) / (1000 * 60);
           isOffline = diffMinutes > 5;
         }
 
@@ -160,7 +161,27 @@ export async function POST(req: NextRequest) {
         }
 
         // Smart Notification: Only send if offline (>5 mins), not actively chatting, not throttled, and has player ID
-        if (isOffline && !isActiveInChat && !isThrottled && receiverData.onesignal_player_id) {
+        const shouldSendPush = isOffline && !isActiveInChat && !isThrottled && !!receiverData.onesignal_player_id;
+
+        console.log(`[DM Push Audit]`, {
+          senderId: userId,
+          receiverId,
+          receiverLastSeen: receiverData.last_seen,
+          lastSeenMinutesAgo: diffMinutes === Infinity ? 'never' : Math.round(diffMinutes * 10) / 10,
+          isOffline,
+          isActiveInChat,
+          isThrottled,
+          hasPlayerId: !!receiverData.onesignal_player_id,
+          playerId: receiverData.onesignal_player_id,
+          shouldSendPush,
+          decision: !isOffline ? 'online (recent last_seen)' 
+            : isActiveInChat ? 'active_in_chat' 
+            : isThrottled ? 'throttled' 
+            : !receiverData.onesignal_player_id ? 'no_player_id'
+            : 'sending_push'
+        });
+
+        if (shouldSendPush) {
           try {
             const redis = getRedisClient();
             // Set throttle flag (60 seconds TTL)
@@ -169,15 +190,18 @@ export async function POST(req: NextRequest) {
             // Ignore failure to throttle
           }
           
+          console.log(`[DM Push Audit] Notification sent: YES`);
           await sendPushToUsers(
             [receiverId],
             'New Message',
             `${senderData.full_name} sent you a message`,
             `/messages?user=${userId}`
           )
+        } else {
+          console.log(`[DM Push Audit] Notification sent: NO — ${!isOffline ? 'receiver online' : isActiveInChat ? 'receiver in chat' : isThrottled ? 'throttled' : 'no player ID'}`);
         }
       } catch (msgNotifErr) {
-        console.error('Message push notification error:', msgNotifErr)
+        console.error('[DM Push Audit] Message push notification error:', msgNotifErr)
       }
     }
 

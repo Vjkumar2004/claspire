@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
       .from('users')
       .select(`
         id, full_name, unique_id, role, avatar_url, company, designation,
-        graduation_year, passout_year, rise_points, last_seen,
+        graduation_year, passout_year, rise_points, last_seen, profile_data,
         college:college_id (name, short_name)
       `)
       .eq('role', 'senior')

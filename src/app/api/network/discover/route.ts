@@ -21,6 +21,7 @@ const PERSON_SELECT = `
   graduation_year,
   passout_year,
   rise_points,
+  profile_data,
   college:college_id (
     name,
     short_name,
@@ -176,6 +177,9 @@ export async function GET(req: NextRequest) {
       score += mutualConnections * 30
       score += (person.rise_points || 0) * 0.05
 
+      const experienceYears = person.profile_data?.senior?.experience_years
+        ?? null
+
       return {
         id: person.id,
         full_name: person.full_name,
@@ -189,6 +193,7 @@ export async function GET(req: NextRequest) {
         designation: person.designation,
         graduation_year: person.graduation_year,
         passout_year: person.passout_year,
+        experience_years: experienceYears,
         rise_points: person.rise_points,
         college: person.college,
         connectionStatus: 'none',

@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import ChatWindow from '@/components/ChatWindow'
+import { useNotificationPrompt } from '@/contexts/NotificationPromptContext'
 import { MessageSquare, Search, Loader2, ArrowLeft, Plus, X, ShieldCheck } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
@@ -55,6 +56,15 @@ export default function DashboardMessages({
   const [searching, setSearching] = useState(false)
   const searchTimeout = useRef<any>(null)
   const router = useRouter()
+  const { trigger: triggerNotifPrompt } = useNotificationPrompt()
+  const notifTriggered = useRef(false)
+
+  useEffect(() => {
+    if (!notifTriggered.current) {
+      notifTriggered.current = true
+      triggerNotifPrompt()
+    }
+  }, [triggerNotifPrompt])
 
   const goBackToDashboard = () => {
     if (window.history.length > 1) {

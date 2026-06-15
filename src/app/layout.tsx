@@ -4,7 +4,7 @@ import "./globals.css";
 import Providers from "@/components/Providers";
 import RPNotification from "@/components/RPNotification";
 import OneSignalInit from "@/components/OneSignalInit";
-import NotificationPrompt from "@/components/NotificationPrompt";
+import { NotificationPromptProvider } from "@/contexts/NotificationPromptContext";
 import Navbar from "@/components/Navbar";
 import BottomNavbar from "@/components/BottomNavbar";
 import { ToastContainer } from "@/components/Toast";
@@ -177,7 +177,7 @@ export default function RootLayout({
         >
           <Providers>
             <OneSignalInit />
-            <NotificationPrompt />
+            <NotificationPromptProvider>
             <RPNotification />
             <Navbar />
             <ToastContainer />
@@ -185,6 +185,7 @@ export default function RootLayout({
               {children}
             </main>
             <BottomNavbar />
+            </NotificationPromptProvider>
           </Providers>
         </body>
     </html>

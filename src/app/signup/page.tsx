@@ -105,7 +105,12 @@ export default function SignupPage() {
         is_verified: true,
         verification_type: seniorData.is_fresher ? 'fresher' : 'work_email',
         verification_status: 'verified',
-        is_fresher: seniorData.is_fresher
+        is_fresher: seniorData.is_fresher,
+        profile_data: {
+          senior: {
+            experience_years: seniorData.experience_years ? parseInt(seniorData.experience_years) : undefined
+          }
+        }
       } : {
         full_name: studentData.full_name,
         college_id: studentData.college_id || null,
@@ -140,10 +145,11 @@ export default function SignupPage() {
 
       localStorage.setItem('claspire_user', JSON.stringify(createData.user))
       if (createData.user?.role === 'senior') {
-        router.push('/dashboard/senior')
+        window.location.href = '/dashboard/senior'
       } else {
-        router.push('/dashboard/junior')
+        window.location.href = '/dashboard/junior'
       }
+      return
 
     } catch (err) {
       console.error('Verify error:', err)
@@ -264,6 +270,7 @@ export default function SignupPage() {
     linkedin_url: '',
     branch: '',
     passout_year: '',
+    experience_years: '',
     selected_method: 'work_email' as 'work_email' | 'normal' | 'linkedin' | '',
     is_fresher: false
   })
@@ -523,7 +530,12 @@ export default function SignupPage() {
         is_verified: true,
         verification_type: seniorData.is_fresher ? 'fresher' : 'work_email',
         verification_status: 'verified',
-        is_fresher: seniorData.is_fresher
+        is_fresher: seniorData.is_fresher,
+        profile_data: {
+          senior: {
+            experience_years: seniorData.experience_years ? parseInt(seniorData.experience_years) : undefined
+          }
+        }
       } : {
         full_name: studentData.full_name,
         college_id: studentData.college_id || null,
@@ -549,10 +561,11 @@ export default function SignupPage() {
 
       localStorage.setItem('claspire_user', JSON.stringify(createData.user))
       if (createData.user?.role === 'senior') {
-        router.push('/dashboard/senior')
+        window.location.href = '/dashboard/senior'
       } else {
-        router.push('/dashboard/junior')
+        window.location.href = '/dashboard/junior'
       }
+      return
 
     } catch (err) {
       console.error('Verify error:', err)
@@ -1235,6 +1248,21 @@ export default function SignupPage() {
                           />
                         </div>
                       </div>
+
+                      {!seniorData.is_fresher && (
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-700 dark:text-[#B0B7BE] mb-1.5">Years of Experience <span className="text-gray-400 dark:text-[#B0B7BE] font-normal">(Optional)</span></label>
+                          <input
+                            type="number"
+                            min="0"
+                            max="50"
+                            placeholder="e.g. 5"
+                            value={seniorData.experience_years}
+                            onChange={e => setSeniorData({...seniorData, experience_years: e.target.value})}
+                            className="w-full h-11 px-3.5 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:text-[#B0B7BE] border border-gray-200 dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 bg-white dark:bg-[#283036]"
+                          />
+                        </div>
+                      )}
 
                       <div className="grid grid-cols-2 gap-3">
                         <div>

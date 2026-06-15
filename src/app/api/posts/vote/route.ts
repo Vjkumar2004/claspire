@@ -257,27 +257,39 @@ export async function POST(req: NextRequest) {
           })
 
           // Push for upvote
-          const { data: receiver } = await supabase
-            .from('users')
-            .select('onesignal_player_id')
-            .eq('id', authorData.author_id)
-            .single()
+          try {
+            const { data: receiver } = await supabase
+              .from('users')
+              .select('onesignal_player_id')
+              .eq('id', authorData.author_id)
+              .single()
 
-          if (receiver?.onesignal_player_id) {
-            await fetch('https://onesignal.com/api/v1/notifications', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Basic ${process.env.ONESIGNAL_REST_API_KEY}`
-              },
-              body: JSON.stringify({
-                app_id: process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID,
-                include_player_ids: [receiver.onesignal_player_id],
-                headings: { en: '🔥 Someone liked your post!' },
-                contents: { en: `${userName} liked "${authorData.title?.slice(0, 50)}"` },
-                url: `${process.env.NEXT_PUBLIC_APP_URL}/community/c/all/p/${post_id}`
+            if (receiver?.onesignal_player_id) {
+              const pushRes = await fetch('https://onesignal.com/api/v1/notifications', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Basic ${process.env.ONESIGNAL_REST_API_KEY}`
+                },
+                body: JSON.stringify({
+                  app_id: process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID,
+                  include_player_ids: [receiver.onesignal_player_id],
+                  headings: { en: '🔥 Someone liked your post!' },
+                  contents: { en: `${userName} liked "${authorData.title?.slice(0, 50)}"` },
+                  url: `${process.env.NEXT_PUBLIC_APP_URL}/community/c/all/p/${post_id}`
+                })
               })
-            })
+              const pushResult = await pushRes.json()
+              if (!pushRes.ok || pushResult.errors) {
+                console.error('[OneSignal] Vote push error:', { status: pushRes.status, errors: pushResult.errors })
+              } else {
+                console.log('[OneSignal] Vote push sent:', { id: pushResult.id, recipients: pushResult.recipients })
+              }
+            } else {
+              console.log('[OneSignal] Vote push skipped — no player ID for author')
+            }
+          } catch (pushErr) {
+            console.error('[OneSignal] Vote push fetch error:', pushErr)
           }
         }
       }

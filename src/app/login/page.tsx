@@ -46,6 +46,7 @@ export default function LoginPage() {
         JSON.stringify(data.user)
       )
 
+      sessionStorage.setItem('claspire_notif_trigger', 'login')
       if (data.user.role === 'senior') {
         window.location.href = '/dashboard/senior'
       } else {
@@ -106,6 +107,7 @@ export default function LoginPage() {
         JSON.stringify(data.user)
       )
 
+      sessionStorage.setItem('claspire_notif_trigger', 'login')
       if (data.user.role === 'senior') {
         window.location.href = '/dashboard/senior'
       } else {

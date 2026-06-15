@@ -16,6 +16,11 @@ interface Mentor {
   passout_year?: number | null
   last_seen?: string | null
   college?: { name: string; short_name: string } | null
+  profile_data?: {
+    senior?: {
+      experience_years?: number | null
+    }
+  } | null
 }
 
 interface Community {
@@ -41,6 +46,22 @@ interface NetworkRightSidebarProps {
 }
 
 function getYearsOfExperience(mentor: Mentor): string {
+  if (mentor.company === 'Fresher') return 'Fresher'
+
+  const explicitExp = mentor.profile_data?.senior?.experience_years
+  if (explicitExp != null && explicitExp > 0) {
+    const exp = Math.round(explicitExp)
+    return exp === 1 ? '1 year exp' : `${exp} years exp`
+  }
+
+  if (mentor.company) {
+    const year = mentor.graduation_year
+    if (year) {
+      const years = new Date().getFullYear() - year
+      if (years > 0) return years === 1 ? '1 year exp' : `${years} years exp`
+    }
+  }
+
   const year = mentor.graduation_year || mentor.passout_year
   if (!year) return ''
   const years = new Date().getFullYear() - year

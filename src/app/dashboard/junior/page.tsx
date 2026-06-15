@@ -14,7 +14,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { usePoints } from '@/contexts/PointsContext'
 import { motion, AnimatePresence } from 'framer-motion'
-import NotificationPrompt from '@/components/NotificationPrompt'
+
 import NotificationBell from '@/components/NotificationBell'
 import DeleteAccountModal from '@/components/DeleteAccountModal'
 import AcceptedSeniorsSection from '@/components/junior/AcceptedSeniorsSection'
@@ -1025,7 +1025,6 @@ export default function JuniorDashboard() {
         }}
         communityId={userCollegeCommunityId || undefined}
       />
-      <NotificationPrompt />
     </div>
   )
 }

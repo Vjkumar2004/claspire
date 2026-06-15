@@ -14,8 +14,6 @@ import {
   ArrowUp
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
-import NotificationPrompt from '@/components/NotificationPrompt'
-
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder'
@@ -1136,7 +1134,6 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
             </aside>
           </div>
         </div>
-        <NotificationPrompt />
       </div>
     )
   }
@@ -1383,7 +1380,6 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
         currentUser={user}
       />
 
-      <NotificationPrompt />
     </div>
   )
 }

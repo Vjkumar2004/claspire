@@ -381,7 +381,7 @@ export default function ProfilePage() {
         {/* Banner */}
         <div className="relative h-28">
           <div
-            className="absolute inset-0 bg-contain bg-center bg-slate-100"
+            className="absolute inset-0 bg-cover bg-center bg-slate-100"
             style={{
               backgroundImage: user.banner_url
                 ? 'linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.25)), url(' + user.banner_url + ')'

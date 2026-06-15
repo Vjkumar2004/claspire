@@ -1,85 +1,107 @@
 'use client'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import OneSignal from 'react-onesignal'
 
 export default function OneSignalInit() {
+  const cleanupRef = useRef<(() => void) | null>(null)
+
   useEffect(() => {
     const initOneSignal = async () => {
       try {
         await OneSignal.init({
           appId: process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID!,
           allowLocalhostAsSecureOrigin: true,
+          autoPrompt: false,
           notifyButton: {
             enable: false,
-            prenotify: false,
-            showCredit: false,
-            text: {}
           } as any,
-          promptOptions: {
-            slidedown: {
-              prompts: [
-                {
-                  type: "push",
-                  autoPrompt: false,
-                  delay: {
-                    timeDelay: 0
-                  },
-                  text: {
-                    actionMessage: "We'd like to show you notifications for important updates.",
-                    acceptButton: "Allow",
-                    cancelButton: "No Thanks"
-                  }
-                }
-              ]
-            }
-          }
         })
 
-        // Wait for subscription
-        await new Promise(resolve => setTimeout(resolve, 2000))
+        console.log('[OneSignal] Initialized successfully')
 
-        // Get player ID
         const playerId = OneSignal.User.PushSubscription.id
 
-        if (playerId) {
-          // Save to DB
-          const res = await fetch('/api/profile/update', {
-            method: 'PATCH',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              onesignal_player_id: playerId
-            })
-          })
-          const data = await res.json()
+        // Set external ID for multi-device push targeting
+        const userStr = localStorage.getItem('claspire_user')
+        if (userStr) {
+          try {
+            const user = JSON.parse(userStr)
+            if (user?.id) {
+              ;(OneSignal.User as any)?.addAlias?.('external_id', user.id)
+              console.log('[OneSignal] External ID set:', user.id)
+            }
+          } catch {}
         }
 
-        // Listen for subscription changes
-        OneSignal.User.PushSubscription.addEventListener('change', async (event: any) => {
-          const newId = event.current.id
+        if (playerId) {
+          console.log('[OneSignal] Push subscription active:', playerId)
+          await fetch('/api/profile/update', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ onesignal_player_id: playerId })
+          })
+        } else {
+          // Permission not granted — clear stale player ID if any
+          const userStr = localStorage.getItem('claspire_user')
+          if (userStr) {
+            try {
+              const user = JSON.parse(userStr)
+              if (user?.id) {
+                console.log('[OneSignal] No push subscription yet — clearing stale player ID')
+                await fetch('/api/profile/update', {
+                  method: 'PATCH',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ onesignal_player_id: null })
+                })
+              }
+            } catch {}
+          }
+        }
+
+        const handleSubscriptionChange = async (event: any) => {
+          const newId = event.current?.id
           if (newId) {
+            console.log('[OneSignal] Subscription changed — new player ID:', newId)
             await fetch('/api/profile/update', {
               method: 'PATCH',
-              headers: {
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({
-                onesignal_player_id: newId
-              })
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ onesignal_player_id: newId })
+            })
+          } else {
+            console.log('[OneSignal] Subscription removed — clearing player ID')
+            await fetch('/api/profile/update', {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ onesignal_player_id: null })
             })
           }
-        })
+        }
+
+        OneSignal.User.PushSubscription.addEventListener('change', handleSubscriptionChange)
+
+        cleanupRef.current = () => {
+          try {
+            OneSignal.User.PushSubscription.removeEventListener('change', handleSubscriptionChange)
+          } catch {}
+        }
 
       } catch (err) {
-        console.error('OneSignal init error:', err)
+        console.error('[OneSignal] Init error:', err)
       }
     }
 
-    // Only init if user logged in
     const userStr = typeof window !== 'undefined' ? localStorage.getItem('claspire_user') : null
     if (userStr) {
       initOneSignal()
+    } else {
+      console.log('[OneSignal] Skipping init — user not logged in')
+    }
+
+    return () => {
+      if (cleanupRef.current) {
+        cleanupRef.current()
+        console.log('[OneSignal] Cleaned up subscription listener')
+      }
     }
   }, [])
 

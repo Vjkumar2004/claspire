@@ -8,7 +8,7 @@ import { HelpCircle, Briefcase, Handshake, Mic, DollarSign, BarChart3, Star, Tro
 import CreateGroupModal from '@/components/CreateGroupModal'
 import MyGroupsModal from '@/components/MyGroupsModal'
 import MyGroupsList from '@/components/MyGroupsList'
-import NotificationPrompt from '@/components/NotificationPrompt';
+
 import NotificationBell from '@/components/NotificationBell';
 import DeleteAccountModal from '@/components/DeleteAccountModal';
 import GroupJoinRequestsSection from '@/components/GroupJoinRequestsSection';
@@ -1258,7 +1258,6 @@ export default function SeniorDashboardPage() {
         }}
       />
       
-      <NotificationPrompt />
     </div>
   );
 }

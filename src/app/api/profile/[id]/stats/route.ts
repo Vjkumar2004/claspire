@@ -19,36 +19,56 @@ export async function GET(
       process.env.SUPABASE_SECRET_KEY!
     )
 
-    const [countResult, visitorsResult] = await Promise.all([
+    const [countResult, allViewsResult] = await Promise.all([
       supabase
         .from('profile_views')
         .select('id', { count: 'exact', head: true })
         .eq('viewed_user_id', id),
       supabase
         .from('profile_views')
-        .select(`
-          viewer_id,
-          created_at,
-          viewer:viewer_id ( id, full_name, unique_id, avatar_url, role, college_id )
-        `)
+        .select('viewer_id, created_at')
         .eq('viewed_user_id', id)
-        .order('created_at', { ascending: false })
-        .limit(20),
+        .order('created_at', { ascending: false }),
     ])
 
-    const visitors = (visitorsResult.data || []).map((v: any) => ({
-      viewerId: v.viewer_id,
-      viewedAt: v.created_at,
-      viewer: v.viewer
-        ? {
-            id: v.viewer.id,
-            fullName: v.viewer.full_name,
-            uniqueId: v.viewer.unique_id,
-            avatarUrl: v.viewer.avatar_url,
-            role: v.viewer.role,
-          }
-        : null,
-    }))
+    // Deduplicate by viewer_id, keeping latest visit per unique visitor
+    const seen = new Set<string>()
+    const dedupedViews: { viewer_id: string; created_at: string }[] = []
+    for (const v of allViewsResult.data || []) {
+      if (!seen.has(v.viewer_id)) {
+        seen.add(v.viewer_id)
+        dedupedViews.push(v)
+        if (dedupedViews.length >= 20) break
+      }
+    }
+
+    // Batch-fetch viewer details for deduped visitors
+    const viewerIds = dedupedViews.map(v => v.viewer_id)
+    const { data: viewers } = viewerIds.length
+      ? await supabase
+          .from('users')
+          .select('id, full_name, unique_id, avatar_url, role')
+          .in('id', viewerIds)
+      : { data: [] }
+
+    const viewerMap = new Map((viewers || []).map(u => [u.id, u]))
+
+    const visitors = dedupedViews.map(v => {
+      const u = viewerMap.get(v.viewer_id)
+      return {
+        viewerId: v.viewer_id,
+        viewedAt: v.created_at,
+        viewer: u
+          ? {
+              id: u.id,
+              fullName: u.full_name,
+              uniqueId: u.unique_id,
+              avatarUrl: u.avatar_url,
+              role: u.role,
+            }
+          : null,
+      }
+    })
 
     return NextResponse.json({
       viewCount: countResult.count ?? 0,

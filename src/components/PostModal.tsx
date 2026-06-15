@@ -5,7 +5,9 @@ import {
   Loader2, Tag, AlertCircle, ImagePlus
 } from 'lucide-react'
 import { usePoints } from '@/contexts/PointsContext'
+import { useNotificationPrompt } from '@/contexts/NotificationPromptContext'
 import { compressImage, formatFileSize, needsCompression } from '@/lib/imageCompression'
+import { showToast } from '@/components/Toast'
 
 interface PostModalProps {
   isOpen: boolean
@@ -27,6 +29,7 @@ export default function PostModal({
   editData
 }: PostModalProps) {
   const { showAward } = usePoints()
+  const { trigger: triggerNotificationPrompt } = useNotificationPrompt()
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [type, setType] = useState<'doubt' | 'discussion' | 'experience' | 'referral_hunt' | 'resource'>('doubt')
@@ -225,52 +228,46 @@ export default function PostModal({
     }
 
     setError('')
-    setLoading(true)
+
+    const isEdit = !!editData
+    const endpoint = isEdit ? '/api/posts/edit' : '/api/posts/create'
+    const method = isEdit ? 'PUT' : 'POST'
+    const bodyParams: any = {
+      title: title.trim(),
+      content: content.trim(),
+      type,
+      visibility,
+      tags,
+      image_url: imageUrls.length > 0 ? JSON.stringify(imageUrls) : null
+    }
+    
+    if (isEdit) {
+      bodyParams.post_id = editData.id
+      if (removedImageUrls.length > 0) {
+        bodyParams.deleted_image_urls = removedImageUrls
+      }
+    } else {
+      bodyParams.community_id = communityId
+      bodyParams.is_pinned = false
+    }
+
+    // Optimistic: close modal immediately, fire API in background
+    onClose()
 
     try {
-      const isEdit = !!editData
-      const endpoint = isEdit ? '/api/posts/edit' : '/api/posts/create'
-      const method = isEdit ? 'PUT' : 'POST'
-      const bodyParams: any = {
-        title: title.trim(),
-        content: content.trim(),
-        type,
-        visibility,
-        tags,
-        image_url: imageUrls.length > 0 ? JSON.stringify(imageUrls) : null
-      }
-      
-      if (isEdit) {
-        bodyParams.post_id = editData.id
-        if (removedImageUrls.length > 0) {
-          bodyParams.deleted_image_urls = removedImageUrls
-        }
-      } else {
-        bodyParams.community_id = communityId
-        bodyParams.is_pinned = false
-      }
-
-      const res = await fetch(
-        endpoint,
-        {
-          method,
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(bodyParams)
-        }
-      )
+      const res = await fetch(endpoint, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(bodyParams)
+      })
 
       const data = await res.json()
 
       if (!res.ok) {
-        setError(
-          data.error || 'Failed to post'
-        )
+        showToast({ type: 'error', title: 'Failed to post', message: data.error || 'Something went wrong' })
         return
       }
 
-      // Show RP Award
       if (data.rpEarned && !isEdit) {
         if (type === 'experience') showAward(10, 'Experience shared! ⭐')
         else if (type === 'resource') showAward(8, 'Resource shared! 📚')
@@ -280,25 +277,11 @@ export default function PostModal({
         else showAward(2, 'Post created! ✨')
       }
 
-      // Reset form
-      setTitle('')
-      setContent('')
-      setType('doubt')
-      setVisibility('public')
-      setTags([])
-      setTagInput('')
-      setImages([])
-      setImagePreviews([])
-      setImageUrls([])
-      setRemovedImageUrls([])
-
       onSuccess()
-      onClose()
+      setTimeout(() => triggerNotificationPrompt(), 500)
 
-    } catch (err) {
-      setError('Something went wrong')
-    } finally {
-      setLoading(false)
+    } catch {
+      showToast({ type: 'error', title: 'Network error', message: 'Could not create post. Check your connection.' })
     }
   }
 
