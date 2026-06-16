@@ -153,6 +153,7 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
   const [showSearch, setShowSearch] = useState(false)
   const [filter, setFilter] = useState(() => validCache?.filter || 'all')
   const [userCommunity, setUserCommunity] = useState<any>(null)
+  const [isCollegeAdmin, setIsCollegeAdmin] = useState(false)
 
   // Phase 2 optimization states
   const [feedSearchQuery, setFeedSearchQuery] = useState(() => validCache?.feedSearchQuery || '')
@@ -430,6 +431,16 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
     if (!communities.length || !user?.college_id) return
     const mine = communities.find((c) => c.colleges?.id === user.college_id)
     setUserCommunity(mine || null)
+
+    // Fetch whether the current user is a college admin for this community
+    if (mine?.slug) {
+      fetch(`/api/community/${mine.slug}`)
+        .then((r) => r.ok ? r.json() : null)
+        .then((data) => {
+          setIsCollegeAdmin(!!data?.isCollegeAdmin)
+        })
+        .catch(() => setIsCollegeAdmin(false))
+    }
   }, [communities, user?.college_id])
 
   useEffect(() => {
@@ -1398,7 +1409,7 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
           communitySlug={userCommunity.slug}
           communityId={userCommunity.id}
           userRole={user?.role || 'student'}
-          canPostAsCollege={user?.role === 'senior' || user?.role === 'admin'}
+          canPostAsCollege={isCollegeAdmin}
           collegeName={userCommunity.colleges?.name}
           collegeLogo={userCommunity.colleges?.logo_url}
           collegeSlug={userCommunity.colleges?.slug}
