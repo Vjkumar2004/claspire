@@ -315,20 +315,11 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
 
   const renderMemberRow = (
     member: any,
-    style: { bg: string; border: string; avatarBg: string }
+    style: { className: string; avatarBg: string }
   ) => (
     <div
       key={member.id}
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 12,
-        padding: 12,
-        background: style.bg,
-        border: `1px solid ${style.border}`,
-        borderRadius: 12,
-        transition: 'all 0.2s',
-      }}
+      className={`flex items-center gap-3 p-3 rounded-xl transition-all duration-200 border ${style.className}`}
     >
       <div
         style={{
@@ -1209,14 +1200,13 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                         {memberGroups.ownStudents.map((member) =>
                           renderMemberRow(member, {
-                            bg: '#F5F3FF',
-                            border: '#DDD6FE',
+                            className: 'bg-purple-50 border-purple-200 dark:bg-purple-900/20 dark:border-purple-800/60',
                             avatarBg: 'linear-gradient(135deg, #7C3AED, #06B6D4)',
                           })
                         )}
                       </div>
                     ) : (
-                      <p className="text-slate-400 dark:text-[#B0B7BE] dark:bg-[#1D2226]" style={{ fontSize: 12, margin: 0, padding: '8px 12px', background: '#F8FAFC', borderRadius: 10 }}>
+                      <p className="text-slate-400 dark:text-[#B0B7BE] bg-[#F8FAFC] dark:bg-[#283036] text-xs m-0 px-3 py-2 rounded-xl">
                         No students from this college yet.
                       </p>
                     )}
@@ -1232,14 +1222,13 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                         {memberGroups.ownSeniors.map((member) =>
                           renderMemberRow(member, {
-                            bg: '#FFFBEB',
-                            border: '#FDE68A',
+                            className: 'bg-amber-50 border-amber-200 dark:bg-amber-900/20 dark:border-amber-800/60',
                             avatarBg: 'linear-gradient(135deg, #F59E0B, #D97706)',
                           })
                         )}
                       </div>
                     ) : (
-                      <p className="text-slate-400 dark:text-[#B0B7BE] dark:bg-[#1D2226]" style={{ fontSize: 12, margin: 0, padding: '8px 12px', background: '#F8FAFC', borderRadius: 10 }}>
+                      <p className="text-slate-400 dark:text-[#B0B7BE] bg-[#F8FAFC] dark:bg-[#283036] text-xs m-0 px-3 py-2 rounded-xl">
                         No seniors from this college yet.
                       </p>
                     )}
@@ -1255,14 +1244,13 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                         {memberGroups.otherCollege.map((member) =>
                           renderMemberRow(member, {
-                            bg: '#F0F9FF',
-                            border: '#BAE6FD',
+                            className: 'bg-sky-50 border-sky-200 dark:bg-sky-900/20 dark:border-sky-800/60',
                             avatarBg: 'linear-gradient(135deg, #0EA5E9, #0284C7)',
                           })
                         )}
                       </div>
                     ) : (
-                      <p className="text-slate-400 dark:text-[#B0B7BE] dark:bg-[#1D2226]" style={{ fontSize: 12, margin: 0, padding: '8px 12px', background: '#F8FAFC', borderRadius: 10 }}>
+                      <p className="text-slate-400 dark:text-[#B0B7BE] bg-[#F8FAFC] dark:bg-[#283036] text-xs m-0 px-3 py-2 rounded-xl">
                         No members from other colleges have joined yet.
                       </p>
                     )}
