@@ -86,15 +86,35 @@ export default function NetworkPage() {
     if (!user) return
 
     const channel = supabase
-      .channel('network-changes')
+      .channel(`network-changes-${user.id}`)
       .on(
         'postgres_changes',
-        { event: '*', schema: 'public', table: 'connections', filter: `sender_id=eq.${user.id}` },
+        { event: 'INSERT', schema: 'public', table: 'connections', filter: `sender_id=eq.${user.id}` },
+        () => { setRefreshKey(k => k + 1) }
+      )
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'connections', filter: `receiver_id=eq.${user.id}` },
         () => { fetchStats(); setRefreshKey(k => k + 1) }
       )
       .on(
         'postgres_changes',
-        { event: '*', schema: 'public', table: 'connections', filter: `receiver_id=eq.${user.id}` },
+        { event: 'UPDATE', schema: 'public', table: 'connections', filter: `receiver_id=eq.${user.id}` },
+        (payload) => {
+          if (payload.new?.status !== payload.old?.status) {
+            fetchStats()
+          }
+          setRefreshKey(k => k + 1)
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: 'DELETE', schema: 'public', table: 'connections', filter: `sender_id=eq.${user.id}` },
+        () => { setRefreshKey(k => k + 1) }
+      )
+      .on(
+        'postgres_changes',
+        { event: 'DELETE', schema: 'public', table: 'connections', filter: `receiver_id=eq.${user.id}` },
         () => { fetchStats(); setRefreshKey(k => k + 1) }
       )
       .on(

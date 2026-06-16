@@ -45,13 +45,47 @@ export function NetworkRequestCountProvider({ children }: { children: ReactNode 
       .on(
         'postgres_changes',
         {
-          event: '*',
+          event: 'INSERT',
           schema: 'public',
           table: 'connections',
           filter: `receiver_id=eq.${user.id}`,
         },
-        () => {
-          refreshPendingCount()
+        (payload) => {
+          if (payload.new?.status === 'pending') {
+            setPendingCount(prev => prev + 1)
+          }
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'connections',
+          filter: `receiver_id=eq.${user.id}`,
+        },
+        (payload) => {
+          const oldStatus = payload.old?.status
+          const newStatus = payload.new?.status
+          if (oldStatus === 'pending' && newStatus !== 'pending') {
+            setPendingCount(prev => Math.max(0, prev - 1))
+          } else if (oldStatus !== 'pending' && newStatus === 'pending') {
+            setPendingCount(prev => prev + 1)
+          }
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'DELETE',
+          schema: 'public',
+          table: 'connections',
+          filter: `receiver_id=eq.${user.id}`,
+        },
+        (payload) => {
+          if (payload.old?.status === 'pending') {
+            setPendingCount(prev => Math.max(0, prev - 1))
+          }
         }
       )
       .subscribe()

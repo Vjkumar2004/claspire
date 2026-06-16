@@ -816,20 +816,6 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
 
 
 
-  // Handle LinkedIn-style soft refresh events from Navigation bars
-  const handleLoadNewPostsRef = useRef(handleLoadNewPosts)
-  useEffect(() => {
-    handleLoadNewPostsRef.current = handleLoadNewPosts
-  })
-
-  // useEffect(() => {
-  //   const onRefresh = () => {
-  //     handleLoadNewPostsRef.current()
-  //   }
-  //   window.addEventListener('REFRESH_COMMUNITY_FEED', onRefresh)
-  //   return () => window.removeEventListener('REFRESH_COMMUNITY_FEED', onRefresh)
-  // }, [])
-
   // Session Boundary Check
   useEffect(() => {
     if (!authLoading) {
@@ -929,25 +915,11 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'posts', filter: "visibility=eq.public" },
-        async (payload) => {
-          // Fetch the full joined post data to match existing feed structure
-          const { data, error } = await supabase
-            .from('posts')
-            .select(`
-              id, title, content, type, created_at, upvote_count, downvote_count, answer_count, is_answered, tags, image_url, author_id, is_college_post,
-          users!posts_author_id_fkey ( full_name, unique_id, role, is_verified, avatar_url ),
-          communities ( slug, colleges ( name, short_name, logo_url ) )
-            `)
-            .eq('id', payload.new.id)
-            .single()
-
-          if (data && !error) {
-            setNewPostsQueue(prev => {
-              // Prevent duplicate queue entries
-              if (prev.some(p => p.id === data.id)) return prev;
-              return [data, ...prev];
-            });
-          }
+        (payload) => {
+          setNewPostsQueue(prev => {
+            if (prev.some(p => p.id === payload.new.id)) return prev
+            return [payload.new as any, ...prev]
+          })
         }
       )
       .subscribe()
@@ -956,22 +928,17 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
       supabase.removeChannel(channel)
     }
   }, [])
+  const handleRefreshRef = useRef(handleLoadNewPosts)
   useEffect(() => {
-    const handleRefresh = () => {
-      handleLoadNewPosts()
-    }
+    handleRefreshRef.current = handleLoadNewPosts
+  })
 
-    window.addEventListener(
-      'REFRESH_COMMUNITY_FEED',
-      handleRefresh
-    )
-
-    return () => {
-      window.removeEventListener(
-        'REFRESH_COMMUNITY_FEED',
-        handleRefresh
-      )
+  useEffect(() => {
+    const onRefresh = () => {
+      handleRefreshRef.current()
     }
+    window.addEventListener('REFRESH_COMMUNITY_FEED', onRefresh)
+    return () => window.removeEventListener('REFRESH_COMMUNITY_FEED', onRefresh)
   }, [])
 
 

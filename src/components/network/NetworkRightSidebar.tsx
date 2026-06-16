@@ -215,7 +215,7 @@ export default function NetworkRightSidebar({ mentors, communities, networkGrowt
               return (
                 <div
                   key={community.id}
-                  onClick={() => router.push(`/community/${community.slug}`)}
+                  onClick={() => router.push(`/colleges/${community.slug}`)}
                   className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-gray-50 dark:hover:bg-[#1D2226] cursor-pointer transition-all group hover:-translate-y-0.5 hover:shadow-sm duration-200"
                 >
                   <div className={`w-10 h-10 rounded-xl ${lightBg} flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform`}>

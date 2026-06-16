@@ -93,23 +93,50 @@ export default function DashboardMessages({
 
     fetchConversations();
 
+    const updateConversationFromPayload = (payload: any) => {
+      const { sender_id, receiver_id, content, created_at } = payload.new || {}
+      if (!sender_id || !receiver_id) return
+
+      const otherUserId = sender_id === currentUserId ? receiver_id : sender_id
+      const isIncoming = receiver_id === currentUserId
+
+      setConversations(prev => {
+        const idx = prev.findIndex(c => c.otherUserId === otherUserId)
+        if (idx >= 0) {
+          const updated = [...prev]
+          const existing = updated[idx]
+          updated[idx] = {
+            ...existing,
+            lastMessage: content || existing.lastMessage,
+            timestamp: created_at || existing.timestamp,
+            unread: isIncoming ? true : existing.unread,
+          }
+          // Move to top
+          const [item] = updated.splice(idx, 1)
+          updated.unshift(item)
+          return updated
+        }
+        return prev
+      })
+    }
+
     const channel = supabase
       .channel(`dashboard-messages-${currentUserId}`)
       .on('postgres_changes', { 
-        event: '*', 
+        event: 'INSERT', 
         schema: 'public', 
         table: 'direct_messages', 
         filter: `receiver_id=eq.${currentUserId}` 
-      }, () => {
-        fetchConversations();
+      }, (payload) => {
+        updateConversationFromPayload(payload)
       })
       .on('postgres_changes', { 
-        event: '*', 
+        event: 'INSERT', 
         schema: 'public', 
         table: 'direct_messages', 
         filter: `sender_id=eq.${currentUserId}` 
-      }, () => {
-        fetchConversations();
+      }, (payload) => {
+        updateConversationFromPayload(payload)
       })
       .subscribe();
 

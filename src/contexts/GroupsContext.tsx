@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react'
 import { useAuth } from '@/hooks/useAuth'
-import { supabase } from '@/lib/supabase'
+import { subscribeToGroupMessages } from '@/lib/realtime-channels'
 
 export type GroupListItem = {
   id: string
@@ -39,7 +39,7 @@ export function GroupsProvider({ children }: { children: React.ReactNode }) {
   const [groups, setGroups] = useState<GroupListItem[]>([])
   const [activeGroupId, setActiveGroupId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
-  const channelsRef = useRef<Set<string>>(new Set())
+  const unsubsRef = useRef<Map<string, () => void>>(new Map())
   const activeGroupIdRef = useRef<string | null>(null)
   activeGroupIdRef.current = activeGroupId
 
@@ -67,61 +67,64 @@ export function GroupsProvider({ children }: { children: React.ReactNode }) {
     refresh()
   }, [refresh])
 
+  // Shared channel subscription per group — deduplicates with GroupChatPage
   useEffect(() => {
-    if (!user?.id || groups.length === 0) return
-
-    const groupIds = groups.map(g => g.id)
-    const newChannels = new Set(groupIds.map(id => `group-msgs-${id}`))
-
-    for (const ch of newChannels) {
-      if (channelsRef.current.has(ch)) continue
-      channelsRef.current.add(ch)
-
-      const groupId = ch.replace('group-msgs-', '')
-      supabase
-        .channel(ch)
-        .on(
-          'postgres_changes',
-          {
-            event: 'INSERT',
-            schema: 'public',
-            table: 'student_group_messages',
-            filter: `group_id=eq.${groupId}`,
-          },
-          (payload) => {
-            const msg = payload.new as { id: string; group_id: string; content: string; created_at: string; sender_id: string }
-            if (!msg?.group_id) return
-            setGroups(prev => {
-              const updated = prev.map(g => {
-                if (g.id !== msg.group_id) return g
-                return {
-                  ...g,
-                  last_message: { id: msg.id, content: msg.content, created_at: msg.created_at, sender_id: msg.sender_id },
-                  last_activity_at: msg.created_at,
-                  unread_count: g.id === activeGroupIdRef.current ? g.unread_count : g.unread_count + 1,
-                }
-              })
-              return [...updated].sort((a, b) => {
-                const aUnread = a.unread_count > 0 ? 1 : 0
-                const bUnread = b.unread_count > 0 ? 1 : 0
-                if (aUnread !== bUnread) return bUnread - aUnread
-                const aTime = new Date(a.last_activity_at || a.created_at || 0).getTime()
-                const bTime = new Date(b.last_activity_at || b.created_at || 0).getTime()
-                return bTime - aTime
-              })
-            })
-          }
-        )
-        .subscribe()
+    if (!user?.id) {
+      for (const [, unsub] of unsubsRef.current) unsub()
+      unsubsRef.current.clear()
+      return
     }
 
-    return () => {
-      for (const ch of channelsRef.current) {
-        supabase.removeChannel(supabase.getChannels().find(c => c.topic === ch) as any)
+    const activeIds = new Set(groups.map(g => g.id))
+
+    // Unsubscribe from groups no longer in the list
+    for (const [gid, unsub] of unsubsRef.current) {
+      if (!activeIds.has(gid)) {
+        unsub()
+        unsubsRef.current.delete(gid)
       }
-      channelsRef.current.clear()
     }
-  }, [user?.id, groups.length, refresh])
+
+    // Subscribe to new groups
+    for (const g of groups) {
+      if (unsubsRef.current.has(g.id)) continue
+
+      const unsub = subscribeToGroupMessages(g.id, (event, payload) => {
+        if (event !== 'INSERT') return
+        const msg = payload.new as { id: string; group_id: string; content: string; created_at: string; sender_id: string }
+        if (!msg?.group_id) return
+        setGroups(prev => {
+          const updated = prev.map(g => {
+            if (g.id !== msg.group_id) return g
+            return {
+              ...g,
+              last_message: { id: msg.id, content: msg.content, created_at: msg.created_at, sender_id: msg.sender_id },
+              last_activity_at: msg.created_at,
+              unread_count: g.id === activeGroupIdRef.current ? g.unread_count : g.unread_count + 1,
+            }
+          })
+          return [...updated].sort((a, b) => {
+            const aUnread = a.unread_count > 0 ? 1 : 0
+            const bUnread = b.unread_count > 0 ? 1 : 0
+            if (aUnread !== bUnread) return bUnread - aUnread
+            const aTime = new Date(a.last_activity_at || a.created_at || 0).getTime()
+            const bTime = new Date(b.last_activity_at || b.created_at || 0).getTime()
+            return bTime - aTime
+          })
+        })
+      })
+
+      unsubsRef.current.set(g.id, unsub)
+    }
+  }, [user?.id, groups.map(g => g.id).join(',')])
+
+  // Cleanup all subscriptions on unmount
+  useEffect(() => {
+    return () => {
+      for (const [, unsub] of unsubsRef.current) unsub()
+      unsubsRef.current.clear()
+    }
+  }, [])
 
   const markAsRead = useCallback(async (groupId: string) => {
     setGroups(prev =>

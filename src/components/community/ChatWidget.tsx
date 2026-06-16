@@ -295,7 +295,10 @@ function ChatWidget({ user, isNavVisible }: ChatWidgetProps) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] lg:hidden flex items-end"
-            onClick={() => setMobileDrawerOpen(false)}
+            onClick={() => {
+              setActiveChatUser(null)
+              setMobileDrawerOpen(false)
+            }}
           >
             <motion.div
               initial={{ y: '100%' }}
@@ -322,7 +325,10 @@ function ChatWidget({ user, isNavVisible }: ChatWidgetProps) {
                   </span>
                 </div>
                 <button
-                  onClick={() => setMobileDrawerOpen(false)}
+                  onClick={() => {
+                    setActiveChatUser(null)
+                    setMobileDrawerOpen(false)
+                  }}
                   className="text-slate-400 dark:text-[#B0B7BE] hover:text-white transition-colors p-1"
                 >
                   <X className="w-5 h-5" />

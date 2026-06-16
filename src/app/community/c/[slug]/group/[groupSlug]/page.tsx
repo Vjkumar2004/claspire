@@ -7,7 +7,7 @@ import {
   Crown, MoreHorizontal, Sparkles, User, Ban,
   Menu,
 } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
+import { subscribeToGroupMessages } from '@/lib/realtime-channels'
 import { GroupsProvider } from '@/contexts/GroupsContext'
 import GroupsSidebar from '@/components/groups/GroupsSidebar'
 
@@ -72,6 +72,7 @@ export default function GroupChatPage() {
   const [showMobileSidebar, setShowMobileSidebar] = useState(false)
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const membersRef = useRef(groupData?.members || [])
 
   useEffect(() => {
     fetchGroupData()
@@ -89,86 +90,54 @@ export default function GroupChatPage() {
     }
   }, [groupData?.group?.id, groupData?.isMember])
 
-  // Subscribe to Realtime messages
+  // Keep membersRef in sync with latest groupData
+  useEffect(() => {
+    membersRef.current = groupData?.members || []
+  }, [groupData?.members])
+
+  // Subscribe to Realtime messages via shared channel (deduplicated with GroupsContext)
   useEffect(() => {
     if (!groupData?.isMember || !groupData?.group?.id) return
 
-    const channel = supabase
-      .channel(`group-messages-${groupData.group.id}`)
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'student_group_messages',
-          filter: `group_id=eq.${groupData.group.id}`,
-        },
-        (payload) => {
-          const senderId = payload.new.sender_id
-
-          setMessages((prev) => {
-            // If an optimistic temp message from this sender exists,
-            // remove it — the POST response handler will add the real one
-            const hasTempFromSender = prev.some(m => m.id.startsWith('temp-') && m.sender?.id === senderId)
-            if (hasTempFromSender) {
-              return prev.filter(m => !(m.id.startsWith('temp-') && m.sender?.id === senderId))
-            }
-
-            if (prev.some(m => m.id === payload.new.id)) return prev
-
-            const sender = groupData.members.find(m => m.id === senderId)
-            const newMessage: Message = {
-              id: payload.new.id,
-              content: payload.new.content,
-              created_at: payload.new.created_at,
-              sender: {
-                id: senderId,
-                full_name: sender?.full_name || 'Unknown User',
-                avatar_url: sender?.avatar_url,
-                role: sender?.role || 'student',
-                unique_id: sender?.unique_id || '',
-              }
-            }
-            return [...prev, newMessage]
-          })
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: 'DELETE',
-          schema: 'public',
-          table: 'student_group_messages',
-          filter: `group_id=eq.${groupData.group.id}`,
-        },
-        (payload) => {
-          setMessages((prev) => prev.filter((msg) => msg.id !== payload.old.id))
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'student_group_messages',
-          filter: `group_id=eq.${groupData.group.id}`,
-        },
-        (payload) => {
-          if (payload.new.is_deleted) {
-            setMessages((prev) => prev.filter((msg) => msg.id !== payload.new.id))
-          } else {
-            setMessages((prev) =>
-              prev.map((msg) => (msg.id === payload.new.id ? { ...msg, content: payload.new.content } : msg))
-            )
+    const unsub = subscribeToGroupMessages(groupData.group.id, (event, payload) => {
+      if (event === 'INSERT') {
+        const senderId = payload.new.sender_id
+        setMessages((prev) => {
+          const hasTempFromSender = prev.some(m => m.id.startsWith('temp-') && m.sender?.id === senderId)
+          if (hasTempFromSender) {
+            return prev.filter(m => !(m.id.startsWith('temp-') && m.sender?.id === senderId))
           }
-        }
-      )
-      .subscribe()
+          if (prev.some(m => m.id === payload.new.id)) return prev
 
-    return () => {
-      supabase.removeChannel(channel)
-    }
-  }, [groupData?.isMember, groupData?.group?.id, groupData?.members])
+          const sender = membersRef.current.find(m => m.id === senderId)
+          const newMessage: Message = {
+            id: payload.new.id,
+            content: payload.new.content,
+            created_at: payload.new.created_at,
+            sender: {
+              id: senderId,
+              full_name: sender?.full_name || 'Unknown User',
+              avatar_url: sender?.avatar_url,
+              role: sender?.role || 'student',
+              unique_id: sender?.unique_id || '',
+            }
+          }
+          return [...prev, newMessage]
+        })
+      } else if (event === 'DELETE') {
+        setMessages((prev) => prev.filter((msg) => msg.id !== payload.old.id))
+      } else if (event === 'UPDATE') {
+        setMessages((prev) => {
+          if (payload.new.is_deleted) {
+            return prev.filter((msg) => msg.id !== payload.new.id)
+          }
+          return prev.map((msg) => (msg.id === payload.new.id ? { ...msg, content: payload.new.content } : msg))
+        })
+      }
+    })
+
+    return unsub
+  }, [groupData?.isMember, groupData?.group?.id])
 
   useEffect(() => {
     scrollToBottom()
