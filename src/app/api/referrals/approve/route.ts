@@ -63,55 +63,35 @@ export async function POST(req: NextRequest) {
 
     if (updateError) throw updateError
 
-    // 3. Increment senior's referral count and award RP
-    const { data: seniorUser } = await supabase
+    // 3-4. Fetch both users and update in parallel
+    const { data: userRows } = await supabase
       .from('users')
-      .select('referral_count, rise_points')
-      .eq('id', ref.senior_id)
-      .single()
+      .select('id, referral_count, rise_points')
+      .in('id', [ref.senior_id, juniorId])
 
-    await supabase
-      .from('users')
-      .update({ 
+    const seniorUser = userRows?.find(u => u.id === ref.senior_id)
+    const juniorUser = userRows?.find(u => u.id === juniorId)
+
+    await Promise.all([
+      supabase.from('users').update({ 
         referral_count: (seniorUser?.referral_count || 0) + 1,
         rise_points: (seniorUser?.rise_points || 0) + 15
-      })
-      .eq('id', ref.senior_id)
-
-    // Log senior RP
-    await supabase
-      .from('rise_points_log')
-      .insert({
-        user_id: ref.senior_id,
-        points: 15,
-        reason: `Approved a referral for ${jobRole} @ ${companyName} 🤝`,
-        created_at: new Date().toISOString()
-      })
-
-    // 4. Award RP to junior for successful referral
-    const { data: juniorUser } = await supabase
-      .from('users')
-      .select('rise_points, referral_count')
-      .eq('id', juniorId)
-      .single()
-
-    await supabase
-      .from('users')
-      .update({ 
+      }).eq('id', ref.senior_id),
+      supabase.from('users').update({ 
         rise_points: (juniorUser?.rise_points || 0) + 25,
         referral_count: (juniorUser?.referral_count || 0) + 1
-      })
-      .eq('id', juniorId)
-
-    // Log junior RP
-    await supabase
-      .from('rise_points_log')
-      .insert({
-        user_id: juniorId,
-        points: 25,
+      }).eq('id', juniorId),
+      supabase.from('rise_points_log').insert({
+        user_id: ref.senior_id, points: 15,
+        reason: `Approved a referral for ${jobRole} @ ${companyName} 🤝`,
+        created_at: new Date().toISOString()
+      }),
+      supabase.from('rise_points_log').insert({
+        user_id: juniorId, points: 25,
         reason: `Referral approved by ${seniorName}! 🎯`,
         created_at: new Date().toISOString()
-      })
+      }),
+    ])
 
     // 5. Create In-App Notification
     try {

@@ -119,7 +119,17 @@ export default function NetworkPage() {
       )
       .on(
         'postgres_changes',
-        { event: '*', schema: 'public', table: 'follows', filter: `follower_id=eq.${user.id}` },
+        { event: 'INSERT', schema: 'public', table: 'follows', filter: `follower_id=eq.${user.id}` },
+        () => { fetchStats(); setRefreshKey(k => k + 1) }
+      )
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'follows', filter: `follower_id=eq.${user.id}` },
+        () => { fetchStats(); setRefreshKey(k => k + 1) }
+      )
+      .on(
+        'postgres_changes',
+        { event: 'DELETE', schema: 'public', table: 'follows', filter: `follower_id=eq.${user.id}` },
         () => { fetchStats(); setRefreshKey(k => k + 1) }
       )
       .subscribe()

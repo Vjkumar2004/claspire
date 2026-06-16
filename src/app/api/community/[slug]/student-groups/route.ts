@@ -78,6 +78,7 @@ export async function GET(
       .eq('parent_community_id', communityId)
       .is('is_active', true)
       .order('created_at', { ascending: false })
+      .limit(50)
 
     if (groupsError) {
       console.error('Groups error:', groupsError)

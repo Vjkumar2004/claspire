@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
       supabase
         .from('connections')
         .select('id', { count: 'exact' })
-        .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
+        .or(`sender_id.eq.${sanitizeSearchInput(user.id)},receiver_id.eq.${sanitizeSearchInput(user.id)}`)
         .eq('status', 'accepted'),
       supabase
         .from('connections')

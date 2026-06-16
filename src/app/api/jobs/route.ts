@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { getAuthenticatedUser } from '@/lib/session'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -8,8 +9,8 @@ const supabase = createClient(
 
 export async function GET(req: NextRequest) {
   try {
-    const cookie = req.cookies.get('claspire_session')
-    if (!cookie?.value) {
+    const user = await getAuthenticatedUser(req)
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -76,35 +77,32 @@ export async function GET(req: NextRequest) {
     const uniqueCompanies = new Set((jobs || []).map(j => j.company_name).filter(Boolean))
     const totalCompanies = uniqueCompanies.size
 
-    // Top referrers (seniors with most referral requests)
-    const { data: allReferralRequests } = await supabase
-      .from('referral_requests')
-      .select('senior_id')
-
-    const totalApplications = allReferralRequests?.length || 0
-
-    const seniorCounts: Record<string, number> = {}
-    allReferralRequests?.forEach(r => {
-      if (r.senior_id) {
-        seniorCounts[r.senior_id] = (seniorCounts[r.senior_id] || 0) + 1
-      }
-    })
-
-    const topSeniorEntries = Object.entries(seniorCounts)
+    // Compute top referrers from current job referral data only
+    const topReferrerEntries = Object.entries(referralCounts)
       .sort(([, a], [, b]) => b - a)
       .slice(0, 5)
 
     let topReferrers: any[] = []
 
-    if (topSeniorEntries.length > 0) {
+    if (topReferrerEntries.length > 0) {
       const { data: seniorProfiles } = await supabase
         .from('users')
         .select('id, full_name, company, designation, avatar_url')
-        .in('id', topSeniorEntries.map(([id]) => id))
+        .in('id', topReferrerEntries.map(([id]) => id))
 
-      topReferrers = topSeniorEntries
-        .map(([id, count]) => {
-          const profile = seniorProfiles?.find(p => p.id === id)
+      const jobsByPoster = (jobs || []).reduce<Record<string, { company_name: string; role: string }[]>>((acc, j) => {
+        if (j.senior?.id) {
+          if (!acc[j.senior.id]) acc[j.senior.id] = []
+          acc[j.senior.id].push({ company_name: j.company_name, role: j.role })
+        }
+        return acc
+      }, {})
+
+      topReferrers = topReferrerEntries
+        .map(([jobId, count]) => {
+          const job = (jobs || []).find(j => j.id === jobId)
+          if (!job?.senior?.id) return null
+          const profile = seniorProfiles?.find(p => p.id === job.senior!.id)
           if (!profile) return null
           return {
             id: profile.id,
@@ -116,7 +114,6 @@ export async function GET(req: NextRequest) {
           }
         })
         .filter(Boolean)
-        .slice(0, 5)
     }
 
     // Enrich jobs with computed fields
@@ -132,7 +129,7 @@ export async function GET(req: NextRequest) {
         totalJobs: totalJobs || 0,
         totalReferrals: referralAvailableCount,
         totalCompanies,
-        totalApplications: totalApplications || 0
+        totalApplications: totalJobs || 0
       },
       topReferrers
     })

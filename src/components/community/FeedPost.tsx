@@ -1,7 +1,7 @@
 'use client'
 import React from 'react'
 import { motion } from 'framer-motion'
-import { ArrowBigUp, MessageSquare, Share2, CheckCircle, ArrowRight } from 'lucide-react'
+import { ArrowBigUp, MessageSquare, Share2, CheckCircle, ArrowRight, Trash2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import MediaGallery from '@/components/MediaGallery'
 
@@ -113,7 +113,9 @@ export interface FeedPostProps {
   onToggleAnswerSection: (postId: string) => void
   onSharePost: (post: any) => void
   onSubmitInlineAnswer: (postId: string, text: string, parentAnswerId?: string) => Promise<boolean> | void
+  onDeleteInlineAnswer?: (postId: string, answerId: string, parentAnswerId?: string) => Promise<boolean> | void
   onUpvotersClick?: (postId: string) => void
+  currentUserId?: string | null
 }
 
 export default function FeedPost({
@@ -129,7 +131,9 @@ export default function FeedPost({
   onToggleAnswerSection,
   onSharePost,
   onSubmitInlineAnswer,
+  onDeleteInlineAnswer,
   onUpvotersClick,
+  currentUserId,
 }: FeedPostProps) {
   const router = useRouter()
   const ts = getTypeStyle(post.type)
@@ -215,22 +219,37 @@ export default function FeedPost({
         )}
       </div>
       <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-1.5">
-          <span className="font-bold text-slate-900 dark:text-white text-[10px]">{answer.users?.full_name}</span>
-          {answer.users?.role === 'senior' && (
-            <span className="text-[6px] font-black uppercase bg-emerald-50 text-emerald-600 border border-emerald-100 px-0.5 rounded">
-              SENIOR
-            </span>
-          )}
-          {answer.is_accepted && (
-            <span className="text-[6px] font-black uppercase bg-emerald-50 text-emerald-600 border border-emerald-100 px-0.5 rounded flex items-center gap-0.5">
-              <CheckCircle className="w-2 h-2" /> Accepted
-            </span>
-          )}
-          {answer.created_at && (
-            <span className="text-[9px] text-slate-400 dark:text-[#B0B7BE] font-medium ml-1">
-              {timeAgo(answer.created_at)}
-            </span>
+        <div className="flex items-start justify-between gap-1.5">
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="font-bold text-slate-900 dark:text-white text-[10px]">{answer.users?.full_name}</span>
+            {answer.users?.role === 'senior' && (
+              <span className="text-[6px] font-black uppercase bg-emerald-50 text-emerald-600 border border-emerald-100 px-0.5 rounded">
+                SENIOR
+              </span>
+            )}
+            {answer.is_accepted && (
+              <span className="text-[6px] font-black uppercase bg-emerald-50 text-emerald-600 border border-emerald-100 px-0.5 rounded flex items-center gap-0.5">
+                <CheckCircle className="w-2 h-2" /> Accepted
+              </span>
+            )}
+            {answer.created_at && (
+              <span className="text-[9px] text-slate-400 dark:text-[#B0B7BE] font-medium ml-1">
+                {timeAgo(answer.created_at)}
+              </span>
+            )}
+          </div>
+          {currentUserId === answer.author_id && (
+            <button 
+              onClick={() => {
+                if (window.confirm('Are you sure you want to delete this answer?')) {
+                  onDeleteInlineAnswer?.(post.id, answer.id, answer.parent_answer_id)
+                }
+              }}
+              className="text-slate-400 hover:text-red-500 transition-colors p-1 flex-shrink-0"
+              title="Delete answer"
+            >
+              <Trash2 className="w-3 h-3" />
+            </button>
           )}
         </div>
         <p className="text-[10px] text-slate-600 dark:text-[#B0B7BE] leading-normal font-semibold mt-0.5">{answer.content}</p>
@@ -280,7 +299,7 @@ export default function FeedPost({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.98 }}
       transition={{ duration: 0.2 }}
-      className="bg-white dark:bg-[#283036] rounded-xl border border-slate-200/80 dark:border-[#38434F]/80 p-3.5 sm:p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] sm:shadow-sm hover:border-slate-300 dark:hover:border-[#38434F] transition-all duration-200 active:scale-[0.99]"
+      className="bg-white dark:bg-[#283036] rounded-xl border border-slate-200/80 dark:border-[#38434F]/80 p-3.5 sm:p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] sm:shadow-sm"
     >
       {/* Feed Card Header details */}
       <div className="flex items-start justify-between gap-2 mb-3">

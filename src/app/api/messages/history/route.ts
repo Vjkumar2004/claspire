@@ -25,20 +25,13 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const otherUserId = searchParams.get('userId');
     const afterRaw = searchParams.get('after');
+    const beforeId = searchParams.get('before');
     const after = afterRaw ? afterRaw.replace(/ /g, '+') : null;
 
     if (!otherUserId) {
       return NextResponse.json({ error: 'userId query parameter is required' }, { status: 400 });
     }
 
-    const cookie = req.cookies.get('claspire_session');
-    if (!cookie) {
-      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
-    }
-
-    // SECURITY: Use signed session verification instead of direct cookie parsing
-    // Direct JSON.parse(cookie.value) is unsafe because cookies can be modified
-    // via DevTools or proxy tools, allowing session hijacking and privilege escalation
     const user = await getAuthenticatedUser(req);
     if (!user) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
@@ -47,13 +40,16 @@ export async function GET(req: NextRequest) {
     const userId = user.id;
     const conversationId = getConversationId(userId, otherUserId);
 
+    const PAGE_SIZE = 100;
+    const MESSAGE_SELECT = 'id, sender_id, receiver_id, content, created_at, conversation_id, is_read, reply_to_id, edited_at';
+
     const runQuery = (select: string) => {
       let q = supabase
         .from('direct_messages')
         .select(select)
         .eq('conversation_id', conversationId)
-        .order('created_at', { ascending: true })
-        .limit(100);
+        .order('created_at', { ascending: false })
+        .limit(PAGE_SIZE);
 
       if (after) {
         try {
@@ -66,15 +62,17 @@ export async function GET(req: NextRequest) {
         }
       }
 
+      if (beforeId) {
+        q = q.lt('id', beforeId);
+      }
+
       return q;
     };
 
     let messages: MessageRow[] | null = null;
     let error: { message?: string } | null = null;
 
-    const primary = await runQuery(
-      'id, sender_id, receiver_id, content, created_at, conversation_id, is_read, reply_to_id, edited_at'
-    );
+    const primary = await runQuery(MESSAGE_SELECT);
     messages = primary.data as MessageRow[] | null;
     error = primary.error;
 
@@ -91,7 +89,8 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    const list = messages || [];
+    // Reverse back to chronological order for display
+    const list = (messages || []).reverse();
     const replyIds = [...new Set(list.map((m) => m.reply_to_id).filter(Boolean))] as string[];
     let replyMap: Record<string, { id: string; content: string; sender_id: string }> = {};
 
@@ -111,7 +110,8 @@ export async function GET(req: NextRequest) {
       reply_to: m.reply_to_id ? replyMap[m.reply_to_id] || null : null,
     }));
 
-    if (!after) {
+    // Mark as read only on initial load (not pagination)
+    if (!after && !beforeId) {
       supabase
         .from('direct_messages')
         .update({ is_read: true })

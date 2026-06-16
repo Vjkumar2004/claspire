@@ -54,14 +54,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'not_connected' }, { status: 403 });
     }
 
-    // Fetch sender and receiver info
-    const [senderResult, receiverResult] = await Promise.all([
-      supabase.from('users').select('role, full_name').eq('id', userId).single(),
-      supabase.from('users').select('role, full_name, last_seen, onesignal_player_id').eq('id', receiverId).single()
-    ]);
+    // Fetch sender and receiver info in a single query
+    const { data: userRows } = await supabase
+      .from('users')
+      .select('id, role, full_name, last_seen, onesignal_player_id')
+      .in('id', [userId, receiverId])
 
-    const senderData = senderResult.data;
-    const receiverData = receiverResult.data;
+    const senderData = userRows?.find(u => u.id === userId) || null;
+    const receiverData = userRows?.find(u => u.id === receiverId) || null;
 
     if (!senderData || !receiverData) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });

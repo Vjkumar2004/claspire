@@ -1,6 +1,6 @@
 'use client'
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { Send, Loader2, X, Pencil, Reply, Trash2, AlertTriangle, RefreshCw } from 'lucide-react'
+import { Send, Loader2, X, Pencil, Reply, Trash2, AlertTriangle, RefreshCw, ChevronUp } from 'lucide-react'
 import { canModifyMessage, type DirectMessageRow } from '@/lib/message-utils'
 import { supabase } from '@/lib/supabase'
 
@@ -14,7 +14,10 @@ interface ChatWindowProps {
   flat?: boolean
 }
 
-type Message = DirectMessageRow
+type Message = DirectMessageRow & { failed?: boolean; error?: string }
+
+const MESSAGE_SELECT = 'id, sender_id, receiver_id, content, created_at, conversation_id, is_read, reply_to_id, edited_at'
+const PAGE_SIZE = 100
 
 function formatTime(dateStr: string) {
   return new Date(dateStr).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
@@ -45,17 +48,20 @@ export default function ChatWindow({
   const [messages, setMessages] = useState<Message[]>([])
   const [newMessage, setNewMessage] = useState('')
   const [loading, setLoading] = useState(true)
+  const [loadingOlder, setLoadingOlder] = useState(false)
   const [sending, setSending] = useState(false)
+  const [hasMoreOlder, setHasMoreOlder] = useState(false)
   const [blockStatus, setBlockStatus] = useState<'loading' | 'none' | 'blocked'>('loading')
   const [menuMessageId, setMenuMessageId] = useState<string | null>(null)
   const [replyingTo, setReplyingTo] = useState<Message | null>(null)
   const [editingMessage, setEditingMessage] = useState<Message | null>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const pollingRef = useRef<NodeJS.Timeout | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
   const sendingRef = useRef(false)
+  const oldestMessageRef = useRef<string | null>(null)
+  const prevScrollHeightRef = useRef<number>(0)
   const [failedMessages, setFailedMessages] = useState<Set<string>>(new Set())
 
   const conversationId = [currentUserId, otherUserId].sort().join('_')
@@ -66,18 +72,37 @@ export default function ChatWindow({
     }
   }, [])
 
-  const syncMessages = useCallback(async () => {
+  const loadMessages = useCallback(async (olderThanId?: string): Promise<Message[]> => {
     try {
-      const res = await fetch(`/api/messages/history?userId=${otherUserId}`, { cache: 'no-store' })
-      if (!res.ok) return
+      const params = new URLSearchParams({ userId: otherUserId })
+      if (olderThanId) params.set('before', olderThanId)
+      const res = await fetch(`/api/messages/history?${params}`, { cache: 'no-store' })
+      if (!res.ok) return []
       const data = await res.json()
-      if (data.messages && Array.isArray(data.messages)) {
-        setMessages(data.messages)
-      }
+      return data.messages || []
     } catch {
-      // silent
+      return []
     }
   }, [otherUserId])
+
+  const loadOlderMessages = useCallback(async () => {
+    if (loadingOlder || !oldestMessageRef.current) return
+    setLoadingOlder(true)
+    prevScrollHeightRef.current = scrollRef.current?.scrollHeight || 0
+    const older = await loadMessages(oldestMessageRef.current)
+    if (older.length > 0) {
+      setMessages(prev => {
+        const existingIds = new Set(prev.map(m => m.id))
+        const newMsgs = older.filter(m => !existingIds.has(m.id))
+        return [...newMsgs, ...prev]
+      })
+      oldestMessageRef.current = older[0]?.id || null
+      setHasMoreOlder(older.length >= PAGE_SIZE)
+    } else {
+      setHasMoreOlder(false)
+    }
+    setLoadingOlder(false)
+  }, [loadingOlder, loadMessages])
 
   useEffect(() => {
     if (!currentUserId || !otherUserId) return
@@ -86,7 +111,12 @@ export default function ChatWindow({
       setLoading(true)
       setMessages([])
 
-      await syncMessages()
+      const latest = await loadMessages()
+      if (latest.length > 0) {
+        setMessages(latest)
+        oldestMessageRef.current = latest[0]?.id || null
+        setHasMoreOlder(latest.length >= PAGE_SIZE)
+      }
       setLoading(false)
     }
 
@@ -97,29 +127,47 @@ export default function ChatWindow({
       .on(
         'postgres_changes',
         {
-          event: '*',
+          event: 'INSERT',
           schema: 'public',
           table: 'direct_messages',
           filter: `conversation_id=eq.${conversationId}`
         },
         (payload) => {
-          if (payload.eventType === 'INSERT') {
-            const newMsg = payload.new as Message
-            if (newMsg.sender_id !== currentUserId) {
-              setMessages(prev => {
-                if (prev.find(m => m.id === newMsg.id)) return prev;
-                return [...prev, newMsg]
-              })
-            }
-          } else if (payload.eventType === 'UPDATE') {
-            const updatedMsg = payload.new as Message
-            setMessages(prev =>
-              prev.map(m => m.id === updatedMsg.id ? { ...m, ...updatedMsg } : m)
-            )
-          } else if (payload.eventType === 'DELETE') {
-            const deletedMsg = payload.old as { id: string }
-            setMessages(prev => prev.filter(m => m.id !== deletedMsg.id))
+          const newMsg = payload.new as Message
+          if (newMsg.sender_id !== currentUserId) {
+            setMessages(prev => {
+              if (prev.find(m => m.id === newMsg.id)) return prev;
+              return [...prev, newMsg]
+            })
           }
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'direct_messages',
+          filter: `conversation_id=eq.${conversationId}`
+        },
+        (payload) => {
+          const updatedMsg = payload.new as Message
+          setMessages(prev =>
+            prev.map(m => m.id === updatedMsg.id ? { ...m, ...updatedMsg } : m)
+          )
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'DELETE',
+          schema: 'public',
+          table: 'direct_messages',
+          filter: `conversation_id=eq.${conversationId}`
+        },
+        (payload) => {
+          const deletedMsg = payload.old as { id: string }
+          setMessages(prev => prev.filter(m => m.id !== deletedMsg.id))
         }
       )
       .subscribe()
@@ -127,7 +175,15 @@ export default function ChatWindow({
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [otherUserId, currentUserId, syncMessages, conversationId])
+  }, [otherUserId, currentUserId, loadMessages, conversationId])
+
+  useEffect(() => {
+    if (prevScrollHeightRef.current > 0 && scrollRef.current) {
+      const newHeight = scrollRef.current.scrollHeight
+      scrollRef.current.scrollTop = newHeight - prevScrollHeightRef.current
+      prevScrollHeightRef.current = 0
+    }
+  }, [messages.length])
 
   useEffect(() => {
     scrollToBottom()
@@ -377,7 +433,24 @@ export default function ChatWindow({
           <div className="flex items-center justify-center h-full">
             <Loader2 className="animate-spin text-purple-600" size={24} />
           </div>
-        ) : messages.length === 0 ? (
+        ) : (
+          <>
+          {hasMoreOlder && !loadingOlder && (
+            <div className="flex justify-center mb-2">
+              <button
+                onClick={loadOlderMessages}
+                className="flex items-center gap-1 px-3 py-1.5 text-[11px] font-semibold text-purple-600 bg-purple-50 hover:bg-purple-100 rounded-full transition-colors"
+              >
+                <ChevronUp size={14} /> Load older messages
+              </button>
+            </div>
+          )}
+          {loadingOlder && (
+            <div className="flex justify-center mb-2">
+              <Loader2 className="animate-spin text-purple-600" size={16} />
+            </div>
+          )}
+          {messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center p-8">
             <div className="w-12 h-12 bg-gray-100 dark:bg-[#1D2226] rounded-full flex items-center justify-center mb-3">
               <Send size={24} className="text-gray-300 dark:text-[#B0B7BE]" />
@@ -471,6 +544,8 @@ export default function ChatWindow({
           })
         )}
         <div ref={messagesEndRef} />
+        </>
+      )}
       </div>
 
       <div className={`flex-shrink-0 ${flat ? 'pb-[max(0.75rem,env(safe-area-inset-bottom))] bg-[#f0f2f5] dark:bg-[#1D2226] border-t border-gray-200 dark:border-[#38434F]' : 'bg-white dark:bg-[#283036] border-t border-gray-100 dark:border-[#38434F]'}`}>

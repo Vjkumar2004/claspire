@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import ImageViewer from './ImageViewer'
 
 interface MediaGalleryProps {
@@ -9,6 +9,7 @@ interface MediaGalleryProps {
 export default function MediaGallery({ imageUrls }: MediaGalleryProps) {
   const [viewerOpen, setViewerOpen] = useState(false)
   const [viewerIndex, setViewerIndex] = useState(0)
+  const closeCooldownRef = useRef(false)
 
   if (!imageUrls) return null
 
@@ -22,8 +23,19 @@ export default function MediaGallery({ imageUrls }: MediaGalleryProps) {
   if (urls.length === 0) return null
 
   const openViewer = (index: number) => {
+    // Prevent reopening during the close cooldown (mobile ghost-click protection)
+    if (closeCooldownRef.current) return
     setViewerIndex(index)
     setViewerOpen(true)
+  }
+
+  const closeViewer = () => {
+    setViewerOpen(false)
+    // Set a brief cooldown to prevent ghost-click from reopening the viewer
+    closeCooldownRef.current = true
+    setTimeout(() => {
+      closeCooldownRef.current = false
+    }, 400)
   }
 
   const remaining = urls.length > 5 ? urls.length - 5 : 0
@@ -34,13 +46,13 @@ export default function MediaGallery({ imageUrls }: MediaGalleryProps) {
         return (
           <div
             onClick={() => openViewer(0)}
-            className="relative overflow-hidden rounded-none cursor-pointer group"
+            className="relative overflow-hidden rounded-none cursor-pointer"
           >
             <img
               src={urls[0]}
               alt="Post media"
               loading="lazy"
-              className="w-full object-cover max-h-[600px] md:max-h-[450px] group-hover:scale-[1.01] transition-transform duration-300 rounded-none"
+              className="w-full object-cover max-h-[600px] md:max-h-[450px] rounded-none"
             />
           </div>
         )
@@ -51,13 +63,13 @@ export default function MediaGallery({ imageUrls }: MediaGalleryProps) {
               <div
                 key={i}
                 onClick={() => openViewer(i)}
-                className="relative overflow-hidden rounded-none cursor-pointer group aspect-[4/3]"
+                className="relative overflow-hidden rounded-none cursor-pointer aspect-[4/3]"
               >
                 <img
                   src={url}
                   alt={`Post media ${i + 1}`}
                   loading="lazy"
-                  className="w-full h-full object-cover group-hover:scale-[1.01] transition-transform duration-300 rounded-none"
+                  className="w-full h-full object-cover rounded-none"
                 />
               </div>
             ))}
@@ -68,13 +80,13 @@ export default function MediaGallery({ imageUrls }: MediaGalleryProps) {
           <div className="flex gap-1.5 rounded-none overflow-hidden">
             <div
               onClick={() => openViewer(0)}
-              className="w-[65%] aspect-[4/3] relative overflow-hidden cursor-pointer group rounded-none"
+              className="w-[65%] aspect-[4/3] relative overflow-hidden cursor-pointer rounded-none"
             >
               <img
                 src={urls[0]}
                 alt="Post media 1"
                 loading="lazy"
-                className="w-full h-full object-cover group-hover:scale-[1.01] transition-transform duration-300 rounded-none"
+                className="w-full h-full object-cover rounded-none"
               />
             </div>
             <div className="flex-1 flex flex-col gap-1.5">
@@ -82,13 +94,13 @@ export default function MediaGallery({ imageUrls }: MediaGalleryProps) {
                 <div
                   key={i}
                   onClick={() => openViewer(i + 1)}
-                  className="flex-1 relative overflow-hidden cursor-pointer group rounded-none"
+                  className="flex-1 relative overflow-hidden cursor-pointer rounded-none"
                 >
                   <img
                     src={url}
                     alt={`Post media ${i + 2}`}
                     loading="lazy"
-                    className="w-full h-full object-cover group-hover:scale-[1.01] transition-transform duration-300 rounded-none"
+                    className="w-full h-full object-cover rounded-none"
                   />
                 </div>
               ))}
@@ -102,13 +114,13 @@ export default function MediaGallery({ imageUrls }: MediaGalleryProps) {
               <div
                 key={i}
                 onClick={() => openViewer(i)}
-                className="relative overflow-hidden rounded-none cursor-pointer group aspect-[4/3]"
+                className="relative overflow-hidden rounded-none cursor-pointer aspect-[4/3]"
               >
                 <img
                   src={url}
                   alt={`Post media ${i + 1}`}
                   loading="lazy"
-                  className="w-full h-full object-cover group-hover:scale-[1.01] transition-transform duration-300 rounded-none"
+                  className="w-full h-full object-cover rounded-none"
                 />
               </div>
             ))}
@@ -124,13 +136,13 @@ export default function MediaGallery({ imageUrls }: MediaGalleryProps) {
                 <div
                   key={i}
                   onClick={() => openViewer(i)}
-                  className="relative overflow-hidden rounded-none cursor-pointer group aspect-[4/3]"
+                  className="relative overflow-hidden rounded-none cursor-pointer aspect-[4/3]"
                 >
                   <img
                     src={url}
                     alt={`Post media ${i + 1}`}
                     loading="lazy"
-                    className={`w-full h-full object-cover group-hover:scale-[1.01] transition-transform duration-300 rounded-none ${isLastOverlay ? 'opacity-80' : ''}`}
+                    className={`w-full h-full object-cover rounded-none ${isLastOverlay ? 'opacity-80' : ''}`}
                   />
                   {isLastOverlay && (
                     <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-none">
@@ -153,7 +165,7 @@ export default function MediaGallery({ imageUrls }: MediaGalleryProps) {
         <ImageViewer
           images={urls}
           initialIndex={viewerIndex}
-          onClose={() => setViewerOpen(false)}
+          onClose={closeViewer}
         />
       )}
     </>

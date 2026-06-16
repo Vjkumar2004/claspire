@@ -656,6 +656,43 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
     }
   }
 
+  const deleteInlineAnswer = async (postId: string, answerId: string, parentAnswerId?: string) => {
+    if (!user?.id) return false
+    
+    // Optimistic UI update
+    setPostAnswers(prev => {
+      const answers = prev[postId] || []
+      return {
+        ...prev,
+        [postId]: answers.filter(a => a.id !== answerId && a.parent_answer_id !== answerId)
+      }
+    })
+
+    if (!parentAnswerId) {
+      setPosts(prev => prev.map((p: any) => {
+        if (p.id === postId) {
+          const newCount = Math.max(0, (p.answer_count || 0) - 1)
+          return { ...p, answer_count: newCount, is_answered: newCount > 0 }
+        }
+        return p
+      }))
+    }
+
+    try {
+      const response = await fetch('/api/answers/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ answer_id: answerId })
+      })
+
+      if (!response.ok) throw new Error('Answer deletion failed')
+      return true
+    } catch (err) {
+      console.error('Failed to delete answer:', err)
+      return false
+    }
+  }
+
   const enrichCommunitiesWithLiveCounts = async (list: any[]) => {
     if (!list.length) return list
     try {
@@ -1297,6 +1334,8 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
                         onToggleAnswerSection={toggleAnswerSection}
                         onSharePost={handleSharePost}
                         onSubmitInlineAnswer={submitInlineAnswer}
+                        onDeleteInlineAnswer={deleteInlineAnswer}
+                        currentUserId={user?.id}
                         onUpvotersClick={handleUpvotersClick}
                       />
                     )

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { getAuthenticatedUser } from '@/lib/session'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -32,6 +33,11 @@ const MAX_LIMIT = 24
 
 export async function GET(req: NextRequest) {
   try {
+    const user = await getAuthenticatedUser(req)
+    if (!user) {
+      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
+    }
+
     const { searchParams } = new URL(req.url)
     const limit = Math.min(
       parseInt(searchParams.get('limit') || String(DEFAULT_PAGE_LIMIT), 10) || DEFAULT_PAGE_LIMIT,
@@ -97,7 +103,7 @@ export async function GET(req: NextRequest) {
       const { data: matchedColleges } = await supabase
         .from('colleges')
         .select('id')
-        .or(`location.ilike.%${location}%,state.ilike.%${location}%`)
+        .or(`location.ilike.%${location.replace(/[%_]/g, '').slice(0, 100)}%,state.ilike.%${location.replace(/[%_]/g, '').slice(0, 100)}%`)
 
       collegeIdsForLocation = matchedColleges?.map((c) => c.id) || []
       if (collegeIdsForLocation.length === 0) {
@@ -130,8 +136,9 @@ export async function GET(req: NextRequest) {
     }
 
     if (q) {
+      const sanitizedQ = q.replace(/[%_]/g, '').slice(0, 100)
       query = query.or(
-        `full_name.ilike.%${q}%,company.ilike.%${q}%,designation.ilike.%${q}%`
+        `full_name.ilike.%${sanitizedQ}%,company.ilike.%${sanitizedQ}%,designation.ilike.%${sanitizedQ}%`
       )
     }
 
@@ -167,20 +174,6 @@ export async function GET(req: NextRequest) {
 
     const total = count ?? 0
     const hasMore = offset + effectiveLimit < total
-
-    if (!isPaginated) {
-      const { data: allSeniors, error: allError } = await supabase
-        .from('users')
-        .select(SENIOR_SELECT)
-        .eq('role', 'senior')
-        .eq('verification_status', 'verified')
-        .order('rise_points', { ascending: false })
-
-      if (allError) {
-        return NextResponse.json({ error: allError.message }, { status: 500 })
-      }
-      return NextResponse.json(allSeniors)
-    }
 
     return NextResponse.json({
       seniors: seniors || [],

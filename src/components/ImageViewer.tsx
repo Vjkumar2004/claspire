@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useState, useCallback, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, ChevronLeft, ChevronRight } from 'lucide-react'
 
@@ -13,6 +14,11 @@ export default function ImageViewer({ images, initialIndex, onClose }: ImageView
   const [currentIndex, setCurrentIndex] = useState(initialIndex)
   const touchStartX = useRef<number | null>(null)
   const touchEndX = useRef<number | null>(null)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const goToPrevious = useCallback(() => {
     setCurrentIndex(prev => (prev === 0 ? images.length - 1 : prev - 1))
@@ -66,24 +72,36 @@ export default function ImageViewer({ images, initialIndex, onClose }: ImageView
     touchEndX.current = null
   }
 
-  return (
+  if (!mounted) return null
+
+  return createPortal(
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.2 }}
       className="fixed inset-0 z-[10000] bg-black/90 backdrop-blur-md flex items-center justify-center"
-      onClick={onClose}
+      onClick={(e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        onClose();
+      }}
+      onPointerDown={(e) => e.stopPropagation()}
     >
       <div
         className="relative w-full h-full flex items-center justify-center"
-        onClick={e => e.stopPropagation()}
+        onClick={(e) => { e.stopPropagation(); e.preventDefault(); }}
+        onPointerDown={(e) => e.stopPropagation()}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
         <button
-          onClick={onClose}
+          onClick={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            onClose();
+          }}
           className="absolute top-4 right-4 z-20 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors cursor-pointer"
         >
           <X className="w-5 h-5" />
@@ -126,6 +144,7 @@ export default function ImageViewer({ images, initialIndex, onClose }: ImageView
           </AnimatePresence>
         </div>
       </div>
-    </motion.div>
+    </motion.div>,
+    document.body
   )
 }

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { sanitizeSearchInput } from '@/lib/sanitize'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -59,7 +60,8 @@ function getSimilarity(a: string, b: string): number {
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url)
-    const query = (searchParams.get('q') || '').trim().toLowerCase()
+    const rawQuery = (searchParams.get('q') || '').trim().toLowerCase()
+    const query = sanitizeSearchInput(rawQuery)
     const filterType = searchParams.get('type') || 'all'
     const limit = parseInt(searchParams.get('limit') || '10', 10)
     const offset = parseInt(searchParams.get('offset') || '0', 10)

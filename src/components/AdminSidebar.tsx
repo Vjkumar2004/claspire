@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect, useCallback } from 'react'
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import {
@@ -10,7 +11,9 @@ import {
   MessageSquare,
   FileText,
   ChevronRight,
-  LogOut
+  LogOut,
+  Menu,
+  X
 } from 'lucide-react'
 
 const navItems = [
@@ -24,62 +27,129 @@ const navItems = [
 
 export default function AdminSidebar() {
   const pathname = usePathname()
+  const [isOpen, setIsOpen] = useState(false)
+
+  const close = useCallback(() => setIsOpen(false), [])
+
+  // ESC key closes drawer
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') close()
+    }
+    document.addEventListener('keydown', onKeyDown)
+    return () => document.removeEventListener('keydown', onKeyDown)
+  }, [close])
+
+  // Body scroll lock when drawer open on mobile
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [isOpen])
+
+  // Close drawer on navigation
+  useEffect(() => {
+    close()
+  }, [pathname, close])
 
   return (
-    <aside className="w-64 bg-white dark:bg-[#283036] border-r border-gray-200 dark:border-[#38434F] min-h-screen flex flex-col">
-      <div className="p-5 border-b border-gray-200 dark:border-[#38434F]">
-        <Link href="/admin" className="flex items-center gap-2.5 no-underline">
-          <div className="w-8 h-8 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-lg flex items-center justify-center">
-            <Shield size={16} className="text-white" />
-          </div>
-          <div>
-            <p className="text-sm font-black text-gray-900 dark:text-white leading-tight">Claspire</p>
-            <p className="text-[9px] font-bold text-purple-600 uppercase tracking-widest">Admin Panel</p>
-          </div>
-        </Link>
-      </div>
+    <>
+      {/* Hamburger button — mobile only, fixed top-left */}
+      <button
+        onClick={() => setIsOpen(true)}
+        className="fixed top-3 left-3 z-50 lg:hidden p-2 rounded-lg bg-white dark:bg-[#283036] border border-gray-200 dark:border-[#38434F] shadow-md text-gray-600 dark:text-[#B0B7BE] hover:text-gray-900 dark:hover:text-white transition-colors"
+        aria-label="Open admin menu"
+      >
+        <Menu size={20} />
+      </button>
 
-      <nav className="flex-1 p-3 space-y-1">
-        {navItems.map((item) => {
-          const Icon = item.icon
-          const isActive = pathname === item.href
-          return item.disabled ? (
-            <div
-              key={item.href}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-bold text-gray-300 dark:text-[#5A6570] cursor-not-allowed select-none"
-              title="Coming soon"
-            >
-              <Icon size={18} className="shrink-0" />
-              <span>{item.label}</span>
-              <span className="ml-auto text-[8px] uppercase tracking-wider bg-gray-100 dark:bg-[#1D2226] px-1.5 py-0.5 rounded">Soon</span>
+      {/* Backdrop — mobile only */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+          onClick={close}
+          aria-hidden
+        />
+      )}
+
+      {/* Sidebar panel */}
+      <aside
+        className={`
+          fixed inset-y-0 left-0 z-50
+          w-[min(85vw,320px)] lg:w-64
+          flex flex-col bg-white dark:bg-[#283036] border-r border-gray-200 dark:border-[#38434F]
+          transform transition-transform duration-300 ease-in-out
+          ${isOpen ? 'translate-x-0' : '-translate-x-full'}
+          lg:translate-x-0 lg:relative lg:z-auto
+          min-h-screen
+        `}
+      >
+        <div className="p-5 border-b border-gray-200 dark:border-[#38434F] flex items-center justify-between">
+          <Link href="/admin" className="flex items-center gap-2.5 no-underline" onClick={close}>
+            <div className="w-8 h-8 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-lg flex items-center justify-center shrink-0">
+              <Shield size={16} className="text-white" />
             </div>
-          ) : (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-bold transition-all no-underline ${
-                isActive
-                  ? 'bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300'
-                  : 'text-gray-600 dark:text-[#B0B7BE] hover:bg-gray-50 dark:hover:bg-[#1D2226]'
-              }`}
-            >
-              <Icon size={18} className="shrink-0" />
-              <span>{item.label}</span>
-              {isActive && <ChevronRight size={14} className="ml-auto" />}
-            </Link>
-          )
-        })}
-      </nav>
+            <div>
+              <p className="text-sm font-black text-gray-900 dark:text-white leading-tight">Claspire</p>
+              <p className="text-[9px] font-bold text-purple-600 uppercase tracking-widest">Admin Panel</p>
+            </div>
+          </Link>
+          <button
+            onClick={close}
+            className="lg:hidden p-1.5 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#1D2226] transition-colors"
+            aria-label="Close admin menu"
+          >
+            <X size={18} />
+          </button>
+        </div>
 
-      <div className="p-3 border-t border-gray-200 dark:border-[#38434F]">
-        <Link
-          href="/"
-          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-bold text-gray-500 dark:text-[#B0B7BE] hover:bg-gray-50 dark:hover:bg-[#1D2226] transition-all no-underline"
-        >
-          <LogOut size={16} className="shrink-0" />
-          <span>Back to App</span>
-        </Link>
-      </div>
-    </aside>
+        <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
+          {navItems.map((item) => {
+            const Icon = item.icon
+            const isActive = pathname === item.href
+            return item.disabled ? (
+              <div
+                key={item.href}
+                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-bold text-gray-300 dark:text-[#5A6570] cursor-not-allowed select-none"
+                title="Coming soon"
+              >
+                <Icon size={18} className="shrink-0" />
+                <span>{item.label}</span>
+                <span className="ml-auto text-[8px] uppercase tracking-wider bg-gray-100 dark:bg-[#1D2226] px-1.5 py-0.5 rounded">Soon</span>
+              </div>
+            ) : (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-bold transition-all no-underline ${
+                  isActive
+                    ? 'bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300'
+                    : 'text-gray-600 dark:text-[#B0B7BE] hover:bg-gray-50 dark:hover:bg-[#1D2226]'
+                }`}
+              >
+                <Icon size={18} className="shrink-0" />
+                <span>{item.label}</span>
+                {isActive && <ChevronRight size={14} className="ml-auto" />}
+              </Link>
+            )
+          })}
+        </nav>
+
+        <div className="p-3 border-t border-gray-200 dark:border-[#38434F]">
+          <Link
+            href="/"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-bold text-gray-500 dark:text-[#B0B7BE] hover:bg-gray-50 dark:hover:bg-[#1D2226] transition-all no-underline"
+          >
+            <LogOut size={16} className="shrink-0" />
+            <span>Back to App</span>
+          </Link>
+        </div>
+      </aside>
+    </>
   )
 }

@@ -41,10 +41,10 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Verify post exists
+    // Verify post exists and fetch author + counts in one query
     const { data: post, error: postError } = await supabase
       .from('posts')
-      .select('id')
+      .select('id, author_id, title, upvote_count, downvote_count')
       .eq('id', post_id)
       .single()
 
@@ -54,6 +54,8 @@ export async function POST(req: NextRequest) {
         { status: 404 }
       )
     }
+
+    const authorId = post.author_id
 
     // Check existing vote
     const { data: existing, error: existingError } = await supabase
@@ -81,44 +83,34 @@ export async function POST(req: NextRequest) {
           .delete()
           .eq('id', existing.id)
 
-        // Update post counts atomically
-        const { data: currentPost } = await supabase
-          .from('posts')
-          .select('upvote_count, downvote_count')
-          .eq('id', post_id)
-          .single()
+        const newUpvotesNum = vote_type === 'upvote'
+          ? Math.max(0, (post?.upvote_count || 0) - 1)
+          : post?.upvote_count || 0
 
-        const newUpvotes = vote_type === 'upvote'
-          ? Math.max(0, (currentPost?.upvote_count || 0) - 1)
-          : currentPost?.upvote_count || 0
-
-        const newDownvotes = vote_type === 'downvote'
-          ? Math.max(0, (currentPost?.downvote_count || 0) - 1)
-          : currentPost?.downvote_count || 0
+        const newDownvotesNum = vote_type === 'downvote'
+          ? Math.max(0, (post?.downvote_count || 0) - 1)
+          : post?.downvote_count || 0
 
         await supabase
           .from('posts')
           .update({
-            upvote_count: newUpvotes,
-            downvote_count: newDownvotes
+            upvote_count: newUpvotesNum,
+            downvote_count: newDownvotesNum
           })
           .eq('id', post_id)
 
         // Fix Exploit: Reverse the RP if removing an upvote
-        if (vote_type === 'upvote') {
-          const { data: p } = await supabase.from('posts').select('author_id').eq('id', post_id).single()
-          if (p && p.author_id !== userId) {
-            const { data: u } = await supabase.from('users').select('rise_points').eq('id', p.author_id).single()
-            await supabase.from('users').update({ rise_points: Math.max(0, (u?.rise_points || 0) - 1) }).eq('id', p.author_id)
-          }
+        if (vote_type === 'upvote' && authorId && authorId !== userId) {
+          const { data: u } = await supabase.from('users').select('rise_points').eq('id', authorId).single()
+          await supabase.from('users').update({ rise_points: Math.max(0, (u?.rise_points || 0) - 1) }).eq('id', authorId)
         }
 
         return NextResponse.json({
           success: true,
           action: 'removed',
           vote: null,
-          upvotes: newUpvotes,
-          downvotes: newDownvotes
+          upvotes: newUpvotesNum,
+          downvotes: newDownvotesNum
         })
       } else {
         // Different vote → switch
@@ -130,46 +122,36 @@ export async function POST(req: NextRequest) {
           .update({ vote_type })
           .eq('id', existing.id)
 
-        // Update post counts atomically
-        const { data: currentPost } = await supabase
-          .from('posts')
-          .select('upvote_count, downvote_count')
-          .eq('id', post_id)
-          .single()
-
-        let newUpvotes, newDownvotes
+        let newUpvotesNum, newDownvotesNum
 
         if (vote_type === 'upvote') {
-          newUpvotes = (currentPost?.upvote_count || 0) + 1
-          newDownvotes = Math.max(0, (currentPost?.downvote_count || 0) - 1)
+          newUpvotesNum = (post?.upvote_count || 0) + 1
+          newDownvotesNum = Math.max(0, (post?.downvote_count || 0) - 1)
         } else {
-          newUpvotes = Math.max(0, (currentPost?.upvote_count || 0) - 1)
-          newDownvotes = (currentPost?.downvote_count || 0) + 1
+          newUpvotesNum = Math.max(0, (post?.upvote_count || 0) - 1)
+          newDownvotesNum = (post?.downvote_count || 0) + 1
         }
 
         await supabase
           .from('posts')
           .update({
-            upvote_count: newUpvotes,
-            downvote_count: newDownvotes
+            upvote_count: newUpvotesNum,
+            downvote_count: newDownvotesNum
           })
           .eq('id', post_id)
 
         // Fix Exploit: Reverse the RP if switching from upvote to downvote
-        if (existing.vote_type === 'upvote' && vote_type === 'downvote') {
-          const { data: p } = await supabase.from('posts').select('author_id').eq('id', post_id).single()
-          if (p && p.author_id !== userId) {
-            const { data: u } = await supabase.from('users').select('rise_points').eq('id', p.author_id).single()
-            await supabase.from('users').update({ rise_points: Math.max(0, (u?.rise_points || 0) - 1) }).eq('id', p.author_id)
-          }
+        if (existing.vote_type === 'upvote' && vote_type === 'downvote' && authorId && authorId !== userId) {
+          const { data: u } = await supabase.from('users').select('rise_points').eq('id', authorId).single()
+          await supabase.from('users').update({ rise_points: Math.max(0, (u?.rise_points || 0) - 1) }).eq('id', authorId)
         }
 
         return NextResponse.json({
           success: true,
           action: 'switched',
           vote: { vote_type },
-          upvotes: newUpvotes,
-          downvotes: newDownvotes
+          upvotes: newUpvotesNum,
+          downvotes: newDownvotesNum
         })
       }
     } else {
@@ -190,57 +172,43 @@ export async function POST(req: NextRequest) {
         throw insertError
       }
 
-      // Update post counts atomically
-      const { data: currentPost } = await supabase
-        .from('posts')
-        .select('upvote_count, downvote_count')
-        .eq('id', post_id)
-        .single()
+      const newUpvotesNum = vote_type === 'upvote'
+        ? (post?.upvote_count || 0) + 1
+        : post?.upvote_count || 0
 
-      const newUpvotes = vote_type === 'upvote'
-        ? (currentPost?.upvote_count || 0) + 1
-        : currentPost?.upvote_count || 0
-
-      const newDownvotes = vote_type === 'downvote'
-        ? (currentPost?.downvote_count || 0) + 1
-        : currentPost?.downvote_count || 0
+      const newDownvotesNum = vote_type === 'downvote'
+        ? (post?.downvote_count || 0) + 1
+        : post?.downvote_count || 0
 
       await supabase
         .from('posts')
         .update({
-          upvote_count: newUpvotes,
-          downvote_count: newDownvotes
+          upvote_count: newUpvotesNum,
+          downvote_count: newDownvotesNum
         })
         .eq('id', post_id)
 
       // Award RP to author
-      if (vote_type === 'upvote' && action === 'added') {
-        // Fetch author_id
-        const { data: authorData } = await supabase
-          .from('posts')
-          .select('author_id, title')
-          .eq('id', post_id)
+      if (vote_type === 'upvote' && action === 'added' && authorId && authorId !== userId) {
+        // Fetch author rise_points + push player id in one query
+        const { data: author } = await supabase
+          .from('users')
+          .select('rise_points, onesignal_player_id')
+          .eq('id', authorId)
           .single()
 
-        if (authorData && authorData.author_id !== userId) {
-          // Award 1 RP
-          const { data: user } = await supabase
-            .from('users')
-            .select('rise_points')
-            .eq('id', authorData.author_id)
-            .single()
-
+        if (author) {
           await supabase
             .from('users')
-            .update({ rise_points: (user?.rise_points || 0) + 1 })
-            .eq('id', authorData.author_id)
+            .update({ rise_points: (author?.rise_points || 0) + 1 })
+            .eq('id', authorId)
 
           await supabase
             .from('rise_points_log')
             .insert({
-              user_id: authorData.author_id,
+              user_id: authorId,
               points: 1,
-              reason: `Upvote received on: "${authorData.title.slice(0, 30)}..."`,
+              reason: `Upvote received on: "${post.title?.slice(0, 30)}..."`,
               created_at: new Date().toISOString()
             })
 
@@ -249,22 +217,16 @@ export async function POST(req: NextRequest) {
           await createNotification({
             type: 'post_upvoted',
             title: '🔥 Someone liked your post!',
-            message: `${userName} liked your post "${authorData.title?.slice(0, 50)}"`,
-            receiver_id: authorData.author_id,
+            message: `${userName} liked your post "${post.title?.slice(0, 50)}"`,
+            receiver_id: authorId,
             sender_id: userId,
             post_id: post_id,
             link: `/community/c/all/p/${post_id}`
           })
 
           // Push for upvote
-          try {
-            const { data: receiver } = await supabase
-              .from('users')
-              .select('onesignal_player_id')
-              .eq('id', authorData.author_id)
-              .single()
-
-            if (receiver?.onesignal_player_id) {
+          if (author.onesignal_player_id) {
+            try {
               const pushRes = await fetch('https://onesignal.com/api/v1/notifications', {
                 method: 'POST',
                 headers: {
@@ -273,9 +235,9 @@ export async function POST(req: NextRequest) {
                 },
                 body: JSON.stringify({
                   app_id: process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID,
-                  include_player_ids: [receiver.onesignal_player_id],
+                  include_player_ids: [author.onesignal_player_id],
                   headings: { en: '🔥 Someone liked your post!' },
-                  contents: { en: `${userName} liked "${authorData.title?.slice(0, 50)}"` },
+                  contents: { en: `${userName} liked "${post.title?.slice(0, 50)}"` },
                   url: `${process.env.NEXT_PUBLIC_APP_URL}/community/c/all/p/${post_id}`
                 })
               })
@@ -285,11 +247,9 @@ export async function POST(req: NextRequest) {
               } else {
                 console.log('[OneSignal] Vote push sent:', { id: pushResult.id, recipients: pushResult.recipients })
               }
-            } else {
-              console.log('[OneSignal] Vote push skipped — no player ID for author')
+            } catch (pushErr) {
+              console.error('[OneSignal] Vote push fetch error:', pushErr)
             }
-          } catch (pushErr) {
-            console.error('[OneSignal] Vote push fetch error:', pushErr)
           }
         }
       }
@@ -298,8 +258,8 @@ export async function POST(req: NextRequest) {
         success: true,
         action,
         vote: { vote_type },
-        upvotes: newUpvotes,
-        downvotes: newDownvotes
+        upvotes: newUpvotesNum,
+        downvotes: newDownvotesNum
       })
     }
 

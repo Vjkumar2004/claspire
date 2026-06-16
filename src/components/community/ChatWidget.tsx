@@ -149,35 +149,53 @@ function ChatWidget({ user, isNavVisible }: ChatWidgetProps) {
       .on(
         'postgres_changes',
         {
-          event: '*',
+          event: 'INSERT',
           schema: 'public',
           table: 'direct_messages',
           filter: `conversation_id=eq.${conversationId}`
         },
         (payload) => {
-          if (payload.eventType === 'INSERT') {
-            const newMsg = payload.new as any
-            if (newMsg.sender_id !== user.id) {
-              setDrawerMessages(prev => {
-                if (prev.some((m: any) => m.id === newMsg.id)) return prev;
-                return [...prev, newMsg]
-              })
-              
-              fetch('/api/messages/read', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ conversationId })
-              }).catch(console.error)
-            }
-          } else if (payload.eventType === 'UPDATE') {
-            const updatedMsg = payload.new as any
-            setDrawerMessages(prev =>
-              prev.map(m => m.id === updatedMsg.id ? { ...m, ...updatedMsg } : m)
-            )
-          } else if (payload.eventType === 'DELETE') {
-            const deletedMsg = payload.old as any
-            setDrawerMessages(prev => prev.filter(m => m.id !== deletedMsg.id))
+          const newMsg = payload.new as any
+          if (newMsg.sender_id !== user.id) {
+            setDrawerMessages(prev => {
+              if (prev.some((m: any) => m.id === newMsg.id)) return prev;
+              return [...prev, newMsg]
+            })
+            
+            fetch('/api/messages/read', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ conversationId })
+            }).catch(console.error)
           }
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'direct_messages',
+          filter: `conversation_id=eq.${conversationId}`
+        },
+        (payload) => {
+          const updatedMsg = payload.new as any
+          setDrawerMessages(prev =>
+            prev.map(m => m.id === updatedMsg.id ? { ...m, ...updatedMsg } : m)
+          )
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'DELETE',
+          schema: 'public',
+          table: 'direct_messages',
+          filter: `conversation_id=eq.${conversationId}`
+        },
+        (payload) => {
+          const deletedMsg = payload.old as any
+          setDrawerMessages(prev => prev.filter(m => m.id !== deletedMsg.id))
         }
       )
       .subscribe()

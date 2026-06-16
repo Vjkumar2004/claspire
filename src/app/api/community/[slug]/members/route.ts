@@ -95,6 +95,7 @@ export async function GET(
         .select(userSelect)
         .eq('college_id', collegeId)
         .order('created_at', { ascending: false })
+        .limit(100)
 
       if (ownError) {
         console.error('Own college users error:', ownError)
@@ -114,6 +115,7 @@ export async function GET(
       .from('community_members')
       .select('user_id, membership_type, joined_at')
       .eq('community_id', community.id)
+      .limit(200)
 
     if (membersError) {
       console.error('community_members error:', membersError)
@@ -132,6 +134,8 @@ export async function GET(
       if (collegeId) {
         externalQuery = externalQuery.neq('college_id', collegeId)
       }
+
+      externalQuery = externalQuery.limit(100)
 
       const { data: externalUsers, error: externalError } = await externalQuery
 

@@ -57,6 +57,8 @@ export type NotificationType =
   | 'message_request_rejected'
   | 'welcome'
   | 'password_changed'
+  | 'college_claim_approved'
+  | 'college_claim_rejected'
 
 interface CreateNotificationParams {
   receiver_id: string

@@ -129,24 +129,24 @@ export default function CollegeClaimsAdminPage() {
   }
 
   return (
-    <div className="p-8">
+    <div className="p-4 sm:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto">
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">
           <div>
-            <h1 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight flex items-center gap-3">
-              <Shield className="text-purple-600" size={28} />
+            <h1 className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white tracking-tight flex items-center gap-3">
+              <Shield className="text-purple-600 shrink-0" size={28} />
               College Claims
             </h1>
             <p className="text-sm text-gray-500 dark:text-[#B0B7BE] mt-1">
               Review and manage college ownership requests
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 overflow-x-auto flex-nowrap -mx-2 px-2 sm:mx-0 sm:px-0 pb-1 sm:pb-0">
             {['pending', 'all', 'approved', 'rejected'].map((f) => (
               <button
                 key={f}
                 onClick={() => setFilter(f as any)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                className={`shrink-0 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                   filter === f
                     ? 'bg-purple-600 text-white shadow-md'
                     : 'bg-white dark:bg-[#283036] text-gray-600 dark:text-[#B0B7BE] border border-gray-200 dark:border-[#38434F] hover:border-purple-300'
@@ -172,7 +172,7 @@ export default function CollegeClaimsAdminPage() {
         {loading ? (
           <div className="space-y-4">
             {[1, 2, 3].map(i => (
-              <div key={i} className="bg-white dark:bg-[#283036] rounded-lg border border-gray-200 dark:border-[#38434F] p-6 animate-pulse">
+              <div key={i} className="bg-white dark:bg-[#283036] rounded-lg border border-gray-200 dark:border-[#38434F] p-4 sm:p-6 animate-pulse">
                 <div className="h-5 bg-gray-200 dark:bg-[#38434F] rounded w-1/3 mb-3" />
                 <div className="h-4 bg-gray-200 dark:bg-[#38434F] rounded w-1/2 mb-2" />
                 <div className="h-4 bg-gray-200 dark:bg-[#38434F] rounded w-2/3" />
@@ -189,9 +189,9 @@ export default function CollegeClaimsAdminPage() {
             {filtered.map((claim) => (
               <div
                 key={claim.id}
-                className="bg-white dark:bg-[#283036] rounded-lg border border-gray-200 dark:border-[#38434F] p-6 hover:shadow-md transition-shadow"
+                className="bg-white dark:bg-[#283036] rounded-lg border border-gray-200 dark:border-[#38434F] p-4 sm:p-6 hover:shadow-md transition-shadow"
               >
-                <div className="flex items-start justify-between gap-4">
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 sm:gap-4">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-3 mb-3">
                       <h3 className="text-lg font-bold text-gray-900 dark:text-white truncate">
@@ -271,7 +271,7 @@ export default function CollegeClaimsAdminPage() {
                       return (
                         <div className="mt-3 p-3 bg-gray-50 dark:bg-[#1D2226] rounded-lg border border-gray-200 dark:border-[#38434F]">
                           <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Domain Verification</p>
-                          <div className="grid grid-cols-3 gap-4 text-xs">
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 text-xs">
                             <div>
                               <p className="text-gray-400 font-semibold mb-0.5">Detected</p>
                               <p className="font-bold text-gray-900 dark:text-white">{detectedDomain || '—'}</p>
@@ -283,7 +283,7 @@ export default function CollegeClaimsAdminPage() {
                                 <p className="text-[9px] text-amber-600 mt-0.5">Extracted from website URL</p>
                               )}
                             </div>
-                            <div className="flex items-center justify-end">
+                            <div className="flex items-center sm:justify-end">
                               {isMatch ? (
                                 <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2.5 py-1 rounded-full border border-emerald-200">
                                   <CheckCircle size={10} /> Match
@@ -301,7 +301,7 @@ export default function CollegeClaimsAdminPage() {
                       )
                     })()}
 
-                    <div className="mt-3 flex items-center gap-3 text-xs">
+                    <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs">
                       <Link
                         href={`/colleges/${claim.colleges?.slug}`}
                         target="_blank"
@@ -321,11 +321,11 @@ export default function CollegeClaimsAdminPage() {
                   </div>
 
                   {claim.status === 'pending' && (
-                    <div className="flex items-center gap-2 shrink-0">
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 shrink-0">
                       <button
                         onClick={() => handleApprove(claim.id)}
                         disabled={processing === claim.id}
-                        className="inline-flex items-center gap-1.5 bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg font-bold text-xs transition-all disabled:opacity-50"
+                        className="inline-flex items-center justify-center gap-1.5 bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2.5 sm:py-2 rounded-lg font-bold text-xs transition-all disabled:opacity-50"
                       >
                         {processing === claim.id ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle size={14} />}
                         Approve
@@ -333,7 +333,7 @@ export default function CollegeClaimsAdminPage() {
                       <button
                         onClick={() => handleReject(claim.id)}
                         disabled={processing === claim.id}
-                        className="inline-flex items-center gap-1.5 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-bold text-xs transition-all disabled:opacity-50"
+                        className="inline-flex items-center justify-center gap-1.5 bg-red-500 hover:bg-red-600 text-white px-4 py-2.5 sm:py-2 rounded-lg font-bold text-xs transition-all disabled:opacity-50"
                       >
                         {processing === claim.id ? <Loader2 size={14} className="animate-spin" /> : <XCircle size={14} />}
                         Reject

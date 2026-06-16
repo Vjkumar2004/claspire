@@ -36,23 +36,25 @@ export async function GET(req: NextRequest) {
     const groupIds = expiredGroups.map(g => g.id)
     let deletedCount = 0
 
-    for (const groupId of groupIds) {
-      await supabase.from('student_group_messages').delete().eq('group_id', groupId)
-      await supabase.from('student_group_members').delete().eq('group_id', groupId)
-      await supabase.from('student_group_join_requests').delete().eq('group_id', groupId)
-      const { error: deleteError } = await supabase
-        .from('student_groups')
-        .delete()
-        .eq('id', groupId)
+    await Promise.all([
+      supabase.from('student_group_messages').delete().in('group_id', groupIds),
+      supabase.from('student_group_members').delete().in('group_id', groupIds),
+      supabase.from('student_group_join_requests').delete().in('group_id', groupIds),
+    ])
 
-      if (!deleteError) {
-        deletedCount++
-      } else {
-        console.error(`Failed to delete group ${groupId}:`, deleteError)
-      }
+    const { data: remaining, error: deleteAllError } = await supabase
+      .from('student_groups')
+      .delete()
+      .in('id', groupIds)
+      .select('id')
+
+    if (deleteAllError) {
+      console.error('Failed to delete expired groups:', deleteAllError)
+    } else if (remaining) {
+      deletedCount = remaining.length
     }
 
-    console.log(`Cleanup: deleted ${deletedCount} expired groups`)
+    console.log(`Cleanup: deleted ${deletedCount}/${expiredGroups.length} expired groups`)
 
     return NextResponse.json({
       success: true,

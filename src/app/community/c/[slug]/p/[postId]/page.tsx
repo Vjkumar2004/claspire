@@ -195,6 +195,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
         .order('is_accepted', { ascending: false })
         .order('upvote_count', { ascending: false })
         .order('created_at', { ascending: true })
+        .limit(50)
 
       setAnswers(answersData || [])
 
