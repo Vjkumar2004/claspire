@@ -28,38 +28,28 @@ const BottomNavbar = () => {
   const pathname = usePathname()
   const { user } = useAuth()
   const [isVisible, setIsVisible] = useState(true)
-  const [lastScrollY, setLastScrollY] = useState(0)
+  const lastScrollY = React.useRef(0)
 
   // Auto-hide navbar on scroll
   useEffect(() => {
-    let scrollTimeout: NodeJS.Timeout
-
     const handleScroll = () => {
       const currentScrollY = window.scrollY
 
-      if (scrollTimeout) {
-        clearTimeout(scrollTimeout)
-      }
-
-      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+      if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
         setIsVisible(false)
-      } else if (currentScrollY < lastScrollY) {
+      } else if (currentScrollY < lastScrollY.current) {
         setIsVisible(true)
       }
 
-      setLastScrollY(currentScrollY)
-      scrollTimeout = setTimeout(() => { }, 150)
+      lastScrollY.current = currentScrollY
     }
 
     window.addEventListener('scroll', handleScroll, { passive: true })
 
     return () => {
       window.removeEventListener('scroll', handleScroll)
-      if (scrollTimeout) {
-        clearTimeout(scrollTimeout)
-      }
     }
-  }, [lastScrollY])
+  }, [])
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const { pendingNetworkRequestsCount } = useNotifications()
@@ -118,10 +108,13 @@ const BottomNavbar = () => {
 
   return (
     <div
-      className={`md:hidden fixed bottom-0 left-0 w-full z-[999] bottom-navbar transition-transform duration-300 ease-in-out ${isVisible ? 'translate-y-0' : 'translate-y-full'
-        }`}
+      className="md:hidden fixed bottom-0 left-0 w-full z-[999] bottom-navbar"
+      style={{
+        transform: isVisible ? 'translateY(0)' : 'translateY(150%)',
+        transition: 'transform 0.4s cubic-bezier(0.25, 1, 0.5, 1)'
+      }}
     >
-      <div className="bg-white/80 dark:bg-[#1D2226]/80 backdrop-blur-xl border border-gray-200/50 dark:border-[#38434F]/50 rounded-[28px] shadow-[0_8px_32px_rgba(0,0,0,0.12)] px-2 py-2">
+      <div className="bg-white/95 dark:bg-[#1D2226]/95 backdrop-blur-xl border-t border-gray-200/60 dark:border-[#38434F]/60 shadow-[0_-4px_24px_rgba(0,0,0,0.06)] px-2 pt-1.5 pb-[calc(env(safe-area-inset-bottom)+0.5rem)]">
         <div className="flex items-center justify-between gap-1">
           {navItems.map((item, index) => {
             // Type guard functions
@@ -138,12 +131,12 @@ const BottomNavbar = () => {
                 <Link
                   key={index}
                   href={item.href}
-                  className="relative -top-3 flex flex-col items-center group no-underline"
+                  className="relative flex flex-col items-center group no-underline justify-center flex-1"
                 >
-                  <div className="w-14 h-14 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-full flex items-center justify-center shadow-[0_4px_16px_rgba(124,58,237,0.4)] transition-transform group-hover:scale-110 active:scale-95">
-                    <Icon size={28} className="text-white" />
+                  <div className="w-9 h-9 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-lg flex items-center justify-center shadow-md transition-transform group-hover:scale-110 active:scale-95">
+                    <Icon size={20} className="text-white" />
                   </div>
-                  <span className="text-[10px] font-bold text-gray-500 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <span className="text-[10px] font-bold text-gray-500 mt-0.5 opacity-0 group-hover:opacity-100 transition-opacity absolute -bottom-3">
                     Ask
                   </span>
                 </Link>
@@ -164,19 +157,19 @@ const BottomNavbar = () => {
                       window.dispatchEvent(new CustomEvent('REFRESH_COMMUNITY_FEED'))
                     }
                   }}
-                  className="flex-1 flex flex-col items-center py-2 no-underline group relative"
+                  className="flex-1 flex flex-col items-center py-1 no-underline group relative"
                 >
-                  <div className={`transition-all duration-200 ${isActive ? 'text-purple-600 scale-110' : 'text-gray-400 group-hover:text-gray-600 dark:text-[#6B7B8B] dark:group-hover:text-[#B0B7BE]'}`}>
-                    <Icon size={22} strokeWidth={isActive ? 2.5 : 2} />
+                  <div className={`transition-all duration-200 flex flex-col items-center justify-center h-7 ${isActive ? 'text-purple-600' : 'text-gray-400 group-hover:text-gray-600 dark:text-[#6B7B8B] dark:group-hover:text-[#B0B7BE]'}`}>
+                    <Icon size={22} strokeWidth={isActive ? 2.5 : 2} className={isActive ? 'scale-110' : ''} />
 
                     {/* Notification Badge */}
                     {item.badge !== undefined && item.badge > 0 && (
-                      <span className="absolute -top-1 right-2 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white ring-2 ring-white px-0.5">
+                      <span className="absolute top-0 right-2 flex h-3.5 min-w-[14px] items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white ring-2 ring-white px-0.5">
                         {item.badge > 99 ? '99+' : item.badge}
                       </span>
                     )}
                   </div>
-                  <span className={`text-[10px] mt-1 font-bold tracking-tight transition-colors duration-200 ${isActive ? 'text-purple-600' : 'text-gray-400 group-hover:text-gray-600 dark:text-[#6B7B8B] dark:group-hover:text-[#B0B7BE]'}`}>
+                  <span className={`text-[10px] mt-0.5 font-bold tracking-tight transition-colors duration-200 ${isActive ? 'text-purple-600' : 'text-gray-400 group-hover:text-gray-600 dark:text-[#6B7B8B] dark:group-hover:text-[#B0B7BE]'}`}>
                     {item.label}
                   </span>
                 </Link>

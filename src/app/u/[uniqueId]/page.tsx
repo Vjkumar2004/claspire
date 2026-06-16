@@ -7,6 +7,7 @@ import {
   Github, ExternalLink, Info,
 } from 'lucide-react'
 import ProfileActionBar from '@/components/profile/ProfileActionBar'
+import ImageViewer from '@/components/ImageViewer'
 import { getUserActivityStatus } from '@/hooks/useActivityStatus'
 import {
   parseProfileData,
@@ -24,6 +25,7 @@ export default function PublicProfilePage() {
   const uniqueId = params?.uniqueId as string
 
   const [loading, setLoading] = useState(true)
+  const [avatarViewerOpen, setAvatarViewerOpen] = useState(false)
   const [data, setData] = useState<any>(null)
   const [error, setError] = useState('')
   const [viewCount, setViewCount] = useState<number | null>(null)
@@ -128,7 +130,11 @@ export default function PublicProfilePage() {
               <div className="relative px-6 pb-5">
                 {/* Avatar */}
                 <div className="-mt-14 mb-3">
-                  <div className={`w-28 h-28 rounded-2xl overflow-hidden border-4 border-white dark:border-[#1D2226] shadow-md ${!user.avatar_url ? 'bg-gradient-to-br from-[#7C3AED] to-[#4F46E5] flex items-center justify-center text-white text-2xl font-black' : ''}`}>
+                  <div
+                    className={`w-28 h-28 rounded-2xl overflow-hidden border-4 border-white dark:border-[#1D2226] shadow-md ${!user.avatar_url ? 'bg-gradient-to-br from-[#7C3AED] to-[#4F46E5] flex items-center justify-center text-white text-2xl font-black' : 'cursor-pointer'}`}
+                    onClick={() => user.avatar_url && setAvatarViewerOpen(true)}
+                    title={user.avatar_url ? 'View profile photo' : undefined}
+                  >
                     {user.avatar_url ? (
                       <img src={user.avatar_url} alt={user.full_name} className="w-full h-full object-cover" />
                     ) : (
@@ -136,6 +142,15 @@ export default function PublicProfilePage() {
                     )}
                   </div>
                 </div>
+
+                {/* Avatar ImageViewer */}
+                {avatarViewerOpen && user.avatar_url && (
+                  <ImageViewer
+                    images={[user.avatar_url]}
+                    initialIndex={0}
+                    onClose={() => setAvatarViewerOpen(false)}
+                  />
+                )}
 
                 {/* Name + Verified */}
                 <div className="flex items-center gap-2 mb-1">

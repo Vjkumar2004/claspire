@@ -14,6 +14,7 @@ import {
   ArrowUp
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
+import PostModal from '@/components/PostModal'
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder'
@@ -209,6 +210,7 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
   // Likes modal state
   const [likesModalOpen, setLikesModalOpen] = useState(false)
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null)
+  const [showPostModal, setShowPostModal] = useState(shouldCreate)
 
   const toggleContentExpansion = (postId: string) => {
     setExpandedContent(prev => ({
@@ -432,9 +434,11 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
 
   useEffect(() => {
     if (shouldCreate && userCommunity) {
-      router.push(`/community/c/${userCommunity.slug}?create=true`)
+      setShowPostModal(true)
+      const newPath = window.location.pathname
+      window.history.replaceState({}, '', newPath)
     }
-  }, [shouldCreate, userCommunity, router])
+  }, [shouldCreate, userCommunity])
 
   const handleVote = async (postId: string, voteType: 'upvote' | 'downvote') => {
     if (!user?.id) {
@@ -1226,7 +1230,13 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
 
                 {/* Circular Post creator button */}
                 <button
-                  onClick={() => router.push('?create=true')}
+                  onClick={() => {
+                    if (userCommunity) {
+                      setShowPostModal(true)
+                    } else {
+                      router.push('?create=true')
+                    }
+                  }}
                   className="w-10 h-10 sm:w-8 sm:h-8 bg-purple-50 dark:bg-purple-900/30 hover:bg-purple-100 dark:hover:bg-purple-900/50 text-[#7C3AED] rounded-full border border-purple-100 dark:border-purple-800 transition-colors flex items-center justify-center cursor-pointer flex-shrink-0"
                   title="Create a new post"
                 >
@@ -1376,6 +1386,24 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
 
       {/* ════ COMMUNITY CHAT WIDGET (Extracted) ════ */}
       <ChatWidget user={user} isNavVisible={isNavVisible} />
+
+      {showPostModal && userCommunity && (
+        <PostModal
+          isOpen={showPostModal}
+          onClose={() => setShowPostModal(false)}
+          onSuccess={() => {
+            setShowPostModal(false)
+            handleLoadNewPosts()
+          }}
+          communitySlug={userCommunity.slug}
+          communityId={userCommunity.id}
+          userRole={user?.role || 'student'}
+          canPostAsCollege={user?.role === 'senior' || user?.role === 'admin'}
+          collegeName={userCommunity.colleges?.name}
+          collegeLogo={userCommunity.colleges?.logo_url}
+          collegeSlug={userCommunity.colleges?.slug}
+        />
+      )}
 
       {/* Likes Modal */}
       <LikesModal
