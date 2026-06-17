@@ -274,7 +274,7 @@ export default function EditPostPage() {
   if (error && !title) {
     return (
       <div className="min-h-screen bg-[#FAFBFC] flex items-center justify-center">
-        <div className="bg-white p-8 rounded-2xl shadow-sm border border-red-200 max-w-md text-center">
+        <div className="bg-surface p-8 rounded-2xl shadow-sm border border-red-200 max-w-md text-center">
           <AlertCircle size={40} className="mx-auto text-red-500 mb-4" />
           <h2 className="text-lg font-bold text-gray-900 mb-2">Cannot Load Post</h2>
           <p className="text-sm text-gray-500 mb-6">{error}</p>
@@ -294,7 +294,7 @@ export default function EditPostPage() {
   return (
     <div className="min-h-screen bg-[#FAFBFC]">
       {/* Top Bar */}
-      <div className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-100">
+      <div className="sticky top-0 z-50 bg-surface/80 backdrop-blur-xl border-b border-surface">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
           <button
             onClick={() => router.back()}
@@ -341,7 +341,7 @@ export default function EditPostPage() {
         )}
 
         {/* Post Type */}
-        <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-5">
+        <div className="bg-surface rounded-2xl border border-surface p-5 mb-5">
           <label className="block text-xs font-black text-gray-500 uppercase tracking-wider mb-3">
             Post Type
           </label>
@@ -369,7 +369,7 @@ export default function EditPostPage() {
         </div>
 
         {/* Title */}
-        <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-5">
+        <div className="bg-surface rounded-2xl border border-surface p-5 mb-5">
           <label className="block text-xs font-black text-gray-500 uppercase tracking-wider mb-2">
             Title
           </label>
@@ -378,14 +378,14 @@ export default function EditPostPage() {
             value={title}
             onChange={e => setTitle(e.target.value)}
             placeholder="Give your post a clear title..."
-            className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-400 transition-all placeholder:text-gray-300"
+            className="w-full border border-surface rounded-xl px-4 py-3 text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-400 transition-all placeholder:text-gray-300"
             maxLength={150}
           />
           <p className="text-[10px] text-gray-400 mt-1.5 text-right">{title.length}/150</p>
         </div>
 
         {/* Content */}
-        <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-5">
+        <div className="bg-surface rounded-2xl border border-surface p-5 mb-5">
           <label className="block text-xs font-black text-gray-500 uppercase tracking-wider mb-2">
             Content
           </label>
@@ -394,13 +394,13 @@ export default function EditPostPage() {
             onChange={e => setContent(e.target.value)}
             placeholder="Write your content here..."
             rows={8}
-            className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium text-gray-900 leading-relaxed focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-400 transition-all placeholder:text-gray-300 resize-none"
+            className="w-full border border-surface rounded-xl px-4 py-3 text-sm font-medium text-gray-900 leading-relaxed focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-400 transition-all placeholder:text-gray-300 resize-none"
           />
           <p className="text-[10px] text-gray-400 mt-1.5 text-right">{content.length} characters</p>
         </div>
 
         {/* Images */}
-        <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-5">
+        <div className="bg-surface rounded-2xl border border-surface p-5 mb-5">
           <div className="flex items-center justify-between mb-3">
             <label className="block text-xs font-black text-gray-500 uppercase tracking-wider">
               Images ({totalImageCount}/5)
@@ -438,7 +438,7 @@ export default function EditPostPage() {
               <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Current Images</p>
               <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
                 {existingImageUrls.map((url, i) => (
-                  <div key={`existing-${i}`} className="relative group rounded-xl overflow-hidden border border-gray-200 aspect-square">
+                  <div key={`existing-${i}`} className="relative group rounded-xl overflow-hidden border border-surface aspect-square">
                     {url.endsWith('.gif') || url.includes('.gif') ? (
                       <img src={url} alt="" className="w-full h-full object-cover" />
                     ) : (
@@ -485,7 +485,7 @@ export default function EditPostPage() {
           {totalImageCount === 0 && !imageUploading && (
             <button
               onClick={() => imageRef.current?.click()}
-              className="w-full border-2 border-dashed border-gray-200 rounded-xl py-10 flex flex-col items-center gap-2 hover:border-purple-300 hover:bg-purple-50/30 transition-all cursor-pointer"
+              className="w-full border-2 border-dashed border-surface rounded-xl py-10 flex flex-col items-center gap-2 hover:border-purple-300 hover:bg-purple-50/30 transition-all cursor-pointer"
             >
               <ImagePlus size={28} className="text-gray-300" />
               <span className="text-xs font-semibold text-gray-400">Click to add images (max 5, each less than 2MB)</span>
@@ -494,7 +494,7 @@ export default function EditPostPage() {
         </div>
 
         {/* Tags */}
-        <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-5">
+        <div className="bg-surface rounded-2xl border border-surface p-5 mb-5">
           <label className="block text-xs font-black text-gray-500 uppercase tracking-wider mb-2">
             Tags ({tags.length}/5)
           </label>
@@ -529,7 +529,7 @@ export default function EditPostPage() {
         </div>
 
         {/* Visibility */}
-        <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-5">
+        <div className="bg-surface rounded-2xl border border-surface p-5 mb-5">
           <label className="block text-xs font-black text-gray-500 uppercase tracking-wider mb-3">
             Visibility
           </label>
@@ -539,7 +539,7 @@ export default function EditPostPage() {
               className={`flex-1 flex items-center gap-2.5 p-3 rounded-xl border-[1.5px] transition-all ${
                 visibility === 'public'
                   ? 'border-green-300 bg-green-50'
-                  : 'border-gray-200 bg-white'
+                  : 'border-surface bg-surface'
               }`}
             >
               <Globe size={16} className={visibility === 'public' ? 'text-green-600' : 'text-gray-400'} />
@@ -553,7 +553,7 @@ export default function EditPostPage() {
               className={`flex-1 flex items-center gap-2.5 p-3 rounded-xl border-[1.5px] transition-all ${
                 visibility === 'private'
                   ? 'border-purple-300 bg-purple-50'
-                  : 'border-gray-200 bg-white'
+                  : 'border-surface bg-surface'
               }`}
             >
               <Lock size={16} className={visibility === 'private' ? 'text-purple-600' : 'text-gray-400'} />

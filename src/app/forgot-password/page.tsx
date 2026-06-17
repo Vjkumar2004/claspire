@@ -82,9 +82,9 @@ export default function ForgotPasswordPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-[#1D2226] flex items-center justify-center p-4">
+      <div className="min-h-screen bg-app dark:bg-[#1D2226] flex items-center justify-center p-4">
         <div className="w-full max-w-md">
-          <div className="bg-white dark:bg-[#283036] rounded-2xl shadow-lg p-8 text-center">
+          <div className="bg-surface dark:bg-[#283036] rounded-2xl shadow-lg p-8 text-center">
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
               <CheckCircle size={32} className="text-green-600" />
             </div>
@@ -114,7 +114,7 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-[#1D2226] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-app dark:bg-[#1D2226] flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Logo */}
         <Link href="/" className="flex justify-center mb-8">
@@ -123,7 +123,7 @@ export default function ForgotPasswordPage() {
           </span>
         </Link>
 
-        <div className="bg-white dark:bg-[#283036] rounded-2xl shadow-lg p-8">
+        <div className="bg-surface dark:bg-[#283036] rounded-2xl shadow-lg p-8">
           {/* Back Button */}
           <Link 
             href="/login"

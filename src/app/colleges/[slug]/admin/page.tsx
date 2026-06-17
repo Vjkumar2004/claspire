@@ -219,7 +219,7 @@ export default function CollegeAdminDashboard() {
   return (
     <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#1D2226]">
       {/* Header */}
-      <div className="bg-white dark:bg-[#283036] border-b border-gray-200 dark:border-[#38434F]">
+      <div className="bg-surface dark:bg-[#283036] border-b border-surface dark:border-[#38434F]">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -271,7 +271,7 @@ export default function CollegeAdminDashboard() {
 
         <div className="space-y-8">
           {/* Banner */}
-          <div className="bg-white dark:bg-[#283036] rounded-xl border border-gray-200 dark:border-[#38434F] overflow-hidden">
+          <div className="bg-surface dark:bg-[#283036] rounded-xl border border-surface dark:border-[#38434F] overflow-hidden">
             <div
               className="h-48 bg-gradient-to-br from-purple-600 to-indigo-700 relative flex items-center justify-center group cursor-pointer"
               onClick={() => bannerInputRef.current?.click()}
@@ -302,7 +302,7 @@ export default function CollegeAdminDashboard() {
               {/* Logo */}
               <div className="flex items-start -mt-12 mb-6">
                 <div
-                  className="w-24 h-24 rounded-xl bg-white dark:bg-[#283036] border-4 border-white dark:border-[#283036] shadow-lg overflow-hidden relative group cursor-pointer flex-shrink-0"
+                  className="w-24 h-24 rounded-xl bg-surface dark:bg-[#283036] border-4 border-white dark:border-[#283036] shadow-lg overflow-hidden relative group cursor-pointer flex-shrink-0"
                   onClick={() => logoInputRef.current?.click()}
                 >
                   {(college.logo_url || logoPreview) ? (
@@ -355,7 +355,7 @@ export default function CollegeAdminDashboard() {
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Write a description for your college..."
                   rows={5}
-                  className="w-full bg-gray-50 dark:bg-[#1D2226] border border-gray-200 dark:border-[#38434F] rounded-lg px-4 py-3 text-sm font-medium outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 resize-none"
+                  className="w-full bg-app dark:bg-[#1D2226] border border-surface dark:border-[#38434F] rounded-lg px-4 py-3 text-sm font-medium outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 resize-none"
                 />
                 <p className="text-[10px] text-gray-400 mt-1">This description will appear on the college profile page.</p>
               </div>
@@ -372,7 +372,7 @@ export default function CollegeAdminDashboard() {
                     value={websiteUrl}
                     onChange={(e) => setWebsiteUrl(e.target.value)}
                     placeholder="https://www.college.ac.in"
-                    className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-[#1D2226] border border-gray-200 dark:border-[#38434F] rounded-lg text-sm font-medium outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
+                    className="w-full pl-10 pr-4 py-2.5 bg-app dark:bg-[#1D2226] border border-surface dark:border-[#38434F] rounded-lg text-sm font-medium outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
                   />
                 </div>
               </div>
@@ -391,7 +391,7 @@ export default function CollegeAdminDashboard() {
                     value={avgPackage}
                     onChange={(e) => setAvgPackage(e.target.value)}
                     placeholder="12.5"
-                    className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-[#1D2226] border border-gray-200 dark:border-[#38434F] rounded-lg text-sm font-medium outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
+                    className="w-full pl-10 pr-4 py-2.5 bg-app dark:bg-[#1D2226] border border-surface dark:border-[#38434F] rounded-lg text-sm font-medium outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
                   />
                 </div>
                 <p className="text-[10px] text-gray-400 mt-1">The highest or average placement package for this college.</p>
@@ -429,7 +429,7 @@ export default function CollegeAdminDashboard() {
                             value={value}
                             onChange={(e) => updateSocialLink(platform, e.target.value)}
                             placeholder={`https://${platform}.com/...`}
-                            className="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-[#1D2226] border border-gray-200 dark:border-[#38434F] rounded-lg text-sm font-medium outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
+                            className="w-full pl-10 pr-4 py-2 bg-app dark:bg-[#1D2226] border border-surface dark:border-[#38434F] rounded-lg text-sm font-medium outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
                           />
                         </div>
                         <button
@@ -447,7 +447,7 @@ export default function CollegeAdminDashboard() {
           </div>
 
           {/* Admin Info */}
-          <div className="bg-white dark:bg-[#283036] rounded-xl border border-gray-200 dark:border-[#38434F] p-6">
+          <div className="bg-surface dark:bg-[#283036] rounded-xl border border-surface dark:border-[#38434F] p-6">
             <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
               <Shield size={16} className="text-purple-600" />
               Admin Details
@@ -471,12 +471,12 @@ export default function CollegeAdminDashboard() {
           </div>
 
           {/* Quick Links */}
-          <div className="bg-white dark:bg-[#283036] rounded-xl border border-gray-200 dark:border-[#38434F] p-6">
+          <div className="bg-surface dark:bg-[#283036] rounded-xl border border-surface dark:border-[#38434F] p-6">
             <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-4">Quick Links</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               <Link
                 href={`/colleges/${slug}`}
-                className="flex items-center gap-3 p-3 rounded-lg bg-gray-50 dark:bg-[#1D2226] border border-gray-200 dark:border-[#38434F] hover:border-purple-300 transition-colors"
+                className="flex items-center gap-3 p-3 rounded-lg bg-app dark:bg-[#1D2226] border border-surface dark:border-[#38434F] hover:border-purple-300 transition-colors"
               >
                 <Building2 size={18} className="text-purple-600" />
                 <div>
@@ -486,7 +486,7 @@ export default function CollegeAdminDashboard() {
               </Link>
               <Link
                 href={`/community/c/${slug}`}
-                className="flex items-center gap-3 p-3 rounded-lg bg-gray-50 dark:bg-[#1D2226] border border-gray-200 dark:border-[#38434F] hover:border-purple-300 transition-colors"
+                className="flex items-center gap-3 p-3 rounded-lg bg-app dark:bg-[#1D2226] border border-surface dark:border-[#38434F] hover:border-purple-300 transition-colors"
               >
                 <ExternalLink size={18} className="text-purple-600" />
                 <div>

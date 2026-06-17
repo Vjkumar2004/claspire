@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, useEffect, useMemo, Suspense } from 'react'
+import React, { useState, useEffect, useMemo, Suspense, useRef } from 'react'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 
 import {
@@ -87,6 +87,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
   })
   const [membersLoading, setMembersLoading] = useState(false)
   const [showCreateGroupModal, setShowCreateGroupModal] = useState(false)
+  const scrollRestoredRef = useRef(false)
 
   // Check if current user belongs to this college
   const isUserCollege = currentUser?.college_id === data?.community?.college_id
@@ -99,8 +100,63 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
     getSlug()
   }, [params])
 
+  // Track scroll position throttled
+  useEffect(() => {
+    if (!slug) return
+    
+    let lastScrollTime = 0
+    const throttleInterval = 200 // ms
+    
+    const handleScroll = () => {
+      const now = Date.now()
+      if (now - lastScrollTime >= throttleInterval) {
+        sessionStorage.setItem(`community-feed-scroll-${slug}`, window.scrollY.toString())
+        lastScrollTime = now
+      }
+    }
+    
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [slug])
+
+  // Cache loading and restoration
   useEffect(() => {
     if (slug) {
+      const backIntent = sessionStorage.getItem(`community-feed-back-intent-${slug}`)
+      const cached = sessionStorage.getItem(`community-feed-state-${slug}`)
+      const cachedTime = sessionStorage.getItem(`community-feed-state-time-${slug}`)
+      const ttl = 15 * 60 * 1000 // 15 mins
+      
+      const isExpired = cachedTime && (Date.now() - parseInt(cachedTime, 10) > ttl)
+      
+      if (backIntent && cached && !isExpired) {
+        sessionStorage.removeItem(`community-feed-back-intent-${slug}`)
+        try {
+          const parsed = JSON.parse(cached)
+          setData(parsed.data)
+          setHasJoined(parsed.hasJoined)
+          setStudentGroups(parsed.studentGroups)
+          setActiveTab(parsed.activeTab)
+          if (parsed.currentUser) {
+            setCurrentUser(parsed.currentUser)
+          }
+          setLoading(false)
+          setGroupsLoading(false)
+          
+          // Background fetch to refresh user session
+          fetchCurrentUser()
+          return
+        } catch (e) {
+          console.error('Failed to restore community feed cache:', e)
+        }
+      }
+      
+      if (isExpired) {
+        sessionStorage.removeItem(`community-feed-state-${slug}`)
+        sessionStorage.removeItem(`community-feed-state-time-${slug}`)
+        sessionStorage.removeItem(`community-feed-scroll-${slug}`)
+      }
+      
       Promise.all([
         fetchCommunity(),
         fetchCurrentUser(),
@@ -108,6 +164,62 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
       ])
     }
   }, [slug])
+
+  // Cache writing
+  useEffect(() => {
+    if (slug && data) {
+      sessionStorage.setItem(`community-feed-state-${slug}`, JSON.stringify({
+        data,
+        hasJoined,
+        studentGroups,
+        activeTab,
+        currentUser
+      }))
+      sessionStorage.setItem(`community-feed-state-time-${slug}`, Date.now().toString())
+    }
+  }, [slug, data, hasJoined, studentGroups, activeTab, currentUser])
+
+  // Render-stabilized scroll restoration
+  useEffect(() => {
+    if (data && slug && !scrollRestoredRef.current) {
+      const savedScrollRaw = sessionStorage.getItem(`community-feed-scroll-${slug}`)
+      if (savedScrollRaw) {
+        const savedScrollY = parseInt(savedScrollRaw, 10)
+        requestAnimationFrame(() => {
+          const images = document.querySelectorAll('article img')
+          let pending = 0
+          
+          images.forEach((img: any) => {
+            if (!img.complete) {
+              pending++
+              img.addEventListener('load', checkAndScroll, { once: true })
+              img.addEventListener('error', checkAndScroll, { once: true })
+            }
+          })
+          
+          function checkAndScroll() {
+            pending--
+            if (pending <= 0) {
+              doScroll()
+            }
+          }
+          
+          function doScroll() {
+            if (!scrollRestoredRef.current) {
+              scrollRestoredRef.current = true
+              window.scrollTo(0, savedScrollY)
+            }
+          }
+          
+          if (pending === 0) {
+            doScroll()
+          } else {
+            setTimeout(doScroll, 800)
+          }
+        })
+      }
+    }
+  }, [data, slug])
 
   useEffect(() => {
     if (data) {
@@ -297,7 +409,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
   }
 
   const LockScreen = ({ title, description, ctaText, ctaAction }: { title: string; description: string; userRole?: string; ctaText: string; ctaAction: () => void }) => (
-    <div className="bg-white dark:bg-[#1D2226] rounded-2xl border border-purple-100/80 shadow-sm py-16 px-6 sm:px-10 text-center">
+    <div className="bg-surface dark:bg-[#1D2226] rounded-2xl border border-purple-100/80 shadow-sm py-16 px-6 sm:px-10 text-center">
       <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#7C3AED] to-cyan-500 flex items-center justify-center mx-auto mb-5 text-white shadow-lg shadow-purple-200/50">
         <Lock size={32} />
       </div>
@@ -478,7 +590,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
       )}
 
       {/* Hero */}
-      <header className="border-b border-slate-200 dark:border-[#38434F]/80 bg-white dark:bg-[#1D2226]">
+      <header className="border-b border-surface dark:border-[#38434F]/80 bg-surface dark:bg-[#1D2226]">
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 pt-6 pb-8">
           <nav className="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-[#B0B7BE] mb-6">
             <button type="button" onClick={() => router.push('/community')} className="hover:text-[#7C3AED] transition-colors border-none bg-transparent cursor-pointer p-0">
@@ -489,8 +601,8 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
           </nav>
 
           <div className="flex flex-col md:flex-row gap-6 md:items-start">
-            <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl border border-slate-200 dark:border-[#38434F]/80 bg-white dark:bg-[#1D2226] shadow-sm p-2 shrink-0 mx-auto md:mx-0">
-              <div className={`w-full h-full rounded-xl flex items-center justify-center overflow-hidden text-3xl font-black ${collegeLogo ? 'bg-white dark:bg-[#1D2226]' : 'bg-gradient-to-br from-[#7C3AED] to-[#4F46E5] text-white'}`}>
+            <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl border border-surface dark:border-[#38434F]/80 bg-surface dark:bg-[#1D2226] shadow-sm p-2 shrink-0 mx-auto md:mx-0">
+              <div className={`w-full h-full rounded-xl flex items-center justify-center overflow-hidden text-3xl font-black ${collegeLogo ? 'bg-surface dark:bg-[#1D2226]' : 'bg-gradient-to-br from-[#7C3AED] to-[#4F46E5] text-white'}`}>
                 {collegeLogo ? (
                   <img src={collegeLogo} alt={collegeShort || community.slug} className="w-full h-full object-contain" />
                 ) : (
@@ -504,11 +616,11 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                 <span className="text-[10px] font-bold uppercase tracking-wider text-purple-700 bg-purple-50 border border-purple-100 px-2.5 py-1 rounded-full">
                   Official College Hub
                 </span>
-                <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-[#B0B7BE] bg-slate-50 dark:bg-[#283036] border border-slate-200 dark:border-[#38434F] px-2.5 py-1 rounded-full">
+                <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-[#B0B7BE] bg-app dark:bg-[#283036] border border-surface dark:border-[#38434F] px-2.5 py-1 rounded-full">
                   <Users size={13} className="text-purple-600" />
                   {displayMemberCount} members
                 </span>
-                <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-[#B0B7BE] bg-slate-50 dark:bg-[#283036] border border-slate-200 dark:border-[#38434F] px-2.5 py-1 rounded-full">
+                <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-[#B0B7BE] bg-app dark:bg-[#283036] border border-surface dark:border-[#38434F] px-2.5 py-1 rounded-full">
                   <Crown size={13} className="text-amber-500" />
                   {displaySeniorCount} seniors
                 </span>
@@ -562,7 +674,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                 <button
                   type="button"
                   onClick={() => { fetchCommunityMembers(); setShowMembersModal(true) }}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white dark:bg-[#1D2226] border border-slate-200 dark:border-[#38434F] text-slate-700 dark:text-white hover:bg-slate-50 dark:bg-[#283036] dark:hover:bg-[#1D2226] text-xs font-bold cursor-pointer transition-colors"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-surface dark:bg-[#1D2226] border border-surface dark:border-[#38434F] text-slate-700 dark:text-white hover:bg-app dark:bg-[#283036] dark:hover:bg-[#1D2226] text-xs font-bold cursor-pointer transition-colors"
                 >
                   <Users size={14} /> View Members
                 </button>
@@ -573,7 +685,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
       </header>
 
       {/* Tabs */}
-      <div className="sticky top-14 z-40 bg-white dark:bg-[#1D2226]/90 dark:bg-[#1D2226]/90 backdrop-blur-md border-b border-slate-200 dark:border-[#38434F]/80 shadow-sm">
+      <div className="sticky top-14 z-40 bg-surface dark:bg-[#1D2226]/90 dark:bg-[#1D2226]/90 backdrop-blur-md border-b border-surface dark:border-[#38434F]/80 shadow-sm">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="flex gap-1 overflow-x-auto scrollbar-hide -mb-px">
             {tabs.map((tab) => (
@@ -603,21 +715,23 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
       </div>
 
       {/* Main grid */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 lg:py-8 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_300px] gap-6 lg:gap-8">
+      <div className="max-w-6xl mx-auto px-0 sm:px-6 py-6 lg:py-8 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_300px] gap-6 lg:gap-8">
         <div className="min-w-0 space-y-6">
           {activeTab === 'feed' && (
             <div className="space-y-4">
               {canPost && (
-                <button
-                  type="button"
-                  onClick={() => setShowPostModal(true)}
-                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-[#7C3AED] hover:bg-purple-700 text-white text-xs font-bold border-none cursor-pointer shadow-sm transition-colors"
-                >
-                  <MessageSquarePlus size={16} /> Create Post
-                </button>
+                <div className="px-4 sm:px-0">
+                  <button
+                    type="button"
+                    onClick={() => setShowPostModal(true)}
+                    className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-[#7C3AED] hover:bg-purple-700 text-white text-xs font-bold border-none cursor-pointer shadow-sm transition-colors"
+                  >
+                    <MessageSquarePlus size={16} /> Create Post
+                  </button>
+                </div>
               )}
               {(hasJoined || isAlreadyMember) && !canPost && userRole !== 'guest' && (
-                <div className="px-4 py-3 rounded-xl bg-purple-50 border border-purple-100 text-xs font-semibold text-purple-800 leading-relaxed">
+                <div className="mx-4 sm:mx-0 px-4 py-3 rounded-xl bg-purple-50 border border-purple-100 text-xs font-semibold text-purple-800 leading-relaxed">
                   You joined as a member. You can view posts and updates; only students from this college can post here.
                 </div>
               )}
@@ -627,8 +741,11 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                   return (
                     <article
                       key={post.id}
-                      onClick={() => router.push(`/community/c/${community.slug}/p/${post.id}`)}
-                      className="bg-white dark:bg-[#1D2226] rounded-2xl border border-slate-200 dark:border-[#38434F]/80 shadow-sm p-4 sm:p-5 cursor-pointer hover:border-purple-200 hover:shadow-md transition-all"
+                      onClick={() => {
+                        sessionStorage.setItem(`community-feed-back-intent-${slug}`, 'true')
+                        router.push(`/community/c/${community.slug}/p/${post.id}`)
+                      }}
+                      className="bg-surface dark:bg-[#1D2226] rounded-none sm:rounded-2xl border-y sm:border border-surface dark:border-[#38434F]/80 shadow-sm sm:shadow p-4 sm:p-5 cursor-pointer hover:border-purple-200 hover:shadow-md transition-all"
                     >
                       <div className="flex items-start justify-between gap-3 mb-3">
                         <div className="flex items-center gap-3 min-w-0">
@@ -730,7 +847,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                       <div className="text-sm text-slate-600 dark:text-[#B0B7BE] leading-relaxed line-clamp-3 mb-3">{convertUrlsToLinks(post.content)}</div>
                       <MediaGallery imageUrls={post.image_url} />
 
-                      <div className="flex flex-wrap items-center gap-4 pt-3 mt-3 border-t border-slate-100 dark:border-[#38434F] text-xs font-semibold text-slate-500 dark:text-[#B0B7BE]">
+                      <div className="flex flex-wrap items-center gap-4 pt-3 mt-3 border-t border-surface dark:border-[#38434F] text-xs font-semibold text-slate-500 dark:text-[#B0B7BE]">
                         <span className="inline-flex items-center gap-1.5">
                           <ArrowUp size={14} className="text-purple-600" />
                           {post.upvote_count ?? 0} upvotes
@@ -751,7 +868,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                   )
                 })
               ) : (
-                <div className="text-center py-16 px-6 bg-white dark:bg-[#1D2226] rounded-2xl border border-slate-200 dark:border-[#38434F]/80">
+                <div className="text-center py-16 px-6 bg-surface dark:bg-[#1D2226] rounded-2xl border border-surface dark:border-[#38434F]/80">
                   <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-purple-50 flex items-center justify-center text-[#7C3AED]">
                     <MessageSquare size={32} />
                   </div>
@@ -763,15 +880,15 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
           )}
 
           {activeTab === 'jobs' && (
-            <div className="space-y-4">
+            <div className="space-y-4 px-4 sm:px-0">
               {canViewJobs ? (
                 <>
                   {jobs && jobs.length > 0 ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {jobs.map((job: any) => (
-                        <article key={job.id} className="bg-white dark:bg-[#1D2226] rounded-2xl border border-slate-200 dark:border-[#38434F]/80 shadow-sm p-5 hover:border-purple-200 hover:shadow-md transition-all">
+                        <article key={job.id} className="bg-surface dark:bg-[#1D2226] rounded-2xl border border-surface dark:border-[#38434F]/80 shadow-sm p-5 hover:border-purple-200 hover:shadow-md transition-all">
                           <div className="flex justify-between items-start gap-3 mb-4">
-                            <div className="w-12 h-12 rounded-xl bg-slate-50 dark:bg-[#283036] border border-slate-100 dark:border-[#38434F] flex items-center justify-center text-2xl shrink-0">
+                            <div className="w-12 h-12 rounded-xl bg-app dark:bg-[#283036] border border-surface dark:border-[#38434F] flex items-center justify-center text-2xl shrink-0">
                               🏢
                             </div>
                             {job.referral_available && (
@@ -785,14 +902,14 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                           <p className="text-sm font-semibold text-slate-500 dark:text-[#B0B7BE] m-0 mb-4">{job.company_name}</p>
 
                           <div className="flex flex-wrap gap-2 mb-5">
-                            <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-slate-600 dark:text-[#B0B7BE] bg-slate-50 dark:bg-[#283036] px-2.5 py-1 rounded-lg">
+                            <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-slate-600 dark:text-[#B0B7BE] bg-app dark:bg-[#283036] px-2.5 py-1 rounded-lg">
                               <MapPin size={12} className="opacity-60" /> {job.location || 'Remote'}
                             </span>
-                            <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-slate-600 dark:text-[#B0B7BE] bg-slate-50 dark:bg-[#283036] px-2.5 py-1 rounded-lg">
+                            <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-slate-600 dark:text-[#B0B7BE] bg-app dark:bg-[#283036] px-2.5 py-1 rounded-lg">
                               <Clock size={12} className="opacity-60" /> {job.job_type?.replace('_', ' ')}
                             </span>
                             {job.salary_range && (
-                              <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-slate-600 dark:text-[#B0B7BE] bg-slate-50 dark:bg-[#283036] px-2.5 py-1 rounded-lg">
+                              <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-slate-600 dark:text-[#B0B7BE] bg-app dark:bg-[#283036] px-2.5 py-1 rounded-lg">
                                 <DollarSign size={12} className="opacity-60" /> {job.salary_range}
                               </span>
                             )}
@@ -824,7 +941,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                       ))}
                     </div>
                   ) : (
-                    <div className="text-center py-16 px-6 bg-white dark:bg-[#1D2226] rounded-2xl border border-slate-200 dark:border-[#38434F]/80">
+                    <div className="text-center py-16 px-6 bg-surface dark:bg-[#1D2226] rounded-2xl border border-surface dark:border-[#38434F]/80">
                       <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600">
                         <Briefcase size={32} />
                       </div>
@@ -840,9 +957,9 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
           )}
 
           {activeTab === 'webinars' && (
-            <div className="space-y-4">
+            <div className="space-y-4 px-4 sm:px-0">
               {canViewWebinars ? (
-                <div className="text-center py-16 px-6 bg-white dark:bg-[#1D2226] rounded-2xl border border-slate-200 dark:border-[#38434F]/80">
+                <div className="text-center py-16 px-6 bg-surface dark:bg-[#1D2226] rounded-2xl border border-surface dark:border-[#38434F]/80">
                   <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-red-50 flex items-center justify-center text-red-500">
                     <Video size={32} />
                   </div>
@@ -856,7 +973,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
           )}
 
           {/* Student Groups */}
-          <section className="space-y-4 pt-2">
+          <section className="space-y-4 pt-2 px-4 sm:px-0">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div>
                 <h2 className="text-lg font-extrabold text-slate-900 dark:text-white m-0">Student Groups</h2>
@@ -877,7 +994,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
             {groupsLoading ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {[1, 2, 3].map((i) => (
-                  <div key={i} className="bg-white dark:bg-[#1D2226] rounded-2xl border border-slate-200 dark:border-[#38434F]/80 p-5 animate-pulse">
+                  <div key={i} className="bg-surface dark:bg-[#1D2226] rounded-2xl border border-surface dark:border-[#38434F]/80 p-5 animate-pulse">
                     <div className="flex gap-3 mb-4">
                       <div className="w-11 h-11 rounded-full bg-slate-100 dark:bg-[#283036] shrink-0" />
                       <div className="flex-1 space-y-2">
@@ -899,11 +1016,11 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                     tabIndex={0}
                     onClick={() => router.push(`/community/c/${slug}/group/${group.slug}`)}
                     onKeyDown={(e) => e.key === 'Enter' && router.push(`/community/c/${slug}/group/${group.slug}`)}
-                    className="bg-white dark:bg-[#1D2226] rounded-2xl border border-slate-200 dark:border-[#38434F]/80 shadow-sm p-4 sm:p-5 cursor-pointer hover:border-purple-200 hover:shadow-md transition-all"
+                    className="bg-surface dark:bg-[#1D2226] rounded-2xl border border-surface dark:border-[#38434F]/80 shadow-sm p-4 sm:p-5 cursor-pointer hover:border-purple-200 hover:shadow-md transition-all"
                   >
                     <div className="flex items-center gap-3 mb-3">
                       <div className="relative shrink-0">
-                        <div className="w-11 h-11 rounded-full overflow-hidden flex items-center justify-center text-sm font-bold text-white border-2 border-slate-100 dark:border-[#38434F] bg-gradient-to-br from-[#7C3AED] to-cyan-500">
+                        <div className="w-11 h-11 rounded-full overflow-hidden flex items-center justify-center text-sm font-bold text-white border-2 border-surface dark:border-[#38434F] bg-gradient-to-br from-[#7C3AED] to-cyan-500">
                           {group.creator?.avatar_url ? (
                             <img src={group.creator.avatar_url} alt="" className="w-full h-full object-cover" />
                           ) : (
@@ -988,7 +1105,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                 ))}
               </div>
             ) : (
-              <div className="text-center py-16 px-6 bg-white dark:bg-[#1D2226] rounded-2xl border border-slate-200 dark:border-[#38434F]/80">
+              <div className="text-center py-16 px-6 bg-surface dark:bg-[#1D2226] rounded-2xl border border-surface dark:border-[#38434F]/80">
                 <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-purple-50 flex items-center justify-center text-[#7C3AED]">
                   <Users size={32} />
                 </div>
@@ -1006,7 +1123,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                     Create first group
                   </button>
                 ) : currentUser ? (
-                  <div className="max-w-sm mx-auto px-4 py-3 rounded-xl bg-slate-50 dark:bg-[#283036] border border-slate-200 dark:border-[#38434F]">
+                  <div className="max-w-sm mx-auto px-4 py-3 rounded-xl bg-app dark:bg-[#283036] border border-surface dark:border-[#38434F]">
                     <p className="text-sm text-slate-500 dark:text-[#B0B7BE] m-0">
                       Only students from {data?.community?.colleges?.name || 'this college'} can create groups here.
                     </p>
@@ -1027,7 +1144,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
 
         {/* Sidebar */}
         <aside className="hidden lg:flex flex-col gap-4 lg:sticky lg:top-[7.5rem] lg:self-start">
-          <div className="bg-white dark:bg-[#1D2226] rounded-2xl border border-slate-200 dark:border-[#38434F]/80 shadow-sm p-4">
+          <div className="bg-surface dark:bg-[#1D2226] rounded-2xl border border-surface dark:border-[#38434F]/80 shadow-sm p-4">
             <h4 className="text-[10px] font-bold uppercase tracking-wider text-purple-600 mb-3 flex items-center gap-1.5 m-0">
               <Zap size={12} /> Community pulse
             </h4>
@@ -1038,7 +1155,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                 { label: 'Posts', val: posts?.length || 0, icon: <MessageCircle size={14} className="text-amber-600" />, bg: 'bg-amber-50' },
                 { label: 'Jobs', val: jobs?.length || 0, icon: <Target size={14} className="text-emerald-600" />, bg: 'bg-emerald-50' },
               ].map((s) => (
-                <div key={s.label} className="p-3 rounded-xl bg-slate-50 dark:bg-[#283036] border border-slate-100 dark:border-[#38434F]">
+                <div key={s.label} className="p-3 rounded-xl bg-app dark:bg-[#283036] border border-surface dark:border-[#38434F]">
                   <div className={`w-8 h-8 rounded-lg ${s.bg} flex items-center justify-center mb-2`}>{s.icon}</div>
                   <p className="text-lg font-extrabold text-slate-900 dark:text-white m-0 leading-none">{s.val}</p>
                   <p className="text-[10px] font-semibold text-slate-500 dark:text-[#B0B7BE] mt-1 m-0">{s.label}</p>
@@ -1047,7 +1164,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
             </div>
           </div>
 
-          <div className="bg-white dark:bg-[#1D2226] rounded-2xl border border-slate-200 dark:border-[#38434F]/80 shadow-sm p-4">
+          <div className="bg-surface dark:bg-[#1D2226] rounded-2xl border border-surface dark:border-[#38434F]/80 shadow-sm p-4">
             <div className="flex items-center justify-between mb-3">
               <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-800 dark:text-white m-0">Top contributors</h4>
               <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full inline-flex items-center gap-1">
@@ -1079,7 +1196,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
             </div>
           </div>
 
-          <div className="bg-white dark:bg-[#1D2226] rounded-2xl border border-slate-200 dark:border-[#38434F]/80 shadow-sm p-4">
+          <div className="bg-surface dark:bg-[#1D2226] rounded-2xl border border-surface dark:border-[#38434F]/80 shadow-sm p-4">
             <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-800 dark:text-white mb-3 flex items-center gap-1.5 m-0">
               <Shield size={14} className="text-red-500" /> Guidelines
             </h4>
@@ -1119,7 +1236,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
       {/* Referral Confirmation Modal */}
       {referralConfirmOpen && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(12px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
-          <div className="animate-fade bg-white dark:bg-[#1D2226]" style={{ width: '100%', maxWidth: 400, borderRadius: 28, overflow: 'hidden', boxShadow: '0 40px 80px rgba(0,0,0,0.4)', padding: 32, textAlign: 'center' }}>
+          <div className="animate-fade bg-surface dark:bg-[#1D2226]" style={{ width: '100%', maxWidth: 400, borderRadius: 28, overflow: 'hidden', boxShadow: '0 40px 80px rgba(0,0,0,0.4)', padding: 32, textAlign: 'center' }}>
             <div style={{ width: 64, height: 64, background: '#F5F3FF', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', color: '#7C3AED' }}>
               <Target size={32} />
             </div>
@@ -1152,9 +1269,9 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
       {/* Members Modal */}
       {showMembersModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(12px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
-          <div className="animate-fade bg-white dark:bg-[#1D2226]" style={{ width: '100%', maxWidth: 600, maxHeight: '80vh', borderRadius: 28, overflow: 'hidden', boxShadow: '0 40px 80px rgba(0,0,0,0.4)', display: 'flex', flexDirection: 'column' }}>
+          <div className="animate-fade bg-surface dark:bg-[#1D2226]" style={{ width: '100%', maxWidth: 600, maxHeight: '80vh', borderRadius: 28, overflow: 'hidden', boxShadow: '0 40px 80px rgba(0,0,0,0.4)', display: 'flex', flexDirection: 'column' }}>
             {/* Header */}
-            <div style={{ padding: '24px 24px 16px' }} className="border-b border-slate-100 dark:border-[#38434F]">
+            <div style={{ padding: '24px 24px 16px' }} className="border-b border-surface dark:border-[#38434F]">
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div>
                   <h3 className="text-slate-900 dark:text-white" style={{ fontSize: 20, fontWeight: 800, margin: 0, marginBottom: 4 }}>Community Members</h3>

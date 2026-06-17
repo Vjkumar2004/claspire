@@ -117,7 +117,7 @@ export default function EditJobPage() {
   if (error && !companyName) {
     return (
       <div className="min-h-screen bg-[#FAFBFC] flex items-center justify-center">
-        <div className="bg-white p-8 rounded-2xl shadow-sm border border-red-200 max-w-md text-center">
+        <div className="bg-surface p-8 rounded-2xl shadow-sm border border-red-200 max-w-md text-center">
           <AlertCircle size={40} className="mx-auto text-red-500 mb-4" />
           <h2 className="text-lg font-bold text-gray-900 mb-2">Cannot Load Job</h2>
           <p className="text-sm text-gray-500 mb-6">{error}</p>
@@ -134,7 +134,7 @@ export default function EditJobPage() {
 
   return (
     <div className="min-h-screen bg-[#FAFBFC]">
-      <div className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-100">
+      <div className="sticky top-0 z-50 bg-surface/80 backdrop-blur-xl border-b border-surface">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
           <button
             onClick={() => router.back()}
@@ -172,52 +172,52 @@ export default function EditJobPage() {
           </div>
         )}
 
-        <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-5">
+        <div className="bg-surface rounded-2xl border border-surface p-5 mb-5">
           <label className="block text-xs font-black text-gray-500 uppercase tracking-wider mb-2">Company Name</label>
           <input
             type="text"
             value={companyName}
             onChange={e => setCompanyName(e.target.value)}
             placeholder="e.g. Google"
-            className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-400 transition-all placeholder:text-gray-300"
+            className="w-full border border-surface rounded-xl px-4 py-3 text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-400 transition-all placeholder:text-gray-300"
           />
         </div>
 
-        <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-5">
+        <div className="bg-surface rounded-2xl border border-surface p-5 mb-5">
           <label className="block text-xs font-black text-gray-500 uppercase tracking-wider mb-2">Role</label>
           <input
             type="text"
             value={role}
             onChange={e => setRole(e.target.value)}
             placeholder="e.g. Software Engineer"
-            className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-400 transition-all placeholder:text-gray-300"
+            className="w-full border border-surface rounded-xl px-4 py-3 text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-400 transition-all placeholder:text-gray-300"
           />
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5">
-          <div className="bg-white rounded-2xl border border-gray-200 p-5">
+          <div className="bg-surface rounded-2xl border border-surface p-5">
             <label className="block text-xs font-black text-gray-500 uppercase tracking-wider mb-2">Location</label>
             <input
               type="text"
               value={location}
               onChange={e => setLocation(e.target.value)}
               placeholder="e.g. Bangalore, Remote"
-              className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-400 transition-all placeholder:text-gray-300"
+              className="w-full border border-surface rounded-xl px-4 py-3 text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-400 transition-all placeholder:text-gray-300"
             />
           </div>
-          <div className="bg-white rounded-2xl border border-gray-200 p-5">
+          <div className="bg-surface rounded-2xl border border-surface p-5">
             <label className="block text-xs font-black text-gray-500 uppercase tracking-wider mb-2">Salary Range</label>
             <input
               type="text"
               value={salaryRange}
               onChange={e => setSalaryRange(e.target.value)}
               placeholder="e.g. 12-20 LPA"
-              className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-400 transition-all placeholder:text-gray-300"
+              className="w-full border border-surface rounded-xl px-4 py-3 text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-400 transition-all placeholder:text-gray-300"
             />
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-5">
+        <div className="bg-surface rounded-2xl border border-surface p-5 mb-5">
           <label className="block text-xs font-black text-gray-500 uppercase tracking-wider mb-3">Job Type</label>
           <div className="flex flex-wrap gap-2">
             {JOB_TYPES.map(jt => (
@@ -227,7 +227,7 @@ export default function EditJobPage() {
                 className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all ${
                   jobType === jt.value
                     ? 'bg-purple-50 border-purple-300 text-purple-700'
-                    : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'
+                    : 'bg-surface border-surface text-gray-600 hover:border-gray-300'
                 }`}
               >
                 {jt.label}
@@ -236,18 +236,18 @@ export default function EditJobPage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-5">
+        <div className="bg-surface rounded-2xl border border-surface p-5 mb-5">
           <label className="block text-xs font-black text-gray-500 uppercase tracking-wider mb-2">Job Link / Description</label>
           <input
             type="text"
             value={description}
             onChange={e => setDescription(e.target.value)}
             placeholder="Paste job posting URL or description"
-            className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-400 transition-all placeholder:text-gray-300"
+            className="w-full border border-surface rounded-xl px-4 py-3 text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-400 transition-all placeholder:text-gray-300"
           />
         </div>
 
-        <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-5">
+        <div className="bg-surface rounded-2xl border border-surface p-5 mb-5">
           <div className="flex items-center justify-between">
             <div>
               <label className="block text-xs font-black text-gray-500 uppercase tracking-wider mb-0.5">Referral Available</label>
@@ -259,7 +259,7 @@ export default function EditJobPage() {
                 referralAvailable ? 'bg-purple-600' : 'bg-gray-200'
               }`}
             >
-              <div className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${
+              <div className={`absolute top-0.5 w-5 h-5 bg-surface rounded-full shadow transition-transform ${
                 referralAvailable ? 'translate-x-6' : 'translate-x-0.5'
               }`} />
             </button>

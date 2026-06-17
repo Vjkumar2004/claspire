@@ -279,37 +279,37 @@ export default function DashboardMessages({
 
   if (!currentUserId) {
     return (
-      <div className={`flex items-center justify-center ${fullscreen ? 'fixed inset-0 bg-white dark:bg-[#283036]' : 'h-64'}`}>
+      <div className={`flex items-center justify-center ${fullscreen ? 'fixed inset-0 bg-surface dark:bg-[#283036]' : 'h-64'}`}>
         <Loader2 className="animate-spin text-purple-600" size={24} />
       </div>
     )
   }
 
   const rootClass = fullscreen
-    ? 'fixed inset-0 z-[1000] flex flex-row w-full h-dvh bg-white dark:bg-[#283036]'
+    ? 'fixed inset-0 z-[1000] flex flex-row w-full h-dvh bg-surface dark:bg-[#283036]'
     : 'flex flex-row w-full h-[calc(100dvh-140px)] md:h-[600px] gap-0 md:gap-6 antialiased'
 
   const listClass = fullscreen
-    ? `${selectedChat ? 'hidden md:flex' : 'flex'} w-full md:w-[360px] lg:w-[400px] flex-shrink-0 flex-col bg-white dark:bg-[#283036] border-r border-gray-100 dark:border-[#38434F] overflow-hidden`
-    : `${selectedChat ? 'hidden md:flex' : 'flex'} w-full md:w-80 flex-shrink-0 flex-col bg-white dark:bg-[#283036] border border-gray-100 dark:border-[#38434F] rounded-3xl shadow-sm dark:shadow-[#1D2226]/50 overflow-hidden`
+    ? `${selectedChat ? 'hidden md:flex' : 'flex'} w-full md:w-[360px] lg:w-[400px] flex-shrink-0 flex-col bg-surface dark:bg-[#283036] border-r border-surface dark:border-[#38434F] overflow-hidden`
+    : `${selectedChat ? 'hidden md:flex' : 'flex'} w-full md:w-80 flex-shrink-0 flex-col bg-surface dark:bg-[#283036] border border-surface dark:border-[#38434F] rounded-3xl shadow-sm dark:shadow-[#1D2226]/50 overflow-hidden`
 
   const chatPanelClass = fullscreen
-    ? `flex-1 min-w-0 h-full flex-col bg-white dark:bg-[#283036] ${!selectedChat ? 'hidden md:flex' : 'flex'}`
+    ? `flex-1 min-w-0 h-full flex-col bg-surface dark:bg-[#283036] ${!selectedChat ? 'hidden md:flex' : 'flex'}`
     : `flex-1 min-w-0 h-full flex-col ${!selectedChat ? 'hidden md:flex' : 'flex'}`
 
   const chatHeaderClass = fullscreen
-    ? 'flex flex-shrink-0 items-center gap-3 px-3 py-3 bg-[#f0f2f5] dark:bg-[#1D2226] border-b border-gray-200 dark:border-[#38434F]'
-    : 'md:hidden flex-shrink-0 flex items-center gap-3 px-4 py-3 bg-white dark:bg-[#283036] border-b border-gray-100 dark:border-[#38434F] shadow-sm dark:shadow-[#1D2226]/50'
+    ? 'flex flex-shrink-0 items-center gap-3 px-3 py-3 bg-[#f0f2f5] dark:bg-[#1D2226] border-b border-surface dark:border-[#38434F]'
+    : 'md:hidden flex-shrink-0 flex items-center gap-3 px-4 py-3 bg-surface dark:bg-[#283036] border-b border-surface dark:border-[#38434F] shadow-sm dark:shadow-[#1D2226]/50'
 
   return (
     <div className={rootClass}>
       {/* Sidebar: Conversation List */}
       <div className={listClass}>
         {fullscreen && (
-          <div className="flex-shrink-0 flex items-center gap-3 px-3 py-3 bg-[#f0f2f5] dark:bg-[#1D2226] border-b border-gray-200 dark:border-[#38434F]">
+          <div className="flex-shrink-0 flex items-center gap-3 px-3 py-3 bg-[#f0f2f5] dark:bg-[#1D2226] border-b border-surface dark:border-[#38434F]">
             <button
               onClick={goBackToDashboard}
-              className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/5 text-gray-700 dark:text-[#B0B7BE] transition-colors flex-shrink-0"
+              className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-surface/5 text-gray-700 dark:text-[#B0B7BE] transition-colors flex-shrink-0"
               aria-label="Back to dashboard"
             >
               <ArrowLeft size={20} />
@@ -319,7 +319,7 @@ export default function DashboardMessages({
             </h2>
             <button
               onClick={() => setShowNewMessage(!showNewMessage)}
-              className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/5 text-gray-700 dark:text-[#B0B7BE] transition-colors"
+              className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-surface/5 text-gray-700 dark:text-[#B0B7BE] transition-colors"
               title="New Message"
             >
               {showNewMessage ? <X size={20} /> : <Plus size={20} />}
@@ -327,7 +327,7 @@ export default function DashboardMessages({
           </div>
         )}
 
-        <div className={`${fullscreen ? 'p-3' : 'p-4'} border-b border-gray-100 dark:border-[#38434F]`}>
+        <div className={`${fullscreen ? 'p-3' : 'p-4'} border-b border-surface dark:border-[#38434F]`}>
           {!fullscreen && (
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-black text-black dark:text-white flex items-center gap-2">
@@ -370,7 +370,7 @@ export default function DashboardMessages({
                 placeholder="Search chats..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-gray-50 dark:bg-[#1D2226] border border-gray-100 dark:border-[#38434F] rounded-xl pl-10 pr-4 py-2 text-xs focus:outline-none focus:border-purple-600 transition-colors"
+                className="w-full bg-app dark:bg-[#1D2226] border border-surface dark:border-[#38434F] rounded-xl pl-10 pr-4 py-2 text-xs focus:outline-none focus:border-purple-600 transition-colors"
               />
             </div>
           )}
@@ -462,7 +462,7 @@ export default function DashboardMessages({
                     <div
                       key={conv.id}
                       onClick={() => setSelectedChat(conv)}
-                      className={`p-4 cursor-pointer hover:bg-gray-50 dark:bg-[#1D2226] dark:hover:bg-[#1D2226] transition-colors flex gap-3 relative ${selectedChat?.id === conv.id ? 'bg-purple-50/50' : ''}`}
+                      className={`p-4 cursor-pointer hover:bg-app dark:bg-[#1D2226] dark:hover:bg-[#1D2226] transition-colors flex gap-3 relative ${selectedChat?.id === conv.id ? 'bg-purple-50/50' : ''}`}
                     >
                       {conv.unread && (
                         <div className="absolute left-0 top-0 bottom-0 w-1 bg-purple-600 rounded-r" />
@@ -505,7 +505,7 @@ export default function DashboardMessages({
             <div className={chatHeaderClass}>
               <button
                 onClick={() => setSelectedChat(null)}
-                className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/5 text-gray-700 dark:text-[#B0B7BE] transition-colors flex-shrink-0"
+                className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-surface/5 text-gray-700 dark:text-[#B0B7BE] transition-colors flex-shrink-0"
                 aria-label="Back to conversations"
               >
                 <ArrowLeft size={20} />
@@ -543,7 +543,7 @@ export default function DashboardMessages({
             </div>
           </div>
         ) : (
-          <div className={`h-full w-full flex flex-col items-center justify-center text-center p-8 ${fullscreen ? 'bg-[#efeae2] dark:bg-[#1D2226]' : 'bg-white dark:bg-[#283036] border border-gray-100 dark:border-[#38434F] rounded-3xl shadow-sm dark:shadow-[#1D2226]/50'}`}>
+          <div className={`h-full w-full flex flex-col items-center justify-center text-center p-8 ${fullscreen ? 'bg-[#efeae2] dark:bg-[#1D2226]' : 'bg-surface dark:bg-[#283036] border border-surface dark:border-[#38434F] rounded-3xl shadow-sm dark:shadow-[#1D2226]/50'}`}>
             <div className="w-20 h-20 bg-purple-50 rounded-full flex items-center justify-center mb-4">
               <MessageSquare size={40} className="text-purple-600" />
             </div>

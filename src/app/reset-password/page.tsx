@@ -123,9 +123,9 @@ function ResetPasswordPageContent() {
 
   if (tokenValid === null) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-[#1D2226] flex items-center justify-center p-4">
+      <div className="min-h-screen bg-app dark:bg-[#1D2226] flex items-center justify-center p-4">
         <div className="w-full max-w-md">
-          <div className="bg-white dark:bg-[#283036] rounded-2xl shadow-lg p-8 text-center">
+          <div className="bg-surface dark:bg-[#283036] rounded-2xl shadow-lg p-8 text-center">
             <div className="w-8 h-8 border-2 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
             <p className="text-gray-600 dark:text-[#B0B7BE]">Validating reset link...</p>
           </div>
@@ -136,9 +136,9 @@ function ResetPasswordPageContent() {
 
   if (tokenValid === false) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-[#1D2226] flex items-center justify-center p-4">
+      <div className="min-h-screen bg-app dark:bg-[#1D2226] flex items-center justify-center p-4">
         <div className="w-full max-w-md">
-          <div className="bg-white dark:bg-[#283036] rounded-2xl shadow-lg p-8 text-center">
+          <div className="bg-surface dark:bg-[#283036] rounded-2xl shadow-lg p-8 text-center">
             <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
               <AlertCircle size={32} className="text-red-600" />
             </div>
@@ -174,9 +174,9 @@ function ResetPasswordPageContent() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-[#1D2226] flex items-center justify-center p-4">
+      <div className="min-h-screen bg-app dark:bg-[#1D2226] flex items-center justify-center p-4">
         <div className="w-full max-w-md">
-          <div className="bg-white dark:bg-[#283036] rounded-2xl shadow-lg p-8 text-center">
+          <div className="bg-surface dark:bg-[#283036] rounded-2xl shadow-lg p-8 text-center">
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
               <CheckCircle size={32} className="text-green-600" />
             </div>
@@ -202,7 +202,7 @@ function ResetPasswordPageContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-[#1D2226] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-app dark:bg-[#1D2226] flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Logo */}
         <Link href="/" className="flex justify-center mb-8">
@@ -211,7 +211,7 @@ function ResetPasswordPageContent() {
           </span>
         </Link>
 
-        <div className="bg-white dark:bg-[#283036] rounded-2xl shadow-lg p-8">
+        <div className="bg-surface dark:bg-[#283036] rounded-2xl shadow-lg p-8">
           {/* Header */}
           <div className="text-center mb-8">
             <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -323,9 +323,9 @@ function ResetPasswordPageContent() {
 export default function ResetPasswordPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-gray-50 dark:bg-[#1D2226] flex items-center justify-center p-4">
+      <div className="min-h-screen bg-app dark:bg-[#1D2226] flex items-center justify-center p-4">
         <div className="w-full max-w-md">
-          <div className="bg-white dark:bg-[#283036] rounded-2xl shadow-lg p-8 text-center">
+          <div className="bg-surface dark:bg-[#283036] rounded-2xl shadow-lg p-8 text-center">
             <div className="w-8 h-8 border-2 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
             <p className="text-gray-600 dark:text-[#B0B7BE]">Loading...</p>
           </div>

@@ -29,7 +29,7 @@ export default function BlogPage() {
           {/* Topic Tags */}
           <div className="flex flex-wrap gap-2 mt-6">
             {['Placements', 'Referrals', 'Interview Prep', 'Career Guidance', 'Mentorship'].map(topic => (
-              <span key={topic} className="text-xs font-medium bg-gray-100 dark:bg-[#283036] text-gray-600 dark:text-[#B0B7BE] px-3 py-1.5 rounded-full border border-gray-200 dark:border-[#38434F]">
+              <span key={topic} className="text-xs font-medium bg-gray-100 dark:bg-[#283036] text-gray-600 dark:text-[#B0B7BE] px-3 py-1.5 rounded-full border border-surface dark:border-[#38434F]">
                 {topic}
               </span>
             ))}
@@ -47,7 +47,7 @@ export default function BlogPage() {
           <div className="space-y-6">
             {posts.map(post => (
               <Link key={post.slug} href={`/blog/${post.slug}`} className="block group no-underline">
-                <div className="bg-white dark:bg-[#283036] border border-gray-100 dark:border-[#38434F] rounded-2xl p-8 hover:border-purple-200 hover:shadow-md transition-all duration-200">
+                <div className="bg-surface dark:bg-[#283036] border border-surface dark:border-[#38434F] rounded-2xl p-8 hover:border-purple-200 hover:shadow-md transition-all duration-200">
                   <div className="flex flex-wrap items-center gap-3 mb-3">
                     <span className="text-sm text-gray-400 dark:text-[#B0B7BE]">{new Date(post.date).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
                     <span className="text-gray-300 dark:text-[#B0B7BE]">·</span>

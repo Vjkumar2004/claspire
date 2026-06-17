@@ -34,7 +34,7 @@ function CommunityActivityCard({
   ].filter(m => m.value > 0)
 
   return (
-    <div className="bg-white dark:bg-[#283036] rounded-md border border-slate-200 dark:border-[#38434F] p-3.5 shadow-sm">
+    <div className="bg-surface dark:bg-[#283036] rounded-md border border-surface dark:border-[#38434F] p-3.5 shadow-sm">
       <h4 className="font-bold text-slate-900 dark:text-white text-xs mb-3 flex items-center gap-1.5">
         <Activity className="w-4 h-4 text-rose-500" />
         Community Activity
@@ -44,7 +44,7 @@ function CommunityActivityCard({
         {primaryActivities.map((activity) => (
           <div
             key={activity.label}
-            className="bg-slate-50 dark:bg-[#1D2226] rounded-md p-2.5 border border-slate-100 dark:border-[#38434F]"
+            className="bg-app dark:bg-[#1D2226] rounded-md p-2.5 border border-surface dark:border-[#38434F]"
           >
             <activity.icon className={`w-4 h-4 ${activity.color} mb-1`} />
             <p className="text-lg font-bold text-slate-900 dark:text-white leading-none">{activity.value}</p>
@@ -55,7 +55,7 @@ function CommunityActivityCard({
 
       {optionalMetrics.length > 0 && (
         <>
-          <div className="border-t border-slate-100 dark:border-[#38434F] my-3" />
+          <div className="border-t border-surface dark:border-[#38434F] my-3" />
           <div className="space-y-2">
             {optionalMetrics.map((metric) => (
               <div

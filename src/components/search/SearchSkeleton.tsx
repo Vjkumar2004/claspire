@@ -7,7 +7,7 @@ export default function SearchSkeleton() {
       {[1, 2, 3].map((index) => (
         <div 
           key={index}
-          className="bg-white dark:bg-[#283036] border border-gray-200 dark:border-[#38434F] rounded-md p-4 sm:p-5 flex flex-col sm:flex-row gap-4 justify-between items-start animate-pulse"
+          className="bg-surface dark:bg-[#283036] border border-surface dark:border-[#38434F] rounded-md p-4 sm:p-5 flex flex-col sm:flex-row gap-4 justify-between items-start animate-pulse"
         >
           <div className="flex gap-4 items-start min-w-0 flex-1 w-full">
             {/* Logo placeholder */}

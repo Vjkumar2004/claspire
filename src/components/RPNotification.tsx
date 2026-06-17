@@ -31,7 +31,7 @@ export default function RPNotification() {
             zIndex: 9999,
           }}
         >
-          <div className="bg-white dark:bg-[#283036] rounded-2xl shadow-[0_20px_50px_rgba(124,58,237,0.15)] border border-purple-100 dark:border-[#38434F] p-6 flex items-center gap-6 min-w-[320px] overflow-hidden relative">
+          <div className="bg-surface dark:bg-[#283036] rounded-2xl shadow-[0_20px_50px_rgba(124,58,237,0.15)] border border-purple-100 dark:border-[#38434F] p-6 flex items-center gap-6 min-w-[320px] overflow-hidden relative">
             {/* Background elements */}
             <div className="absolute top-0 right-0 w-24 h-24 bg-purple-50 dark:bg-purple-900/20 rounded-full -mr-12 -mt-12 opacity-50" />
             

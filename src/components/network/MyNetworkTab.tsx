@@ -76,7 +76,7 @@ export default function MyNetworkTab({ refreshKey = 0 }: MyNetworkTabProps) {
             <div className="w-11 h-11 rounded-full bg-gray-100 dark:bg-[#1D2226]" />
             <div className="flex-1 space-y-2">
               <div className="h-3 bg-gray-100 dark:bg-[#1D2226] rounded w-1/3" />
-              <div className="h-2.5 bg-gray-50 dark:bg-[#1D2226] rounded w-1/4" />
+              <div className="h-2.5 bg-app dark:bg-[#1D2226] rounded w-1/4" />
             </div>
             <div className="h-8 w-24 bg-gray-100 dark:bg-[#1D2226] rounded-lg" />
           </div>
@@ -114,7 +114,7 @@ export default function MyNetworkTab({ refreshKey = 0 }: MyNetworkTabProps) {
             >
               <div
                 onClick={() => router.push(`/u/${conn.unique_id}`)}
-                className="w-11 h-11 rounded-full bg-gray-100 dark:bg-[#1D2226] flex items-center justify-center text-xs font-black text-gray-400 dark:text-[#B0B7BE] border border-gray-200 dark:border-[#38434F] overflow-hidden cursor-pointer flex-shrink-0"
+                className="w-11 h-11 rounded-full bg-gray-100 dark:bg-[#1D2226] flex items-center justify-center text-xs font-black text-gray-400 dark:text-[#B0B7BE] border border-surface dark:border-[#38434F] overflow-hidden cursor-pointer flex-shrink-0"
               >
                 {conn.avatar_url ? (
                   <img src={conn.avatar_url} alt={conn.full_name} className="w-full h-full object-cover" loading="lazy" />
@@ -162,7 +162,7 @@ export default function MyNetworkTab({ refreshKey = 0 }: MyNetworkTabProps) {
                 </button>
                 <button
                   onClick={() => router.push(`/u/${conn.unique_id}`)}
-                  className="px-3 py-1.5 rounded-lg text-xs font-semibold text-gray-600 dark:text-[#B0B7BE] bg-white dark:bg-[#283036] border border-gray-200 dark:border-[#38434F] hover:bg-gray-50 dark:bg-[#1D2226] dark:hover:bg-[#1D2226] hover:border-gray-300 transition-colors"
+                  className="px-3 py-1.5 rounded-lg text-xs font-semibold text-gray-600 dark:text-[#B0B7BE] bg-surface dark:bg-[#283036] border border-surface dark:border-[#38434F] hover:bg-app dark:bg-[#1D2226] dark:hover:bg-[#1D2226] hover:border-gray-300 transition-colors"
                 >
                   Profile
                 </button>
@@ -196,7 +196,7 @@ export default function MyNetworkTab({ refreshKey = 0 }: MyNetworkTabProps) {
           placeholder="Search your connections..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full pl-10 pr-3 py-2.5 text-sm border border-gray-200 dark:border-[#38434F] rounded-xl bg-white dark:bg-[#283036] text-gray-900 dark:text-white outline-none focus:border-purple-300 focus:ring-2 focus:ring-purple-50 dark:focus:ring-purple-900/30 transition-all font-medium"
+          className="w-full pl-10 pr-3 py-2.5 text-sm border border-surface dark:border-[#38434F] rounded-xl bg-surface dark:bg-[#283036] text-gray-900 dark:text-white outline-none focus:border-purple-300 focus:ring-2 focus:ring-purple-50 dark:focus:ring-purple-900/30 transition-all font-medium"
         />
       </div>
 

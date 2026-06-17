@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePoints } from '@/contexts/PointsContext';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { HelpCircle, Briefcase, Handshake, Mic, DollarSign, BarChart3, Star, Trophy, User, CheckCircle, Settings, Zap, TrendingUp, LayoutDashboard, MessageSquare, Trash2, Users, Plus, Eye, Lock, Globe, GraduationCap, Sparkles } from 'lucide-react';
+import { X, HelpCircle, Briefcase, Handshake, Mic, DollarSign, BarChart3, Star, Trophy, User, CheckCircle, Settings, Zap, TrendingUp, LayoutDashboard, MessageSquare, Trash2, Users, Plus, Eye, Lock, Globe, GraduationCap, Sparkles } from 'lucide-react';
 import CreateGroupModal from '@/components/CreateGroupModal'
 import MyGroupsModal from '@/components/MyGroupsModal'
 import MyGroupsList from '@/components/MyGroupsList'
@@ -12,6 +12,7 @@ import MyGroupsList from '@/components/MyGroupsList'
 import NotificationBell from '@/components/NotificationBell';
 import DeleteAccountModal from '@/components/DeleteAccountModal';
 import GroupJoinRequestsSection from '@/components/GroupJoinRequestsSection';
+import MediaGallery from '@/components/MediaGallery';
 
 import { Pencil } from 'lucide-react';
 
@@ -39,7 +40,7 @@ export default function SeniorDashboardPage() {
   const searchParams = useSearchParams();
   // Move ALL useState hooks to the top - Rules of Hooks compliance
   const { showAward } = usePoints();
-  const [activeNav, setActiveNav] = useState("overview");
+  const [activeNav, setActiveNav] = useState("my-posts");
 
   // Redirect legacy ?activeTab=messages URLs to full-screen messages page
   useEffect(() => {
@@ -54,6 +55,8 @@ export default function SeniorDashboardPage() {
 
     if (tab && ["overview", "jobs", "referrals", "my-posts"].includes(tab)) {
       setActiveNav(tab);
+    } else if (!tab) {
+      setActiveNav("my-posts");
     }
   }, [searchParams, router]);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
@@ -88,6 +91,68 @@ export default function SeniorDashboardPage() {
 
   // My Posts states
   const [deletingPostId, setDeletingPostId] = useState<string | null>(null)
+  const [postInsights, setPostInsights] = useState<Record<string, {
+    recentUpvoters: any[];
+    latestAnswer: any | null;
+  }>>({})
+  const [activePostId, setActivePostId] = useState<string | null>(null)
+  const [postAnswers, setPostAnswers] = useState<any[]>([])
+  const [answersLoading, setAnswersLoading] = useState(false)
+
+  const handleOpenAnswersModal = async (post: any) => {
+    setActivePostId(post.id)
+    setAnswersLoading(true)
+    try {
+      const res = await fetch(`/api/posts/${post.id}/answers`)
+      if (res.ok) {
+        const data = await res.json()
+        setPostAnswers(data.answers || [])
+      } else {
+        setPostAnswers([])
+      }
+    } catch (err) {
+      console.error('Error loading answers:', err)
+      setPostAnswers([])
+    } finally {
+      setAnswersLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    if (dashData?.myPosts && dashData.myPosts.length > 0) {
+      const fetchInsights = async () => {
+        try {
+          const res = await fetch('/api/dashboard/my-posts/insights')
+          if (res.ok) {
+            const data = await res.json()
+            setPostInsights(data.insights || {})
+          }
+        } catch (err) {
+          console.error('Error fetching insights:', err)
+        }
+      }
+      fetchInsights()
+    }
+  }, [dashData?.myPosts])
+
+  // Answers modal scroll-lock & keydown handling
+  useEffect(() => {
+    if (activePostId) {
+      document.body.style.overflow = 'hidden'
+      
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') {
+          setActivePostId(null)
+        }
+      }
+      window.addEventListener('keydown', handleKeyDown)
+      
+      return () => {
+        document.body.style.overflow = 'unset'
+        window.removeEventListener('keydown', handleKeyDown)
+      }
+    }
+  }, [activePostId])
 
   useEffect(() => {
     fetchDashboardData()
@@ -284,7 +349,7 @@ export default function SeniorDashboardPage() {
   // No need for duplicate auth logic here
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-[#1D2226] flex overflow-hidden">
+    <div className="min-h-screen bg-app dark:bg-[#1D2226] flex overflow-hidden">
       {/* Mobile Sidebar Overlay */}
       {mobileSidebarOpen && (
         <div
@@ -293,20 +358,11 @@ export default function SeniorDashboardPage() {
         />
       )}
 
-      <div className={`w-60 flex-shrink-0 bg-white dark:bg-[#283036] border-r border-gray-200 dark:border-[#38434F] h-screen fixed lg:sticky top-0 flex flex-col z-50 transition-transform lg:transition-none ${mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
-        {/* Logo + Notifications (Always visible) */}
-        <div className="p-4 border-b border-gray-100 dark:border-[#38434F] flex items-center justify-between">
-            {/* Logo */}
-            <Link href="/" className="font-plus-jakarta-sans font-bold text-lg text-black dark:text-white no-underline hover:no-underline">
-              cl<span style={{ color: '#7C3AED' }}>aspire</span>
-            </Link>
-            <NotificationBell align="left" dark />
-        </div>
-
+      <div className={`w-60 flex-shrink-0 bg-surface dark:bg-[#283036] border-r border-surface dark:border-[#38434F] h-screen fixed lg:sticky top-0 flex flex-col z-50 transition-transform lg:transition-none ${mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
         {/* Scrollable Content Container */}
-        <div className="flex-1 overflow-y-auto flex flex-col custom-scrollbar">
+        <div className="flex-1 overflow-y-auto flex flex-col custom-scrollbar pt-4">
           {/* User Card */}
-          <div className="p-4 border-b border-gray-100 dark:border-[#38434F] flex items-center gap-2.5">
+          <div className="p-4 border-b border-surface dark:border-[#38434F] flex items-center gap-2.5">
             <div className={`w-9 h-9 rounded-full ${dashData?.user?.avatar_url ? 'bg-transparent' : 'bg-gradient-to-br from-purple-600 to-cyan-500'} text-white text-xs font-black flex items-center justify-center flex-shrink-0 overflow-hidden`}>
               {dashData?.user?.avatar_url ? (
                 <img src={dashData.user.avatar_url} alt={dashData.user.full_name} className="w-full h-full object-cover" />
@@ -338,8 +394,8 @@ export default function SeniorDashboardPage() {
             <div className="font-instrument-serif text-2xl text-white leading-none my-1">
               {dashData?.user?.rise_points || 0} RP
             </div>
-            <div className="bg-white/20 rounded-full h-1 my-2">
-              <div className="bg-white dark:bg-[#283036] rounded-full h-1" style={{ width: `${Math.min((dashData?.user?.rise_points || 0) / (getRPLevel(dashData?.user?.rise_points || 0).next || dashData?.user?.rise_points || 1) * 100, 100)}%` }}></div>
+            <div className="bg-surface/20 rounded-full h-1 my-2">
+              <div className="bg-surface dark:bg-[#283036] rounded-full h-1" style={{ width: `${Math.min((dashData?.user?.rise_points || 0) / (getRPLevel(dashData?.user?.rise_points || 0).next || dashData?.user?.rise_points || 1) * 100, 100)}%` }}></div>
             </div>
             <div className="flex justify-between text-[10px] text-white/70">
               <span className="flex items-center gap-1">
@@ -360,103 +416,106 @@ export default function SeniorDashboardPage() {
             <div className="text-[10px] font-black tracking-wider uppercase text-gray-400 dark:text-[#B0B7BE] px-2 mb-1.5 mt-0">
               MAIN
             </div>
-            <div className="space-y-0.5 mb-4">
+            <div className="space-y-0.5">
+              <div
+                onClick={() => {
+                  setActiveNav("my-posts")
+                  router.push('?activeTab=my-posts', { scroll: false })
+                  setMobileSidebarOpen(false)
+                }}
+                className={`flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold transition-colors ${activeNav === "my-posts"
+                    ? "bg-purple-50 text-purple-600"
+                    : "text-gray-500 dark:text-[#B0B7BE] hover:bg-app dark:hover:bg-[#1D2226] hover:text-gray-700 dark:hover:text-white"
+                  }`}
+              >
+                <LayoutDashboard size={16} className="flex-shrink-0" />
+                <span>My Posts</span>
+              </div>
+
               <div
                 onClick={() => {
                   router.push('/dashboard/senior/messages')
                   setMobileSidebarOpen(false)
                 }}
-                className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold transition-colors text-gray-500 dark:text-[#B0B7BE] hover:bg-gray-50 dark:hover:bg-[#1D2226] hover:text-gray-700 dark:hover:text-white"
+                className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold transition-colors text-gray-500 dark:text-[#B0B7BE] hover:bg-app dark:hover:bg-[#1D2226] hover:text-gray-700 dark:hover:text-white"
               >
                 <MessageSquare size={16} />
                 Messages
               </div>
-            </div>
 
-            <div
-              onClick={() => {
-                setActiveNav("overview")
-                router.push('?activeTab=overview', { scroll: false })
-                setMobileSidebarOpen(false)
-              }}
-              className={`flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold transition-colors ${activeNav === "overview"
-                  ? "bg-purple-50 text-purple-600"
-                  : "text-gray-500 dark:text-[#B0B7BE] hover:bg-gray-50 dark:hover:bg-[#1D2226] hover:text-gray-700 dark:hover:text-white"
-                }`}
-            >
-              <HelpCircle size={16} className="flex-shrink-0" />
-              <span>Doubts to Answer</span>
-              {dashData?.pendingDoubts?.length > 0 && (
-                <span className="ml-auto bg-red-500 text-white rounded-full px-1.5 py-0 text-[10px] font-black">
-                  {dashData.pendingDoubts.length}
-                </span>
-              )}
-            </div>
-            <button
-              type="button"
-              onClick={() => setJobModalOpen(true)}
-              className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold text-gray-500 dark:text-[#B0B7BE] hover:bg-gray-50 dark:hover:bg-[#1D2226] hover:text-gray-700 dark:hover:text-white transition-colors"
-            >
-              <Briefcase size={16} className="flex-shrink-0" />
-              <span>Post a Job</span>
-            </button>
-            <div
-              onClick={() => {
-                setActiveNav("jobs")
-                router.push('?activeTab=jobs', { scroll: false })
-                setMobileSidebarOpen(false)
-              }}
-              className={`flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold transition-colors ${activeNav === "jobs"
-                  ? "bg-purple-50 text-purple-600"
-                  : "text-gray-500 dark:text-[#B0B7BE] hover:bg-gray-50 dark:hover:bg-[#1D2226] hover:text-gray-700 dark:hover:text-white"
-                }`}
-            >
-              <Briefcase size={16} className="flex-shrink-0" />
-              <span>My Jobs</span>
-              {dashData?.myJobs?.length > 0 && (
-                <span className="ml-auto bg-purple-600 text-white rounded-full px-1.5 py-0 text-[10px] font-black">
-                  {dashData.myJobs.length}
-                </span>
-              )}
-            </div>
-            <div
-              onClick={handleOpenReferrals}
-              className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold text-gray-500 dark:text-[#B0B7BE] hover:bg-gray-50 dark:hover:bg-[#1D2226] hover:text-gray-700 dark:hover:text-white transition-colors"
-            >
-              <Handshake size={16} className="flex-shrink-0" />
-              <span>Referral Requests</span>
-              {dashData?.pendingReferrals?.length > 0 && (
-                <span className="ml-auto w-4 h-4 rounded-full bg-purple-600 text-white text-[8px] flex items-center justify-center">
-                  {dashData.pendingReferrals.length}
-                </span>
-              )}
-            </div>
-            
-            <div
-              onClick={() => {
-                setActiveNav("my-posts")
-                router.push('?activeTab=my-posts', { scroll: false })
-                setMobileSidebarOpen(false)
-              }}
-              className={`flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold transition-colors ${activeNav === "my-posts"
-                  ? "bg-purple-50 text-purple-600"
-                  : "text-gray-500 dark:text-[#B0B7BE] hover:bg-gray-50 dark:hover:bg-[#1D2226] hover:text-gray-700 dark:hover:text-white"
-                }`}
-            >
-              <LayoutDashboard size={16} className="flex-shrink-0" />
-              <span>My Posts</span>
+              <div
+                onClick={() => {
+                  setActiveNav("overview")
+                  router.push('?activeTab=overview', { scroll: false })
+                  setMobileSidebarOpen(false)
+                }}
+                className={`flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold transition-colors ${activeNav === "overview"
+                    ? "bg-purple-50 text-purple-600"
+                    : "text-gray-500 dark:text-[#B0B7BE] hover:bg-app dark:hover:bg-[#1D2226] hover:text-gray-700 dark:hover:text-white"
+                  }`}
+              >
+                <HelpCircle size={16} className="flex-shrink-0" />
+                <span>Doubts to Answer</span>
+                {dashData?.pendingDoubts?.length > 0 && (
+                  <span className="ml-auto bg-red-500 text-white rounded-full px-1.5 py-0 text-[10px] font-black">
+                    {dashData.pendingDoubts.length}
+                  </span>
+                )}
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setJobModalOpen(true)}
+                className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold text-gray-500 dark:text-[#B0B7BE] hover:bg-app dark:hover:bg-[#1D2226] hover:text-gray-700 dark:hover:text-white transition-colors"
+              >
+                <Briefcase size={16} className="flex-shrink-0" />
+                <span>Post a Job</span>
+              </button>
+
+              <div
+                onClick={() => {
+                  setActiveNav("jobs")
+                  router.push('?activeTab=jobs', { scroll: false })
+                  setMobileSidebarOpen(false)
+                }}
+                className={`flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold transition-colors ${activeNav === "jobs"
+                    ? "bg-purple-50 text-purple-600"
+                    : "text-gray-500 dark:text-[#B0B7BE] hover:bg-app dark:hover:bg-[#1D2226] hover:text-gray-700 dark:hover:text-white"
+                  }`}
+              >
+                <Briefcase size={16} className="flex-shrink-0" />
+                <span>My Jobs</span>
+                {dashData?.myJobs?.length > 0 && (
+                  <span className="ml-auto bg-purple-600 text-white rounded-full px-1.5 py-0 text-[10px] font-black">
+                    {dashData.myJobs.length}
+                  </span>
+                )}
+              </div>
+
+              <div
+                onClick={handleOpenReferrals}
+                className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold text-gray-500 dark:text-[#B0B7BE] hover:bg-app dark:hover:bg-[#1D2226] hover:text-gray-700 dark:hover:text-white transition-colors"
+              >
+                <Handshake size={16} className="flex-shrink-0" />
+                <span>Referral Requests</span>
+                {dashData?.pendingReferrals?.length > 0 && (
+                  <span className="ml-auto w-4 h-4 rounded-full bg-purple-600 text-white text-[8px] flex items-center justify-center">
+                    {dashData.pendingReferrals.length}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
 
           {/* My Groups Section */}
-          <div className="p-2 mt-4 border-t border-gray-100 dark:border-[#38434F]">
+          <div className="p-2 mt-4 border-t border-surface dark:border-[#38434F]">
             <div className="text-[10px] font-black tracking-wider uppercase text-gray-400 dark:text-[#B0B7BE] px-2 mb-1.5">
               MY GROUPS
             </div>
             <div className="space-y-0.5">
               <div
                 onClick={handleOpenGroupRequests}
-                className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold text-gray-500 dark:text-[#B0B7BE] hover:bg-gray-50 dark:hover:bg-[#1D2226] hover:text-gray-700 dark:hover:text-white transition-colors"
+                className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold text-gray-500 dark:text-[#B0B7BE] hover:bg-app dark:hover:bg-[#1D2226] hover:text-gray-700 dark:hover:text-white transition-colors"
               >
                 <Lock size={16} className="flex-shrink-0" />
                 <span>Group Requests</span>
@@ -468,7 +527,7 @@ export default function SeniorDashboardPage() {
               </div>
               <div
                 onClick={() => setShowMyGroupsModal(true)}
-                className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold text-gray-500 dark:text-[#B0B7BE] hover:bg-gray-50 dark:hover:bg-[#1D2226] hover:text-gray-700 dark:hover:text-white transition-colors"
+                className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold text-gray-500 dark:text-[#B0B7BE] hover:bg-app dark:hover:bg-[#1D2226] hover:text-gray-700 dark:hover:text-white transition-colors"
               >
                 <Users size={16} className="flex-shrink-0" />
                 <span>My Created Groups</span>
@@ -482,28 +541,28 @@ export default function SeniorDashboardPage() {
           </div>
 
           {/* Account Settings Section */}
-          <div className="p-2 mt-4 border-t border-gray-100 dark:border-[#38434F]">
+          <div className="p-2 mt-4 border-t border-surface dark:border-[#38434F]">
             <div className="text-[10px] font-black tracking-wider uppercase text-gray-400 dark:text-[#B0B7BE] px-2 mb-1.5">
               ACCOUNT
             </div>
             <div className="space-y-0.5">
               <div
                 onClick={handleOpenProfile}
-                className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold text-gray-500 dark:text-[#B0B7BE] hover:bg-gray-50 dark:hover:bg-[#1D2226] hover:text-gray-700 dark:hover:text-white transition-colors"
+                className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold text-gray-500 dark:text-[#B0B7BE] hover:bg-app dark:hover:bg-[#1D2226] hover:text-gray-700 dark:hover:text-white transition-colors"
               >
                 <User size={16} className="flex-shrink-0" />
                 <span>My Profile</span>
               </div>
               <div
                 onClick={handleOpenProfile}
-                className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold text-gray-500 dark:text-[#B0B7BE] hover:bg-gray-50 dark:hover:bg-[#1D2226] hover:text-gray-700 dark:hover:text-white transition-colors"
+                className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold text-gray-500 dark:text-[#B0B7BE] hover:bg-app dark:hover:bg-[#1D2226] hover:text-gray-700 dark:hover:text-white transition-colors"
               >
                 <Settings size={16} className="flex-shrink-0" />
                 <span>Preferences</span>
               </div>
             </div>
             
-            <div className="mt-4 pt-4 border-t border-gray-100 dark:border-[#38434F]">
+            <div className="mt-4 pt-4 border-t border-surface dark:border-[#38434F]">
               <div className="text-[10px] font-black tracking-wider uppercase text-red-400 px-2 mb-1.5">
                 DANGER ZONE
               </div>
@@ -532,7 +591,7 @@ export default function SeniorDashboardPage() {
             </button>
             <NotificationBell align="left" dark />
           </div>
-          <div className="bg-gray-100 dark:bg-[#283036] border border-gray-200 dark:border-[#38434F] rounded-lg px-3 py-1.5 text-xs font-black text-gray-600 dark:text-[#B0B7BE] font-mono">
+          <div className="bg-gray-100 dark:bg-[#283036] border border-surface dark:border-[#38434F] rounded-lg px-3 py-1.5 text-xs font-black text-gray-600 dark:text-[#B0B7BE] font-mono">
             {dashData?.user?.unique_id || '#CLS-S-2022-00234'}
           </div>
         </div>
@@ -555,7 +614,7 @@ export default function SeniorDashboardPage() {
             >
               Create Group
             </button>
-            <div className="hidden lg:block bg-gray-100 dark:bg-[#283036] border border-gray-200 dark:border-[#38434F] rounded-lg px-3 py-1.5 text-xs font-black text-gray-600 dark:text-[#B0B7BE] font-mono" title="Your unique Claspire ID">
+            <div className="hidden lg:block bg-gray-100 dark:bg-[#283036] border border-surface dark:border-[#38434F] rounded-lg px-3 py-1.5 text-xs font-black text-gray-600 dark:text-[#B0B7BE] font-mono" title="Your unique Claspire ID">
               {dashData?.user?.unique_id || '#CLS-S-2022-00234'}
             </div>
           </div>
@@ -589,53 +648,162 @@ export default function SeniorDashboardPage() {
             <div className="grid grid-cols-1 gap-4">
               {dashData?.myPosts?.length > 0 ? (
                 dashData.myPosts.map((post: any) => (
-                  <div key={post.id} className="bg-white dark:bg-[#283036] p-5 rounded-2xl border border-gray-200 dark:border-[#38434F] hover:shadow-md transition-all">
-                    <div className="flex items-start justify-between gap-4 mb-4">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="bg-gray-100 dark:bg-[#283036] text-gray-600 dark:text-[#B0B7BE] px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">{post.type.replace('_', ' ')}</span>
-                          <span className="text-[10px] text-gray-400 dark:text-[#B0B7BE]">{timeAgo(post.created_at)}</span>
-                          {post.type === 'doubt' && (
-                            <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${post.is_answered ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
-                              {post.is_answered ? 'Answered' : 'Pending'}
-                            </span>
+                  <div key={post.id} className="bg-surface dark:bg-[#283036] p-5 rounded-2xl border border-surface dark:border-[#38434F] hover:shadow-md transition-all">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      
+                      {/* Left Section (Primary Content) - Span 2 columns on desktop */}
+                      <div className="md:col-span-2 flex flex-col justify-between">
+                        <div>
+                          <div className="flex items-start justify-between gap-4 mb-3">
+                            <div className="flex items-center gap-2">
+                              <span className="bg-gray-100 dark:bg-[#1D2226] text-gray-600 dark:text-[#B0B7BE] px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">{post.type.replace('_', ' ')}</span>
+                              <span className="text-[10px] text-gray-400 dark:text-[#B0B7BE]">{timeAgo(post.created_at)}</span>
+                              {post.type === 'doubt' && (
+                                <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${post.is_answered ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
+                                  {post.is_answered ? 'Answered' : 'Pending'}
+                                </span>
+                              )}
+                            </div>
+                            
+                            <div className="flex items-center gap-2 flex-shrink-0">
+                              <button
+                                onClick={() => router.push(`/dashboard/senior/edit-post/${post.id}`)}
+                                className="p-2 bg-purple-50 text-purple-600 hover:bg-purple-100 rounded-lg transition-colors"
+                                title="Edit Post"
+                              >
+                                <Pencil size={14} />
+                              </button>
+                              <button
+                                onClick={() => handleDeletePost(post.id)}
+                                disabled={deletingPostId === post.id}
+                                className="p-2 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg transition-colors disabled:opacity-50"
+                                title="Delete Post"
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            </div>
+                          </div>
+
+                          <h3 className="text-base font-bold text-gray-900 dark:text-white leading-tight mb-2">{post.title}</h3>
+                          <p className="text-sm text-gray-600 dark:text-[#B0B7BE] line-clamp-2">{post.content}</p>
+
+                          {/* Hashtags (if tags exist) */}
+                          {post.tags && post.tags.length > 0 && (
+                            <div className="flex flex-wrap gap-1.5 mt-2">
+                              {post.tags.map((tag: string) => (
+                                <span
+                                  key={tag}
+                                  className="text-[10px] font-bold text-[#7C3AED] dark:text-purple-300 bg-purple-50 dark:bg-purple-500/20 border border-purple-100 dark:border-purple-500/30 px-2 py-0.5 rounded-full"
+                                >
+                                  #{tag}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+
+                          {/* Attached media: Reduced size and compact aspect-ratio layout */}
+                          {post.image_url && post.image_url.length > 0 && (
+                            <div className="mt-3 w-full max-w-sm md:max-w-xs rounded-xl overflow-hidden border border-surface dark:border-[#38434F] shadow-sm [&_img]:aspect-[16/9] [&_img]:object-cover [&_img]:rounded-lg [&_img]:w-full [&_img]:max-h-40 md:[&_img]:max-h-56">
+                              <MediaGallery imageUrls={post.image_url} />
+                            </div>
                           )}
                         </div>
-                        <h3 className="text-base font-bold text-gray-900 dark:text-white leading-tight mb-2">{post.title}</h3>
-                        <p className="text-sm text-gray-600 dark:text-[#B0B7BE] line-clamp-2">{post.content}</p>
+
+                        {/* Engagement Metrics below image (Mobile Only) */}
+                        <div className="md:hidden flex items-center justify-between text-xs font-bold text-gray-400 dark:text-[#B0B7BE] mt-4 pt-3 border-t border-surface dark:border-[#38434F]">
+                          <div className="flex items-center gap-3">
+                            <span className="flex items-center gap-1.5"><TrendingUp size={14} /> {post.upvote_count || 0} Upvotes</span>
+                            <button
+                              onClick={() => handleOpenAnswersModal(post)}
+                              className="flex items-center gap-1.5 hover:text-purple-600 transition-colors"
+                            >
+                              <MessageSquare size={14} /> {post.answer_count || 0} Answers
+                            </button>
+                          </div>
+                          {post.communities && (
+                            <span className="text-purple-600">in {post.communities.display_name}</span>
+                          )}
+                        </div>
                       </div>
-                      
-                      <div className="flex items-center gap-2 flex-shrink-0">
-                        <button
-                          onClick={() => router.push(`/dashboard/senior/edit-post/${post.id}`)}
-                          className="p-2 bg-purple-50 text-purple-600 hover:bg-purple-100 rounded-lg transition-colors"
-                          title="Edit Post"
-                        >
-                          <Pencil size={14} />
-                        </button>
-                        <button
-                          onClick={() => handleDeletePost(post.id)}
-                          disabled={deletingPostId === post.id}
-                          className="p-2 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg transition-colors disabled:opacity-50"
-                          title="Delete Post"
-                        >
-                          <Trash2 size={14} />
-                        </button>
+
+                      {/* Right Section (Engagement Summary Panel) - Desktop Only */}
+                      <div className="hidden md:flex flex-col border-l border-surface dark:border-[#38434F] pl-6 justify-between min-w-[200px]">
+                        <div>
+                          <h4 className="text-xs font-bold text-gray-400 dark:text-[#B0B7BE] uppercase tracking-wider mb-3">Engagement Summary</h4>
+                          
+                          {/* Upvotes section */}
+                          <div className="mb-4">
+                            <div className="flex items-center gap-1.5 text-sm font-bold text-gray-800 dark:text-white mb-1.5">
+                              <TrendingUp size={14} className="text-purple-600" />
+                              <span>{post.upvote_count || 0} Upvotes</span>
+                            </div>
+                            {/* Avatar stack of recent upvoters */}
+                            {postInsights[post.id]?.recentUpvoters && postInsights[post.id].recentUpvoters.length > 0 && (
+                              <div className="flex items-center gap-2">
+                                <div className="flex -space-x-2">
+                                  {postInsights[post.id].recentUpvoters.slice(0, 3).map((upvoter: any) => (
+                                    <div
+                                      key={upvoter.id}
+                                      className="w-6 h-6 rounded-full border border-white dark:border-[#283036] bg-slate-100 dark:bg-[#1D2226] flex items-center justify-center text-[8px] font-bold text-gray-600 overflow-hidden"
+                                      title={upvoter.full_name}
+                                    >
+                                      {upvoter.avatar_url ? (
+                                        <img src={upvoter.avatar_url} alt={upvoter.full_name} className="w-full h-full object-cover" />
+                                      ) : (
+                                        upvoter.full_name?.[0] || 'U'
+                                      )}
+                                    </div>
+                                  ))}
+                                </div>
+                                {post.upvote_count > 3 && (
+                                  <span className="text-[10px] text-gray-400 dark:text-[#B0B7BE] font-semibold">
+                                    +{post.upvote_count - 3}
+                                  </span>
+                                )}
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Answers section */}
+                          <button
+                            onClick={() => handleOpenAnswersModal(post)}
+                            className="w-full text-left group hover:opacity-80 transition-opacity"
+                          >
+                            <div className="flex items-center gap-1.5 text-sm font-bold text-gray-800 dark:text-white mb-1">
+                              <MessageSquare size={14} className="text-purple-600" />
+                              <span>{post.answer_count || 0} Answers</span>
+                            </div>
+                            {postInsights[post.id]?.latestAnswer ? (
+                              <div className="bg-app dark:bg-[#1D2226] p-2.5 rounded-xl border border-surface dark:border-[#38434F] text-xs mt-1.5">
+                                <p className="text-gray-600 dark:text-[#B0B7BE] line-clamp-2 italic mb-1">
+                                  "{postInsights[post.id].latestAnswer.content.length > 100
+                                    ? postInsights[post.id].latestAnswer.content.substring(0, 100) + '...'
+                                    : postInsights[post.id].latestAnswer.content}"
+                                </p>
+                                <div className="text-[10px] font-semibold text-gray-400 dark:text-[#B0B7BE]">
+                                  — {postInsights[post.id].latestAnswer.users?.full_name}
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="text-[11px] text-gray-400 dark:text-[#B0B7BE] italic mt-1">
+                                No answers yet.
+                              </div>
+                            )}
+                          </button>
+                        </div>
+
+                        {post.communities && (
+                          <div className="text-[11px] font-bold text-purple-600 dark:text-purple-300 mt-4">
+                            in {post.communities.display_name}
+                          </div>
+                        )}
                       </div>
-                    </div>
-                    <div className="flex items-center justify-between text-xs font-bold text-gray-400 dark:text-[#B0B7BE] border-t border-gray-100 dark:border-[#38434F] pt-3">
-                      <div className="flex gap-4">
-                        <span className="flex items-center gap-1.5"><TrendingUp size={14} /> {post.upvote_count || 0} Upvotes</span>
-                        <span className="flex items-center gap-1.5"><MessageSquare size={14} /> {post.answer_count || 0} Answers</span>
-                      </div>
-                      {post.communities && (
-                         <span className="text-purple-600">in {post.communities.display_name}</span>
-                      )}
+
                     </div>
                   </div>
                 ))
               ) : (
-                <div className="text-center py-16 bg-white dark:bg-[#283036] border border-dashed border-gray-200 dark:border-[#38434F] rounded-2xl">
+                <div className="text-center py-16 bg-surface dark:bg-[#283036] border border-dashed border-surface dark:border-[#38434F] rounded-2xl">
                   <LayoutDashboard size={40} className="mx-auto text-gray-300 dark:text-[#B0B7BE] mb-4" />
                   <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">No Posts Yet</h3>
                   <p className="text-sm text-gray-500 dark:text-[#B0B7BE] mb-6">You haven't created any posts or doubts.</p>
@@ -668,7 +836,7 @@ export default function SeniorDashboardPage() {
             <div className="grid grid-cols-1 gap-4">
               {dashData?.myJobs?.length > 0 ? (
                 dashData.myJobs.map((job: any) => (
-                  <div key={job.id} className="bg-white dark:bg-[#283036] p-5 rounded-2xl border border-gray-200 dark:border-[#38434F] hover:shadow-md transition-all">
+                  <div key={job.id} className="bg-surface dark:bg-[#283036] p-5 rounded-2xl border border-surface dark:border-[#38434F] hover:shadow-md transition-all">
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
@@ -709,7 +877,7 @@ export default function SeniorDashboardPage() {
                   </div>
                 ))
               ) : (
-                <div className="text-center py-16 bg-white dark:bg-[#283036] border border-dashed border-gray-200 dark:border-[#38434F] rounded-2xl">
+                <div className="text-center py-16 bg-surface dark:bg-[#283036] border border-dashed border-surface dark:border-[#38434F] rounded-2xl">
                   <Briefcase size={40} className="mx-auto text-gray-300 dark:text-[#B0B7BE] mb-4" />
                   <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">No Jobs Posted Yet</h3>
                   <p className="text-sm text-gray-500 dark:text-[#B0B7BE] mb-6">Post your first job opening to help students get referred.</p>
@@ -740,8 +908,8 @@ export default function SeniorDashboardPage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
             {/* Unanswered Doubts Card */}
-            <div className="bg-white dark:bg-[#283036] border border-gray-200 dark:border-[#38434F] rounded-xl overflow-hidden">
-              <div className="p-4 border-b border-gray-100 dark:border-[#38434F] flex justify-between items-center">
+            <div className="bg-surface dark:bg-[#283036] border border-surface dark:border-[#38434F] rounded-xl overflow-hidden">
+              <div className="p-4 border-b border-surface dark:border-[#38434F] flex justify-between items-center">
                 <div className="flex items-center gap-3">
                   <HelpCircle size={16} className="text-purple-600" />
                   <div className="text-sm font-black text-black dark:text-white">Unanswered Doubts</div>
@@ -754,7 +922,7 @@ export default function SeniorDashboardPage() {
                   <div className="p-10 text-center text-gray-400 dark:text-[#B0B7BE] text-xs">Loading...</div>
                 ) : dashData?.pendingDoubts?.length > 0 ? (
                   dashData.pendingDoubts.map((post: any) => (
-                    <div key={post.id} className="p-4 hover:bg-gray-50 dark:hover:bg-[#1D2226] transition-colors">
+                    <div key={post.id} className="p-4 hover:bg-app dark:hover:bg-[#1D2226] transition-colors">
                       <div className="flex justify-between items-start gap-3">
                         <div className="flex-1">
                           <div className="flex items-center gap-3">
@@ -802,8 +970,8 @@ export default function SeniorDashboardPage() {
             </div>
 
             {/* Referral Requests Card */}
-            <div ref={referralSectionRef} className="bg-white dark:bg-[#283036] border border-gray-200 dark:border-[#38434F] rounded-xl overflow-hidden">
-              <div className="p-4 border-b border-gray-100 dark:border-[#38434F] flex justify-between items-center">
+            <div ref={referralSectionRef} className="bg-surface dark:bg-[#283036] border border-surface dark:border-[#38434F] rounded-xl overflow-hidden">
+              <div className="p-4 border-b border-surface dark:border-[#38434F] flex justify-between items-center">
                 <div className="flex items-center gap-3">
                   <Handshake size={16} className="text-cyan-600" />
                   <div className="text-sm font-black text-black dark:text-white">Referral Requests</div>
@@ -814,7 +982,7 @@ export default function SeniorDashboardPage() {
               <div className="divide-y divide-gray-50 dark:divide-[#38434F]">
                 {dashData?.pendingReferrals?.length > 0 ? (
                   dashData.pendingReferrals.map((req: any) => (
-                    <div key={req.id} className="p-4 hover:bg-gray-50 dark:hover:bg-[#1D2226] transition-colors">
+                    <div key={req.id} className="p-4 hover:bg-app dark:hover:bg-[#1D2226] transition-colors">
                       <div className="flex justify-between items-center">
                         <div className="flex items-center gap-3">
                           <div
@@ -866,8 +1034,8 @@ export default function SeniorDashboardPage() {
           {/* Activity Column */}
           <div className="max-w-5xl space-y-5">
             {/* Recent Activity */}
-            <div className="bg-white dark:bg-[#283036] border border-gray-200 dark:border-[#38434F] rounded-xl overflow-hidden shadow-sm dark:shadow-[#1D2226]/50">
-              <div className="p-5 border-b border-gray-100 dark:border-[#38434F] flex justify-between items-center">
+            <div className="bg-surface dark:bg-[#283036] border border-surface dark:border-[#38434F] rounded-xl overflow-hidden shadow-sm dark:shadow-[#1D2226]/50">
+              <div className="p-5 border-b border-surface dark:border-[#38434F] flex justify-between items-center">
                 <h2 className="text-sm font-black text-black dark:text-white">Recent Activity</h2>
                 <div className="text-[10px] font-bold text-gray-400 dark:text-[#B0B7BE] uppercase tracking-widest">REAL-TIME</div>
               </div>
@@ -875,9 +1043,9 @@ export default function SeniorDashboardPage() {
               <div className="divide-y divide-gray-50 dark:divide-[#38434F]">
                 {dashData?.rpLog?.length > 0 ? (
                   dashData.rpLog.map((log: any, i: number) => (
-                    <div key={log.id || i} className="flex gap-4 p-5 items-start hover:bg-gray-50 dark:hover:bg-[#1D2226] transition-colors">
+                    <div key={log.id || i} className="flex gap-4 p-5 items-start hover:bg-app dark:hover:bg-[#1D2226] transition-colors">
                       <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-2xl bg-gray-50 dark:bg-[#1D2226] flex items-center justify-center border border-gray-100 dark:border-[#38434F]">
+                        <div className="w-12 h-12 rounded-2xl bg-app dark:bg-[#1D2226] flex items-center justify-center border border-surface dark:border-[#38434F]">
                           {log.reason?.includes('Posted') ? <Briefcase size={18} className="text-purple-600" /> : log.reason?.includes('Answering') || log.reason?.includes('Answered') ? <CheckCircle size={18} className="text-green-600" /> : log.reason?.includes('Approved') || log.reason?.includes('referral') ? <Handshake size={18} className="text-cyan-600" /> : <Star size={18} className="text-yellow-500" />}
                         </div>
                       </div>
@@ -928,13 +1096,13 @@ export default function SeniorDashboardPage() {
             </button>
           </div>
 
-          <div className="bg-white dark:bg-[#283036] border border-gray-200 dark:border-[#38434F] rounded-xl overflow-hidden">
+          <div className="bg-surface dark:bg-[#283036] border border-surface dark:border-[#38434F] rounded-xl overflow-hidden">
             {groupsLoading ? (
               <div className="p-10 text-center text-gray-400 dark:text-[#B0B7BE] text-xs">Loading groups...</div>
             ) : userGroups.length > 0 ? (
               <div className="divide-y divide-gray-50 dark:divide-[#38434F]">
                 {userGroups.map((group) => (
-                  <div key={group.id} className="p-4 hover:bg-gray-50 dark:hover:bg-[#1D2226] transition-colors">
+                  <div key={group.id} className="p-4 hover:bg-app dark:hover:bg-[#1D2226] transition-colors">
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
@@ -1005,9 +1173,9 @@ export default function SeniorDashboardPage() {
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => !jobFormLoading && setJobModalOpen(false)} />
 
-            <div className="bg-white dark:bg-[#283036] rounded-2xl w-full max-w-lg relative z-10 overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+            <div className="bg-surface dark:bg-[#283036] rounded-2xl w-full max-w-lg relative z-10 overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
               {/* Header */}
-              <div className="p-5 border-b border-gray-100 dark:border-[#38434F] flex justify-between items-center bg-gray-50/50 dark:bg-[#1D2226]/50">
+              <div className="p-5 border-b border-surface dark:border-[#38434F] flex justify-between items-center bg-app/50 dark:bg-[#1D2226]/50">
                 <div>
                   <div className="flex items-center gap-2 mb-6">
                     <Briefcase size={20} className="text-black dark:text-white" />
@@ -1035,7 +1203,7 @@ export default function SeniorDashboardPage() {
                         required
                         type="text"
                         placeholder="e.g. Swiggy"
-                        className="w-full bg-gray-50 dark:bg-[#1D2226] border border-gray-200 dark:border-[#38434F] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
+                        className="w-full bg-app dark:bg-[#1D2226] border border-surface dark:border-[#38434F] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
                         value={jobFormData.company_name}
                         onChange={e => setJobFormData({ ...jobFormData, company_name: e.target.value })}
                       />
@@ -1046,7 +1214,7 @@ export default function SeniorDashboardPage() {
                         required
                         type="text"
                         placeholder="e.g. SDE-1"
-                        className="w-full bg-gray-50 dark:bg-[#1D2226] border border-gray-200 dark:border-[#38434F] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
+                        className="w-full bg-app dark:bg-[#1D2226] border border-surface dark:border-[#38434F] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
                         value={jobFormData.role}
                         onChange={e => setJobFormData({ ...jobFormData, role: e.target.value })}
                       />
@@ -1060,7 +1228,7 @@ export default function SeniorDashboardPage() {
                       <input
                         type="text"
                         placeholder="e.g. Remote / Bangalore"
-                        className="w-full bg-gray-50 dark:bg-[#1D2226] border border-gray-200 dark:border-[#38434F] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
+                        className="w-full bg-app dark:bg-[#1D2226] border border-surface dark:border-[#38434F] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
                         value={jobFormData.location}
                         onChange={e => setJobFormData({ ...jobFormData, location: e.target.value })}
                       />
@@ -1068,7 +1236,7 @@ export default function SeniorDashboardPage() {
                     <div className="space-y-1.5">
                       <label className="text-[11px] font-black text-gray-500 dark:text-[#B0B7BE] uppercase tracking-wider">Job Type</label>
                       <select
-                        className="w-full bg-gray-50 dark:bg-[#1D2226] border border-gray-200 dark:border-[#38434F] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
+                        className="w-full bg-app dark:bg-[#1D2226] border border-surface dark:border-[#38434F] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
                         value={jobFormData.job_type}
                         onChange={e => setJobFormData({ ...jobFormData, job_type: e.target.value })}
                       >
@@ -1086,7 +1254,7 @@ export default function SeniorDashboardPage() {
                       required
                       type="url"
                       placeholder="https://company.com/careers/job123"
-                      className="w-full bg-gray-50 dark:bg-[#1D2226] border border-gray-200 dark:border-[#38434F] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
+                      className="w-full bg-app dark:bg-[#1D2226] border border-surface dark:border-[#38434F] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
                       value={jobFormData.description}
                       onChange={e => setJobFormData({ ...jobFormData, description: e.target.value })}
                     />
@@ -1098,7 +1266,7 @@ export default function SeniorDashboardPage() {
                       <label className="text-[11px] font-black text-gray-500 dark:text-[#B0B7BE] uppercase tracking-wider">Expiry Date</label>
                       <input
                         type="date"
-                        className="w-full bg-gray-50 dark:bg-[#1D2226] border border-gray-200 dark:border-[#38434F] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
+                        className="w-full bg-app dark:bg-[#1D2226] border border-surface dark:border-[#38434F] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
                         value={jobFormData.deadline}
                         onChange={e => setJobFormData({ ...jobFormData, deadline: e.target.value })}
                       />
@@ -1108,7 +1276,7 @@ export default function SeniorDashboardPage() {
                       <input
                         type="text"
                         placeholder="e.g. 12-15 LPA"
-                        className="w-full bg-gray-50 dark:bg-[#1D2226] border border-gray-200 dark:border-[#38434F] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
+                        className="w-full bg-app dark:bg-[#1D2226] border border-surface dark:border-[#38434F] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
                         value={jobFormData.salary_range}
                         onChange={e => setJobFormData({ ...jobFormData, salary_range: e.target.value })}
                       />
@@ -1125,7 +1293,7 @@ export default function SeniorDashboardPage() {
                           checked={jobFormData.referral_available}
                           onChange={e => setJobFormData({ ...jobFormData, referral_available: e.target.checked })}
                         />
-                        <div className="w-10 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-purple-600"></div>
+                        <div className="w-10 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-purple-600"></div>
                       </div>
                       <span className="text-xs font-semibold text-gray-700 dark:text-[#B0B7BE]">Referral Available?</span>
                     </label>
@@ -1138,7 +1306,7 @@ export default function SeniorDashboardPage() {
                           checked={jobFormData.is_active}
                           onChange={e => setJobFormData({ ...jobFormData, is_active: e.target.checked })}
                         />
-                        <div className="w-10 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-600"></div>
+                        <div className="w-10 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-600"></div>
                       </div>
                       <span className="text-xs font-semibold text-gray-700 dark:text-[#B0B7BE]">Set as Open/Active</span>
                     </label>
@@ -1147,11 +1315,11 @@ export default function SeniorDashboardPage() {
               </div>
 
               {/* Footer */}
-              <div className="p-5 border-t border-gray-100 dark:border-[#38434F] bg-gray-50/50 dark:bg-[#1D2226]/50 flex gap-3">
+              <div className="p-5 border-t border-surface dark:border-[#38434F] bg-app/50 dark:bg-[#1D2226]/50 flex gap-3">
                 <button
                   type="button"
                   onClick={() => setJobModalOpen(false)}
-                  className="flex-1 bg-white dark:bg-[#283036] border border-gray-200 dark:border-[#38434F] rounded-xl py-2.5 text-xs font-black text-gray-500 dark:text-[#B0B7BE] hover:bg-gray-100 dark:hover:bg-[#1D2226] transition-colors"
+                  className="flex-1 bg-surface dark:bg-[#283036] border border-surface dark:border-[#38434F] rounded-xl py-2.5 text-xs font-black text-gray-500 dark:text-[#B0B7BE] hover:bg-surface-hover dark:hover:bg-[#1D2226] transition-colors"
                   disabled={jobFormLoading}
                 >
                   Cancel
@@ -1174,8 +1342,8 @@ export default function SeniorDashboardPage() {
           <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => !referralActionLoading && setReviewModalOpen(false)} />
 
-            <div className="bg-white dark:bg-[#283036] rounded-2xl w-full max-w-md relative z-10 overflow-hidden shadow-2xl animate-fade">
-              <div className="flex items-center justify-between p-6 border-b border-gray-100 dark:border-[#38434F]">
+            <div className="bg-surface dark:bg-[#283036] rounded-2xl w-full max-w-md relative z-10 overflow-hidden shadow-2xl animate-fade">
+              <div className="flex items-center justify-between p-6 border-b border-surface dark:border-[#38434F]">
                 <div className="flex items-center gap-2">
                   <Handshake size={20} className="text-black dark:text-white" />
                   <h2 className="text-lg font-black text-black dark:text-white">Review Referral</h2>
@@ -1199,7 +1367,7 @@ export default function SeniorDashboardPage() {
                 </div>
               </div>
 
-              <div className="p-6 bg-gray-50/50 dark:bg-[#1D2226]/50">
+              <div className="p-6 bg-app/50 dark:bg-[#1D2226]/50">
                 <p className="text-xs text-center text-gray-400 dark:text-[#B0B7BE] leading-relaxed mb-6">
                   By confirming, you agree to refer this student for the opening. Their profile details will be shared with you for the formal process.
                 </p>
@@ -1207,7 +1375,7 @@ export default function SeniorDashboardPage() {
                 <div className="flex gap-3">
                   <button
                     onClick={() => setReviewModalOpen(false)}
-                    className="flex-1 bg-white dark:bg-[#283036] border border-gray-200 dark:border-[#38434F] rounded-xl py-3 text-sm font-black text-gray-400 dark:text-[#B0B7BE] hover:bg-gray-100 dark:hover:bg-[#1D2226] transition-colors"
+                    className="flex-1 bg-surface dark:bg-[#283036] border border-surface dark:border-[#38434F] rounded-xl py-3 text-sm font-black text-gray-400 dark:text-[#B0B7BE] hover:bg-surface-hover dark:hover:bg-[#1D2226] transition-colors"
                     disabled={referralActionLoading}
                   >
                     Cancel
@@ -1257,6 +1425,98 @@ export default function SeniorDashboardPage() {
           college_id: dashData?.user?.college_id || ''
         }}
       />
+
+      {/* Answers Modal */}
+      {activePostId && (() => {
+        const selectedPost = dashData?.myPosts?.find((p: any) => p.id === activePostId);
+        return (
+          <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setActivePostId(null)} />
+            
+            <div className="bg-surface dark:bg-[#283036] rounded-2xl w-full max-w-2xl max-h-[85vh] relative z-10 overflow-hidden shadow-2xl flex flex-col border border-surface dark:border-[#38434F]">
+              {/* Header */}
+              <div className="flex items-center justify-between p-6 border-b border-surface dark:border-[#38434F] bg-app/50 dark:bg-[#1D2226]/50">
+                <div className="flex items-center gap-2">
+                  <MessageSquare size={20} className="text-black dark:text-white" />
+                  <div>
+                    <h2 className="text-lg font-black text-black dark:text-white">Doubt Answers</h2>
+                    {selectedPost && (
+                      <p className="text-xs text-gray-500 dark:text-[#B0B7BE] mt-0.5 line-clamp-1">{selectedPost.title}</p>
+                    )}
+                  </div>
+                </div>
+                <button onClick={() => setActivePostId(null)} className="p-1 rounded-lg hover:bg-surface-hover dark:hover:bg-[#1D2226] text-gray-400 dark:text-[#B0B7BE] hover:text-black dark:hover:text-white transition-colors">
+                  <X size={20} />
+                </button>
+              </div>
+
+              {/* Body */}
+              <div className="p-6 overflow-y-auto max-h-[70vh] space-y-4 flex-1">
+                {answersLoading ? (
+                  <div className="space-y-4">
+                    {[1, 2, 3].map((n) => (
+                      <div key={n} className="bg-surface dark:bg-[#283036] border border-surface dark:border-[#38434F] rounded-xl p-4 shadow-sm animate-pulse">
+                        <div className="flex items-center gap-3 mb-3">
+                          <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700" />
+                          <div className="space-y-2 flex-1">
+                            <div className="h-2.5 bg-gray-200 dark:bg-gray-700 rounded w-1/4" />
+                            <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded w-1/6" />
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded" />
+                          <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded w-5/6" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : postAnswers.length > 0 ? (
+                  postAnswers.map((answer: any) => (
+                    <div
+                      key={answer.id}
+                      className="bg-surface dark:bg-[#283036] border border-surface dark:border-[#38434F] rounded-xl p-4 shadow-sm"
+                    >
+                      <div className="flex items-center gap-3 mb-2.5">
+                        <div className={`w-8 h-8 rounded-full ${answer.users?.avatar_url ? 'bg-transparent' : 'bg-purple-100'} flex items-center justify-center text-purple-600 font-bold text-xs overflow-hidden border border-surface/60 dark:border-[#38434F]`}>
+                          {answer.users?.avatar_url ? (
+                            <img src={answer.users.avatar_url} alt={answer.users.full_name} className="w-full h-full object-cover" />
+                          ) : (
+                            answer.users?.full_name?.[0] || 'U'
+                          )}
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-xs font-bold text-gray-900 dark:text-white">{answer.users?.full_name}</span>
+                            {answer.users?.role === 'senior' && (
+                              <span className="text-[8px] font-extrabold text-[#7C3AED] bg-purple-50 dark:bg-purple-500/20 px-1.5 py-0.5 rounded border border-purple-100 dark:border-purple-500/30 uppercase tracking-wide">
+                                Senior
+                              </span>
+                            )}
+                          </div>
+                          <span className="text-[10px] text-gray-400 dark:text-[#B0B7BE]">{timeAgo(answer.created_at)}</span>
+                        </div>
+                        {answer.is_accepted && (
+                          <span className="ml-auto bg-green-50 dark:bg-green-500/20 border border-green-200 dark:border-green-500/30 text-green-700 dark:text-green-300 text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full">
+                            Accepted Answer
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-gray-700 dark:text-[#B0B7BE] leading-relaxed whitespace-pre-wrap">
+                        {answer.content}
+                      </p>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-12">
+                    <MessageSquare size={32} className="mx-auto text-gray-300 dark:text-[#B0B7BE] mb-3" />
+                    <p className="text-gray-400 dark:text-[#B0B7BE] text-xs font-semibold">No answers yet.</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
       
     </div>
   );

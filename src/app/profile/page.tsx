@@ -302,8 +302,8 @@ export default function ProfilePage() {
     <div className="min-h-screen bg-[#F3F4F6] dark:bg-[#1D2226] font-plus-jakarta-sans">
 
       {/* ===== DESKTOP SIDEBAR ===== */}
-      <aside className="fixed left-0 top-16 bottom-0 w-[260px] bg-white dark:bg-[#283036] border-r border-slate-200/80 dark:border-[#38434F]/80 shadow-sm hidden lg:flex flex-col z-50">
-        <div className="p-6 border-b border-slate-100 dark:border-[#38434F]">
+      <aside className="fixed left-0 top-16 bottom-0 w-[260px] bg-surface dark:bg-[#283036] border-r border-surface/80 dark:border-[#38434F]/80 shadow-sm hidden lg:flex flex-col z-50">
+        <div className="p-6 border-b border-surface dark:border-[#38434F]">
           <div className="flex items-center gap-3">
             <div className={`w-10 h-10 rounded-xl ${avatarUrl ? 'bg-transparent' : 'bg-gradient-to-br from-[#7C3AED] to-[#6D28D9]'} flex items-center justify-center text-white font-extrabold text-sm overflow-hidden shadow-md`}>
               {avatarUrl ? <img src={avatarUrl} alt="" className="w-full h-full object-cover" /> : initials}
@@ -325,7 +325,7 @@ export default function ProfilePage() {
               className={`sidebar-nav-item w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold border-none cursor-pointer ${
                 activeSection === item.id
                   ? 'active bg-[#F5F3FF] text-[#7C3AED]'
-                  : 'text-slate-500 dark:text-[#B0B7BE] hover:bg-slate-50 dark:hover:bg-[#1D2226] hover:text-slate-700'
+                  : 'text-slate-500 dark:text-[#B0B7BE] hover:bg-app dark:hover:bg-[#1D2226] hover:text-slate-700'
               }`}
             >
               <item.icon size={16} className={activeSection === item.id ? 'text-[#7C3AED]' : 'text-slate-400 dark:text-[#B0B7BE]'} />
@@ -337,7 +337,7 @@ export default function ProfilePage() {
           ))}
         </nav>
 
-        <div className="p-4 border-t border-slate-100 dark:border-[#38434F]">
+        <div className="p-4 border-t border-surface dark:border-[#38434F]">
           <button
             type="button"
             onClick={async () => {
@@ -356,7 +356,7 @@ export default function ProfilePage() {
       </aside>
 
       {/* ===== MOBILE HEADER ===== */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 h-14 bg-white/95 dark:bg-[#283036]/95 backdrop-blur-lg border-b border-slate-100 dark:border-[#38434F] z-50 px-4 flex items-center justify-between">
+      <div className="lg:hidden fixed top-0 left-0 right-0 h-14 bg-surface/95 dark:bg-[#283036]/95 backdrop-blur-lg border-b border-surface dark:border-[#38434F] z-50 px-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className={`w-7 h-7 rounded-lg ${avatarUrl ? '' : 'bg-gradient-to-br from-[#7C3AED] to-[#6D28D9]'} flex items-center justify-center text-white font-bold text-[10px] overflow-hidden shadow-sm`}>
             {avatarUrl ? <img src={avatarUrl} alt="" className="w-full h-full object-cover" /> : initials}
@@ -403,7 +403,7 @@ export default function ProfilePage() {
           <button
             type="button"
             onClick={() => bannerFileRef.current?.click()}
-            className="absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-white/15 backdrop-blur-md border border-white/25 flex items-center justify-center text-white hover:bg-white/25 transition-all"
+            className="absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-surface/15 backdrop-blur-md border border-white/25 flex items-center justify-center text-white hover:bg-surface/25 transition-all"
             title="Edit Banner"
           >
             <Camera size={13} />
@@ -449,22 +449,22 @@ export default function ProfilePage() {
           {/* Social icons row */}
           <div className="flex items-center justify-center gap-2.5 mt-3">
             {socialLinks.linkedin && (
-              <a href={socialLinks.linkedin} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-slate-100 border border-slate-200 dark:border-[#38434F] flex items-center justify-center text-slate-600 dark:text-[#B0B7BE] hover:bg-slate-200 hover:text-slate-800 transition-all">
+              <a href={socialLinks.linkedin} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-slate-100 border border-surface dark:border-[#38434F] flex items-center justify-center text-slate-600 dark:text-[#B0B7BE] hover:bg-slate-200 hover:text-slate-800 transition-all">
                 <Linkedin size={15} />
               </a>
             )}
             {socialLinks.github && (
-              <a href={socialLinks.github} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-slate-100 border border-slate-200 dark:border-[#38434F] flex items-center justify-center text-slate-600 dark:text-[#B0B7BE] hover:bg-slate-200 hover:text-slate-800 transition-all">
+              <a href={socialLinks.github} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-slate-100 border border-surface dark:border-[#38434F] flex items-center justify-center text-slate-600 dark:text-[#B0B7BE] hover:bg-slate-200 hover:text-slate-800 transition-all">
                 <Github size={15} />
               </a>
             )}
             {socialLinks.portfolio && (
-              <a href={socialLinks.portfolio} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-slate-100 border border-slate-200 dark:border-[#38434F] flex items-center justify-center text-slate-600 dark:text-[#B0B7BE] hover:bg-slate-200 hover:text-slate-800 transition-all">
+              <a href={socialLinks.portfolio} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-slate-100 border border-surface dark:border-[#38434F] flex items-center justify-center text-slate-600 dark:text-[#B0B7BE] hover:bg-slate-200 hover:text-slate-800 transition-all">
                 <Globe size={15} />
               </a>
             )}
             {socialLinks.website && !socialLinks.portfolio && (
-              <a href={socialLinks.website} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-slate-100 border border-slate-200 dark:border-[#38434F] flex items-center justify-center text-slate-600 dark:text-[#B0B7BE] hover:bg-slate-200 hover:text-slate-800 transition-all">
+              <a href={socialLinks.website} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-slate-100 border border-surface dark:border-[#38434F] flex items-center justify-center text-slate-600 dark:text-[#B0B7BE] hover:bg-slate-200 hover:text-slate-800 transition-all">
                 <Globe size={15} />
               </a>
             )}
@@ -484,7 +484,7 @@ export default function ProfilePage() {
             <button
               type="button"
               onClick={() => router.push(`/u/${user.unique_id}`)}
-              className="inline-flex items-center justify-center gap-2 h-12 rounded-2xl bg-white dark:bg-[#283036] border border-slate-200 dark:border-[#38434F] text-slate-700 text-sm font-bold hover:bg-slate-50 dark:hover:bg-[#1D2226] transition-all shadow-sm cursor-pointer"
+              className="inline-flex items-center justify-center gap-2 h-12 rounded-2xl bg-surface dark:bg-[#283036] border border-surface dark:border-[#38434F] text-slate-700 text-sm font-bold hover:bg-app dark:hover:bg-[#1D2226] transition-all shadow-sm cursor-pointer"
             >
               <ExternalLink size={15} />
               View Profile
@@ -555,7 +555,7 @@ export default function ProfilePage() {
                         type="button"
                         onClick={handleSave}
                         disabled={saving}
-                        className="inline-flex items-center justify-center gap-2 px-5 py-2 rounded-xl bg-white dark:bg-[#283036] text-[#0F172A] dark:text-white text-xs font-bold hover:bg-slate-100 dark:hover:bg-[#1D2226] transition-all disabled:opacity-50 shadow-lg cursor-pointer"
+                        className="inline-flex items-center justify-center gap-2 px-5 py-2 rounded-xl bg-surface dark:bg-[#283036] text-[#0F172A] dark:text-white text-xs font-bold hover:bg-surface-hover dark:hover:bg-[#1D2226] transition-all disabled:opacity-50 shadow-lg cursor-pointer"
                       >
                         <Sparkles size={14} />
                         {saving ? 'Saving...' : 'Save Changes'}
@@ -563,7 +563,7 @@ export default function ProfilePage() {
                       <button
                         type="button"
                         onClick={() => router.push(`/u/${user.unique_id}`)}
-                        className="inline-flex items-center justify-center gap-2 px-5 py-2 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 text-white text-xs font-bold hover:bg-white/20 transition-all cursor-pointer"
+                        className="inline-flex items-center justify-center gap-2 px-5 py-2 rounded-xl bg-surface/10 backdrop-blur-sm border border-white/20 text-white text-xs font-bold hover:bg-surface/20 transition-all cursor-pointer"
                       >
                         <ExternalLink size={14} />
                         View Public Profile
@@ -575,22 +575,22 @@ export default function ProfilePage() {
                     <button
                       type="button"
                       onClick={() => bannerFileRef.current?.click()}
-                      className="w-9 h-9 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white hover:bg-white/20 hover:scale-110 transition-all shadow-lg cursor-pointer"
+                      className="w-9 h-9 rounded-full bg-surface/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white hover:bg-surface/20 hover:scale-110 transition-all shadow-lg cursor-pointer"
                       title="Edit Banner"
                     >
                       <Camera size={15} />
                     </button>
                     {socialLinks.linkedin && (
-                      <a href={socialLinks.linkedin} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white hover:bg-white/20 hover:scale-110 transition-all shadow-lg"><Linkedin size={15} /></a>
+                      <a href={socialLinks.linkedin} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-surface/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white hover:bg-surface/20 hover:scale-110 transition-all shadow-lg"><Linkedin size={15} /></a>
                     )}
                     {socialLinks.github && (
-                      <a href={socialLinks.github} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white hover:bg-white/20 hover:scale-110 transition-all shadow-lg"><Github size={15} /></a>
+                      <a href={socialLinks.github} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-surface/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white hover:bg-surface/20 hover:scale-110 transition-all shadow-lg"><Github size={15} /></a>
                     )}
                     {socialLinks.portfolio && (
-                      <a href={socialLinks.portfolio} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white hover:bg-white/20 hover:scale-110 transition-all shadow-lg"><Globe size={15} /></a>
+                      <a href={socialLinks.portfolio} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-surface/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white hover:bg-surface/20 hover:scale-110 transition-all shadow-lg"><Globe size={15} /></a>
                     )}
                     {socialLinks.website && !socialLinks.portfolio && (
-                      <a href={socialLinks.website} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white hover:bg-white/20 hover:scale-110 transition-all shadow-lg"><Globe size={15} /></a>
+                      <a href={socialLinks.website} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-surface/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white hover:bg-surface/20 hover:scale-110 transition-all shadow-lg"><Globe size={15} /></a>
                     )}
                   </div>
                 </div>
@@ -611,7 +611,7 @@ export default function ProfilePage() {
               { icon: <UserPlus size={14} />, value: 0, label: 'C', color: 'from-pink-500 to-rose-600' },
               { icon: <Target size={14} />, value: user.rp_level ? `Lv.${user.rp_level}` : '--', label: 'LV', color: 'from-cyan-500 to-blue-600' },
             ].map((stat, i) => (
-              <div key={stat.label} className="bg-white dark:bg-[#283036] rounded-2xl border border-slate-100 dark:border-[#38434F] shadow-sm p-3 flex flex-col items-center text-center">
+              <div key={stat.label} className="bg-surface dark:bg-[#283036] rounded-2xl border border-surface dark:border-[#38434F] shadow-sm p-3 flex flex-col items-center text-center">
                 <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${stat.color} flex items-center justify-center text-white mb-1.5 shadow-sm`}>
                   {stat.icon}
                 </div>
@@ -623,7 +623,7 @@ export default function ProfilePage() {
         </div>
 
         {/* ===== MOBILE STICKY TABS ===== */}
-        <div className="lg:hidden sticky top-14 z-30 bg-[#F3F4F6] dark:bg-[#1D2226] border-b border-slate-100 dark:border-[#38434F] mt-4">
+        <div className="lg:hidden sticky top-14 z-30 bg-[#F3F4F6] dark:bg-[#1D2226] border-b border-surface dark:border-[#38434F] mt-4">
           <div className="flex overflow-x-auto gap-1 px-4 py-2 scrollbar-hide">
             {sectionLinks.map((item) => (
               <button
@@ -637,7 +637,7 @@ export default function ProfilePage() {
                 className={`flex-shrink-0 px-3.5 py-1.5 rounded-full text-[11px] font-bold whitespace-nowrap border-none cursor-pointer transition-all ${
                   activeSection === item.id
                     ? 'bg-[#7C3AED] text-white shadow-sm'
-                    : 'bg-white dark:bg-[#283036] text-slate-500 dark:text-[#B0B7BE] hover:bg-slate-100 dark:hover:bg-[#1D2226] border border-slate-200 dark:border-[#38434F]'
+                    : 'bg-surface dark:bg-[#283036] text-slate-500 dark:text-[#B0B7BE] hover:bg-surface-hover dark:hover:bg-[#1D2226] border border-surface dark:border-[#38434F]'
                 }`}
               >
                 {item.label}
@@ -657,7 +657,7 @@ export default function ProfilePage() {
               { icon: <UserPlus size={15} />, value: 0, label: 'Connections', color: 'from-pink-500 to-rose-600' },
               { icon: <Target size={15} />, value: user.rp_level ? `Lv.${user.rp_level}` : '--', label: 'Level', color: 'from-cyan-500 to-blue-600' },
             ].map((stat, i) => (
-              <div key={stat.label} className="group bg-white dark:bg-[#283036] rounded-2xl border border-slate-200/80 dark:border-[#38434F]/80 shadow-sm p-5 hover:-translate-y-1 hover:shadow-md transition-all duration-200">
+              <div key={stat.label} className="group bg-surface dark:bg-[#283036] rounded-2xl border border-surface/80 dark:border-[#38434F]/80 shadow-sm p-5 hover:-translate-y-1 hover:shadow-md transition-all duration-200">
                 <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center text-white mb-3 shadow-sm`}>
                   {stat.icon}
                 </div>
@@ -758,7 +758,7 @@ export default function ProfilePage() {
                       <span className="text-[10px] font-semibold text-white/40">Level Progress</span>
                       <span className="text-[10px] font-bold text-purple-400">Lv.{user.rp_level || 1}</span>
                     </div>
-                    <div className="h-1.5 rounded-full bg-white/5 overflow-hidden">
+                    <div className="h-1.5 rounded-full bg-surface/5 overflow-hidden">
                       <div
                         className="h-full rounded-full bg-gradient-to-r from-purple-500 to-purple-300"
                         style={{ width: `${Math.min((user.rise_points || 0) % 100, 100)}%` }}
@@ -769,7 +769,7 @@ export default function ProfilePage() {
               </div>
 
               {/* CARD 2: Claspire ID */}
-              <div className="bg-white dark:bg-[#283036] rounded-3xl border border-slate-200/80 dark:border-[#38434F]/80 shadow-sm p-6">
+              <div className="bg-surface dark:bg-[#283036] rounded-3xl border border-surface/80 dark:border-[#38434F]/80 shadow-sm p-6">
                 <div className="flex items-center gap-2 mb-3">
                   <Share2 size={14} className="text-purple-600" />
                   <h3 className="text-xs font-extrabold text-[#0F172A] dark:text-white m-0">Claspire ID</h3>
@@ -779,7 +779,7 @@ export default function ProfilePage() {
                   Share your public profile link
                 </p>
                 <div className="flex items-center gap-2 mt-3">
-                  <div className="flex-1 bg-slate-50 dark:bg-[#1D2226] rounded-xl px-3 py-2.5 border border-slate-200 dark:border-[#38434F] text-xs font-mono text-slate-500 dark:text-[#B0B7BE] truncate">
+                  <div className="flex-1 bg-app dark:bg-[#1D2226] rounded-xl px-3 py-2.5 border border-surface dark:border-[#38434F] text-xs font-mono text-slate-500 dark:text-[#B0B7BE] truncate">
                     /u/{user.unique_id}
                   </div>
                   <button
@@ -793,7 +793,7 @@ export default function ProfilePage() {
               </div>
 
               {/* CARD 3: Recent Badges */}
-              <div className="bg-white dark:bg-[#283036] rounded-3xl border border-slate-200/80 dark:border-[#38434F]/80 shadow-sm p-6">
+              <div className="bg-surface dark:bg-[#283036] rounded-3xl border border-surface/80 dark:border-[#38434F]/80 shadow-sm p-6">
                 <div className="flex items-center gap-2 mb-4">
                   <Award size={14} className="text-amber-500" />
                   <h3 className="text-xs font-extrabold text-[#0F172A] dark:text-white m-0">Achievements</h3>
@@ -809,7 +809,7 @@ export default function ProfilePage() {
                   ].map((badge) => (
                     <div
                       key={badge.label}
-                      className={`flex flex-col items-center gap-1.5 p-3 rounded-xl bg-gradient-to-br ${badge.color} border ${badge.earned ? 'border-slate-200 dark:border-[#38434F]' : 'border-slate-100 dark:border-[#38434F] opacity-40'}`}
+                      className={`flex flex-col items-center gap-1.5 p-3 rounded-xl bg-gradient-to-br ${badge.color} border ${badge.earned ? 'border-surface dark:border-[#38434F]' : 'border-surface dark:border-[#38434F] opacity-40'}`}
                     >
                       <span className="text-lg">{badge.emoji}</span>
                       <span className={`text-[9px] font-bold ${badge.textColor} text-center leading-tight`}>{badge.label}</span>
@@ -822,7 +822,7 @@ export default function ProfilePage() {
               </div>
 
               {/* CARD 4: Profile Completion */}
-              <div className="bg-white dark:bg-[#283036] rounded-3xl border border-slate-200/80 dark:border-[#38434F]/80 shadow-sm p-6">
+              <div className="bg-surface dark:bg-[#283036] rounded-3xl border border-surface/80 dark:border-[#38434F]/80 shadow-sm p-6">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
                     <Target size={14} className="text-purple-600" />

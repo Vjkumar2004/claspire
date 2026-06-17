@@ -27,7 +27,7 @@ export default function GroupWarningModal({ isOpen, onContinue, onCancel }: Grou
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="relative bg-white dark:bg-[#283036] rounded-[24px] w-full max-w-sm sm:max-w-md shadow-2xl overflow-hidden"
+            className="relative bg-surface dark:bg-[#283036] rounded-[24px] w-full max-w-sm sm:max-w-md shadow-2xl overflow-hidden"
           >
             {/* Header */}
             <div className="bg-gradient-to-r from-amber-50 to-orange-50 p-4 sm:p-6 border-b border-amber-100">
@@ -100,7 +100,7 @@ export default function GroupWarningModal({ isOpen, onContinue, onCancel }: Grou
               <div className="flex gap-3 mt-6">
                 <button
                   onClick={onCancel}
-                  className="flex-1 px-3 py-2.5 sm:px-4 sm:py-3 rounded-xl sm:rounded-2xl border border-gray-200 dark:border-[#38434F] text-gray-600 dark:text-[#B0B7BE] font-bold text-xs sm:text-sm hover:bg-gray-50 dark:hover:bg-[#1D2226] transition-colors"
+                  className="flex-1 px-3 py-2.5 sm:px-4 sm:py-3 rounded-xl sm:rounded-2xl border border-surface dark:border-[#38434F] text-gray-600 dark:text-[#B0B7BE] font-bold text-xs sm:text-sm hover:bg-app dark:hover:bg-[#1D2226] transition-colors"
                 >
                   Cancel
                 </button>

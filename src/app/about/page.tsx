@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 
 export default function AboutPage() {
   return (
-    <div className="bg-white dark:bg-[#1D2226] text-gray-900 dark:text-white min-h-screen">
+    <div className="bg-surface dark:bg-[#1D2226] text-gray-900 dark:text-white min-h-screen">
       <div className="max-w-4xl mx-auto px-6 pt-24 pb-16">
         {/* Back to Home */}
         <Link 
@@ -43,7 +43,7 @@ export default function AboutPage() {
         {/* Mission Section */}
         <div className="mb-16">
           <h2 className="text-3xl font-bold mb-8 text-center text-gray-900 dark:text-white">Bridging the Gap Between Students & College Seniors in India</h2>
-          <div className="bg-white dark:bg-[#283036] p-8 rounded-2xl border border-gray-200 dark:border-[#38434F] shadow-sm text-center">
+          <div className="bg-surface dark:bg-[#283036] p-8 rounded-2xl border border-surface dark:border-[#38434F] shadow-sm text-center">
             <p className="text-lg text-gray-700 dark:text-[#B0B7BE] leading-relaxed max-w-4xl mx-auto font-medium">
               India has over 4,000 engineering colleges — but most students navigate placements, backlogs, and career choices completely alone. Claspire is a college senior-student community platform where juniors connect directly with verified seniors from their own campus. Whether you're from a college in Tamil Nadu, Maharashtra, Karnataka, or anywhere across India — real guidance from someone who's been in your exact shoes is just one message away.
             </p>
@@ -66,7 +66,7 @@ export default function AboutPage() {
         <div className="mb-16">
           <h2 className="text-3xl font-bold mb-8 text-center text-gray-900 dark:text-white">Why Students Use This College Senior Mentorship Platform</h2>
           <div className="grid md:grid-cols-2 gap-6">
-            <div className="bg-white dark:bg-[#283036] p-8 rounded-2xl border border-gray-200 dark:border-[#38434F] shadow-sm hover:shadow-md transition-shadow">
+            <div className="bg-surface dark:bg-[#283036] p-8 rounded-2xl border border-surface dark:border-[#38434F] shadow-sm hover:shadow-md transition-shadow">
               <div className="w-14 h-14 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center text-2xl mb-5">
                 🎯
               </div>
@@ -75,7 +75,7 @@ export default function AboutPage() {
                 Connect only with verified alumni and seniors from your own college. No fake profiles, just authentic guidance from people who have walked your path from colleges across Tamil Nadu, Maharashtra, Karnataka, Delhi and every state in India.
               </p>
             </div>
-            <div className="bg-white dark:bg-[#283036] p-8 rounded-2xl border border-gray-200 dark:border-[#38434F] shadow-sm hover:shadow-md transition-shadow">
+            <div className="bg-surface dark:bg-[#283036] p-8 rounded-2xl border border-surface dark:border-[#38434F] shadow-sm hover:shadow-md transition-shadow">
               <div className="w-14 h-14 bg-cyan-100 text-cyan-600 rounded-full flex items-center justify-center text-2xl mb-5">
                 💼
               </div>
@@ -91,25 +91,25 @@ export default function AboutPage() {
         <div className="mb-16">
           <h2 className="text-3xl font-bold mb-8 text-center text-gray-900 dark:text-white">How Our Campus Peer Network Works</h2>
           <div className="grid md:grid-cols-2 gap-6">
-            <div className="bg-gray-50 dark:bg-[#1D2226] rounded-2xl p-6 border border-gray-100 dark:border-[#38434F]">
+            <div className="bg-app dark:bg-[#1D2226] rounded-2xl p-6 border border-surface dark:border-[#38434F]">
               <h3 className="font-bold text-lg mb-3 text-purple-600">Authenticity</h3>
               <p className="text-gray-600 dark:text-[#B0B7BE] text-sm leading-relaxed">
                 Real experiences from real students. No sugar-coated advice, just genuine guidance.
               </p>
             </div>
-            <div className="bg-gray-50 dark:bg-[#1D2226] rounded-2xl p-6 border border-gray-100 dark:border-[#38434F]">
+            <div className="bg-app dark:bg-[#1D2226] rounded-2xl p-6 border border-surface dark:border-[#38434F]">
               <h3 className="font-bold text-lg mb-3 text-purple-600">Accessibility</h3>
               <p className="text-gray-600 dark:text-[#B0B7BE] text-sm leading-relaxed">
                 Quality guidance shouldn't be a luxury. We're making it accessible to every student.
               </p>
             </div>
-            <div className="bg-gray-50 dark:bg-[#1D2226] rounded-2xl p-6 border border-gray-100 dark:border-[#38434F]">
+            <div className="bg-app dark:bg-[#1D2226] rounded-2xl p-6 border border-surface dark:border-[#38434F]">
               <h3 className="font-bold text-lg mb-3 text-purple-600">Community</h3>
               <p className="text-gray-600 dark:text-[#B0B7BE] text-sm leading-relaxed">
                 Building supportive ecosystems where students help each other grow.
               </p>
             </div>
-            <div className="bg-gray-50 dark:bg-[#1D2226] rounded-2xl p-6 border border-gray-100 dark:border-[#38434F]">
+            <div className="bg-app dark:bg-[#1D2226] rounded-2xl p-6 border border-surface dark:border-[#38434F]">
               <h3 className="font-bold text-lg mb-3 text-purple-600">Impact</h3>
               <p className="text-gray-600 dark:text-[#B0B7BE] text-sm leading-relaxed">
                 Every connection made, every doubt resolved, every referral secured — that's our success metric.

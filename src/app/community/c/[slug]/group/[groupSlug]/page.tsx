@@ -311,12 +311,12 @@ export default function GroupChatPage() {
   ) : !groupData ? null : (
     <>
       {/* Header */}
-      <div className="flex-shrink-0 bg-white dark:bg-[#283036] border-b border-gray-200 dark:border-[#38434F] px-3 py-2 sm:px-4 sm:py-3 flex items-center justify-between z-40 shadow-sm min-h-[60px]">
+      <div className="flex-shrink-0 bg-surface dark:bg-[#283036] border-b border-surface dark:border-[#38434F] px-3 py-2 sm:px-4 sm:py-3 flex items-center justify-between z-40 shadow-sm min-h-[60px]">
         <div className="flex items-center gap-2.5 flex-1 min-w-0">
-          <button onClick={() => setShowMobileSidebar(true)} className="lg:hidden p-2 -ml-1 hover:bg-gray-100 dark:bg-[#283036] dark:hover:bg-[#1D2226] rounded-full transition-colors flex-shrink-0">
+          <button onClick={() => setShowMobileSidebar(true)} className="lg:hidden p-2 -ml-1 hover:bg-surface-hover dark:bg-[#283036] dark:hover:bg-[#1D2226] rounded-full transition-colors flex-shrink-0">
             <Menu size={20} className="text-gray-700 dark:text-[#B0B7BE]" />
           </button>
-          <button onClick={() => router.push(`/community/c/${slug}`)} className="hidden lg:block p-2 -ml-1 hover:bg-gray-100 dark:bg-[#283036] dark:hover:bg-[#1D2226] rounded-full transition-colors flex-shrink-0">
+          <button onClick={() => router.push(`/community/c/${slug}`)} className="hidden lg:block p-2 -ml-1 hover:bg-surface-hover dark:bg-[#283036] dark:hover:bg-[#1D2226] rounded-full transition-colors flex-shrink-0">
             <ArrowLeft size={20} className="text-gray-700 dark:text-[#B0B7BE]" />
           </button>
           <div className="w-10 h-10 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center font-bold text-base overflow-hidden flex-shrink-0">
@@ -328,7 +328,7 @@ export default function GroupChatPage() {
           </div>
         </div>
         <div className="flex-shrink-0 pl-2">
-          <button onClick={() => setShowMembers(!showMembers)} className="p-2 hover:bg-gray-100 dark:bg-[#283036] dark:hover:bg-[#1D2226] rounded-full transition-colors relative">
+          <button onClick={() => setShowMembers(!showMembers)} className="p-2 hover:bg-surface-hover dark:bg-[#283036] dark:hover:bg-[#1D2226] rounded-full transition-colors relative">
             <Users size={20} className="text-gray-700 dark:text-[#B0B7BE]" />
             <span className="absolute top-0 right-0 w-4 h-4 bg-purple-600 text-white text-[10px] rounded-full flex items-center justify-center font-bold shadow-sm border border-white">
               {groupData.group.member_count}
@@ -345,17 +345,17 @@ export default function GroupChatPage() {
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed right-0 top-0 h-full w-72 bg-white dark:bg-[#283036] border-l border-gray-200 dark:border-[#38434F] z-50 shadow-2xl"
+            className="fixed right-0 top-0 h-full w-72 bg-surface dark:bg-[#283036] border-l border-surface dark:border-[#38434F] z-50 shadow-2xl"
           >
-            <div className="p-4 border-b border-gray-100 dark:border-[#38434F] flex items-center justify-between bg-white dark:bg-[#283036]">
+            <div className="p-4 border-b border-surface dark:border-[#38434F] flex items-center justify-between bg-surface dark:bg-[#283036]">
               <h2 className="font-bold text-gray-900 dark:text-white">Members</h2>
-              <button onClick={() => setShowMembers(false)} className="p-2 hover:bg-gray-100 dark:bg-[#283036] dark:hover:bg-[#1D2226] rounded-full transition-colors">
+              <button onClick={() => setShowMembers(false)} className="p-2 hover:bg-surface-hover dark:bg-[#283036] dark:hover:bg-[#1D2226] rounded-full transition-colors">
                 <ArrowLeft size={16} className="text-gray-500 dark:text-[#B0B7BE]" />
               </button>
             </div>
-            <div className="overflow-y-auto h-full pb-20 bg-gray-50 dark:bg-[#1D2226]/50">
+            <div className="overflow-y-auto h-full pb-20 bg-app dark:bg-[#1D2226]/50">
               {groupData.members.map((member) => (
-                <div key={member.id} className="px-4 py-3 hover:bg-gray-100 dark:bg-[#283036] dark:hover:bg-[#1D2226] transition-colors flex items-center gap-3">
+                <div key={member.id} className="px-4 py-3 hover:bg-surface-hover dark:bg-[#283036] dark:hover:bg-[#1D2226] transition-colors flex items-center gap-3">
                   <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm overflow-hidden flex-shrink-0 ${
                     member.avatar_url ? 'bg-transparent shadow-sm' : member.role === 'senior' ? 'bg-gradient-to-br from-amber-500 to-orange-600' : 'bg-gradient-to-br from-purple-500 to-purple-700'
                   }`}>
@@ -381,7 +381,7 @@ export default function GroupChatPage() {
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-2 custom-scrollbar">
         {messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full gap-3 opacity-60">
-            <div className="w-12 h-12 bg-white dark:bg-[#283036] rounded-full flex items-center justify-center shadow-sm">
+            <div className="w-12 h-12 bg-surface dark:bg-[#283036] rounded-full flex items-center justify-center shadow-sm">
               <Sparkles size={24} className="text-purple-600" />
             </div>
             <p className="text-sm text-gray-600 dark:text-[#B0B7BE] font-medium">{groupData.isMember ? 'Be the first to say something! 👋' : 'Join to start chatting'}</p>
@@ -415,7 +415,7 @@ export default function GroupChatPage() {
                     <div className={`px-4 py-2 text-sm leading-relaxed shadow-sm ${
                       isOwn
                         ? 'bg-purple-600 text-white rounded-2xl rounded-br-none'
-                        : 'bg-white dark:bg-[#283036] text-gray-800 dark:text-white border border-gray-100 dark:border-[#38434F] rounded-2xl rounded-bl-none'
+                        : 'bg-surface dark:bg-[#283036] text-gray-800 dark:text-white border border-surface dark:border-[#38434F] rounded-2xl rounded-bl-none'
                     }`}>
                       <p className="whitespace-pre-wrap break-words">{message.content}</p>
                       <div className={`flex items-center justify-end gap-1.5 mt-1 ${isOwn ? 'text-white/75' : 'text-gray-400 dark:text-[#B0B7BE]'}`}>
@@ -432,7 +432,7 @@ export default function GroupChatPage() {
       </div>
 
       {/* Input - Sticky Bottom */}
-      <div className="flex-shrink-0 bg-[#f0f2f5] dark:bg-[#1D2226] border-t border-gray-200 dark:border-[#38434F] px-4 py-3 pb-safe">{groupData.isMember ? (
+      <div className="flex-shrink-0 bg-[#f0f2f5] dark:bg-[#1D2226] border-t border-surface dark:border-[#38434F] px-4 py-3 pb-safe">{groupData.isMember ? (
   <form onSubmit={handleSendMessage} className="flex gap-2 items-center">
     <input
       type="text"
@@ -440,7 +440,7 @@ export default function GroupChatPage() {
       onChange={(e) => setNewMessage(e.target.value)}
       placeholder="Type a message..."
       disabled={sending || !groupData.canMessage}
-      className="flex-1 bg-white dark:bg-[#283036] border border-gray-200 dark:border-[#38434F] text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-[#B0B7BE] rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-colors disabled:opacity-50 shadow-sm"
+      className="flex-1 bg-surface dark:bg-[#283036] border border-surface dark:border-[#38434F] text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-[#B0B7BE] rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-colors disabled:opacity-50 shadow-sm"
     />
     <button
       type="submit"
@@ -455,7 +455,7 @@ export default function GroupChatPage() {
     </button>
   </form>
 ) : groupData?.requestPending ? (
-    <div className="flex items-center justify-center gap-2 text-sm text-gray-500 dark:text-[#B0B7BE] bg-white dark:bg-[#283036] border border-gray-200 dark:border-[#38434F] px-4 py-3 rounded-2xl shadow-sm">
+    <div className="flex items-center justify-center gap-2 text-sm text-gray-500 dark:text-[#B0B7BE] bg-surface dark:bg-[#283036] border border-surface dark:border-[#38434F] px-4 py-3 rounded-2xl shadow-sm">
       <Clock size={16} />
       Waiting for admin approval...
     </div>
@@ -474,7 +474,7 @@ export default function GroupChatPage() {
               initial={{ y: 50, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 50, opacity: 0 }}
-              className="bg-white dark:bg-[#283036] rounded-3xl w-full max-w-md overflow-hidden shadow-2xl"
+              className="bg-surface dark:bg-[#283036] rounded-3xl w-full max-w-md overflow-hidden shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="bg-purple-50 p-5 border-b border-purple-100">
@@ -508,8 +508,8 @@ export default function GroupChatPage() {
                   <span className="text-sm text-gray-600 dark:text-[#B0B7BE] font-medium select-none">I agree to follow the group guidelines.</span>
                 </label>
               </div>
-              <div className="p-4 bg-gray-50 dark:bg-[#1D2226] border-t border-gray-100 dark:border-[#38434F] flex gap-3">
-                <button onClick={() => setShowTermsModal(false)} className="flex-1 py-2.5 rounded-2xl bg-white dark:bg-[#283036] border border-gray-200 dark:border-[#38434F] text-gray-700 dark:text-[#B0B7BE] text-sm font-bold hover:bg-gray-50 dark:bg-[#1D2226] dark:hover:bg-[#1D2226] transition-colors shadow-sm">Cancel</button>
+              <div className="p-4 bg-app dark:bg-[#1D2226] border-t border-surface dark:border-[#38434F] flex gap-3">
+                <button onClick={() => setShowTermsModal(false)} className="flex-1 py-2.5 rounded-2xl bg-surface dark:bg-[#283036] border border-surface dark:border-[#38434F] text-gray-700 dark:text-[#B0B7BE] text-sm font-bold hover:bg-app dark:bg-[#1D2226] dark:hover:bg-[#1D2226] transition-colors shadow-sm">Cancel</button>
                 <button 
                   id="accept-terms-btn" 
                   onClick={handleAcceptTerms} 
@@ -536,7 +536,7 @@ export default function GroupChatPage() {
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-white dark:bg-[#283036] rounded-3xl w-full max-w-md overflow-hidden shadow-2xl"
+              className="bg-surface dark:bg-[#283036] rounded-3xl w-full max-w-md overflow-hidden shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="bg-red-50 p-5 border-b border-red-100">
@@ -583,7 +583,7 @@ export default function GroupChatPage() {
     <GroupsProvider>
       <div className="flex h-screen bg-[#efeae2] dark:bg-[#1D2226] text-gray-900 dark:text-white overflow-hidden">
         {/* Desktop sidebar */}
-        <div className="w-[350px] flex-shrink-0 border-r border-gray-200 dark:border-[#38434F] hidden lg:block">
+        <div className="w-[350px] flex-shrink-0 border-r border-surface dark:border-[#38434F] hidden lg:block">
           <GroupsSidebar currentGroupSlug={groupSlug} />
         </div>
 
@@ -602,7 +602,7 @@ export default function GroupChatPage() {
                 animate={{ x: 0 }}
                 exit={{ x: '-100%' }}
                 transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                className="absolute left-0 top-0 bottom-0 w-[300px] bg-white dark:bg-[#283036] shadow-xl"
+                className="absolute left-0 top-0 bottom-0 w-[300px] bg-surface dark:bg-[#283036] shadow-xl"
               >
                 <GroupsSidebar currentGroupSlug={groupSlug} onClose={() => setShowMobileSidebar(false)} />
               </motion.div>

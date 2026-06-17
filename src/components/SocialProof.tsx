@@ -44,7 +44,7 @@ export default function SocialProof() {
   };
 
   return (
-    <section className="bg-white dark:bg-[#1D2226] py-24 overflow-hidden border-b border-gray-100 dark:border-[#38434F]">
+    <section className="bg-surface dark:bg-[#1D2226] py-24 overflow-hidden border-b border-surface dark:border-[#38434F]">
       <div className="container">
         {/* Header */}
         <motion.div
@@ -76,7 +76,7 @@ export default function SocialProof() {
               variants={itemVariants}
               whileHover={{ y: -4, borderColor: '#D1D5DB', boxShadow: '0 10px 25px rgba(0, 0, 0, 0.04)' }}
               transition={{ duration: 0.2 }}
-              className="bg-white dark:bg-[#283036] border border-gray-200 dark:border-[#38434F] rounded-xl p-6 h-full shadow-[0_1px_3px_rgba(0,0,0,0.05)] transition-all flex flex-col justify-between"
+              className="bg-surface dark:bg-[#283036] border border-surface dark:border-[#38434F] rounded-xl p-6 h-full shadow-[0_1px_3px_rgba(0,0,0,0.05)] transition-all flex flex-col justify-between"
             >
               <div>
                 {/* Quote Mark */}
@@ -91,7 +91,7 @@ export default function SocialProof() {
               </div>
               
               {/* Author Row */}
-              <div className="flex items-center gap-3 border-t border-gray-100 dark:border-[#38434F] pt-4">
+              <div className="flex items-center gap-3 border-t border-surface dark:border-[#38434F] pt-4">
                 <div 
                   className="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-sm flex-shrink-0"
                   style={{ backgroundColor: quote.color }}

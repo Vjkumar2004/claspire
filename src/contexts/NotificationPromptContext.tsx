@@ -92,7 +92,7 @@ export function NotificationPromptProvider({ children }: { children: React.React
       {children}
       {isOpen && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="bg-white dark:bg-[#1D2226] rounded-2xl w-[380px] max-w-full shadow-2xl overflow-hidden animate-fade">
+          <div className="bg-surface dark:bg-[#1D2226] rounded-2xl w-[380px] max-w-full shadow-2xl overflow-hidden animate-fade">
             <div className="p-6">
               <div className="w-14 h-14 bg-purple-100 dark:bg-purple-600/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
                 <Bell className="w-7 h-7 text-purple-600" />

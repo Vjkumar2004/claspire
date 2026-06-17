@@ -182,7 +182,7 @@ export default function DiscoverTab({ onConnectAction }: DiscoverTabProps) {
   return (
     <div>
       {/* Search & Filter Bar */}
-      <div className="bg-white dark:bg-[#283036] rounded-2xl border border-gray-200 dark:border-[#38434F]/80 dark:border-[#38434F]/80 shadow-sm p-3 lg:p-4 mb-4 lg:mb-6 flex items-center gap-2 lg:gap-3 transition-all duration-300">
+      <div className="bg-surface dark:bg-[#283036] rounded-2xl border border-surface dark:border-[#38434F]/80 dark:border-[#38434F]/80 shadow-sm p-3 lg:p-4 mb-4 lg:mb-6 flex items-center gap-2 lg:gap-3 transition-all duration-300">
         {/* Search Input */}
         <div className="flex-1 relative">
           <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-[#B0B7BE] pointer-events-none" />
@@ -191,9 +191,9 @@ export default function DiscoverTab({ onConnectAction }: DiscoverTabProps) {
             placeholder="Search..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full h-10 lg:h-[52px] pl-9 lg:pl-11 pr-8 lg:pr-20 text-xs lg:text-sm border border-gray-200 dark:border-[#38434F] rounded-xl bg-white dark:bg-[#283036] text-gray-900 dark:text-white outline-none focus:border-purple-400 focus:ring-[3px] focus:ring-purple-500/15 transition-all duration-200 font-medium placeholder:text-gray-400 dark:text-[#B0B7BE]"
+            className="w-full h-10 lg:h-[52px] pl-9 lg:pl-11 pr-8 lg:pr-20 text-xs lg:text-sm border border-surface dark:border-[#38434F] rounded-xl bg-surface dark:bg-[#283036] text-gray-900 dark:text-white outline-none focus:border-purple-400 focus:ring-[3px] focus:ring-purple-500/15 transition-all duration-200 font-medium placeholder:text-gray-400 dark:text-[#B0B7BE]"
           />
-          <div className="hidden lg:flex absolute right-3.5 top-1/2 -translate-y-1/2 items-center gap-1.5 text-[10px] font-semibold text-gray-400 dark:text-[#B0B7BE] bg-gray-100 dark:bg-[#1D2226]/80 dark:bg-[#1D2226]/80 border border-gray-200 dark:border-[#38434F]/60 dark:border-[#38434F]/60 rounded-lg px-2 py-1 pointer-events-none">
+          <div className="hidden lg:flex absolute right-3.5 top-1/2 -translate-y-1/2 items-center gap-1.5 text-[10px] font-semibold text-gray-400 dark:text-[#B0B7BE] bg-gray-100 dark:bg-[#1D2226]/80 dark:bg-[#1D2226]/80 border border-surface dark:border-[#38434F]/60 dark:border-[#38434F]/60 rounded-lg px-2 py-1 pointer-events-none">
             <span className="text-[9px]">⌘</span>K
           </div>
         </div>
@@ -207,7 +207,7 @@ export default function DiscoverTab({ onConnectAction }: DiscoverTabProps) {
               className={`px-4 py-2.5 text-xs font-semibold rounded-full border transition-all whitespace-nowrap ${
                 roleFilter === chip.value
                   ? 'filter-chip-active'
-                  : 'bg-white dark:bg-[#283036] text-gray-600 dark:text-[#B0B7BE] border-gray-200 dark:border-[#38434F] hover:border-gray-300 hover:bg-gray-50 dark:bg-[#1D2226] dark:hover:bg-[#1D2226]'
+                  : 'bg-surface dark:bg-[#283036] text-gray-600 dark:text-[#B0B7BE] border-surface dark:border-[#38434F] hover:border-gray-300 hover:bg-app dark:bg-[#1D2226] dark:hover:bg-[#1D2226]'
               }`}
             >
               {chip.label}
@@ -220,16 +220,16 @@ export default function DiscoverTab({ onConnectAction }: DiscoverTabProps) {
       {loading ? (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-2 2xl:grid-cols-3 gap-3 lg:gap-5">
           {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} className="bg-white dark:bg-[#283036] rounded-xl border border-gray-200 dark:border-[#38434F]/90 dark:border-[#38434F]/90 overflow-hidden animate-pulse shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+            <div key={i} className="bg-surface dark:bg-[#283036] rounded-xl border border-surface dark:border-[#38434F]/90 dark:border-[#38434F]/90 overflow-hidden animate-pulse shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
               <div className="h-[80px] lg:h-[90px] bg-gray-100 dark:bg-[#1D2226]" />
               <div className="px-3 lg:px-4 pb-2.5 lg:pb-3 pt-1 lg:pt-1.5 space-y-1.5 lg:space-y-2">
                 <div className="flex justify-center -mt-[21px] lg:-mt-8 mb-1">
                   <div className="w-[42px] h-[42px] lg:w-16 lg:h-16 rounded-full border-[3px] lg:border-[4px] border-white bg-gray-100 dark:bg-[#1D2226] shadow-md" />
                 </div>
                 <div className="h-3 lg:h-3.5 bg-gray-100 dark:bg-[#1D2226] rounded w-2/3 mx-auto" />
-                <div className="h-2 lg:h-2.5 bg-gray-50 dark:bg-[#1D2226] rounded w-1/2 mx-auto" />
-                <div className="h-2 bg-gray-50 dark:bg-[#1D2226] rounded w-1/3 mx-auto" />
-                <div className="mt-1.5 lg:mt-2 pt-1.5 lg:pt-2 border-t border-gray-100 dark:border-[#38434F]">
+                <div className="h-2 lg:h-2.5 bg-app dark:bg-[#1D2226] rounded w-1/2 mx-auto" />
+                <div className="h-2 bg-app dark:bg-[#1D2226] rounded w-1/3 mx-auto" />
+                <div className="mt-1.5 lg:mt-2 pt-1.5 lg:pt-2 border-t border-surface dark:border-[#38434F]">
                   <div className="h-7 lg:h-8 bg-gray-100 dark:bg-[#1D2226] rounded-lg w-full" />
                 </div>
               </div>

@@ -325,7 +325,7 @@ export async function GET(
         upvote_count, answer_count,
         view_count, is_answered,
         is_pinned, created_at, tags,
-        is_college_post,
+        is_college_post, image_url,
         users!posts_author_id_fkey (
           full_name, unique_id,
           role, is_verified, avatar_url

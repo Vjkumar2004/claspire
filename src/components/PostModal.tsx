@@ -119,7 +119,7 @@ export default function PostModal({
           parsedUrls = typeof editData.image_url === 'string' && editData.image_url.startsWith('[')
             ? JSON.parse(editData.image_url)
             : typeof editData.image_url === 'string' ? [editData.image_url] : editData.image_url
-        } catch(e) {
+        } catch (e) {
           parsedUrls = [editData.image_url]
         }
       }
@@ -432,11 +432,11 @@ export default function PostModal({
             }}
             onMouseEnter={e => {
               (e.currentTarget as HTMLElement).style.background = '#F1F5F9'
-              ;(e.currentTarget as HTMLElement).style.color = '#0F172A'
+                ; (e.currentTarget as HTMLElement).style.color = '#0F172A'
             }}
             onMouseLeave={e => {
               (e.currentTarget as HTMLElement).style.background = '#F8FAFC'
-              ;(e.currentTarget as HTMLElement).style.color = '#64748B'
+                ; (e.currentTarget as HTMLElement).style.color = '#64748B'
             }}
           >
             <X size={18} />
@@ -663,13 +663,13 @@ export default function PostModal({
                   onMouseEnter={e => {
                     if (type !== t.key) {
                       (e.currentTarget as HTMLElement).style.background = '#FAFAFA'
-                      ;(e.currentTarget as HTMLElement).style.borderColor = '#E2E8F0'
+                        ; (e.currentTarget as HTMLElement).style.borderColor = '#E2E8F0'
                     }
                   }}
                   onMouseLeave={e => {
                     if (type !== t.key) {
                       (e.currentTarget as HTMLElement).style.background = '#FFFFFF'
-                      ;(e.currentTarget as HTMLElement).style.borderColor = '#F1F5F9'
+                        ; (e.currentTarget as HTMLElement).style.borderColor = '#F1F5F9'
                     }
                   }}
                 >
@@ -715,13 +715,13 @@ export default function PostModal({
               placeholder={
                 type === 'doubt'
                   ? 'What is your doubt? Be specific...'
-                : type === 'discussion'
-                  ? 'What do you want to discuss?'
-                : type === 'experience'
-                  ? 'Share your experience title...'
-                : type === 'referral_hunt'
-                  ? 'Looking for referral at [Company]...'
-                : 'Resource title or topic...'
+                  : type === 'discussion'
+                    ? 'What do you want to discuss?'
+                    : type === 'experience'
+                      ? 'Share your experience title...'
+                      : type === 'referral_hunt'
+                        ? 'Looking for referral at [Company]...'
+                        : 'Resource title or topic...'
               }
               value={title}
               onChange={e => setTitle(e.target.value)}
@@ -742,13 +742,13 @@ export default function PostModal({
               }}
               onFocus={e => {
                 (e.currentTarget as HTMLElement).style.borderColor = '#7C3AED'
-                ;(e.currentTarget as HTMLElement).style.background = 'white'
-                ;(e.currentTarget as HTMLElement).style.boxShadow = '0 0 0 3px rgba(124,58,237,0.08)'
+                  ; (e.currentTarget as HTMLElement).style.background = 'white'
+                  ; (e.currentTarget as HTMLElement).style.boxShadow = '0 0 0 3px rgba(124,58,237,0.08)'
               }}
               onBlur={e => {
                 (e.currentTarget as HTMLElement).style.borderColor = '#F1F5F9'
-                ;(e.currentTarget as HTMLElement).style.background = '#F8FAFC'
-                ;(e.currentTarget as HTMLElement).style.boxShadow = 'none'
+                  ; (e.currentTarget as HTMLElement).style.background = '#F8FAFC'
+                  ; (e.currentTarget as HTMLElement).style.boxShadow = 'none'
               }}
             />
           </div>
@@ -759,13 +759,13 @@ export default function PostModal({
               placeholder={
                 type === 'doubt'
                   ? 'Describe your doubt in detail. Include your year, branch, CGPA if relevant.'
-                : type === 'discussion'
-                  ? 'Share your thoughts, opinions or experiences. Ask others what they think...'
-                : type === 'experience'
-                  ? 'Share your complete experience — company, process, tips, what to prepare.'
-                : type === 'referral_hunt'
-                  ? 'Include: Company name, Role, Your CGPA, Branch, Batch year, and why you want to work there.'
-                : 'Share the resource — include links, key points, or upload material.'
+                  : type === 'discussion'
+                    ? 'Share your thoughts, opinions or experiences. Ask others what they think...'
+                    : type === 'experience'
+                      ? 'Share your complete experience — company, process, tips, what to prepare.'
+                      : type === 'referral_hunt'
+                        ? 'Include: Company name, Role, Your CGPA, Branch, Batch year, and why you want to work there.'
+                        : 'Share the resource — include links, key points, or upload material.'
               }
               value={content}
               onChange={e => setContent(e.target.value)}
@@ -787,13 +787,13 @@ export default function PostModal({
               }}
               onFocus={e => {
                 (e.currentTarget as HTMLElement).style.borderColor = '#7C3AED'
-                ;(e.currentTarget as HTMLElement).style.background = 'white'
-                ;(e.currentTarget as HTMLElement).style.boxShadow = '0 0 0 3px rgba(124,58,237,0.08)'
+                  ; (e.currentTarget as HTMLElement).style.background = 'white'
+                  ; (e.currentTarget as HTMLElement).style.boxShadow = '0 0 0 3px rgba(124,58,237,0.08)'
               }}
               onBlur={e => {
                 (e.currentTarget as HTMLElement).style.borderColor = '#F1F5F9'
-                ;(e.currentTarget as HTMLElement).style.background = '#F8FAFC'
-                ;(e.currentTarget as HTMLElement).style.boxShadow = 'none'
+                  ; (e.currentTarget as HTMLElement).style.background = '#F8FAFC'
+                  ; (e.currentTarget as HTMLElement).style.boxShadow = 'none'
               }}
             />
           </div>
@@ -908,13 +908,13 @@ export default function PostModal({
                 }}
                 onMouseEnter={e => {
                   (e.currentTarget as HTMLElement).style.borderColor = '#A78BFA'
-                  ;(e.currentTarget as HTMLElement).style.color = '#7C3AED'
-                  ;(e.currentTarget as HTMLElement).style.background = '#F5F3FF'
+                    ; (e.currentTarget as HTMLElement).style.color = '#7C3AED'
+                    ; (e.currentTarget as HTMLElement).style.background = '#F5F3FF'
                 }}
                 onMouseLeave={e => {
                   (e.currentTarget as HTMLElement).style.borderColor = '#E2E8F0'
-                  ;(e.currentTarget as HTMLElement).style.color = '#64748B'
-                  ;(e.currentTarget as HTMLElement).style.background = '#F8FAFC'
+                    ; (e.currentTarget as HTMLElement).style.color = '#64748B'
+                    ; (e.currentTarget as HTMLElement).style.background = '#F8FAFC'
                 }}
               >
                 <ImagePlus size={16} />
@@ -1129,11 +1129,11 @@ export default function PostModal({
               }}
               onMouseEnter={e => {
                 (e.currentTarget as HTMLElement).style.background = '#F1F5F9'
-                ;(e.currentTarget as HTMLElement).style.borderColor = '#E2E8F0'
+                  ; (e.currentTarget as HTMLElement).style.borderColor = '#E2E8F0'
               }}
               onMouseLeave={e => {
                 (e.currentTarget as HTMLElement).style.background = '#F8FAFC'
-                ;(e.currentTarget as HTMLElement).style.borderColor = '#F1F5F9'
+                  ; (e.currentTarget as HTMLElement).style.borderColor = '#F1F5F9'
               }}
             >
               Cancel
@@ -1167,13 +1167,13 @@ export default function PostModal({
               onMouseEnter={e => {
                 if (!loading && !imageUploading && !imageCompressing) {
                   (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)'
-                  ;(e.currentTarget as HTMLElement).style.boxShadow = '0 8px 30px rgba(124,58,237,0.4)'
+                    ; (e.currentTarget as HTMLElement).style.boxShadow = '0 8px 30px rgba(124,58,237,0.4)'
                 }
               }}
               onMouseLeave={e => {
                 if (!loading && !imageUploading && !imageCompressing) {
                   (e.currentTarget as HTMLElement).style.transform = 'none'
-                  ;(e.currentTarget as HTMLElement).style.boxShadow = '0 4px 20px rgba(124,58,237,0.3)'
+                    ; (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 20px rgba(124,58,237,0.3)'
                 }
               }}
             >
@@ -1197,16 +1197,16 @@ export default function PostModal({
                   <GraduationCap size={16} />
                   {type === 'doubt' ? 'Post as College →'
                     : type === 'discussion' ? 'Announce →'
-                    : type === 'experience' ? 'Share as College →'
-                    : type === 'referral_hunt' ? 'Post as College →'
-                    : 'Share as College →'}
+                      : type === 'experience' ? 'Share as College →'
+                        : type === 'referral_hunt' ? 'Post as College →'
+                          : 'Share as College →'}
                 </>
               ) : (
                 type === 'doubt' ? 'Post Doubt →'
-                : type === 'discussion' ? 'Start Discussion →'
-                : type === 'experience' ? 'Share Experience →'
-                : type === 'referral_hunt' ? 'Post Referral Hunt →'
-                : 'Share Resource →'
+                  : type === 'discussion' ? 'Start Discussion →'
+                    : type === 'experience' ? 'Share Experience →'
+                      : type === 'referral_hunt' ? 'Post Referral Hunt →'
+                        : 'Share Resource →'
               )}
             </button>
           </div>

@@ -244,7 +244,7 @@ export default function CollegeClaimButton({ collegeId, collegeSlug, collegeName
           </div>
 
           {isOpen && (
-            <div className="mt-4 bg-white dark:bg-[#283036] border border-gray-200 dark:border-[#38434F] rounded-xl p-6 shadow-lg max-w-md">
+            <div className="mt-4 bg-surface dark:bg-[#283036] border border-surface dark:border-[#38434F] rounded-xl p-6 shadow-lg max-w-md">
               <h3 className="font-bold text-gray-900 dark:text-white mb-1">Claim {collegeName}</h3>
               <p className="text-xs text-gray-500 dark:text-[#B0B7BE] mb-5">
                 Prove you are an official representative to manage this college page.
@@ -261,7 +261,7 @@ export default function CollegeClaimButton({ collegeId, collegeSlug, collegeName
                     value={formData.official_email}
                     onChange={(e) => setFormData({ ...formData, official_email: e.target.value })}
                     placeholder={collegeDomain ? `you@${collegeDomain}` : 'you@college.edu'}
-                    className="w-full bg-gray-50 dark:bg-[#1D2226] border border-gray-200 dark:border-[#38434F] rounded-lg px-4 py-2.5 text-sm font-medium outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
+                    className="w-full bg-app dark:bg-[#1D2226] border border-surface dark:border-[#38434F] rounded-lg px-4 py-2.5 text-sm font-medium outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
                   />
                   <p className="text-[10px] text-gray-400 mt-1">Your personal email issued by the college {collegeDomain ? `(@${collegeDomain})` : ''}</p>
                 </div>
@@ -276,7 +276,7 @@ export default function CollegeClaimButton({ collegeId, collegeSlug, collegeName
                     value={formData.official_website}
                     onChange={(e) => setFormData({ ...formData, official_website: e.target.value })}
                     placeholder="https://www.college.ac.in"
-                    className="w-full bg-gray-50 dark:bg-[#1D2226] border border-gray-200 dark:border-[#38434F] rounded-lg px-4 py-2.5 text-sm font-medium outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
+                    className="w-full bg-app dark:bg-[#1D2226] border border-surface dark:border-[#38434F] rounded-lg px-4 py-2.5 text-sm font-medium outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
                   />
                 </div>
 
@@ -291,7 +291,7 @@ export default function CollegeClaimButton({ collegeId, collegeSlug, collegeName
                       value={formData.designation}
                       onChange={(e) => setFormData({ ...formData, designation: e.target.value })}
                       placeholder="Placement Officer"
-                      className="w-full bg-gray-50 dark:bg-[#1D2226] border border-gray-200 dark:border-[#38434F] rounded-lg px-4 py-2.5 text-sm font-medium outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
+                      className="w-full bg-app dark:bg-[#1D2226] border border-surface dark:border-[#38434F] rounded-lg px-4 py-2.5 text-sm font-medium outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
                     />
                     <p className="text-[10px] text-gray-400 mt-1">Your role at the college</p>
                   </div>
@@ -305,7 +305,7 @@ export default function CollegeClaimButton({ collegeId, collegeSlug, collegeName
                       value={formData.contact_person}
                       onChange={(e) => setFormData({ ...formData, contact_person: e.target.value })}
                       placeholder="Dr. S. Kumar"
-                      className="w-full bg-gray-50 dark:bg-[#1D2226] border border-gray-200 dark:border-[#38434F] rounded-lg px-4 py-2.5 text-sm font-medium outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
+                      className="w-full bg-app dark:bg-[#1D2226] border border-surface dark:border-[#38434F] rounded-lg px-4 py-2.5 text-sm font-medium outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
                     />
                     <p className="text-[10px] text-gray-400 mt-1">Your name as the claiming representative</p>
                   </div>
@@ -320,7 +320,7 @@ export default function CollegeClaimButton({ collegeId, collegeSlug, collegeName
                     onChange={(e) => setFormData({ ...formData, verification_msg: e.target.value })}
                     placeholder="Any additional information to verify your association..."
                     rows={3}
-                    className="w-full bg-gray-50 dark:bg-[#1D2226] border border-gray-200 dark:border-[#38434F] rounded-lg px-4 py-2.5 text-sm font-medium outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 resize-none"
+                    className="w-full bg-app dark:bg-[#1D2226] border border-surface dark:border-[#38434F] rounded-lg px-4 py-2.5 text-sm font-medium outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 resize-none"
                   />
                 </div>
 

@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 
 export default function ContactPage() {
   return (
-    <div className="bg-white dark:bg-[#1D2226] text-black dark:text-white min-h-screen">
+    <div className="bg-surface dark:bg-[#1D2226] text-black dark:text-white min-h-screen">
       <div className="max-w-3xl mx-auto px-6 pt-24 pb-16">
         {/* Back to Home */}
         <Link 
@@ -41,7 +41,7 @@ export default function ContactPage() {
 
         {/* Contact Cards */}
         <div className="grid md:grid-cols-2 gap-6 mb-8">
-          <div className="border border-gray-200 dark:border-[#38434F] rounded-xl p-6 bg-gray-50 dark:bg-[#1D2226]">
+          <div className="border border-surface dark:border-[#38434F] rounded-xl p-6 bg-app dark:bg-[#1D2226]">
             <div className="mb-3 text-purple-600"><Mail size={28} /></div>
             <h3 className="font-semibold mb-2 text-lg">Email Us</h3>
             <a 
@@ -51,7 +51,7 @@ export default function ContactPage() {
               claspire.community@gmail.com
             </a>
           </div>
-          <div className="border border-gray-200 dark:border-[#38434F] rounded-xl p-6 bg-gray-50 dark:bg-[#1D2226]">
+          <div className="border border-surface dark:border-[#38434F] rounded-xl p-6 bg-app dark:bg-[#1D2226]">
             <div className="mb-3 text-purple-600"><Phone size={28} /></div>
             <h3 className="font-semibold mb-2 text-lg">Call Us</h3>
             <a 

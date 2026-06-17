@@ -91,8 +91,8 @@ export default function GroupJoinRequestsSection({ onCountChange }: GroupJoinReq
   }
 
   return (
-    <section className="bg-white dark:bg-[#283036] border border-gray-200 dark:border-[#38434F] rounded-xl overflow-hidden">
-      <div className="p-4 border-b border-gray-100 dark:border-[#38434F] flex items-center justify-between gap-3">
+    <section className="bg-surface dark:bg-[#283036] border border-surface dark:border-[#38434F] rounded-xl overflow-hidden">
+      <div className="p-4 border-b border-surface dark:border-[#38434F] flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <div className="w-9 h-9 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
             <Lock size={16} />

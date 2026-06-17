@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 
 export default function PrivacyPolicyPage() {
   return (
-    <div className="bg-white dark:bg-[#1D2226] text-black dark:text-white min-h-screen">
+    <div className="bg-surface dark:bg-[#1D2226] text-black dark:text-white min-h-screen">
       <div className="max-w-3xl mx-auto px-6 pt-24 pb-16">
         {/* Back to Home */}
         <Link 

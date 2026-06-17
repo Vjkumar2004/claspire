@@ -43,7 +43,7 @@ export default function Hero() {
   };
 
   return (
-    <section className="bg-gradient-to-b from-white to-[#F8FAFC] dark:from-[#1D2226] dark:to-[#1D2226] overflow-hidden min-h-[calc(100dvh-56px)] flex flex-col justify-center lg:justify-start lg:min-h-0 border-b border-gray-100 dark:border-[#38434F]">
+    <section className="bg-gradient-to-b from-white to-[#F8FAFC] dark:from-[#1D2226] dark:to-[#1D2226] overflow-hidden min-h-[calc(100dvh-56px)] flex flex-col justify-center lg:justify-start lg:min-h-0 border-b border-surface dark:border-[#38434F]">
       <div className="container py-8 lg:py-0">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-0 items-center">
           {/* Left Content */}
@@ -87,7 +87,7 @@ export default function Hero() {
                     const element = document.getElementById('the-process');
                     element?.scrollIntoView({ behavior: 'smooth' });
                   }}
-                  className="bg-white dark:bg-[#283036] border border-gray-200 dark:border-[#38434F] text-gray-700 dark:text-white px-6 py-3 rounded-md text-sm font-semibold cursor-pointer hover:bg-gray-50 dark:hover:bg-[#1D2226] hover:border-gray-300 transition-all shadow-sm w-full sm:w-auto"
+                  className="bg-surface dark:bg-[#283036] border border-surface dark:border-[#38434F] text-gray-700 dark:text-white px-6 py-3 rounded-md text-sm font-semibold cursor-pointer hover:bg-app dark:hover:bg-[#1D2226] hover:border-gray-300 transition-all shadow-sm w-full sm:w-auto"
                 >
                   See how it works
                 </button>
@@ -144,7 +144,7 @@ export default function Hero() {
               {/* Feed Cards */}
               <div className="flex flex-col gap-3">
                 {/* Card 1 - Doubt Post */}
-                <motion.div variants={feedItemVariants} className="bg-white dark:bg-[#283036] border border-gray-200 dark:border-[#38434F] rounded-lg p-5 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
+                <motion.div variants={feedItemVariants} className="bg-surface dark:bg-[#283036] border border-surface dark:border-[#38434F] rounded-lg p-5 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
                   <div className="flex items-center gap-3 mb-3">
                     <div className="w-9 h-9 rounded-full bg-[#7C3AED] flex items-center justify-center text-white text-xs font-bold shadow-sm">
                       VK
@@ -157,7 +157,7 @@ export default function Hero() {
                   <div className="text-[14px] text-gray-900 dark:text-white font-semibold mb-3 leading-snug">
                     How tough is Zoho off-campus for 2025 batch? CGPA 7.8 here
                   </div>
-                  <div className="flex items-center justify-between border-t border-gray-100 dark:border-[#38434F] pt-3">
+                  <div className="flex items-center justify-between border-t border-surface dark:border-[#38434F] pt-3">
                     <div className="text-xs text-gray-400 dark:text-[#B0B7BE] font-medium">
                       💬 2 answers · 3 hours ago
                     </div>
@@ -168,7 +168,7 @@ export default function Hero() {
                 </motion.div>
 
                 {/* Card 2 - Senior Answer (Indented nested style) */}
-                <motion.div variants={feedItemVariants} className="bg-[#FAFAFE] dark:bg-[#283036] border-l-2 border-[#7C3AED] border-y border-r border-gray-200 dark:border-y-[#38434F] dark:border-r-[#38434F] rounded-r-lg p-4 ml-4 shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
+                <motion.div variants={feedItemVariants} className="bg-[#FAFAFE] dark:bg-[#283036] border-l-2 border-[#7C3AED] border-y border-r border-surface dark:border-y-[#38434F] dark:border-r-[#38434F] rounded-r-lg p-4 ml-4 shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
                   <div className="flex items-center gap-2.5 mb-2.5">
                     <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#7C3AED] to-[#06B6D4] flex items-center justify-center text-white text-[9px] font-black">
                       SA
@@ -188,13 +188,13 @@ export default function Hero() {
                   <div className="text-xs text-gray-600 dark:text-[#B0B7BE] leading-relaxed font-medium">
                     7.8 is good! Zoho focuses on problem-solving and communication. Prepare DSA well and be clear on projects. DM me for tips!
                   </div>
-                  <div className="text-[10px] text-gray-400 dark:text-[#B0B7BE] font-semibold mt-2.5 flex items-center gap-1 border-t border-gray-100 dark:border-[#38434F] pt-2">
+                  <div className="text-[10px] text-gray-400 dark:text-[#B0B7BE] font-semibold mt-2.5 flex items-center gap-1 border-t border-surface dark:border-[#38434F] pt-2">
                     👍 18 helpful · <span className="text-[#7C3AED]">Placement Help</span>
                   </div>
                 </motion.div>
 
                 {/* Card 3 - Job Post */}
-                <motion.div variants={feedItemVariants} className="bg-white dark:bg-[#283036] border-t-[3px] border-[#06B6D4] border-x border-b border-gray-200 dark:border-x-[#38434F] dark:border-b-[#38434F] rounded-b-lg rounded-t-sm p-5 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
+                <motion.div variants={feedItemVariants} className="bg-surface dark:bg-[#283036] border-t-[3px] border-[#06B6D4] border-x border-b border-surface dark:border-x-[#38434F] dark:border-b-[#38434F] rounded-b-lg rounded-t-sm p-5 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
                   <div className="flex items-center gap-3 mb-3">
                     <div className="w-9 h-9 rounded-full bg-[#06B6D4] flex items-center justify-center text-white text-xs font-bold shadow-sm">
                       MP
@@ -210,7 +210,7 @@ export default function Hero() {
                   <div className="text-xs text-gray-500 dark:text-[#B0B7BE] mb-3 font-medium">
                     ₹3.5 LPA · Chennai · Training: 6 months
                   </div>
-                  <div className="flex items-center justify-between border-t border-gray-100 dark:border-[#38434F] pt-3">
+                  <div className="flex items-center justify-between border-t border-surface dark:border-[#38434F] pt-3">
                     <div className="bg-[#EFF6FF] text-[#2563EB] border border-[#BFDBFE] rounded-full px-2.5 py-0.5 text-xs font-semibold">
                       Referral available
                     </div>

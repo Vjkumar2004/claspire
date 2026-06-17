@@ -116,7 +116,7 @@ export default function PublicProfilePage() {
           <div className="lg:col-span-8 space-y-6">
 
             {/* ─── SECTION 1: HERO CARD ─── */}
-            <div className="bg-white dark:bg-[#283036] rounded-xl border border-slate-200/80 dark:border-[#38434F] shadow-sm dark:shadow-[#1D2226]/50 overflow-hidden">
+            <div className="bg-surface dark:bg-[#283036] rounded-xl border border-surface/80 dark:border-[#38434F] shadow-sm dark:shadow-[#1D2226]/50 overflow-hidden">
               {/* Banner */}
               <div
                 className="h-28 rounded-t-xl bg-slate-100 dark:bg-[#283036]"
@@ -186,22 +186,22 @@ export default function PublicProfilePage() {
                   <ProfileActionBar profileUser={user} viewer={viewer} isOwnProfile={isOwnProfile} connectionStatus={connectionStatus} connectionId={connectionId} followStatus={followStatus} />
                   <div className="flex flex-wrap gap-2">
                     {linkedinUrl && (
-                      <a href={linkedinUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-[#38434F] text-slate-500 dark:text-[#B0B7BE] hover:text-[#0A66C2] hover:border-[#0A66C2]/30 text-xs font-medium no-underline transition-all dark:hover:bg-[#1D2226]">
+                      <a href={linkedinUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-surface dark:border-[#38434F] text-slate-500 dark:text-[#B0B7BE] hover:text-[#0A66C2] hover:border-[#0A66C2]/30 text-xs font-medium no-underline transition-all dark:hover:bg-[#1D2226]">
                         <Linkedin size={13} /> LinkedIn
                       </a>
                     )}
                     {githubUrl && (
-                      <a href={githubUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-[#38434F] text-slate-500 dark:text-[#B0B7BE] hover:text-[#333] hover:border-[#333]/30 text-xs font-medium no-underline transition-all dark:hover:bg-[#1D2226]">
+                      <a href={githubUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-surface dark:border-[#38434F] text-slate-500 dark:text-[#B0B7BE] hover:text-[#333] hover:border-[#333]/30 text-xs font-medium no-underline transition-all dark:hover:bg-[#1D2226]">
                         <Github size={13} /> GitHub
                       </a>
                     )}
                     {portfolioUrl && (
-                      <a href={portfolioUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-[#38434F] text-slate-500 dark:text-[#B0B7BE] hover:text-[#7C3AED] hover:border-[#7C3AED]/30 text-xs font-medium no-underline transition-all dark:hover:bg-[#1D2226]">
+                      <a href={portfolioUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-surface dark:border-[#38434F] text-slate-500 dark:text-[#B0B7BE] hover:text-[#7C3AED] hover:border-[#7C3AED]/30 text-xs font-medium no-underline transition-all dark:hover:bg-[#1D2226]">
                         <ExternalLink size={13} /> Portfolio
                       </a>
                     )}
                     {resumeUrl && (
-                      <a href={resumeUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-[#38434F] text-slate-500 dark:text-[#B0B7BE] hover:text-[#7C3AED] hover:border-[#7C3AED]/30 text-xs font-medium no-underline transition-all dark:hover:bg-[#1D2226]">
+                      <a href={resumeUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-surface dark:border-[#38434F] text-slate-500 dark:text-[#B0B7BE] hover:text-[#7C3AED] hover:border-[#7C3AED]/30 text-xs font-medium no-underline transition-all dark:hover:bg-[#1D2226]">
                         <ExternalLink size={13} /> Resume
                       </a>
                     )}
@@ -214,11 +214,11 @@ export default function PublicProfilePage() {
                     const selectedAreas = (Object.keys(AREAS_LOOKING_LABELS) as (keyof AreasLookingFor)[]).filter((k) => studentExtras.areas_looking_for[k])
                     if (!selectedAreas.length) return null
                     return (
-                      <div className="flex items-center gap-2 mt-4 pt-4 border-t border-slate-100 dark:border-[#38434F]">
+                      <div className="flex items-center gap-2 mt-4 pt-4 border-t border-surface dark:border-[#38434F]">
                         <span className="text-[10px] font-semibold text-slate-400 dark:text-[#B0B7BE] uppercase tracking-wider">Seeking</span>
                         <div className="flex flex-wrap gap-1.5">
                           {selectedAreas.map((k: string) => (
-                            <span key={k} className="px-2 py-0.5 rounded-full bg-[#F8FAFC] dark:bg-[#283036] border border-slate-200 dark:border-[#38434F] text-slate-500 dark:text-[#B0B7BE] text-[10px] font-medium">{AREAS_LOOKING_LABELS[k as keyof AreasLookingFor]}</span>
+                            <span key={k} className="px-2 py-0.5 rounded-full bg-[#F8FAFC] dark:bg-[#283036] border border-surface dark:border-[#38434F] text-slate-500 dark:text-[#B0B7BE] text-[10px] font-medium">{AREAS_LOOKING_LABELS[k as keyof AreasLookingFor]}</span>
                           ))}
                         </div>
                       </div>
@@ -230,7 +230,7 @@ export default function PublicProfilePage() {
                     const activeMentorship = (Object.keys(MENTORSHIP_LABELS) as (keyof MentorshipOptions)[]).filter((k) => seniorExtras.mentorship[k])
                     if (!activeMentorship.length) return null
                     return (
-                      <div className="flex items-center gap-2 mt-4 pt-4 border-t border-slate-100 dark:border-[#38434F]">
+                      <div className="flex items-center gap-2 mt-4 pt-4 border-t border-surface dark:border-[#38434F]">
                         <span className="text-[10px] font-semibold text-slate-400 dark:text-[#B0B7BE] uppercase tracking-wider">Mentorship</span>
                         <div className="flex flex-wrap gap-1.5">
                           {activeMentorship.map((k) => (
@@ -246,7 +246,7 @@ export default function PublicProfilePage() {
 
             {/* ─── SECTION 2: FEATURED PROJECT ─── */}
             {allProjects.length > 0 && (
-              <div className="bg-white dark:bg-[#283036] rounded-xl border border-slate-200/80 dark:border-[#38434F] shadow-sm dark:shadow-[#1D2226]/50 p-6">
+              <div className="bg-surface dark:bg-[#283036] rounded-xl border border-surface/80 dark:border-[#38434F] shadow-sm dark:shadow-[#1D2226]/50 p-6">
                 <h2 className="text-xs font-bold text-slate-400 dark:text-[#B0B7BE] uppercase tracking-wider mb-5 m-0">Featured Project</h2>
                 <div className="flex items-start gap-5">
                   <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[#7C3AED]/10 to-[#4F46E5]/10 flex items-center justify-center text-xl font-bold text-[#7C3AED] shrink-0">
@@ -263,7 +263,7 @@ export default function PublicProfilePage() {
                       return (
                         <div className="flex flex-wrap gap-1.5 mt-3">
                           {stack.map((t: string) => (
-                            <span key={t} className="px-2.5 py-0.5 rounded-full bg-[#F8FAFC] dark:bg-[#283036] border border-slate-200 dark:border-[#38434F] text-slate-500 dark:text-[#B0B7BE] text-[11px] font-medium">{t}</span>
+                            <span key={t} className="px-2.5 py-0.5 rounded-full bg-[#F8FAFC] dark:bg-[#283036] border border-surface dark:border-[#38434F] text-slate-500 dark:text-[#B0B7BE] text-[11px] font-medium">{t}</span>
                           ))}
                         </div>
                       )
@@ -284,7 +284,7 @@ export default function PublicProfilePage() {
                 </div>
                 {/* Additional Projects */}
                 {allProjects.length > 1 && (
-                  <div className="mt-5 pt-4 border-t border-slate-100 dark:border-[#38434F] space-y-3">
+                  <div className="mt-5 pt-4 border-t border-surface dark:border-[#38434F] space-y-3">
                     <p className="text-[10px] font-semibold text-slate-400 dark:text-[#B0B7BE] uppercase tracking-wider m-0">More Projects</p>
                     {allProjects.slice(1).map((p, i) => (
                       <div key={i} className="flex items-start justify-between gap-4 py-2 first:pt-0">
@@ -424,7 +424,7 @@ export default function PublicProfilePage() {
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="bg-white dark:bg-[#283036] p-6 rounded-xl border border-slate-200/80 dark:border-[#38434F] shadow-sm dark:shadow-[#1D2226]/50">
+    <div className="bg-surface dark:bg-[#283036] p-6 rounded-xl border border-surface/80 dark:border-[#38434F] shadow-sm dark:shadow-[#1D2226]/50">
       <h2 className="text-sm font-bold text-slate-800 dark:text-white mb-4 m-0 tracking-tight">{title}</h2>
       {children}
     </div>
@@ -433,7 +433,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 function SidebarCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="bg-white dark:bg-[#283036] p-6 rounded-xl border border-slate-200/80 dark:border-[#38434F] shadow-sm dark:shadow-[#1D2226]/50">
+    <div className="bg-surface dark:bg-[#283036] p-6 rounded-xl border border-surface/80 dark:border-[#38434F] shadow-sm dark:shadow-[#1D2226]/50">
       <h3 className="text-xs font-semibold text-slate-800 dark:text-white mb-4 m-0">{title}</h3>
       {children}
     </div>
@@ -461,7 +461,7 @@ function TagList({ tags }: { tags: string[] }) {
   return (
     <div className="flex flex-wrap gap-2">
       {tags.map((t) => (
-        <span key={t} className="px-3 py-1 rounded-full bg-[#F8FAFC] dark:bg-[#283036] border border-slate-200 dark:border-[#38434F] text-slate-600 dark:text-[#B0B7BE] text-xs font-medium hover:bg-slate-100 dark:hover:bg-[#1D2226] hover:border-slate-300 transition-colors">
+        <span key={t} className="px-3 py-1 rounded-full bg-[#F8FAFC] dark:bg-[#283036] border border-surface dark:border-[#38434F] text-slate-600 dark:text-[#B0B7BE] text-xs font-medium hover:bg-surface-hover dark:hover:bg-[#1D2226] hover:border-slate-300 transition-colors">
           {t}
         </span>
       ))}

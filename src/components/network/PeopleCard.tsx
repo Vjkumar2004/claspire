@@ -140,13 +140,13 @@ export default function PeopleCard({ person, onConnect, onRemove, onRespond, onW
         ? 'text-purple-600 bg-purple-50 border-purple-200'
         : matchScore >= 50
           ? 'text-amber-600 bg-amber-50 border-amber-200'
-          : 'text-gray-500 dark:text-[#B0B7BE] bg-gray-50 dark:bg-[#1D2226] border-gray-200 dark:border-[#38434F]'
+          : 'text-gray-500 dark:text-[#B0B7BE] bg-app dark:bg-[#1D2226] border-surface dark:border-[#38434F]'
     : ''
 
   return (
     <div
       onClick={() => router.push(`/u/${person.unique_id}`)}
-      className="group bg-white dark:bg-[#283036] rounded-xl border border-gray-200 dark:border-[#38434F]/90 dark:border-[#38434F]/90 shadow-[0_1px_3px_rgba(0,0,0,0.06)] overflow-hidden hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(0,0,0,0.09)] transition-all duration-300 relative cursor-pointer"
+      className="group bg-surface dark:bg-[#283036] rounded-xl border border-surface dark:border-[#38434F]/90 dark:border-[#38434F]/90 shadow-[0_1px_3px_rgba(0,0,0,0.06)] overflow-hidden hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(0,0,0,0.09)] transition-all duration-300 relative cursor-pointer"
     >
       {/* Banner */}
       <div className="relative h-[80px] lg:h-[90px] overflow-hidden bg-gray-100 dark:bg-[#1D2226]">
@@ -213,7 +213,7 @@ export default function PeopleCard({ person, onConnect, onRemove, onRespond, onW
 
         {/* Actions */}
         {showActions && (
-          <div className="mt-2 lg:mt-2.5 pt-2 lg:pt-2 border-t border-gray-100 dark:border-[#38434F]">
+          <div className="mt-2 lg:mt-2.5 pt-2 lg:pt-2 border-t border-surface dark:border-[#38434F]">
             {localStatus === 'none' && (
               <button
                 onClick={(e) => { e.stopPropagation(); handleConnect() }}
@@ -249,7 +249,7 @@ export default function PeopleCard({ person, onConnect, onRemove, onRespond, onW
                 <button
                   onClick={(e) => { e.stopPropagation(); handleRespond('rejected') }}
                   disabled={responding}
-                  className="flex-1 h-7 lg:h-8 rounded-lg text-[10px] lg:text-xs font-semibold border border-gray-200 dark:border-[#38434F] bg-white dark:bg-[#283036] text-gray-500 dark:text-[#B0B7BE] hover:border-red-200 hover:text-red-500 hover:bg-red-50 transition-all flex items-center justify-center gap-1 disabled:opacity-50"
+                  className="flex-1 h-7 lg:h-8 rounded-lg text-[10px] lg:text-xs font-semibold border border-surface dark:border-[#38434F] bg-surface dark:bg-[#283036] text-gray-500 dark:text-[#B0B7BE] hover:border-red-200 hover:text-red-500 hover:bg-red-50 transition-all flex items-center justify-center gap-1 disabled:opacity-50"
                 >
                   {responding ? <Loader2 size={11} className="animate-spin" /> : <X size={12} />}
                   Ignore
@@ -270,7 +270,7 @@ export default function PeopleCard({ person, onConnect, onRemove, onRespond, onW
                   <button
                     onClick={(e) => { e.stopPropagation(); handleRemove() }}
                     disabled={removing}
-                    className="h-7 lg:h-8 px-2 rounded-lg text-[10px] lg:text-xs font-semibold border border-gray-200 dark:border-[#38434F] bg-white dark:bg-[#283036] text-gray-500 dark:text-[#B0B7BE] transition-all flex items-center justify-center hover:border-red-200 hover:text-red-500 hover:bg-red-50"
+                    className="h-7 lg:h-8 px-2 rounded-lg text-[10px] lg:text-xs font-semibold border border-surface dark:border-[#38434F] bg-surface dark:bg-[#283036] text-gray-500 dark:text-[#B0B7BE] transition-all flex items-center justify-center hover:border-red-200 hover:text-red-500 hover:bg-red-50"
                   >
                     {removing ? <Loader2 size={11} className="animate-spin" /> : <X size={12} />}
                   </button>

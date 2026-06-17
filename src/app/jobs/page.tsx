@@ -209,9 +209,9 @@ export default function JobsPage() {
   return (
     <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#1D2226]">
       {/* ─── MOBILE LAYOUT (lg:hidden) ─── */}
-      <div className="lg:hidden min-h-screen bg-white dark:bg-[#1D2226] pb-20">
+      <div className="lg:hidden min-h-screen bg-surface dark:bg-[#1D2226] pb-20">
         {/* Header */}
-        <div className="sticky top-0 z-30 bg-white/90 dark:bg-[#1D2226]/90 backdrop-blur-lg border-b border-slate-100 dark:border-[#38434F]">
+        <div className="sticky top-0 z-30 bg-surface/90 dark:bg-[#1D2226]/90 backdrop-blur-lg border-b border-surface dark:border-[#38434F]">
           <div className="flex items-start justify-between px-4 py-3 gap-3">
             <div className="min-w-0 flex-1">
 <h1 className="text-[17px] font-extrabold text-[#0F172A] dark:text-white tracking-tight leading-tight m-0">
@@ -236,7 +236,7 @@ export default function JobsPage() {
         </div>
 
         {/* Search */}
-        <div className="sticky top-14 z-30 bg-white dark:bg-[#1D2226] border-b border-slate-100 dark:border-[#38434F] px-4 py-3">
+        <div className="sticky top-14 z-30 bg-surface dark:bg-[#1D2226] border-b border-surface dark:border-[#38434F] px-4 py-3">
           <div className="flex items-center gap-2">
             <div className="flex-1 relative">
               <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-[#B0B7BE]" />
@@ -245,19 +245,19 @@ export default function JobsPage() {
                 placeholder="Search jobs, skills, roles..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-10 pl-9 pr-3 rounded-xl border border-slate-200 dark:border-[#38434F] bg-[#F8FAFC] dark:bg-[#1D2226] text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-[#B0B7BE] dark:text-[#B0B7BE] outline-none focus:border-[#7C3AED] focus:ring-1 focus:ring-[#7C3AED]/20 transition-all"
+                className="w-full h-10 pl-9 pr-3 rounded-xl border border-surface dark:border-[#38434F] bg-[#F8FAFC] dark:bg-[#1D2226] text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-[#B0B7BE] dark:text-[#B0B7BE] outline-none focus:border-[#7C3AED] focus:ring-1 focus:ring-[#7C3AED]/20 transition-all"
               />
             </div>
             <button
               onClick={() => setShowMoreFilters(!showMoreFilters)}
-              className="h-10 w-10 rounded-xl bg-[#F8FAFC] dark:bg-[#1D2226] border border-slate-200 dark:border-[#38434F] flex items-center justify-center cursor-pointer hover:bg-slate-100 dark:hover:bg-[#1D2226] dark:bg-[#283036] transition-all shrink-0"
+              className="h-10 w-10 rounded-xl bg-[#F8FAFC] dark:bg-[#1D2226] border border-surface dark:border-[#38434F] flex items-center justify-center cursor-pointer hover:bg-surface-hover dark:hover:bg-[#1D2226] dark:bg-[#283036] transition-all shrink-0"
             >
               <Filter size={15} className="text-[#7C3AED]" />
             </button>
           </div>
           {/* Mobile filter dropdown */}
           {showMoreFilters && (
-            <div className="mt-2 bg-white dark:bg-[#1D2226] rounded-xl border border-slate-200 dark:border-[#38434F] shadow-lg p-4">
+            <div className="mt-2 bg-surface dark:bg-[#1D2226] rounded-xl border border-surface dark:border-[#38434F] shadow-lg p-4">
               <div className="flex items-center justify-between mb-3">
                 <h4 className="text-xs font-bold text-[#0F172A] dark:text-white m-0">Filters</h4>
                 <button
@@ -278,7 +278,7 @@ export default function JobsPage() {
                         className={`px-2.5 py-1 rounded-md text-[10px] font-semibold border transition-all cursor-pointer ${
                           activeJobTypes.has(value)
                             ? 'bg-[#7C3AED]/5 border-[#7C3AED]/20 text-[#7C3AED]'
-                            : 'bg-white dark:bg-[#1D2226] border-slate-200 dark:border-[#38434F] text-slate-500 dark:text-[#B0B7BE] hover:border-slate-300 dark:border-[#38434F] dark:hover:border-[#38434F]'
+                            : 'bg-surface dark:bg-[#1D2226] border-surface dark:border-[#38434F] text-slate-500 dark:text-[#B0B7BE] hover:border-slate-300 dark:border-[#38434F] dark:hover:border-[#38434F]'
                         }`}
                       >
                         {label}
@@ -312,7 +312,7 @@ export default function JobsPage() {
               className={`px-3.5 py-1.5 rounded-full text-[11px] font-semibold border transition-all cursor-pointer whitespace-nowrap ${
                 remoteFilter
                   ? 'bg-[#7C3AED] border-[#7C3AED] text-white'
-                  : 'bg-white dark:bg-[#1D2226] border-slate-200 dark:border-[#38434F] text-slate-500 dark:text-[#B0B7BE] hover:border-slate-300 dark:border-[#38434F] dark:hover:border-[#38434F]'
+                  : 'bg-surface dark:bg-[#1D2226] border-surface dark:border-[#38434F] text-slate-500 dark:text-[#B0B7BE] hover:border-slate-300 dark:border-[#38434F] dark:hover:border-[#38434F]'
               }`}
             >
               <Globe size={11} className="inline mr-1 -mt-0.5" /> Remote
@@ -324,7 +324,7 @@ export default function JobsPage() {
                 className={`px-3.5 py-1.5 rounded-full text-[11px] font-semibold border transition-all cursor-pointer whitespace-nowrap ${
                   activeJobTypes.has(type)
                     ? 'bg-[#7C3AED] border-[#7C3AED] text-white'
-                    : 'bg-white dark:bg-[#1D2226] border-slate-200 dark:border-[#38434F] text-slate-500 dark:text-[#B0B7BE] hover:border-slate-300 dark:border-[#38434F] dark:hover:border-[#38434F]'
+                    : 'bg-surface dark:bg-[#1D2226] border-surface dark:border-[#38434F] text-slate-500 dark:text-[#B0B7BE] hover:border-slate-300 dark:border-[#38434F] dark:hover:border-[#38434F]'
                 }`}
               >
                 {jobTypeLabels[type] || type}
@@ -333,7 +333,7 @@ export default function JobsPage() {
             <div className="w-px h-5 bg-slate-200 mx-1" />
             <button
               onClick={() => setShowMoreFilters(!showMoreFilters)}
-              className="px-3.5 py-1.5 rounded-full text-[11px] font-semibold border border-slate-200 dark:border-[#38434F] text-slate-500 dark:text-[#B0B7BE] hover:border-slate-300 dark:border-[#38434F] dark:hover:border-[#38434F] bg-white dark:bg-[#1D2226] hover:bg-slate-50 dark:hover:bg-[#1D2226] dark:bg-[#283036] transition-all cursor-pointer whitespace-nowrap flex items-center gap-1"
+              className="px-3.5 py-1.5 rounded-full text-[11px] font-semibold border border-surface dark:border-[#38434F] text-slate-500 dark:text-[#B0B7BE] hover:border-slate-300 dark:border-[#38434F] dark:hover:border-[#38434F] bg-surface dark:bg-[#1D2226] hover:bg-app dark:hover:bg-[#1D2226] dark:bg-[#283036] transition-all cursor-pointer whitespace-nowrap flex items-center gap-1"
             >
               <Filter size={11} /> Filters
             </button>
@@ -348,7 +348,7 @@ export default function JobsPage() {
             { label: 'Companies', value: stats?.totalCompanies || 0, icon: Building2 },
             { label: 'Applications', value: stats?.totalApplications || 0, icon: Eye },
           ].map((stat) => (
-            <div key={stat.label} className="bg-white dark:bg-[#1D2226] rounded-xl border border-slate-100 dark:border-[#38434F] p-2.5 text-center shadow-sm">
+            <div key={stat.label} className="bg-surface dark:bg-[#1D2226] rounded-xl border border-surface dark:border-[#38434F] p-2.5 text-center shadow-sm">
               <div className="w-7 h-7 rounded-lg bg-[#7C3AED]/5 flex items-center justify-center mx-auto mb-1">
                 <stat.icon size={13} className="text-[#7C3AED]" />
               </div>
@@ -379,13 +379,13 @@ export default function JobsPage() {
                 <div className="relative" ref={sortRef}>
                   <button
                     onClick={() => setShowSortDropdown(!showSortDropdown)}
-                    className="flex items-center gap-1 px-2 py-1.5 rounded-lg border border-slate-200 dark:border-[#38434F] text-[10px] font-semibold text-slate-500 dark:text-[#B0B7BE] bg-white dark:bg-[#1D2226] hover:border-slate-300 dark:border-[#38434F] dark:hover:border-[#38434F] transition-all cursor-pointer"
+                    className="flex items-center gap-1 px-2 py-1.5 rounded-lg border border-surface dark:border-[#38434F] text-[10px] font-semibold text-slate-500 dark:text-[#B0B7BE] bg-surface dark:bg-[#1D2226] hover:border-slate-300 dark:border-[#38434F] dark:hover:border-[#38434F] transition-all cursor-pointer"
                   >
                     {sortBy === 'most_recent' ? 'Most Recent' : sortBy === 'salary_high' ? 'Highest Salary' : 'Most Referrals'}
                     <ChevronDown size={11} />
                   </button>
                   {showSortDropdown && (
-                    <div className="absolute top-full mt-1 right-0 w-36 bg-white dark:bg-[#1D2226] rounded-xl border border-slate-200 dark:border-[#38434F] shadow-lg py-1 z-20">
+                    <div className="absolute top-full mt-1 right-0 w-36 bg-surface dark:bg-[#1D2226] rounded-xl border border-surface dark:border-[#38434F] shadow-lg py-1 z-20">
                       {[
                         { value: 'most_recent', label: 'Most Recent' },
                         { value: 'salary_high', label: 'Highest Salary' },
@@ -395,7 +395,7 @@ export default function JobsPage() {
                           key={opt.value}
                           onClick={() => { setSortBy(opt.value); setShowSortDropdown(false) }}
                           className={`w-full text-left px-3 py-2 text-[10px] font-semibold transition-colors cursor-pointer border-none ${
-                            sortBy === opt.value ? 'text-[#7C3AED] bg-[#7C3AED]/5' : 'text-slate-500 dark:text-[#B0B7BE] hover:bg-slate-50 dark:hover:bg-[#1D2226] dark:bg-[#283036]'
+                            sortBy === opt.value ? 'text-[#7C3AED] bg-[#7C3AED]/5' : 'text-slate-500 dark:text-[#B0B7BE] hover:bg-app dark:hover:bg-[#1D2226] dark:bg-[#283036]'
                           }`}
                         >
                           {opt.label}
@@ -415,7 +415,7 @@ export default function JobsPage() {
                     return (
                       <div
                         key={job.id}
-                        className="bg-white dark:bg-[#1D2226] rounded-2xl border border-slate-200 dark:border-[#38434F]/80 p-4 shadow-sm"
+                        className="bg-surface dark:bg-[#1D2226] rounded-2xl border border-surface dark:border-[#38434F]/80 p-4 shadow-sm"
                       >
                         {/* Top: Avatar + Title + Company */}
                         <div className="flex items-start gap-3">
@@ -439,7 +439,7 @@ export default function JobsPage() {
 
                         {/* Middle: Location, Salary, Date, Type */}
                         <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-2.5 text-[10px] text-slate-400 dark:text-[#B0B7BE]">
-                          <span className="inline-flex items-center gap-1 bg-slate-50 dark:bg-[#283036] px-2 py-0.5 rounded-md"><MapPin size={10} /> {job.location}</span>
+                          <span className="inline-flex items-center gap-1 bg-app dark:bg-[#283036] px-2 py-0.5 rounded-md"><MapPin size={10} /> {job.location}</span>
                           <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 font-semibold px-2 py-0.5 rounded-md"><DollarSign size={10} /> {job.salary_range}</span>
                           <span className="inline-flex items-center gap-1"><Clock size={10} /> {timeAgo(job.created_at)}</span>
                           <span className="px-2 py-0.5 rounded bg-slate-100 dark:bg-[#283036] text-slate-500 dark:text-[#B0B7BE] text-[9px] font-semibold">
@@ -451,7 +451,7 @@ export default function JobsPage() {
                         {job.skills && job.skills.length > 0 && (
                           <div className="flex flex-wrap gap-1 mt-2.5">
                             {job.skills.slice(0, 3).map((skill) => (
-                              <span key={skill} className="px-2 py-0.5 rounded-full bg-[#F8FAFC] dark:bg-[#1D2226] border border-slate-200 dark:border-[#38434F] text-slate-500 dark:text-[#B0B7BE] text-[9px] font-medium">
+                              <span key={skill} className="px-2 py-0.5 rounded-full bg-[#F8FAFC] dark:bg-[#1D2226] border border-surface dark:border-[#38434F] text-slate-500 dark:text-[#B0B7BE] text-[9px] font-medium">
                                 {skill}
                               </span>
                             ))}
@@ -462,7 +462,7 @@ export default function JobsPage() {
                         )}
 
                         {/* Referrer Section */}
-                        <div className="flex items-center gap-2.5 mt-3 pt-3 border-t border-slate-100 dark:border-[#38434F]">
+                        <div className="flex items-center gap-2.5 mt-3 pt-3 border-t border-surface dark:border-[#38434F]">
                           <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-[10px] font-bold shrink-0 ring-2 ring-white dark:ring-[#38434F] ${
                             job.senior.avatar_url ? '' : 'bg-gradient-to-br from-[#7C3AED] to-[#4F46E5]'
                           }`}>
@@ -492,7 +492,7 @@ export default function JobsPage() {
                               href={job.description}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl border border-slate-200 dark:border-[#38434F] text-slate-600 dark:text-[#B0B7BE] text-xs font-semibold no-underline hover:bg-slate-50 dark:hover:bg-[#1D2226] dark:bg-[#283036] hover:border-slate-300 dark:border-[#38434F] dark:hover:border-[#38434F] transition-all"
+                              className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl border border-surface dark:border-[#38434F] text-slate-600 dark:text-[#B0B7BE] text-xs font-semibold no-underline hover:bg-app dark:hover:bg-[#1D2226] dark:bg-[#283036] hover:border-slate-300 dark:border-[#38434F] dark:hover:border-[#38434F] transition-all"
                             >
                               <ExternalLink size={13} /> View Job
                             </a>
@@ -525,7 +525,7 @@ export default function JobsPage() {
                   })}
                 </div>
               ) : (
-                <div className="text-center py-12 bg-white dark:bg-[#1D2226] rounded-2xl border border-dashed border-slate-200 dark:border-[#38434F]">
+                <div className="text-center py-12 bg-surface dark:bg-[#1D2226] rounded-2xl border border-dashed border-surface dark:border-[#38434F]">
                   <Search size={24} className="text-slate-300 dark:text-[#B0B7BE] mx-auto mb-3" />
                   <h3 className="text-sm font-bold text-slate-700 dark:text-white m-0">No jobs match your filters</h3>
                   <p className="text-xs text-slate-400 dark:text-[#B0B7BE] mt-1 mb-4 m-0">Try different keywords or browse available jobs</p>
@@ -565,7 +565,7 @@ export default function JobsPage() {
                 <div className="overflow-x-auto scrollbar-hide -mx-4 px-4">
                   <div className="flex gap-3 min-w-max pb-1">
                     {topReferrers.map((referrer) => (
-                      <div key={referrer.id} className="bg-white dark:bg-[#1D2226] rounded-2xl border border-slate-100 dark:border-[#38434F] p-3.5 w-[130px] shadow-sm text-center">
+                      <div key={referrer.id} className="bg-surface dark:bg-[#1D2226] rounded-2xl border border-surface dark:border-[#38434F] p-3.5 w-[130px] shadow-sm text-center">
                         <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white text-xs font-bold mx-auto mb-2 ${
                           referrer.avatar_url ? '' : 'bg-gradient-to-br from-[#7C3AED] to-[#4F46E5]'
                         }`}>
@@ -586,7 +586,7 @@ export default function JobsPage() {
                   </div>
                 </div>
               ) : (
-                <div className="bg-white dark:bg-[#1D2226] rounded-2xl border border-slate-100 dark:border-[#38434F] p-4 text-center shadow-sm">
+                <div className="bg-surface dark:bg-[#1D2226] rounded-2xl border border-surface dark:border-[#38434F] p-4 text-center shadow-sm">
                   <Award size={22} className="text-slate-300 dark:text-[#B0B7BE] mx-auto mb-2" />
                   <p className="text-xs font-semibold text-slate-600 dark:text-[#B0B7BE] m-0">Be the first to get referred!</p>
                   <p className="text-[10px] text-slate-400 dark:text-[#B0B7BE] mt-1 m-0">Request a referral from any job below.</p>
@@ -596,7 +596,7 @@ export default function JobsPage() {
 
             {/* Job Alerts */}
             <div className="px-4 py-2">
-              <div className="bg-white dark:bg-[#1D2226] rounded-2xl border border-slate-100 dark:border-[#38434F] p-4 shadow-sm">
+              <div className="bg-surface dark:bg-[#1D2226] rounded-2xl border border-surface dark:border-[#38434F] p-4 shadow-sm">
                 <div className="flex items-start gap-3">
                   <div className="w-8 h-8 rounded-lg bg-[#7C3AED]/5 flex items-center justify-center shrink-0">
                     <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
@@ -616,7 +616,7 @@ export default function JobsPage() {
 
             {/* How Referrals Work (Accordion) */}
             <div className="px-4 py-2">
-              <div className="bg-white dark:bg-[#1D2226] rounded-2xl border border-slate-100 dark:border-[#38434F] shadow-sm overflow-hidden">
+              <div className="bg-surface dark:bg-[#1D2226] rounded-2xl border border-surface dark:border-[#38434F] shadow-sm overflow-hidden">
                 <button
                   onClick={() => setHowOpen(!howOpen)}
                   className="w-full flex items-center justify-between px-4 py-3.5 bg-transparent border-none cursor-pointer"
@@ -653,7 +653,7 @@ export default function JobsPage() {
       </div>
 
       {/* ─── HERO ─── */}
-      <section className="hidden lg:block relative bg-slate-900 border-b border-slate-200 dark:border-[#38434F]/60 overflow-hidden">
+      <section className="hidden lg:block relative bg-slate-900 border-b border-surface dark:border-[#38434F]/60 overflow-hidden">
         {/* Full background image */}
         <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
@@ -667,7 +667,7 @@ export default function JobsPage() {
             {/* Left: Text + Search */}
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-2">
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/10 border border-white/15">
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface/10 border border-white/15">
                 <Sparkles size={11} className="text-white/60" />
                 <span className="text-[9px] font-bold text-white/60 uppercase tracking-[0.12em]">Opportunities</span>
               </div>
@@ -690,10 +690,10 @@ export default function JobsPage() {
                     placeholder="Search jobs, skills, roles..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full h-9 pl-9 pr-3 rounded-lg border border-white/10 bg-white/10 text-xs text-white placeholder:text-white/40 outline-none focus:border-white/30 focus:ring-1 focus:ring-white/20 transition-all "
+                    className="w-full h-9 pl-9 pr-3 rounded-lg border border-white/10 bg-surface/10 text-xs text-white placeholder:text-white/40 outline-none focus:border-white/30 focus:ring-1 focus:ring-white/20 transition-all "
                   />
                 </div>
-                <button className="h-9 px-4 rounded-lg bg-white/20 text-white text-xs font-bold border-none cursor-pointer hover:bg-white/30 transition-colors whitespace-nowrap flex items-center gap-1.5">
+                <button className="h-9 px-4 rounded-lg bg-surface/20 text-white text-xs font-bold border-none cursor-pointer hover:bg-surface/30 transition-colors whitespace-nowrap flex items-center gap-1.5">
                   <Search size={13} /> Search
                 </button>
               </div>
@@ -704,8 +704,8 @@ export default function JobsPage() {
                   onClick={() => setRemoteFilter(!remoteFilter)}
                   className={`px-3 py-1 rounded-full text-[10px] font-semibold border transition-all cursor-pointer ${
                     remoteFilter
-                      ? 'bg-white/20 border-white/30 text-white'
-                      : 'bg-white/10 border-white/15 text-white/70 hover:bg-white/20'
+                      ? 'bg-surface/20 border-white/30 text-white'
+                      : 'bg-surface/10 border-white/15 text-white/70 hover:bg-surface/20'
                   }`}
                 >
                   <Globe size={10} className="inline mr-1 -mt-0.5" /> Remote
@@ -716,8 +716,8 @@ export default function JobsPage() {
                     onClick={() => toggleJobType(type)}
                     className={`px-3 py-1 rounded-full text-[10px] font-semibold border transition-all cursor-pointer ${
                       activeJobTypes.has(type)
-                        ? 'bg-white/20 border-white/30 text-white'
-                        : 'bg-white/10 border-white/15 text-white/70 hover:bg-white/20'
+                        ? 'bg-surface/20 border-white/30 text-white'
+                        : 'bg-surface/10 border-white/15 text-white/70 hover:bg-surface/20'
                     }`}
                   >
                     {jobTypeLabels[type] || type}
@@ -726,7 +726,7 @@ export default function JobsPage() {
                 <div className="relative" ref={moreFiltersRef}>
                   <button
                     onClick={() => setShowMoreFilters(!showMoreFilters)}
-                    className="px-3 py-1 rounded-full text-[10px] font-semibold border border-white/15 text-white/70 hover:bg-white/20 bg-white/10 transition-all cursor-pointer flex items-center gap-1"
+                    className="px-3 py-1 rounded-full text-[10px] font-semibold border border-white/15 text-white/70 hover:bg-surface/20 bg-surface/10 transition-all cursor-pointer flex items-center gap-1"
                   >
                     <Filter size={10} /> More
                   </button>
@@ -751,8 +751,8 @@ export default function JobsPage() {
                                 onClick={() => toggleJobType(value)}
                                 className={`px-2.5 py-1 rounded-md text-[10px] font-semibold border transition-all cursor-pointer ${
                                   activeJobTypes.has(value)
-                                    ? 'bg-white/20 border-white/30 text-white'
-                                    : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10'
+                                    ? 'bg-surface/20 border-white/30 text-white'
+                                    : 'bg-surface/5 border-white/10 text-white/70 hover:bg-surface/10'
                                 }`}
                               >
                                 {label}
@@ -768,7 +768,7 @@ export default function JobsPage() {
                               id="filter-remote"
                               checked={remoteFilter}
                               onChange={(e) => setRemoteFilter(e.target.checked)}
-                              className="rounded border-white/20 text-white focus:ring-white/30 w-3.5 h-3.5 bg-white/10"
+                              className="rounded border-white/20 text-white focus:ring-white/30 w-3.5 h-3.5 bg-surface/10"
                             />
                             <label htmlFor="filter-remote" className="text-xs font-medium text-white/70 cursor-pointer">Remote Only</label>
                           </div>
@@ -790,9 +790,9 @@ export default function JobsPage() {
                   { label: 'Companies', value: stats?.totalCompanies || 0, icon: Building2, compact: (stats?.totalCompanies || 0) < 10 },
                   { label: 'Applications', value: stats?.totalApplications || 0, icon: Eye, compact: (stats?.totalApplications || 0) < 10 },
                 ].map((stat) => (
-                  <div key={stat.label} className="bg-white/10 rounded-xl border border-white/10 p-3 min-w-[95px]">
+                  <div key={stat.label} className="bg-surface/10 rounded-xl border border-white/10 p-3 min-w-[95px]">
                     <div className="flex items-center gap-1.5 mb-1">
-                      <div className="w-5 h-5 rounded-md bg-white/20 flex items-center justify-center">
+                      <div className="w-5 h-5 rounded-md bg-surface/20 flex items-center justify-center">
                         <stat.icon size={10} className="text-white" />
                       </div>
                     </div>
@@ -829,13 +829,13 @@ export default function JobsPage() {
                 <div className="relative" ref={sortRef}>
                   <button
                     onClick={() => setShowSortDropdown(!showSortDropdown)}
-                    className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-[#38434F] text-[11px] font-semibold text-slate-500 dark:text-[#B0B7BE] bg-white dark:bg-[#1D2226] hover:border-slate-300 dark:border-[#38434F] dark:hover:border-[#38434F] transition-all cursor-pointer"
+                    className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-surface dark:border-[#38434F] text-[11px] font-semibold text-slate-500 dark:text-[#B0B7BE] bg-surface dark:bg-[#1D2226] hover:border-slate-300 dark:border-[#38434F] dark:hover:border-[#38434F] transition-all cursor-pointer"
                   >
                     {sortBy === 'most_recent' ? 'Most Recent' : sortBy === 'salary_high' ? 'Highest Salary' : 'Most Referrals'}
                     <ChevronDown size={12} />
                   </button>
                   {showSortDropdown && (
-                    <div className="absolute top-full mt-1 right-0 w-40 bg-white dark:bg-[#1D2226] rounded-xl border border-slate-200 dark:border-[#38434F] shadow-lg py-1 z-20">
+                    <div className="absolute top-full mt-1 right-0 w-40 bg-surface dark:bg-[#1D2226] rounded-xl border border-surface dark:border-[#38434F] shadow-lg py-1 z-20">
                       {[
                         { value: 'most_recent', label: 'Most Recent' },
                         { value: 'salary_high', label: 'Highest Salary' },
@@ -845,7 +845,7 @@ export default function JobsPage() {
                           key={opt.value}
                           onClick={() => { setSortBy(opt.value); setShowSortDropdown(false) }}
                           className={`w-full text-left px-3.5 py-2 text-[11px] font-semibold transition-colors cursor-pointer border-none ${
-                            sortBy === opt.value ? 'text-[#7C3AED] bg-[#7C3AED]/5' : 'text-slate-500 dark:text-[#B0B7BE] hover:bg-slate-50 dark:hover:bg-[#1D2226] dark:bg-[#283036]'
+                            sortBy === opt.value ? 'text-[#7C3AED] bg-[#7C3AED]/5' : 'text-slate-500 dark:text-[#B0B7BE] hover:bg-app dark:hover:bg-[#1D2226] dark:bg-[#283036]'
                           }`}
                         >
                           {opt.label}
@@ -866,7 +866,7 @@ export default function JobsPage() {
                     return (
                       <div
                         key={job.id}
-                        className="bg-white dark:bg-[#1D2226] rounded-2xl border border-slate-200 dark:border-[#38434F]/80 px-5 py-4 hover:shadow-md hover:border-slate-200 dark:border-[#38434F] dark:hover:border-[#38434F] transition-all duration-200"
+                        className="bg-surface dark:bg-[#1D2226] rounded-2xl border border-surface dark:border-[#38434F]/80 px-5 py-4 hover:shadow-md hover:border-surface dark:border-[#38434F] dark:hover:border-[#38434F] transition-all duration-200"
                       >
                         {/* Row: Avatar | Content | Referral Count */}
                         <div className="flex items-start gap-3.5">
@@ -895,7 +895,7 @@ export default function JobsPage() {
                             {job.skills && job.skills.length > 0 && (
                               <div className="flex flex-wrap gap-1.5 mt-2.5">
                                 {job.skills.map((skill) => (
-                                  <span key={skill} className="px-2.5 py-0.5 rounded-full bg-[#F8FAFC] dark:bg-[#1D2226] border border-slate-200 dark:border-[#38434F] text-slate-500 dark:text-[#B0B7BE] text-[10px] font-medium">
+                                  <span key={skill} className="px-2.5 py-0.5 rounded-full bg-[#F8FAFC] dark:bg-[#1D2226] border border-surface dark:border-[#38434F] text-slate-500 dark:text-[#B0B7BE] text-[10px] font-medium">
                                     {skill}
                                   </span>
                                 ))}
@@ -918,7 +918,7 @@ export default function JobsPage() {
                         </div>
 
                         {/* Bottom: Referrer Section + Actions */}
-                        <div className="flex flex-wrap items-center justify-between gap-2 mt-3.5 pt-3 border-t border-slate-100 dark:border-[#38434F]">
+                        <div className="flex flex-wrap items-center justify-between gap-2 mt-3.5 pt-3 border-t border-surface dark:border-[#38434F]">
                           {/* Referrer — prominent */}
                           <div className="flex items-center gap-2.5 min-w-0">
                             <div className={`w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0 ring-2 ring-white dark:ring-[#38434F] ${
@@ -955,7 +955,7 @@ export default function JobsPage() {
                                 href={job.description}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-[#38434F] text-slate-500 dark:text-[#B0B7BE] text-[11px] font-medium no-underline hover:bg-slate-50 dark:hover:bg-[#1D2226] dark:bg-[#283036] hover:border-slate-300 dark:border-[#38434F] dark:hover:border-[#38434F] transition-all"
+                                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-surface dark:border-[#38434F] text-slate-500 dark:text-[#B0B7BE] text-[11px] font-medium no-underline hover:bg-app dark:hover:bg-[#1D2226] dark:bg-[#283036] hover:border-slate-300 dark:border-[#38434F] dark:hover:border-[#38434F] transition-all"
                               >
                                 <ExternalLink size={12} /> View
                               </a>
@@ -989,7 +989,7 @@ export default function JobsPage() {
                   })}
                 </div>
               ) : (
-                <div className="text-center py-12 bg-white dark:bg-[#1D2226] rounded-2xl border border-dashed border-slate-200 dark:border-[#38434F]">
+                <div className="text-center py-12 bg-surface dark:bg-[#1D2226] rounded-2xl border border-dashed border-surface dark:border-[#38434F]">
                   <Search size={24} className="text-slate-300 dark:text-[#B0B7BE] mx-auto mb-3" />
                   <h3 className="text-sm font-bold text-slate-700 dark:text-white m-0">No openings match your filters</h3>
                   <p className="text-xs text-slate-400 dark:text-[#B0B7BE] mt-1 mb-4 m-0">Try different keywords or browse available jobs</p>
@@ -1005,7 +1005,7 @@ export default function JobsPage() {
               )}
 
               {/* Social proof: Why use referrals */}
-              <div className="bg-gradient-to-r from-[#7C3AED]/5 via-transparent to-[#10B981]/5 rounded-2xl border border-slate-200 dark:border-[#38434F]/60 p-4">
+              <div className="bg-gradient-to-r from-[#7C3AED]/5 via-transparent to-[#10B981]/5 rounded-2xl border border-surface dark:border-[#38434F]/60 p-4">
                 <p className="text-[11px] text-slate-600 dark:text-[#B0B7BE] m-0 leading-relaxed text-center">
                   <span className="font-bold text-[#7C3AED]">Referrals</span> are <span className="font-bold">5x more likely</span> to land an interview than cold applications. 
                   Every job here comes with a direct connection to a verified senior.
@@ -1016,7 +1016,7 @@ export default function JobsPage() {
             {/* RIGHT: Sidebar */}
             <div className="lg:col-span-4 space-y-4">
               {/* Top Referrers — always shows meaningful content */}
-              <div className="bg-white dark:bg-[#1D2226] rounded-2xl border border-slate-200 dark:border-[#38434F]/80 p-4">
+              <div className="bg-surface dark:bg-[#1D2226] rounded-2xl border border-surface dark:border-[#38434F]/80 p-4">
                 <h3 className="text-xs font-bold text-[#0F172A] dark:text-white mb-3 m-0">Top Referrers</h3>
                 {topReferrers.length > 0 ? (
                   <div className="space-y-2.5">
@@ -1054,7 +1054,7 @@ export default function JobsPage() {
               </div>
 
               {/* Job Alerts */}
-              <div className="bg-white dark:bg-[#1D2226] rounded-2xl border border-slate-200 dark:border-[#38434F]/80 p-4">
+              <div className="bg-surface dark:bg-[#1D2226] rounded-2xl border border-surface dark:border-[#38434F]/80 p-4">
                 <h3 className="text-xs font-bold text-[#0F172A] dark:text-white mb-1 m-0">Job Alerts</h3>
                 <p className="text-[10px] text-slate-500 dark:text-[#B0B7BE] mb-3 m-0 leading-relaxed">
                   Get notified when new jobs matching your skills are posted.
@@ -1065,7 +1065,7 @@ export default function JobsPage() {
               </div>
 
               {/* How Referrals Work */}
-              <div className="bg-white dark:bg-[#1D2226] rounded-2xl border border-slate-200 dark:border-[#38434F]/80 p-4">
+              <div className="bg-surface dark:bg-[#1D2226] rounded-2xl border border-surface dark:border-[#38434F]/80 p-4">
                 <h3 className="text-xs font-bold text-[#0F172A] dark:text-white mb-2 m-0">How Referrals Work</h3>
                 <div className="space-y-2">
                   {[
@@ -1092,7 +1092,7 @@ export default function JobsPage() {
       {selectedJob && (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center p-6">
           <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={() => !referring && setSelectedJob(null)} />
-          <div className="relative bg-white dark:bg-[#1D2226] w-full max-w-sm rounded-2xl p-6 shadow-xl border border-slate-200 dark:border-[#38434F]">
+          <div className="relative bg-surface dark:bg-[#1D2226] w-full max-w-sm rounded-2xl p-6 shadow-xl border border-surface dark:border-[#38434F]">
             {referralSuccess ? (
               <div className="text-center py-4">
                 <div className="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center mx-auto mb-3 border border-emerald-100">
@@ -1115,7 +1115,7 @@ export default function JobsPage() {
                   </div>
                 </div>
 
-                <div className="bg-[#F8FAFC] dark:bg-[#1D2226] rounded-xl p-3.5 mb-5 border border-slate-100 dark:border-[#38434F]">
+                <div className="bg-[#F8FAFC] dark:bg-[#1D2226] rounded-xl p-3.5 mb-5 border border-surface dark:border-[#38434F]">
                   <p className="text-xs text-slate-600 dark:text-[#B0B7BE] leading-relaxed m-0">
                     Hi {selectedJob.senior.full_name.split(' ')[0]}, I am interested in the <strong>{selectedJob.role}</strong> position at <strong>{selectedJob.company_name}</strong>. Could you please refer me?
                   </p>
@@ -1125,7 +1125,7 @@ export default function JobsPage() {
                   <button
                     onClick={() => setSelectedJob(null)}
                     disabled={referring}
-                    className="flex-1 py-2 rounded-lg border border-slate-200 dark:border-[#38434F] text-slate-500 dark:text-[#B0B7BE] text-xs font-semibold bg-white dark:bg-[#1D2226] hover:bg-slate-50 dark:hover:bg-[#1D2226] dark:bg-[#283036] transition-all cursor-pointer disabled:opacity-50"
+                    className="flex-1 py-2 rounded-lg border border-surface dark:border-[#38434F] text-slate-500 dark:text-[#B0B7BE] text-xs font-semibold bg-surface dark:bg-[#1D2226] hover:bg-app dark:hover:bg-[#1D2226] dark:bg-[#283036] transition-all cursor-pointer disabled:opacity-50"
                   >
                     Cancel
                   </button>

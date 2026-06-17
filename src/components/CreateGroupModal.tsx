@@ -190,7 +190,7 @@ export default function CreateGroupModal({ isOpen, onClose, onSuccess, currentUs
               initial={{ opacity: 0, y: 20, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 20, scale: 0.95 }}
-              className="relative bg-white dark:bg-[#283036] rounded-[32px] w-full max-w-lg shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
+              className="relative bg-surface dark:bg-[#283036] rounded-[32px] w-full max-w-lg shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
             >
               {step === 'warning' ? (
                 <GroupWarningModal
@@ -267,7 +267,7 @@ export default function CreateGroupModal({ isOpen, onClose, onSuccess, currentUs
                           placeholder="e.g. Study Squad, Project Team"
                           value={formData.name}
                           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                          className="w-full px-4 py-3 rounded-2xl border border-gray-200 dark:border-[#38434F] bg-white dark:bg-[#283036] text-gray-900 dark:text-white focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all text-sm"
+                          className="w-full px-4 py-3 rounded-2xl border border-surface dark:border-[#38434F] bg-surface dark:bg-[#283036] text-gray-900 dark:text-white focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all text-sm"
                           disabled={loading}
                         />
                         <p className="text-xs text-gray-500 dark:text-[#B0B7BE]">
@@ -287,7 +287,7 @@ export default function CreateGroupModal({ isOpen, onClose, onSuccess, currentUs
                           placeholder="What's this group about?"
                           value={formData.description}
                           onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                          className="w-full px-4 py-3 rounded-2xl border border-gray-200 dark:border-[#38434F] bg-white dark:bg-[#283036] text-gray-900 dark:text-white focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all text-sm resize-none"
+                          className="w-full px-4 py-3 rounded-2xl border border-surface dark:border-[#38434F] bg-surface dark:bg-[#283036] text-gray-900 dark:text-white focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all text-sm resize-none"
                           disabled={loading}
                         />
                         <p className="text-xs text-gray-500 dark:text-[#B0B7BE]">
@@ -306,7 +306,7 @@ export default function CreateGroupModal({ isOpen, onClose, onSuccess, currentUs
                           <label className={`relative block p-4 rounded-2xl border-2 transition-all cursor-pointer ${
                             formData.scope === 'college'
                               ? 'border-purple-500 bg-purple-50 dark:bg-purple-500/20'
-                              : 'border-gray-200 dark:border-[#38434F] hover:border-gray-300'
+                              : 'border-surface dark:border-[#38434F] hover:border-gray-300'
                           } ${!canCreateCollege ? 'opacity-50 cursor-not-allowed' : ''}`}>
                             <div className="flex items-center gap-3">
                               <input
@@ -323,7 +323,7 @@ export default function CreateGroupModal({ isOpen, onClose, onSuccess, currentUs
                                   : 'border-gray-300'
                               }`}>
                                 {formData.scope === 'college' && (
-                                  <div className="w-2 h-2 bg-white dark:bg-[#283036] rounded-full" />
+                                  <div className="w-2 h-2 bg-surface dark:bg-[#283036] rounded-full" />
                                 )}
                               </div>
                               <div className="flex-1">
@@ -335,7 +335,7 @@ export default function CreateGroupModal({ isOpen, onClose, onSuccess, currentUs
                               </div>
                             </div>
                             {!canCreateCollege && (
-                              <div className="absolute inset-0 bg-white dark:bg-[#283036]/80 rounded-2xl flex items-center justify-center">
+                              <div className="absolute inset-0 bg-surface dark:bg-[#283036]/80 rounded-2xl flex items-center justify-center">
                                 <div className="text-center">
                                   <Lock size={16} className="text-gray-400 dark:text-[#B0B7BE] mx-auto mb-1" />
                                   <p className="text-xs text-gray-600 dark:text-[#B0B7BE]">Free limit reached</p>
@@ -348,7 +348,7 @@ export default function CreateGroupModal({ isOpen, onClose, onSuccess, currentUs
                           <label className={`relative block p-4 rounded-2xl border-2 transition-all cursor-pointer ${
                             formData.scope === 'public'
                               ? 'border-purple-500 bg-purple-50 dark:bg-purple-500/20'
-                              : 'border-gray-200 dark:border-[#38434F] hover:border-gray-300'
+                              : 'border-surface dark:border-[#38434F] hover:border-gray-300'
                           } ${!canCreatePublic ? 'opacity-50 cursor-not-allowed' : ''}`}>
                             <div className="flex items-center gap-3">
                               <input
@@ -365,7 +365,7 @@ export default function CreateGroupModal({ isOpen, onClose, onSuccess, currentUs
                                   : 'border-gray-300'
                               }`}>
                                 {formData.scope === 'public' && (
-                                  <div className="w-2 h-2 bg-white dark:bg-[#283036] rounded-full" />
+                                  <div className="w-2 h-2 bg-surface dark:bg-[#283036] rounded-full" />
                                 )}
                               </div>
                               <div className="flex-1">
@@ -382,7 +382,7 @@ export default function CreateGroupModal({ isOpen, onClose, onSuccess, currentUs
                           <label className={`relative block p-4 rounded-2xl border-2 transition-all cursor-pointer ${
                             formData.scope === 'private'
                               ? 'border-purple-500 bg-purple-50 dark:bg-purple-500/20'
-                              : 'border-gray-200 dark:border-[#38434F] hover:border-gray-300'
+                              : 'border-surface dark:border-[#38434F] hover:border-gray-300'
                           } ${!canCreatePrivate ? 'opacity-50 cursor-not-allowed' : ''}`}>
                             <div className="flex items-center gap-3">
                               <input
@@ -399,7 +399,7 @@ export default function CreateGroupModal({ isOpen, onClose, onSuccess, currentUs
                                   : 'border-gray-300'
                               }`}>
                                 {formData.scope === 'private' && (
-                                  <div className="w-2 h-2 bg-white dark:bg-[#283036] rounded-full" />
+                                  <div className="w-2 h-2 bg-surface dark:bg-[#283036] rounded-full" />
                                 )}
                               </div>
                               <div className="flex-1">
@@ -411,7 +411,7 @@ export default function CreateGroupModal({ isOpen, onClose, onSuccess, currentUs
                               </div>
                             </div>
                             {!canCreatePrivate && (
-                              <div className="absolute inset-0 bg-white dark:bg-[#283036]/80 rounded-2xl flex items-center justify-center">
+                              <div className="absolute inset-0 bg-surface dark:bg-[#283036]/80 rounded-2xl flex items-center justify-center">
                                 <div className="text-center">
                                   <Lock size={16} className="text-gray-400 dark:text-[#B0B7BE] mx-auto mb-1" />
                                   <p className="text-xs text-gray-600 dark:text-[#B0B7BE]">Not available</p>
@@ -431,7 +431,7 @@ export default function CreateGroupModal({ isOpen, onClose, onSuccess, currentUs
                         <label className={`relative block p-4 rounded-2xl border-2 transition-all cursor-pointer ${
                           formData.is_ephemeral 
                             ? 'border-purple-500 bg-purple-50 dark:bg-purple-500/20' 
-                            : 'border-gray-200 dark:border-[#38434F] hover:border-gray-300'
+                            : 'border-surface dark:border-[#38434F] hover:border-gray-300'
                         }`}>
                           <div className="flex items-center gap-3">
                             <input
@@ -444,7 +444,7 @@ export default function CreateGroupModal({ isOpen, onClose, onSuccess, currentUs
                             <div className={`w-12 h-6 rounded-full transition-colors ${
                               formData.is_ephemeral ? 'bg-purple-500' : 'bg-gray-300 dark:bg-[#38434F]'
                             }`}>
-                              <div className={`w-5 h-5 bg-white dark:bg-[#283036] rounded-full shadow-sm transition-transform ${
+                              <div className={`w-5 h-5 bg-surface dark:bg-[#283036] rounded-full shadow-sm transition-transform ${
                                 formData.is_ephemeral ? 'translate-x-6' : 'translate-x-0.5'
                               }`} />
                             </div>
@@ -478,12 +478,12 @@ export default function CreateGroupModal({ isOpen, onClose, onSuccess, currentUs
                     </div>
 
                     {/* Actions */}
-                    <div className="p-6 border-t border-gray-100 dark:border-[#38434F] flex gap-3">
+                    <div className="p-6 border-t border-surface dark:border-[#38434F] flex gap-3">
                       <button
                         type="button"
                         onClick={onClose}
                         disabled={loading}
-                        className="flex-1 px-4 py-3 rounded-2xl border border-gray-200 dark:border-[#38434F] text-gray-600 dark:text-[#B0B7BE] font-bold text-sm hover:bg-gray-50 dark:hover:bg-[#1D2226] transition-colors disabled:opacity-50"
+                        className="flex-1 px-4 py-3 rounded-2xl border border-surface dark:border-[#38434F] text-gray-600 dark:text-[#B0B7BE] font-bold text-sm hover:bg-app dark:hover:bg-[#1D2226] transition-colors disabled:opacity-50"
                       >
                         Cancel
                       </button>

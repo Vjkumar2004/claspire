@@ -32,8 +32,8 @@ function TrendingDiscussionsCard({ posts }: TrendingDiscussionsCardProps) {
   }
 
   return (
-    <div className="bg-white dark:bg-[#283036] rounded-md border border-slate-200 dark:border-[#38434F] overflow-hidden shadow-sm">
-      <div className="p-3.5 border-b border-slate-100 dark:border-[#38434F] flex items-center justify-between">
+    <div className="bg-surface dark:bg-[#283036] rounded-md border border-surface dark:border-[#38434F] overflow-hidden shadow-sm">
+      <div className="p-3.5 border-b border-surface dark:border-[#38434F] flex items-center justify-between">
         <h4 className="font-bold text-slate-900 dark:text-white text-xs flex items-center gap-1.5">
           <TrendingUp className="w-4 h-4 text-purple-600" />
           Trending Discussions
@@ -46,7 +46,7 @@ function TrendingDiscussionsCard({ posts }: TrendingDiscussionsCardProps) {
             <div
               key={post.id}
               onClick={() => handleClick(post)}
-              className="flex items-start gap-2.5 p-2 rounded hover:bg-slate-50 dark:hover:bg-[#1D2226] cursor-pointer transition-colors"
+              className="flex items-start gap-2.5 p-2 rounded hover:bg-app dark:hover:bg-[#1D2226] cursor-pointer transition-colors"
             >
               <MessageSquare className="w-4 h-4 text-purple-500 flex-shrink-0 mt-0.5" />
               <div className="flex-1 min-w-0">

@@ -41,7 +41,7 @@ export default function HowItWorks() {
   };
 
   return (
-    <section id="the-process" className="bg-gray-50 py-24 overflow-hidden border-b border-gray-100">
+    <section id="the-process" className="bg-app py-24 overflow-hidden border-b border-surface">
       <div className="container">
         {/* Header */}
         <motion.div

@@ -62,7 +62,7 @@ export default function AdminSidebar() {
       {/* Hamburger button — mobile only, fixed top-left */}
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed top-3 left-3 z-50 lg:hidden p-2 rounded-lg bg-white dark:bg-[#283036] border border-gray-200 dark:border-[#38434F] shadow-md text-gray-600 dark:text-[#B0B7BE] hover:text-gray-900 dark:hover:text-white transition-colors"
+        className="fixed top-3 left-3 z-50 lg:hidden p-2 rounded-lg bg-surface dark:bg-[#283036] border border-surface dark:border-[#38434F] shadow-md text-gray-600 dark:text-[#B0B7BE] hover:text-gray-900 dark:hover:text-white transition-colors"
         aria-label="Open admin menu"
       >
         <Menu size={20} />
@@ -82,14 +82,14 @@ export default function AdminSidebar() {
         className={`
           fixed inset-y-0 left-0 z-50
           w-[min(85vw,320px)] lg:w-64
-          flex flex-col bg-white dark:bg-[#283036] border-r border-gray-200 dark:border-[#38434F]
+          flex flex-col bg-surface dark:bg-[#283036] border-r border-surface dark:border-[#38434F]
           transform transition-transform duration-300 ease-in-out
           ${isOpen ? 'translate-x-0' : '-translate-x-full'}
           lg:translate-x-0 lg:relative lg:z-auto
           min-h-screen
         `}
       >
-        <div className="p-5 border-b border-gray-200 dark:border-[#38434F] flex items-center justify-between">
+        <div className="p-5 border-b border-surface dark:border-[#38434F] flex items-center justify-between">
           <Link href="/admin" className="flex items-center gap-2.5 no-underline" onClick={close}>
             <div className="w-8 h-8 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-lg flex items-center justify-center shrink-0">
               <Shield size={16} className="text-white" />
@@ -101,7 +101,7 @@ export default function AdminSidebar() {
           </Link>
           <button
             onClick={close}
-            className="lg:hidden p-1.5 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#1D2226] transition-colors"
+            className="lg:hidden p-1.5 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-white hover:bg-surface-hover dark:hover:bg-[#1D2226] transition-colors"
             aria-label="Close admin menu"
           >
             <X size={18} />
@@ -129,7 +129,7 @@ export default function AdminSidebar() {
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-bold transition-all no-underline ${
                   isActive
                     ? 'bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300'
-                    : 'text-gray-600 dark:text-[#B0B7BE] hover:bg-gray-50 dark:hover:bg-[#1D2226]'
+                    : 'text-gray-600 dark:text-[#B0B7BE] hover:bg-app dark:hover:bg-[#1D2226]'
                 }`}
               >
                 <Icon size={18} className="shrink-0" />
@@ -140,10 +140,10 @@ export default function AdminSidebar() {
           })}
         </nav>
 
-        <div className="p-3 border-t border-gray-200 dark:border-[#38434F]">
+        <div className="p-3 border-t border-surface dark:border-[#38434F]">
           <Link
             href="/"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-bold text-gray-500 dark:text-[#B0B7BE] hover:bg-gray-50 dark:hover:bg-[#1D2226] transition-all no-underline"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-bold text-gray-500 dark:text-[#B0B7BE] hover:bg-app dark:hover:bg-[#1D2226] transition-all no-underline"
           >
             <LogOut size={16} className="shrink-0" />
             <span>Back to App</span>

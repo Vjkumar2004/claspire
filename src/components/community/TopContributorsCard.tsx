@@ -28,8 +28,8 @@ function TopContributorsCard({ contributors }: TopContributorsCardProps) {
   }
 
   return (
-    <div className="bg-white dark:bg-[#283036] rounded-md border border-slate-200 dark:border-[#38434F] overflow-hidden shadow-sm">
-      <div className="p-3.5 border-b border-slate-100 dark:border-[#38434F] flex items-center justify-between">
+    <div className="bg-surface dark:bg-[#283036] rounded-md border border-surface dark:border-[#38434F] overflow-hidden shadow-sm">
+      <div className="p-3.5 border-b border-surface dark:border-[#38434F] flex items-center justify-between">
         <h4 className="font-bold text-slate-900 dark:text-white text-xs flex items-center gap-1.5">
           <Award className="w-4 h-4 text-amber-500" />
           Top Contributors
@@ -42,10 +42,10 @@ function TopContributorsCard({ contributors }: TopContributorsCardProps) {
             <div
               key={contributor.id}
               onClick={() => router.push(`/u/${contributor.unique_id}`)}
-              className="flex items-center gap-2.5 p-2 rounded hover:bg-slate-50 dark:hover:bg-[#1D2226] cursor-pointer transition-colors"
+              className="flex items-center gap-2.5 p-2 rounded hover:bg-app dark:hover:bg-[#1D2226] cursor-pointer transition-colors"
             >
               <span className="text-sm flex-shrink-0">{getRankEmoji(index)}</span>
-              <div className="w-7 h-7 rounded-full bg-purple-50 dark:bg-purple-900/30 border border-slate-100 dark:border-[#38434F] flex items-center justify-center font-bold text-[#7C3AED] overflow-hidden text-[10px] flex-shrink-0">
+              <div className="w-7 h-7 rounded-full bg-purple-50 dark:bg-purple-900/30 border border-surface dark:border-[#38434F] flex items-center justify-center font-bold text-[#7C3AED] overflow-hidden text-[10px] flex-shrink-0">
                 {contributor.avatar_url ? (
                   <img src={contributor.avatar_url} alt={contributor.full_name} className="w-full h-full object-cover" />
                 ) : (

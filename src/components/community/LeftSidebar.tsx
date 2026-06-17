@@ -16,7 +16,7 @@ function LeftSidebar({ user, userCommunity, filter, setFilter, setFeedSearchQuer
   return (
     <aside className="hidden md:block md:col-span-4 lg:col-span-3 sticky top-[88px] self-start space-y-4">
       {/* Identity Card */}
-      <div className="bg-white dark:bg-[#283036] rounded-md border border-slate-200 dark:border-[#38434F] overflow-hidden shadow-sm">
+      <div className="bg-surface dark:bg-[#283036] rounded-md border border-surface dark:border-[#38434F] overflow-hidden shadow-sm">
         <div 
           className="h-20 relative bg-slate-100 dark:bg-[#283036]"
           style={{
@@ -33,7 +33,7 @@ function LeftSidebar({ user, userCommunity, filter, setFilter, setFeedSearchQuer
         <div className="px-4 pb-4 relative flex flex-col items-center -mt-10">
 
           {/* User Avatar with outer ring */}
-          <div className="w-20 h-20 rounded-md border-4 border-white overflow-hidden bg-slate-50 dark:bg-[#1D2226] shadow-md flex items-center justify-center">
+          <div className="w-20 h-20 rounded-md border-4 border-white overflow-hidden bg-app dark:bg-[#1D2226] shadow-md flex items-center justify-center">
             {user?.avatar_url ? (
               <img src={user.avatar_url} alt="Profile" className="w-full h-full object-cover" />
             ) : (
@@ -61,14 +61,14 @@ function LeftSidebar({ user, userCommunity, filter, setFilter, setFeedSearchQuer
           </div>
 
           {/* Professional headline/bio context */}
-          <p className="text-[11px] text-slate-500 dark:text-[#B0B7BE] text-center font-medium mt-3 px-1 leading-normal border-b border-slate-100 dark:border-[#38434F] pb-3 w-full">
+          <p className="text-[11px] text-slate-500 dark:text-[#B0B7BE] text-center font-medium mt-3 px-1 leading-normal border-b border-surface dark:border-[#38434F] pb-3 w-full">
             {resolveDisplayBio(user?.bio) || (user?.role === 'senior'
               ? `Mentor • Specialist at ${user?.company || 'Industry Partners'}`
               : `Student of ${user?.branch || 'Engineering Department'}`)}
           </p>
 
           {/* Extended academic & student details */}
-          <div className="w-full pt-3 space-y-2 text-[10px] text-slate-500 dark:text-[#B0B7BE] font-semibold border-b border-slate-100 dark:border-[#38434F] pb-3">
+          <div className="w-full pt-3 space-y-2 text-[10px] text-slate-500 dark:text-[#B0B7BE] font-semibold border-b border-surface dark:border-[#38434F] pb-3">
             <div className="flex items-center gap-2">
               <GraduationCap className="w-3.5 h-3.5 text-slate-400 dark:text-[#B0B7BE] flex-shrink-0" />
               <span className="truncate">{userCommunity?.colleges?.short_name || user?.college || 'No campus linked'}</span>
@@ -87,7 +87,7 @@ function LeftSidebar({ user, userCommunity, filter, setFilter, setFeedSearchQuer
 
           {/* High Density Metric Tally grid */}
           <div className="w-full pt-3 grid grid-cols-2 gap-2 text-center">
-            <div className="p-2 bg-slate-50 dark:bg-[#1D2226] rounded border border-slate-100 dark:border-[#38434F]">
+            <div className="p-2 bg-app dark:bg-[#1D2226] rounded border border-surface dark:border-[#38434F]">
               <span className="block text-[14px] font-black text-[#7C3AED] leading-none">
                 {user?.rise_points || user?.points || 0}
               </span>
@@ -95,7 +95,7 @@ function LeftSidebar({ user, userCommunity, filter, setFilter, setFeedSearchQuer
                 Rise RP
               </span>
             </div>
-            <div className="p-2 bg-slate-50 dark:bg-[#1D2226] rounded border border-slate-100 dark:border-[#38434F]">
+            <div className="p-2 bg-app dark:bg-[#1D2226] rounded border border-surface dark:border-[#38434F]">
               <span className="block text-[14px] font-black text-slate-800 dark:text-white leading-none">
                 {user?.answer_count || 0}
               </span>
@@ -123,7 +123,7 @@ function LeftSidebar({ user, userCommunity, filter, setFilter, setFeedSearchQuer
       />
 
       {/* Navigation shortcuts list */}
-      <div className="bg-white dark:bg-[#283036] rounded-md border border-slate-200 dark:border-[#38434F] p-2.5 shadow-sm">
+      <div className="bg-surface dark:bg-[#283036] rounded-md border border-surface dark:border-[#38434F] p-2.5 shadow-sm">
         <h4 className="text-[9px] font-extrabold text-slate-400 dark:text-[#B0B7BE] uppercase tracking-widest px-2.5 mb-1.5">
           Ecosystem Hubs
         </h4>
@@ -141,7 +141,7 @@ function LeftSidebar({ user, userCommunity, filter, setFilter, setFeedSearchQuer
                   setFilter(item.key)
                   setFeedSearchQuery('') // Reset query on layout change
                 }}
-                className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 text-left rounded font-bold text-xs transition-colors cursor-pointer ${isActive ? 'bg-purple-50 text-[#7C3AED]' : 'text-slate-600 dark:text-[#B0B7BE] hover:text-black dark:hover:text-white hover:bg-slate-50 dark:hover:bg-[#1D2226]'
+                className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 text-left rounded font-bold text-xs transition-colors cursor-pointer ${isActive ? 'bg-purple-50 text-[#7C3AED]' : 'text-slate-600 dark:text-[#B0B7BE] hover:text-black dark:hover:text-white hover:bg-app dark:hover:bg-[#1D2226]'
                   }`}
               >
                 <item.icon className={`w-3.5 h-3.5 ${isActive ? 'text-[#7C3AED]' : 'text-slate-400 dark:text-[#B0B7BE]'}`} />

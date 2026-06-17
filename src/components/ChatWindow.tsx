@@ -407,9 +407,9 @@ export default function ChatWindow({
   }
 
   return (
-    <div className={`flex flex-col h-full overflow-hidden ${flat ? 'bg-[#efeae2] dark:bg-[#1D2226]' : 'bg-white dark:bg-[#283036] border border-gray-100 dark:border-[#38434F] rounded-3xl shadow-sm dark:shadow-[#1D2226]/50'}`}>
+    <div className={`flex flex-col h-full overflow-hidden ${flat ? 'bg-[#efeae2] dark:bg-[#1D2226]' : 'bg-surface dark:bg-[#283036] border border-surface dark:border-[#38434F] rounded-3xl shadow-sm dark:shadow-[#1D2226]/50'}`}>
       {!hideHeader && (
-        <div className="hidden md:flex flex-shrink-0 p-4 border-b border-gray-100 dark:border-[#38434F] items-center justify-between bg-white/50 dark:bg-[#283036]/50 backdrop-blur-sm">
+        <div className="hidden md:flex flex-shrink-0 p-4 border-b border-surface dark:border-[#38434F] items-center justify-between bg-surface/50 dark:bg-[#283036]/50 backdrop-blur-sm">
           <div className="flex items-center gap-3">
             <div className={`w-10 h-10 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0 ${otherUserAvatar ? 'bg-transparent shadow-sm dark:shadow-[#1D2226]/50' : 'bg-red-500 text-white'}`}>
               {otherUserAvatar ? (
@@ -427,7 +427,7 @@ export default function ChatWindow({
 
       <div
         ref={scrollRef}
-        className={`flex-1 overflow-y-auto p-4 space-y-2 custom-scrollbar ${flat ? 'bg-[#efeae2] dark:bg-[#1D2226]' : 'bg-gray-50/30 dark:bg-[#1D2226]/30'}`}
+        className={`flex-1 overflow-y-auto p-4 space-y-2 custom-scrollbar ${flat ? 'bg-[#efeae2] dark:bg-[#1D2226]' : 'bg-app/30 dark:bg-[#1D2226]/30'}`}
       >
         {loading ? (
           <div className="flex items-center justify-center h-full">
@@ -483,7 +483,7 @@ export default function ChatWindow({
                     }}
                     className={`w-full text-left p-3 rounded-2xl text-sm transition-transform active:scale-[0.99] ${isMine
                         ? `bg-purple-600 text-white rounded-br-none`
-                        : 'bg-white dark:bg-[#283036] border border-gray-100 dark:border-[#38434F] text-gray-800 dark:text-[#B0B7BE] rounded-bl-none shadow-sm dark:shadow-[#1D2226]/50'
+                        : 'bg-surface dark:bg-[#283036] border border-surface dark:border-[#38434F] text-gray-800 dark:text-[#B0B7BE] rounded-bl-none shadow-sm dark:shadow-[#1D2226]/50'
                       } ${failed ? 'ring-2 ring-red-400 cursor-pointer' : ''}`}
                   >
                     {renderReplyQuote(msg, isMine)}
@@ -508,13 +508,13 @@ export default function ChatWindow({
                   {showMenu && !failed && (
                     <div
                       ref={menuRef}
-                      className={`absolute z-20 min-w-[140px] bg-white dark:bg-[#283036] border border-gray-200 dark:border-[#38434F] rounded-xl shadow-xl overflow-hidden ${isMine ? 'right-0 top-full mt-1' : 'left-0 top-full mt-1'
+                      className={`absolute z-20 min-w-[140px] bg-surface dark:bg-[#283036] border border-surface dark:border-[#38434F] rounded-xl shadow-xl overflow-hidden ${isMine ? 'right-0 top-full mt-1' : 'left-0 top-full mt-1'
                         }`}
                     >
                       <button
                         type="button"
                         onClick={() => handleReply(msg)}
-                        className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 dark:text-[#B0B7BE] hover:bg-gray-50 dark:hover:bg-[#1D2226]"
+                        className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 dark:text-[#B0B7BE] hover:bg-app dark:hover:bg-[#1D2226]"
                       >
                         <Reply size={15} /> Reply
                       </button>
@@ -523,14 +523,14 @@ export default function ChatWindow({
                           <button
                             type="button"
                             onClick={() => handleEdit(msg)}
-                            className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 dark:text-[#B0B7BE] hover:bg-gray-50 dark:hover:bg-[#1D2226] border-t border-gray-100 dark:border-[#38434F]"
+                            className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 dark:text-[#B0B7BE] hover:bg-app dark:hover:bg-[#1D2226] border-t border-surface dark:border-[#38434F]"
                           >
                             <Pencil size={15} /> Edit
                           </button>
                           <button
                             type="button"
                             onClick={() => handleDelete(msg)}
-                            className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 border-t border-gray-100 dark:border-[#38434F]"
+                            className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 border-t border-surface dark:border-[#38434F]"
                           >
                             <Trash2 size={15} /> Delete
                           </button>
@@ -548,7 +548,7 @@ export default function ChatWindow({
       )}
       </div>
 
-      <div className={`flex-shrink-0 ${flat ? 'pb-[max(0.75rem,env(safe-area-inset-bottom))] bg-[#f0f2f5] dark:bg-[#1D2226] border-t border-gray-200 dark:border-[#38434F]' : 'bg-white dark:bg-[#283036] border-t border-gray-100 dark:border-[#38434F]'}`}>
+      <div className={`flex-shrink-0 ${flat ? 'pb-[max(0.75rem,env(safe-area-inset-bottom))] bg-[#f0f2f5] dark:bg-[#1D2226] border-t border-surface dark:border-[#38434F]' : 'bg-surface dark:bg-[#283036] border-t border-surface dark:border-[#38434F]'}`}>
         {(replyingTo || editingMessage) && (
           <div className="flex items-start gap-2 px-3 pt-3">
             <div className="flex-1 rounded-xl bg-purple-50 border border-purple-100 px-3 py-2">
@@ -582,7 +582,7 @@ export default function ChatWindow({
               onChange={(e) => setNewMessage(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && sendMessage()}
               placeholder={editingMessage ? 'Edit your message...' : replyingTo ? 'Write a reply...' : 'Type a message...'}
-              className="flex-1 bg-white dark:bg-[#283036] border border-gray-200 dark:border-[#38434F] rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-purple-600 transition-colors"
+              className="flex-1 bg-surface dark:bg-[#283036] border border-surface dark:border-[#38434F] rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-purple-600 transition-colors"
             />
             <button
               onClick={sendMessage}

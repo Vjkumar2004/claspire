@@ -3,6 +3,25 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+@theme {
+  --color-app: var(--app-background);
+  --color-surface: var(--surface-background);
+  --color-surface-border: var(--surface-border);
+  --color-surface-hover: var(--surface-hover);
+}
+
+.bg-app {
+  background-color: var(--app-background) !important;
+}
+
+.bg-surface {
+  background-color: var(--surface-background) !important;
+}
+
+.border-surface {
+  border-color: var(--surface-border) !important;
+}
+
 /* STRICT CSS RULES */
 * {
   box-sizing: border-box;
@@ -74,17 +93,31 @@ section {
   --gray-50: #F9FAFB;
   --white: #FFFFFF;
   --border: #E5E7EB;
+
+  /* Global Theme Palette (LinkedIn-Inspired) */
+  --app-background: #F4F2EE;
+  --surface-background: #FFFFFF;
+  --surface-border: #E8E5DF;
+  --surface-hover: #F1EFEA;
+}
+
+.dark {
+  /* Dark Mode Palettes (Unchanged to prevent regressions) */
+  --app-background: #1D2226;
+  --surface-background: #283036;
+  --surface-border: #38434F;
+  --surface-hover: #313A42;
 }
 
 /* FONTS */
 body {
   font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   color: var(--black);
-  background: var(--white);
+  background: var(--app-background);
 }
 
 .dark body {
-  background: #1D2226;
+  background: var(--app-background);
   color: #FFFFFF;
 }
 
@@ -528,4 +561,51 @@ h6 {
 }
 .mobile-sidebar {
   animation: slideInSidebar 0.3s ease forwards;
+}
+
+/* ===== GLOBAL WARM THEME OVERRIDES (LINKEDIN-INSPIRED) ===== */
+
+/* Light mode page shell overrides */
+:root:not(.dark) html,
+:root:not(.dark) body,
+:root:not(.dark) main,
+:root:not(.dark) .min-h-screen:not(.bg-white),
+:root:not(.dark) .bg-\[\#F8FAFC\],
+:root:not(.dark) .bg-\[\#F3F4F6\],
+:root:not(.dark) .bg-gray-50,
+:root:not(.dark) .bg-slate-50,
+:root:not(.dark) .bg-\[\#FAFBFC\],
+:root:not(.dark) .bg-\[\#F4F5F7\],
+:root:not(.dark) .bg-gradient-to-b {
+  background: var(--app-background) !important;
+  background-image: none !important;
+}
+
+/* Light mode border adjustments */
+:root:not(.dark) .border-gray-100,
+:root:not(.dark) .border-slate-100,
+:root:not(.dark) .border-gray-200,
+:root:not(.dark) .border-slate-200,
+:root:not(.dark) .border-gray-300,
+:root:not(.dark) .border-slate-300 {
+  border-color: var(--surface-border) !important;
+}
+
+/* Light mode hover state adjustments */
+:root:not(.dark) .hover\:bg-gray-50:hover,
+:root:not(.dark) .hover\:bg-slate-50:hover,
+:root:not(.dark) .hover\:bg-gray-100:hover,
+:root:not(.dark) .hover\:bg-slate-100:hover {
+  background-color: var(--surface-hover) !important;
+}
+
+/* Smooth visual transitions for theme changes */
+body,
+main,
+section,
+aside,
+header,
+footer,
+div {
+  transition: background-color 0.2s ease, border-color 0.2s ease;
 }

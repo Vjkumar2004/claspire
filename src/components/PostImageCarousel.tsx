@@ -35,7 +35,7 @@ export default function PostImageCarousel({ imageUrls, onImageClick }: PostImage
       <div 
         ref={containerRef}
         onScroll={handleScroll}
-        className="flex overflow-x-auto snap-x snap-mandatory rounded border border-slate-100 bg-slate-50"
+        className="flex overflow-x-auto snap-x snap-mandatory rounded border border-surface bg-app"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
         <style>{`
@@ -69,8 +69,8 @@ export default function PostImageCarousel({ imageUrls, onImageClick }: PostImage
               key={index}
               className={`h-1.5 rounded-full transition-all duration-300 shadow-sm ${
                 index === activeIndex 
-                  ? 'bg-white w-4' 
-                  : 'bg-white/50 w-1.5'
+                  ? 'bg-surface w-4' 
+                  : 'bg-surface/50 w-1.5'
               }`}
             />
           ))}

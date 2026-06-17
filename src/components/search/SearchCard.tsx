@@ -69,11 +69,11 @@ export default function SearchCard({ card, query }: { card: SearchCardProps; que
               ? 'bg-amber-50 border-amber-100 text-amber-700'
               : capitalizedType === 'Note'
                 ? 'bg-blue-50 border-blue-100 text-blue-700'
-                : 'bg-gray-50 border-gray-100 dark:border-[#38434F] text-gray-700',
+                : 'bg-app border-surface dark:border-[#38434F] text-gray-700',
           label: capitalizedType
         }
       default:
-        return { bg: 'bg-gray-50 border-gray-100 dark:border-[#38434F] text-gray-700', label: 'General' }
+        return { bg: 'bg-app border-surface dark:border-[#38434F] text-gray-700', label: 'General' }
     }
   }
 
@@ -146,10 +146,10 @@ export default function SearchCard({ card, query }: { card: SearchCardProps; que
   }
 
   return (
-    <div className="bg-white dark:bg-[#283036] border border-gray-200 dark:border-[#38434F] rounded-md p-3.5 sm:p-5 hover:shadow-sm dark:shadow-[#1D2226]/50 transition-all duration-200 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-between items-start font-plus-jakarta-sans text-xs">
+    <div className="bg-surface dark:bg-[#283036] border border-surface dark:border-[#38434F] rounded-md p-3.5 sm:p-5 hover:shadow-sm dark:shadow-[#1D2226]/50 transition-all duration-200 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-between items-start font-plus-jakarta-sans text-xs">
       <div className="flex gap-3 sm:gap-4 items-start min-w-0 flex-1 w-full">
         {/* Avatar/Initial Icon Container with perfect alignment, object-fit containment for college logos */}
-        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-md bg-white dark:bg-[#283036] border border-gray-200 dark:border-[#38434F]/80 flex items-center justify-center flex-shrink-0 overflow-hidden shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
+        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-md bg-surface dark:bg-[#283036] border border-surface dark:border-[#38434F]/80 flex items-center justify-center flex-shrink-0 overflow-hidden shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
           {card.imageUrl ? (
             <img
               src={card.imageUrl}
@@ -191,24 +191,24 @@ export default function SearchCard({ card, query }: { card: SearchCardProps; que
           </p>
 
           {/* Metadata Row */}
-          <div className="flex flex-wrap items-center gap-x-3 sm:gap-x-4 gap-y-1 mt-2.5 sm:mt-3.5 pt-2.5 sm:pt-3 border-t border-gray-100 dark:border-[#38434F]">
+          <div className="flex flex-wrap items-center gap-x-3 sm:gap-x-4 gap-y-1 mt-2.5 sm:mt-3.5 pt-2.5 sm:pt-3 border-t border-surface dark:border-[#38434F]">
             {card.metadata.location && (
-              <span className="text-[10px] sm:text-[11px] text-gray-500 dark:text-[#B0B7BE] font-bold flex items-center gap-1 bg-gray-50 px-1.5 sm:px-2 py-0.5 rounded border border-gray-150">
+              <span className="text-[10px] sm:text-[11px] text-gray-500 dark:text-[#B0B7BE] font-bold flex items-center gap-1 bg-app px-1.5 sm:px-2 py-0.5 rounded border border-gray-150">
                 📍 {card.metadata.location}
               </span>
             )}
             {card.metadata.salary_range && (
-              <span className="text-[10px] sm:text-[11px] text-gray-500 dark:text-[#B0B7BE] font-bold flex items-center gap-1 bg-gray-50 px-1.5 sm:px-2 py-0.5 rounded border border-gray-150">
+              <span className="text-[10px] sm:text-[11px] text-gray-500 dark:text-[#B0B7BE] font-bold flex items-center gap-1 bg-app px-1.5 sm:px-2 py-0.5 rounded border border-gray-150">
                 💰 {card.metadata.salary_range}
               </span>
             )}
             {card.metadata.member_count !== undefined && (
-              <span className="text-[10px] sm:text-[11px] text-gray-500 dark:text-[#B0B7BE] font-bold flex items-center gap-1 bg-gray-50 px-1.5 sm:px-2 py-0.5 rounded border border-gray-150">
+              <span className="text-[10px] sm:text-[11px] text-gray-500 dark:text-[#B0B7BE] font-bold flex items-center gap-1 bg-app px-1.5 sm:px-2 py-0.5 rounded border border-gray-150">
                 👥 {card.metadata.member_count} Members
               </span>
             )}
             {card.metadata.views !== undefined && card.metadata.views > 0 && (
-              <span className="text-[10px] sm:text-[11px] text-gray-500 dark:text-[#B0B7BE] font-bold flex items-center gap-1 bg-gray-50 px-1.5 sm:px-2 py-0.5 rounded border border-gray-150">
+              <span className="text-[10px] sm:text-[11px] text-gray-500 dark:text-[#B0B7BE] font-bold flex items-center gap-1 bg-app px-1.5 sm:px-2 py-0.5 rounded border border-gray-150">
                 👁️ {card.metadata.views} Views
               </span>
             )}
@@ -222,7 +222,7 @@ export default function SearchCard({ card, query }: { card: SearchCardProps; que
           <button
             className={`w-full sm:w-auto px-3.5 sm:px-4 py-1.5 sm:py-2 text-[11px] sm:text-xs font-bold rounded-md transition-all duration-150 cursor-pointer ${action.primary
               ? 'bg-[#7C3AED] hover:bg-[#6D28D9] text-white shadow-sm dark:shadow-[#1D2226]/50 border border-transparent'
-              : 'bg-white dark:bg-[#283036] hover:bg-gray-50 dark:hover:bg-[#1D2226] text-gray-700 border border-gray-300 hover:border-gray-400 shadow-sm dark:shadow-[#1D2226]/50'
+              : 'bg-surface dark:bg-[#283036] hover:bg-app dark:hover:bg-[#1D2226] text-gray-700 border border-gray-300 hover:border-gray-400 shadow-sm dark:shadow-[#1D2226]/50'
               }`}
           >
             {action.text}

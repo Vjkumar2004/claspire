@@ -56,7 +56,7 @@ export default function Features() {
   };
 
   return (
-    <section className="bg-white dark:bg-[#1D2226] py-24 overflow-hidden border-b border-gray-100 dark:border-[#38434F]">
+    <section className="bg-surface dark:bg-[#1D2226] py-24 overflow-hidden border-b border-surface dark:border-[#38434F]">
       <div className="container">
         {/* Header */}
         <motion.div
@@ -87,7 +87,7 @@ export default function Features() {
               variants={itemVariants}
               whileHover={{ y: -4, borderColor: '#7C3AED', boxShadow: '0 10px 25px rgba(124, 58, 237, 0.05)' }}
               transition={{ duration: 0.2 }}
-              className="bg-white dark:bg-[#283036] p-6 md:p-8 cursor-pointer h-full border border-gray-200 dark:border-[#38434F] rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.05)] transition-all flex flex-col justify-between"
+              className="bg-surface dark:bg-[#283036] p-6 md:p-8 cursor-pointer h-full border border-surface dark:border-[#38434F] rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.05)] transition-all flex flex-col justify-between"
             >
               <div>
                 <div className="inline-flex items-center justify-center font-bold text-xs text-[#7C3AED] bg-[#F5F3FF] border border-[#DDD6FE] rounded-full px-2.5 py-0.5 mb-4 tracking-wider">

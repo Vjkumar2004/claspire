@@ -33,7 +33,7 @@ function YourProgressCard({ risePoints, rpLevel }: YourProgressCardProps) {
     : 0
 
   return (
-    <div className="bg-white dark:bg-[#283036] rounded-md border border-slate-200 dark:border-[#38434F] p-3.5 shadow-sm">
+    <div className="bg-surface dark:bg-[#283036] rounded-md border border-surface dark:border-[#38434F] p-3.5 shadow-sm">
       <div className="flex items-center justify-between mb-3">
         <h4 className="font-bold text-slate-900 dark:text-white text-xs flex items-center gap-1.5">
           <Zap className="w-4 h-4 text-amber-500" />

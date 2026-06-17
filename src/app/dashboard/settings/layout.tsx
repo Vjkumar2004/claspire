@@ -12,7 +12,7 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
   const pathname = usePathname()
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-[#1D2226]">
+    <div className="min-h-screen bg-app dark:bg-[#1D2226]">
       <div className="max-w-5xl mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Settings</h1>
@@ -35,7 +35,7 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
                     className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                       isActive
                         ? 'bg-purple-50 dark:bg-[#0A66C2]/15 text-[#7C3AED] dark:text-white'
-                        : 'text-gray-600 dark:text-[#B0B7BE] hover:bg-gray-100 dark:hover:bg-[#283036]'
+                        : 'text-gray-600 dark:text-[#B0B7BE] hover:bg-surface-hover dark:hover:bg-[#283036]'
                     }`}
                   >
                     <Icon size={18} />

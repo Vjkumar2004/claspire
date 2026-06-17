@@ -105,7 +105,7 @@ export default function NetworkRightSidebar({ mentors, communities, networkGrowt
   return (
     <div className="space-y-4">
       {/* Suggested Mentors */}
-      <div className="bg-white dark:bg-[#283036] rounded-2xl border border-gray-200/80 dark:border-[#38434F] shadow-sm overflow-hidden">
+      <div className="bg-surface dark:bg-[#283036] rounded-2xl border border-surface/80 dark:border-[#38434F] shadow-sm overflow-hidden">
         <div className="px-5 pt-5 pb-4">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
@@ -181,7 +181,7 @@ export default function NetworkRightSidebar({ mentors, communities, networkGrowt
       </div>
 
       {/* Trending Communities */}
-      <div className="bg-white dark:bg-[#283036] rounded-2xl border border-gray-200/80 dark:border-[#38434F] shadow-sm p-5">
+      <div className="bg-surface dark:bg-[#283036] rounded-2xl border border-surface/80 dark:border-[#38434F] shadow-sm p-5">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shadow-sm">
@@ -216,7 +216,7 @@ export default function NetworkRightSidebar({ mentors, communities, networkGrowt
                 <div
                   key={community.id}
                   onClick={() => router.push(`/colleges/${community.slug}`)}
-                  className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-gray-50 dark:hover:bg-[#1D2226] cursor-pointer transition-all group hover:-translate-y-0.5 hover:shadow-sm duration-200"
+                  className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-app dark:hover:bg-[#1D2226] cursor-pointer transition-all group hover:-translate-y-0.5 hover:shadow-sm duration-200"
                 >
                   <div className={`w-10 h-10 rounded-xl ${lightBg} flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform`}>
                     <Icon size={16} className={iconColor} />
@@ -246,7 +246,7 @@ export default function NetworkRightSidebar({ mentors, communities, networkGrowt
       </div>
 
       {/* Network Growth - SaaS Dashboard Widget */}
-      <div className="bg-white dark:bg-[#283036] rounded-2xl border border-gray-200/80 dark:border-[#38434F] shadow-sm overflow-hidden">
+      <div className="bg-surface dark:bg-[#283036] rounded-2xl border border-surface/80 dark:border-[#38434F] shadow-sm overflow-hidden">
         <div className="px-5 pt-5 pb-4">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
@@ -303,7 +303,7 @@ export default function NetworkRightSidebar({ mentors, communities, networkGrowt
             )}
           </div>
 
-          <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100 dark:border-[#38434F]">
+          <div className="flex items-center justify-between mt-3 pt-3 border-t border-surface dark:border-[#38434F]">
             <div className="flex items-center gap-1.5">
               <Eye size={12} className="text-gray-400 dark:text-[#B0B7BE]" />
               <span className="text-[10px] text-gray-500 dark:text-[#B0B7BE] font-medium">Profile views</span>

@@ -35,7 +35,7 @@ export default function CollegeNotFound() {
           </div>
         </div>
 
-        <div className="mt-12 p-4 bg-white dark:bg-[#283036] rounded-xl border border-gray-200 dark:border-[#38434F]">
+        <div className="mt-12 p-4 bg-surface dark:bg-[#283036] rounded-xl border border-surface dark:border-[#38434F]">
           <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-[#B0B7BE] mb-2">
             <Search className="w-4 h-4" />
             <span className="font-medium">Popular Colleges</span>

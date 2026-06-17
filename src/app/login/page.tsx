@@ -74,7 +74,7 @@ export default function LoginPage() {
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#FAFAFA] dark:bg-[#1D2226]">
-        <div className="w-10 h-10 border-3 border-gray-200 dark:border-[#38434F] border-t-purple-600 rounded-full animate-spin" />
+        <div className="w-10 h-10 border-3 border-surface dark:border-[#38434F] border-t-purple-600 rounded-full animate-spin" />
       </div>
     )
   }
@@ -143,7 +143,7 @@ export default function LoginPage() {
 
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-200 dark:border-[#38434F]" />
+              <div className="w-full border-t border-surface dark:border-[#38434F]" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
               <span className="bg-[#FAFAFA] dark:bg-[#1D2226] px-3 text-gray-400 dark:text-[#B0B7BE] font-medium">or sign in with email</span>
@@ -161,7 +161,7 @@ export default function LoginPage() {
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handleLogin()}
-                className="w-full h-11 px-3.5 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:text-[#B0B7BE] border border-gray-200 dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 bg-white dark:bg-[#283036]"
+                className="w-full h-11 px-3.5 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:text-[#B0B7BE] border border-surface dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 bg-surface dark:bg-[#283036]"
               />
             </div>
 
@@ -184,7 +184,7 @@ export default function LoginPage() {
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && handleLogin()}
-                  className="w-full h-11 px-3.5 pr-11 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:text-[#B0B7BE] border border-gray-200 dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 bg-white dark:bg-[#283036]"
+                  className="w-full h-11 px-3.5 pr-11 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:text-[#B0B7BE] border border-surface dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 bg-surface dark:bg-[#283036]"
                 />
                 <button
                   type="button"

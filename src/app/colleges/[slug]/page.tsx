@@ -310,7 +310,7 @@ export default async function CollegePage({ params }: { params: Promise<{ slug: 
         )}
 
         {/* Header */}
-        <div className="bg-white dark:bg-[#283036] border-b border-gray-200 dark:border-[#38434F]">
+        <div className="bg-surface dark:bg-[#283036] border-b border-surface dark:border-[#38434F]">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
             <Link 
               href="/colleges" 
@@ -328,7 +328,7 @@ export default async function CollegePage({ params }: { params: Promise<{ slug: 
               {/* Left Section: Identity Block */}
               <div className="md:col-span-3 flex flex-col items-center md:items-start text-center md:text-left">
                 {collegeLogo && (
-                  <div className="w-24 h-24 rounded-md overflow-hidden bg-white dark:bg-[#283036] border border-gray-200 dark:border-[#38434F] p-2.5 shadow-[0_2px_4px_rgba(0,0,0,0.04)] mb-4 flex-shrink-0 flex items-center justify-center">
+                  <div className="w-24 h-24 rounded-md overflow-hidden bg-surface dark:bg-[#283036] border border-surface dark:border-[#38434F] p-2.5 shadow-[0_2px_4px_rgba(0,0,0,0.04)] mb-4 flex-shrink-0 flex items-center justify-center">
                     <Image
                       src={collegeLogo}
                       alt={`${collegeName} logo`}
@@ -396,7 +396,7 @@ export default async function CollegePage({ params }: { params: Promise<{ slug: 
                         href={url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="w-8 h-8 rounded-full bg-gray-100 dark:bg-[#283036] hover:bg-[#7C3AED]/10 dark:hover:bg-[#7C3AED]/20 flex items-center justify-center text-gray-500 dark:text-[#B0B7BE] hover:text-[#7C3AED] transition-all border border-gray-200 dark:border-[#38434F]"
+                        className="w-8 h-8 rounded-full bg-gray-100 dark:bg-[#283036] hover:bg-[#7C3AED]/10 dark:hover:bg-[#7C3AED]/20 flex items-center justify-center text-gray-500 dark:text-[#B0B7BE] hover:text-[#7C3AED] transition-all border border-surface dark:border-[#38434F]"
                         title={platform}
                       >
                         {platform === 'linkedin' && (
@@ -422,8 +422,8 @@ export default async function CollegePage({ params }: { params: Promise<{ slug: 
 
               {/* Right Section: Statistics Panel */}
               <div className="md:col-span-4 w-full">
-                <div className="bg-gray-50 dark:bg-[#1D2226] rounded-md border border-gray-200 dark:border-[#38434F] p-5 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
-                  <h3 className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-4 pb-3 border-b border-gray-200/80 dark:border-[#38434F]">
+                <div className="bg-app dark:bg-[#1D2226] rounded-md border border-surface dark:border-[#38434F] p-5 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
+                  <h3 className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-4 pb-3 border-b border-surface/80 dark:border-[#38434F]">
                     Community Overview
                   </h3>
                   <div className="space-y-3.5">
@@ -432,7 +432,7 @@ export default async function CollegePage({ params }: { params: Promise<{ slug: 
                         <Users size={16} className="text-gray-400 dark:text-[#B0B7BE] group-hover:text-[#7C3AED] transition-colors" />
                         <span className="text-sm font-semibold">Total Members</span>
                       </div>
-                      <span className="text-sm font-bold text-gray-900 dark:text-white bg-white dark:bg-[#283036] px-2 py-0.5 rounded border border-gray-200 dark:border-[#38434F] shadow-sm">{community.member_count || 0}+</span>
+                      <span className="text-sm font-bold text-gray-900 dark:text-white bg-surface dark:bg-[#283036] px-2 py-0.5 rounded border border-surface dark:border-[#38434F] shadow-sm">{community.member_count || 0}+</span>
                     </div>
                     
                     <div className="flex items-center justify-between group">
@@ -440,7 +440,7 @@ export default async function CollegePage({ params }: { params: Promise<{ slug: 
                         <Award size={16} className="text-gray-400 dark:text-[#B0B7BE] group-hover:text-blue-500 transition-colors" />
                         <span className="text-sm font-semibold">Verified Seniors</span>
                       </div>
-                      <span className="text-sm font-bold text-gray-900 dark:text-white bg-white dark:bg-[#283036] px-2 py-0.5 rounded border border-gray-200 dark:border-[#38434F] shadow-sm">{community.senior_count || 0}+</span>
+                      <span className="text-sm font-bold text-gray-900 dark:text-white bg-surface dark:bg-[#283036] px-2 py-0.5 rounded border border-surface dark:border-[#38434F] shadow-sm">{community.senior_count || 0}+</span>
                     </div>
                     
                     <div className="flex items-center justify-between group">
@@ -448,7 +448,7 @@ export default async function CollegePage({ params }: { params: Promise<{ slug: 
                         <MessageSquare size={16} className="text-gray-400 dark:text-[#B0B7BE] group-hover:text-green-500 transition-colors" />
                         <span className="text-sm font-semibold">Active Discussions</span>
                       </div>
-                      <span className="text-sm font-bold text-gray-900 dark:text-white bg-white dark:bg-[#283036] px-2 py-0.5 rounded border border-gray-200 dark:border-[#38434F] shadow-sm">{community.doubt_count || 0}+</span>
+                      <span className="text-sm font-bold text-gray-900 dark:text-white bg-surface dark:bg-[#283036] px-2 py-0.5 rounded border border-surface dark:border-[#38434F] shadow-sm">{community.doubt_count || 0}+</span>
                     </div>
 
                     {community.colleges?.avg_package && (
@@ -476,7 +476,7 @@ export default async function CollegePage({ params }: { params: Promise<{ slug: 
               
               {/* Stats Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div className="bg-white dark:bg-[#283036] rounded-md p-4 sm:p-5 border border-gray-200 dark:border-[#38434F] hover:shadow-md transition-all shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
+                <div className="bg-surface dark:bg-[#283036] rounded-md p-4 sm:p-5 border border-surface dark:border-[#38434F] hover:shadow-md transition-all shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-purple-50 rounded-md flex items-center justify-center border border-purple-100">
                       <Users className="w-5 h-5 text-purple-600" />
@@ -488,7 +488,7 @@ export default async function CollegePage({ params }: { params: Promise<{ slug: 
                   </div>
                 </div>
                 
-                <div className="bg-white dark:bg-[#283036] rounded-md p-4 sm:p-5 border border-gray-200 dark:border-[#38434F] hover:shadow-md transition-all shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
+                <div className="bg-surface dark:bg-[#283036] rounded-md p-4 sm:p-5 border border-surface dark:border-[#38434F] hover:shadow-md transition-all shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-blue-50 rounded-md flex items-center justify-center border border-blue-100">
                       <MessageCircle className="w-5 h-5 text-blue-600" />
@@ -500,7 +500,7 @@ export default async function CollegePage({ params }: { params: Promise<{ slug: 
                   </div>
                 </div>
                 
-                <div className="bg-white dark:bg-[#283036] rounded-md p-4 sm:p-5 border border-gray-200 dark:border-[#38434F] hover:shadow-md transition-all shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
+                <div className="bg-surface dark:bg-[#283036] rounded-md p-4 sm:p-5 border border-surface dark:border-[#38434F] hover:shadow-md transition-all shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-green-50 rounded-md flex items-center justify-center border border-green-100">
                       <Star className="w-5 h-5 text-green-600" />
@@ -514,8 +514,8 @@ export default async function CollegePage({ params }: { params: Promise<{ slug: 
               </div>
 
               {/* Recent Posts */}
-              <div className="bg-white dark:bg-[#283036] rounded-md border border-gray-200 dark:border-[#38434F] shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
-                <div className="p-4 sm:p-5 border-b border-gray-200 dark:border-[#38434F]">
+              <div className="bg-surface dark:bg-[#283036] rounded-md border border-surface dark:border-[#38434F] shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
+                <div className="p-4 sm:p-5 border-b border-surface dark:border-[#38434F]">
                   <h2 className="text-base font-bold text-gray-900 dark:text-white tracking-tight">Recent Community Posts</h2>
                 </div>
                 <div className="p-4 sm:p-5 space-y-4">
@@ -572,7 +572,7 @@ export default async function CollegePage({ params }: { params: Promise<{ slug: 
             <div className="space-y-6">
 
               {/* Claim Card / Admin Dashboard Link */}
-              <div className="bg-white dark:bg-[#283036] rounded-md border border-gray-200 dark:border-[#38434F] p-4 sm:p-5 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
+              <div className="bg-surface dark:bg-[#283036] rounded-md border border-surface dark:border-[#38434F] p-4 sm:p-5 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
                 <CollegeClaimButton
                   collegeId={community.colleges?.id || community.id}
                   collegeSlug={slug}
@@ -613,8 +613,8 @@ export default async function CollegePage({ params }: { params: Promise<{ slug: 
               </div>
 
               {/* Verified Seniors */}
-              <div className="bg-white dark:bg-[#283036] rounded-md border border-gray-200 dark:border-[#38434F] shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
-                <div className="p-4 sm:p-5 border-b border-gray-200 dark:border-[#38434F]">
+              <div className="bg-surface dark:bg-[#283036] rounded-md border border-surface dark:border-[#38434F] shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
+                <div className="p-4 sm:p-5 border-b border-surface dark:border-[#38434F]">
                   <h3 className="text-sm font-bold text-gray-900 dark:text-white tracking-tight">Verified Seniors</h3>
                 </div>
                 <div className="p-4 sm:p-5 space-y-4">
@@ -649,7 +649,7 @@ export default async function CollegePage({ params }: { params: Promise<{ slug: 
                   )}
                 </div>
                 {seniors.length > 6 && (
-                  <div className="p-3 sm:p-4 border-t border-gray-200 dark:border-[#38434F] bg-gray-50/50">
+                  <div className="p-3 sm:p-4 border-t border-surface dark:border-[#38434F] bg-app/50">
                     <Link 
                       href={`/community/c/${slug}`}
                       className="text-[#7C3AED] hover:text-[#6D28D9] text-xs font-bold no-underline flex items-center justify-center gap-1"
@@ -661,7 +661,7 @@ export default async function CollegePage({ params }: { params: Promise<{ slug: 
               </div>
 
               {/* Benefits */}
-              <div className="bg-white dark:bg-[#283036] rounded-md border border-gray-200 dark:border-[#38434F] p-4 sm:p-5 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
+              <div className="bg-surface dark:bg-[#283036] rounded-md border border-surface dark:border-[#38434F] p-4 sm:p-5 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
                 <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-4 tracking-tight">Why Join Claspire?</h3>
                 <div className="space-y-3.5">
                   <div className="flex items-start gap-3">

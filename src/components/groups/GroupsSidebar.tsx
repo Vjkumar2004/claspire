@@ -27,7 +27,7 @@ function GroupItem({ group, isActive, onClick }: { group: GroupListItem; isActiv
   return (
     <button
       onClick={onClick}
-      className={`w-full text-left px-3 py-2.5 flex items-center gap-3 transition-colors hover:bg-gray-100 dark:hover:bg-[#1D2226] dark:bg-[#1D2226] active:bg-gray-200 dark:active:bg-[#1D2226] ${
+      className={`w-full text-left px-3 py-2.5 flex items-center gap-3 transition-colors hover:bg-surface-hover dark:hover:bg-[#1D2226] dark:bg-[#1D2226] active:bg-gray-200 dark:active:bg-[#1D2226] ${
         isActive ? 'bg-gray-100 dark:bg-[#1D2226]' : ''
       }`}
     >
@@ -90,13 +90,13 @@ export default function GroupsSidebar({ currentGroupSlug, onClose }: GroupsSideb
   }
 
   return (
-    <div className="w-full h-full flex flex-col bg-white dark:bg-[#283036] border-r border-gray-200 dark:border-r-[#38434F]">
-      <div className="flex-shrink-0 px-4 py-3 border-b border-gray-100 dark:border-b-[#38434F] bg-white dark:bg-[#283036]">
+    <div className="w-full h-full flex flex-col bg-surface dark:bg-[#283036] border-r border-surface dark:border-r-[#38434F]">
+      <div className="flex-shrink-0 px-4 py-3 border-b border-surface dark:border-b-[#38434F] bg-surface dark:bg-[#283036]">
         <div className="flex items-center justify-between mb-3">
           <h1 className="text-lg font-bold text-gray-900 dark:text-white">Groups</h1>
           <div className="flex items-center gap-2">
             {onClose && (
-              <button onClick={onClose} className="p-1 hover:bg-gray-100 dark:hover:bg-[#1D2226] dark:bg-[#1D2226] rounded-full lg:hidden">
+              <button onClick={onClose} className="p-1 hover:bg-surface-hover dark:hover:bg-[#1D2226] dark:bg-[#1D2226] rounded-full lg:hidden">
                 <X size={18} className="text-gray-400 dark:text-[#B0B7BE]" />
               </button>
             )}
@@ -110,7 +110,7 @@ export default function GroupsSidebar({ currentGroupSlug, onClose }: GroupsSideb
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search groups..."
-            className="w-full bg-gray-100 dark:bg-[#1D2226] rounded-xl pl-9 pr-3 py-2 text-sm outline-none focus:ring-2 focus:ring-purple-300 focus:bg-white dark:bg-[#283036] transition-colors placeholder:text-gray-400 dark:text-[#B0B7BE]"
+            className="w-full bg-gray-100 dark:bg-[#1D2226] rounded-xl pl-9 pr-3 py-2 text-sm outline-none focus:ring-2 focus:ring-purple-300 focus:bg-surface dark:bg-[#283036] transition-colors placeholder:text-gray-400 dark:text-[#B0B7BE]"
           />
         </div>
       </div>

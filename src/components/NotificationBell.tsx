@@ -139,8 +139,8 @@ export default function NotificationBell({ align = 'right', dark = false }: Noti
         onClick={handleBellClick}
         className={`relative p-2 rounded-full transition-colors focus:outline-none ${
           dark 
-            ? 'text-gray-600 dark:text-[#B0B7BE] hover:bg-gray-100 dark:hover:bg-[#1D2226]' 
-            : 'text-white hover:bg-white/10'
+            ? 'text-gray-600 dark:text-[#B0B7BE] hover:bg-surface-hover dark:hover:bg-[#1D2226]' 
+            : 'text-white hover:bg-surface/10'
         }`}
       >
         <Bell size={20} />
@@ -174,12 +174,12 @@ export default function NotificationBell({ align = 'right', dark = false }: Noti
               } as React.CSSProperties}
               className={`
                 max-h-[calc(100vh-100px)] md:max-h-[480px] 
-                bg-white dark:bg-[#283036] rounded-2xl border border-gray-200 dark:border-[#38434F] shadow-2xl z-[9999] 
+                bg-surface dark:bg-[#283036] rounded-2xl border border-surface dark:border-[#38434F] shadow-2xl z-[9999] 
                 overflow-hidden flex flex-col
               `}
             >
               {/* Header */}
-              <div className="p-4 border-b border-gray-100 dark:border-[#38434F] flex items-center justify-between bg-white/50 dark:bg-[#283036]/50 backdrop-blur-sm sticky top-0 z-10">
+              <div className="p-4 border-b border-surface dark:border-[#38434F] flex items-center justify-between bg-surface/50 dark:bg-[#283036]/50 backdrop-blur-sm sticky top-0 z-10">
                 <h3 className="text-sm font-bold text-gray-900 dark:text-white">Notifications</h3>
                 <div className="flex items-center gap-2">
                   {unreadCount > 0 && (
@@ -217,7 +217,7 @@ export default function NotificationBell({ align = 'right', dark = false }: Noti
               <div className="overflow-y-auto flex-1 custom-scrollbar relative">
                 {notifications.length === 0 ? (
                   <div className="p-12 text-center">
-                    <div className="w-12 h-12 bg-gray-50 dark:bg-[#1D2226] rounded-full flex items-center justify-center mx-auto mb-3">
+                    <div className="w-12 h-12 bg-app dark:bg-[#1D2226] rounded-full flex items-center justify-center mx-auto mb-3">
                       <Bell size={24} className="text-gray-300 dark:text-[#B0B7BE]" />
                     </div>
                     <p className="text-sm font-medium text-gray-500 dark:text-[#B0B7BE]">No notifications yet</p>
@@ -229,7 +229,7 @@ export default function NotificationBell({ align = 'right', dark = false }: Noti
                       <div
                         key={notif.id}
                         onClick={() => !notif.is_read && markAsRead(notif.id)}
-                        className={`p-4 hover:bg-gray-50 dark:hover:bg-[#1D2226] transition-all cursor-pointer group relative ${!notif.is_read ? 'bg-purple-50/30' : ''}`}
+                        className={`p-4 hover:bg-app dark:hover:bg-[#1D2226] transition-all cursor-pointer group relative ${!notif.is_read ? 'bg-purple-50/30' : ''}`}
                       >
                         {!notif.is_read && (
                           <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-purple-500" />
@@ -282,7 +282,7 @@ export default function NotificationBell({ align = 'right', dark = false }: Noti
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="absolute inset-0 bg-white/95 dark:bg-[#283036]/95 backdrop-blur-sm z-20 flex items-center justify-center p-6"
+                    className="absolute inset-0 bg-surface/95 dark:bg-[#283036]/95 backdrop-blur-sm z-20 flex items-center justify-center p-6"
                     style={{ borderRadius: 'inherit' }}
                   >
                     <div className="text-center">
@@ -309,7 +309,7 @@ export default function NotificationBell({ align = 'right', dark = false }: Noti
               </div>
 
               {/* Footer */}
-              <div className="p-3 border-t border-gray-100 dark:border-[#38434F] bg-gray-50/50 dark:bg-[#1D2226]/50 text-center">
+              <div className="p-3 border-t border-surface dark:border-[#38434F] bg-app/50 dark:bg-[#1D2226]/50 text-center">
                   <Link 
                      href={user?.role === 'senior' ? '/dashboard/senior' : '/dashboard/junior'}
                      onClick={() => setIsOpen(false)}

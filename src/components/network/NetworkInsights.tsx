@@ -70,13 +70,13 @@ export default function NetworkInsights({ connectionsCount = 0 }: { connectionsC
   }
 
   return (
-    <div className="bg-white dark:bg-[#283036] border border-gray-200 dark:border-[#38434F] rounded-xl p-4">
+    <div className="bg-surface dark:bg-[#283036] border border-surface dark:border-[#38434F] rounded-xl p-4">
       <h3 className="text-xs font-bold text-gray-500 dark:text-[#B0B7BE] uppercase tracking-wider mb-3">Networking Insights</h3>
       <div className="space-y-2">
         {insights.map((item) => {
           const Icon = item.icon
           const content = (
-            <div className="flex items-start gap-3 p-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-[#1D2226] transition-colors cursor-pointer">
+            <div className="flex items-start gap-3 p-2.5 rounded-lg hover:bg-app dark:hover:bg-[#1D2226] transition-colors cursor-pointer">
               <div className="w-8 h-8 rounded-lg bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 flex items-center justify-center flex-shrink-0">
                 <Icon size={15} />
               </div>

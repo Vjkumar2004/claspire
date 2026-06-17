@@ -149,7 +149,7 @@ export default function CollegeClaimsAdminPage() {
                 className={`shrink-0 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                   filter === f
                     ? 'bg-purple-600 text-white shadow-md'
-                    : 'bg-white dark:bg-[#283036] text-gray-600 dark:text-[#B0B7BE] border border-gray-200 dark:border-[#38434F] hover:border-purple-300'
+                    : 'bg-surface dark:bg-[#283036] text-gray-600 dark:text-[#B0B7BE] border border-surface dark:border-[#38434F] hover:border-purple-300'
                 }`}
               >
                 {f.charAt(0).toUpperCase() + f.slice(1)}
@@ -165,14 +165,14 @@ export default function CollegeClaimsAdminPage() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by college name, applicant, or email..."
-            className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-[#283036] border border-gray-200 dark:border-[#38434F] rounded-lg text-sm font-medium outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
+            className="w-full pl-10 pr-4 py-2.5 bg-surface dark:bg-[#283036] border border-surface dark:border-[#38434F] rounded-lg text-sm font-medium outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
           />
         </div>
 
         {loading ? (
           <div className="space-y-4">
             {[1, 2, 3].map(i => (
-              <div key={i} className="bg-white dark:bg-[#283036] rounded-lg border border-gray-200 dark:border-[#38434F] p-4 sm:p-6 animate-pulse">
+              <div key={i} className="bg-surface dark:bg-[#283036] rounded-lg border border-surface dark:border-[#38434F] p-4 sm:p-6 animate-pulse">
                 <div className="h-5 bg-gray-200 dark:bg-[#38434F] rounded w-1/3 mb-3" />
                 <div className="h-4 bg-gray-200 dark:bg-[#38434F] rounded w-1/2 mb-2" />
                 <div className="h-4 bg-gray-200 dark:bg-[#38434F] rounded w-2/3" />
@@ -180,7 +180,7 @@ export default function CollegeClaimsAdminPage() {
             ))}
           </div>
         ) : filtered.length === 0 ? (
-          <div className="text-center py-20 bg-white dark:bg-[#283036] rounded-lg border border-gray-200 dark:border-[#38434F]">
+          <div className="text-center py-20 bg-surface dark:bg-[#283036] rounded-lg border border-surface dark:border-[#38434F]">
             <Shield size={40} className="mx-auto text-gray-300 mb-4" />
             <p className="text-gray-500 dark:text-[#B0B7BE] font-bold">No {filter !== 'all' ? filter : ''} claims found</p>
           </div>
@@ -189,7 +189,7 @@ export default function CollegeClaimsAdminPage() {
             {filtered.map((claim) => (
               <div
                 key={claim.id}
-                className="bg-white dark:bg-[#283036] rounded-lg border border-gray-200 dark:border-[#38434F] p-4 sm:p-6 hover:shadow-md transition-shadow"
+                className="bg-surface dark:bg-[#283036] rounded-lg border border-surface dark:border-[#38434F] p-4 sm:p-6 hover:shadow-md transition-shadow"
               >
                   <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 sm:gap-4">
                   <div className="flex-1 min-w-0">
@@ -245,7 +245,7 @@ export default function CollegeClaimsAdminPage() {
                     </div>
 
                     {claim.verification_msg && (
-                      <div className="mt-3 p-3 bg-gray-50 dark:bg-[#1D2226] rounded-lg">
+                      <div className="mt-3 p-3 bg-app dark:bg-[#1D2226] rounded-lg">
                         <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Verification Message</p>
                         <p className="text-xs text-gray-700 dark:text-[#B0B7BE]">{claim.verification_msg}</p>
                       </div>
@@ -269,7 +269,7 @@ export default function CollegeClaimsAdminPage() {
                         detectedDomain === displayDomain || detectedDomain.endsWith('.' + displayDomain)
                       )
                       return (
-                        <div className="mt-3 p-3 bg-gray-50 dark:bg-[#1D2226] rounded-lg border border-gray-200 dark:border-[#38434F]">
+                        <div className="mt-3 p-3 bg-app dark:bg-[#1D2226] rounded-lg border border-surface dark:border-[#38434F]">
                           <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Domain Verification</p>
                           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 text-xs">
                             <div>

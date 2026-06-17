@@ -152,8 +152,8 @@ function SearchPageContent({ activeFilter }: SearchPageLayoutProps) {
           
           {/* LEFT COLUMN: Filter Sidebar (Sticky on desktop, hidden on mobile) */}
           <div className="hidden lg:block lg:col-span-3 lg:sticky lg:top-20 space-y-4">
-            <div className="bg-white border border-gray-200 rounded-md p-4 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
-              <h2 className="text-xs font-bold text-gray-900 uppercase tracking-wider mb-4 pb-3 border-b border-gray-200/80">
+            <div className="bg-surface border border-surface rounded-md p-4 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
+              <h2 className="text-xs font-bold text-gray-900 uppercase tracking-wider mb-4 pb-3 border-b border-surface/80">
                 Search Filters
               </h2>
               <nav className="space-y-1">
@@ -166,7 +166,7 @@ function SearchPageContent({ activeFilter }: SearchPageLayoutProps) {
                       className={`w-full flex items-center gap-3 px-3 py-2.5 text-left rounded-md font-semibold text-xs transition-colors cursor-pointer ${
                         isActive
                           ? 'bg-purple-50 text-[#7C3AED]'
-                          : 'text-gray-600 hover:text-black hover:bg-gray-50'
+                          : 'text-gray-600 hover:text-black hover:bg-app'
                       }`}
                     >
                       <f.icon className={`w-4 h-4 ${isActive ? 'text-[#7C3AED]' : 'text-gray-400'}`} />
@@ -178,7 +178,7 @@ function SearchPageContent({ activeFilter }: SearchPageLayoutProps) {
             </div>
 
             {/* Tips Widget */}
-            <div className="bg-white border border-gray-200 rounded-md p-4 shadow-[0_1px_3px_rgba(0,0,0,0.05)] hidden lg:block">
+            <div className="bg-surface border border-surface rounded-md p-4 shadow-[0_1px_3px_rgba(0,0,0,0.05)] hidden lg:block">
               <div className="flex gap-2.5 items-start">
                 <Info className="w-4 h-4 text-purple-600 mt-0.5 flex-shrink-0" />
                 <div>
@@ -195,7 +195,7 @@ function SearchPageContent({ activeFilter }: SearchPageLayoutProps) {
           <div className="lg:col-span-6 space-y-4 w-full">
             
             {/* Desktop search results summary */}
-            <div className="bg-white border border-gray-200 rounded-md p-4 sm:p-5 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
+            <div className="bg-surface border border-surface rounded-md p-4 sm:p-5 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
               <h1 className="text-base sm:text-lg font-bold text-gray-900 leading-tight">
                 Search results for "<span className="text-[#7C3AED]">{queryParam || 'empty'}</span>"
               </h1>
@@ -215,7 +215,7 @@ function SearchPageContent({ activeFilter }: SearchPageLayoutProps) {
                     className={`px-4 py-1.5 rounded-full border text-xs font-bold whitespace-nowrap transition-all flex-shrink-0 cursor-pointer ${
                       isActive
                         ? 'bg-[#7C3AED] border-transparent text-white shadow-sm'
-                        : 'bg-white border-gray-200 text-gray-700 hover:border-gray-300'
+                        : 'bg-surface border-surface text-gray-700 hover:border-gray-300'
                     }`}
                   >
                     {f.label}
@@ -249,7 +249,7 @@ function SearchPageContent({ activeFilter }: SearchPageLayoutProps) {
                       if ((card.type === 'senior' || card.type === 'student') && !shownSeniorsHeader) {
                         shownSeniorsHeader = true
                         header = (
-                          <h3 className="text-[11px] font-extrabold text-gray-900 uppercase tracking-wider mt-6 mb-3 flex items-center gap-2 pb-2 border-b border-gray-200/80">
+                          <h3 className="text-[11px] font-extrabold text-gray-900 uppercase tracking-wider mt-6 mb-3 flex items-center gap-2 pb-2 border-b border-surface/80">
                             <span>👥 Related Alumni & Seniors</span>
                             <span className="text-[10px] text-gray-400 font-semibold normal-case">({queryParam} Network)</span>
                           </h3>
@@ -257,21 +257,21 @@ function SearchPageContent({ activeFilter }: SearchPageLayoutProps) {
                       } else if (card.type === 'job' && !shownJobsHeader) {
                         shownJobsHeader = true
                         header = (
-                          <h3 className="text-[11px] font-extrabold text-gray-900 uppercase tracking-wider mt-6 mb-3 flex items-center gap-2 pb-2 border-b border-gray-200/80">
+                          <h3 className="text-[11px] font-extrabold text-gray-900 uppercase tracking-wider mt-6 mb-3 flex items-center gap-2 pb-2 border-b border-surface/80">
                             <span>💼 Placements & Referral Openings</span>
                           </h3>
                         )
                       } else if (card.type === 'post' && !shownPostsHeader) {
                         shownPostsHeader = true
                         header = (
-                          <h3 className="text-[11px] font-extrabold text-gray-900 uppercase tracking-wider mt-6 mb-3 flex items-center gap-2 pb-2 border-b border-gray-200/80">
+                          <h3 className="text-[11px] font-extrabold text-gray-900 uppercase tracking-wider mt-6 mb-3 flex items-center gap-2 pb-2 border-b border-surface/80">
                             <span>💬 Trending Community Posts & Activity</span>
                           </h3>
                         )
                       } else if ((card.type === 'college' || card.type === 'community' || card.type === 'group') && !shownCollegesHeader) {
                         shownCollegesHeader = true
                         header = (
-                          <h3 className="text-[11px] font-extrabold text-gray-900 uppercase tracking-wider mt-6 mb-3 flex items-center gap-2 pb-2 border-b border-gray-200/80">
+                          <h3 className="text-[11px] font-extrabold text-gray-900 uppercase tracking-wider mt-6 mb-3 flex items-center gap-2 pb-2 border-b border-surface/80">
                             <span>🎓 Institution Profiles & Communities</span>
                           </h3>
                         )
@@ -322,7 +322,7 @@ function SearchPageContent({ activeFilter }: SearchPageLayoutProps) {
                 )}
               </div>
             ) : (
-              <div className="bg-white border border-gray-200 rounded-md p-8 sm:p-12 shadow-[0_1px_3px_rgba(0,0,0,0.05)] text-center">
+              <div className="bg-surface border border-surface rounded-md p-8 sm:p-12 shadow-[0_1px_3px_rgba(0,0,0,0.05)] text-center">
                 <div className="w-16 h-16 rounded-full bg-purple-50 border border-purple-100 flex items-center justify-center mx-auto mb-5">
                   <Compass className="w-8 h-8 text-[#7C3AED]" />
                 </div>
@@ -341,8 +341,8 @@ function SearchPageContent({ activeFilter }: SearchPageLayoutProps) {
           <div className="lg:col-span-3 space-y-4">
             
             {/* Dynamic Placements Recommendation card */}
-            <div className="bg-white border border-gray-200 rounded-md p-4 sm:p-5 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
-              <h3 className="text-xs font-bold text-gray-950 uppercase tracking-wider mb-4 pb-3 border-b border-gray-100 flex items-center gap-1.5">
+            <div className="bg-surface border border-surface rounded-md p-4 sm:p-5 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
+              <h3 className="text-xs font-bold text-gray-950 uppercase tracking-wider mb-4 pb-3 border-b border-surface flex items-center gap-1.5">
                 <TrendingUp className="w-4 h-4 text-purple-600" />
                 Active Placements
               </h3>
@@ -360,7 +360,7 @@ function SearchPageContent({ activeFilter }: SearchPageLayoutProps) {
                 ))}
               </div>
               
-              <div className="mt-4 pt-3.5 border-t border-gray-100">
+              <div className="mt-4 pt-3.5 border-t border-surface">
                 <Link href="/jobs" className="text-[11px] font-bold text-[#7C3AED] hover:text-[#6D28D9] hover:underline no-underline block text-center">
                   Explore Placements →
                 </Link>

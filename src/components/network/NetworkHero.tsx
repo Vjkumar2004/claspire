@@ -82,7 +82,7 @@ export default function NetworkHero({ platformStats, recentSeniors }: NetworkHer
             {stats.map((stat) => {
               const Icon = stat.icon
               return (
-                <div key={stat.label} className="flex items-center gap-2.5 bg-white/80 dark:bg-[#283036]/80 backdrop-blur-sm px-3 py-2.5 rounded-xl border border-gray-200/60 dark:border-[#38434F] shadow-sm hover:shadow-md hover:border-gray-200 dark:hover:border-[#38434F] transition-all">
+                <div key={stat.label} className="flex items-center gap-2.5 bg-surface/80 dark:bg-[#283036]/80 backdrop-blur-sm px-3 py-2.5 rounded-xl border border-surface/60 dark:border-[#38434F] shadow-sm hover:shadow-md hover:border-surface dark:hover:border-[#38434F] transition-all">
                   <div className={`w-8 h-8 rounded-lg ${stat.bg} dark:bg-opacity-30 flex items-center justify-center`}>
                     <Icon size={15} className={stat.color} />
                   </div>

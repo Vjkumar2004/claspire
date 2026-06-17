@@ -20,11 +20,32 @@ export default function Navbar() {
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false)
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const [primaryCommunitySlug, setPrimaryCommunitySlug] = useState<string | null>(null)
   const pathname = usePathname()
 
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  useEffect(() => {
+    if (user) {
+      fetch('/api/community/my-college')
+        .then(res => {
+          if (res.ok) return res.json()
+          throw new Error('Not found')
+        })
+        .then(data => {
+          if (data.communitySlug) {
+            setPrimaryCommunitySlug(data.communitySlug)
+          }
+        })
+        .catch(err => {
+          console.error('Failed to fetch primary community slug:', err)
+        })
+    } else {
+      setPrimaryCommunitySlug(null)
+    }
+  }, [user])
 
   const isFullscreenMessages =
     pathname === '/dashboard/senior/messages' ||
@@ -57,7 +78,7 @@ export default function Navbar() {
 
   return (
     <>
-    <nav className="fixed top-0 left-0 right-0 h-14 z-[999] bg-white/90 dark:bg-[#1D2226]/90 border-b border-gray-200 dark:border-[#38434F] backdrop-blur-[12px]">
+    <nav className="fixed top-0 left-0 right-0 h-14 z-[999] bg-surface/90 dark:bg-[#1D2226]/90 border-b border-surface dark:border-[#38434F] backdrop-blur-[12px]">
       <div className="flex items-center justify-between h-full px-6 max-w-7xl mx-auto w-full">
         <div className="flex items-center gap-3 flex-shrink-0">
           <Link href="/" className="font-plus-jakarta-sans font-extrabold text-xl text-black dark:text-white no-underline hover:no-underline tracking-tight flex items-center">
@@ -83,7 +104,7 @@ export default function Navbar() {
             className={`flex items-center gap-1.5 px-2 xl:px-3 h-full text-[13px] font-semibold transition-all border-b-2 ${
             pathname === '/community' 
               ? 'text-[#7C3AED] border-[#7C3AED]' 
-              : 'text-gray-500 dark:text-[#8B949E] border-transparent hover:text-black dark:hover:text-white hover:border-gray-200 dark:hover:border-[#38434F]'
+              : 'text-gray-500 dark:text-[#8B949E] border-transparent hover:text-black dark:hover:text-white hover:border-surface dark:hover:border-[#38434F]'
           }`}>
             <Users size={16} />
             <span className="hidden lg:block">Community</span>
@@ -91,7 +112,7 @@ export default function Navbar() {
           <Link href="/groups" className={`flex items-center gap-1.5 px-2 xl:px-3 h-full text-[13px] font-semibold transition-all border-b-2 ${
             pathname === '/groups' 
               ? 'text-[#7C3AED] border-[#7C3AED]' 
-              : 'text-gray-500 dark:text-[#8B949E] border-transparent hover:text-black dark:hover:text-white hover:border-gray-200 dark:hover:border-[#38434F]'
+              : 'text-gray-500 dark:text-[#8B949E] border-transparent hover:text-black dark:hover:text-white hover:border-surface dark:hover:border-[#38434F]'
           }`}>
             <Building2 size={16} />
             <span className="hidden lg:block">Groups</span>
@@ -99,7 +120,7 @@ export default function Navbar() {
           <Link href={user?.role === 'senior' ? '/dashboard/senior' : '/dashboard/junior'} className={`flex items-center gap-1.5 px-2 xl:px-3 h-full text-[13px] font-semibold transition-all border-b-2 ${
             pathname === '/dashboard/senior' || pathname === '/dashboard/junior'
               ? 'text-[#7C3AED] border-[#7C3AED]' 
-              : 'text-gray-500 dark:text-[#8B949E] border-transparent hover:text-black dark:hover:text-white hover:border-gray-200 dark:hover:border-[#38434F]'
+              : 'text-gray-500 dark:text-[#8B949E] border-transparent hover:text-black dark:hover:text-white hover:border-surface dark:hover:border-[#38434F]'
           }`}>
             <LayoutDashboard size={16} />
             <span className="hidden lg:block">Dashboard</span>
@@ -107,7 +128,7 @@ export default function Navbar() {
           <Link href="/network" className={`relative flex items-center gap-1.5 px-2 xl:px-3 h-full text-[13px] font-semibold transition-all border-b-2 ${
             pathname === '/network' || pathname === '/seniors'
               ? 'text-[#7C3AED] border-[#7C3AED]' 
-              : 'text-gray-500 dark:text-[#8B949E] border-transparent hover:text-black dark:hover:text-white hover:border-gray-200 dark:hover:border-[#38434F]'
+              : 'text-gray-500 dark:text-[#8B949E] border-transparent hover:text-black dark:hover:text-white hover:border-surface dark:hover:border-[#38434F]'
           }`}>
             <span className="relative">
               <Users size={16} />
@@ -122,7 +143,7 @@ export default function Navbar() {
           <Link href="/jobs" className={`flex items-center gap-1.5 px-2 xl:px-3 h-full text-[13px] font-semibold transition-all border-b-2 ${
             pathname === '/jobs' 
               ? 'text-[#7C3AED] border-[#7C3AED]' 
-              : 'text-gray-500 dark:text-[#8B949E] border-transparent hover:text-black dark:hover:text-white hover:border-gray-200 dark:hover:border-[#38434F]'
+              : 'text-gray-500 dark:text-[#8B949E] border-transparent hover:text-black dark:hover:text-white hover:border-surface dark:hover:border-[#38434F]'
           }`}>
             <Briefcase size={16} />
             <span className="hidden lg:block">Jobs</span>
@@ -130,7 +151,7 @@ export default function Navbar() {
           <Link href="/colleges" className={`flex items-center gap-1.5 px-2 xl:px-3 h-full text-[13px] font-semibold transition-all border-b-2 ${
             pathname === '/colleges' 
               ? 'text-[#7C3AED] border-[#7C3AED]' 
-              : 'text-gray-500 dark:text-[#8B949E] border-transparent hover:text-black dark:hover:text-white hover:border-gray-200 dark:hover:border-[#38434F]'
+              : 'text-gray-500 dark:text-[#8B949E] border-transparent hover:text-black dark:hover:text-white hover:border-surface dark:hover:border-[#38434F]'
           }`}>
             <GraduationCap size={16} />
             <span className="hidden lg:block">Colleges</span>
@@ -150,7 +171,7 @@ export default function Navbar() {
             <div className="flex items-center gap-2 lg:gap-4">
               <button
                 onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                className="p-2 rounded-full text-gray-600 dark:text-[#B0B7BE] hover:text-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#283036] transition-colors cursor-pointer"
+                className="p-2 rounded-full text-gray-600 dark:text-[#B0B7BE] hover:text-black dark:hover:text-white hover:bg-surface-hover dark:hover:bg-[#283036] transition-colors cursor-pointer"
                 title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
               >
                 {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
@@ -158,7 +179,7 @@ export default function Navbar() {
               <NotificationBell dark />
               <Link 
                 href={user?.role === 'senior' ? '/dashboard/senior/messages' : '/dashboard/junior/messages'}
-                className="relative p-2 rounded-full text-gray-600 dark:text-[#B0B7BE] hover:text-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#283036] transition-colors"
+                className="relative p-2 rounded-full text-gray-600 dark:text-[#B0B7BE] hover:text-black dark:hover:text-white hover:bg-surface-hover dark:hover:bg-[#283036] transition-colors"
               >
                 <MessageSquare size={20} />
                 {unreadMessageCount > 0 && (
@@ -228,7 +249,7 @@ export default function Navbar() {
                       minWidth: 200,
                       boxShadow: '0 4px 24px rgba(0,0,0,0.08)',
                       zIndex: 50
-                    }} className="bg-white border border-[#E5E7EB] dark:bg-[#283036] dark:border-[#38434F]">
+                    }} className="bg-surface border border-[#E5E7EB] dark:bg-[#283036] dark:border-[#38434F]">
                       <div className="border-b border-[#F3F4F6] dark:border-[#38434F]" style={{
                         padding: '8px 12px 12px',
                         marginBottom: 4
@@ -270,12 +291,33 @@ export default function Navbar() {
                             textDecoration: 'none',
                             transition: 'background 0.1s'
                           }}
-                          className="text-[#374151] dark:text-[#B0B7BE] hover:bg-gray-50 dark:hover:bg-[#1D2226]"
+                          className="text-[#374151] dark:text-[#B0B7BE] hover:bg-app dark:hover:bg-[#1D2226]"
                         >
                           <item.icon size={16} className="text-[#6B7280] dark:text-[#8B949E]" />
                           {item.label}
                         </Link>
                       ))}
+                      {primaryCommunitySlug && (
+                        <Link
+                          href={`/community/c/${primaryCommunitySlug}`}
+                          onClick={() => setProfileDropdownOpen(false)}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 10,
+                            padding: '9px 12px',
+                            borderRadius: 8,
+                            fontSize: 13,
+                            fontWeight: 600,
+                            textDecoration: 'none',
+                            transition: 'background 0.1s'
+                          }}
+                          className="text-[#374151] dark:text-[#B0B7BE] hover:bg-app dark:hover:bg-[#1D2226]"
+                        >
+                          <Users size={16} className="text-[#6B7280] dark:text-[#8B949E]" />
+                          My Community
+                        </Link>
+                      )}
                       <div style={{ height: 1, margin: '4px 0' }} className="bg-[#F3F4F6] dark:bg-[#38434F]" />
                       <button
                         onClick={() => {
@@ -322,7 +364,7 @@ export default function Navbar() {
                   cursor: 'pointer',
                   boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
                   transition: 'all 0.15s ease'
-                }} className="hover:bg-gray-50 hover:border-gray-400">
+                }} className="hover:bg-app hover:border-gray-400">
                   Sign In
                 </button>
               </Link>
@@ -350,7 +392,7 @@ export default function Navbar() {
         <div className="md:hidden flex items-center gap-2">
           <button
             onClick={() => setMobileSearchOpen(true)}
-            className="p-1.5 text-gray-500 hover:text-black rounded-full hover:bg-gray-100 transition-colors cursor-pointer"
+            className="p-1.5 text-gray-500 hover:text-black rounded-full hover:bg-surface-hover transition-colors cursor-pointer"
           >
             <Search size={20} />
           </button>
@@ -361,7 +403,7 @@ export default function Navbar() {
               <NotificationBell dark />
               <Link 
                 href={user?.role === 'senior' ? '/dashboard/senior/messages' : '/dashboard/junior/messages'}
-                className="relative p-2 rounded-full text-gray-600 hover:text-black hover:bg-gray-100 transition-colors"
+                className="relative p-2 rounded-full text-gray-600 hover:text-black hover:bg-surface-hover transition-colors"
               >
                 <MessageSquare size={18} />
                 {unreadMessageCount > 0 && (
@@ -391,7 +433,7 @@ export default function Navbar() {
 
           <button
             onClick={() => setMobileMenuOpen(true)}
-            className="flex items-center justify-center w-9 h-9 rounded-lg cursor-pointer bg-white dark:bg-[#283036] border-[1.5px] border-[#E5E7EB] dark:border-[#38434F]"
+            className="flex items-center justify-center w-9 h-9 rounded-lg cursor-pointer bg-surface dark:bg-[#283036] border-[1.5px] border-[#E5E7EB] dark:border-[#38434F]"
           >
             <Menu size={20} className="text-[#374151] dark:text-[#B0B7BE]" />
           </button>
@@ -424,7 +466,7 @@ export default function Navbar() {
           overflow: 'hidden',
           boxShadow: '4px 0 24px rgba(0,0,0,0.12)',
           animation: 'slideInLeft 0.3s ease-out',
-        }} className="bg-white dark:bg-[#1D2226]">
+        }} className="bg-surface dark:bg-[#1D2226]">
 
           <div className="flex items-center justify-between p-5 border-b border-[#F3F4F6] dark:border-[#38434F]">
             {/* Logo */}
@@ -439,7 +481,7 @@ export default function Navbar() {
             {/* Close button */}
             <button
               onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center justify-center w-8 h-8 rounded-full cursor-pointer bg-white dark:bg-[#283036] border border-[#E5E7EB] dark:border-[#38434F]"
+              className="flex items-center justify-center w-8 h-8 rounded-full cursor-pointer bg-surface dark:bg-[#283036] border border-[#E5E7EB] dark:border-[#38434F]"
             >
               <X size={16} className="text-[#6B7280] dark:text-[#B0B7BE]" />
             </button>
@@ -641,6 +683,36 @@ export default function Navbar() {
                     {item.label}
                   </a>
                 ))}
+                {primaryCommunitySlug && (
+                  <a
+                    href={`/community/c/${primaryCommunitySlug}`}
+                    onClick={() => setMobileMenuOpen(false)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      padding: '12px 10px',
+                      borderRadius: 8,
+                      fontSize: 14,
+                      fontWeight: 600,
+                      color: '#374151',
+                      textDecoration: 'none',
+                      transition: 'background 0.1s',
+                      marginBottom: 2,
+                      gap: 12
+                    }}
+                    onMouseEnter={e => {
+                      (e.currentTarget as HTMLElement)
+                        .style.background = '#F9FAFB'
+                    }}
+                    onMouseLeave={e => {
+                      (e.currentTarget as HTMLElement)
+                        .style.background = 'transparent'
+                    }}
+                  >
+                    <Users size={18} color="#6B7280" />
+                    My Community
+                  </a>
+                )}
               </>
             )}
 
@@ -788,11 +860,11 @@ export default function Navbar() {
     )}
 
     {mounted && mobileSearchOpen && createPortal(
-      <div className="fixed inset-0 bg-white z-[99999] flex flex-col p-4">
+      <div className="fixed inset-0 bg-surface z-[99999] flex flex-col p-4">
         <div className="flex items-center gap-3 mb-4">
           <button
             onClick={() => setMobileSearchOpen(false)}
-            className="p-1.5 text-gray-500 hover:text-black rounded-full hover:bg-gray-100 transition-colors cursor-pointer"
+            className="p-1.5 text-gray-500 hover:text-black rounded-full hover:bg-surface-hover transition-colors cursor-pointer"
           >
             <ArrowLeft size={20} />
           </button>

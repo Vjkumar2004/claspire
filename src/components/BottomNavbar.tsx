@@ -114,7 +114,7 @@ const BottomNavbar = () => {
         transition: 'transform 0.4s cubic-bezier(0.25, 1, 0.5, 1)'
       }}
     >
-      <div className="bg-white/95 dark:bg-[#1D2226]/95 backdrop-blur-xl border-t border-gray-200/60 dark:border-[#38434F]/60 shadow-[0_-4px_24px_rgba(0,0,0,0.06)] px-2 pt-1.5 pb-[calc(env(safe-area-inset-bottom)+0.5rem)]">
+      <div className="bg-surface/95 dark:bg-[#1D2226]/95 backdrop-blur-xl border-t border-surface/60 dark:border-[#38434F]/60 shadow-[0_-4px_24px_rgba(0,0,0,0.06)] px-2 pt-1.5 pb-[calc(env(safe-area-inset-bottom)+0.5rem)]">
         <div className="flex items-center justify-between gap-1">
           {navItems.map((item, index) => {
             // Type guard functions

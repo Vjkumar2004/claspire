@@ -267,7 +267,7 @@ export default function MyGroupsList() {
   }
 
   if (loading) return (
-    <div className="bg-white dark:bg-[#283036] rounded-2xl p-6 shadow-sm dark:shadow-[#1D2226]/50">
+    <div className="bg-surface dark:bg-[#283036] rounded-2xl p-6 shadow-sm dark:shadow-[#1D2226]/50">
       <div className="animate-pulse space-y-3">
         <div className="h-6 bg-gray-200 rounded w-1/3" />
         {[1,2].map(i => <div key={i} className="h-24 bg-gray-100 rounded-xl" />)}
@@ -276,14 +276,14 @@ export default function MyGroupsList() {
   )
 
   if (error) return (
-    <div className="bg-white dark:bg-[#283036] rounded-2xl p-6 shadow-sm dark:shadow-[#1D2226]/50 text-center py-8">
+    <div className="bg-surface dark:bg-[#283036] rounded-2xl p-6 shadow-sm dark:shadow-[#1D2226]/50 text-center py-8">
       <p className="text-red-600 font-medium mb-3">{error}</p>
       <button onClick={fetchGroups} className="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm">Try Again</button>
     </div>
   )
 
   if (groups.length === 0) return (
-    <div className="bg-white dark:bg-[#283036] rounded-2xl p-6 shadow-sm dark:shadow-[#1D2226]/50 text-center py-8">
+    <div className="bg-surface dark:bg-[#283036] rounded-2xl p-6 shadow-sm dark:shadow-[#1D2226]/50 text-center py-8">
       <Users size={40} className="text-gray-300 mx-auto mb-3" />
       <h3 className="font-semibold text-gray-900 dark:text-white mb-1">No Groups Yet</h3>
       <p className="text-gray-500 dark:text-[#B0B7BE] text-sm">You haven't created any student groups yet.</p>
@@ -291,7 +291,7 @@ export default function MyGroupsList() {
   )
 
   return (
-    <div className="bg-white dark:bg-[#283036] rounded-2xl p-4 sm:p-6 shadow-sm dark:shadow-[#1D2226]/50">
+    <div className="bg-surface dark:bg-[#283036] rounded-2xl p-4 sm:p-6 shadow-sm dark:shadow-[#1D2226]/50">
       <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 sm:mb-6">My Student Groups</h2>
 
       <div className="space-y-3 sm:space-y-4">
@@ -301,7 +301,7 @@ export default function MyGroupsList() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: index * 0.1 }}
-            className="bg-gradient-to-r from-gray-50 to-white border border-gray-200 dark:border-[#38434F] rounded-xl sm:rounded-2xl p-4 sm:p-5 hover:shadow-lg transition-all hover:border-purple-200"
+            className="bg-gradient-to-r from-gray-50 to-white border border-surface dark:border-[#38434F] rounded-xl sm:rounded-2xl p-4 sm:p-5 hover:shadow-lg transition-all hover:border-purple-200"
           >
             <div className="flex flex-col sm:flex-row sm:items-start gap-4">
               {/* Creator */}
@@ -427,7 +427,7 @@ export default function MyGroupsList() {
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-white dark:bg-[#283036] rounded-2xl w-full max-w-lg max-h-[80vh] overflow-hidden shadow-2xl"
+              className="bg-surface dark:bg-[#283036] rounded-2xl w-full max-w-lg max-h-[80vh] overflow-hidden shadow-2xl"
               onClick={e => e.stopPropagation()}
             >
               <div className="bg-gradient-to-r from-amber-500 to-orange-500 p-5 text-white">
@@ -440,12 +440,12 @@ export default function MyGroupsList() {
                     <button 
                       onClick={handleRefreshRequests}
                       disabled={loadingRequests}
-                      className="p-2 hover:bg-white dark:bg-[#283036]/20 rounded-lg transition-colors disabled:opacity-50"
+                      className="p-2 hover:bg-surface dark:bg-[#283036]/20 rounded-lg transition-colors disabled:opacity-50"
                       title="Refresh Requests"
                     >
                       <RefreshCw size={18} className={loadingRequests ? 'animate-spin' : ''} />
                     </button>
-                    <button onClick={() => setShowRequestsModal(false)} className="p-2 hover:bg-white dark:bg-[#283036]/20 rounded-lg transition-colors">
+                    <button onClick={() => setShowRequestsModal(false)} className="p-2 hover:bg-surface dark:bg-[#283036]/20 rounded-lg transition-colors">
                       <X size={18} />
                     </button>
                   </div>
@@ -466,7 +466,7 @@ export default function MyGroupsList() {
                 ) : (
                   <div className="space-y-3">
                     {requests.map((req) => (
-                      <div key={req.id} className="border border-gray-200 dark:border-[#38434F] rounded-xl p-4 hover:border-amber-200 transition-colors">
+                      <div key={req.id} className="border border-surface dark:border-[#38434F] rounded-xl p-4 hover:border-amber-200 transition-colors">
                         <div className="flex items-start gap-3">
                           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white font-bold text-sm overflow-hidden flex-shrink-0">
                             {req.users?.avatar_url
@@ -542,7 +542,7 @@ export default function MyGroupsList() {
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-white dark:bg-[#283036] rounded-2xl w-full max-w-2xl max-h-[80vh] overflow-hidden shadow-2xl"
+              className="bg-surface dark:bg-[#283036] rounded-2xl w-full max-w-2xl max-h-[80vh] overflow-hidden shadow-2xl"
               onClick={e => e.stopPropagation()}
             >
               <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-5 text-white flex items-center justify-between">
@@ -550,7 +550,7 @@ export default function MyGroupsList() {
                   <h2 className="text-lg font-bold">Manage Members</h2>
                   <p className="text-sm opacity-90">{selectedGroup.name}</p>
                 </div>
-                <button onClick={() => setShowManageModal(false)} className="p-2 hover:bg-white dark:bg-[#283036]/20 rounded-lg transition-colors">
+                <button onClick={() => setShowManageModal(false)} className="p-2 hover:bg-surface dark:bg-[#283036]/20 rounded-lg transition-colors">
                   <X size={18} />
                 </button>
               </div>
@@ -568,7 +568,7 @@ export default function MyGroupsList() {
                 ) : (
                   <div className="space-y-3">
                     {members.map((member) => (
-                      <div key={member.id} className={`flex items-center gap-3 p-4 rounded-xl border ${member.is_blocked ? 'bg-red-50 border-red-200' : 'bg-gray-50 border-gray-200 dark:border-[#38434F]'}`}>
+                      <div key={member.id} className={`flex items-center gap-3 p-4 rounded-xl border ${member.is_blocked ? 'bg-red-50 border-red-200' : 'bg-app border-surface dark:border-[#38434F]'}`}>
                         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm overflow-hidden flex-shrink-0">
                           {member.user.avatar_url
                             ? <img src={member.user.avatar_url} className="w-full h-full object-cover" />

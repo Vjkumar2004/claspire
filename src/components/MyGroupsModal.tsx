@@ -30,13 +30,13 @@ export default function MyGroupsModal({ isOpen, onClose, currentUser }: MyGroups
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="relative bg-white dark:bg-[#283036] rounded-[32px] w-full max-w-4xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
+            className="relative bg-surface dark:bg-[#283036] rounded-[32px] w-full max-w-4xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
           >
             {/* Header */}
             <div className="bg-gradient-to-r from-purple-600 to-indigo-600 p-6 text-white">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-white dark:bg-[#283036]/20 rounded-full flex items-center justify-center">
+                  <div className="w-12 h-12 bg-surface dark:bg-[#283036]/20 rounded-full flex items-center justify-center">
                     <Users size={24} className="text-white" />
                   </div>
                   <div>
@@ -44,7 +44,7 @@ export default function MyGroupsModal({ isOpen, onClose, currentUser }: MyGroups
                     <p className="text-xs opacity-80">Manage your student groups</p>
                   </div>
                 </div>
-                <button onClick={onClose} className="p-2 hover:bg-white dark:bg-[#283036]/20 rounded-xl transition-colors">
+                <button onClick={onClose} className="p-2 hover:bg-surface dark:bg-[#283036]/20 rounded-xl transition-colors">
                   <X size={20} />
                 </button>
               </div>

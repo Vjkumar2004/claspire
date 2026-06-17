@@ -43,7 +43,7 @@ export default function NetworkSidebar({ activeTab, onTabChange, connections, fo
   return (
     <div className="space-y-3">
       {/* Profile Card - Glassmorphism */}
-      <div className="backdrop-blur-xl bg-white/80 dark:bg-[#283036]/80 rounded-2xl border border-white/40 dark:border-[#38434F] shadow-sm overflow-hidden">
+      <div className="backdrop-blur-xl bg-surface/80 dark:bg-[#283036]/80 rounded-2xl border border-white/40 dark:border-[#38434F] shadow-sm overflow-hidden">
         <div className={`h-16 ${user?.banner_url ? '' : 'bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-fuchsia-500/10'}`}>
           {user?.banner_url && (
             <img src={user.banner_url} alt="Banner" className="w-full h-full object-cover" />
@@ -85,7 +85,7 @@ export default function NetworkSidebar({ activeTab, onTabChange, connections, fo
           </div>
 
           {/* Stats Row */}
-          <div className="flex items-center justify-center gap-3 mt-3 pt-3 border-t border-gray-100 dark:border-[#38434F]/80 dark:border-[#38434F]/80">
+          <div className="flex items-center justify-center gap-3 mt-3 pt-3 border-t border-surface dark:border-[#38434F]/80 dark:border-[#38434F]/80">
             <div className="text-center">
               <p className="text-sm font-extrabold text-gray-900 dark:text-white">{connections}</p>
               <p className="text-[9px] text-gray-500 dark:text-[#B0B7BE] font-medium">Connections</p>
@@ -101,7 +101,7 @@ export default function NetworkSidebar({ activeTab, onTabChange, connections, fo
           <div className="flex items-center gap-2 mt-3">
             <button
               onClick={() => router.push(`/settings/profile`)}
-              className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-[11px] font-semibold text-gray-500 dark:text-[#B0B7BE] bg-gray-50 dark:bg-[#1D2226]/80 dark:bg-[#1D2226]/80 border border-gray-200 dark:border-[#38434F]/60 dark:border-[#38434F]/60 hover:bg-gray-100 dark:bg-[#1D2226] dark:hover:bg-[#1D2226] hover:text-gray-700 dark:text-white dark:hover:text-white transition-all"
+              className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-[11px] font-semibold text-gray-500 dark:text-[#B0B7BE] bg-app dark:bg-[#1D2226]/80 dark:bg-[#1D2226]/80 border border-surface dark:border-[#38434F]/60 dark:border-[#38434F]/60 hover:bg-surface-hover dark:bg-[#1D2226] dark:hover:bg-[#1D2226] hover:text-gray-700 dark:text-white dark:hover:text-white transition-all"
             >
               <Settings size={12} />
               Edit Profile
@@ -118,7 +118,7 @@ export default function NetworkSidebar({ activeTab, onTabChange, connections, fo
       </div>
 
       {/* Navigation - Glassmorphism */}
-      <div className="backdrop-blur-xl bg-white/80 dark:bg-[#283036]/80 rounded-2xl border border-white/40 dark:border-[#38434F] shadow-sm p-1.5">
+      <div className="backdrop-blur-xl bg-surface/80 dark:bg-[#283036]/80 rounded-2xl border border-white/40 dark:border-[#38434F] shadow-sm p-1.5">
         {links.map((link) => {
           const Icon = link.icon
           const isActive = activeTab === link.id
@@ -129,7 +129,7 @@ export default function NetworkSidebar({ activeTab, onTabChange, connections, fo
               className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-[13px] font-semibold transition-all text-left ${
                 isActive
                   ? 'bg-gradient-to-r from-purple-50 to-purple-50/50 dark:from-purple-900/30 dark:to-purple-900/10 text-purple-700 dark:text-purple-400 shadow-sm'
-                  : 'text-gray-500 dark:text-[#B0B7BE] hover:bg-gray-50 dark:bg-[#1D2226]/80 dark:bg-[#1D2226]/80 dark:hover:bg-[#1D2226]/80 hover:text-gray-900 dark:text-white dark:hover:text-white'
+                  : 'text-gray-500 dark:text-[#B0B7BE] hover:bg-app dark:bg-[#1D2226]/80 dark:bg-[#1D2226]/80 dark:hover:bg-[#1D2226]/80 hover:text-gray-900 dark:text-white dark:hover:text-white'
               }`}
             >
               <Icon size={16} />
@@ -148,7 +148,7 @@ export default function NetworkSidebar({ activeTab, onTabChange, connections, fo
       </div>
 
       {/* Quick links - Glassmorphism */}
-      <div className="backdrop-blur-xl bg-white/80 dark:bg-[#283036]/80 rounded-2xl border border-white/40 dark:border-[#38434F] shadow-sm p-3">
+      <div className="backdrop-blur-xl bg-surface/80 dark:bg-[#283036]/80 rounded-2xl border border-white/40 dark:border-[#38434F] shadow-sm p-3">
         <button
           onClick={() => router.push(`/u/${user?.unique_id}`)}
           className="w-full flex items-center gap-2.5 text-[11px] font-semibold text-gray-400 dark:text-[#B0B7BE] hover:text-purple-600 transition-colors"

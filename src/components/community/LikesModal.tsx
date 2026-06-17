@@ -122,11 +122,11 @@ export default function LikesModal({ isOpen, onClose, postId, totalLikes, curren
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ duration: 0.2 }}
-            className="bg-white dark:bg-[#283036] rounded-xl shadow-2xl w-full max-w-md max-h-[80vh] flex flex-col"
+            className="bg-surface dark:bg-[#283036] rounded-xl shadow-2xl w-full max-w-md max-h-[80vh] flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-[#38434F]">
+            <div className="flex items-center justify-between p-4 border-b border-surface dark:border-[#38434F]">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center">
                   <ThumbsUp className="w-4 h-4 text-blue-600" />
@@ -138,7 +138,7 @@ export default function LikesModal({ isOpen, onClose, postId, totalLikes, curren
               </div>
               <button
                 onClick={onClose}
-                className="w-8 h-8 rounded-full hover:bg-gray-100 dark:hover:bg-[#1D2226] flex items-center justify-center transition-colors"
+                className="w-8 h-8 rounded-full hover:bg-surface-hover dark:hover:bg-[#1D2226] flex items-center justify-center transition-colors"
               >
                 <X className="w-4 h-4 text-gray-500 dark:text-[#B0B7BE]" />
               </button>
@@ -182,9 +182,9 @@ export default function LikesModal({ isOpen, onClose, postId, totalLikes, curren
                 <button
                   key={voter.id}
                   onClick={() => handleUserClick(voter.unique_id)}
-                  className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-[#1D2226] transition-colors text-left"
+                  className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-app dark:hover:bg-[#1D2226] transition-colors text-left"
                 >
-                  <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-[#283036] flex items-center justify-center overflow-hidden flex-shrink-0 border border-gray-200 dark:border-[#38434F]">
+                  <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-[#283036] flex items-center justify-center overflow-hidden flex-shrink-0 border border-surface dark:border-[#38434F]">
                     {voter.avatar_url ? (
                       <img
                         src={voter.avatar_url}

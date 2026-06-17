@@ -229,9 +229,9 @@ export default function SearchBar({ isMobileOverlay = false, onCloseMobile }: { 
       case 'group':
         return 'bg-cyan-50 border-cyan-100 text-cyan-700'
       case 'post':
-        return 'bg-gray-50 dark:bg-[#1D2226] border-gray-100 dark:border-[#38434F] text-gray-700 dark:text-[#B0B7BE]'
+        return 'bg-app dark:bg-[#1D2226] border-surface dark:border-[#38434F] text-gray-700 dark:text-[#B0B7BE]'
       default:
-        return 'bg-gray-50 dark:bg-[#1D2226] border-gray-100 dark:border-[#38434F] text-gray-700 dark:text-[#B0B7BE]'
+        return 'bg-app dark:bg-[#1D2226] border-surface dark:border-[#38434F] text-gray-700 dark:text-[#B0B7BE]'
     }
   }
 
@@ -259,7 +259,7 @@ export default function SearchBar({ isMobileOverlay = false, onCloseMobile }: { 
           onFocus={() => setIsOpen(true)}
           onKeyDown={handleKeyDown}
           placeholder="Search people, jobs, groups, colleges..."
-          className={`w-full bg-[#EEF3F8] dark:bg-[#283036] text-gray-800 dark:text-[#B0B7BE] text-[13px] font-semibold pl-10 pr-10 py-1.5 sm:py-2 rounded-md border border-transparent focus:border-gray-300 dark:focus:border-[#38434F] focus:bg-white dark:focus:bg-[#283036] focus:outline-none focus:ring-1 focus:ring-gray-300 dark:focus:ring-[#38434F] transition-all duration-200 ${
+          className={`w-full bg-[#EEF3F8] dark:bg-[#283036] text-gray-800 dark:text-[#B0B7BE] text-[13px] font-semibold pl-10 pr-10 py-1.5 sm:py-2 rounded-md border border-transparent focus:border-gray-300 dark:focus:border-[#38434F] focus:bg-surface dark:focus:bg-[#283036] focus:outline-none focus:ring-1 focus:ring-gray-300 dark:focus:ring-[#38434F] transition-all duration-200 ${
             isMobileOverlay ? 'h-11 sm:h-12' : 'h-9'
           }`}
         />
@@ -281,7 +281,7 @@ export default function SearchBar({ isMobileOverlay = false, onCloseMobile }: { 
 
       {/* Autocomplete suggestion popup dropdown */}
       {isOpen && (
-        <div className={`absolute top-full left-0 mt-1 w-full bg-white dark:bg-[#283036] border border-gray-200 dark:border-[#38434F] rounded-md shadow-lg z-[9999] overflow-hidden ${
+        <div className={`absolute top-full left-0 mt-1 w-full bg-surface dark:bg-[#283036] border border-surface dark:border-[#38434F] rounded-md shadow-lg z-[9999] overflow-hidden ${
           isMobileOverlay ? 'w-full min-w-0' : 'min-w-[360px] lg:min-w-[400px]'
         }`}>
           {loading && suggestions.length === 0 ? (
@@ -302,8 +302,8 @@ export default function SearchBar({ isMobileOverlay = false, onCloseMobile }: { 
                 {recentSearches.map((item, i) => (
                   <div
                     key={item.id}
-                    className={`w-full flex items-center justify-between px-3 py-1.5 rounded-md hover:bg-gray-50 dark:bg-[#1D2226] dark:hover:bg-[#1D2226] group cursor-pointer ${
-                      i === activeIndex ? 'bg-gray-50 dark:bg-[#1D2226]' : ''
+                    className={`w-full flex items-center justify-between px-3 py-1.5 rounded-md hover:bg-app dark:bg-[#1D2226] dark:hover:bg-[#1D2226] group cursor-pointer ${
+                      i === activeIndex ? 'bg-app dark:bg-[#1D2226]' : ''
                     }`}
                     onClick={() => {
                       saveRecentSearch(item)
@@ -314,11 +314,11 @@ export default function SearchBar({ isMobileOverlay = false, onCloseMobile }: { 
                   >
                     <div className="flex items-center gap-3 min-w-0 flex-1">
                       {item.type === 'query' ? (
-                        <div className="w-8 h-8 rounded bg-gray-50 dark:bg-[#1D2226] border border-gray-150 flex items-center justify-center flex-shrink-0">
+                        <div className="w-8 h-8 rounded bg-app dark:bg-[#1D2226] border border-gray-150 flex items-center justify-center flex-shrink-0">
                           <History className="w-4 h-4 text-gray-400 dark:text-[#B0B7BE]" />
                         </div>
                       ) : (
-                        <div className="w-8 h-8 rounded bg-gray-50 dark:bg-[#1D2226] border border-gray-150 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                        <div className="w-8 h-8 rounded bg-app dark:bg-[#1D2226] border border-gray-150 flex items-center justify-center flex-shrink-0 overflow-hidden">
                           {item.imageUrl ? (
                             <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover" />
                           ) : (
@@ -370,11 +370,11 @@ export default function SearchBar({ isMobileOverlay = false, onCloseMobile }: { 
                   </div>
                   <button
                     onClick={() => handleSuggestionClick(topMatch)}
-                    className={`w-full flex items-center gap-3.5 p-2 text-left rounded-md border border-purple-100/80 bg-white dark:bg-[#283036] hover:bg-purple-50/20 transition-all cursor-pointer shadow-[0_1px_3px_rgba(124,58,237,0.03)] ${
+                    className={`w-full flex items-center gap-3.5 p-2 text-left rounded-md border border-purple-100/80 bg-surface dark:bg-[#283036] hover:bg-purple-50/20 transition-all cursor-pointer shadow-[0_1px_3px_rgba(124,58,237,0.03)] ${
                       activeIndex === 0 ? 'bg-purple-50/30 border-purple-300' : ''
                     }`}
                   >
-                    <div className="w-10 h-10 rounded-md bg-white dark:bg-[#283036] border border-gray-150 flex items-center justify-center flex-shrink-0 overflow-hidden shadow-sm dark:shadow-[#1D2226]/50">
+                    <div className="w-10 h-10 rounded-md bg-surface dark:bg-[#283036] border border-gray-150 flex items-center justify-center flex-shrink-0 overflow-hidden shadow-sm dark:shadow-[#1D2226]/50">
                       {topMatch.imageUrl ? (
                         <img 
                           src={topMatch.imageUrl} 
@@ -412,11 +412,11 @@ export default function SearchBar({ isMobileOverlay = false, onCloseMobile }: { 
                       <button
                         key={item.id}
                         onClick={() => handleSuggestionClick(item)}
-                        className={`w-full flex items-center gap-3 px-2 py-1.5 text-left rounded hover:bg-gray-50 dark:bg-[#1D2226] dark:hover:bg-[#1D2226] cursor-pointer ${
-                          globalIdx === activeIndex ? 'bg-gray-50 dark:bg-[#1D2226]' : ''
+                        className={`w-full flex items-center gap-3 px-2 py-1.5 text-left rounded hover:bg-app dark:bg-[#1D2226] dark:hover:bg-[#1D2226] cursor-pointer ${
+                          globalIdx === activeIndex ? 'bg-app dark:bg-[#1D2226]' : ''
                         }`}
                       >
-                        <div className="w-8 h-8 rounded bg-white dark:bg-[#283036] border border-gray-150 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                        <div className="w-8 h-8 rounded bg-surface dark:bg-[#283036] border border-gray-150 flex items-center justify-center flex-shrink-0 overflow-hidden">
                           {item.imageUrl ? (
                             <img 
                               src={item.imageUrl} 
@@ -456,11 +456,11 @@ export default function SearchBar({ isMobileOverlay = false, onCloseMobile }: { 
                       <button
                         key={item.id}
                         onClick={() => handleSuggestionClick(item)}
-                        className={`w-full flex items-center gap-3 px-2 py-1.5 text-left rounded hover:bg-gray-50 dark:bg-[#1D2226] dark:hover:bg-[#1D2226] cursor-pointer ${
-                          globalIdx === activeIndex ? 'bg-gray-50 dark:bg-[#1D2226]' : ''
+                        className={`w-full flex items-center gap-3 px-2 py-1.5 text-left rounded hover:bg-app dark:bg-[#1D2226] dark:hover:bg-[#1D2226] cursor-pointer ${
+                          globalIdx === activeIndex ? 'bg-app dark:bg-[#1D2226]' : ''
                         }`}
                       >
-                        <div className="w-8 h-8 rounded-full bg-gray-50 dark:bg-[#1D2226] border border-gray-100 dark:border-[#38434F] flex items-center justify-center flex-shrink-0 overflow-hidden">
+                        <div className="w-8 h-8 rounded-full bg-app dark:bg-[#1D2226] border border-surface dark:border-[#38434F] flex items-center justify-center flex-shrink-0 overflow-hidden">
                           {item.imageUrl ? (
                             <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover" />
                           ) : (
@@ -496,11 +496,11 @@ export default function SearchBar({ isMobileOverlay = false, onCloseMobile }: { 
                       <button
                         key={item.id}
                         onClick={() => handleSuggestionClick(item)}
-                        className={`w-full flex items-center gap-3 px-2 py-1.5 text-left rounded hover:bg-gray-50 dark:bg-[#1D2226] dark:hover:bg-[#1D2226] cursor-pointer ${
-                          globalIdx === activeIndex ? 'bg-gray-50 dark:bg-[#1D2226]' : ''
+                        className={`w-full flex items-center gap-3 px-2 py-1.5 text-left rounded hover:bg-app dark:bg-[#1D2226] dark:hover:bg-[#1D2226] cursor-pointer ${
+                          globalIdx === activeIndex ? 'bg-app dark:bg-[#1D2226]' : ''
                         }`}
                       >
-                        <div className="w-8 h-8 rounded bg-gray-50 dark:bg-[#1D2226] border border-gray-100 dark:border-[#38434F] flex items-center justify-center flex-shrink-0 overflow-hidden">
+                        <div className="w-8 h-8 rounded bg-app dark:bg-[#1D2226] border border-surface dark:border-[#38434F] flex items-center justify-center flex-shrink-0 overflow-hidden">
                           <Briefcase className="w-4 h-4 text-amber-600" />
                         </div>
                         <div className="min-w-0">
@@ -525,11 +525,11 @@ export default function SearchBar({ isMobileOverlay = false, onCloseMobile }: { 
                       <button
                         key={item.id}
                         onClick={() => handleSuggestionClick(item)}
-                        className={`w-full flex items-center gap-3 px-2 py-1.5 text-left rounded hover:bg-gray-50 dark:bg-[#1D2226] dark:hover:bg-[#1D2226] cursor-pointer ${
-                          globalIdx === activeIndex ? 'bg-gray-50 dark:bg-[#1D2226]' : ''
+                        className={`w-full flex items-center gap-3 px-2 py-1.5 text-left rounded hover:bg-app dark:bg-[#1D2226] dark:hover:bg-[#1D2226] cursor-pointer ${
+                          globalIdx === activeIndex ? 'bg-app dark:bg-[#1D2226]' : ''
                         }`}
                       >
-                        <div className="w-8 h-8 rounded bg-gray-50 dark:bg-[#1D2226] border border-gray-100 dark:border-[#38434F] flex items-center justify-center flex-shrink-0 overflow-hidden">
+                        <div className="w-8 h-8 rounded bg-app dark:bg-[#1D2226] border border-surface dark:border-[#38434F] flex items-center justify-center flex-shrink-0 overflow-hidden">
                           <MessageSquare className="w-4 h-4 text-gray-500 dark:text-[#B0B7BE]" />
                         </div>
                         <div className="min-w-0">
@@ -543,7 +543,7 @@ export default function SearchBar({ isMobileOverlay = false, onCloseMobile }: { 
               )}
 
               {/* Bottom "Search all results" block */}
-              <div className="p-1.5 bg-gray-50 dark:bg-[#1D2226]">
+              <div className="p-1.5 bg-app dark:bg-[#1D2226]">
                 <button
                   onClick={() => handleSearchSubmit(query)}
                   className="w-full py-2 text-center text-[#7C3AED] hover:text-[#6D28D9] font-bold text-xs hover:underline cursor-pointer"

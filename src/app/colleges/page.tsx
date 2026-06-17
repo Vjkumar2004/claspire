@@ -39,7 +39,7 @@ export default function CollegesPage() {
     <div className="min-h-screen bg-[#F4F5F7] dark:bg-[#1D2226]">
 
       {/* ===== MOBILE HEADER + SEARCH (lg:hidden) ===== */}
-      <div className="lg:hidden bg-white dark:bg-[#283036] border-b border-slate-100 dark:border-[#38434F] dark:border-[#38434F]">
+      <div className="lg:hidden bg-surface dark:bg-[#283036] border-b border-surface dark:border-[#38434F] dark:border-[#38434F]">
         <div className="px-4 pt-3 pb-2">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#7C3AED]/10 rounded-full border border-[#7C3AED]/20 mb-2">
             <span className="w-2 h-2 rounded-full bg-[#7C3AED] animate-pulse" />
@@ -60,7 +60,7 @@ export default function CollegesPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search your college..."
-                className="w-full h-10 pl-9 pr-3 rounded-xl border border-slate-200 dark:border-[#38434F] bg-[#F8FAFC] dark:bg-[#1D2226] text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-[#B0B7BE] dark:text-[#B0B7BE] outline-none focus:border-[#7C3AED] focus:ring-1 focus:ring-[#7C3AED]/20 transition-all"
+                className="w-full h-10 pl-9 pr-3 rounded-xl border border-surface dark:border-[#38434F] bg-[#F8FAFC] dark:bg-[#1D2226] text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-[#B0B7BE] dark:text-[#B0B7BE] outline-none focus:border-[#7C3AED] focus:ring-1 focus:ring-[#7C3AED]/20 transition-all"
               />
             </div>
             <button className="h-10 px-4 rounded-xl bg-[#7C3AED] text-white text-xs font-bold border-none cursor-pointer hover:bg-[#6D28D9] transition-all flex items-center gap-1.5">
@@ -78,7 +78,7 @@ export default function CollegesPage() {
             ].map((stat) => {
               const Icon = stat.icon
               return (
-                <div key={stat.label} className="bg-white dark:bg-[#283036] rounded-xl border border-slate-100 dark:border-[#38434F] p-2.5 text-center shadow-sm">
+                <div key={stat.label} className="bg-surface dark:bg-[#283036] rounded-xl border border-surface dark:border-[#38434F] p-2.5 text-center shadow-sm">
                   <div className="w-7 h-7 rounded-lg bg-[#7C3AED]/5 flex items-center justify-center mx-auto mb-1">
                     <Icon size={13} className="text-[#7C3AED]" />
                   </div>
@@ -102,7 +102,7 @@ export default function CollegesPage() {
           {/* ===== LEFT SIDE (40%) — badge + heading + subtitle + desktop stats ===== */}
           <div className="lg:w-2/5">
             {/* Badge */}
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white/15 dark:bg-[#283036]/15 backdrop-blur-sm rounded-full border border-white/15 dark:border-[#38434F]/15 mb-2.5">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-surface/15 dark:bg-[#283036]/15 backdrop-blur-sm rounded-full border border-white/15 dark:border-[#38434F]/15 mb-2.5">
               <Building2 size={11} className="text-purple-300" />
               <span className="text-[10px] font-bold text-purple-200 uppercase tracking-wider">College Communities</span>
             </div>
@@ -129,7 +129,7 @@ export default function CollegesPage() {
                 ].map((stat) => {
                   const Icon = stat.icon
                   return (
-                    <div key={stat.label} className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white/10 dark:bg-[#283036]/10 backdrop-blur-xl rounded-lg border border-white/10 dark:border-[#38434F]/10">
+                    <div key={stat.label} className="flex items-center gap-1.5 px-2.5 py-1.5 bg-surface/10 dark:bg-[#283036]/10 backdrop-blur-xl rounded-lg border border-white/10 dark:border-[#38434F]/10">
                       <Icon size={12} className="text-purple-300" />
                       <span className="text-xs font-bold text-white">{stat.value.toLocaleString()}</span>
                       <span className="text-[10px] text-white/50 font-medium">{stat.label}</span>
@@ -144,7 +144,7 @@ export default function CollegesPage() {
           <div className="hidden lg:flex w-3/5 h-full items-center justify-end">
             <div className="relative w-[520px]">
               <div className="absolute -inset-1 bg-gradient-to-r from-purple-500 to-fuchsia-500 rounded-xl opacity-25 blur-md" />
-              <div className="relative flex items-stretch bg-white dark:bg-[#283036] rounded-xl overflow-hidden shadow-2xl shadow-purple-900/20 h-12">
+              <div className="relative flex items-stretch bg-surface dark:bg-[#283036] rounded-xl overflow-hidden shadow-2xl shadow-purple-900/20 h-12">
                 <div className="flex items-center justify-center pl-4 pr-2 text-gray-400 dark:text-[#B0B7BE]">
                   <Search size={18} />
                 </div>
@@ -166,7 +166,7 @@ export default function CollegesPage() {
           <div className="lg:hidden mb-5">
             <div className="relative">
               <div className="absolute -inset-1 bg-gradient-to-r from-purple-500 to-fuchsia-500 rounded-xl opacity-25 blur-md" />
-              <div className="relative flex items-stretch bg-white dark:bg-[#283036] rounded-xl overflow-hidden shadow-2xl shadow-purple-900/20 h-11">
+              <div className="relative flex items-stretch bg-surface dark:bg-[#283036] rounded-xl overflow-hidden shadow-2xl shadow-purple-900/20 h-11">
                 <div className="flex items-center justify-center pl-3.5 pr-2 text-gray-400 dark:text-[#B0B7BE]">
                   <Search size={16} />
                 </div>
@@ -186,7 +186,7 @@ export default function CollegesPage() {
 
           {/* ===== MOBILE: Stats panel at bottom ===== */}
           {heroStats && (
-            <div className="lg:hidden bg-white/10 dark:bg-[#283036]/10 backdrop-blur-xl rounded-xl border border-white/10 dark:border-[#38434F]/10 px-3.5 py-2.5">
+            <div className="lg:hidden bg-surface/10 dark:bg-[#283036]/10 backdrop-blur-xl rounded-xl border border-white/10 dark:border-[#38434F]/10 px-3.5 py-2.5">
               <div className="grid grid-cols-4 gap-2">
                 {[
                   { label: 'Colleges', value: heroStats.totalColleges, icon: Building2 },
@@ -245,7 +245,7 @@ export default function CollegesPage() {
                 {/* Mobile skeleton */}
                 <div className="flex sm:hidden flex-col gap-3">
                   {Array(6).fill(0).map((_, i) => (
-                    <div key={i} className="bg-white dark:bg-[#283036] rounded-[20px] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.08)] animate-pulse p-3.5 flex items-center gap-3">
+                    <div key={i} className="bg-surface dark:bg-[#283036] rounded-[20px] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.08)] animate-pulse p-3.5 flex items-center gap-3">
                       <div className="w-12 h-12 rounded-xl bg-gray-100 dark:bg-[#283036] flex-shrink-0" />
                       <div className="flex-1 min-w-0 space-y-2">
                         <div className="h-3.5 bg-gray-200 dark:bg-[#283036] rounded w-3/4" />
@@ -263,16 +263,16 @@ export default function CollegesPage() {
                 {/* Desktop skeleton */}
                 <div className="hidden sm:grid sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-5">
                   {Array(8).fill(0).map((_, i) => (
-                    <div key={i} className="bg-white dark:bg-[#283036] rounded-xl border border-gray-200 dark:border-[#38434F]/80 dark:border-[#38434F] shadow-sm animate-pulse flex flex-col">
+                    <div key={i} className="bg-surface dark:bg-[#283036] rounded-xl border border-surface dark:border-[#38434F]/80 dark:border-[#38434F] shadow-sm animate-pulse flex flex-col">
                       <div className="flex justify-center pt-7">
-                        <div className="w-[68px] h-[68px] rounded-xl bg-gray-100 dark:bg-[#283036] border border-gray-100 dark:border-[#38434F] shadow-sm" />
+                        <div className="w-[68px] h-[68px] rounded-xl bg-gray-100 dark:bg-[#283036] border border-surface dark:border-[#38434F] shadow-sm" />
                       </div>
                       <div className="px-5 pb-5 pt-5 flex flex-col items-center flex-1">
                         <div className="mt-3 h-4 bg-gray-200 dark:bg-[#283036] rounded w-3/4" />
                         <div className="mt-1.5 h-3 bg-gray-100 dark:bg-[#283036] rounded w-1/2" />
                         <div className="mt-3 h-4 bg-gray-200 dark:bg-[#283036] rounded w-20" />
                         <div className="flex-1" />
-                        <div className="mt-4 w-full border-t border-gray-100 dark:border-[#38434F] pt-3.5 flex justify-center gap-5">
+                        <div className="mt-4 w-full border-t border-surface dark:border-[#38434F] pt-3.5 flex justify-center gap-5">
                           <div className="h-3 bg-gray-100 dark:bg-[#283036] rounded w-14" />
                           <div className="h-3 bg-gray-100 dark:bg-[#283036] rounded w-14" />
                           <div className="h-3 bg-gray-100 dark:bg-[#283036] rounded w-14" />
@@ -292,11 +292,11 @@ export default function CollegesPage() {
                     return (
                       <div
                         key={c.id}
-                        className="bg-white dark:bg-[#283036] rounded-xl border border-gray-200 dark:border-[#38434F]/80 dark:border-[#38434F] shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 cursor-pointer flex flex-col"
+                        className="bg-surface dark:bg-[#283036] rounded-xl border border-surface dark:border-[#38434F]/80 dark:border-[#38434F] shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 cursor-pointer flex flex-col"
                         onClick={() => router.push(`/colleges/${c.slug}`)}
                       >
                         <div className="flex justify-center pt-7">
-                          <div className="w-[68px] h-[68px] rounded-xl border border-gray-100 dark:border-[#38434F] bg-white flex items-center justify-center overflow-hidden shadow-sm">
+                          <div className="w-[68px] h-[68px] rounded-xl border border-surface dark:border-[#38434F] bg-surface flex items-center justify-center overflow-hidden shadow-sm">
                             {logoUrl ? (
                               <img src={logoUrl} alt={c.colleges?.short_name || c.slug} className="w-full h-full object-contain p-2" />
                             ) : (
@@ -322,7 +322,7 @@ export default function CollegesPage() {
                             </span>
                           )}
                           <div className="flex-1" />
-                          <div className="w-full border-t border-gray-100 dark:border-[#38434F] pt-3.5 mt-4">
+                          <div className="w-full border-t border-surface dark:border-[#38434F] pt-3.5 mt-4">
                             <div className="flex items-center justify-center gap-5">
                               <div className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-[#B0B7BE] font-medium">
                                 <Users size={13} className="text-blue-500" />
@@ -358,11 +358,11 @@ export default function CollegesPage() {
                     return (
                       <div
                         key={c.id}
-                        className="bg-white dark:bg-[#283036] rounded-[20px] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.08)] p-3.5 flex items-center gap-3 cursor-pointer active:scale-[0.98] transition-transform"
+                        className="bg-surface dark:bg-[#283036] rounded-[20px] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.08)] p-3.5 flex items-center gap-3 cursor-pointer active:scale-[0.98] transition-transform"
                         onClick={() => router.push(`/colleges/${c.slug}`)}
                       >
                         {/* Left: Logo */}
-                        <div className="w-12 h-12 rounded-xl border border-gray-100 dark:border-[#38434F] bg-white flex-shrink-0 flex items-center justify-center overflow-hidden shadow-sm">
+                        <div className="w-12 h-12 rounded-xl border border-surface dark:border-[#38434F] bg-surface flex-shrink-0 flex items-center justify-center overflow-hidden shadow-sm">
                           {logoUrl ? (
                             <img src={logoUrl} alt={c.colleges?.short_name || c.slug} className="w-full h-full object-contain p-1.5" />
                           ) : (
@@ -430,8 +430,8 @@ export default function CollegesPage() {
               </>
             ) : (
               /* Empty State */
-              <div className="text-center py-16 sm:py-20 bg-white rounded-xl sm:rounded-2xl border border-dashed border-gray-200 dark:border-[#38434F] shadow-sm px-4">
-                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-50 dark:bg-[#1D2226] rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4 border border-gray-100 dark:border-[#38434F]">
+              <div className="text-center py-16 sm:py-20 bg-surface rounded-xl sm:rounded-2xl border border-dashed border-surface dark:border-[#38434F] shadow-sm px-4">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-app dark:bg-[#1D2226] rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4 border border-surface dark:border-[#38434F]">
                   <Search size={20} className="text-gray-300 dark:text-[#B0B7BE]" />
                 </div>
                 <h3 className="text-sm sm:text-base font-bold text-gray-900 dark:text-white mb-1 sm:mb-2">No colleges found</h3>
@@ -451,7 +451,7 @@ export default function CollegesPage() {
             <div className="space-y-5 sticky top-28">
               {/* Trending Colleges */}
               {data?.trending && data.trending.length > 0 && (
-                <div className="bg-white dark:bg-[#283036] rounded-xl border border-gray-200 dark:border-[#38434F]/80 dark:border-[#38434F] shadow-sm p-5">
+                <div className="bg-surface dark:bg-[#283036] rounded-xl border border-surface dark:border-[#38434F]/80 dark:border-[#38434F] shadow-sm p-5">
                   <div className="flex items-center gap-2 mb-4">
                     <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-sm">
                       <TrendingUp size={13} className="text-white" />
@@ -494,7 +494,7 @@ export default function CollegesPage() {
 
               {/* Fastest Growing */}
               {data?.fastestGrowing && data.fastestGrowing.length > 0 && (
-                <div className="bg-white dark:bg-[#283036] rounded-xl border border-gray-200 dark:border-[#38434F]/80 dark:border-[#38434F] shadow-sm p-5">
+                <div className="bg-surface dark:bg-[#283036] rounded-xl border border-surface dark:border-[#38434F]/80 dark:border-[#38434F] shadow-sm p-5">
                   <div className="flex items-center gap-2 mb-4">
                     <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shadow-sm">
                       <Zap size={13} className="text-white" />
@@ -537,7 +537,7 @@ export default function CollegesPage() {
 
               {/* Recently Active */}
               {data?.recentlyActive && data.recentlyActive.length > 0 && (
-                <div className="bg-white dark:bg-[#283036] rounded-xl border border-gray-200 dark:border-[#38434F]/80 dark:border-[#38434F] shadow-sm p-5">
+                <div className="bg-surface dark:bg-[#283036] rounded-xl border border-surface dark:border-[#38434F]/80 dark:border-[#38434F] shadow-sm p-5">
                   <div className="flex items-center gap-2 mb-4">
                     <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center shadow-sm">
                       <Clock size={13} className="text-white" />
