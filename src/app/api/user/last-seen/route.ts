@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { getAuthenticatedUser } from '@/lib/session'
+import { getUserIdFromRequest } from '@/lib/session'
 
 export async function PATCH(req: NextRequest) {
   try {
-    const user = await getAuthenticatedUser(req)
-    if (!user) {
+    const userId = getUserIdFromRequest(req)
+    if (!userId) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
     }
 
@@ -17,7 +17,7 @@ export async function PATCH(req: NextRequest) {
     const { error } = await supabase
       .from('users')
       .update({ last_seen: new Date().toISOString() })
-      .eq('id', user.id)
+      .eq('id', userId)
 
     if (error) {
       console.error('[LastSeen] Update error:', error)
