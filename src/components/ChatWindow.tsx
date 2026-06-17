@@ -258,7 +258,7 @@ export default function ChatWindow({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ activeChatUserId: otherUserId })
-      }).catch(() => {});
+      }).catch(() => { });
     };
 
     pingPresence();
@@ -272,7 +272,7 @@ export default function ChatWindow({
         headers: { 'Content-Type': 'application/json' },
         keepalive: true,
         body: JSON.stringify({ activeChatUserId: null })
-      }).catch(() => {});
+      }).catch(() => { });
     };
   }, [currentUserId, otherUserId]);
 
@@ -476,117 +476,117 @@ export default function ChatWindow({
           </div>
         ) : (
           <>
-          {hasMoreOlder && !loadingOlder && (
-            <div className="flex justify-center mb-2">
-              <button
-                onClick={loadOlderMessages}
-                className="flex items-center gap-1 px-3 py-1.5 text-[11px] font-semibold text-purple-600 bg-purple-50 hover:bg-purple-100 rounded-full transition-colors"
-              >
-                <ChevronUp size={14} /> Load older messages
-              </button>
-            </div>
-          )}
-          {loadingOlder && (
-            <div className="flex justify-center mb-2">
-              <Loader2 className="animate-spin text-purple-600" size={16} />
-            </div>
-          )}
-          {messages.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-center p-8">
-            <div className="w-12 h-12 bg-gray-100 dark:bg-[#1D2226] rounded-full flex items-center justify-center mb-3">
-              <Send size={24} className="text-gray-300 dark:text-[#B0B7BE]" />
-            </div>
-            <p className="text-sm font-medium text-gray-500 dark:text-[#B0B7BE]">No messages yet</p>
-            <p className="text-xs text-gray-400 dark:text-[#B0B7BE] mt-1">Start a conversation with {otherUserName}</p>
-          </div>
-        ) : (
-          messages.map((msg) => {
-            const isMine = msg.sender_id === currentUserId
-            const isOptimistic = msg.id.startsWith('temp-')
-            const failed = failedMessages.has(msg.id)
-            const showMenu = menuMessageId === msg.id
-            const canEditDelete = isMine && !isOptimistic && !failed && canModifyMessage(msg.created_at)
+            {hasMoreOlder && !loadingOlder && (
+              <div className="flex justify-center mb-2">
+                <button
+                  onClick={loadOlderMessages}
+                  className="flex items-center gap-1 px-3 py-1.5 text-[11px] font-semibold text-purple-600 bg-purple-50 hover:bg-purple-100 rounded-full transition-colors"
+                >
+                  <ChevronUp size={14} /> Load older messages
+                </button>
+              </div>
+            )}
+            {loadingOlder && (
+              <div className="flex justify-center mb-2">
+                <Loader2 className="animate-spin text-purple-600" size={16} />
+              </div>
+            )}
+            {messages.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-full text-center p-8">
+                <div className="w-12 h-12 bg-gray-100 dark:bg-[#1D2226] rounded-full flex items-center justify-center mb-3">
+                  <Send size={24} className="text-gray-300 dark:text-[#B0B7BE]" />
+                </div>
+                <p className="text-sm font-medium text-gray-500 dark:text-[#B0B7BE]">No messages yet</p>
+                <p className="text-xs text-gray-400 dark:text-[#B0B7BE] mt-1">Start a conversation with {otherUserName}</p>
+              </div>
+            ) : (
+              messages.map((msg) => {
+                const isMine = msg.sender_id === currentUserId
+                const isOptimistic = msg.id.startsWith('temp-')
+                const failed = failedMessages.has(msg.id)
+                const showMenu = menuMessageId === msg.id
+                const canEditDelete = isMine && !isOptimistic && !failed && canModifyMessage(msg.created_at)
 
-            return (
-              <div
-                key={msg.id}
-                className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}
-              >
-                <div className="relative max-w-[82%]">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (failed) {
-                        retryMessage(msg)
-                      } else {
-                        setMenuMessageId(showMenu ? null : msg.id)
-                      }
-                    }}
-                    className={`w-full text-left p-3 rounded-2xl text-sm transition-transform active:scale-[0.99] ${isMine
-                        ? `bg-purple-600 text-white rounded-br-none`
-                        : 'bg-surface dark:bg-[#283036] border border-surface dark:border-[#38434F] text-gray-800 dark:text-[#B0B7BE] rounded-bl-none shadow-sm dark:shadow-[#1D2226]/50'
-                      } ${failed ? 'ring-2 ring-red-400 cursor-pointer' : ''}`}
+                return (
+                  <div
+                    key={msg.id}
+                    className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}
                   >
-                    {renderReplyQuote(msg, isMine)}
-                    <p className="whitespace-pre-wrap break-words">{msg.content}</p>
-                    <div className={`flex items-center justify-end gap-1.5 mt-1 ${isMine ? 'text-white/75' : 'text-gray-400 dark:text-[#B0B7BE]'}`}>
-                      {msg.edited_at && (
-                        <span className="text-[9px] italic">edited</span>
-                      )}
-                      {failed ? (
-                        <span className="flex items-center gap-1 text-[9px] text-red-400">
-                          <RefreshCw size={10} /> Tap to retry
-                        </span>
-                      ) : (
-                        <>
-                          <span className="text-[9px]">{formatTime(msg.created_at)}</span>
-                          {isMine && <MessageStatus isOptimistic={isOptimistic} isRead={msg.is_read} />}
-                        </>
-                      )}
-                    </div>
-                  </button>
-
-                  {showMenu && !failed && (
-                    <div
-                      ref={menuRef}
-                      className={`absolute z-20 min-w-[140px] bg-surface dark:bg-[#283036] border border-surface dark:border-[#38434F] rounded-xl shadow-xl overflow-hidden ${isMine ? 'right-0 top-full mt-1' : 'left-0 top-full mt-1'
-                        }`}
-                    >
+                    <div className="relative max-w-[82%]">
                       <button
                         type="button"
-                        onClick={() => handleReply(msg)}
-                        className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 dark:text-[#B0B7BE] hover:bg-app dark:hover:bg-[#1D2226]"
+                        onClick={() => {
+                          if (failed) {
+                            retryMessage(msg)
+                          } else {
+                            setMenuMessageId(showMenu ? null : msg.id)
+                          }
+                        }}
+                        className={`w-full text-left p-3 rounded-2xl text-sm transition-transform active:scale-[0.99] ${isMine
+                          ? `bg-purple-600 text-white rounded-br-none`
+                          : 'bg-surface dark:bg-[#283036] border border-surface dark:border-[#38434F] text-gray-800 dark:text-[#B0B7BE] rounded-bl-none shadow-sm dark:shadow-[#1D2226]/50'
+                          } ${failed ? 'ring-2 ring-red-400 cursor-pointer' : ''}`}
                       >
-                        <Reply size={15} /> Reply
+                        {renderReplyQuote(msg, isMine)}
+                        <p className="whitespace-pre-wrap break-words">{msg.content}</p>
+                        <div className={`flex items-center justify-end gap-1.5 mt-1 ${isMine ? 'text-white/75' : 'text-gray-400 dark:text-[#B0B7BE]'}`}>
+                          {msg.edited_at && (
+                            <span className="text-[9px] italic">edited</span>
+                          )}
+                          {failed ? (
+                            <span className="flex items-center gap-1 text-[9px] text-red-400">
+                              <RefreshCw size={10} /> Tap to retry
+                            </span>
+                          ) : (
+                            <>
+                              <span className="text-[9px]">{formatTime(msg.created_at)}</span>
+                              {isMine && <MessageStatus isOptimistic={isOptimistic} isRead={msg.is_read} />}
+                            </>
+                          )}
+                        </div>
                       </button>
-                      {canEditDelete && (
-                        <>
+
+                      {showMenu && !failed && (
+                        <div
+                          ref={menuRef}
+                          className={`absolute z-20 min-w-[140px] bg-surface dark:bg-[#283036] border border-surface dark:border-[#38434F] rounded-xl shadow-xl overflow-hidden ${isMine ? 'right-0 top-full mt-1' : 'left-0 top-full mt-1'
+                            }`}
+                        >
                           <button
                             type="button"
-                            onClick={() => handleEdit(msg)}
-                            className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 dark:text-[#B0B7BE] hover:bg-app dark:hover:bg-[#1D2226] border-t border-surface dark:border-[#38434F]"
+                            onClick={() => handleReply(msg)}
+                            className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 dark:text-[#B0B7BE] hover:bg-app dark:hover:bg-[#1D2226]"
                           >
-                            <Pencil size={15} /> Edit
+                            <Reply size={15} /> Reply
                           </button>
-                          <button
-                            type="button"
-                            onClick={() => handleDelete(msg)}
-                            className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 border-t border-surface dark:border-[#38434F]"
-                          >
-                            <Trash2 size={15} /> Delete
-                          </button>
-                        </>
+                          {canEditDelete && (
+                            <>
+                              <button
+                                type="button"
+                                onClick={() => handleEdit(msg)}
+                                className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 dark:text-[#B0B7BE] hover:bg-app dark:hover:bg-[#1D2226] border-t border-surface dark:border-[#38434F]"
+                              >
+                                <Pencil size={15} /> Edit
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleDelete(msg)}
+                                className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 border-t border-surface dark:border-[#38434F]"
+                              >
+                                <Trash2 size={15} /> Delete
+                              </button>
+                            </>
+                          )}
+                        </div>
                       )}
                     </div>
-                  )}
-                </div>
-              </div>
-            )
-          })
+                  </div>
+                )
+              })
+            )}
+            <div ref={messagesEndRef} />
+          </>
         )}
-        <div ref={messagesEndRef} />
-        </>
-      )}
       </div>
 
       <div className={`flex-shrink-0 ${flat ? 'pb-[max(0.75rem,env(safe-area-inset-bottom))] bg-[#f0f2f5] dark:bg-[#1D2226] border-t border-surface dark:border-[#38434F]' : 'bg-surface dark:bg-[#283036] border-t border-surface dark:border-[#38434F]'}`}>

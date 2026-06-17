@@ -5,60 +5,19 @@ import { ArrowBigUp, MessageSquare, Share2, CheckCircle, ArrowRight, Trash2 } fr
 import { useRouter } from 'next/navigation'
 import MediaGallery from '@/components/MediaGallery'
 
-const convertUrlsToLinks = (text: string) => {
-  if (!text) return text
-  const urlPattern = /(https?:\/\/[^\s\)]+)/g
-
-  const lines = text.split('\n')
-
-  return lines.map((line, lineIndex) => {
-    const matches = line.match(urlPattern) || []
-
-    if (matches.length === 0) {
-      return (
-        <span key={`line-${lineIndex}`}>
-          {line}
-          {lineIndex < lines.length - 1 && <br />}
-        </span>
-      )
-    }
-
-    const parts: React.ReactNode[] = []
-    let lastIdx = 0
-
-    matches.forEach((match, matchIndex) => {
-      const startIdx = line.indexOf(match, lastIdx)
-      if (startIdx > lastIdx) {
-        parts.push(line.substring(lastIdx, startIdx))
-      }
-
-      parts.push(
-        <a
-          key={`link-${lineIndex}-${matchIndex}`}
-          href={match}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-[#7C3AED] hover:underline"
-          onClick={(e) => e.stopPropagation()}
-        >
-          {match}
-        </a>
-      )
-
-      lastIdx = startIdx + match.length
-    })
-
-    if (lastIdx < line.length) {
-      parts.push(line.substring(lastIdx))
-    }
-
-    return (
-      <span key={`line-${lineIndex}`}>
-        {parts}
-        {lineIndex < lines.length - 1 && <br />}
-      </span>
-    )
-  })
+const renderContent = (text: string) => {
+  if (!text) return { __html: '' }
+  // First, escape HTML if it looks like raw text, but wait, our new editor produces HTML.
+  // We'll trust the HTML from the editor (since it's a student platform).
+  // But we still want to convert URLs to links if they aren't already in <a> tags.
+  // A simple regex to find URLs not inside a tag:
+  let html = text
+  
+  // Replace URLs with <a> tags, trying to avoid breaking existing hrefs
+  const urlRegex = /(?<!href="|')\b(https?:\/\/[^\s<]+)\b/g
+  html = html.replace(urlRegex, '<a href="$1" target="_blank" rel="noopener noreferrer" class="text-[#7C3AED] hover:underline">$1</a>')
+  
+  return { __html: html }
 }
 
 const getTypeStyle = (type: string) => {
@@ -294,12 +253,11 @@ export default function FeedPost({
 
   return (
     <motion.article
-      layout
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.98 }}
       transition={{ duration: 0.2 }}
-      className="bg-surface dark:bg-[#283036] rounded-xl border border-surface/80 dark:border-[#38434F]/80 p-3.5 sm:p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] sm:shadow-sm"
+      className="bg-white dark:bg-[#283036] rounded-xl border border-slate-100 dark:border-[#38434F]/80 p-3.5 sm:p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] sm:shadow-sm"
     >
       {/* Feed Card Header details */}
       <div className="flex items-start justify-between gap-2 mb-3">
@@ -387,9 +345,10 @@ export default function FeedPost({
 
       {/* Content text */}
       <div className="text-[13px] sm:text-sm text-slate-700 dark:text-[#CBD5E1] leading-[1.65] font-normal mb-2.5">
-        <p className={expandedContent ? '' : 'line-clamp-3 whitespace-pre-wrap'}>
-          {convertUrlsToLinks(post.content)}
-        </p>
+        <div 
+          className={`whitespace-pre-wrap break-words [&>blockquote]:border-l-4 [&>blockquote]:border-[#7C3AED] [&>blockquote]:pl-4 [&>blockquote]:text-slate-500 [&>ul]:list-disc [&>ul]:pl-5 [&>ol]:list-decimal [&>ol]:pl-5 ${expandedContent ? '' : 'line-clamp-3'}`}
+          dangerouslySetInnerHTML={renderContent(post.content)}
+        />
 
         {post.content && post.content.length > 180 && (
           <button

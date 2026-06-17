@@ -310,7 +310,7 @@ export default function JuniorDashboard() {
   ]
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#1D2226] font-plus-jakarta-sans text-[#0F172A] dark:text-white antialiased">
+    <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#1D2226] font-plus-jakarta-sans text-[#0F172A] dark:text-white antialiased overflow-x-hidden">
 
       {/* ═══ MOBILE SIDEBAR OVERLAY ═══ */}
       <AnimatePresence>
@@ -398,7 +398,7 @@ export default function JuniorDashboard() {
       </aside>
 
       {/* ═══ MAIN CONTENT AREA ═══ */}
-      <main className="lg:ml-[280px] min-h-screen pb-20">
+      <main className="lg:ml-[280px] min-h-screen pb-20 min-w-0">
 
         {/* MOBILE TOP HEADER BAR */}
         <div className="lg:hidden sticky top-0 bg-surface/85 backdrop-blur-md border-b border-surface/60 dark:border-[#38434F] z-30 px-4 py-4 flex items-center justify-between">

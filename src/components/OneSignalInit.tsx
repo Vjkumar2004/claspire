@@ -1,36 +1,7 @@
 'use client'
 import { useEffect, useRef } from 'react'
 import OneSignal from 'react-onesignal'
-
-const MAX_RETRIES = 3
-const RETRY_DELAY = 1500
-
-async function savePlayerIdWithRetry(playerId: string | null): Promise<boolean> {
-  for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
-    try {
-      const res = await fetch('/api/profile/update', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ onesignal_player_id: playerId }),
-      })
-      if (res.ok) {
-        if (playerId) {
-          console.log('[OneSignal] Player ID saved successfully')
-        }
-        return true
-      }
-      const text = await res.text().catch(() => '')
-      console.warn(`[OneSignal] Save attempt ${attempt + 1}/${MAX_RETRIES} failed (${res.status}): ${text}`)
-    } catch (err) {
-      console.warn(`[OneSignal] Save attempt ${attempt + 1}/${MAX_RETRIES} error:`, err)
-    }
-    if (attempt < MAX_RETRIES - 1) {
-      await new Promise((r) => setTimeout(r, RETRY_DELAY * (attempt + 1)))
-    }
-  }
-  console.error(`[OneSignal] Failed to save player ID after ${MAX_RETRIES} attempts`)
-  return false
-}
+import { savePlayerIdWithRetry, pollForSubscriptionId } from '@/lib/onesignal-utils'
 
 export default function OneSignalInit() {
   const cleanupRef = useRef<(() => void) | null>(null)
@@ -65,13 +36,32 @@ export default function OneSignalInit() {
 
         // Register subscription change listener FIRST to avoid race conditions
         const handleSubscriptionChange = async (event: any) => {
-          const newId = event.current?.id
+          const newId: string | null = event.current?.id || null
+          const optedIn: boolean = event.current?.optedIn === true
+
           if (newId) {
+            // FIX 4: Skip duplicate saves
+            const currentStored = (window as any).__claspire_onesignal_id__ || null
             console.log('[OneSignal] Subscription changed — new player ID:', newId)
-            await savePlayerIdWithRetry(newId)
+            const saved = await savePlayerIdWithRetry(newId, currentStored)
+            if (saved) (window as any).__claspire_onesignal_id__ = newId
+          } else if (optedIn) {
+            // FIX 2 + 3: newId is null but user is opted in — poll for the real ID
+            console.log('[OneSignal] Change event returned null ID but user is opted in — polling...')
+            const polledId = await pollForSubscriptionId(8, 800)
+            if (polledId) {
+              const currentStored = (window as any).__claspire_onesignal_id__ || null
+              const saved = await savePlayerIdWithRetry(polledId, currentStored)
+              if (saved) (window as any).__claspire_onesignal_id__ = polledId
+            } else {
+              // Polling exhausted and still no ID — user genuinely has no subscription
+              console.log('[OneSignal] Polling timed out — not clearing stored ID to avoid false negatives')
+            }
           } else {
+            // User is not opted in and no ID — subscription was genuinely removed
             console.log('[OneSignal] Subscription removed — clearing player ID')
             await savePlayerIdWithRetry(null)
+            ;(window as any).__claspire_onesignal_id__ = null
           }
         }
 
@@ -80,10 +70,12 @@ export default function OneSignalInit() {
         // Now check current subscription state (listener is already registered)
         const currentId = OneSignal.User.PushSubscription.id
         if (currentId) {
-          console.log('[OneSignal] Push subscription active:', currentId)
-          await savePlayerIdWithRetry(currentId)
+          console.log('[OneSignal] Push subscription active on init:', currentId)
+          const currentStored = (window as any).__claspire_onesignal_id__ || null
+          const saved = await savePlayerIdWithRetry(currentId, currentStored)
+          if (saved) (window as any).__claspire_onesignal_id__ = currentId
         } else {
-          console.log('[OneSignal] No push subscription yet — will wait for subscription change')
+          console.log('[OneSignal] No push subscription on init — will wait for subscription change event')
         }
 
         cleanupRef.current = () => {

@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { getAuthenticatedUser } from '@/lib/session'
+import { getUserIdFromRequest } from '@/lib/session'
 
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const viewer = await getAuthenticatedUser(req)
-    if (!viewer) {
+    const viewerId = getUserIdFromRequest(req)
+    if (!viewerId) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
     }
 

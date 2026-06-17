@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase'
 
 type NetworkRequestCountContextType = {
   pendingCount: number
+  setPendingCount: (count: number) => void
   refreshPendingCount: () => Promise<void>
 }
 
@@ -96,7 +97,7 @@ export function NetworkRequestCountProvider({ children }: { children: ReactNode 
   }, [user?.id, refreshPendingCount])
 
   return (
-    <NetworkRequestCountContext.Provider value={{ pendingCount, refreshPendingCount }}>
+    <NetworkRequestCountContext.Provider value={{ pendingCount, setPendingCount, refreshPendingCount }}>
       {children}
     </NetworkRequestCountContext.Provider>
   )

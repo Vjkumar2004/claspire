@@ -745,7 +745,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                         sessionStorage.setItem(`community-feed-back-intent-${slug}`, 'true')
                         router.push(`/community/c/${community.slug}/p/${post.id}`)
                       }}
-                      className="bg-surface dark:bg-[#1D2226] rounded-none sm:rounded-2xl border-y sm:border border-surface dark:border-[#38434F]/80 shadow-sm sm:shadow p-4 sm:p-5 cursor-pointer hover:border-purple-200 hover:shadow-md transition-all"
+                      className="bg-white dark:bg-[#1D2226] rounded-none sm:rounded-2xl border-y sm:border border-slate-100 dark:border-[#38434F]/80 shadow-sm sm:shadow p-4 sm:p-5 cursor-pointer hover:border-purple-200 hover:shadow-md transition-all"
                     >
                       <div className="flex items-start justify-between gap-3 mb-3">
                         <div className="flex items-center gap-3 min-w-0">
@@ -1231,6 +1231,13 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
         collegeName={community.colleges?.name}
         collegeLogo={community.colleges?.logo_url}
         collegeSlug={community.colleges?.slug}
+        user={{
+          name: currentUser?.full_name || 'User',
+          avatarUrl: currentUser?.avatar_url,
+          isVerified: currentUser?.is_verified,
+          collegeName: community.colleges?.name,
+          role: currentUser?.role
+        }}
       />
 
       {/* Referral Confirmation Modal */}

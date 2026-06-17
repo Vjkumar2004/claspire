@@ -1,6 +1,44 @@
 'use client'
 import { useState, useRef } from 'react'
 import { Camera, Loader2 } from 'lucide-react'
+import { showToast } from '@/components/Toast'
+
+async function compressAvatar(file: File, quality: number, maxDim: number): Promise<File> {
+  return new Promise((resolve, reject) => {
+    const img = new Image()
+    const url = URL.createObjectURL(file)
+    img.onload = () => {
+      URL.revokeObjectURL(url)
+      let w = img.naturalWidth
+      let h = img.naturalHeight
+      if (w > maxDim || h > maxDim) {
+        const ratio = Math.min(maxDim / w, maxDim / h)
+        w = Math.round(w * ratio)
+        h = Math.round(h * ratio)
+      }
+      const canvas = document.createElement('canvas')
+      canvas.width = w
+      canvas.height = h
+      const ctx = canvas.getContext('2d')
+      if (!ctx) return reject(new Error('Failed to get canvas context'))
+      ctx.drawImage(img, 0, 0, w, h)
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) return reject(new Error('Canvas to Blob failed'))
+          const fileName = file.name.replace(/\.[^.]+$/, '.jpg')
+          resolve(new File([blob], fileName, { type: 'image/jpeg' }))
+        },
+        'image/jpeg',
+        quality
+      )
+    }
+    img.onerror = () => {
+      URL.revokeObjectURL(url)
+      reject(new Error('Failed to load image'))
+    }
+    img.src = url
+  })
+}
 
 interface AvatarUploadProps {
   currentUrl?: string
@@ -16,6 +54,7 @@ export default function AvatarUpload({
   onUploadSuccess
 }: AvatarUploadProps) {
   const [uploading, setUploading] = useState(false)
+  const [uploadState, setUploadState] = useState('')
   const [preview, setPreview] = useState<string | null>(null)
   const [error, setError] = useState('')
   const fileRef = useRef<HTMLInputElement>(null)
@@ -24,19 +63,99 @@ export default function AvatarUpload({
     const file = e.target.files?.[0]
     if (!file) return
 
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/heic', 'image/heif']
+    if (!allowedTypes.includes(file.type)) {
+      showToast({ type: 'error', title: 'Unsupported format', message: 'Please upload a JPG, PNG, WEBP, GIF, or HEIC image' })
+      return
+    }
+
+    setUploading(true)
+    setError('')
+
+    let uploadFile = file
+    const MAX_SIZE = 2 * 1024 * 1024
+    const MAX_GIF_SIZE = 5 * 1024 * 1024
+
+    if (file.type === 'image/gif') {
+      if (file.size > MAX_GIF_SIZE) {
+        showToast({ type: 'error', title: 'Image too large', message: 'GIF is too large. Please choose a GIF smaller than 5 MB.' })
+        setUploading(false)
+        return
+      }
+      // Skip compression for GIFs
+    } else {
+      // Handle HEIC/HEIF conversion
+      if (file.type === 'image/heic' || file.type === 'image/heif') {
+        setUploadState('Converting HEIC...')
+        try {
+          const heic2any = (await import('heic2any')).default
+          const convertedBlob = await heic2any({
+            blob: file,
+            toType: 'image/jpeg',
+            quality: 0.9 // High quality initial conversion
+          }) as Blob
+          uploadFile = new File([convertedBlob], file.name.replace(/\.[^.]+$/, '.jpg'), { type: 'image/jpeg' })
+        } catch (e) {
+          console.error('HEIC conversion failed', e)
+          showToast({ type: 'error', title: 'Conversion failed', message: 'Failed to convert HEIC image' })
+          setUploading(false)
+          setUploadState('')
+          return
+        }
+      }
+
+      // Compress if still larger than 2MB
+      if (uploadFile.size > MAX_SIZE) {
+        setUploadState('Compressing image...')
+        let compressed = false
+        const qualities = [0.8, 0.7, 0.6]
+        for (const q of qualities) {
+          try {
+            const attempt = await compressAvatar(uploadFile, q, 1200)
+            if (attempt.size <= MAX_SIZE) {
+              uploadFile = attempt
+              compressed = true
+              break
+            }
+          } catch (e) {
+            console.error('Compression failed', e)
+          }
+        }
+        
+        // If still too large, final aggressive pass at 800x800
+        if (!compressed) {
+          try {
+            const attempt = await compressAvatar(uploadFile, 0.5, 800)
+            if (attempt.size <= MAX_SIZE) {
+              uploadFile = attempt
+              compressed = true
+            }
+          } catch (e) {
+            console.error('Aggressive compression failed', e)
+          }
+        }
+
+        if (!compressed && uploadFile.size > MAX_SIZE) {
+          showToast({ type: 'error', title: 'Image too large', message: 'Image is too large. Please choose an image smaller than 2 MB.' })
+          setUploading(false)
+          setUploadState('')
+          return
+        }
+      }
+    }
+
     // Show preview instantly
     const reader = new FileReader()
     reader.onload = () => {
       setPreview(reader.result as string)
     }
-    reader.readAsDataURL(file)
+    reader.readAsDataURL(uploadFile)
 
-    setUploading(true)
-    setError('')
+    setUploadState('Uploading avatar...')
 
     try {
       const formData = new FormData()
-      formData.append('file', file)
+      formData.append('file', uploadFile)
       formData.append('type', 'avatar')
 
       const res = await fetch('/api/upload', {
@@ -60,6 +179,8 @@ export default function AvatarUpload({
         localStorage.setItem('claspire_user', JSON.stringify(u))
       }
 
+      setUploadState('Avatar updated successfully')
+      showToast({ type: 'success', title: 'Success', message: 'Avatar updated successfully' })
       onUploadSuccess(data.url)
 
     } catch (err) {
@@ -67,6 +188,7 @@ export default function AvatarUpload({
       setPreview(null)
     } finally {
       setUploading(false)
+      setTimeout(() => setUploadState(''), 2000)
     }
   }
 
@@ -124,12 +246,17 @@ export default function AvatarUpload({
 
         {/* Loading overlay */}
         {uploading && (
-          <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center">
             <Loader2
               size={size * 0.3}
               color="white"
               className="animate-spin"
             />
+            {uploadState && (
+              <span className="absolute mt-14 text-[9px] text-white font-bold whitespace-nowrap bg-black/60 px-2 py-0.5 rounded-full z-10">
+                {uploadState}
+              </span>
+            )}
           </div>
         )}
       </div>

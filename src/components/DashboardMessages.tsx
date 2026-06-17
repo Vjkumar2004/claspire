@@ -122,19 +122,19 @@ export default function DashboardMessages({
 
     const channel = supabase
       .channel(`dashboard-messages-${currentUserId}`)
-      .on('postgres_changes', { 
-        event: 'INSERT', 
-        schema: 'public', 
-        table: 'direct_messages', 
-        filter: `receiver_id=eq.${currentUserId}` 
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'direct_messages',
+        filter: `receiver_id=eq.${currentUserId}`
       }, (payload) => {
         updateConversationFromPayload(payload)
       })
-      .on('postgres_changes', { 
-        event: 'INSERT', 
-        schema: 'public', 
-        table: 'direct_messages', 
-        filter: `sender_id=eq.${currentUserId}` 
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'direct_messages',
+        filter: `sender_id=eq.${currentUserId}`
       }, (payload) => {
         updateConversationFromPayload(payload)
       })
@@ -421,8 +421,8 @@ export default function DashboardMessages({
                         </p>
                       </div>
                       <span className={`text-[9px] font-black uppercase tracking-wider px-2 py-1 rounded-lg self-center flex-shrink-0 ${user.role === 'senior'
-                          ? 'bg-orange-50 text-orange-600'
-                          : 'bg-blue-50 text-blue-600'
+                        ? 'bg-orange-50 text-orange-600'
+                        : 'bg-blue-50 text-blue-600'
                         }`}>
                         {user.role}
                       </span>

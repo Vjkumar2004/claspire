@@ -117,7 +117,7 @@ function ChatWidget({ user, isNavVisible }: ChatWidgetProps) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ activeChatUserId: activeChatUser.id })
-      }).catch(() => {});
+      }).catch(() => { });
     };
     pingPresence();
     const presenceInterval = setInterval(pingPresence, 60000);
@@ -173,7 +173,7 @@ function ChatWidget({ user, isNavVisible }: ChatWidgetProps) {
               if (msgs.find((m: any) => m.id === newMsg.id)) return msgs
               return [...msgs, newMsg]
             })
-            
+
             fetch('/api/messages/read', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -222,7 +222,7 @@ function ChatWidget({ user, isNavVisible }: ChatWidgetProps) {
         headers: { 'Content-Type': 'application/json' },
         keepalive: true,
         body: JSON.stringify({ activeChatUserId: null })
-      }).catch(() => {});
+      }).catch(() => { });
     }
   }, [activeChatUser, user?.id])
 

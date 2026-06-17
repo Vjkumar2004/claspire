@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { getAuthenticatedUser } from '@/lib/session'
+import { getUserIdFromRequest } from '@/lib/session'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -9,71 +9,85 @@ const supabase = createClient(
 
 export async function GET(req: NextRequest) {
   try {
-    const user = await getAuthenticatedUser(req)
-    if (!user) {
+    const userId = getUserIdFromRequest(req)
+    if (!userId) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
     }
 
-    // Fetch suggested mentors (seniors with high rise_points, not already connected)
-    const { data: connectedIds } = await supabase
-      .from('connections')
-      .select('sender_id, receiver_id')
-      .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
+    const fourteenDaysAgo = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString()
 
-    const excludeIds = new Set<string>([user.id])
-    for (const conn of connectedIds || []) {
-      excludeIds.add(conn.sender_id === user.id ? conn.receiver_id : conn.sender_id)
+    // Fire all independent queries in parallel
+    const [
+      connectedResult,
+      mentorsResult,
+      communitiesResult,
+      [studentsResult, seniorsResult, collegesResult, communitiesCountResult],
+      recentConnectionsResult,
+      profileViewsResult,
+      recentSeniorsResult,
+    ] = await Promise.all([
+      supabase
+        .from('connections')
+        .select('sender_id, receiver_id')
+        .or(`sender_id.eq.${userId},receiver_id.eq.${userId}`),
+      supabase
+        .from('users')
+        .select(`
+          id, full_name, unique_id, role, avatar_url, company, designation,
+          graduation_year, passout_year, rise_points, last_seen, profile_data,
+          college:college_id (name, short_name)
+        `)
+        .eq('role', 'senior')
+        .order('rise_points', { ascending: false })
+        .limit(20),
+      supabase
+        .from('communities')
+        .select('id, slug, display_name, member_count, senior_count')
+        .eq('is_active', true)
+        .order('member_count', { ascending: false })
+        .limit(5),
+      Promise.all([
+        supabase.from('users').select('id', { count: 'exact', head: true }).eq('role', 'student'),
+        supabase.from('users').select('id', { count: 'exact', head: true }).eq('role', 'senior'),
+        supabase.from('colleges').select('id', { count: 'exact', head: true }).eq('is_active', true),
+        supabase.from('communities').select('id', { count: 'exact', head: true }).eq('is_active', true),
+      ]),
+      supabase
+        .from('connections')
+        .select('responded_at')
+        .or(`sender_id.eq.${userId},receiver_id.eq.${userId}`)
+        .eq('status', 'accepted')
+        .gte('responded_at', fourteenDaysAgo),
+      supabase
+        .from('profile_views')
+        .select('id', { count: 'exact', head: true })
+        .eq('viewed_user_id', userId),
+      supabase
+        .from('users')
+        .select('id, full_name, unique_id, avatar_url, last_seen')
+        .eq('role', 'senior')
+        .order('created_at', { ascending: false })
+        .limit(6),
+    ])
+
+    // Build exclusion set from connections (JS-side, no I/O)
+    const excludeIds = new Set<string>([userId])
+    for (const conn of connectedResult.data || []) {
+      excludeIds.add(conn.sender_id === userId ? conn.receiver_id : conn.sender_id)
     }
 
-    // Suggested Mentors: seniors with highest rise_points
-    const { data: mentors } = await supabase
-      .from('users')
-      .select(`
-        id, full_name, unique_id, role, avatar_url, company, designation,
-        graduation_year, passout_year, rise_points, last_seen, profile_data,
-        college:college_id (name, short_name)
-      `)
-      .eq('role', 'senior')
-      .order('rise_points', { ascending: false })
-      .limit(20)
-
-    const filteredMentors = (mentors || [])
+    // Filter mentors to exclude already-connected users
+    const filteredMentors = (mentorsResult.data || [])
       .filter(m => !excludeIds.has(m.id))
       .slice(0, 5)
 
-    // Trending Communities: top by member_count
-    const { data: communities } = await supabase
-      .from('communities')
-      .select('id, slug, display_name, member_count, senior_count')
-      .eq('is_active', true)
-      .order('member_count', { ascending: false })
-      .limit(5)
-
-    // Platform Stats
-    const [studentsResult, seniorsResult, collegesResult, communitiesResult] = await Promise.all([
-      supabase.from('users').select('id', { count: 'exact', head: true }).eq('role', 'student'),
-      supabase.from('users').select('id', { count: 'exact', head: true }).eq('role', 'senior'),
-      supabase.from('colleges').select('id', { count: 'exact', head: true }).eq('is_active', true),
-      supabase.from('communities').select('id', { count: 'exact', head: true }).eq('is_active', true),
-    ])
-
-    // Network Growth - daily connections chart (last 7 days)
+    // Process network growth chart (JS-side, no I/O)
     const dailyConnections: number[] = [0, 0, 0, 0, 0, 0, 0]
     let prevWeekTotal = 0
-
-    const fourteenDaysAgo = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString()
-    const { data: recentConnections } = await supabase
-      .from('connections')
-      .select('responded_at')
-      .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
-      .eq('status', 'accepted')
-      .gte('responded_at', fourteenDaysAgo)
-
-    if (recentConnections && recentConnections.length > 0) {
+    if (recentConnectionsResult.data && recentConnectionsResult.data.length > 0) {
       const now = Date.now()
       const dayMs = 86400000
-
-      for (const conn of recentConnections) {
+      for (const conn of recentConnectionsResult.data) {
         const ts = new Date(conn.responded_at).getTime()
         const daysAgo = Math.floor((now - ts) / dayMs)
         if (daysAgo >= 0 && daysAgo <= 6) {
@@ -84,29 +98,14 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    const [profileViewsResult] = await Promise.all([
-      supabase
-        .from('profile_views')
-        .select('id', { count: 'exact', head: true })
-        .eq('viewed_user_id', user.id),
-    ])
-
-    // Recently joined seniors
-    const { data: recentSeniors } = await supabase
-      .from('users')
-      .select('id, full_name, unique_id, avatar_url, last_seen')
-      .eq('role', 'senior')
-      .order('created_at', { ascending: false })
-      .limit(6)
-
     return NextResponse.json({
       mentors: filteredMentors,
-      communities: communities || [],
+      communities: communitiesResult.data || [],
       platformStats: {
         students: studentsResult.count ?? 0,
         seniors: seniorsResult.count ?? 0,
         colleges: collegesResult.count ?? 0,
-        communities: communitiesResult.count ?? 0,
+        communities: communitiesCountResult.count ?? 0,
       },
       networkGrowth: {
         newConnections: dailyConnections.reduce((a, b) => a + b, 0),
@@ -114,7 +113,7 @@ export async function GET(req: NextRequest) {
         prevWeekTotal,
         profileViews: profileViewsResult.count ?? 0,
       },
-      recentSeniors: recentSeniors || [],
+      recentSeniors: recentSeniorsResult.data || [],
     })
   } catch (err: unknown) {
     console.error('Network sidebar API error:', err)

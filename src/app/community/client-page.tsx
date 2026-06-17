@@ -1410,6 +1410,13 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
           collegeName={userCommunity.colleges?.name}
           collegeLogo={userCommunity.colleges?.logo_url}
           collegeSlug={userCommunity.colleges?.slug}
+          user={{
+            name: user?.full_name || 'User',
+            avatarUrl: user?.avatar_url,
+            isVerified: user?.is_verified,
+            collegeName: userCommunity.colleges?.name,
+            role: user?.role
+          }}
         />
       )}
 

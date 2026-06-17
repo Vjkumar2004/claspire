@@ -11,6 +11,7 @@ import {
   Briefcase, Clock, Share2, Plus, FileText, Camera, Linkedin, Github, Globe, Loader2,
 } from 'lucide-react'
 import AvatarUpload from '@/components/AvatarUpload'
+import { useAuth } from '@/hooks/useAuth'
 import { showToast } from '@/components/Toast'
 import StudentProfileEditor from '@/components/profile/StudentProfileEditor'
 import SeniorProfileEditor from '@/components/profile/SeniorProfileEditor'
@@ -66,6 +67,7 @@ async function compressImage(file: File): Promise<File> {
 
 export default function ProfilePage() {
   const router = useRouter()
+  const { refetch } = useAuth()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [user, setUser] = useState<any>(null)
@@ -416,9 +418,14 @@ export default function ProfilePage() {
             currentUrl={avatarUrl}
             userName={user.full_name}
             size={96}
-            onUploadSuccess={(url) => {
+            onUploadSuccess={async (url) => {
               setAvatarUrl(url)
-              setUser({ ...user, avatar_url: url })
+              setUser((prev: any) => prev ? { ...prev, avatar_url: url } : prev)
+              try {
+                await refetch()
+              } catch (e) {
+                console.error('Refetch failed after avatar upload', e)
+              }
             }}
           />
         </div>
@@ -523,9 +530,14 @@ export default function ProfilePage() {
                       currentUrl={avatarUrl}
                       userName={user.full_name}
                       size={120}
-                      onUploadSuccess={(url) => {
+                      onUploadSuccess={async (url) => {
                         setAvatarUrl(url)
-                        setUser({ ...user, avatar_url: url })
+                        setUser((prev: any) => prev ? { ...prev, avatar_url: url } : prev)
+                        try {
+                          await refetch()
+                        } catch (e) {
+                          console.error('Refetch failed after avatar upload', e)
+                        }
                       }}
                     />
                   </div>

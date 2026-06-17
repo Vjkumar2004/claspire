@@ -2,6 +2,7 @@
 import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import OneSignal from 'react-onesignal'
+import { savePlayerIdWithRetry, pollForSubscriptionId } from '@/lib/onesignal-utils'
 import { Bell } from 'lucide-react'
 
 type NotificationPromptContextType = {
@@ -74,6 +75,25 @@ export function NotificationPromptProvider({ children }: { children: React.React
     setRequesting(true)
     try {
       await OneSignal.Notifications.requestPermission()
+      console.log('[OneSignal] Permission granted — polling for subscription ID...')
+
+      // FIX 1: Poll for subscription ID after permission grant.
+      // OneSignal assigns the ID server-side asynchronously — it may take 1-8s
+      // to become available on OneSignal.User.PushSubscription.id.
+      // The change event listener in OneSignalInit may also not yet be registered
+      // if init() hasn't fully completed (race condition), so this is a dual-track
+      // guarantee that the ID is always saved to the database.
+      const subId = await pollForSubscriptionId(10, 800)
+      if (subId) {
+        console.log('[OneSignal] Subscription ID captured in prompt context:', subId)
+        // FIX 4: Compare against window cache to avoid duplicate PATCH
+        const currentStored = (window as any).__claspire_onesignal_id__ || null
+        const saved = await savePlayerIdWithRetry(subId, currentStored)
+        if (saved) (window as any).__claspire_onesignal_id__ = subId
+      } else {
+        console.warn('[OneSignal] Prompt context polling timed out — change event listener will handle persistence when ID becomes available')
+      }
+
       setIsOpen(false)
     } catch (err) {
       console.error('Notification permission request failed:', err)

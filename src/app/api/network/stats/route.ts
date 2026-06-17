@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { getAuthenticatedUser } from '@/lib/session'
+import { sanitizeSearchInput } from '@/lib/sanitize'
+import { getUserIdFromRequest } from '@/lib/session'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -9,8 +10,8 @@ const supabase = createClient(
 
 export async function GET(req: NextRequest) {
   try {
-    const user = await getAuthenticatedUser(req)
-    if (!user) {
+    const userId = getUserIdFromRequest(req)
+    if (!userId) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
     }
 
@@ -18,26 +19,26 @@ export async function GET(req: NextRequest) {
       supabase
         .from('connections')
         .select('id', { count: 'exact' })
-        .or(`sender_id.eq.${sanitizeSearchInput(user.id)},receiver_id.eq.${sanitizeSearchInput(user.id)}`)
+        .or(`sender_id.eq.${sanitizeSearchInput(userId)},receiver_id.eq.${sanitizeSearchInput(userId)}`)
         .eq('status', 'accepted'),
       supabase
         .from('connections')
         .select('id', { count: 'exact' })
-        .eq('receiver_id', user.id)
+        .eq('receiver_id', userId)
         .eq('status', 'pending'),
       supabase
         .from('connections')
         .select('id', { count: 'exact' })
-        .eq('sender_id', user.id)
+        .eq('sender_id', userId)
         .eq('status', 'pending'),
       supabase
         .from('follows')
         .select('id', { count: 'exact' })
-        .eq('follower_id', user.id),
+        .eq('follower_id', userId),
       supabase
         .from('community_members')
         .select('id', { count: 'exact' })
-        .eq('user_id', user.id),
+        .eq('user_id', userId),
     ])
 
     const connections = acceptedResult.count ?? 0

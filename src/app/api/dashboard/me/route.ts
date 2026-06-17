@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { resolveDisplayBio, resolveProfileData } from '@/lib/profile-data'
-import { getAuthenticatedUser } from '@/lib/session'
+import { getUserIdFromRequest } from '@/lib/session'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -10,15 +10,13 @@ const supabase = createClient(
 
 export async function GET(req: NextRequest) {
   try {
-    const authenticatedUser = await getAuthenticatedUser(req)
-    if (!authenticatedUser) {
+    const userId = getUserIdFromRequest(req)
+    if (!userId) {
       return NextResponse.json(
         { error: 'Not authenticated' },
         { status: 401 }
       )
     }
-
-    const userId = authenticatedUser.id
 
     const baseSelect = `
       id, full_name, email, role,

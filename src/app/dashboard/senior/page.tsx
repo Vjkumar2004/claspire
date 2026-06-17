@@ -369,7 +369,7 @@ export default function SeniorDashboardPage() {
         />
       )}
 
-      <div className={`w-60 flex-shrink-0 bg-surface dark:bg-[#283036] border-r border-surface dark:border-[#38434F] h-screen fixed lg:sticky top-0 flex flex-col z-50 transition-transform lg:transition-none ${mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+      <div className={`w-[280px] flex-shrink-0 bg-surface dark:bg-[#283036] border-r border-surface dark:border-[#38434F] h-screen fixed lg:sticky top-0 flex flex-col z-50 transition-transform lg:transition-none ${mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
         {/* Scrollable Content Container */}
         <div className="flex-1 overflow-y-auto flex flex-col custom-scrollbar pt-4">
           {/* User Card */}
@@ -590,7 +590,7 @@ export default function SeniorDashboardPage() {
       </div>
 
     {/* Main Content Area */}
-      <div className="flex-1 overflow-y-auto p-7 lg:p-8">
+      <div className="flex-1 min-w-0 overflow-y-auto p-7 lg:p-8">
         {/* Mobile Top Bar */}
         <div className="lg:hidden flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
@@ -738,7 +738,7 @@ export default function SeniorDashboardPage() {
                       </div>
 
                       {/* Right Section (Engagement Summary Panel) - Desktop Only */}
-                      <div className="hidden md:flex flex-col border-l border-surface dark:border-[#38434F] pl-6 justify-between min-w-[200px]">
+                      <div className="hidden md:flex flex-col border-l border-surface dark:border-[#38434F] pl-6 justify-between w-[220px] flex-shrink-0">
                         <div>
                           <h4 className="text-xs font-bold text-gray-400 dark:text-[#B0B7BE] uppercase tracking-wider mb-3">Engagement Summary</h4>
                           

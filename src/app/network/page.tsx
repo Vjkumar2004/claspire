@@ -12,6 +12,7 @@ import DiscoverTab from '@/components/network/DiscoverTab'
 import MyNetworkTab from '@/components/network/MyNetworkTab'
 import RequestsTab from '@/components/network/RequestsTab'
 import FollowingTab from '@/components/network/FollowingTab'
+import { useNetworkRequestCount } from '@/contexts/NetworkRequestCountContext'
 
 type Tab = 'discover' | 'network' | 'requests' | 'following'
 
@@ -31,6 +32,7 @@ export default function NetworkPage() {
   const [statsLoading, setStatsLoading] = useState(true)
   const [refreshKey, setRefreshKey] = useState(0)
   const pendingStatsFetch = useRef<Promise<void> | null>(null)
+  const { setPendingCount } = useNetworkRequestCount()
   const [sidebarData, setSidebarData] = useState<SidebarData | null>(null)
   const tabsRef = useRef<HTMLDivElement>(null)
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 })
@@ -50,6 +52,7 @@ export default function NetworkPage() {
         if (res.ok) {
           const data = await res.json()
           setStats(data)
+          setPendingCount(data.incomingRequests)
         }
       } catch { } finally {
         pendingStatsFetch.current = null

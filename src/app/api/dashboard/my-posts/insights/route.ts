@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { getAuthenticatedUser } from '@/lib/session'
+import { getUserIdFromRequest } from '@/lib/session'
 
 export async function GET(req: NextRequest) {
   try {
-    const user = await getAuthenticatedUser(req)
-    if (!user) {
+    const userId = getUserIdFromRequest(req)
+    if (!userId) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
     }
 
@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
     const { data: posts, error: postsError } = await supabase
       .from('posts')
       .select('id')
-      .eq('author_id', user.id)
+      .eq('author_id', userId)
 
     if (postsError) {
       return NextResponse.json({ error: postsError.message }, { status: 500 })

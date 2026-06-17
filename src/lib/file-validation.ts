@@ -354,9 +354,9 @@ export function generateSafeFilename(originalName: string, userId: string, type:
   const timestamp = Date.now()
   const uuid = crypto.randomUUID()
   
-  // For avatars, use consistent filename to replace old image
+  // For avatars, use unique filename to bust cache
   if (type === 'avatar') {
-    return `${type}/${userId}_avatar.${extension}`
+    return `${type}/${userId}_avatar_${timestamp}_${uuid}.${extension}`
   }
   
   // For other files, use UUID format
