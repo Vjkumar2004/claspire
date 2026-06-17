@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { supabase } from '@/lib/supabase'
 import Link from 'next/link';
 import { usePoints } from '@/contexts/PointsContext';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -89,25 +90,7 @@ export default function SeniorDashboardPage() {
   // My Posts states
   const [deletingPostId, setDeletingPostId] = useState<string | null>(null)
 
-  useEffect(() => {
-    fetchDashboardData()
-    fetchUserCollegeCommunity()
-  }, [])
-
-  const fetchUserCollegeCommunity = async () => {
-    try {
-      const res = await fetch('/api/community/my-college')
-      if (res.ok) {
-        const data = await res.json()
-        setUserCollegeCommunityId(data.communityId || '')
-      }
-      // Silently ignore 404 — senior may not have a college assigned
-    } catch (err) {
-      // Network errors — ignore silently
-    }
-  }
-
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = useCallback(async () => {
     try {
       const res = await fetch('/api/dashboard/me', {
         cache: 'no-store'
@@ -121,8 +104,36 @@ export default function SeniorDashboardPage() {
     } finally {
       setDataLoading(false)
     }
-  }
+  }, [])
 
+  useEffect(() => {
+    fetchDashboardData()
+    fetchUserCollegeCommunity()
+
+    const channel = supabase
+      .channel('senior-dashboard-doubts')
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'posts', filter: `type=eq.doubt` },
+        () => { fetchDashboardData() }
+      )
+      .subscribe()
+
+    return () => { supabase.removeChannel(channel) }
+  }, [fetchDashboardData])
+
+  const fetchUserCollegeCommunity = async () => {
+    try {
+      const res = await fetch('/api/community/my-college')
+      if (res.ok) {
+        const data = await res.json()
+        setUserCollegeCommunityId(data.communityId || '')
+      }
+      // Silently ignore 404 — senior may not have a college assigned
+    } catch (err) {
+      // Network errors — ignore silently
+    }
+  }
 
 
   const deleteGroup = async (groupSlug: string) => {

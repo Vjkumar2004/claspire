@@ -3,6 +3,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { Send, Loader2, X, Pencil, Reply, Trash2, AlertTriangle, RefreshCw, ChevronUp } from 'lucide-react'
 import { canModifyMessage, type DirectMessageRow } from '@/lib/message-utils'
 import { supabase } from '@/lib/supabase'
+import { getCachedMessages, setCachedMessages, updateCachedMessages } from '@/lib/message-cache'
 
 interface ChatWindowProps {
   currentUserId: string
@@ -16,8 +17,9 @@ interface ChatWindowProps {
 
 type Message = DirectMessageRow & { failed?: boolean; error?: string }
 
-const MESSAGE_SELECT = 'id, sender_id, receiver_id, content, created_at, conversation_id, is_read, reply_to_id, edited_at'
 const PAGE_SIZE = 100
+
+const blockStatusCache = new Map<string, 'none' | 'blocked'>()
 
 function formatTime(dateStr: string) {
   return new Date(dateStr).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
@@ -96,6 +98,11 @@ export default function ChatWindow({
         const newMsgs = older.filter(m => !existingIds.has(m.id))
         return [...newMsgs, ...prev]
       })
+      updateCachedMessages<Message>(conversationId, (msgs) => {
+        const existingIds = new Set(msgs.map(m => m.id))
+        const newMsgs = older.filter(m => !existingIds.has(m.id))
+        return [...newMsgs, ...msgs]
+      })
       oldestMessageRef.current = older[0]?.id || null
       setHasMoreOlder(older.length >= PAGE_SIZE)
     } else {
@@ -111,9 +118,19 @@ export default function ChatWindow({
       setLoading(true)
       setMessages([])
 
+      const cached = getCachedMessages<Message>(conversationId)
+      if (cached) {
+        setMessages(cached)
+        setLoading(false)
+        const oldestId = cached[0]?.id || null
+        oldestMessageRef.current = oldestId
+        setHasMoreOlder(cached.length >= PAGE_SIZE)
+      }
+
       const latest = await loadMessages()
       if (latest.length > 0) {
         setMessages(latest)
+        setCachedMessages(conversationId, latest)
         oldestMessageRef.current = latest[0]?.id || null
         setHasMoreOlder(latest.length >= PAGE_SIZE)
       }
@@ -139,6 +156,10 @@ export default function ChatWindow({
               if (prev.find(m => m.id === newMsg.id)) return prev;
               return [...prev, newMsg]
             })
+            updateCachedMessages<Message>(conversationId, (msgs) => {
+              if (msgs.find(m => m.id === newMsg.id)) return msgs
+              return [...msgs, newMsg]
+            })
           }
         }
       )
@@ -155,6 +176,9 @@ export default function ChatWindow({
           setMessages(prev =>
             prev.map(m => m.id === updatedMsg.id ? { ...m, ...updatedMsg } : m)
           )
+          updateCachedMessages<Message>(conversationId, (msgs) =>
+            msgs.map(m => m.id === updatedMsg.id ? { ...m, ...updatedMsg } : m)
+          )
         }
       )
       .on(
@@ -168,6 +192,9 @@ export default function ChatWindow({
         (payload) => {
           const deletedMsg = payload.old as { id: string }
           setMessages(prev => prev.filter(m => m.id !== deletedMsg.id))
+          updateCachedMessages<Message>(conversationId, (msgs) =>
+            msgs.filter(m => m.id !== deletedMsg.id)
+          )
         }
       )
       .subscribe()
@@ -200,12 +227,20 @@ export default function ChatWindow({
   }, [])
 
   useEffect(() => {
+    const cached = blockStatusCache.get(otherUserId)
+    if (cached) {
+      setBlockStatus(cached)
+      return
+    }
+
     const fetchBlockStatus = async () => {
       try {
         const res = await fetch(`/api/block/status?user_id=${otherUserId}`)
         if (res.ok) {
           const data = await res.json()
-          setBlockStatus(data.they_blocked_me ? 'blocked' : 'none')
+          const status = data.they_blocked_me ? 'blocked' : 'none'
+          blockStatusCache.set(otherUserId, status)
+          setBlockStatus(status)
         }
       } catch {
         setBlockStatus('none')
@@ -227,7 +262,7 @@ export default function ChatWindow({
     };
 
     pingPresence();
-    const interval = setInterval(pingPresence, 15000);
+    const interval = setInterval(pingPresence, 60000);
 
     return () => {
       clearInterval(interval);
@@ -279,6 +314,9 @@ export default function ChatWindow({
       const data = await res.json()
       if (res.ok) {
         setMessages((prev) => prev.filter((m) => m.id !== msg.id))
+        updateCachedMessages<Message>(conversationId, (msgs) =>
+          msgs.filter(m => m.id !== msg.id)
+        )
         if (editingMessage?.id === msg.id) clearComposerState()
         if (replyingTo?.id === msg.id) setReplyingTo(null)
       } else {
@@ -357,6 +395,9 @@ export default function ChatWindow({
         if (data.message) {
           setMessages((prev) =>
             prev.map((m) => (m.id === tempId ? { ...data.message, reply_to: optimisticMsg.reply_to } : m))
+          )
+          updateCachedMessages<Message>(conversationId, (msgs) =>
+            msgs.map(m => m.id === tempId ? { ...data.message, reply_to: optimisticMsg.reply_to as Message['reply_to'] } : m)
           )
         }
         onMessageSent?.()

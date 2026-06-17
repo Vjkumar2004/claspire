@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { getConversationId } from '@/lib/messages';
-import { getAuthenticatedUser } from '@/lib/session';
+import { getUserIdFromRequest } from '@/lib/session';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -16,8 +16,6 @@ type MessageRow = {
   created_at: string
   conversation_id: string
   is_read?: boolean
-  reply_to_id?: string | null
-  edited_at?: string | null
 }
 
 export async function GET(req: NextRequest) {
@@ -32,16 +30,14 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'userId query parameter is required' }, { status: 400 });
     }
 
-    const user = await getAuthenticatedUser(req);
-    if (!user) {
+    const userId = getUserIdFromRequest(req);
+    if (!userId) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
-
-    const userId = user.id;
     const conversationId = getConversationId(userId, otherUserId);
 
     const PAGE_SIZE = 100;
-    const MESSAGE_SELECT = 'id, sender_id, receiver_id, content, created_at, conversation_id, is_read, reply_to_id, edited_at';
+    const MESSAGE_SELECT = 'id, sender_id, receiver_id, content, created_at, conversation_id, is_read';
 
     const runQuery = (select: string) => {
       let q = supabase
@@ -69,20 +65,7 @@ export async function GET(req: NextRequest) {
       return q;
     };
 
-    let messages: MessageRow[] | null = null;
-    let error: { message?: string } | null = null;
-
-    const primary = await runQuery(MESSAGE_SELECT);
-    messages = primary.data as MessageRow[] | null;
-    error = primary.error;
-
-    if (error?.message?.includes('reply_to_id') || error?.message?.includes('edited_at')) {
-      const fallback = await runQuery(
-        'id, sender_id, receiver_id, content, created_at, conversation_id, is_read'
-      );
-      messages = fallback.data as MessageRow[] | null;
-      error = fallback.error;
-    }
+    const { data: messages, error } = await runQuery(MESSAGE_SELECT);
 
     if (error) {
       console.error('History query error:', error);
@@ -90,25 +73,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Reverse back to chronological order for display
-    const list = (messages || []).reverse();
-    const replyIds = [...new Set(list.map((m) => m.reply_to_id).filter(Boolean))] as string[];
-    let replyMap: Record<string, { id: string; content: string; sender_id: string }> = {};
-
-    if (replyIds.length > 0) {
-      const { data: replyRows } = await supabase
-        .from('direct_messages')
-        .select('id, content, sender_id')
-        .in('id', replyIds);
-
-      if (replyRows) {
-        replyMap = Object.fromEntries(replyRows.map((r) => [r.id, r]));
-      }
-    }
-
-    const enriched = list.map((m) => ({
-      ...m,
-      reply_to: m.reply_to_id ? replyMap[m.reply_to_id] || null : null,
-    }));
+    const list = ((messages as unknown as MessageRow[]) || []).reverse();
 
     // Mark as read only on initial load (not pagination)
     if (!after && !beforeId) {
@@ -123,7 +88,7 @@ export async function GET(req: NextRequest) {
         });
     }
 
-    return NextResponse.json({ messages: enriched });
+    return NextResponse.json({ messages: list });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Internal server error';
     console.error('History error:', err);

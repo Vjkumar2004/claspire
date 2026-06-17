@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { getAuthenticatedUser } from '@/lib/session';
+import { getUserIdFromRequest } from '@/lib/session';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -9,12 +9,10 @@ const supabase = createClient(
 
 export async function GET(req: NextRequest) {
   try {
-    const user = await getAuthenticatedUser(req);
-    if (!user) {
+    const userId = getUserIdFromRequest(req);
+    if (!userId) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
-
-    const userId = user.id;
 
     // Fetch recent messages with bounded limit
     // Dedup by conversation_id to get latest message per conversation

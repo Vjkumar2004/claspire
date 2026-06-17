@@ -23,7 +23,7 @@ export function NetworkRequestCountProvider({ children }: { children: ReactNode 
     try {
       const { count } = await supabase
         .from('connections')
-        .select('*', { count: 'exact', head: true })
+        .select('id', { count: 'exact', head: true })
         .eq('receiver_id', user.id)
         .eq('status', 'pending')
       setPendingCount(count ?? 0)

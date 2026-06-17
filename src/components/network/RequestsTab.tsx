@@ -26,9 +26,10 @@ interface RequestUser {
 
 interface RequestsTabProps {
   refreshKey?: number
+  onActionComplete?: () => void
 }
 
-export default function RequestsTab({ refreshKey = 0 }: RequestsTabProps) {
+export default function RequestsTab({ refreshKey = 0, onActionComplete }: RequestsTabProps) {
   const router = useRouter()
   const [incoming, setIncoming] = useState<RequestUser[]>([])
   const [outgoing, setOutgoing] = useState<RequestUser[]>([])
@@ -57,7 +58,10 @@ export default function RequestsTab({ refreshKey = 0 }: RequestsTabProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ connection_id: connectionId, action }),
       })
-      if (res.ok) setIncoming((prev) => prev.filter((r) => r.id !== connectionId))
+      if (res.ok) {
+        setIncoming((prev) => prev.filter((r) => r.id !== connectionId))
+        onActionComplete?.()
+      }
     } catch { } finally { setActionId(null) }
   }
 
@@ -69,7 +73,10 @@ export default function RequestsTab({ refreshKey = 0 }: RequestsTabProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ connection_id: connectionId }),
       })
-      if (res.ok) setOutgoing((prev) => prev.filter((r) => r.id !== connectionId))
+      if (res.ok) {
+        setOutgoing((prev) => prev.filter((r) => r.id !== connectionId))
+        onActionComplete?.()
+      }
     } catch { } finally { setActionId(null) }
   }
 

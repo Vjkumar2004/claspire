@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import { getCachedMessages, setCachedMessages, updateCachedMessages } from '@/lib/message-cache'
 import {
   MessageCircle, MessageSquare, Send, X,
   ChevronRight, ChevronUp, ChevronDown,
@@ -119,7 +120,7 @@ function ChatWidget({ user, isNavVisible }: ChatWidgetProps) {
       }).catch(() => {});
     };
     pingPresence();
-    const presenceInterval = setInterval(pingPresence, 15000);
+    const presenceInterval = setInterval(pingPresence, 60000);
 
     // Clear local unread state
     setChatThreads(prev => prev.map(t => t.id === activeChatUser.id ? { ...t, unread: false } : t))
@@ -129,11 +130,18 @@ function ChatWidget({ user, isNavVisible }: ChatWidgetProps) {
 
     const fetchInitialHistory = async () => {
       try {
+        const cached = getCachedMessages<any>(conversationId)
+        if (cached && isMounted) {
+          setDrawerMessages(cached)
+          setDrawerChatLoading(false)
+        }
+
         const res = await fetch(`/api/messages/history?userId=${activeChatUser.id}`)
         if (res.ok) {
           const data = await res.json()
           if (isMounted && data.messages && Array.isArray(data.messages)) {
             setDrawerMessages(data.messages)
+            setCachedMessages(conversationId, data.messages)
           }
         }
       } catch (err) {
@@ -160,6 +168,10 @@ function ChatWidget({ user, isNavVisible }: ChatWidgetProps) {
             setDrawerMessages(prev => {
               if (prev.some((m: any) => m.id === newMsg.id)) return prev;
               return [...prev, newMsg]
+            })
+            updateCachedMessages<any>(conversationId, (msgs) => {
+              if (msgs.find((m: any) => m.id === newMsg.id)) return msgs
+              return [...msgs, newMsg]
             })
             
             fetch('/api/messages/read', {
@@ -268,6 +280,9 @@ function ChatWidget({ user, isNavVisible }: ChatWidgetProps) {
         const data = await res.json()
         if (data.message) {
           setDrawerMessages(prev => prev.map(m => m.id === tempId ? data.message : m))
+          updateCachedMessages<any>(conversationId, (msgs) =>
+            msgs.map((m: any) => m.id === tempId ? data.message : m)
+          )
         }
       } else {
         const errorData = await res.json().catch(() => ({}))
