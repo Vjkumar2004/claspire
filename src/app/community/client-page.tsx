@@ -3,7 +3,7 @@ import { useState, useEffect, useRef, Suspense } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { usePoints } from '@/contexts/PointsContext'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { createClient } from '@supabase/supabase-js'
+import { supabase } from '@/lib/supabase'
 import {
   Search, HelpCircle, MessageSquare, Clock, TrendingUp,
   CheckCircle, Eye, ChevronRight, Briefcase,
@@ -15,10 +15,7 @@ import {
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import PostModal from '@/components/PostModal'
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder'
-)
+
 
 interface RecentUpvoter {
   id: string
@@ -654,10 +651,10 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
         setPostAnswers(prev => ({ ...prev, [postId]: [...(prev[postId] || []), enrichedAnswer] }))
         setPosts(prev => prev.map((p: any) => {
           if (p.id === postId) {
-            return { 
-              ...p, 
-              answer_count: !parentAnswerId ? (p.answer_count || 0) + 1 : p.answer_count, 
-              is_answered: true 
+            return {
+              ...p,
+              answer_count: !parentAnswerId ? (p.answer_count || 0) + 1 : p.answer_count,
+              is_answered: true
             }
           }
           return p
@@ -673,7 +670,7 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
 
   const deleteInlineAnswer = async (postId: string, answerId: string, parentAnswerId?: string) => {
     if (!user?.id) return false
-    
+
     // Optimistic UI update
     setPostAnswers(prev => {
       const answers = prev[postId] || []
@@ -1191,7 +1188,7 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
         </div>
       )}
 
-             {/* Main 3-Column Content Layout */}
+      {/* Main 3-Column Content Layout */}
       <div className="w-full max-w-[1600px] mx-auto px-0 sm:px-6 lg:px-8 mt-0 sm:mt-6 pb-20 lg:pb-6">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6 items-start">
 

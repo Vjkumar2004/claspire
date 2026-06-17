@@ -267,7 +267,7 @@ export default function NetworkPage() {
                 <DiscoverTab key="discover" onConnectAction={handleConnectAction} />
               )}
               {activeTab === 'network' && <MyNetworkTab key="network" refreshKey={refreshKey} />}
-              {activeTab === 'requests' && <RequestsTab key="requests" refreshKey={refreshKey} />}
+              {activeTab === 'requests' && <RequestsTab key="requests" refreshKey={refreshKey} onActionComplete={fetchStats} />}
               {activeTab === 'following' && <FollowingTab key="following" refreshKey={refreshKey} />}
             </div>
           </div>
