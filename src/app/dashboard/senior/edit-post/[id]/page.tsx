@@ -9,6 +9,20 @@ import {
 import { usePoints } from '@/contexts/PointsContext'
 import { compressImage, needsCompression } from '@/lib/imageCompression'
 
+const stripHtml = (html: string) => {
+  if (!html) return ''
+  let text = html.replace(/<br\s*\/?>/gi, '\n')
+  text = text.replace(/<\/p>/gi, '\n')
+  text = text.replace(/<[^>]*>?/gm, '')
+  text = text.replace(/&amp;/g, '&')
+             .replace(/&lt;/g, '<')
+             .replace(/&gt;/g, '>')
+             .replace(/&quot;/g, '"')
+             .replace(/&#39;/g, "'")
+             .replace(/&nbsp;/g, ' ')
+  return text
+}
+
 const POST_TYPES = [
   { key: 'doubt', icon: '❓', label: 'Doubt', desc: 'Ask a question', color: '#7C3AED', bg: '#F5F3FF', border: '#DDD6FE' },
   { key: 'discussion', icon: '💬', label: 'Discussion', desc: 'Start a conversation', color: '#2563EB', bg: '#EFF6FF', border: '#BFDBFE' },
@@ -65,7 +79,7 @@ export default function EditPostPage() {
         const post = data.post
 
         setTitle(post.title || '')
-        setContent(post.content || '')
+        setContent(stripHtml(post.content || ''))
         setType(post.type || 'doubt')
         setVisibility(post.visibility || 'public')
         setTags(post.tags || [])
