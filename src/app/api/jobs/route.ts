@@ -10,9 +10,7 @@ const supabase = createClient(
 export async function GET(req: NextRequest) {
   try {
     const user = await getAuthenticatedUser(req)
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+    // Allow unauthenticated users to view jobs, but referral actions are protected in the UI
 
     // Auto-delete jobs older than 2 days (lazy cleanup)
     const twoDaysAgo = new Date()

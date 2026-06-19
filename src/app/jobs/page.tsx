@@ -490,6 +490,12 @@ export default function JobsPage() {
                           {job.description && job.description.startsWith('http') && (
                             <a
                               href={job.description}
+                              onClick={(e) => {
+                                if (!user) {
+                                  e.preventDefault()
+                                  router.push('/login')
+                                }
+                              }}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl border border-surface dark:border-[#38434F] text-slate-600 dark:text-[#B0B7BE] text-xs font-semibold no-underline hover:bg-app dark:hover:bg-[#1D2226] dark:bg-[#283036] hover:border-slate-300 dark:border-[#38434F] dark:hover:border-[#38434F] transition-all"
@@ -953,6 +959,12 @@ export default function JobsPage() {
                             {job.description && job.description.startsWith('http') && (
                               <a
                                 href={job.description}
+                                onClick={(e) => {
+                                  if (!user) {
+                                    e.preventDefault()
+                                    router.push('/login')
+                                  }
+                                }}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-surface dark:border-[#38434F] text-slate-500 dark:text-[#B0B7BE] text-[11px] font-medium no-underline hover:bg-app dark:hover:bg-[#1D2226] dark:bg-[#283036] hover:border-slate-300 dark:border-[#38434F] dark:hover:border-[#38434F] transition-all"
