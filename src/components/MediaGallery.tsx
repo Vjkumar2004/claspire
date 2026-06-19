@@ -46,13 +46,13 @@ export default function MediaGallery({ imageUrls }: MediaGalleryProps) {
         return (
           <div
             onClick={() => openViewer(0)}
-            className="relative overflow-hidden rounded-none cursor-pointer flex justify-center bg-app dark:bg-[#1D2226]"
+            className="relative overflow-hidden rounded-none cursor-pointer flex justify-center bg-gray-50 dark:bg-[#1D2226]"
           >
             <img
               src={urls[0]}
               alt="Post media"
               loading="lazy"
-              className="w-full h-auto max-h-[300px] md:max-h-[700px] object-cover md:object-contain rounded-none"
+              className="w-full h-auto max-h-[800px] object-contain rounded-none"
             />
           </div>
         )

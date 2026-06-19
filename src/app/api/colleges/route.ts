@@ -109,6 +109,13 @@ export async function GET() {
       .sort((a, b) => b.member_count - a.member_count)
       .slice(0, 5)
 
+    mergedColleges.forEach((c: any) => {
+      console.log('Campus Leaders API:', c.slug, {
+        member_count: c.member_count,
+        senior_count: c.senior_count,
+      })
+    })
+
     return NextResponse.json({
       success: true,
       heroStats: {

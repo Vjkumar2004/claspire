@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
       referral_count, webinar_count,
       is_verified, verification_status,
       is_premium,
-      avatar_url, banner_url, bio, branch, year,
+      avatar_url, banner_url, bio, headline, onboarding_completed, branch, year,
       passout_year, linkedin_url,
       company, designation, graduation_year,
       last_visit_date,
@@ -84,7 +84,7 @@ export async function GET(req: NextRequest) {
         // Fallback 2: try without any nested joins (colleges relationship may not exist)
         const { data: bareUser } = await supabase
           .from('users')
-          .select(`id, full_name, email, role, unique_id, rise_points, rp_level, doubt_count, answer_count, referral_count, webinar_count, is_verified, verification_status, is_premium, avatar_url, banner_url, bio, branch, year, passout_year, linkedin_url, company, designation, graduation_year, last_visit_date, college_id, profile_data`)
+          .select(`id, full_name, email, role, unique_id, rise_points, rp_level, doubt_count, answer_count, referral_count, webinar_count, is_verified, verification_status, is_premium, avatar_url, banner_url, bio, headline, onboarding_completed, branch, year, passout_year, linkedin_url, company, designation, graduation_year, last_visit_date, college_id, profile_data`)
           .eq('id', userId)
           .single()
         if (!bareUser) {

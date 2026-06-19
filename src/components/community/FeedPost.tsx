@@ -4,21 +4,7 @@ import { motion } from 'framer-motion'
 import { ArrowBigUp, MessageSquare, Share2, CheckCircle, ArrowRight, Trash2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import MediaGallery from '@/components/MediaGallery'
-
-const renderContent = (text: string) => {
-  if (!text) return { __html: '' }
-  // First, escape HTML if it looks like raw text, but wait, our new editor produces HTML.
-  // We'll trust the HTML from the editor (since it's a student platform).
-  // But we still want to convert URLs to links if they aren't already in <a> tags.
-  // A simple regex to find URLs not inside a tag:
-  let html = text
-  
-  // Replace URLs with <a> tags, trying to avoid breaking existing hrefs
-  const urlRegex = /(?<!href="|')\b(https?:\/\/[^\s<]+)\b/g
-  html = html.replace(urlRegex, '<a href="$1" target="_blank" rel="noopener noreferrer" class="text-[#7C3AED] hover:underline">$1</a>')
-  
-  return { __html: html }
-}
+import PostContentRenderer from '@/components/PostContentRenderer'
 
 const getTypeStyle = (type: string) => {
   switch (type) {
@@ -32,6 +18,8 @@ const getTypeStyle = (type: string) => {
       return { label: 'Referral', color: '#059669', bg: '#ECFDF5', border: '#A7F3D0', icon: '🎯' }
     case 'resource':
       return { label: 'Resource', color: '#DC2626', bg: '#FEF2F2', border: '#FECACA', icon: '📚' }
+    case 'general':
+      return { label: 'General', color: '#6B7280', bg: '#F9FAFB', border: '#E5E7EB', icon: '📄' }
     default:
       return { label: type, color: '#6B7280', bg: '#F9FAFB', border: '#F3F4F6', icon: '📝' }
   }
@@ -100,6 +88,18 @@ export default function FeedPost({
   const [answerText, setAnswerText] = React.useState('')
   const [isSubmittingAnswer, setIsSubmittingAnswer] = React.useState(false)
   const [replyToAnswerId, setReplyToAnswerId] = React.useState<string | null>(null)
+
+  const plainText = post.content ? post.content.replace(/<img[^>]*>/gi, '').replace(/<[^>]*>/g, '') : ''
+  const isLongContent = plainText.length > 50
+
+  console.log('[FeedPost DEBUG]', {
+    postId: post.id,
+    rawContent: post.content,
+    plainText,
+    plainTextLength: plainText.length,
+    isLongContent,
+    expanded: expandedContent,
+  })
 
   const toggleReplies = (answerId: string) => {
     setExpandedReplies(prev => ({ ...prev, [answerId]: !prev[answerId] }))
@@ -344,20 +344,21 @@ export default function FeedPost({
       )}
 
       {/* Content text */}
-      <div className="text-[13px] sm:text-sm text-slate-700 dark:text-[#CBD5E1] leading-[1.65] font-normal mb-2.5">
-        <div 
-          className={`whitespace-pre-wrap break-words [&>blockquote]:border-l-4 [&>blockquote]:border-[#7C3AED] [&>blockquote]:pl-4 [&>blockquote]:text-slate-500 [&>ul]:list-disc [&>ul]:pl-5 [&>ol]:list-decimal [&>ol]:pl-5 ${expandedContent ? '' : 'line-clamp-3'}`}
-          dangerouslySetInnerHTML={renderContent(post.content)}
-        />
+      <div className="mb-2.5">
+        <PostContentRenderer content={post.content} clamp={expandedContent ? undefined : 3} />
 
-        {post.content && post.content.length > 180 && (
-          <button
-            onClick={() => onToggleContent(post.id)}
-            className="text-[#7C3AED] font-bold hover:underline mt-1 cursor-pointer block text-[11px]"
-          >
-            {expandedContent ? 'Show less' : 'Read more'}
-          </button>
-        )}
+        {(() => {
+          const show = isLongContent
+          console.log('[FeedPost RENDER] Read More button:', { postId: post.id, isLongContent: show, expanded: expandedContent })
+          return show && (
+            <button
+              onClick={() => onToggleContent(post.id)}
+              className="text-[#7C3AED] font-bold hover:underline mt-1 cursor-pointer block text-[11px]"
+            >
+              {expandedContent ? 'Show less' : 'Read more'}
+            </button>
+          )
+        })()}
       </div>
 
       {/* Attached media inside card via MediaGallery */}

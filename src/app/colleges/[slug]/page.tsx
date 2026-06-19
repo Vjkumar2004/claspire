@@ -7,6 +7,7 @@ import { cookies } from 'next/headers'
 import { Users, MessageCircle, Star, ArrowRight, CheckCircle, TrendingUp, Award, HelpCircle, MessageSquare, FileText, Sparkles, Globe, Shield, ExternalLink } from 'lucide-react'
 import ProfileImage from '@/components/ProfileImage'
 import CollegeClaimButton from '@/components/CollegeClaimButton'
+import PostContentRenderer from '@/components/PostContentRenderer'
 import { verifySessionCookie } from '@/lib/session'
 
 const supabase = createClient(
@@ -130,44 +131,32 @@ async function getCollegeBySlug(slug: string) {
 
 async function getCollegeSeniors(collegeId: string) {
   try {
-    console.log('Fetching seniors for college ID:', collegeId)
-    console.log('NEXT_PUBLIC_APP_URL:', process.env.NEXT_PUBLIC_APP_URL)
-    console.log('NEXT_PUBLIC_SITE_URL:', process.env.NEXT_PUBLIC_SITE_URL)
-    console.log('Using base URL:', process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || 'https://claspire.in')
-    
-    // Use the existing API endpoint with fallback to production URL
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || 'https://claspire.in'
-    const response = await fetch(`${baseUrl}/api/seniors`)
-    
-    console.log('Seniors API response status:', response.status)
-    
-    if (!response.ok) {
-      console.error('Error fetching seniors from API:', response.status)
+    const { data, error } = await supabaseAdmin
+      .from('users')
+      .select(`
+        id, full_name, unique_id, role, college_id,
+        company, designation, graduation_year,
+        rise_points, avatar_url, is_verified
+      `)
+      .eq('college_id', collegeId)
+      .eq('role', 'senior')
+      .order('rise_points', { ascending: false })
+      .limit(12)
+
+    if (error) {
+      console.error('Error fetching college seniors:', error)
       return []
     }
-    
-    const data = await response.json()
-    console.log('Seniors API data length:', data?.length || 0)
-    
-    // Filter seniors by college ID and only verified ones
-    const collegeSeniors = data.filter((senior: any) => 
-      senior.college_id === collegeId && 
-      senior.role === 'senior' && 
-      senior.rise_points > 0 // Use rise_points as verification proxy
-    )
-    
-    console.log('Filtered seniors for college:', collegeSeniors.length)
-    
-    // Map to expected format
-    return collegeSeniors.slice(0, 12).map((senior: any) => ({
+
+    return (data || []).map((senior: any) => ({
       id: senior.id,
       full_name: senior.full_name,
       graduation_year: senior.graduation_year,
       company: senior.company,
       role: senior.designation,
       profile_pic: senior.avatar_url,
-      bio: '', // Not available in API
-      verified: senior.rise_points > 0
+      bio: '',
+      verified: senior.is_verified === true
     }))
   } catch (error) {
     console.error('Error fetching seniors:', error)
@@ -536,9 +525,7 @@ export default async function CollegePage({ params }: { params: Promise<{ slug: 
                             <h3 className="font-bold text-gray-900 dark:text-white text-sm sm:text-base truncate leading-snug tracking-tight">
                               {post.title || 'Community Discussion'}
                             </h3>
-                            <p className="text-xs sm:text-sm text-gray-550 mt-1.5 line-clamp-2 sm:line-clamp-3 leading-relaxed font-medium">
-                              {post.content}
-                            </p>
+                            <PostContentRenderer content={post.content} clamp={3} />
                             <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-gray-500 dark:text-[#B0B7BE]">
                               <span className="font-semibold text-gray-700 dark:text-[#B0B7BE]">{post.users?.full_name || 'Community Member'}</span>
                               <span>•</span>

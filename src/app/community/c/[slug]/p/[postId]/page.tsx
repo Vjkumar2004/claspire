@@ -8,6 +8,7 @@ import {
   Share2, GraduationCap, Crown, Sparkles, Users, Building2
 } from 'lucide-react'
 import MediaGallery from '@/components/MediaGallery'
+import PostContentRenderer from '@/components/PostContentRenderer'
 import LikesModal from '@/components/community/LikesModal'
 import { supabase } from '@/lib/supabase'
 
@@ -15,52 +16,6 @@ interface RecentUpvoter {
   id: string
   full_name: string
   avatar_url: string | null
-}
-
-const convertUrlsToLinks = (text: string) => {
-  if (!text) return text
-  const urlPattern = /(https?:\/\/[^\s\)]+)/g
-  const lines = text.split('\n')
-
-  return lines.map((line, lineIndex) => {
-    const matches = line.match(urlPattern) || []
-    if (matches.length === 0) {
-      return (
-        <span key={`line-${lineIndex}`}>
-          {line}
-          {lineIndex < lines.length - 1 && <br />}
-        </span>
-      )
-    }
-    const parts: React.ReactNode[] = []
-    let lastIdx = 0
-    matches.forEach((match, matchIndex) => {
-      const matchStart = line.indexOf(match, lastIdx)
-      const before = line.substring(lastIdx, matchStart)
-      if (before) parts.push(<span key={`t-${lineIndex}-${matchIndex}`}>{before}</span>)
-      parts.push(
-        <a
-          key={`l-${lineIndex}-${matchIndex}`}
-          href={match}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={(e) => e.stopPropagation()}
-          className="text-[#7C3AED] font-semibold break-all hover:underline"
-        >
-          {match}
-        </a>
-      )
-      lastIdx = matchStart + match.length
-    })
-    const remaining = line.substring(lastIdx)
-    if (remaining) parts.push(<span key={`t-${lineIndex}-end`}>{remaining}</span>)
-    return (
-      <span key={`line-${lineIndex}`}>
-        {parts}
-        {lineIndex < lines.length - 1 && <br />}
-      </span>
-    )
-  })
 }
 
 const timeAgo = (date: string) => {
@@ -676,8 +631,8 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
                   {post.title}
                 </h1>
 
-                <div className="text-sm sm:text-[15px] text-slate-600 dark:text-[#B0B7BE] leading-relaxed mb-5 whitespace-pre-wrap">
-                  {convertUrlsToLinks(post.content)}
+                <div className="mb-5">
+                  <PostContentRenderer content={post.content} />
                 </div>
 
                 <MediaGallery imageUrls={post.image_url} />

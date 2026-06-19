@@ -14,6 +14,7 @@ const POST_TYPES = [
   { key: 'experience', icon: '🏆', label: 'Experience', desc: 'Share your story', color: '#D97706', bg: '#FFFBEB', border: '#FDE68A' },
   { key: 'referral_hunt', icon: '🎯', label: 'Referral Hunt', desc: 'Find a referral', color: '#059669', bg: '#ECFDF5', border: '#A7F3D0' },
   { key: 'resource', icon: '📚', label: 'Resource', desc: 'Share study material', color: '#DC2626', bg: '#FEF2F2', border: '#FECACA' },
+  { key: 'general', icon: '📄', label: 'General', desc: 'General post', color: '#6B7280', bg: '#F9FAFB', border: '#E5E7EB' },
 ]
 
 export default function EditPostPage() {

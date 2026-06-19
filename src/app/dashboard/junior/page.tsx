@@ -16,6 +16,7 @@ import { usePoints } from '@/contexts/PointsContext'
 import { motion, AnimatePresence } from 'framer-motion'
 
 import NotificationBell from '@/components/NotificationBell'
+import PostContentRenderer from '@/components/PostContentRenderer'
 import DeleteAccountModal from '@/components/DeleteAccountModal'
 import AcceptedSeniorsSection from '@/components/junior/AcceptedSeniorsSection'
 import CreateGroupModal from '@/components/CreateGroupModal'
@@ -684,7 +685,7 @@ export default function JuniorDashboard() {
                               </div>
                               <div className="flex-1">
                                 <h3 className="text-base font-bold text-[#0F172A] dark:text-white group-hover:text-purple-600 transition-colors mb-1.5 tracking-tight leading-snug">{post.title}</h3>
-                                <p className="text-xs font-semibold text-[#64748B] dark:text-[#B0B7BE] line-clamp-2 mb-4 leading-relaxed">{post.content}</p>
+                                <div className="mb-4"><PostContentRenderer content={post.content} clamp={2} /></div>
                                 {parsePostImages(post.image_url).length > 0 && (
                                   <div className="mb-4 rounded-2xl overflow-hidden border border-surface dark:border-[#38434F] max-w-sm shadow-sm">
                                     <img src={parsePostImages(post.image_url)[0]} alt="Post media" className="w-full h-auto object-cover max-h-52" />

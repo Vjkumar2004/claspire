@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { getUserIdFromRequest } from '@/lib/session'
+import { getCommunityDisplayCounts, resolveCommunityCollegeId, normalizeCollegeRelation } from '@/lib/community-stats'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -42,7 +43,7 @@ export async function GET(req: NextRequest) {
         .limit(20),
       supabase
         .from('communities')
-        .select('id, slug, display_name, member_count, senior_count')
+        .select('id, slug, display_name, member_count, senior_count, college_id, colleges ( logo_url, short_name )')
         .eq('is_active', true)
         .order('member_count', { ascending: false })
         .limit(5),
@@ -98,9 +99,27 @@ export async function GET(req: NextRequest) {
       }
     }
 
+    // Enrich communities with live counts from getCommunityDisplayCounts
+    const rawCommunities = communitiesResult.data || []
+    const enrichedCommunities = await Promise.all(
+      rawCommunities.map(async (comm: any) => {
+        const collegeId = await resolveCommunityCollegeId(
+          supabase,
+          comm,
+          normalizeCollegeRelation((comm as { colleges?: unknown }).colleges)
+        )
+        const { totalMembers, seniorCount } = await getCommunityDisplayCounts(
+          supabase,
+          comm.id,
+          collegeId
+        )
+        return { ...comm, member_count: totalMembers, senior_count: seniorCount }
+      })
+    )
+
     return NextResponse.json({
       mentors: filteredMentors,
-      communities: communitiesResult.data || [],
+      communities: enrichedCommunities,
       platformStats: {
         students: studentsResult.count ?? 0,
         seniors: seniorsResult.count ?? 0,

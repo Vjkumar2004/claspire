@@ -47,11 +47,7 @@ export default function LoginPage() {
       )
 
       sessionStorage.setItem('claspire_notif_trigger', 'login')
-      if (data.user.role === 'senior') {
-        window.location.href = '/dashboard/senior'
-      } else {
-        window.location.href = '/dashboard/junior'
-      }
+      window.location.href = data.user.onboarding_completed === false ? '/onboarding' : '/community'
 
     } catch (err) {
       console.error(err)
@@ -63,10 +59,10 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (!authLoading && user) {
-      if (user.role === 'senior') {
-        router.push('/dashboard/senior')
+      if (user.onboarding_completed === false) {
+        router.push('/onboarding')
       } else {
-        router.push('/dashboard/junior')
+        router.push('/community')
       }
     }
   }, [user, authLoading, router])
@@ -108,11 +104,7 @@ export default function LoginPage() {
       )
 
       sessionStorage.setItem('claspire_notif_trigger', 'login')
-      if (data.user.role === 'senior') {
-        window.location.href = '/dashboard/senior'
-      } else {
-        window.location.href = '/dashboard/junior'
-      }
+      window.location.href = data.user.onboarding_completed === false ? '/onboarding' : '/community'
 
     } catch {
       setError('Network error. Try again.')

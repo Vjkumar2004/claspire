@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { getCommunityDisplayCounts, resolveCommunityCollegeId } from '@/lib/community-stats'
+import { getCommunityDisplayCounts, syncCommunityCounts, resolveCommunityCollegeId } from '@/lib/community-stats'
 import { getAuthenticatedUser } from '@/lib/session'
 
 const supabase = createClient(
@@ -95,8 +95,8 @@ export async function GET(
             parent_community_id: null,
             is_private: false,
             is_ephemeral: false,
-            member_count: collegeUsers?.length || 0,
-            senior_count: collegeUsers?.filter((user: any) => user.role === 'senior').length || 0,
+            member_count: 0,
+            senior_count: 0,
             doubt_count: 0,
             updated_at: new Date().toISOString()
           })
@@ -109,13 +109,17 @@ export async function GET(
           `)
           .single()
 
+        if (createdCommunity) {
+          await syncCommunityCounts(supabase, createdCommunity.id, college.id)
+        }
+
         community = createdCommunity || {
             id: college.id,
             slug: college.slug,
             display_name: college.short_name || college.name,
             description: `${college.name} community on Claspire`,
-            member_count: collegeUsers?.length || 0,
-            senior_count: collegeUsers?.filter((user: any) => user.role === 'senior').length || 0,
+            member_count: 0,
+            senior_count: 0,
             doubt_count: 0,
             college_id: college.id,
             colleges: college,

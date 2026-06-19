@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 import { notifyNewPost } from '@/lib/notifications'
 import { getAuthenticatedUser } from '@/lib/session'
 import { applyRateLimit, getUserIdentifier } from '@/lib/rateLimitRedis'
+import { sanitizeHtml } from '@/lib/sanitizeHtml'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -45,8 +46,8 @@ export async function POST(req: NextRequest) {
       is_college_post = false
     } = body
 
-    // Ensure content is a string
-    const contentStr = String(body.content || '').trim()
+    // Ensure content is a string and sanitize to allowed HTML only
+    const contentStr = sanitizeHtml(String(body.content || '').trim())
 
     // Validate
     if (!title?.trim()) {

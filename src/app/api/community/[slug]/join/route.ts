@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import {
   getCommunityDisplayCounts,
+  syncCommunityCounts,
   resolveCommunityCollegeId,
   normalizeCollegeRelation,
 } from '@/lib/community-stats'
@@ -37,7 +38,7 @@ export async function POST(
     // Get community
     const { data: community } = await supabase
       .from('communities')
-      .select('id, member_count, college_id, slug, colleges ( id )')
+      .select('id, college_id, slug, colleges ( id )')
       .eq('slug', slug)
       .single()
 
@@ -101,21 +102,7 @@ export async function POST(
       return NextResponse.json({ error: 'Failed to join community' }, { status: 500 })
     }
 
-    const { totalMembers, seniorCount } = await getCommunityDisplayCounts(
-      supabase,
-      community.id,
-      collegeId
-    )
-
-    const { error: updateError } = await supabase
-      .from('communities')
-      .update({
-        member_count: totalMembers,
-        senior_count: seniorCount
-      })
-      .eq('id', community.id)
-    
-    if (updateError) console.error('Count update error:', updateError)
+    const { totalMembers, seniorCount } = await syncCommunityCounts(supabase, community.id, collegeId)
 
     // RP for joining new community
     if (!isOwnCollege) {

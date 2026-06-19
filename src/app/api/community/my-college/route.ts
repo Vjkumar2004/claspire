@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
     // Find the main community for this college (parent_community_id is null)
     const { data: community, error: communityError } = await supabase
       .from('communities')
-      .select('id, display_name, slug')
+      .select('id, display_name, slug, colleges ( logo_url )')
       .eq('college_id', userData.college_id)
       .is('parent_community_id', null)
       .single()
@@ -60,7 +60,8 @@ export async function GET(request: NextRequest) {
       success: true,
       communityId: community.id,
       communityName: community.display_name,
-      communitySlug: community.slug
+      communitySlug: community.slug,
+      logoUrl: (community as any).colleges?.logo_url || null,
     })
 
   } catch (error) {

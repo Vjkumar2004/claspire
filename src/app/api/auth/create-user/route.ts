@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 import bcrypt from 'bcryptjs'
 import { createSessionCookie } from '@/lib/session'
 import { applyRateLimit, getClientIdentifier } from '@/lib/rateLimitRedis'
+import { syncCommunityCounts } from '@/lib/community-stats'
 
 const supabaseAnon = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -162,7 +163,7 @@ export async function POST(req: NextRequest) {
       // Get community id
       const { data: comm } = await supabaseAnon
         .from('communities')
-        .select('id, member_count, senior_count')
+        .select('id')
         .eq('college_id', safeCollegeId)
         .single()
 
@@ -187,20 +188,8 @@ export async function POST(req: NextRequest) {
               joined_at: new Date().toISOString()
             })
 
-          // Update count
-          const newMemberCount =
-            (comm.member_count || 0) + 1
-          const newSeniorCount = role === 'senior'
-            ? (comm.senior_count || 0) + 1
-            : comm.senior_count || 0
-
-          await supabaseAnon
-            .from('communities')
-            .update({
-              member_count: newMemberCount,
-              senior_count: newSeniorCount
-            })
-            .eq('id', comm.id)
+          // Recalculate counts from source of truth
+          await syncCommunityCounts(supabaseAdmin, comm.id, safeCollegeId)
 
           console.log(`Auto-joined user ${userId} to community ${comm.id}`)
         } else {

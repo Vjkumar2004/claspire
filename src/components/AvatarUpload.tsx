@@ -45,13 +45,15 @@ interface AvatarUploadProps {
   userName: string
   size?: number
   onUploadSuccess: (url: string) => void
+  fallbackType?: 'initials' | 'camera'
 }
 
 export default function AvatarUpload({
   currentUrl,
   userName,
   size = 88,
-  onUploadSuccess
+  onUploadSuccess,
+  fallbackType = 'initials'
 }: AvatarUploadProps) {
   const [uploading, setUploading] = useState(false)
   const [uploadState, setUploadState] = useState('')
@@ -60,6 +62,7 @@ export default function AvatarUpload({
   const fileRef = useRef<HTMLInputElement>(null)
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    // ... logic remains the same
     const file = e.target.files?.[0]
     if (!file) return
 
@@ -213,7 +216,9 @@ export default function AvatarUpload({
           borderRadius,
           background: displayUrl
             ? 'transparent'
-            : 'linear-gradient(135deg, #7C3AED, #06B6D4)',
+            : fallbackType === 'camera' 
+              ? 'transparent'
+              : 'linear-gradient(135deg, #7C3AED, #06B6D4)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -223,6 +228,7 @@ export default function AvatarUpload({
           boxShadow: '0 4px 20px rgba(124, 58, 237, 0.25)',
           position: 'relative'
         }}
+        className={!displayUrl && fallbackType === 'camera' ? 'bg-gray-50 dark:bg-[#1D2226]' : ''}
       >
         {displayUrl ? (
           <img
@@ -230,6 +236,8 @@ export default function AvatarUpload({
             alt={userName}
             className="w-full h-full object-cover"
           />
+        ) : fallbackType === 'camera' ? (
+          <Camera size={size * 0.4} className="text-gray-400 dark:text-gray-500" />
         ) : (
           <span className="font-plus-jakarta font-extrabold text-white" style={{ fontSize: size * 0.32 }}>
             {initials}

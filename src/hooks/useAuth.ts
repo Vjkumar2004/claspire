@@ -14,6 +14,7 @@ interface User {
   college_id: string | null
   avatar_url?: string
   bio?: string
+  headline?: string
   company?: string
   branch?: string
   passout_year?: number
@@ -24,6 +25,7 @@ interface User {
   college?: string
   banner_url?: string | null
   is_verified?: boolean
+  onboarding_completed?: boolean
 }
 
 let globalUser: User | null = null;

@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 import { DeleteObjectCommand } from '@aws-sdk/client-s3'
 import { r2Client, R2_BUCKET } from '@/lib/r2'
 import { getAuthenticatedUser } from '@/lib/session'
+import { sanitizeHtml } from '@/lib/sanitizeHtml'
 
 export async function PUT(req: NextRequest) {
   try {
@@ -30,6 +31,8 @@ export async function PUT(req: NextRequest) {
     if (!content) {
       return NextResponse.json({ error: 'Content is required' }, { status: 400 })
     }
+
+    const sanitizedContent = sanitizeHtml(String(content).trim())
 
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -76,7 +79,7 @@ export async function PUT(req: NextRequest) {
     // Prepare update payload
     const updateData: any = {
       title,
-      content,
+      content: sanitizedContent,
       type,
       tags: tags || [],
       updated_at: new Date().toISOString()

@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 import { S3Client, DeleteObjectCommand } from '@aws-sdk/client-s3'
 import { r2Client, R2_BUCKET } from '@/lib/r2'
 import { getAuthenticatedUser } from '@/lib/session'
+import { syncCommunityCounts } from '@/lib/community-stats'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -182,22 +183,11 @@ export async function DELETE(req: NextRequest) {
         .delete()
         .eq('user_id', userId)
 
-      // UPDATE communities SET member_count = member_count - 1 WHERE id IN (SELECT community_id FROM community_members WHERE user_id = ?)
+      // Capture community IDs before user data is removed
       const { data: communityMemberships } = await supabase
         .from('community_members')
         .select('community_id')
         .eq('user_id', userId)
-
-      if (communityMemberships && communityMemberships.length > 0) {
-        for (const membership of communityMemberships) {
-          await supabase.rpc('increment', {
-            table_name: 'communities',
-            column_name: 'member_count',
-            row_id: membership.community_id,
-            x: -1
-          })
-        }
-      }
 
       // DELETE FROM community_members WHERE user_id = ?
       await supabase
@@ -216,6 +206,14 @@ export async function DELETE(req: NextRequest) {
         .from('users')
         .delete()
         .eq('id', userId)
+
+      // Recalculate counts for each affected community from source of truth
+      if (communityMemberships && communityMemberships.length > 0) {
+        const uniqueIds = [...new Set(communityMemberships.map(m => m.community_id))]
+        await Promise.all(
+          uniqueIds.map(commId => syncCommunityCounts(supabase, commId))
+        )
+      }
 
       console.log('Successfully deleted all user data from Supabase')
     } catch (dbError) {

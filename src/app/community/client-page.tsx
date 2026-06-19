@@ -15,6 +15,7 @@ import {
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import PostModal from '@/components/PostModal'
+import { calculateProfileCompletion } from '@/lib/profileCompletion'
 
 
 interface RecentUpvoter {
@@ -128,6 +129,7 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
   const { showAward } = usePoints()
 
   const hasInitialData = useRef(!!(initialCommunities?.length || initialPosts?.length))
+  const fetchedVotePostIds = useRef<Set<string>>(new Set())
 
   const getValidCache = () => {
     if (!communityFeedCache) return null
@@ -170,14 +172,27 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
   const [hasMore, setHasMore] = useState(() => validCache?.hasMore !== undefined ? validCache.hasMore : true)
   const [loadingMore, setLoadingMore] = useState(false)
 
-  // Votes state
+  // Votes state — initialize from SSR data to avoid 0-flash on first paint
   const [votes, setVotes] = useState<Record<string, {
     userVote: 'upvote' | 'downvote' | null
     upvotes: number
     downvotes: number
     isLoading: boolean
     error: string | null
-  }>>(() => validCache?.votes || {})
+  }>>(() => {
+    if (validCache?.votes) return validCache.votes
+    const initial: Record<string, any> = {}
+    initialPosts?.forEach(p => {
+      initial[p.id] = {
+        userVote: null,
+        upvotes: p.upvote_count || 0,
+        downvotes: p.downvote_count || 0,
+        isLoading: false,
+        error: null
+      }
+    })
+    return initial
+  })
 
   // Recent upvoters for LinkedIn-style display
   const [recentUpvoters, setRecentUpvoters] = useState<Record<string, RecentUpvoter[]>>(() => validCache?.recentUpvoters || {})
@@ -351,72 +366,103 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
     const fetchUserVotesAndUpvoters = async () => {
       const userId = user?.id || null
 
-      const v: Record<string, any> = {}
-      posts.forEach((p: any) => {
-        v[p.id] = {
-          userVote: null,
-          upvotes: p.upvote_count || 0,
-          downvotes: p.downvote_count || 0,
-          isLoading: false,
-          error: null
-        }
-      })
-      setVotes(v)
-
-      // Batch fetch recent upvoters for all visible posts (single query)
-      const postIds = posts.map(p => p.id)
-      try {
-        const { data: recentVotes } = await supabase
-          .from('votes')
-          .select('post_id, user_id, created_at, users:user_id ( id, full_name, avatar_url )')
-          .in('post_id', postIds)
-          .eq('vote_type', 'upvote')
-          .order('created_at', { ascending: false })
-
-        if (recentVotes) {
-          const upvoterMap: Record<string, RecentUpvoter[]> = {}
-          recentVotes.forEach((vote: any) => {
-            const pid = vote.post_id
-            if (!upvoterMap[pid]) upvoterMap[pid] = []
-            if (upvoterMap[pid].length < 3 && vote.users) {
-              // Avoid duplicates
-              if (!upvoterMap[pid].some(u => u.id === vote.users.id)) {
-                upvoterMap[pid].push({
-                  id: vote.users.id,
-                  full_name: vote.users.full_name,
-                  avatar_url: vote.users.avatar_url
-                })
-              }
+      // 1. ALWAYS initialize vote state for all current posts
+      // This prevents the "0 upvotes" bug caused by skipping initialization.
+      setVotes(prev => {
+        const updated = { ...prev }
+        let changed = false
+        posts.forEach((p: any) => {
+          if (!updated[p.id]) {
+            changed = true
+            updated[p.id] = {
+              userVote: null,
+              upvotes: p.upvote_count || 0,
+              downvotes: p.downvote_count || 0,
+              isLoading: false,
+              error: null
             }
-          })
-          setRecentUpvoters(prev => ({ ...prev, ...upvoterMap }))
-        }
-      } catch (err) {
-        console.error('Failed to fetch recent upvoters:', err)
-      }
+          }
+        })
+        return changed ? updated : prev
+      })
 
-      if (!userId) return
+      // 2. Identify strictly new posts that haven't had recent upvoters fetched
+      const newPostIds = posts
+        .map(p => p.id)
+        .filter(id => !fetchedVotePostIds.current.has(id))
 
-      try {
-        const { data: userVotes } = await supabase
-          .from('votes')
-          .select('post_id, vote_type')
-          .eq('user_id', userId)
-          .in('post_id', postIds)
+      // Mark them as fetched IMMEDIATELY before awaiting to prevent race conditions
+      newPostIds.forEach(id => fetchedVotePostIds.current.add(id))
 
-        if (userVotes) {
-          setVotes(prev => {
-            const updated = { ...prev }
-            userVotes.forEach(vote => {
-              if (updated[vote.post_id]) {
-                updated[vote.post_id].userVote = vote.vote_type as 'upvote' | 'downvote'
+      // 3. Fetch recent upvoters ONLY for new posts
+      if (newPostIds.length > 0) {
+        try {
+          const { data: recentVotes } = await supabase
+            .from('votes')
+            .select('post_id, user_id, created_at, users:user_id ( id, full_name, avatar_url )')
+            .in('post_id', newPostIds)
+            .eq('vote_type', 'upvote')
+            .order('created_at', { ascending: false })
+
+          if (recentVotes) {
+            const upvoterMap: Record<string, RecentUpvoter[]> = {}
+            recentVotes.forEach((vote: any) => {
+              const pid = vote.post_id
+              if (!upvoterMap[pid]) upvoterMap[pid] = []
+              if (upvoterMap[pid].length < 3 && vote.users) {
+                if (!upvoterMap[pid].some(u => u.id === vote.users.id)) {
+                  upvoterMap[pid].push({
+                    id: vote.users.id,
+                    full_name: vote.users.full_name,
+                    avatar_url: vote.users.avatar_url
+                  })
+                }
               }
             })
-            return updated
-          })
+            setRecentUpvoters(prev => ({ ...prev, ...upvoterMap }))
+          }
+        } catch (err) {
+          console.error('Failed to fetch recent upvoters:', err)
         }
-      } catch (error) {
-        console.error('Failed to fetch user votes:', error)
+      }
+
+      // 4. Fetch user's own votes if logged in
+      // We must fetch this for all visible posts where we haven't fetched it yet for THIS user.
+      if (userId) {
+        // Find posts where userVote is still null (meaning we haven't fetched the user's vote yet)
+        const unvotedPostIds = posts
+          .map(p => p.id)
+          // We rely on the fact that if it was fetched and no vote exists, it's still null, 
+          // but to prevent infinite refetching, we only fetch for newPostIds + any posts if user just loaded.
+          // Simplest approach: fetch for ALL posts if user?.id changed, but we can't track that easily without a ref.
+          // We'll just fetch for newPostIds. To handle the case where user loads AFTER posts, 
+          // we should track fetchedUserVotePostIds per user.
+        
+        // For simplicity and to fix the bug, we'll fetch user votes for ALL posts, 
+        // since this is a lightweight query and ensures correct state.
+        const postIdsToFetchUserVotes = newPostIds.length > 0 ? newPostIds : posts.map(p => p.id)
+
+        try {
+          const { data: userVotes } = await supabase
+            .from('votes')
+            .select('post_id, vote_type')
+            .eq('user_id', userId)
+            .in('post_id', postIdsToFetchUserVotes)
+
+          if (userVotes) {
+            setVotes(prev => {
+              const updated = { ...prev }
+              userVotes.forEach(vote => {
+                if (updated[vote.post_id]) {
+                  updated[vote.post_id].userVote = vote.vote_type as 'upvote' | 'downvote'
+                }
+              })
+              return updated
+            })
+          }
+        } catch (error) {
+          console.error('Failed to fetch user votes:', error)
+        }
       }
     }
 
@@ -425,28 +471,49 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
 
   // Get user college community
   useEffect(() => {
-    if (!communities.length || !user?.college_id) return
-    const mine = communities.find((c) => c.colleges?.id === user.college_id)
-    setUserCommunity(mine || null)
-
-    // Fetch whether the current user is a college admin for this community
-    if (mine?.slug) {
-      fetch(`/api/community/${mine.slug}`)
-        .then((r) => r.ok ? r.json() : null)
-        .then((data) => {
-          setIsCollegeAdmin(!!data?.isCollegeAdmin)
-        })
-        .catch(() => setIsCollegeAdmin(false))
+    if (!user?.college_id) {
+      setUserCommunity(null)
+      return
     }
+
+    const found = communities.find((c) => c.colleges?.id === user.college_id)
+    if (found) {
+      setUserCommunity(found)
+      fetch(`/api/community/${found.slug}`)
+        .then((r) => r.ok ? r.json() : null)
+        .then((data) => setIsCollegeAdmin(!!data?.isCollegeAdmin))
+        .catch(() => setIsCollegeAdmin(false))
+      return
+    }
+
+    // Communities loaded but user's college not in top-20 — fallback: fetch directly
+    if (communities.length) {
+      supabase
+        .from('communities')
+        .select('id, slug, display_name, college_id, colleges ( id, logo_url, short_name )')
+        .eq('college_id', user.college_id)
+        .eq('is_active', true)
+        .single()
+        .then(({ data }) => {
+          if (data) {
+            setUserCommunity(data)
+            fetch(`/api/community/${data.slug}`)
+              .then((r) => r.ok ? r.json() : null)
+              .then((d) => setIsCollegeAdmin(!!d?.isCollegeAdmin))
+              .catch(() => setIsCollegeAdmin(false))
+          } else {
+            setUserCommunity(null)
+          }
+        })
+    }
+    // else: communities not yet loaded — will retry when communities changes
   }, [communities, user?.college_id])
 
   useEffect(() => {
-    if (shouldCreate && userCommunity) {
-      setShowPostModal(true)
-      const newPath = window.location.pathname
-      window.history.replaceState({}, '', newPath)
+    if (shouldCreate) {
+      window.history.replaceState({}, '', window.location.pathname)
     }
-  }, [shouldCreate, userCommunity])
+  }, [shouldCreate])
 
   const handleVote = async (postId: string, voteType: 'upvote' | 'downvote') => {
     if (!user?.id) {
@@ -705,38 +772,6 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
     }
   }
 
-  const enrichCommunitiesWithLiveCounts = async (list: any[]) => {
-    if (!list.length) return list
-    try {
-      const res = await fetch('/api/colleges')
-      const data = await res.json()
-      if (!data.success || !data.communities?.length) return list
-
-      const countsBySlug = new Map<string, number>(
-        data.communities.map((c: any) => [c.slug, c.member_count || 0])
-      )
-      const seniorsBySlug = new Map<string, number>(
-        data.communities.map((c: any) => [c.slug, c.senior_count || 0])
-      )
-
-      return [...list]
-        .map((c) => ({
-          ...c,
-          member_count: Math.max(
-            c.member_count || 0,
-            (countsBySlug.get(c.slug) as number) || 0
-          ),
-          senior_count: Math.max(
-            c.senior_count || 0,
-            (seniorsBySlug.get(c.slug) as number) || 0
-          ),
-        }))
-        .sort((a, b) => (b.member_count || 0) - (a.member_count || 0))
-    } catch (err) {
-      return list
-    }
-  }
-
   const fetchCommunities = async (loadMore = false) => {
     if (loadMore) {
       setLoadingMore(true)
@@ -747,37 +782,10 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
 
     try {
       if (!loadMore) {
-        const { data: communitiesData, error: communitiesError } = await supabase
-          .from('communities')
-          .select(`
-            id, slug, display_name, description, member_count, senior_count, doubt_count,
-            colleges ( id, name, short_name, location, state, type, email_domain, logo_url )
-          `)
-          .order('member_count', { ascending: false })
-          .limit(20)
-
-        if (!communitiesError && communitiesData && communitiesData.length > 0) {
-          setCommunities(await enrichCommunitiesWithLiveCounts(communitiesData))
-        } else {
-          const { data: collegesData, error: collegesError } = await supabase
-            .from('colleges')
-            .select('id, name, short_name, slug, location, state, type, email_domain, logo_url')
-            .order('name', { ascending: true })
-            .limit(20)
-
-          if (!collegesError && collegesData) {
-            const fallback = collegesData.map((college: any) => ({
-              id: college.id,
-              slug: college.slug,
-              display_name: college.short_name || college.name,
-              description: `${college.name} community on Claspire`,
-              member_count: 0,
-              senior_count: 0,
-              doubt_count: 0,
-              colleges: college
-            }))
-            setCommunities(await enrichCommunitiesWithLiveCounts(fallback))
-          }
+        const res = await fetch('/api/community/leaderboard')
+        const data = await res.json()
+        if (data.communities?.length) {
+          setCommunities(data.communities)
         }
       }
 
@@ -869,7 +877,7 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
   useEffect(() => {
     if (!authLoading) {
       const currentUserId = user?.id || null
-      if (communityFeedCache && communityFeedCache.userId !== currentUserId) {
+      if (communityFeedCache && communityFeedCache.userId !== null && communityFeedCache.userId !== currentUserId) {
         communityFeedCache = null
         setPosts([])
         setCommunities([])
@@ -1204,6 +1212,54 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
           {/* ════ CENTER COLUMN: Searchable + Filterable Feed ════ */}
           <main className="md:col-span-8 lg:col-span-6 space-y-3 sm:space-y-4">
 
+            {user && calculateProfileCompletion(user) < 80 && (() => {
+              const pct = calculateProfileCompletion(user)
+              const radius = 22
+              const stroke = 4
+              const circumference = 2 * Math.PI * radius
+              const offset = circumference - (pct / 100) * circumference
+              const missing = [
+                !user.avatar_url && 'Photo',
+                !user.headline && 'Headline',
+                !user.bio && 'Bio',
+              ].filter(Boolean)
+              return (
+                <div className="bg-white dark:bg-[#283036] border border-gray-200 dark:border-[#38434F] rounded-2xl p-4 shadow-sm flex items-center gap-4">
+                  {/* Circular Progress Ring */}
+                  <div className="relative flex-shrink-0 flex items-center justify-center">
+                    <svg width={56} height={56} className="rotate-[-90deg]">
+                      <circle cx={28} cy={28} r={radius} fill="none" stroke="#E8D5FF" strokeWidth={stroke} />
+                      <circle
+                        cx={28} cy={28} r={radius} fill="none"
+                        stroke="#7C3AED" strokeWidth={stroke}
+                        strokeDasharray={circumference}
+                        strokeDashoffset={offset}
+                        strokeLinecap="round"
+                        style={{ transition: 'stroke-dashoffset 0.8s ease' }}
+                      />
+                    </svg>
+                    <span className="absolute text-[11px] font-extrabold text-purple-700 dark:text-purple-300">{pct}%</span>
+                  </div>
+
+                  {/* Text */}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold text-gray-900 dark:text-white">Complete Your Profile</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 truncate">
+                      Missing: <span className="text-purple-600 dark:text-purple-400 font-semibold">{missing.join(', ')}</span>
+                    </p>
+                  </div>
+
+                  {/* CTA */}
+                  <button
+                    onClick={() => router.push('/profile')}
+                    className="flex-shrink-0 px-3 py-2 bg-purple-600 hover:bg-purple-700 active:bg-purple-800 text-white text-xs font-bold rounded-xl transition-colors cursor-pointer shadow-sm shadow-purple-600/20"
+                  >
+                    Complete
+                  </button>
+                </div>
+              )
+            })()}
+
             {/* Dedicated LinkedIn-Style Feed Search & Filter Bar */}
             <div className="bg-surface dark:bg-[#283036] rounded-none sm:rounded-md border-y border-x-0 sm:border border-surface dark:border-[#38434F] p-4 sm:p-5 shadow-sm space-y-4">
               <div className="flex items-center gap-3">
@@ -1238,13 +1294,7 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
 
                 {/* Circular Post creator button */}
                 <button
-                  onClick={() => {
-                    if (userCommunity) {
-                      setShowPostModal(true)
-                    } else {
-                      router.push('?create=true')
-                    }
-                  }}
+                  onClick={() => setShowPostModal(true)}
                   className="w-10 h-10 sm:w-8 sm:h-8 bg-purple-50 dark:bg-purple-900/30 hover:bg-purple-100 dark:hover:bg-purple-900/50 text-[#7C3AED] rounded-full border border-purple-100 dark:border-purple-800 transition-colors flex items-center justify-center cursor-pointer flex-shrink-0"
                   title="Create a new post"
                 >
@@ -1395,7 +1445,7 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
       {/* ════ COMMUNITY CHAT WIDGET (Extracted) ════ */}
       <ChatWidget user={user} isNavVisible={isNavVisible} />
 
-      {showPostModal && userCommunity && (
+      {showPostModal && (
         <PostModal
           isOpen={showPostModal}
           onClose={() => setShowPostModal(false)}
@@ -1403,18 +1453,18 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
             setShowPostModal(false)
             handleLoadNewPosts()
           }}
-          communitySlug={userCommunity.slug}
-          communityId={userCommunity.id}
+          communitySlug={userCommunity?.slug || ''}
+          communityId={userCommunity?.id || ''}
           userRole={user?.role || 'student'}
           canPostAsCollege={isCollegeAdmin}
-          collegeName={userCommunity.colleges?.name}
-          collegeLogo={userCommunity.colleges?.logo_url}
-          collegeSlug={userCommunity.colleges?.slug}
+          collegeName={userCommunity?.colleges?.name}
+          collegeLogo={userCommunity?.colleges?.logo_url}
+          collegeSlug={userCommunity?.colleges?.slug}
           user={{
             name: user?.full_name || 'User',
             avatarUrl: user?.avatar_url,
             isVerified: user?.is_verified,
-            collegeName: userCommunity.colleges?.name,
+            collegeName: userCommunity?.colleges?.name,
             role: user?.role
           }}
         />

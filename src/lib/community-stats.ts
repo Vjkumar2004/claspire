@@ -58,7 +58,7 @@ export async function resolveCommunityCollegeId(
   return row?.college_id ?? null
 }
 
-/** Member count = own-college students + other-college users who joined this hub. Senior count = own-college seniors only. */
+/** Member count = own-college students + own-college seniors + other-college users who joined this hub. */
 export async function getCommunityDisplayCounts(
   supabase: SupabaseClient,
   communityId: string,
@@ -128,10 +128,42 @@ export async function getCommunityDisplayCounts(
   }
 
   return {
-    totalMembers: ownStudentCount + otherCollegeStudentCount,
+    totalMembers: ownStudentCount + ownSeniorCount + otherCollegeStudentCount,
+    ownSeniorCount,
     seniorCount: ownSeniorCount,
     ownStudentCount,
     otherCollegeStudentCount,
     collegeId: resolvedCollegeId,
   }
+}
+
+/**
+ * Recalculate and persist member_count / senior_count from source-of-truth data.
+ * Call this after any membership-changing operation (signup, join, leave, delete-account).
+ * Never use manual increment/decrement — always recalculate.
+ */
+export async function syncCommunityCounts(
+  supabase: SupabaseClient,
+  communityId: string,
+  collegeId?: string | null
+) {
+  const { totalMembers, seniorCount } = await getCommunityDisplayCounts(
+    supabase,
+    communityId,
+    collegeId
+  )
+
+  const { error } = await supabase
+    .from('communities')
+    .update({
+      member_count: totalMembers,
+      senior_count: seniorCount
+    })
+    .eq('id', communityId)
+
+  if (error) {
+    console.error('syncCommunityCounts error:', error)
+  }
+
+  return { totalMembers, seniorCount }
 }

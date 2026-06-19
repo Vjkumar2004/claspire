@@ -37,7 +37,7 @@ export async function GET(req: NextRequest) {
       // Only select non-sensitive columns — auth/security fields are excluded
       const { data: dbUser, error: dbError } = await supabase
         .from('users')
-        .select('id, full_name, email, avatar_url, bio, role, unique_id, college_id, branch, year, cgpa, passout_year, company, designation, graduation_year, linkedin_url, is_verified, verification_type, verification_status, community_confirmations, rise_points, rp_level, doubt_count, answer_count, referral_count, webinar_count, is_premium, premium_plan, premium_expires_at, created_at, updated_at, last_visit_date, banner_url, last_seen, profile_data, auth_provider')
+        .select('id, full_name, email, avatar_url, bio, headline, onboarding_completed, role, unique_id, college_id, branch, year, cgpa, passout_year, company, designation, graduation_year, linkedin_url, is_verified, verification_type, verification_status, community_confirmations, rise_points, rp_level, doubt_count, answer_count, referral_count, webinar_count, is_premium, premium_plan, premium_expires_at, created_at, updated_at, last_visit_date, banner_url, last_seen, profile_data, auth_provider, colleges!users_college_id_fkey ( name, short_name )')
         .eq('id', userId)
         .single()
 
@@ -49,10 +49,15 @@ export async function GET(req: NextRequest) {
         )
       }
 
+      const collegeData = Array.isArray(dbUser.colleges)
+        ? dbUser.colleges[0]
+        : (dbUser.colleges || null)
+
       const user = {
         ...dbUser,
         bio: resolveDisplayBio(dbUser.bio),
         profile_data: resolveProfileData(dbUser),
+        college: collegeData?.name || collegeData?.short_name || '',
       }
 
       const today = new Date().toISOString().split('T')[0]

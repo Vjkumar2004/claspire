@@ -14,6 +14,7 @@ import NotificationBell from '@/components/NotificationBell';
 import DeleteAccountModal from '@/components/DeleteAccountModal';
 import GroupJoinRequestsSection from '@/components/GroupJoinRequestsSection';
 import MediaGallery from '@/components/MediaGallery';
+import PostContentRenderer from '@/components/PostContentRenderer';
 
 import { Pencil } from 'lucide-react';
 
@@ -696,7 +697,7 @@ export default function SeniorDashboardPage() {
                           </div>
 
                           <h3 className="text-base font-bold text-gray-900 dark:text-white leading-tight mb-2">{post.title}</h3>
-                          <p className="text-sm text-gray-600 dark:text-[#B0B7BE] line-clamp-2">{post.content}</p>
+                          <PostContentRenderer content={post.content} clamp={2} />
 
                           {/* Hashtags (if tags exist) */}
                           {post.tags && post.tags.length > 0 && (

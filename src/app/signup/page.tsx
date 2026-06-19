@@ -139,11 +139,7 @@ export default function SignupPage() {
       sessionStorage.removeItem('google_signup_id')
 
       localStorage.setItem('claspire_user', JSON.stringify(createData.user))
-      if (createData.user?.role === 'senior') {
-        window.location.href = '/dashboard/senior'
-      } else {
-        window.location.href = '/dashboard/junior'
-      }
+      window.location.href = '/onboarding'
       return
 
     } catch (err) {
@@ -284,7 +280,9 @@ export default function SignupPage() {
 
   useEffect(() => {
     if (!authLoading && user) {
-      if (user.role === 'senior') {
+      if (user.onboarding_completed === false) {
+        router.push('/onboarding')
+      } else if (user.role === 'senior') {
         router.push('/dashboard/senior')
       } else {
         router.push('/dashboard/junior')
@@ -555,11 +553,7 @@ export default function SignupPage() {
       }
 
       localStorage.setItem('claspire_user', JSON.stringify(createData.user))
-      if (createData.user?.role === 'senior') {
-        window.location.href = '/dashboard/senior'
-      } else {
-        window.location.href = '/dashboard/junior'
-      }
+      window.location.href = '/onboarding'
       return
 
     } catch (err) {

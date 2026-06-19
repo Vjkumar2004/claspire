@@ -7,12 +7,14 @@ import { createClient } from '@supabase/supabase-js'
 let _rawProvider: (() => Promise<string | null>) | null = null
 let _cachedToken: string | null = null
 let _tokenExpiry: number = 0  // Unix seconds
+let _tokenPromise: Promise<string | null> | null = null
 
 const isDev = process.env.NODE_ENV === 'development'
 
 function clearCache() {
   _cachedToken = null
   _tokenExpiry = 0
+  _tokenPromise = null
 }
 
 /**
@@ -50,23 +52,34 @@ async function getCachedAccessToken(): Promise<string | null> {
     return _cachedToken
   }
 
+  // If a token fetch is already in progress, await it instead of firing a new request
+  if (_tokenPromise) {
+    if (isDev) {
+      console.debug('[supabase-token] cache MISS — awaiting in-flight token request')
+    }
+    return _tokenPromise
+  }
+
   // Cache MISS: fetch a fresh token
   if (isDev) {
     const reason = !_cachedToken ? 'no cached token' : `expires in ${Math.round(secsUntilExpiry)}s`
     console.debug(`[supabase-token] cache MISS (${reason}) — fetching fresh token`)
   }
 
-  const token = await _rawProvider()
-  if (token) {
-    _cachedToken = token
-    // JWT exp is now + 3600 (set by /api/auth/supabase-token)
-    _tokenExpiry = nowSecs + 3600
-    if (isDev) {
-      console.debug('[supabase-token] new token cached, valid for 3600s')
+  _tokenPromise = _rawProvider().then(token => {
+    if (token) {
+      _cachedToken = token
+      // JWT exp is now + 3600 (set by /api/auth/supabase-token)
+      _tokenExpiry = nowSecs + 3600
+      if (isDev) {
+        console.debug('[supabase-token] new token cached, valid for 3600s')
+      }
     }
-  }
+    _tokenPromise = null
+    return token
+  })
 
-  return token
+  return _tokenPromise
 }
 
 // ─── Supabase clients ────────────────────────────────────────────────────────

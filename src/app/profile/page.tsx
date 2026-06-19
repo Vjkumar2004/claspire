@@ -244,6 +244,9 @@ export default function ProfilePage() {
     let total = 0
     let done = 0
     if (formData.bio) { total++; done++ } else total++
+    if (user?.headline) { total++; done++ } else total++
+    if (avatarUrl) { total++; done++ } else total++
+    if (isSenior ? (formData.company || formData.designation) : formData.branch) { total++; done++ } else total++
     if (studentExtras.skills?.length > 0 || seniorExtras.skills?.length > 0) { total++; done++ } else total++
     if (studentExtras.projects?.length > 0 || seniorExtras.projects?.length > 0) { total++; done++ } else total++
     if (studentExtras.resume_url || seniorExtras.resume_url) { total++; done++ } else total++
@@ -444,6 +447,9 @@ export default function ProfilePage() {
               : `${user.branch || 'Student'}${user.passout_year ? ` · Class of ${user.passout_year}` : ''}`
             }
           </p>
+          {user.headline && (
+            <p className="text-xs text-slate-400 dark:text-[#B0B7BE] mt-0.5 m-0">{user.headline}</p>
+          )}
           <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-0.5 text-xs text-slate-400 dark:text-[#B0B7BE] mt-1">
             {collegeName && (
               <span className="flex items-center gap-1"><GraduationCap size={12} /> {collegeName}</span>
@@ -554,6 +560,9 @@ export default function ProfilePage() {
                         : `${user.branch || 'Student'}${user.passout_year ? ` · Class of ${user.passout_year}` : ''}`
                       }
                     </p>
+                    {user.headline && (
+                      <p className="text-sm text-white/50 mt-0.5 m-0">{user.headline}</p>
+                    )}
                     <div className="flex flex-wrap items-center gap-x-4 gap-y-0.5 text-sm text-white/60 mt-0.5">
                       {collegeName && (
                         <span className="flex items-center gap-1.5"><GraduationCap size={13} className="text-white/40" /> {collegeName}</span>
@@ -873,6 +882,9 @@ export default function ProfilePage() {
                   <div className="flex-1 space-y-2.5">
                     {[
                       { label: 'About Me', done: !!formData.bio },
+                      { label: 'Headline', done: !!user?.headline },
+                      { label: 'Profile Photo', done: !!avatarUrl },
+                      { label: isSenior ? 'Professional Info' : 'Academic Info', done: isSenior ? !!(formData.company || formData.designation) : !!formData.branch },
                       { label: 'Skills', done: (studentExtras.skills?.length > 0 || seniorExtras.skills?.length > 0) },
                       { label: 'Projects', done: (studentExtras.projects?.length > 0 || seniorExtras.projects?.length > 0) },
                       { label: 'Resume', done: !!(studentExtras.resume_url || seniorExtras.resume_url) },

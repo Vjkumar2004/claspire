@@ -32,9 +32,20 @@ function ChatWidget({ user, isNavVisible }: ChatWidgetProps) {
   const drawerScrollRef = useRef<HTMLDivElement>(null)
   const mobileScrollRef = useRef<HTMLDivElement>(null)
   const drawerSendingRef = useRef(false)
+  const hasLoadedThreads = useRef(false)
 
-  // Fetch active conversations and accepted connections dynamically
+  // Reset loaded state when user changes (must fire before lazy load effect)
   useEffect(() => {
+    hasLoadedThreads.current = false
+  }, [user?.id])
+
+  // Lazy load conversations only when chat opens
+  useEffect(() => {
+    if (!user?.id) return
+    if (!chatExpanded && !mobileDrawerOpen) return
+    if (hasLoadedThreads.current) return
+    hasLoadedThreads.current = true
+
     const fetchChatWidgetData = async () => {
       try {
         const threadsMap = new Map()
@@ -92,10 +103,8 @@ function ChatWidget({ user, isNavVisible }: ChatWidgetProps) {
       }
     }
 
-    if (user?.id) {
-      fetchChatWidgetData()
-    }
-  }, [user?.id, user?.role])
+    fetchChatWidgetData()
+  }, [user?.id, user?.role, chatExpanded, mobileDrawerOpen])
 
   // Realtime chat messages inside the interactive drawer/bottom sheet
   useEffect(() => {
