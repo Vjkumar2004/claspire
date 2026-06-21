@@ -80,9 +80,9 @@ const CLASPIRE_FOOTER = `
         &nbsp;&middot;&nbsp;
         <a href="https://linkedin.com/company/claspire" target="_blank" style="color:#7c3aed; text-decoration:none; font-weight:500;">LinkedIn</a>
         &nbsp;&middot;&nbsp;
-        <a href="https://instagram.com/claspire" target="_blank" style="color:#7c3aed; text-decoration:none; font-weight:500;">Instagram</a>
+        <a href="https://instagram.com/claspire.in" target="_blank" style="color:#7c3aed; text-decoration:none; font-weight:500;">Instagram</a>
         &nbsp;&middot;&nbsp;
-        <a href="mailto:hello@claspire.in" target="_blank" style="color:#7c3aed; text-decoration:none; font-weight:500;">Email</a>
+        <a href="mailto:updates@claspire.in" target="_blank" style="color:#7c3aed; text-decoration:none; font-weight:500;">Email</a>
       </p>
     </td>
   </tr>
