@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { EmailEditor } from '@/components/admin/email/EmailEditor';
 import { Mail, Send, AlertCircle, Loader2, Eye, FileText, ArrowRight } from 'lucide-react';
-import { generateSubject, generateHtml, generatePreviewText, type TemplateType, type TemplateFormData, type JobFormData, type CommunityFormData } from '@/lib/emailTemplates';
+import { generateSubject, generateHtml, generatePreviewText, wrapEmailTemplate, type TemplateType, type TemplateFormData, type JobFormData, type CommunityFormData } from '@/lib/emailTemplates';
 
 const emptyJobForm: JobFormData = {
   companyName: '',
@@ -15,13 +15,15 @@ const emptyJobForm: JobFormData = {
   experience: '',
   applyUrl: '',
   notes: '',
+  ctaText: '',
+  ctaUrl: '',
 };
 
 const emptyCommunityForm: CommunityFormData = {
   title: '',
   body: '',
-  linkUrl: '',
-  linkText: '',
+  ctaText: '',
+  ctaUrl: '',
 };
 
 export default function AdminEmailCampaignsPage() {
@@ -30,6 +32,8 @@ export default function AdminEmailCampaignsPage() {
   const [jobForm, setJobForm] = useState<JobFormData>({ ...emptyJobForm });
   const [communityForm, setCommunityForm] = useState<CommunityFormData>({ ...emptyCommunityForm });
   const [customHtml, setCustomHtml] = useState('');
+  const [customCtaText, setCustomCtaText] = useState('');
+  const [customCtaUrl, setCustomCtaUrl] = useState('');
 
   const [audienceType, setAudienceType] = useState('all');
   const [collegeId, setCollegeId] = useState('');
@@ -64,19 +68,27 @@ export default function AdminEmailCampaignsPage() {
   }, [templateType, currentFormData, subject]);
 
   const isFormValid = useMemo(() => {
+    const ctaValid = (d: { ctaText: string; ctaUrl: string }) => {
+      const hasText = d.ctaText.trim().length > 0
+      const hasUrl = d.ctaUrl.trim().length > 0
+      return hasText === hasUrl // both empty or both filled
+    }
+
     if (templateType === 'custom') {
-      return generatedSubject.trim().length > 0 && customHtml.trim().length > 0;
+      const hasText = customCtaText.trim().length > 0
+      const hasUrl = customCtaUrl.trim().length > 0
+      return generatedSubject.trim().length > 0 && customHtml.trim().length > 0 && hasText === hasUrl;
     }
     if (templateType === 'digest') {
       return generatedSubject.trim().length > 0;
     }
     if (templateType === 'community') {
       const d = communityForm;
-      return generatedSubject.trim().length > 0 && (d.title.trim().length > 0 || d.body.trim().length > 0);
+      return generatedSubject.trim().length > 0 && (d.title.trim().length > 0 || d.body.trim().length > 0) && ctaValid(d);
     }
     const d = jobForm;
-    return generatedSubject.trim().length > 0 && d.companyName.trim().length > 0 && d.jobTitle.trim().length > 0 && d.applyUrl.trim().length > 0;
-  }, [templateType, generatedSubject, jobForm, communityForm, customHtml]);
+    return generatedSubject.trim().length > 0 && d.companyName.trim().length > 0 && d.jobTitle.trim().length > 0 && d.applyUrl.trim().length > 0 && ctaValid(d);
+  }, [templateType, generatedSubject, jobForm, communityForm, customHtml, customCtaText, customCtaUrl]);
 
   const previewText = useMemo(() => {
     if (templateType === 'custom') return '';
@@ -89,14 +101,24 @@ export default function AdminEmailCampaignsPage() {
   }, [templateType, currentFormData]);
 
   const finalHtmlContent = useMemo(() => {
-    if (templateType === 'custom') return customHtml;
+    if (templateType === 'custom') return wrapEmailTemplate(customHtml, { ctaText: customCtaText, ctaUrl: customCtaUrl });
     return generateHtml(templateType, currentFormData);
-  }, [templateType, currentFormData, customHtml]);
+  }, [templateType, currentFormData, customHtml, customCtaText, customCtaUrl]);
 
   const handleTemplateChange = useCallback((newType: TemplateType) => {
     setTemplateType(newType);
     setHasTestSent(false);
     setMessage(null);
+
+    if (newType === 'job') {
+      setJobForm(prev => ({ ...prev, ctaText: 'View Opportunity →', ctaUrl: '' }));
+    } else if (newType === 'internship') {
+      setJobForm(prev => ({ ...prev, ctaText: 'View Opportunity →', ctaUrl: '' }));
+    } else if (newType === 'referral') {
+      setJobForm(prev => ({ ...prev, ctaText: 'View Referral →', ctaUrl: '' }));
+    } else if (newType === 'community') {
+      setCommunityForm(prev => ({ ...prev, ctaText: '🚀 Help Your Juniors', ctaUrl: '' }));
+    }
   }, []);
 
   const updateJobField = useCallback((field: keyof JobFormData, value: string) => {
@@ -222,9 +244,34 @@ export default function AdminEmailCampaignsPage() {
   const renderTemplateForm = () => {
     if (templateType === 'custom') {
       return (
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Email Content</label>
-          <EmailEditor value={customHtml} onChange={setCustomHtml} />
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Email Content</label>
+            <EmailEditor value={customHtml} onChange={setCustomHtml} />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">CTA Button Text <span className="text-gray-400 font-normal">(optional)</span></label>
+              <input
+                className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-700 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                placeholder="e.g. Learn More →"
+                value={customCtaText}
+                onChange={e => setCustomCtaText(e.target.value)}
+              />
+              {(customCtaText.trim().length > 0) !== (customCtaUrl.trim().length > 0) && (
+                <p className="text-xs text-red-500">Both CTA text and URL must be filled, or both left empty.</p>
+              )}
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">CTA Button URL <span className="text-gray-400 font-normal">(optional)</span></label>
+              <input
+                className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-700 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                placeholder="https://"
+                value={customCtaUrl}
+                onChange={e => setCustomCtaUrl(e.target.value)}
+              />
+            </div>
+          </div>
         </div>
       );
     }
@@ -262,25 +309,36 @@ export default function AdminEmailCampaignsPage() {
               onChange={(e) => updateCommunityField('body', e.target.value)}
             />
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Link URL</label>
-              <input
-                className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-700 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                placeholder="https://"
-                value={communityForm.linkUrl}
-                onChange={(e) => updateCommunityField('linkUrl', e.target.value)}
-              />
+
+          {/* CTA Button */}
+          <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+            <p className="text-sm font-medium text-gray-500 mb-3">Call-To-Action Button (optional)</p>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Button Text</label>
+                <input
+                  className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-700 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  placeholder="🚀 Help Your Juniors"
+                  value={communityForm.ctaText}
+                  onChange={(e) => updateCommunityField('ctaText', e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Button URL</label>
+                <input
+                  className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-700 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  placeholder="https://"
+                  value={communityForm.ctaUrl}
+                  onChange={(e) => updateCommunityField('ctaUrl', e.target.value)}
+                />
+              </div>
             </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Link Text</label>
-              <input
-                className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-700 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                placeholder="Learn More"
-                value={communityForm.linkText}
-                onChange={(e) => updateCommunityField('linkText', e.target.value)}
-              />
-            </div>
+            {communityForm.ctaText && !communityForm.ctaUrl && (
+              <p className="text-xs text-red-500 mt-1">Button URL is required when Button Text is provided.</p>
+            )}
+            {!communityForm.ctaText && communityForm.ctaUrl && (
+              <p className="text-xs text-red-500 mt-1">Button Text is required when Button URL is provided.</p>
+            )}
           </div>
         </div>
       );
@@ -381,6 +439,37 @@ export default function AdminEmailCampaignsPage() {
             value={jobForm.notes}
             onChange={(e) => updateJobField('notes', e.target.value)}
           />
+        </div>
+
+        {/* CTA Button */}
+        <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+          <p className="text-sm font-medium text-gray-500 mb-3">Call-To-Action Button (optional)</p>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Button Text</label>
+              <input
+                className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-700 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                placeholder="View Opportunity →"
+                value={jobForm.ctaText}
+                onChange={(e) => updateJobField('ctaText', e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Button URL</label>
+              <input
+                className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-700 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                placeholder="https://"
+                value={jobForm.ctaUrl}
+                onChange={(e) => updateJobField('ctaUrl', e.target.value)}
+              />
+            </div>
+          </div>
+          {jobForm.ctaText && !jobForm.ctaUrl && (
+            <p className="text-xs text-red-500 mt-1">Button URL is required when Button Text is provided.</p>
+          )}
+          {!jobForm.ctaText && jobForm.ctaUrl && (
+            <p className="text-xs text-red-500 mt-1">Button Text is required when Button URL is provided.</p>
+          )}
         </div>
       </div>
     );

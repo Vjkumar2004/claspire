@@ -10,13 +10,15 @@ export interface JobFormData {
   experience: string
   applyUrl: string
   notes: string
+  ctaText: string
+  ctaUrl: string
 }
 
 export interface CommunityFormData {
   title: string
   body: string
-  linkUrl: string
-  linkText: string
+  ctaText: string
+  ctaUrl: string
 }
 
 export type TemplateFormData = JobFormData | CommunityFormData
@@ -131,7 +133,7 @@ function ctaButton(url: string, label: string): string {
         <tr>
           <td style="border-radius:12px; text-align:center; padding:0; background:#7c3aed; background:linear-gradient(90deg,#7c3aed,#8b5cf6);">
             <a href="${url}" target="_blank" style="display:inline-block; padding:16px 0; width:220px; font-size:15px; font-weight:700; color:#ffffff; border-radius:12px; text-decoration:none; line-height:1; font-family:Arial,Helvetica,sans-serif; text-align:center; box-sizing:border-box;">
-              ${label} &rarr;
+              ${label}
             </a>
           </td>
         </tr>
@@ -140,6 +142,11 @@ function ctaButton(url: string, label: string): string {
   </tr>
 </table>
 `
+}
+
+function generateCtaSection(ctaText: string | undefined, ctaUrl: string | undefined): string {
+  if (!ctaText || !ctaUrl) return ''
+  return ctaButton(ctaUrl, ctaText)
 }
 
 function notesBox(text: string): string {
@@ -256,15 +263,11 @@ ${notesHtml}
   We've included the official application link below so you can review the details directly from the employer.
 </p>
 
-${data.applyUrl ? ctaButton(data.applyUrl, 'View Opportunity') : ''}
+${generateCtaSection(data.ctaText, data.ctaUrl)}
 `
 }
 
 function generateCommunityBody(data: CommunityFormData): string {
-  const linkSection = data.linkUrl
-    ? ctaButton(data.linkUrl, data.linkText || 'Learn More')
-    : ''
-
   const bodyHtml = data.body
     ? data.body.split('\n').map(line => `<p style="margin:0 0 12px 0; font-size:15px; line-height:1.6; color:#6b7280; font-family:Arial,Helvetica,sans-serif;">${line}</p>`).join('')
     : ''
@@ -284,7 +287,7 @@ function generateCommunityBody(data: CommunityFormData): string {
 
 ${bodyHtml}
 
-${linkSection}
+${generateCtaSection(data.ctaText, data.ctaUrl)}
 `
 }
 
@@ -310,7 +313,7 @@ function generateDigestBody(): string {
   New job postings, referral opportunities, and community updates are waiting for you. Head over to Claspire to explore the full list.
 </p>
 
-${ctaButton('https://claspire.in', 'Explore Opportunities')}
+${generateCtaSection('Explore Opportunities →', 'https://claspire.in')}
 `
 }
 
@@ -334,6 +337,14 @@ export function generateHtml(type: TemplateType, data: TemplateFormData): string
   }
 
   return wrapInEmailLayout(bodyHtml)
+}
+
+export function wrapEmailTemplate(contentHtml: string, options?: { ctaText?: string; ctaUrl?: string }): string {
+  let body = contentHtml
+  if (options?.ctaText && options?.ctaUrl) {
+    body += generateCtaSection(options.ctaText, options.ctaUrl)
+  }
+  return wrapInEmailLayout(body)
 }
 
 export function generatePreviewText(type: TemplateType, data: TemplateFormData): string {
@@ -361,7 +372,7 @@ export function generatePreviewText(type: TemplateType, data: TemplateFormData):
         '',
         'If you\'re actively exploring new roles, this may be worth checking out.',
         '',
-        d.applyUrl ? `View Opportunity: ${d.applyUrl}` : null,
+        d.ctaText && d.ctaUrl ? `${d.ctaText}: ${d.ctaUrl}` : null,
       ].filter(Boolean).join('\n')
     }
     case 'community': {
@@ -373,8 +384,8 @@ export function generatePreviewText(type: TemplateType, data: TemplateFormData):
         '',
         d.body || '',
       ]
-      if (d.linkUrl) {
-        lines.push('', `${d.linkText || 'Learn More'}: ${d.linkUrl}`)
+      if (d.ctaText && d.ctaUrl) {
+        lines.push('', `${d.ctaText}: ${d.ctaUrl}`)
       }
       return lines.join('\n')
     }
