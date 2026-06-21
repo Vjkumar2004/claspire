@@ -40,6 +40,12 @@ export default function AdminEmailCampaignsPage() {
   const [recipientCount, setRecipientCount] = useState<number | null>(null);
   const [isCounting, setIsCounting] = useState(false);
 
+  const [customRecipientIds, setCustomRecipientIds] = useState<string[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [selectedUserDetails, setSelectedUserDetails] = useState<any[]>([]);
+
   const [testEmail, setTestEmail] = useState('');
   const [hasTestSent, setHasTestSent] = useState(false);
   const [isSendingTest, setIsSendingTest] = useState(false);
@@ -77,7 +83,7 @@ export default function AdminEmailCampaignsPage() {
     if (templateType === 'custom') {
       const hasText = customCtaText.trim().length > 0
       const hasUrl = customCtaUrl.trim().length > 0
-      return generatedSubject.trim().length > 0 && customHtml.trim().length > 0 && hasText === hasUrl;
+      return generatedSubject.trim().length > 0 && customHtml.trim().length > 0 && hasText === hasUrl && (audienceType !== 'custom' || customRecipientIds.length > 0);
     }
     if (templateType === 'digest') {
       return generatedSubject.trim().length > 0;
@@ -88,7 +94,7 @@ export default function AdminEmailCampaignsPage() {
     }
     const d = jobForm;
     return generatedSubject.trim().length > 0 && d.companyName.trim().length > 0 && d.jobTitle.trim().length > 0 && d.applyUrl.trim().length > 0 && ctaValid(d);
-  }, [templateType, generatedSubject, jobForm, communityForm, customHtml, customCtaText, customCtaUrl]);
+  }, [templateType, generatedSubject, jobForm, communityForm, customHtml, customCtaText, customCtaUrl, audienceType, customRecipientIds]);
 
   const previewText = useMemo(() => {
     if (templateType === 'custom') return '';
@@ -131,6 +137,11 @@ export default function AdminEmailCampaignsPage() {
 
   // Debounce fetching recipient count
   useEffect(() => {
+    if (audienceType === 'custom') {
+      setRecipientCount(customRecipientIds.length);
+      return;
+    }
+
     const fetchCount = async () => {
       setIsCounting(true);
       try {
@@ -158,7 +169,43 @@ export default function AdminEmailCampaignsPage() {
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [audienceType, collegeId]);
+  }, [audienceType, collegeId, customRecipientIds]);
+
+  // Debounce user search
+  useEffect(() => {
+    if (audienceType !== 'custom' || searchQuery.trim().length < 2) {
+      setSearchResults([]);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      setIsSearching(true);
+      try {
+        const res = await fetch(`/api/admin/users/search?q=${encodeURIComponent(searchQuery)}`);
+        const data = await res.json();
+        setSearchResults((data.users || []).filter((u: any) => !customRecipientIds.includes(u.id)));
+      } catch {
+        setSearchResults([]);
+      } finally {
+        setIsSearching(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery, audienceType, customRecipientIds]);
+
+  const addRecipient = (user: any) => {
+    if (customRecipientIds.includes(user.id)) return;
+    setCustomRecipientIds(prev => [...prev, user.id]);
+    setSelectedUserDetails(prev => [...prev, user]);
+    setSearchQuery('');
+    setSearchResults([]);
+  };
+
+  const removeRecipient = (userId: string) => {
+    setCustomRecipientIds(prev => prev.filter(id => id !== userId));
+    setSelectedUserDetails(prev => prev.filter(u => u.id !== userId));
+  };
 
   const handleSendTest = async () => {
     if (!testEmail || !generatedSubject || !finalHtmlContent) {
@@ -178,7 +225,8 @@ export default function AdminEmailCampaignsPage() {
           isTest: true,
           testEmail,
           audienceType,
-          collegeId
+          collegeId,
+          recipientIds: audienceType === 'custom' ? customRecipientIds : undefined
         })
       });
 
@@ -202,6 +250,11 @@ export default function AdminEmailCampaignsPage() {
       return;
     }
 
+    if (recipientCount !== null && recipientCount > 100) {
+      setMessage({ type: 'error', text: `Campaign limited to 100 recipients maximum. You selected ${recipientCount}. Reduce the audience size or split into multiple campaigns.` });
+      return;
+    }
+
     const confirmSend = window.confirm(
       `WARNING: You are about to send this email to ${recipientCount} recipients. This action cannot be undone.\n\nAre you sure you want to proceed?`
     );
@@ -219,13 +272,14 @@ export default function AdminEmailCampaignsPage() {
           htmlContent: finalHtmlContent,
           isTest: false,
           audienceType,
-          collegeId
+          collegeId,
+          recipientIds: audienceType === 'custom' ? customRecipientIds : undefined
         })
       });
 
       const data = await res.json();
       if (res.ok) {
-        setMessage({ type: 'success', text: 'Campaign successfully queued and dispatched!' });
+        setMessage({ type: 'success', text: data.message || 'Campaign completed successfully' });
         setSubject('');
         setJobForm({ ...emptyJobForm });
         setCommunityForm({ ...emptyCommunityForm });
@@ -625,12 +679,19 @@ export default function AdminEmailCampaignsPage() {
                 <select
                   className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-700 bg-transparent px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   value={audienceType}
-                  onChange={(e) => setAudienceType(e.target.value)}
+                  onChange={(e) => {
+                    setAudienceType(e.target.value);
+                    if (e.target.value !== 'custom') {
+                      setCustomRecipientIds([]);
+                      setSelectedUserDetails([]);
+                    }
+                  }}
                 >
                   <option value="all">All Users</option>
                   <option value="students">Students Only</option>
                   <option value="seniors">Seniors Only</option>
                   <option value="college">Specific College</option>
+                  <option value="custom">Custom Recipients</option>
                 </select>
               </div>
 
@@ -645,6 +706,81 @@ export default function AdminEmailCampaignsPage() {
                   />
                 </div>
               )}
+
+              {audienceType === 'custom' && (
+                <div className="space-y-3 border-l-2 border-indigo-500 pl-3 ml-1">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Search Users</label>
+                    <input
+                      className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-700 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      placeholder="Search by name, email..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                  </div>
+
+                  {isSearching && (
+                    <div className="flex items-center gap-2 text-sm text-gray-500">
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      Searching...
+                    </div>
+                  )}
+
+                  {searchResults.length > 0 && (
+                    <div className="max-h-48 overflow-y-auto border border-gray-200 dark:border-gray-700 rounded-md divide-y divide-gray-100 dark:divide-gray-800">
+                      {searchResults.map((user: any) => (
+                        <button
+                          key={user.id}
+                          type="button"
+                          className="w-full text-left px-3 py-2.5 text-sm hover:bg-indigo-50 dark:hover:bg-indigo-900/20 flex items-center gap-3 transition-colors"
+                          onClick={() => addRecipient(user)}
+                        >
+                          <div className="w-7 h-7 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center text-xs font-medium text-indigo-700 dark:text-indigo-300 flex-shrink-0">
+                            {(user.full_name || '?').charAt(0).toUpperCase()}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="font-medium truncate">{user.full_name}</div>
+                            <div className="text-xs text-gray-500 truncate">
+                              {user.email}
+                              {user.college?.short_name && ` · ${user.college.short_name}`}
+                            </div>
+                          </div>
+                          <span className="text-xs text-indigo-600 font-medium flex-shrink-0">Add</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {searchQuery.trim().length >= 2 && !isSearching && searchResults.length === 0 && (
+                    <p className="text-xs text-gray-500">No users found matching your search.</p>
+                  )}
+
+                  {selectedUserDetails.length > 0 && (
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-medium text-gray-500">Selected ({selectedUserDetails.length})</label>
+                      <div className="flex flex-wrap gap-1.5">
+                        {selectedUserDetails.map((user: any) => (
+                          <span
+                            key={user.id}
+                            className="inline-flex items-center gap-1.5 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 text-xs font-medium px-2.5 py-1.5 rounded-full"
+                          >
+                            {user.full_name}
+                            <button
+                              type="button"
+                              className="hover:text-red-500 transition-colors"
+                              onClick={() => removeRecipient(user.id)}
+                            >
+                              &times;
+                            </button>
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {customRecipientIds.length > 0 && <div className="text-xs text-indigo-600 font-medium">Selected {customRecipientIds.length} user{customRecipientIds.length !== 1 && 's'}</div>}
 
               <div className="pt-4 border-t border-gray-100 dark:border-gray-800">
                 <div className="flex justify-between items-center">
@@ -694,7 +830,7 @@ export default function AdminEmailCampaignsPage() {
                   disabled={!hasTestSent || isSendingCampaign || recipientCount === 0 || !isFormValid}
                 >
                   {isSendingCampaign ? (
-                    <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Sending to {recipientCount}...</>
+                    <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Sending ({recipientCount}) — may take several minutes</>
                   ) : (
                     <><Send className="w-4 h-4 mr-2" /> Send to {recipientCount || 0} Recipients</>
                   )}

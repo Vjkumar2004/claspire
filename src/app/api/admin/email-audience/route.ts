@@ -32,6 +32,9 @@ export async function POST(req: NextRequest) {
         }
         query = query.eq('college_id', collegeId);
         break;
+      case 'custom':
+        // Count is managed client-side via customRecipientIds.length
+        return NextResponse.json({ count: 0 });
       case 'all':
       default:
         // no filter
