@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect, useRef, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect, useRef, useCallback, Suspense } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import AvatarUpload from '@/components/AvatarUpload'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -847,8 +847,10 @@ function ProgressHeader({ step, total }: { step: number; total: number }) {
 // ──────────────────────────────────────────────
 //  Main Page
 // ──────────────────────────────────────────────
-export default function OnboardingPage() {
+function OnboardingPageContent() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const nextUrl = searchParams.get('next')
   const { user, refetch, loading: authLoading } = useAuth()
 
   const [step, setStep] = useState(1)
@@ -1085,7 +1087,7 @@ export default function OnboardingPage() {
     }
   }, [step, handleFinish])
 
-  const handleEnterApp = () => router.push('/community')
+  const handleEnterApp = () => router.push(nextUrl || '/community')
 
   if (authLoading) {
     return (
@@ -1192,5 +1194,17 @@ export default function OnboardingPage() {
         </>
       )}
     </div>
+  )
+}
+
+export default function OnboardingPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex-1 flex items-center justify-center min-h-screen">
+        <div className="w-10 h-10 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin" />
+      </div>
+    }>
+      <OnboardingPageContent />
+    </Suspense>
   )
 }

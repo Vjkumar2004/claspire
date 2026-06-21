@@ -1,15 +1,17 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect, Suspense } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import Link from 'next/link'
 import { Eye, EyeOff } from 'lucide-react'
 import GoogleSignInButton from '@/components/auth/GoogleSignInButton'
 import AuthLayout from '@/components/auth/AuthLayout'
 
-export default function LoginPage() {
+function LoginPageContent() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const nextUrl = searchParams.get('next')
   const { user, loading: authLoading } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -47,8 +49,14 @@ export default function LoginPage() {
       )
 
       sessionStorage.setItem('claspire_notif_trigger', 'login')
-      window.location.href = data.user.onboarding_completed === false ? '/onboarding' : '/community'
-
+      if (data.user.onboarding_completed === false) {
+        const onboardingUrl = nextUrl
+          ? `/onboarding?next=${encodeURIComponent(nextUrl)}`
+          : '/onboarding'
+        window.location.href = onboardingUrl
+      } else {
+        window.location.href = nextUrl || '/community'
+      }
     } catch (err) {
       console.error(err)
       setError('Network error during Google authentication. Try again.')
@@ -65,7 +73,7 @@ export default function LoginPage() {
         router.push('/community')
       }
     }
-  }, [user, authLoading, router])
+  }, [user, authLoading, router, nextUrl])
 
   if (authLoading) {
     return (
@@ -104,9 +112,14 @@ export default function LoginPage() {
       )
 
       sessionStorage.setItem('claspire_notif_trigger', 'login')
-      window.location.href = data.user.onboarding_completed === false ? '/onboarding' : '/community'
-
-    } catch {
+      if (data.user.onboarding_completed === false) {
+        const onboardingUrl = nextUrl
+          ? `/onboarding?next=${encodeURIComponent(nextUrl)}`
+          : '/onboarding'
+        window.location.href = onboardingUrl
+      } else {
+        window.location.href = nextUrl || '/community'
+      }
       setError('Network error. Try again.')
     } finally {
       setLoading(false)
@@ -223,5 +236,17 @@ export default function LoginPage() {
         </p>
       </div>
     </AuthLayout>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-[#FAFAFA] dark:bg-[#1D2226]">
+        <div className="w-10 h-10 border-3 border-surface dark:border-[#38434F] border-t-purple-600 rounded-full animate-spin" />
+      </div>
+    }>
+      <LoginPageContent />
+    </Suspense>
   )
 }

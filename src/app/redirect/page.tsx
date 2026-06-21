@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { AlertTriangle, ExternalLink, ShieldAlert, ArrowLeft } from 'lucide-react'
+import { ExternalLink, ShieldAlert, ArrowLeft } from 'lucide-react'
 
 function isSafeUrl(url: string) {
   try {
@@ -33,8 +33,25 @@ function RedirectPageContent() {
   const [isValid, setIsValid] = useState(true)
   const [targetUrl, setTargetUrl] = useState('')
   const [domain, setDomain] = useState('')
+  const [authChecked, setAuthChecked] = useState(false)
 
   useEffect(() => {
+    // Check for session cookie client-side
+    const hasSession = document.cookie
+      .split(';')
+      .some(c => c.trim().startsWith('claspire_session='))
+
+    if (!hasSession) {
+      // Preserve the full redirect URL so user can continue after login
+      const loginUrl = urlParam
+        ? `/login?next=${encodeURIComponent('/redirect?url=' + encodeURIComponent(urlParam))}`
+        : '/login'
+      router.replace(loginUrl)
+      return
+    }
+
+    setAuthChecked(true)
+
     if (urlParam) {
       if (isSafeUrl(urlParam)) {
         setTargetUrl(urlParam)
@@ -45,7 +62,15 @@ function RedirectPageContent() {
     } else {
       setIsValid(false)
     }
-  }, [urlParam])
+  }, [urlParam, router])
+
+  if (!authChecked) {
+    return (
+      <div className="min-h-screen bg-[#FAFBFC] dark:bg-[#111827] flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin" />
+      </div>
+    )
+  }
 
   if (!isValid) {
     return (
