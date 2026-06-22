@@ -42,6 +42,7 @@ export async function POST(req: NextRequest) {
       
       const { data, error } = await resend.emails.send({
         from: 'Updates <updates@mail.claspire.in>',
+        replyTo: 'claspire.community@gmail.com',
         to: [testEmail],
         subject: `[TEST] ${subject}`,
         html: cleanHtml,
@@ -155,6 +156,7 @@ export async function POST(req: NextRequest) {
           // Individual send — every recipient gets their own Resend API call
           const { error } = await resend.emails.send({
             from: 'Updates <updates@mail.claspire.in>',
+            replyTo: 'claspire.community@gmail.com',
             to: [email], // single-element array — never multiple recipients
             subject,
             html: cleanHtml,

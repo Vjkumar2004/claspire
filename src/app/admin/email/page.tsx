@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { EmailEditor } from '@/components/admin/email/EmailEditor';
+import DirectOutreach from '@/components/admin/email/DirectOutreach';
 import { Mail, Send, AlertCircle, Loader2, Eye, FileText, ArrowRight } from 'lucide-react';
 import { generateSubject, generateHtml, generatePreviewText, wrapEmailTemplate, type TemplateType, type TemplateFormData, type JobFormData, type CommunityFormData } from '@/lib/emailTemplates';
 
@@ -27,6 +28,7 @@ const emptyCommunityForm: CommunityFormData = {
 };
 
 export default function AdminEmailCampaignsPage() {
+  const [mode, setMode] = useState<'campaign' | 'outreach'>('campaign');
   const [templateType, setTemplateType] = useState<TemplateType>('job');
   const [subject, setSubject] = useState('');
   const [jobForm, setJobForm] = useState<JobFormData>({ ...emptyJobForm });
@@ -549,6 +551,33 @@ export default function AdminEmailCampaignsPage() {
         </div>
       )}
 
+      {/* Mode Tabs */}
+      <div className="flex gap-1 rounded-lg bg-gray-100 dark:bg-gray-800 p-1 w-fit">
+        <button
+          type="button"
+          onClick={() => setMode('campaign')}
+          className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${
+            mode === 'campaign'
+              ? 'bg-white dark:bg-[#1D2226] text-gray-900 dark:text-gray-100 shadow-sm'
+              : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+          }`}
+        >
+          📬 Campaigns
+        </button>
+        <button
+          type="button"
+          onClick={() => setMode('outreach')}
+          className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${
+            mode === 'outreach'
+              ? 'bg-white dark:bg-[#1D2226] text-gray-900 dark:text-gray-100 shadow-sm'
+              : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+          }`}
+        >
+          📨 Direct Outreach
+        </button>
+      </div>
+
+      {mode === 'campaign' ? (
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main Column */}
         <div className="lg:col-span-2 space-y-6">
@@ -869,6 +898,9 @@ export default function AdminEmailCampaignsPage() {
           )}
         </div>
       </div>
+      ) : (
+        <DirectOutreach />
+      )}
     </div>
   );
 }
