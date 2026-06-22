@@ -89,7 +89,7 @@ function RedirectPageContent() {
             The link you are trying to visit is invalid or uses an unsafe protocol. For your security, this request has been blocked.
           </p>
           <button
-            onClick={() => router.back()}
+            onClick={() => { window.history.length > 1 ? router.back() : router.replace('/community') }}
             className="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold py-3 px-4 rounded-xl hover:bg-slate-800 dark:hover:bg-slate-100 transition-colors"
           >
             Go Back to Safety
@@ -130,7 +130,7 @@ function RedirectPageContent() {
           </button>
           
           <button
-            onClick={() => router.back()}
+            onClick={() => { window.history.length > 1 ? router.back() : router.replace('/community') }}
             className="w-full flex items-center justify-center gap-2 bg-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-bold py-3 px-4 rounded-xl transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
