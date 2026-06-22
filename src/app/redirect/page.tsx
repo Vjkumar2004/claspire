@@ -36,32 +36,39 @@ function RedirectPageContent() {
   const [authChecked, setAuthChecked] = useState(false)
 
   useEffect(() => {
-    // Check for session cookie client-side
-    const hasSession = document.cookie
-      .split(';')
-      .some(c => c.trim().startsWith('claspire_session='))
+    // Verify authentication via API instead of document.cookie
+    // (claspire_session is HttpOnly — invisible to client-side JS)
+    async function checkAuth() {
+      try {
+        const res = await fetch('/api/auth/me')
+        if (!res.ok) {
+          // Preserve the full redirect URL so user can continue after login
+          const loginUrl = urlParam
+            ? `/login?next=${encodeURIComponent('/redirect?url=' + encodeURIComponent(urlParam))}`
+            : '/login'
+          router.replace(loginUrl)
+          return
+        }
+      } catch {
+        router.replace('/login')
+        return
+      }
 
-    if (!hasSession) {
-      // Preserve the full redirect URL so user can continue after login
-      const loginUrl = urlParam
-        ? `/login?next=${encodeURIComponent('/redirect?url=' + encodeURIComponent(urlParam))}`
-        : '/login'
-      router.replace(loginUrl)
-      return
-    }
+      setAuthChecked(true)
 
-    setAuthChecked(true)
-
-    if (urlParam) {
-      if (isSafeUrl(urlParam)) {
-        setTargetUrl(urlParam)
-        setDomain(getDisplayDomain(urlParam))
+      if (urlParam) {
+        if (isSafeUrl(urlParam)) {
+          setTargetUrl(urlParam)
+          setDomain(getDisplayDomain(urlParam))
+        } else {
+          setIsValid(false)
+        }
       } else {
         setIsValid(false)
       }
-    } else {
-      setIsValid(false)
     }
+
+    checkAuth()
   }, [urlParam, router])
 
   if (!authChecked) {

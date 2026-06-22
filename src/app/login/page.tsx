@@ -70,7 +70,7 @@ function LoginPageContent() {
       if (user.onboarding_completed === false) {
         router.push('/onboarding')
       } else {
-        router.push('/community')
+        router.push(nextUrl || '/community')
       }
     }
   }, [user, authLoading, router, nextUrl])
