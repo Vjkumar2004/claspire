@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { getAuthenticatedUser } from '@/lib/session'
+import { applyRateLimit, getUserIdentifier } from '@/lib/rateLimitRedis'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -16,6 +17,13 @@ export async function POST(request: NextRequest) {
     const user = await getAuthenticatedUser(request)
     if (!user) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
+    }
+
+    // Rate limiting: 10 messages per minute per user
+    const userIdentifier = await getUserIdentifier(request)
+    const rateLimitResult = await applyRateLimit(request, 'groupMessage', userIdentifier)
+    if (!rateLimitResult.success && rateLimitResult.response) {
+      return rateLimitResult.response
     }
 
     const sender_id = user.id

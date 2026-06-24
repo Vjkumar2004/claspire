@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
+import { applyRateLimit } from '@/lib/rateLimitRedis'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -8,45 +9,23 @@ const supabase = createClient(
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, role } = await request.json()
+    // Rate limiting: 10 requests per 10 minutes per IP
+    const rateLimitResult = await applyRateLimit(request, 'checkAccount')
+    if (!rateLimitResult.success && rateLimitResult.response) {
+      return rateLimitResult.response
+    }
+
+    const { email } = await request.json()
 
     if (!email) {
       return NextResponse.json({ error: 'Email is required' }, { status: 400 })
     }
 
-    console.log('Checking account existence for:', email, 'role:', role)
-
-    // Check if user already exists with this email
-    const { data: existingUser, error: userError } = await supabase
-      .from('users')
-      .select('id, email, role, full_name')
-      .eq('email', email.toLowerCase())
-      .single()
-
-    console.log('Existing user:', existingUser)
-    console.log('User error:', userError)
-
-    if (userError && userError.code !== 'PGRST116') {
-      // PGRST116 is "not found" error, which is expected
-      console.error('Database error:', userError)
-      return NextResponse.json({ error: 'Database error' }, { status: 500 })
-    }
-
-    if (existingUser) {
-      // User exists, they can proceed to login
-      return NextResponse.json({
-        exists: true,
-        role: existingUser.role,
-        fullName: existingUser.full_name,
-        message: `An account with this email already exists as a ${existingUser.role}. Please login instead.`
-      }, { status: 409 })
-    }
-
-    // No account found, user can proceed
+    // Always return generic response to prevent account enumeration
+    // Do NOT reveal whether the account exists or not
     return NextResponse.json({
-      exists: false,
-      message: 'No account found with this email. You can proceed with registration.'
-    }, { status: 200 })
+      success: true
+    })
 
   } catch (error) {
     console.error('Check account API error:', error)

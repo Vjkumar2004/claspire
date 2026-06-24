@@ -148,15 +148,42 @@ export async function getUserIdentifier(req: Request): Promise<string> {
  */
 export const RateLimitPresets = {
   // Authentication endpoints
-  login: { limit: 5, window: 60 }, // 5 requests per minute per IP
+  login: { limit: 5, window: 600 }, // 5 requests per 10 minutes per IP
   signup: { limit: 3, window: 3600 }, // 3 requests per hour per IP
   passwordReset: { limit: 3, window: 3600 }, // 3 requests per hour per IP
   otp: { limit: 5, window: 900 }, // 5 requests per 15 minutes per IP
+  otpVerify: { limit: 5, window: 900 }, // 5 attempts per 15 minutes per IP
+  googleAuth: { limit: 5, window: 600 }, // 5 attempts per 10 minutes per IP
+  checkAccount: { limit: 10, window: 600 }, // 10 requests per 10 minutes per IP
 
   // Content creation
   createPost: { limit: 10, window: 60 }, // 10 requests per minute per user
   sendMessage: { limit: 30, window: 60 }, // 30 requests per minute per user
   createComment: { limit: 20, window: 60 }, // 20 requests per minute per user
+  createJob: { limit: 5, window: 3600 }, // 5 jobs per hour per user
+  createGroup: { limit: 5, window: 3600 }, // 5 groups per hour per user
+
+  // Messaging
+  groupMessage: { limit: 10, window: 60 }, // 10 messages per minute per user
+  messageRequest: { limit: 30, window: 3600 }, // 30 requests per hour per user
+
+  // Uploads
+  upload: { limit: 10, window: 3600 }, // 10 uploads per hour per user
+  uploadResume: { limit: 5, window: 3600 }, // 5 uploads per hour per user
+
+  // Network
+  connect: { limit: 30, window: 3600 }, // 30 requests per hour per user
+  follow: { limit: 50, window: 3600 }, // 50 actions per hour per user
+  networkRespond: { limit: 30, window: 3600 }, // 30 actions per hour per user
+  communityJoin: { limit: 20, window: 3600 }, // 20 joins per hour per user
+  groupJoin: { limit: 20, window: 3600 }, // 20 joins per hour per user
+  collegeClaim: { limit: 3, window: 3600 }, // 3 submissions per hour per user
+
+  // Search
+  search: { limit: 30, window: 60 }, // 30 requests per minute per IP
+
+  // Admin
+  adminCampaign: { limit: 3, window: 3600 }, // 3 campaigns per hour per admin
 
   // Voting
   vote: { limit: 100, window: 60 }, // 100 requests per minute per user
@@ -209,4 +236,76 @@ export async function applyRateLimit(
   }
 
   return { success: true }
+}
+
+/**
+ * Track failed OTP verification attempts with Redis
+ * Locks out after threshold exceeded
+ */
+export async function checkOtpLockout(email: string): Promise<{ locked: boolean; remainingAttempts: number; lockoutDuration: number }> {
+  try {
+    const redis = getRedisClient()
+    const lockoutKey = `otp_lockout:${email}`
+    const attemptKey = `otp_attempts:${email}`
+
+    // Check if account is currently locked
+    const lockoutTtl = await redis.ttl(lockoutKey)
+    if (lockoutTtl > 0) {
+      return { locked: true, remainingAttempts: 0, lockoutDuration: lockoutTtl }
+    }
+
+    // Check current attempt count
+    const attempts = await redis.get<number>(attemptKey)
+    const currentAttempts = attempts || 0
+    const remainingAttempts = Math.max(0, 10 - currentAttempts)
+
+    return { locked: false, remainingAttempts, lockoutDuration: 0 }
+  } catch (error) {
+    console.error('OTP lockout check error:', error)
+    return { locked: false, remainingAttempts: 10, lockoutDuration: 0 }
+  }
+}
+
+/**
+ * Record a failed OTP attempt
+ * Auto-locks after 10 failed attempts for 15 minutes
+ */
+export async function recordFailedOtpAttempt(email: string): Promise<{ locked: boolean; lockoutDuration: number }> {
+  try {
+    const redis = getRedisClient()
+    const attemptKey = `otp_attempts:${email}`
+    const lockoutKey = `otp_lockout:${email}`
+
+    const attempts = await redis.incr(attemptKey)
+
+    // Set TTL on first attempt (15 min window)
+    if (attempts === 1) {
+      await redis.expire(attemptKey, 900)
+    }
+
+    // Lock after 10 failed attempts
+    if (attempts >= 10) {
+      await redis.set(lockoutKey, '1', { ex: 900 }) // 15 min lockout
+      await redis.del(attemptKey) // Reset counter
+      return { locked: true, lockoutDuration: 900 }
+    }
+
+    return { locked: false, lockoutDuration: 0 }
+  } catch (error) {
+    console.error('Record failed OTP attempt error:', error)
+    return { locked: false, lockoutDuration: 0 }
+  }
+}
+
+/**
+ * Clear failed OTP attempts on successful verification
+ */
+export async function clearOtpAttempts(email: string): Promise<void> {
+  try {
+    const redis = getRedisClient()
+    await redis.del(`otp_attempts:${email}`)
+    await redis.del(`otp_lockout:${email}`)
+  } catch (error) {
+    console.error('Clear OTP attempts error:', error)
+  }
 }

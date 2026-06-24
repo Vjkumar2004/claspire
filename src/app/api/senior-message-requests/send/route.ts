@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { getAuthenticatedUser } from '@/lib/session'
 import { sendPushToUsers } from '@/lib/notifications'
+import { applyRateLimit, getUserIdentifier } from '@/lib/rateLimitRedis'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -27,6 +28,13 @@ export async function POST(request: NextRequest) {
     const user = await getAuthenticatedUser(request)
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Rate limiting: 30 requests per hour per user
+    const userIdentifier = await getUserIdentifier(request)
+    const rateLimitResult = await applyRateLimit(request, 'messageRequest', userIdentifier)
+    if (!rateLimitResult.success && rateLimitResult.response) {
+      return rateLimitResult.response
     }
 
     // Prevent self-request

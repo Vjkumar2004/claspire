@@ -3,6 +3,7 @@ import { PutObjectCommand } from '@aws-sdk/client-s3'
 import { r2Client, R2_BUCKET, getR2Url } from '@/lib/r2'
 import { generateSafeFilename } from '@/lib/file-validation'
 import { getAuthenticatedUser } from '@/lib/session'
+import { applyRateLimit, getUserIdentifier } from '@/lib/rateLimitRedis'
 
 export async function POST(req: NextRequest) {
   try {
@@ -12,6 +13,13 @@ export async function POST(req: NextRequest) {
     const user = await getAuthenticatedUser(req)
     if (!user) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
+    }
+
+    // Rate limiting: 5 uploads per hour per user
+    const userIdentifier = await getUserIdentifier(req)
+    const rateLimitResult = await applyRateLimit(req, 'uploadResume', userIdentifier)
+    if (!rateLimitResult.success && rateLimitResult.response) {
+      return rateLimitResult.response
     }
 
     const userId = user.id

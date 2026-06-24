@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { sanitizeSearchInput } from '@/lib/sanitize'
+import { applyRateLimit } from '@/lib/rateLimitRedis'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -59,6 +60,12 @@ function getSimilarity(a: string, b: string): number {
 
 export async function GET(req: NextRequest) {
   try {
+    // Rate limiting: 30 requests per minute per IP
+    const rateLimitResult = await applyRateLimit(req, 'search')
+    if (!rateLimitResult.success && rateLimitResult.response) {
+      return rateLimitResult.response
+    }
+
     const { searchParams } = new URL(req.url)
     const rawQuery = (searchParams.get('q') || '').trim().toLowerCase()
     const query = sanitizeSearchInput(rawQuery)

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { createNotification, sendPushToUsers } from '@/lib/notifications'
 import { getAuthenticatedUser } from '@/lib/session'
+import { applyRateLimit, getUserIdentifier } from '@/lib/rateLimitRedis'
 
 export async function POST(
   request: NextRequest,
@@ -21,6 +22,13 @@ export async function POST(
     const user = await getAuthenticatedUser(request)
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized - No session found' }, { status: 401 })
+    }
+
+    // Rate limiting: 20 group joins per hour per user
+    const userIdentifier = await getUserIdentifier(request)
+    const rateLimitResult = await applyRateLimit(request, 'groupJoin', userIdentifier)
+    if (!rateLimitResult.success && rateLimitResult.response) {
+      return rateLimitResult.response
     }
 
     const userId = user.id

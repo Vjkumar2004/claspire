@@ -4,6 +4,7 @@ import { Resend } from 'resend';
 import { sanitizeEmailHtml } from '@/lib/sanitizeEmailHtml';
 import { wrapEmailTemplate } from '@/lib/emailTemplates';
 import { z } from 'zod';
+import { getRedisClient } from '@/lib/rateLimitRedis';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -18,33 +19,43 @@ const directEmailSchema = z.object({
   testEmail: z.string().email().optional().or(z.literal('')),
 });
 
-// In-memory daily rate limit tracker (resets on server restart).
+// Redis-backed daily rate limit tracker (persists across server restarts).
 // Each admin can send up to MAX_DAILY_LIMIT direct outreach emails per calendar day.
-// For multi-instance deployments, replace this with a DB-backed counter.
 const MAX_DAILY_LIMIT = 20;
-const dailySendCounts = new Map<string, { date: string; count: number }>();
 
-function getRateLimit(adminId: string): { allowed: boolean; remaining: number } {
-  const today = new Date().toISOString().slice(0, 10);
-  const entry = dailySendCounts.get(adminId);
+async function getRedisRateLimit(adminId: string): Promise<{ allowed: boolean; remaining: number }> {
+  try {
+    const redis = getRedisClient();
+    const today = new Date().toISOString().slice(0, 10);
+    const key = `direct_email_limit:${adminId}:${today}`;
 
-  if (!entry || entry.date !== today) {
-    dailySendCounts.set(adminId, { date: today, count: 0 });
+    const current = await redis.get<number>(key);
+    const count = current || 0;
+    const remaining = Math.max(0, MAX_DAILY_LIMIT - count);
+
+    return { allowed: remaining > 0, remaining };
+  } catch (error) {
+    console.error('[DIRECT OUTREACH] Redis rate limit check error:', error);
     return { allowed: true, remaining: MAX_DAILY_LIMIT };
   }
-
-  const remaining = MAX_DAILY_LIMIT - entry.count;
-  return { allowed: remaining > 0, remaining: Math.max(0, remaining) };
 }
 
-function incrementRateLimit(adminId: string): void {
-  const today = new Date().toISOString().slice(0, 10);
-  const entry = dailySendCounts.get(adminId);
+async function incrementRedisRateLimit(adminId: string): Promise<void> {
+  try {
+    const redis = getRedisClient();
+    const today = new Date().toISOString().slice(0, 10);
+    const key = `direct_email_limit:${adminId}:${today}`;
 
-  if (!entry || entry.date !== today) {
-    dailySendCounts.set(adminId, { date: today, count: 1 });
-  } else {
-    entry.count++;
+    const count = await redis.incr(key);
+    // Set TTL on first increment to expire at end of day
+    if (count === 1) {
+      const now = new Date();
+      const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+      const ttlSeconds = Math.floor((endOfDay.getTime() - now.getTime()) / 1000);
+      await redis.expire(key, ttlSeconds);
+    }
+  } catch (error) {
+    console.error('[DIRECT OUTREACH] Redis rate limit increment error:', error);
   }
 }
 
@@ -80,7 +91,7 @@ export async function POST(req: NextRequest) {
 
     // Rate limiting (skipped for test sends)
     if (!isTest) {
-      const { allowed, remaining } = getRateLimit(adminId);
+      const { allowed, remaining } = await getRedisRateLimit(adminId);
       if (!allowed) {
         return NextResponse.json({
           error: `Daily direct outreach limit reached (${MAX_DAILY_LIMIT}/day). Please try again tomorrow.`,
@@ -105,15 +116,15 @@ export async function POST(req: NextRequest) {
     }
 
     if (!isTest) {
-      incrementRateLimit(adminId);
-      const { remaining } = getRateLimit(adminId);
+      await incrementRedisRateLimit(adminId);
+      const { remaining } = await getRedisRateLimit(adminId);
       console.log(`[DIRECT OUTREACH] Sent to ${email}. ${remaining}/${MAX_DAILY_LIMIT} remaining today.`);
     }
 
     return NextResponse.json({
       success: true,
       message: isTest ? 'Test email sent successfully' : `Email sent to ${name || email}`,
-      remaining: isTest ? MAX_DAILY_LIMIT : getRateLimit(adminId).remaining,
+      remaining: isTest ? MAX_DAILY_LIMIT : (await getRedisRateLimit(adminId)).remaining,
     });
 
   } catch (error) {

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { sendEmail } from '@/services/emailService'
 import { applyRateLimit } from '@/lib/rateLimitRedis'
+import { verifyTurnstileToken } from '@/lib/turnstile'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
@@ -98,11 +99,26 @@ export async function POST(request: NextRequest) {
       return rateLimitResult.response
     }
 
-    const { email } = await request.json()
+    const { email, turnstileToken } = await request.json()
 
     if (!email) {
       return NextResponse.json(
         { error: 'Email is required' },
+        { status: 400 }
+      )
+    }
+
+    if (!turnstileToken) {
+      return NextResponse.json(
+        { error: 'Security check required. Please refresh the page.' },
+        { status: 400 }
+      )
+    }
+
+    const turnstileValid = await verifyTurnstileToken(turnstileToken)
+    if (!turnstileValid) {
+      return NextResponse.json(
+        { error: 'Security check failed. Please refresh the page.' },
         { status: 400 }
       )
     }

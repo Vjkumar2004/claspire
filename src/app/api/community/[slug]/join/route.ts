@@ -8,6 +8,7 @@ import {
 } from '@/lib/community-stats'
 import { getAuthenticatedUser } from '@/lib/session'
 import { createNotification } from '@/lib/notifications'
+import { applyRateLimit, getUserIdentifier } from '@/lib/rateLimitRedis'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -30,6 +31,13 @@ export async function POST(
         { error: 'Not authenticated' },
         { status: 401 }
       )
+    }
+
+    // Rate limiting: 20 community joins per hour per user
+    const userIdentifier = await getUserIdentifier(req)
+    const rateLimitResult = await applyRateLimit(req, 'communityJoin', userIdentifier)
+    if (!rateLimitResult.success && rateLimitResult.response) {
+      return rateLimitResult.response
     }
 
     const userId = user.id

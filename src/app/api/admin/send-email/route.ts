@@ -4,6 +4,7 @@ import { requireAdmin } from '@/lib/admin';
 import { Resend } from 'resend';
 import { sanitizeEmailHtml } from '@/lib/sanitizeEmailHtml';
 import { z } from 'zod';
+import { applyRateLimit, getRedisClient } from '@/lib/rateLimitRedis';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -22,6 +23,12 @@ export async function POST(req: NextRequest) {
     const adminAuth = await requireAdmin(req);
     if ('error' in adminAuth) {
       return NextResponse.json({ error: adminAuth.error }, { status: adminAuth.status });
+    }
+
+    // Rate limiting: 3 campaigns per hour per admin
+    const rateLimitResult = await applyRateLimit(req, 'adminCampaign')
+    if (!rateLimitResult.success && rateLimitResult.response) {
+      return rateLimitResult.response
     }
 
     const body = await req.json();

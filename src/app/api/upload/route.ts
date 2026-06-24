@@ -4,6 +4,7 @@ import { r2Client, R2_BUCKET, getR2Url } from '@/lib/r2'
 import { createClient } from '@supabase/supabase-js'
 import { validateImageFile, generateSafeFilename, sanitizeImageMetadata } from '@/lib/file-validation'
 import { getAuthenticatedUser } from '@/lib/session'
+import { applyRateLimit, getUserIdentifier } from '@/lib/rateLimitRedis'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -24,6 +25,13 @@ export async function POST(req: NextRequest) {
       )
     }
     userId = user.id
+
+    // Rate limiting: 10 uploads per hour per user
+    const userIdentifier = await getUserIdentifier(req)
+    const rateLimitResult = await applyRateLimit(req, 'upload', userIdentifier)
+    if (!rateLimitResult.success && rateLimitResult.response) {
+      return rateLimitResult.response
+    }
 
     const formData = await req.formData()
     const file = formData.get('file') as File

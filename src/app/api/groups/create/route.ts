@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 import { notifyGroupCreated } from '@/lib/notifications'
 import { getAuthenticatedUser } from '@/lib/session'
+import { applyRateLimit, getUserIdentifier } from '@/lib/rateLimitRedis'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -16,6 +17,13 @@ export async function POST(request: NextRequest) {
     const user = await getAuthenticatedUser(request)
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized - No session found' }, { status: 401 })
+    }
+
+    // Rate limiting: 5 groups per hour per user
+    const userIdentifier = await getUserIdentifier(request)
+    const rateLimitResult = await applyRateLimit(request, 'createGroup', userIdentifier)
+    if (!rateLimitResult.success && rateLimitResult.response) {
+      return rateLimitResult.response
     }
 
     const cookieUser = user

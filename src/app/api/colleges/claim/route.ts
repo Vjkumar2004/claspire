@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { getAuthenticatedUser } from '@/lib/session'
+import { applyRateLimit, getUserIdentifier } from '@/lib/rateLimitRedis'
 
 export async function GET(req: NextRequest) {
   const supabase = createClient(
@@ -46,6 +47,13 @@ export async function POST(req: NextRequest) {
     const user = await getAuthenticatedUser(req)
     if (!user) {
       return NextResponse.json({ error: 'You must be signed in to claim a college' }, { status: 401 })
+    }
+
+    // Rate limiting: 3 claims per hour per user
+    const userIdentifier = await getUserIdentifier(req)
+    const rateLimitResult = await applyRateLimit(req, 'collegeClaim', userIdentifier)
+    if (!rateLimitResult.success && rateLimitResult.response) {
+      return rateLimitResult.response
     }
 
     const { college_id, official_email, official_website, designation, contact_person, verification_msg } = await req.json()

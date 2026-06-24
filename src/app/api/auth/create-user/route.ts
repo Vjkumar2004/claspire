@@ -4,6 +4,7 @@ import bcrypt from 'bcryptjs'
 import { createSessionCookie } from '@/lib/session'
 import { applyRateLimit, getClientIdentifier } from '@/lib/rateLimitRedis'
 import { syncCommunityCounts } from '@/lib/community-stats'
+import { verifyTurnstileToken } from '@/lib/turnstile'
 
 const supabaseAnon = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -23,7 +24,22 @@ export async function POST(req: NextRequest) {
       return rateLimitResult.response
     }
 
-    const { email, role, profileData, password, onesignal_player_id, google_id } = await req.json()
+    const { email, role, profileData, password, onesignal_player_id, google_id, turnstileToken } = await req.json()
+
+    if (!turnstileToken) {
+      return NextResponse.json(
+        { error: 'Security check required. Please refresh the page.' },
+        { status: 400 }
+      )
+    }
+
+    const turnstileValid = await verifyTurnstileToken(turnstileToken)
+    if (!turnstileValid) {
+      return NextResponse.json(
+        { error: 'Security check failed. Please refresh the page.' },
+        { status: 400 }
+      )
+    }
 
     // Validate password
     if (!password || password.length < 6) {

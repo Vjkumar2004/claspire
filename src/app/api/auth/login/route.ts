@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 import bcrypt from 'bcryptjs'
 import { createSessionCookie } from '@/lib/session'
 import { applyRateLimit, getClientIdentifier } from '@/lib/rateLimitRedis'
+import { verifyTurnstileToken } from '@/lib/turnstile'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -17,11 +18,26 @@ export async function POST(req: NextRequest) {
       return rateLimitResult.response
     }
 
-    const { email, password } = await req.json()
+    const { email, password, turnstileToken } = await req.json()
 
     if (!email || !password) {
       return NextResponse.json(
         { error: 'Email and password required' },
+        { status: 400 }
+      )
+    }
+
+    if (!turnstileToken) {
+      return NextResponse.json(
+        { error: 'Security check required. Please refresh the page.' },
+        { status: 400 }
+      )
+    }
+
+    const turnstileValid = await verifyTurnstileToken(turnstileToken)
+    if (!turnstileValid) {
+      return NextResponse.json(
+        { error: 'Security check failed. Please refresh the page.' },
         { status: 400 }
       )
     }

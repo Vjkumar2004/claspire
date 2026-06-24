@@ -1,10 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { OAuth2Client } from 'google-auth-library'
+import { applyRateLimit } from '@/lib/rateLimitRedis'
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID)
 
 export async function POST(req: NextRequest) {
   try {
+    // Rate limiting: 5 attempts per 10 minutes per IP
+    const rateLimitResult = await applyRateLimit(req, 'googleAuth')
+    if (!rateLimitResult.success && rateLimitResult.response) {
+      return rateLimitResult.response
+    }
+
     const { credential } = await req.json()
 
     if (!credential) {

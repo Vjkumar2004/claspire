@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { getAuthenticatedUser } from '@/lib/session'
 import { sendPushToUsers } from '@/lib/notifications'
+import { applyRateLimit, getUserIdentifier } from '@/lib/rateLimitRedis'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -18,6 +19,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
     }
     console.log('[Connect] Authenticated user:', user.id, user.full_name)
+
+    // Rate limiting: 30 connection requests per hour per user
+    const userIdentifier = await getUserIdentifier(req)
+    const rateLimitResult = await applyRateLimit(req, 'connect', userIdentifier)
+    if (!rateLimitResult.success && rateLimitResult.response) {
+      return rateLimitResult.response
+    }
 
     const body = await req.json()
     const { receiver_id } = body

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { randomBytes } from 'crypto'
+import { applyRateLimit, getClientIdentifier, checkOtpLockout, recordFailedOtpAttempt, clearOtpAttempts } from '@/lib/rateLimitRedis'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
@@ -14,6 +15,12 @@ const supabaseAdmin = createClient(
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting: 5 attempts per 15 minutes per IP
+    const rateLimitResult = await applyRateLimit(request, 'otpVerify')
+    if (!rateLimitResult.success && rateLimitResult.response) {
+      return rateLimitResult.response
+    }
+
     const { email, otp, purpose = 'signup' } = await request.json()
 
     if (!email || !otp) {
@@ -34,6 +41,23 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // OTP brute-force protection: check Redis lockout state
+    const lockout = await checkOtpLockout(normalizedEmail)
+    if (lockout.locked) {
+      return NextResponse.json(
+        {
+          error: 'Too many failed attempts. Please try again later.',
+          retryAfter: lockout.lockoutDuration,
+        },
+        {
+          status: 429,
+          headers: {
+            'Retry-After': lockout.lockoutDuration.toString(),
+          },
+        }
+      )
+    }
+
     // Password reset flow — OTP stored on users.reset_otp by /api/auth/forgot-password
     if (purpose === 'password_reset') {
       const { data: user, error: userError } = await supabaseAdmin
@@ -43,6 +67,7 @@ export async function POST(request: NextRequest) {
         .single()
 
       if (userError || !user) {
+        await recordFailedOtpAttempt(normalizedEmail)
         return NextResponse.json(
           { error: 'Invalid OTP' },
           { status: 400 }
@@ -50,6 +75,7 @@ export async function POST(request: NextRequest) {
       }
 
       if (!user.reset_otp || String(user.reset_otp) !== normalizedOtp) {
+        await recordFailedOtpAttempt(normalizedEmail)
         return NextResponse.json(
           { error: 'Invalid OTP' },
           { status: 400 }
@@ -57,6 +83,7 @@ export async function POST(request: NextRequest) {
       }
 
       if (!user.reset_otp_expiry) {
+        await recordFailedOtpAttempt(normalizedEmail)
         return NextResponse.json(
           { error: 'Invalid OTP' },
           { status: 400 }
@@ -65,6 +92,7 @@ export async function POST(request: NextRequest) {
 
       const expiryTime = new Date(user.reset_otp_expiry)
       if (new Date() > expiryTime) {
+        await recordFailedOtpAttempt(normalizedEmail)
         await supabaseAdmin
           .from('users')
           .update({ reset_otp: null, reset_otp_expiry: null })
@@ -75,6 +103,9 @@ export async function POST(request: NextRequest) {
           { status: 400 }
         )
       }
+
+      // Clear failed attempts on successful verification
+      await clearOtpAttempts(normalizedEmail)
 
       const resetToken = randomBytes(32).toString('hex')
       const resetTokenExpiry = new Date(Date.now() + 60 * 60 * 1000).toISOString()
@@ -114,6 +145,7 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (otpError || !otpRecord) {
+      await recordFailedOtpAttempt(normalizedEmail)
       return NextResponse.json(
         { error: 'Invalid OTP' },
         { status: 400 }
@@ -121,6 +153,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (!otpRecord.expires_at) {
+      await recordFailedOtpAttempt(normalizedEmail)
       return NextResponse.json(
         { error: 'Invalid OTP' },
         { status: 400 }
@@ -129,6 +162,7 @@ export async function POST(request: NextRequest) {
 
     const expiryTime = new Date(otpRecord.expires_at)
     if (new Date() > expiryTime) {
+      await recordFailedOtpAttempt(normalizedEmail)
       await supabase
         .from('otp_store')
         .delete()
@@ -140,6 +174,9 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       )
     }
+
+    // Clear failed attempts on successful verification
+    await clearOtpAttempts(normalizedEmail)
 
     await supabase
       .from('otp_store')
