@@ -107,7 +107,7 @@ export default function EditJobPage() {
     return (
       <div className="min-h-screen bg-[#FAFBFC] flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 size={32} className="animate-spin text-purple-600" />
+          <Loader2 size={32} className="animate-spin text-[#F4A01C]" />
           <p className="text-sm font-semibold text-gray-500">Loading job...</p>
         </div>
       </div>
@@ -152,7 +152,7 @@ export default function EditJobPage() {
             <button
               onClick={handleSave}
               disabled={saving}
-              className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-purple-600 to-cyan-500 text-white rounded-xl text-sm font-black hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-[#0A2540] to-[#1B4F72] text-white rounded-xl text-sm font-black hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {saving ? (
                 <><Loader2 size={16} className="animate-spin" /> Saving...</>
@@ -179,7 +179,7 @@ export default function EditJobPage() {
             value={companyName}
             onChange={e => setCompanyName(e.target.value)}
             placeholder="e.g. Google"
-            className="w-full border border-surface rounded-xl px-4 py-3 text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-400 transition-all placeholder:text-gray-300"
+            className="w-full border border-surface rounded-xl px-4 py-3 text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#F4A01C]/20 focus:border-[#F4A01C] transition-all placeholder:text-gray-300"
           />
         </div>
 
@@ -190,7 +190,7 @@ export default function EditJobPage() {
             value={role}
             onChange={e => setRole(e.target.value)}
             placeholder="e.g. Software Engineer"
-            className="w-full border border-surface rounded-xl px-4 py-3 text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-400 transition-all placeholder:text-gray-300"
+            className="w-full border border-surface rounded-xl px-4 py-3 text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#F4A01C]/20 focus:border-[#F4A01C] transition-all placeholder:text-gray-300"
           />
         </div>
 
@@ -202,7 +202,7 @@ export default function EditJobPage() {
               value={location}
               onChange={e => setLocation(e.target.value)}
               placeholder="e.g. Bangalore, Remote"
-              className="w-full border border-surface rounded-xl px-4 py-3 text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-400 transition-all placeholder:text-gray-300"
+              className="w-full border border-surface rounded-xl px-4 py-3 text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#F4A01C]/20 focus:border-[#F4A01C] transition-all placeholder:text-gray-300"
             />
           </div>
           <div className="bg-surface rounded-2xl border border-surface p-5">
@@ -212,7 +212,7 @@ export default function EditJobPage() {
               value={salaryRange}
               onChange={e => setSalaryRange(e.target.value)}
               placeholder="e.g. 12-20 LPA"
-              className="w-full border border-surface rounded-xl px-4 py-3 text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-400 transition-all placeholder:text-gray-300"
+              className="w-full border border-surface rounded-xl px-4 py-3 text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#F4A01C]/20 focus:border-[#F4A01C] transition-all placeholder:text-gray-300"
             />
           </div>
         </div>
@@ -226,7 +226,7 @@ export default function EditJobPage() {
                 onClick={() => setJobType(jt.value)}
                 className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all ${
                   jobType === jt.value
-                    ? 'bg-purple-50 border-purple-300 text-purple-700'
+                    ? 'bg-[#FFF3D6] border-[#F4A01C]/50 text-[#E09410]'
                     : 'bg-surface border-surface text-gray-600 hover:border-gray-300'
                 }`}
               >
@@ -243,7 +243,7 @@ export default function EditJobPage() {
             value={description}
             onChange={e => setDescription(e.target.value)}
             placeholder="Paste job posting URL or description"
-            className="w-full border border-surface rounded-xl px-4 py-3 text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-400 transition-all placeholder:text-gray-300"
+            className="w-full border border-surface rounded-xl px-4 py-3 text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#F4A01C]/20 focus:border-[#F4A01C] transition-all placeholder:text-gray-300"
           />
         </div>
 
@@ -256,7 +256,7 @@ export default function EditJobPage() {
             <button
               onClick={() => setReferralAvailable(!referralAvailable)}
               className={`relative w-12 h-6 rounded-full transition-colors ${
-                referralAvailable ? 'bg-purple-600' : 'bg-gray-200'
+                referralAvailable ? 'bg-[#F4A01C]' : 'bg-gray-200'
               }`}
             >
               <div className={`absolute top-0.5 w-5 h-5 bg-surface rounded-full shadow transition-transform ${
@@ -270,7 +270,7 @@ export default function EditJobPage() {
           <button
             onClick={handleSave}
             disabled={saving}
-            className="w-full flex items-center justify-center gap-2 px-5 py-4 bg-gradient-to-r from-purple-600 to-cyan-500 text-white rounded-2xl text-sm font-black hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full flex items-center justify-center gap-2 px-5 py-4 bg-gradient-to-r from-[#0A2540] to-[#1B4F72] text-white rounded-2xl text-sm font-black hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {saving ? (
               <><Loader2 size={18} className="animate-spin" /> Updating Job...</>

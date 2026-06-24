@@ -27,14 +27,7 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    if (!turnstileToken) {
-      return NextResponse.json(
-        { error: 'Security check required. Please refresh the page.' },
-        { status: 400 }
-      )
-    }
-
-    const turnstileValid = await verifyTurnstileToken(turnstileToken)
+    const turnstileValid = await verifyTurnstileToken(turnstileToken || '')
     if (!turnstileValid) {
       return NextResponse.json(
         { error: 'Security check failed. Please refresh the page.' },

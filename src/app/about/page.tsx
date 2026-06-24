@@ -22,7 +22,7 @@ export default function AboutPage() {
         {/* Back to Home */}
         <Link 
           href="/" 
-          className="inline-flex items-center gap-2 text-gray-500 dark:text-[#B0B7BE] hover:text-purple-600 font-medium transition-colors mb-8"
+          className="inline-flex items-center gap-2 text-gray-500 dark:text-[#B0B7BE] hover:text-[#F4A01C] font-medium transition-colors mb-8"
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M19 12H5M5 12L12 19M5 12L12 5"/>
@@ -52,7 +52,7 @@ export default function AboutPage() {
 
         {/* Vision Section */}
         <div className="mb-16">
-          <div className="bg-gradient-to-r from-purple-50 to-cyan-50 rounded-3xl p-10 border border-purple-100 text-center">
+          <div className="bg-gradient-to-r from-purple-50 to-cyan-50 rounded-3xl p-10 border border-[#F4A01C]/20 text-center">
             <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white">Our Vision</h2>
             <p className="text-lg text-gray-700 dark:text-[#B0B7BE] leading-relaxed max-w-3xl mx-auto font-medium">
               To create a world where every college student in India has direct access to genuine guidance 
@@ -67,7 +67,7 @@ export default function AboutPage() {
           <h2 className="text-3xl font-bold mb-8 text-center text-gray-900 dark:text-white">Why Students Use This College Senior Mentorship Platform</h2>
           <div className="grid md:grid-cols-2 gap-6">
             <div className="bg-surface dark:bg-[#283036] p-8 rounded-2xl border border-surface dark:border-[#38434F] shadow-sm hover:shadow-md transition-shadow">
-              <div className="w-14 h-14 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center text-2xl mb-5">
+              <div className="w-14 h-14 bg-[#FFF3D6] text-[#F4A01C] rounded-full flex items-center justify-center text-2xl mb-5">
                 🎯
               </div>
               <h3 className="text-xl font-bold mb-3 text-gray-900 dark:text-white">Verified Alumni Network</h3>
@@ -92,25 +92,25 @@ export default function AboutPage() {
           <h2 className="text-3xl font-bold mb-8 text-center text-gray-900 dark:text-white">How Our Campus Peer Network Works</h2>
           <div className="grid md:grid-cols-2 gap-6">
             <div className="bg-app dark:bg-[#1D2226] rounded-2xl p-6 border border-surface dark:border-[#38434F]">
-              <h3 className="font-bold text-lg mb-3 text-purple-600">Authenticity</h3>
+              <h3 className="font-bold text-lg mb-3 text-[#F4A01C]">Authenticity</h3>
               <p className="text-gray-600 dark:text-[#B0B7BE] text-sm leading-relaxed">
                 Real experiences from real students. No sugar-coated advice, just genuine guidance.
               </p>
             </div>
             <div className="bg-app dark:bg-[#1D2226] rounded-2xl p-6 border border-surface dark:border-[#38434F]">
-              <h3 className="font-bold text-lg mb-3 text-purple-600">Accessibility</h3>
+              <h3 className="font-bold text-lg mb-3 text-[#F4A01C]">Accessibility</h3>
               <p className="text-gray-600 dark:text-[#B0B7BE] text-sm leading-relaxed">
                 Quality guidance shouldn't be a luxury. We're making it accessible to every student.
               </p>
             </div>
             <div className="bg-app dark:bg-[#1D2226] rounded-2xl p-6 border border-surface dark:border-[#38434F]">
-              <h3 className="font-bold text-lg mb-3 text-purple-600">Community</h3>
+              <h3 className="font-bold text-lg mb-3 text-[#F4A01C]">Community</h3>
               <p className="text-gray-600 dark:text-[#B0B7BE] text-sm leading-relaxed">
                 Building supportive ecosystems where students help each other grow.
               </p>
             </div>
             <div className="bg-app dark:bg-[#1D2226] rounded-2xl p-6 border border-surface dark:border-[#38434F]">
-              <h3 className="font-bold text-lg mb-3 text-purple-600">Impact</h3>
+              <h3 className="font-bold text-lg mb-3 text-[#F4A01C]">Impact</h3>
               <p className="text-gray-600 dark:text-[#B0B7BE] text-sm leading-relaxed">
                 Every connection made, every doubt resolved, every referral secured — that's our success metric.
               </p>

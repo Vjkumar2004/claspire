@@ -93,7 +93,7 @@ const convertUrlsToLinks = (text: string) => {
           target="_blank"
           rel="noopener noreferrer"
           onClick={(e) => e.stopPropagation()}
-          className="text-[#7C3AED] hover:underline font-semibold break-all"
+          className="text-[#F4A01C] hover:underline font-semibold break-all"
         >
           {match}
         </a>
@@ -1048,7 +1048,7 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
       case 'doubt':
         return { label: 'Doubt', color: '#2563EB', bg: '#EFF6FF', border: '#BFDBFE', icon: '❓' }
       case 'discussion':
-        return { label: 'Discussion', color: '#7C3AED', bg: '#F5F3FF', border: '#DDD6FE', icon: '💬' }
+        return { label: 'Discussion', color: '#F4A01C', bg: '#F5F3FF', border: '#DDD6FE', icon: '💬' }
       case 'experience':
         return { label: 'Experience', color: '#D97706', bg: '#FFFBEB', border: '#FDE68A', icon: '⭐' }
       case 'referral_hunt':
@@ -1187,7 +1187,7 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
               />
               <button
                 onClick={() => setShowSearch(false)}
-                className="text-xs font-bold text-[#7C3AED] hover:text-[#6D28D9]"
+                className="text-xs font-bold text-[#F4A01C] hover:text-[#E09410]"
               >
                 Close
               </button>
@@ -1231,28 +1231,28 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
                       <circle cx={28} cy={28} r={radius} fill="none" stroke="#E8D5FF" strokeWidth={stroke} />
                       <circle
                         cx={28} cy={28} r={radius} fill="none"
-                        stroke="#7C3AED" strokeWidth={stroke}
+                        stroke="#F4A01C" strokeWidth={stroke}
                         strokeDasharray={circumference}
                         strokeDashoffset={offset}
                         strokeLinecap="round"
                         style={{ transition: 'stroke-dashoffset 0.8s ease' }}
                       />
                     </svg>
-                    <span className="absolute text-[11px] font-extrabold text-purple-700 dark:text-purple-300">{pct}%</span>
+                    <span className="absolute text-[11px] font-extrabold text-[#E09410] dark:text-purple-300">{pct}%</span>
                   </div>
 
                   {/* Text */}
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-bold text-gray-900 dark:text-white">Complete Your Profile</p>
                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 truncate">
-                      Missing: <span className="text-purple-600 dark:text-purple-400 font-semibold">{missing.join(', ')}</span>
+                      Missing: <span className="text-[#F4A01C] dark:text-purple-400 font-semibold">{missing.join(', ')}</span>
                     </p>
                   </div>
 
                   {/* CTA */}
                   <button
                     onClick={() => router.push('/profile')}
-                    className="flex-shrink-0 px-3 py-2 bg-purple-600 hover:bg-purple-700 active:bg-purple-800 text-white text-xs font-bold rounded-xl transition-colors cursor-pointer shadow-sm shadow-purple-600/20"
+                    className="flex-shrink-0 px-3 py-2 bg-[#F4A01C] hover:bg-[#E09410] active:bg-[#0A2540] text-white text-xs font-bold rounded-xl transition-colors cursor-pointer shadow-sm shadow-[#F4A01C]/20"
                   >
                     Complete
                   </button>
@@ -1273,7 +1273,7 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
                 </div>
 
                 {/* Local search input block */}
-                <div className="flex-1 flex items-center gap-2 bg-app dark:bg-[#1D2226] border border-surface dark:border-[#38434F] hover:border-slate-300 dark:hover:border-[#38434F] rounded-full px-4 py-2.5 transition-all focus-within:border-[#7C3AED] focus-within:ring-1 focus-within:ring-[#7C3AED]/20">
+                <div className="flex-1 flex items-center gap-2 bg-app dark:bg-[#1D2226] border border-surface dark:border-[#38434F] hover:border-slate-300 dark:hover:border-[#38434F] rounded-full px-4 py-2.5 transition-all focus-within:border-[#F4A01C] focus-within:ring-1 focus-within:ring-[#F4A01C]/20">
                   <Search className="w-4 h-4 text-slate-400 dark:text-[#B0B7BE] flex-shrink-0" />
                   <input
                     type="text"
@@ -1295,7 +1295,7 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
                 {/* Circular Post creator button */}
                 <button
                   onClick={() => setShowPostModal(true)}
-                  className="w-10 h-10 sm:w-8 sm:h-8 bg-purple-50 dark:bg-purple-900/30 hover:bg-purple-100 dark:hover:bg-purple-900/50 text-[#7C3AED] rounded-full border border-purple-100 dark:border-purple-800 transition-colors flex items-center justify-center cursor-pointer flex-shrink-0"
+                  className="w-10 h-10 sm:w-8 sm:h-8 bg-[#FFF3D6] dark:bg-purple-900/30 hover:bg-[#FFF3D6] dark:hover:bg-purple-900/50 text-[#F4A01C] rounded-full border border-[#F4A01C]/20 dark:border-purple-800 transition-colors flex items-center justify-center cursor-pointer flex-shrink-0"
                   title="Create a new post"
                 >
                   <Plus className="w-4 h-4" />
@@ -1306,7 +1306,7 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
               <div className="flex items-center gap-2 overflow-x-auto pt-3 border-t border-surface dark:border-[#38434F] scrollbar-none select-none px-1">
                 {[
                   { key: 'photo', label: 'Photos Only', icon: Image, color: 'text-sky-500' },
-                  { key: 'doubt', label: 'Doubts', icon: HelpCircle, color: 'text-purple-500' },
+                  { key: 'doubt', label: 'Doubts', icon: HelpCircle, color: 'text-[#F4A01C]' },
                   { key: 'resource', label: 'Resources', icon: BookOpen, color: 'text-emerald-500' },
                   { key: 'referral_hunt', label: 'Referrals', icon: Target, color: 'text-rose-500' },
                   { key: 'discussion', label: 'Discussions', icon: Hash, color: 'text-amber-500' },
@@ -1318,11 +1318,11 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
                       key={btn.key}
                       onClick={() => setFilter(isActive ? 'all' : btn.key)}
                       className={`flex items-center gap-2 px-4 py-2 sm:px-3 sm:py-1.5 rounded-full transition-all font-semibold text-xs whitespace-nowrap cursor-pointer ${isActive
-                        ? 'bg-purple-100 dark:bg-purple-900/40 text-[#7C3AED] border border-purple-200 dark:border-purple-800'
+                        ? 'bg-[#FFF3D6] dark:bg-purple-900/40 text-[#F4A01C] border border-[#F4A01C]/30 dark:border-purple-800'
                         : 'bg-surface dark:bg-[#283036] border border-surface dark:border-[#38434F] hover:bg-app dark:hover:bg-[#1D2226] text-slate-600 dark:text-[#B0B7BE]'
                         }`}
                     >
-                      <btn.icon className={`w-4 h-4 sm:w-3.5 sm:h-3.5 ${isActive ? 'text-[#7C3AED]' : btn.color}`} />
+                      <btn.icon className={`w-4 h-4 sm:w-3.5 sm:h-3.5 ${isActive ? 'text-[#F4A01C]' : btn.color}`} />
                       <span>{btn.label}</span>
                     </button>
                   )
@@ -1332,12 +1332,12 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
 
             {/* Filter query status information */}
             {(feedSearchQuery || filter !== 'all') && (
-              <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-100 dark:border-purple-800 rounded-md px-3 py-2 flex items-center justify-between text-[11px] font-bold">
+              <div className="bg-[#FFF3D6] dark:bg-purple-900/20 border border-[#F4A01C]/20 dark:border-purple-800 rounded-md px-3 py-2 flex items-center justify-between text-[11px] font-bold">
                 <span className="text-purple-950 dark:text-purple-200 flex items-center gap-2">
-                  <Activity className="w-3.5 h-3.5 text-[#7C3AED]" />
+                  <Activity className="w-3.5 h-3.5 text-[#F4A01C]" />
                   <span>
                     Showing filtered feed (
-                    {filter !== 'all' && <span className="text-[#7C3AED]">Type: {filter}</span>}
+                    {filter !== 'all' && <span className="text-[#F4A01C]">Type: {filter}</span>}
                     {feedSearchQuery && <span> • Search: "{feedSearchQuery}"</span>}
                     )
                   </span>
@@ -1347,7 +1347,7 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
                     setFilter('all')
                     setFeedSearchQuery('')
                   }}
-                  className="text-[#7C3AED] hover:underline cursor-pointer"
+                  className="text-[#F4A01C] hover:underline cursor-pointer"
                 >
                   Reset Feed
                 </button>
@@ -1359,13 +1359,13 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
               <div className="flex justify-center my-3.5 h-9">
                 {isRefreshingFeed ? (
                   <div className="flex items-center justify-center px-4 py-2 bg-surface dark:bg-[#283036] border border-surface dark:border-[#38434F] rounded-full shadow-sm gap-2">
-                    <div className="w-4 h-4 border-2 border-purple-100 border-t-[#7C3AED] rounded-full animate-spin" />
+                    <div className="w-4 h-4 border-2 border-[#F4A01C]/20 border-t-[#F4A01C] rounded-full animate-spin" />
                     <span className="text-[10px] font-bold text-slate-500 dark:text-[#B0B7BE]">Refreshing feed...</span>
                   </div>
                 ) : (
                   <button
                     onClick={handleLoadNewPosts}
-                    className="px-4 py-2 bg-[#7C3AED] hover:bg-[#6D28D9] text-white text-xs font-bold rounded-full shadow-md flex items-center gap-1.5 transition-all transform hover:scale-105 active:scale-95 cursor-pointer"
+                    className="px-4 py-2 bg-[#F4A01C] hover:bg-[#E09410] text-white text-xs font-bold rounded-full shadow-md flex items-center gap-1.5 transition-all transform hover:scale-105 active:scale-95 cursor-pointer"
                   >
                     <ArrowUp className="w-3.5 h-3.5 animate-bounce" />
                     <span>↑ {newPostsQueue.length} New Post{newPostsQueue.length > 1 ? 's' : ''} Available</span>
@@ -1413,7 +1413,7 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
                 {/* Sliced pagination end triggers */}
                 {hasMore && (
                   <div ref={feedEndRef} className="py-6 flex justify-center">
-                    <div className="w-5 h-5 border-2 border-purple-600 border-t-transparent rounded-full animate-spin" />
+                    <div className="w-5 h-5 border-2 border-[#F4A01C] border-t-transparent rounded-full animate-spin" />
                   </div>
                 )}
 
@@ -1489,7 +1489,7 @@ export default function CommunityPageClient({ initialCommunities, initialPosts, 
   return (
     <Suspense fallback={
       <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#0A0E14] flex flex-col items-center justify-center gap-3 font-plus-jakarta-sans dark:text-white">
-        <div className="w-10 h-10 border-4 border-purple-100 border-t-purple-600 rounded-full animate-spin" />
+        <div className="w-10 h-10 border-4 border-[#F4A01C]/20 border-t-purple-600 rounded-full animate-spin" />
         <p className="text-xs text-slate-500 font-semibold">Loading community hub...</p>
       </div>
     }>

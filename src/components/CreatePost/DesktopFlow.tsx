@@ -28,7 +28,7 @@ export default function DesktopFlow({ data, setData, context, onSubmit, loading 
               <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">{context.editData ? 'Edit Post' : 'Create Post'}</h2>
               <div className="flex items-center gap-2 mt-2">
                 <span className="text-sm text-slate-500 dark:text-white/50">Posting in:</span>
-                <span className="bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-300 px-3 py-1 rounded-full text-xs font-bold border border-purple-200 dark:border-purple-500/30">
+                <span className="bg-[#FFF3D6] dark:bg-purple-500/20 text-[#E09410] dark:text-purple-300 px-3 py-1 rounded-full text-xs font-bold border border-[#F4A01C]/30 dark:border-purple-500/30">
                   c/{context.communitySlug}
                 </span>
               </div>
@@ -43,7 +43,7 @@ export default function DesktopFlow({ data, setData, context, onSubmit, loading 
                 </button>
                 <button
                   onClick={() => setData({ ...data, isCollegePost: true })}
-                  className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${data.isCollegePost ? 'bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-300' : 'text-slate-500 hover:text-slate-900 dark:text-white/50 dark:hover:text-white'}`}
+                  className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${data.isCollegePost ? 'bg-[#FFF3D6] text-[#E09410] dark:bg-purple-500/20 dark:text-purple-300' : 'text-slate-500 hover:text-slate-900 dark:text-white/50 dark:hover:text-white'}`}
                 >
                   {context.collegeName || 'Official'}
                 </button>
@@ -66,14 +66,14 @@ export default function DesktopFlow({ data, setData, context, onSubmit, loading 
                       onClick={() => setData({ ...data, type: t.key as PostType })}
                       className={`relative flex flex-col items-center gap-2 p-4 rounded-2xl border transition-all duration-300 group ${
                         isSelected 
-                          ? 'border-purple-500 bg-purple-50 dark:bg-purple-500/10 shadow-[0_0_30px_rgba(139,92,246,0.15)] -translate-y-1' 
+                          ? 'border-[#F4A01C] bg-[#FFF3D6] dark:bg-purple-500/10 shadow-[0_0_30px_rgba(139,92,246,0.15)] -translate-y-1' 
                           : 'border-slate-200 bg-slate-50 dark:border-white/5 dark:bg-white/5 hover:border-slate-300 dark:hover:border-white/20 hover:-translate-y-0.5'
                       }`}
                     >
                       <span className="text-2xl group-hover:scale-110 transition-transform">{t.icon}</span>
-                      <span className={`text-xs font-bold ${isSelected ? 'text-purple-700 dark:text-purple-300' : 'text-slate-600 dark:text-white/70'}`}>{t.label}</span>
+                      <span className={`text-xs font-bold ${isSelected ? 'text-[#E09410] dark:text-purple-300' : 'text-slate-600 dark:text-white/70'}`}>{t.label}</span>
                       {isSelected && (
-                        <div className="absolute top-2 right-2 w-4 h-4 rounded-full bg-purple-500 flex items-center justify-center text-white">
+                        <div className="absolute top-2 right-2 w-4 h-4 rounded-full bg-[#F4A01C] flex items-center justify-center text-white">
                           <Check size={10} />
                         </div>
                       )}
@@ -91,7 +91,7 @@ export default function DesktopFlow({ data, setData, context, onSubmit, loading 
                 value={data.title}
                 onChange={e => setData({ ...data, title: e.target.value })}
                 maxLength={120}
-                className="w-full bg-transparent border-b-2 border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 focus:border-purple-500 py-4 text-3xl font-bold text-slate-900 dark:text-white placeholder-slate-300 dark:placeholder-white/20 outline-none transition-colors"
+                className="w-full bg-transparent border-b-2 border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 focus:border-[#F4A01C] py-4 text-3xl font-bold text-slate-900 dark:text-white placeholder-slate-300 dark:placeholder-white/20 outline-none transition-colors"
               />
               <div className="text-right text-xs text-slate-400 dark:text-white/40 font-medium">{data.title.length} / 120</div>
             </div>
@@ -156,11 +156,11 @@ export default function DesktopFlow({ data, setData, context, onSubmit, loading 
                   onClick={() => setData({ ...data, visibility: 'private' })}
                   className={`flex items-start gap-3 p-4 rounded-2xl border text-left transition-all ${
                     data.visibility === 'private'
-                      ? 'border-purple-500/50 bg-purple-50 dark:bg-purple-500/10'
+                      ? 'border-[#F4A01C]/50 bg-[#FFF3D6] dark:bg-purple-500/10'
                       : 'border-slate-200 bg-slate-50 dark:border-white/10 dark:bg-white/5 hover:border-slate-300 dark:hover:border-white/20'
                   }`}
                 >
-                  <Lock className={`mt-0.5 ${data.visibility === 'private' ? 'text-purple-500 dark:text-purple-400' : 'text-slate-400 dark:text-white/50'}`} size={20} />
+                  <Lock className={`mt-0.5 ${data.visibility === 'private' ? 'text-[#F4A01C] dark:text-purple-400' : 'text-slate-400 dark:text-white/50'}`} size={20} />
                   <div>
                     <div className="font-bold text-slate-900 dark:text-white">Private</div>
                     <div className="text-xs text-slate-500 dark:text-white/50 mt-1">Visible only to community members</div>
@@ -183,7 +183,7 @@ export default function DesktopFlow({ data, setData, context, onSubmit, loading 
               <button 
                 onClick={onSubmit}
                 disabled={loading || !data.title.trim() || !data.content.trim()}
-                className="px-8 py-3 bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-500 hover:to-cyan-500 text-white rounded-xl font-bold shadow-[0_0_20px_rgba(139,92,246,0.3)] hover:shadow-[0_0_30px_rgba(139,92,246,0.5)] transition-all disabled:opacity-50 disabled:cursor-not-allowed transform hover:-translate-y-0.5 active:translate-y-0 flex items-center gap-2"
+                className="px-8 py-3 bg-gradient-to-r from-[#0A2540] to-cyan-600 hover:from-[#F4A01C] hover:to-cyan-500 text-white rounded-xl font-bold shadow-[0_0_20px_rgba(139,92,246,0.3)] hover:shadow-[0_0_30px_rgba(139,92,246,0.5)] transition-all disabled:opacity-50 disabled:cursor-not-allowed transform hover:-translate-y-0.5 active:translate-y-0 flex items-center gap-2"
               >
                 {loading ? 'Publishing...' : 'Publish Post 🚀'}
               </button>
@@ -207,7 +207,7 @@ export default function DesktopFlow({ data, setData, context, onSubmit, loading 
             <div className="bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-[24px] p-6 shadow-xl">
               {/* Post Header */}
               <div className="flex items-start gap-4 mb-4">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-purple-500 to-cyan-500 flex items-center justify-center overflow-hidden shrink-0">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-[#F4A01C] to-cyan-500 flex items-center justify-center overflow-hidden shrink-0">
                   {data.isCollegePost && context.collegeLogo ? (
                     <img src={context.collegeLogo} className="w-full h-full object-cover" alt="" />
                   ) : context.user.avatarUrl ? (
@@ -238,7 +238,7 @@ export default function DesktopFlow({ data, setData, context, onSubmit, loading 
               </div>
 
               {/* Content Preview */}
-              <div className="text-sm text-slate-700 dark:text-white/70 break-words opacity-80 line-clamp-6 [&>blockquote]:border-l-4 [&>blockquote]:border-purple-500 [&>blockquote]:pl-4 [&>blockquote]:text-slate-500 dark:[&>blockquote]:text-white/70 [&>ul]:list-disc [&>ul]:pl-5 [&>ol]:list-decimal [&>ol]:pl-5 [&>a]:text-cyan-500 dark:[&>a]:text-cyan-400 [&>a]:underline">
+              <div className="text-sm text-slate-700 dark:text-white/70 break-words opacity-80 line-clamp-6 [&>blockquote]:border-l-4 [&>blockquote]:border-[#F4A01C] [&>blockquote]:pl-4 [&>blockquote]:text-slate-500 dark:[&>blockquote]:text-white/70 [&>ul]:list-disc [&>ul]:pl-5 [&>ol]:list-decimal [&>ol]:pl-5 [&>a]:text-cyan-500 dark:[&>a]:text-cyan-400 [&>a]:underline">
                 {data.content ? (
                   <div dangerouslySetInnerHTML={{ __html: data.content }} />
                 ) : (
@@ -250,7 +250,7 @@ export default function DesktopFlow({ data, setData, context, onSubmit, loading 
               {data.tags.length > 0 && (
                 <div className="flex flex-wrap gap-2 mt-4">
                   {data.tags.map(t => (
-                    <span key={t} className="text-xs text-purple-700 bg-purple-100 dark:text-purple-300 dark:bg-purple-500/10 px-2 py-1 rounded-md">
+                    <span key={t} className="text-xs text-[#E09410] bg-[#FFF3D6] dark:text-purple-300 dark:bg-purple-500/10 px-2 py-1 rounded-md">
                       #{t}
                     </span>
                   ))}

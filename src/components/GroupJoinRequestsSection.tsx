@@ -126,7 +126,7 @@ export default function GroupJoinRequestsSection({ onCountChange }: GroupJoinReq
             return (
               <div key={request.id} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-11 h-11 rounded-full bg-gradient-to-br from-purple-600 to-cyan-500 text-white flex items-center justify-center overflow-hidden shrink-0">
+                  <div className="w-11 h-11 rounded-full bg-gradient-to-br from-[#0A2540] to-[#1B4F72] text-white flex items-center justify-center overflow-hidden shrink-0">
                     {user?.avatar_url ? (
                       <img src={user.avatar_url} alt="" className="w-full h-full object-cover" />
                     ) : (

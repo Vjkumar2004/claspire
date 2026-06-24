@@ -77,7 +77,7 @@ export default function NetworkInsights({ connectionsCount = 0 }: { connectionsC
           const Icon = item.icon
           const content = (
             <div className="flex items-start gap-3 p-2.5 rounded-lg hover:bg-app dark:hover:bg-[#1D2226] transition-colors cursor-pointer">
-              <div className="w-8 h-8 rounded-lg bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 flex items-center justify-center flex-shrink-0">
+              <div className="w-8 h-8 rounded-lg bg-[#FFF3D6] dark:bg-purple-900/30 text-[#F4A01C] dark:text-purple-400 flex items-center justify-center flex-shrink-0">
                 <Icon size={15} />
               </div>
               <div className="min-w-0">

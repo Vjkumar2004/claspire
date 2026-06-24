@@ -133,8 +133,8 @@ const BottomNavbar = () => {
                   href={item.href}
                   className="relative flex flex-col items-center group no-underline justify-center flex-1"
                 >
-                  <div className="w-9 h-9 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-lg flex items-center justify-center shadow-md transition-transform group-hover:scale-110 active:scale-95">
-                    <Icon size={20} className="text-white" />
+                  <div className="w-9 h-9 bg-gradient-to-br from-[#F4A01C] to-[#E09410] rounded-lg flex items-center justify-center shadow-md transition-transform group-hover:scale-110 active:scale-95">
+                    <Icon size={20} className="text-[#0A2540]" />
                   </div>
                   <span className="text-[10px] font-bold text-gray-500 mt-0.5 opacity-0 group-hover:opacity-100 transition-opacity absolute -bottom-3">
                     Ask
@@ -159,7 +159,7 @@ const BottomNavbar = () => {
                   }}
                   className="flex-1 flex flex-col items-center py-1 no-underline group relative"
                 >
-                  <div className={`transition-all duration-200 flex flex-col items-center justify-center h-7 ${isActive ? 'text-purple-600' : 'text-gray-400 group-hover:text-gray-600 dark:text-[#6B7B8B] dark:group-hover:text-[#B0B7BE]'}`}>
+                  <div className={`transition-all duration-200 flex flex-col items-center justify-center h-7 ${isActive ? 'text-[#F4A01C]' : 'text-gray-400 group-hover:text-gray-600 dark:text-[#6B7B8B] dark:group-hover:text-[#B0B7BE]'}`}>
                     <Icon size={22} strokeWidth={isActive ? 2.5 : 2} className={isActive ? 'scale-110' : ''} />
 
                     {/* Notification Badge */}
@@ -169,7 +169,7 @@ const BottomNavbar = () => {
                       </span>
                     )}
                   </div>
-                  <span className={`text-[10px] mt-0.5 font-bold tracking-tight transition-colors duration-200 ${isActive ? 'text-purple-600' : 'text-gray-400 group-hover:text-gray-600 dark:text-[#6B7B8B] dark:group-hover:text-[#B0B7BE]'}`}>
+                  <span className={`text-[10px] mt-0.5 font-bold tracking-tight transition-colors duration-200 ${isActive ? 'text-[#F4A01C]' : 'text-gray-400 group-hover:text-gray-600 dark:text-[#6B7B8B] dark:group-hover:text-[#B0B7BE]'}`}>
                     {item.label}
                   </span>
                 </Link>

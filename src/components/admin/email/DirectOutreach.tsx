@@ -229,7 +229,7 @@ export default function DirectOutreach() {
                   onClick={() => applyTemplate(opt.value)}
                   className={`p-4 rounded-lg border text-left transition-all ${
                     form.templateType === opt.value
-                      ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20 ring-2 ring-purple-500/20'
+                      ? 'border-[#F4A01C] bg-[#FFF3D6] dark:bg-purple-900/20 ring-2 ring-[#F4A01C]/20'
                       : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 bg-white dark:bg-transparent'
                   }`}
                 >
@@ -262,7 +262,7 @@ export default function DirectOutreach() {
                   Recipient Email <span className="text-red-500">*</span>
                 </label>
                 <input
-                  className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-700 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-700 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#F4A01C]"
                   placeholder="mentor@example.com"
                   value={form.email}
                   onChange={e => handleField('email', e.target.value)}
@@ -273,7 +273,7 @@ export default function DirectOutreach() {
                   Recipient Name <span className="text-gray-400 font-normal">(optional)</span>
                 </label>
                 <input
-                  className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-700 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-700 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#F4A01C]"
                   placeholder="Ahidar"
                   value={form.name}
                   onChange={e => handleField('name', e.target.value)}
@@ -286,7 +286,7 @@ export default function DirectOutreach() {
                 Subject <span className="text-red-500">*</span>
               </label>
               <input
-                className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-700 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-700 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#F4A01C]"
                 placeholder="e.g. Partnership Opportunity with Claspire"
                 value={form.subject}
                 onChange={e => handleField('subject', e.target.value)}
@@ -308,7 +308,7 @@ export default function DirectOutreach() {
                 <div className="space-y-2">
                   <label className="text-xs text-gray-500">Button Text</label>
                   <input
-                    className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-700 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-700 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#F4A01C]"
                     placeholder="Visit Claspire"
                     value={form.ctaText}
                     onChange={e => handleField('ctaText', e.target.value)}
@@ -317,7 +317,7 @@ export default function DirectOutreach() {
                 <div className="space-y-2">
                   <label className="text-xs text-gray-500">Button URL</label>
                   <input
-                    className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-700 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-700 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#F4A01C]"
                     placeholder="https://claspire.in"
                     value={form.ctaUrl}
                     onChange={e => handleField('ctaUrl', e.target.value)}
@@ -341,7 +341,7 @@ export default function DirectOutreach() {
             <button
               type="button"
               onClick={() => setPreviewMode(m => m === 'simplified' ? 'full' : 'simplified')}
-              className="text-xs text-purple-600 dark:text-purple-400 hover:underline"
+              className="text-xs text-[#F4A01C] dark:text-purple-400 hover:underline"
             >
               {previewMode === 'full' ? 'Show Simplified' : 'Show Full Email'}
             </button>
@@ -398,16 +398,16 @@ export default function DirectOutreach() {
         )}
 
         {/* Actions */}
-        <div className="rounded-xl border border-purple-100 dark:border-purple-900/50 bg-white dark:bg-[#1D2226] overflow-hidden shadow-sm">
-          <div className="p-6 bg-purple-50/50 dark:bg-purple-900/10 border-b border-purple-100 dark:border-purple-900/50">
-            <h2 className="text-xl font-semibold text-purple-700 dark:text-purple-400">Send</h2>
+        <div className="rounded-xl border border-[#F4A01C]/20 dark:border-purple-900/50 bg-white dark:bg-[#1D2226] overflow-hidden shadow-sm">
+          <div className="p-6 bg-[#FFF3D6]/50 dark:bg-purple-900/10 border-b border-[#F4A01C]/20 dark:border-purple-900/50">
+            <h2 className="text-xl font-semibold text-[#E09410] dark:text-purple-400">Send</h2>
           </div>
           <div className="p-6 space-y-4">
             <div className="space-y-2">
               <label className="text-sm font-medium">Test Email</label>
               <div className="flex gap-2">
                 <input
-                  className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-700 bg-transparent px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-700 bg-transparent px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#F4A01C]"
                   type="email"
                   placeholder="admin@example.com"
                   value={testEmail}
@@ -440,7 +440,7 @@ export default function DirectOutreach() {
                 <Save className="w-4 h-4 mr-1.5" /> Draft
               </button>
               <button
-                className="flex-1 inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50 bg-purple-600 text-white hover:bg-purple-700 h-10 px-4 py-2"
+                className="flex-1 inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50 bg-[#F4A01C] text-white hover:bg-[#E09410] h-10 px-4 py-2"
                 onClick={() => doSend(false)}
                 disabled={isSending || !isFormValid || !ctaValid}
               >

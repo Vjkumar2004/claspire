@@ -109,14 +109,14 @@ export default function NetworkRightSidebar({ mentors, communities, networkGrowt
         <div className="px-5 pt-5 pb-4">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-purple-500 to-fuchsia-500 flex items-center justify-center shadow-sm">
+              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#F4A01C] to-fuchsia-500 flex items-center justify-center shadow-sm">
                 <Sparkles size={13} className="text-white" />
               </div>
               <h3 className="text-sm font-bold text-gray-900 dark:text-white">Suggested Mentors</h3>
             </div>
             <button
               onClick={() => router.push('/seniors')}
-              className="text-xs font-semibold text-purple-600 hover:text-purple-700 flex items-center gap-0.5"
+              className="text-xs font-semibold text-[#F4A01C] hover:text-[#E09410] flex items-center gap-0.5"
             >
               View all <ChevronRight size={12} />
             </button>
@@ -140,7 +140,7 @@ export default function NetworkRightSidebar({ mentors, communities, networkGrowt
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-gray-900 dark:text-white truncate group-hover:text-purple-600 transition-colors flex items-center gap-1.5">
+                    <p className="text-sm font-semibold text-gray-900 dark:text-white truncate group-hover:text-[#F4A01C] transition-colors flex items-center gap-1.5">
                       <span className="truncate">{mentor.full_name}</span>
                       {mentor.last_seen && (
                         <span className={`inline-block w-[5px] h-[5px] rounded-full flex-shrink-0 ${getUserActivityDot(mentor.last_seen)}`} />
@@ -158,12 +158,12 @@ export default function NetworkRightSidebar({ mentors, communities, networkGrowt
                       {getYearsOfExperience(mentor) && (
                         <>
                           <span className="w-1 h-1 rounded-full bg-gray-300 dark:bg-[#38434F]" />
-                          <span className="text-[10px] font-medium text-purple-500">{getYearsOfExperience(mentor)}</span>
+                          <span className="text-[10px] font-medium text-[#F4A01C]">{getYearsOfExperience(mentor)}</span>
                         </>
                       )}
                     </div>
                   </div>
-                  <ChevronRight size={15} className="text-gray-300 dark:text-[#38434F] flex-shrink-0 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200 group-hover:text-purple-400" />
+                  <ChevronRight size={15} className="text-gray-300 dark:text-[#38434F] flex-shrink-0 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200 group-hover:text-[#F4A01C]" />
                 </div>
               ))}
             </div>
@@ -174,7 +174,7 @@ export default function NetworkRightSidebar({ mentors, communities, networkGrowt
         <div className="h-px bg-gradient-to-r from-transparent via-gray-200 dark:via-[#38434F] to-transparent" />
         <button
           onClick={() => router.push('/seniors')}
-          className="w-full py-3 text-xs font-semibold text-purple-600 hover:bg-purple-50/50 dark:hover:bg-purple-900/20 transition-colors flex items-center justify-center gap-1"
+          className="w-full py-3 text-xs font-semibold text-[#F4A01C] hover:bg-[#FFF3D6]/50 dark:hover:bg-purple-900/20 transition-colors flex items-center justify-center gap-1"
         >
           Browse all seniors <ChevronRight size={13} />
         </button>
@@ -191,7 +191,7 @@ export default function NetworkRightSidebar({ mentors, communities, networkGrowt
           </div>
           <button
             onClick={() => router.push('/community')}
-            className="text-xs font-semibold text-purple-600 hover:text-purple-700 flex items-center gap-0.5"
+            className="text-xs font-semibold text-[#F4A01C] hover:text-[#E09410] flex items-center gap-0.5"
           >
             View all <ChevronRight size={12} />
           </button>
@@ -201,7 +201,7 @@ export default function NetworkRightSidebar({ mentors, communities, networkGrowt
           <div className="space-y-2">
             {communities.slice(0, 4).map((community, index) => {
               const icons = [
-                { icon: Brain, gradient: 'from-purple-500 to-fuchsia-500', lightBg: 'bg-purple-100 dark:bg-purple-900/30', iconColor: 'text-purple-600 dark:text-purple-400' },
+                { icon: Brain, gradient: 'from-[#F4A01C] to-fuchsia-500', lightBg: 'bg-[#FFF3D6] dark:bg-purple-900/30', iconColor: 'text-[#F4A01C] dark:text-purple-400' },
                 { icon: Rocket, gradient: 'from-emerald-500 to-teal-500', lightBg: 'bg-emerald-100 dark:bg-emerald-900/30', iconColor: 'text-emerald-600 dark:text-emerald-400' },
                 { icon: Code, gradient: 'from-orange-500 to-red-500', lightBg: 'bg-orange-100 dark:bg-orange-900/30', iconColor: 'text-orange-600 dark:text-orange-400' },
                 { icon: GraduationCap, gradient: 'from-blue-500 to-indigo-500', lightBg: 'bg-blue-100 dark:bg-blue-900/30', iconColor: 'text-blue-600 dark:text-blue-400' },
@@ -223,7 +223,7 @@ export default function NetworkRightSidebar({ mentors, communities, networkGrowt
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <p className="text-sm font-semibold text-gray-900 dark:text-white truncate group-hover:text-purple-600 transition-colors">
+                      <p className="text-sm font-semibold text-gray-900 dark:text-white truncate group-hover:text-[#F4A01C] transition-colors">
                         {community.display_name}
                       </p>
                       <span className={`text-[10px] font-bold ${growth.color} flex items-center gap-0.5`}>
@@ -264,7 +264,7 @@ export default function NetworkRightSidebar({ mentors, communities, networkGrowt
           <div className="grid grid-cols-2 gap-2.5 mb-3">
             <div className="bg-gradient-to-br from-gray-50 to-gray-100/50 dark:from-[#1D2226] dark:to-[#1D2226]/50 rounded-xl p-3">
               <div className="flex items-center gap-2 mb-1.5">
-                <Users size={13} className="text-purple-500" />
+                <Users size={13} className="text-[#F4A01C]" />
                 <span className="text-[10px] font-semibold text-gray-400 dark:text-[#B0B7BE] uppercase tracking-wider">New</span>
               </div>
               <p className="text-xl font-extrabold text-gray-900 dark:text-white">{networkGrowth?.newConnections ?? 0}</p>
@@ -293,11 +293,11 @@ export default function NetworkRightSidebar({ mentors, communities, networkGrowt
               <svg viewBox={`0 0 ${trendLine.width} ${trendLine.height}`} className="w-full" style={{ height: `${trendLine.height}px` }}>
                 <defs>
                   <linearGradient id="growthGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#7C3AED" stopOpacity="0.2" />
-                    <stop offset="100%" stopColor="#7C3AED" stopOpacity="0" />
+                    <stop offset="0%" stopColor="#F4A01C" stopOpacity="0.2" />
+                    <stop offset="100%" stopColor="#F4A01C" stopOpacity="0" />
                   </linearGradient>
                 </defs>
-                <path d={trendLine.d} fill="none" stroke="#7C3AED" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <path d={trendLine.d} fill="none" stroke="#F4A01C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 <path d={trendLine.areaD} fill="url(#growthGradient)" />
               </svg>
             )}

@@ -127,7 +127,7 @@ export default function GroupsPage() {
           <p className="text-sm text-gray-500 dark:text-[#B0B7BE] font-medium mb-6">{error instanceof Error ? error.message : 'Something went wrong'}</p>
           <button
             onClick={() => window.location.reload()}
-            className="px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white text-sm font-bold rounded-lg transition-all"
+            className="px-5 py-2.5 bg-[#F4A01C] hover:bg-[#E09410] text-white text-sm font-bold rounded-lg transition-all"
           >
             Try Again
           </button>
@@ -142,13 +142,13 @@ export default function GroupsPage() {
       {/* ===== MOBILE HEADER + SEARCH (lg:hidden) ===== */}
       <div className="lg:hidden bg-surface dark:bg-[#283036] border-b border-surface dark:border-[#38434F] dark:border-[#38434F]">
         <div className="px-4 pt-3 pb-2">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#7C3AED]/10 rounded-full border border-[#7C3AED]/20 mb-2">
-            <span className="w-2 h-2 rounded-full bg-[#7C3AED] animate-pulse" />
-            <span className="text-[10px] font-bold text-[#7C3AED] uppercase tracking-wider">Student Communities</span>
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#F4A01C]/10 rounded-full border border-[#F4A01C]/20 mb-2">
+            <span className="w-2 h-2 rounded-full bg-[#F4A01C] animate-pulse" />
+            <span className="text-[10px] font-bold text-[#F4A01C] uppercase tracking-wider">Student Communities</span>
           </div>
           <h1 className="text-xl font-extrabold text-[#0F172A] dark:text-white tracking-tight leading-tight m-0">
             Discover{' '}
-            <span className="bg-gradient-to-r from-[#7C3AED] to-[#A78BFA] bg-clip-text text-transparent">Student Communities</span>
+            <span className="bg-gradient-to-r from-[#F4A01C] to-[#A78BFA] bg-clip-text text-transparent">Student Communities</span>
           </h1>
           <p className="text-[11px] text-slate-500 dark:text-[#B0B7BE] font-medium mt-1 m-0">Connect with seniors, get placement referrals, share knowledge, and grow together.</p>
         </div>
@@ -161,10 +161,10 @@ export default function GroupsPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search communities by name..."
-                className="w-full h-10 pl-9 pr-3 rounded-xl border border-surface dark:border-[#38434F] bg-[#F8FAFC] dark:bg-[#1D2226] text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-[#B0B7BE] dark:text-[#B0B7BE] outline-none focus:border-[#7C3AED] focus:ring-1 focus:ring-[#7C3AED]/20 transition-all"
+                className="w-full h-10 pl-9 pr-3 rounded-xl border border-surface dark:border-[#38434F] bg-[#F8FAFC] dark:bg-[#1D2226] text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-[#B0B7BE] dark:text-[#B0B7BE] outline-none focus:border-[#F4A01C] focus:ring-1 focus:ring-[#F4A01C]/20 transition-all"
               />
             </div>
-            <button className="h-10 px-4 rounded-xl bg-[#7C3AED] text-white text-xs font-bold border-none cursor-pointer hover:bg-[#6D28D9] transition-all flex items-center gap-1.5">
+            <button className="h-10 px-4 rounded-xl bg-[#F4A01C] text-white text-xs font-bold border-none cursor-pointer hover:bg-[#E09410] transition-all flex items-center gap-1.5">
               <Search size={13} /> Search
             </button>
           </div>
@@ -180,8 +180,8 @@ export default function GroupsPage() {
               const Icon = s.icon
               return (
                 <div key={s.label} className="bg-surface dark:bg-[#283036] rounded-xl border border-surface dark:border-[#38434F] dark:border-[#38434F] p-2.5 text-center shadow-sm">
-                  <div className="w-7 h-7 rounded-lg bg-[#7C3AED]/5 flex items-center justify-center mx-auto mb-1">
-                    <Icon size={13} className="text-[#7C3AED]" />
+                  <div className="w-7 h-7 rounded-lg bg-[#F4A01C]/5 flex items-center justify-center mx-auto mb-1">
+                    <Icon size={13} className="text-[#F4A01C]" />
                   </div>
                   <p className="text-base font-extrabold text-[#0F172A] dark:text-white m-0 leading-none">{s.value.toLocaleString()}</p>
                   <p className="text-[8px] font-medium text-slate-400 dark:text-[#B0B7BE] m-0 mt-0.5 truncate">{s.label}</p>
@@ -194,8 +194,8 @@ export default function GroupsPage() {
 
       {/* ===== HERO (desktop only) ===== */}
       <section className="hidden lg:block max-w-7xl mx-auto px-0 sm:px-4 lg:px-6 pt-0 lg:pt-8">
-        <div className="relative overflow-hidden rounded-none sm:rounded-2xl lg:rounded-3xl bg-gradient-to-br from-[#312E81] via-[#5B21B6] to-[#7C3AED] shadow-2xl shadow-purple-900/20">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#312E81]/70 via-[#5B21B6]/60 to-[#7C3AED]/50" />
+        <div className="relative overflow-hidden rounded-none sm:rounded-2xl lg:rounded-3xl bg-gradient-to-br from-[#312E81] via-[#C87D0E] to-[#F4A01C] shadow-2xl shadow-purple-900/20">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#312E81]/70 via-[#C87D0E]/60 to-[#F4A01C]/50" />
           <img src="/group-banner.png" alt="" className="absolute inset-0 w-full h-full object-cover" />
           <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle at 20px 20px, white 1.5px, transparent 0)', backgroundSize: '40px 40px' }} />
           <div className="absolute top-[-80px] right-[-60px] w-[300px] h-[300px] bg-purple-300/15 rounded-full blur-[80px]" />
@@ -235,7 +235,7 @@ export default function GroupsPage() {
                   />
                   <button
                     onClick={() => {}}
-                    className="h-[48px] lg:h-[52px] px-4 lg:px-5 bg-gradient-to-r from-purple-600 to-fuchsia-600 hover:from-purple-700 hover:to-fuchsia-700 text-white text-xs lg:text-sm font-bold flex items-center gap-2 transition-all"
+                    className="h-[48px] lg:h-[52px] px-4 lg:px-5 bg-gradient-to-r from-[#0A2540] to-fuchsia-600 hover:from-purple-700 hover:to-fuchsia-700 text-white text-xs lg:text-sm font-bold flex items-center gap-2 transition-all"
                   >
                     <Search size={15} />
                     <span className="hidden sm:inline">Search</span>
@@ -289,8 +289,8 @@ export default function GroupsPage() {
                     onClick={() => setActiveCategory(cat)}
                     className={`whitespace-nowrap px-3.5 py-1.5 rounded-full text-[12px] font-bold transition-all flex-shrink-0 ${
                       activeCategory === cat
-                        ? 'bg-purple-600 text-white shadow-md shadow-purple-200'
-                        : 'bg-surface dark:bg-[#283036] text-gray-600 dark:text-[#B0B7BE] dark:text-[#B0B7BE] border border-surface dark:border-[#38434F] hover:border-purple-200 hover:text-purple-600'
+                        ? 'bg-[#F4A01C] text-white shadow-md shadow-[#F4A01C]/20'
+                        : 'bg-surface dark:bg-[#283036] text-gray-600 dark:text-[#B0B7BE] dark:text-[#B0B7BE] border border-surface dark:border-[#38434F] hover:border-[#F4A01C]/30 hover:text-[#F4A01C]'
                     }`}
                   >
                     {cat}
@@ -349,10 +349,10 @@ export default function GroupsPage() {
                   <div className="mb-6 lg:mb-0 lg:hidden">
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-2">
-                        <TrendingUp size={15} className="text-purple-600" />
+                        <TrendingUp size={15} className="text-[#F4A01C]" />
                         <h2 className="text-sm font-extrabold text-gray-900 dark:text-white">Trending Communities</h2>
                       </div>
-                      <span className="text-[11px] font-bold text-purple-600 bg-purple-50 px-2 py-0.5 rounded-full">{trendingGroups.length}</span>
+                      <span className="text-[11px] font-bold text-[#F4A01C] bg-[#FFF3D6] px-2 py-0.5 rounded-full">{trendingGroups.length}</span>
                     </div>
                     <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-none">
                       {trendingGroups.map((group) => (
@@ -363,7 +363,7 @@ export default function GroupsPage() {
                         >
                           <div className="p-4 flex flex-col h-full">
                             <div className="relative w-10 h-10 mb-3">
-                              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-fuchsia-500 flex items-center justify-center overflow-hidden shadow-sm">
+                              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#F4A01C] to-fuchsia-500 flex items-center justify-center overflow-hidden shadow-sm">
                                 {group.creator?.avatar_url ? (
                                   <img src={group.creator.avatar_url} alt="" className="w-full h-full object-cover" />
                                 ) : (
@@ -388,7 +388,7 @@ export default function GroupsPage() {
                             </div>
                             <button
                               onClick={(e) => { e.stopPropagation(); router.push(`/community/c/${group.community_slug}/group/${group.slug}`) }}
-                              className="mt-auto w-full py-1.5 rounded-lg text-[11px] font-bold text-white bg-gradient-to-r from-purple-600 to-fuchsia-600 hover:from-purple-700 hover:to-fuchsia-700 transition-all shadow-sm"
+                              className="mt-auto w-full py-1.5 rounded-lg text-[11px] font-bold text-white bg-gradient-to-r from-[#0A2540] to-fuchsia-600 hover:from-purple-700 hover:to-fuchsia-700 transition-all shadow-sm"
                             >
                               {group.is_joined ? 'Open' : 'Join'}
                             </button>
@@ -403,7 +403,7 @@ export default function GroupsPage() {
                 <div className="mb-6 lg:mb-0">
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
-                      <Zap size={15} className="text-purple-600" />
+                      <Zap size={15} className="text-[#F4A01C]" />
                       <h2 className="text-sm font-extrabold text-gray-900 dark:text-white">
                         {searchQuery ? `Results for "${searchQuery}"` : 'All Communities'}
                       </h2>
@@ -426,7 +426,7 @@ export default function GroupsPage() {
                             <div className="flex items-start justify-between mb-2.5">
                               <div className="flex items-center gap-2.5 min-w-0 flex-1">
                                 <div className="relative w-10 h-10 flex-shrink-0">
-                                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-fuchsia-500 flex items-center justify-center overflow-hidden shadow-sm">
+                                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#F4A01C] to-fuchsia-500 flex items-center justify-center overflow-hidden shadow-sm">
                                     {group.creator?.avatar_url ? (
                                       <img src={group.creator.avatar_url} alt="" className="w-full h-full object-cover" />
                                     ) : (
@@ -471,7 +471,7 @@ export default function GroupsPage() {
                             {/* CTA */}
                             <button
                               onClick={(e) => { e.stopPropagation(); router.push(`/community/c/${group.community_slug}/group/${group.slug}`) }}
-                              className="w-full py-1.5 rounded-lg text-[11px] font-bold text-white bg-gradient-to-r from-purple-600 to-fuchsia-600 hover:from-purple-700 hover:to-fuchsia-700 transition-all shadow-sm"
+                              className="w-full py-1.5 rounded-lg text-[11px] font-bold text-white bg-gradient-to-r from-[#0A2540] to-fuchsia-600 hover:from-purple-700 hover:to-fuchsia-700 transition-all shadow-sm"
                             >
                               {group.is_joined ? 'Open Community' : 'Join Group'}
                             </button>
@@ -506,7 +506,7 @@ export default function GroupsPage() {
                         <div
                           key={member.id}
                           onClick={() => router.push(`/u/${member.unique_id}`)}
-                          className="w-7 h-7 rounded-full bg-gradient-to-br from-purple-500 to-fuchsia-500 border-2 border-white flex items-center justify-center cursor-pointer hover:z-10 relative"
+                          className="w-7 h-7 rounded-full bg-gradient-to-br from-[#F4A01C] to-fuchsia-500 border-2 border-white flex items-center justify-center cursor-pointer hover:z-10 relative"
                           title={member.full_name}
                         >
                           {member.avatar_url ? (
@@ -539,7 +539,7 @@ export default function GroupsPage() {
                         className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-app dark:hover:bg-[#1D2226] cursor-pointer transition-colors"
                       >
                         <span className="text-xs font-extrabold text-gray-300 dark:text-[#B0B7BE] w-4 text-center">{i + 1}</span>
-                        <div className="w-7 h-7 rounded-full bg-gradient-to-br from-purple-500 to-fuchsia-500 flex items-center justify-center flex-shrink-0">
+                        <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#F4A01C] to-fuchsia-500 flex items-center justify-center flex-shrink-0">
                           <span className="text-[9px] font-black text-white">{getInitials(group.name)}</span>
                         </div>
                         <div className="min-w-0 flex-1">
@@ -604,7 +604,7 @@ export default function GroupsPage() {
                         className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-app dark:hover:bg-[#1D2226] cursor-pointer transition-colors"
                       >
                         <span className="text-xs font-extrabold text-gray-300 dark:text-[#B0B7BE] w-4 text-center">{i + 1}</span>
-                        <div className="w-7 h-7 rounded-full bg-gradient-to-br from-purple-500 to-fuchsia-500 flex items-center justify-center flex-shrink-0">
+                        <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#F4A01C] to-fuchsia-500 flex items-center justify-center flex-shrink-0">
                           <span className="text-[9px] font-black text-white">{getInitials(group.name)}</span>
                         </div>
                         <div className="min-w-0 flex-1">
@@ -631,7 +631,7 @@ export default function GroupsPage() {
                         <div
                           key={member.id}
                           onClick={() => router.push(`/u/${member.unique_id}`)}
-                          className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-fuchsia-500 border-2 border-white flex items-center justify-center cursor-pointer hover:z-10 relative transition-transform hover:-translate-y-0.5"
+                          className="w-8 h-8 rounded-full bg-gradient-to-br from-[#F4A01C] to-fuchsia-500 border-2 border-white flex items-center justify-center cursor-pointer hover:z-10 relative transition-transform hover:-translate-y-0.5"
                           title={member.full_name}
                         >
                           {member.avatar_url ? (
@@ -643,7 +643,7 @@ export default function GroupsPage() {
                       ))}
                     </div>
                     {onlineMembers.length > 5 && (
-                      <span className="text-[11px] font-bold text-purple-600">+{onlineMembers.length - 5} more</span>
+                      <span className="text-[11px] font-bold text-[#F4A01C]">+{onlineMembers.length - 5} more</span>
                     )}
                   </div>
                 </div>
@@ -680,7 +680,7 @@ export default function GroupsPage() {
               )}
 
               {/* Create Community CTA */}
-              <div className="bg-gradient-to-br from-purple-600 to-fuchsia-600 rounded-xl p-5 shadow-lg shadow-purple-200">
+              <div className="bg-gradient-to-br from-[#0A2540] to-fuchsia-600 rounded-xl p-5 shadow-lg shadow-[#F4A01C]/20">
                 <div className="w-10 h-10 rounded-xl bg-surface/20 dark:bg-[#283036]/20 flex items-center justify-center mb-3">
                   <Plus size={18} className="text-white" />
                 </div>
@@ -690,7 +690,7 @@ export default function GroupsPage() {
                 </p>
                 <button
                   onClick={() => setShowCreateModal(true)}
-                  className="w-full py-2.5 rounded-lg bg-surface dark:bg-[#283036] text-purple-700 text-xs font-bold hover:bg-purple-50 transition-all flex items-center justify-center gap-1.5 shadow-md"
+                  className="w-full py-2.5 rounded-lg bg-surface dark:bg-[#283036] text-[#E09410] text-xs font-bold hover:bg-[#FFF3D6] transition-all flex items-center justify-center gap-1.5 shadow-md"
                 >
                   <Sparkles size={13} />
                   Get Started
@@ -706,7 +706,7 @@ export default function GroupsPage() {
       {/* Mobile FAB */}
       <button
         onClick={() => setShowCreateModal(true)}
-        className="fixed bottom-6 right-6 z-50 lg:hidden w-14 h-14 rounded-full bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white shadow-xl shadow-purple-400/50 flex items-center justify-center hover:scale-105 active:scale-95 transition-all"
+        className="fixed bottom-6 right-6 z-50 lg:hidden w-14 h-14 rounded-full bg-gradient-to-r from-[#0A2540] to-fuchsia-600 text-white shadow-xl shadow-purple-400/50 flex items-center justify-center hover:scale-105 active:scale-95 transition-all"
       >
         <Plus size={24} />
       </button>

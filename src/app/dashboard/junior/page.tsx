@@ -213,10 +213,10 @@ export default function JuniorDashboard() {
 
   const getRPLevel = (points: number) => {
     if (points >= 5000) return { label: 'Legend', emoji: '👑', next: null, color: '#F59E0B' }
-    if (points >= 1500) return { label: 'Champion', emoji: '🏆', next: 5000, color: '#7C3AED' }
+    if (points >= 1500) return { label: 'Champion', emoji: '🏆', next: 5000, color: '#F4A01C' }
     if (points >= 500) return { label: 'Mentor', emoji: '💎', next: 1500, color: '#06B6D4' }
     if (points >= 100) return { label: 'Contributor', emoji: '🌟', next: 500, color: '#16A34A' }
-    return { label: 'Explorer', emoji: '🌱', next: 100, color: '#8B5CF6' }
+    return { label: 'Explorer', emoji: '🌱', next: 100, color: '#F4A01C' }
   }
 
   const timeAgo = (dateStr: string) => {
@@ -330,7 +330,7 @@ export default function JuniorDashboard() {
           <div className="flex items-center justify-between mb-10">
             <Link href="/" className="inline-block no-underline">
               <span className="font-plus-jakarta-sans font-black text-xl text-[#0F172A] dark:text-white tracking-tight">
-                cl<span className="text-[#7C3AED]">aspire</span>
+                cl<span className="text-[#F4A01C]">aspire</span>
               </span>
             </Link>
             <button 
@@ -352,16 +352,16 @@ export default function JuniorDashboard() {
                   setMobileMenuOpen(false); 
                 }}
                 className={`w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all group cursor-pointer ${activeTab === item.id
-                    ? 'bg-[#F5F3FF] text-[#7C3AED] shadow-sm shadow-purple-500/5'
+                    ? 'bg-[#F5F3FF] text-[#F4A01C] shadow-sm shadow-[#F4A01C]/5'
                     : 'text-[#64748B] dark:text-[#B0B7BE] hover:bg-[#F8FAFC] dark:bg-[#1D2226] dark:hover:bg-[#1D2226] hover:text-[#0F172A] dark:text-white dark:hover:text-white'
                   }`}
               >
-                <span className={`transition-transform duration-300 ${activeTab === item.id ? 'scale-110 text-[#7C3AED]' : 'text-slate-400 dark:text-[#B0B7BE] group-hover:scale-110 group-hover:text-slate-600 dark:text-[#B0B7BE] dark:group-hover:text-[#B0B7BE] dark:hover:text-[#B0B7BE]'}`}>
+                <span className={`transition-transform duration-300 ${activeTab === item.id ? 'scale-110 text-[#F4A01C]' : 'text-slate-400 dark:text-[#B0B7BE] group-hover:scale-110 group-hover:text-slate-600 dark:text-[#B0B7BE] dark:group-hover:text-[#B0B7BE] dark:hover:text-[#B0B7BE]'}`}>
                   {item.icon}
                 </span>
                 {item.label}
                 {activeTab === item.id && (
-                  <motion.div layoutId="nav-pill" className="ml-auto w-1.5 h-1.5 rounded-full bg-[#7C3AED]" />
+                  <motion.div layoutId="nav-pill" className="ml-auto w-1.5 h-1.5 rounded-full bg-[#F4A01C]" />
                 )}
               </button>
             ))}
@@ -371,25 +371,25 @@ export default function JuniorDashboard() {
         {/* Rise Points Mini Card */}
         <div className="p-6">
           <div className="bg-slate-900 rounded-3xl p-5 text-white shadow-xl relative overflow-hidden group border border-white/5">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-purple-500/20 transition-colors" />
+            <div className="absolute top-0 right-0 w-32 h-32 bg-[#F4A01C]/10 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-[#F4A01C]/20 transition-colors" />
             <div className="relative z-10">
               <div className="flex items-center justify-between mb-4">
                 <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-[#B0B7BE] m-0">Rise Points</p>
                 <Flame size={16} className="text-[#F59E0B] animate-pulse" />
               </div>
               <div className="text-3xl font-bold mb-1 text-white tracking-tight">{u.rise_points}</div>
-              <div className="text-[10px] font-extrabold text-purple-300 mb-4 flex items-center gap-1.5 bg-surface/5 w-fit px-2 py-0.5 rounded-full border border-white/5">
+              <div className="text-[10px] font-extrabold text-[#F4A01C]/60 mb-4 flex items-center gap-1.5 bg-surface/5 w-fit px-2 py-0.5 rounded-full border border-white/5">
                 {rp.emoji} {rp.label}
               </div>
               <div className="space-y-1.5">
                 <div className="flex justify-between text-[9px] font-bold text-slate-400 dark:text-[#B0B7BE]">
                   <span>Level Progress</span>
-                  <span className="text-purple-300">{Math.round(rpProgress)}%</span>
+                  <span className="text-[#F4A01C]/60">{Math.round(rpProgress)}%</span>
                 </div>
                 <div className="h-1 bg-surface/10 rounded-full overflow-hidden">
                   <motion.div
                     initial={{ width: 0 }} animate={{ width: `${rpProgress}%` }}
-                    className="h-full bg-gradient-to-r from-purple-500 to-indigo-400 rounded-full"
+                    className="h-full bg-gradient-to-r from-[#F4A01C] to-indigo-400 rounded-full"
                   />
                 </div>
               </div>
@@ -411,12 +411,12 @@ export default function JuniorDashboard() {
           </button>
           
           <span className="font-plus-jakarta-sans font-black text-base text-[#0F172A] dark:text-white tracking-tight">
-            cl<span className="text-[#7C3AED]">aspire</span>
+            cl<span className="text-[#F4A01C]">aspire</span>
           </span>
 
           <div className="flex items-center gap-3">
             <NotificationBell />
-            <div className={`w-8 h-8 rounded-xl ${u.avatar_url ? 'bg-transparent' : 'bg-gradient-to-br from-purple-500 to-indigo-600'} flex items-center justify-center text-white text-xs font-bold overflow-hidden border border-surface/60 dark:border-[#38434F] shadow-sm`}>
+            <div className={`w-8 h-8 rounded-xl ${u.avatar_url ? 'bg-transparent' : 'bg-gradient-to-br from-[#F4A01C] to-indigo-600'} flex items-center justify-center text-white text-xs font-bold overflow-hidden border border-surface/60 dark:border-[#38434F] shadow-sm`}>
               {u.avatar_url ? (
                 <img src={u.avatar_url} alt={u.full_name} className="w-full h-full object-cover" />
               ) : (
@@ -444,7 +444,7 @@ export default function JuniorDashboard() {
               {/* Profile Avatar & Metadata */}
 <div className="flex flex-col md:flex-row items-center md:items-end gap-5 -mt-8 md:-mt-10 relative z-10 text-center md:text-left">                {/* Avatar with White Border */}
                 <div className="w-28 h-28 md:w-32 md:h-32 rounded-3xl bg-surface dark:bg-[#283036] p-1 shadow-md flex items-center justify-center overflow-hidden flex-shrink-0">
-                  <div className={`w-full h-full rounded-2xl ${u.avatar_url ? 'bg-transparent' : 'bg-gradient-to-br from-purple-500 to-indigo-600'} flex items-center justify-center text-white text-3xl font-bold overflow-hidden`}>
+                  <div className={`w-full h-full rounded-2xl ${u.avatar_url ? 'bg-transparent' : 'bg-gradient-to-br from-[#F4A01C] to-indigo-600'} flex items-center justify-center text-white text-3xl font-bold overflow-hidden`}>
                     {u.avatar_url ? (
                       <img src={u.avatar_url} alt={u.full_name} className="w-full h-full object-cover" />
                     ) : (
@@ -456,7 +456,7 @@ export default function JuniorDashboard() {
                 <div className="pt-2 md:pt-0">
                   <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 mb-2">
                     <h1 className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white m-0 tracking-tight leading-none">{u.full_name}</h1>
-                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-purple-50 border border-purple-100 text-purple-600 text-[9px] font-extrabold tracking-wider uppercase">
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#FFF3D6] border border-[#F4A01C]/20 text-[#F4A01C] text-[9px] font-extrabold tracking-wider uppercase">
                       <Sparkles size={8} /> Verified Student
                     </span>
                   </div>
@@ -525,7 +525,7 @@ export default function JuniorDashboard() {
                     <div className="bg-surface dark:bg-[#283036] rounded-3xl border border-surface/60 dark:border-[#38434F] p-6 shadow-sm">
                       <div className="flex justify-between items-center mb-6">
                         <div className="flex items-center gap-2.5">
-                          <div className="w-9 h-9 rounded-xl bg-purple-50 flex items-center justify-center text-purple-600">
+                          <div className="w-9 h-9 rounded-xl bg-[#FFF3D6] flex items-center justify-center text-[#F4A01C]">
                             <Users size={16} />
                           </div>
                           <h3 className="text-sm font-bold text-slate-800 dark:text-white uppercase tracking-wider m-0">My Mentorship Groups</h3>
@@ -543,7 +543,7 @@ export default function JuniorDashboard() {
                     {/* Premium SaaS Stats Grid */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       {[
-                        { label: 'Doubts Asked', value: u.doubt_count, icon: <HelpCircle size={20} />, trend: '+1 this week', bg: 'from-purple-500/5 to-indigo-500/5', border: 'hover:border-purple-200', iconColor: 'text-purple-600 bg-purple-50' },
+                        { label: 'Doubts Asked', value: u.doubt_count, icon: <HelpCircle size={20} />, trend: '+1 this week', bg: 'from-[#F4A01C]/5 to-indigo-500/5', border: 'hover:border-[#F4A01C]/30', iconColor: 'text-[#F4A01C] bg-[#FFF3D6]' },
                         { label: 'Active Referrals', value: dashData.myReferrals.length, icon: <Handshake size={20} />, trend: 'Direct Tracking', bg: 'from-cyan-500/5 to-blue-500/5', border: 'hover:border-cyan-200', iconColor: 'text-cyan-600 bg-cyan-50' },
                         { label: 'Events Joined', value: u.webinar_count, icon: <Video size={20} />, trend: 'Live Seminars', bg: 'from-amber-500/5 to-orange-500/5', border: 'hover:border-amber-200', iconColor: 'text-amber-600 bg-amber-50' },
                       ].map((stat, i) => (
@@ -578,7 +578,7 @@ export default function JuniorDashboard() {
                           <div key={log.id} className="p-5 flex items-center justify-between hover:bg-app/50 dark:hover:bg-[#1D2226]/50 transition-colors cursor-pointer">
                             <div className="flex items-center gap-4">
                               <div className="w-10 h-10 rounded-xl bg-app dark:bg-[#1D2226] flex items-center justify-center border border-surface dark:border-[#38434F] text-slate-400 dark:text-[#B0B7BE]">
-                                <Zap size={15} className="text-purple-500" />
+                                <Zap size={15} className="text-[#F4A01C]" />
                               </div>
                               <div>
                                 <p className="text-xs font-bold text-[#0F172A] dark:text-white m-0">{log.reason}</p>
@@ -620,7 +620,7 @@ export default function JuniorDashboard() {
                         {['all', 'answered', 'pending'].map(f => (
                           <button
                             key={f} onClick={() => setDoubtFilter(f as any)}
-                            className={`px-3.5 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all capitalize cursor-pointer ${doubtFilter === f ? 'bg-surface dark:bg-[#283036] shadow-sm text-purple-600' : 'text-slate-400 dark:text-[#B0B7BE] hover:text-slate-600 dark:text-[#B0B7BE] dark:hover:text-[#B0B7BE]'}`}
+                            className={`px-3.5 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all capitalize cursor-pointer ${doubtFilter === f ? 'bg-surface dark:bg-[#283036] shadow-sm text-[#F4A01C]' : 'text-slate-400 dark:text-[#B0B7BE] hover:text-slate-600 dark:text-[#B0B7BE] dark:hover:text-[#B0B7BE]'}`}
                           >
                             {f}
                           </button>
@@ -648,7 +648,7 @@ export default function JuniorDashboard() {
                         }
 
                         return filteredPosts.map(post => (
-                          <div key={post.id} className="group bg-surface dark:bg-[#283036] p-6 rounded-3xl border border-surface/60 dark:border-[#38434F] hover:border-purple-200 transition-all shadow-sm hover:shadow-md relative overflow-hidden cursor-pointer">
+                          <div key={post.id} className="group bg-surface dark:bg-[#283036] p-6 rounded-3xl border border-surface/60 dark:border-[#38434F] hover:border-[#F4A01C]/30 transition-all shadow-sm hover:shadow-md relative overflow-hidden cursor-pointer">
                             <div className="flex justify-between items-center mb-4">
                               <span className={`px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-wider border ${post.is_answered ? 'bg-green-50 text-green-600 border-green-200' : 'bg-amber-50 text-amber-600 border-amber-200'}`}>
                                 {post.is_answered ? '✓ Answered' : '⌛ Pending'}
@@ -660,7 +660,7 @@ export default function JuniorDashboard() {
                                     e.stopPropagation()
                                     router.push(`/dashboard/junior/edit-post/${post.id}?activeTab=doubts`)
                                   }}
-                                  className="p-1.5 rounded-lg bg-app dark:bg-[#1D2226] text-slate-500 dark:text-[#B0B7BE] hover:bg-purple-50 hover:text-purple-600 transition-all shadow-sm border border-surface/60"
+                                  className="p-1.5 rounded-lg bg-app dark:bg-[#1D2226] text-slate-500 dark:text-[#B0B7BE] hover:bg-[#FFF3D6] hover:text-[#F4A01C] transition-all shadow-sm border border-surface/60"
                                   title="Edit Post"
                                 >
                                   <Pencil size={12} />
@@ -676,7 +676,7 @@ export default function JuniorDashboard() {
                             </div>
                             
                             <div className="flex gap-4">
-                              <div className={`w-9 h-9 rounded-xl ${post.users?.avatar_url ? 'bg-transparent' : 'bg-purple-100'} flex items-center justify-center text-purple-600 font-bold text-xs overflow-hidden flex-shrink-0 mt-0.5 border border-surface/60`}>
+                              <div className={`w-9 h-9 rounded-xl ${post.users?.avatar_url ? 'bg-transparent' : 'bg-[#FFF3D6]'} flex items-center justify-center text-[#F4A01C] font-bold text-xs overflow-hidden flex-shrink-0 mt-0.5 border border-surface/60`}>
                                 {post.users?.avatar_url ? (
                                   <img src={post.users.avatar_url} alt={post.users.full_name} className="w-full h-full object-cover" />
                                 ) : (
@@ -684,7 +684,7 @@ export default function JuniorDashboard() {
                                 )}
                               </div>
                               <div className="flex-1">
-                                <h3 className="text-base font-bold text-[#0F172A] dark:text-white group-hover:text-purple-600 transition-colors mb-1.5 tracking-tight leading-snug">{post.title}</h3>
+                                <h3 className="text-base font-bold text-[#0F172A] dark:text-white group-hover:text-[#F4A01C] transition-colors mb-1.5 tracking-tight leading-snug">{post.title}</h3>
                                 <div className="mb-4"><PostContentRenderer content={post.content} clamp={2} /></div>
                                 {parsePostImages(post.image_url).length > 0 && (
                                   <div className="mb-4 rounded-2xl overflow-hidden border border-surface dark:border-[#38434F] max-w-sm shadow-sm">
@@ -729,7 +729,7 @@ export default function JuniorDashboard() {
                       <div key={i} className="bg-surface dark:bg-[#283036] rounded-3xl border border-surface/60 dark:border-[#38434F] overflow-hidden group shadow-sm hover:shadow-md transition-all flex flex-col justify-between cursor-pointer">
                         <div>
                           <div className="h-40 bg-[#0F172A] relative overflow-hidden">
-                            <div className="absolute inset-0 bg-gradient-to-tr from-purple-600/30 to-indigo-600/20" />
+                            <div className="absolute inset-0 bg-gradient-to-tr from-[#0A2540]/30 to-indigo-600/20" />
                             <div className="absolute top-4 left-4 bg-surface/10 backdrop-blur-md border border-white/20 px-3 py-1 rounded-full text-white text-[9px] font-black uppercase tracking-wider">
                               LIVE WEBINAR
                             </div>
@@ -738,7 +738,7 @@ export default function JuniorDashboard() {
                             </div>
                           </div>
                           <div className="p-6">
-                            <h3 className="text-base font-bold text-[#0F172A] dark:text-white m-0 mb-1.5 truncate group-hover:text-purple-600 transition-colors leading-snug tracking-tight">{w.title}</h3>
+                            <h3 className="text-base font-bold text-[#0F172A] dark:text-white m-0 mb-1.5 truncate group-hover:text-[#F4A01C] transition-colors leading-snug tracking-tight">{w.title}</h3>
                             <p className="text-xs font-semibold text-[#64748B] dark:text-[#B0B7BE] line-clamp-2 mb-6 leading-relaxed h-8">{w.description}</p>
                             
                             <div className="flex items-center gap-3">
@@ -755,7 +755,7 @@ export default function JuniorDashboard() {
                               <div>
                                 <p
                                   onClick={() => router.push(`/u/${w.users.unique_id}`)}
-                                  className="text-xs font-bold text-[#0F172A] dark:text-white m-0 cursor-pointer hover:text-purple-600 transition-colors"
+                                  className="text-xs font-bold text-[#0F172A] dark:text-white m-0 cursor-pointer hover:text-[#F4A01C] transition-colors"
                                 >
                                   {w.users.full_name}
                                 </p>
@@ -782,7 +782,7 @@ export default function JuniorDashboard() {
                 {activeTab === 'community' && (
                   <motion.div key="community" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
                     {/* College Banner Call-to-action */}
-                    <div className="bg-gradient-to-br from-purple-600 to-indigo-700 rounded-3xl p-8 text-white relative overflow-hidden shadow-md">
+                    <div className="bg-gradient-to-br from-[#0A2540] to-indigo-700 rounded-3xl p-8 text-white relative overflow-hidden shadow-md">
                       <div className="absolute inset-0 bg-grid-white/10 opacity-20" />
                       <div className="absolute top-0 right-0 w-64 h-64 bg-surface/5 rounded-full blur-3xl -mr-32 -mt-32" />
                       
@@ -813,7 +813,7 @@ export default function JuniorDashboard() {
                         <h3 className="text-[10px] font-extrabold text-slate-400 dark:text-[#B0B7BE] uppercase tracking-widest ml-4">Subscription Overview</h3>
                         <button
                           onClick={() => setShowCreateGroupModal(true)}
-                          className="px-3.5 py-1.5 bg-purple-50 text-purple-600 border border-purple-100 rounded-xl font-bold text-[10px] hover:bg-purple-100 transition-colors flex items-center gap-1.5"
+                          className="px-3.5 py-1.5 bg-[#FFF3D6] text-[#F4A01C] border border-[#F4A01C]/20 rounded-xl font-bold text-[10px] hover:bg-[#FFF3D6] transition-colors flex items-center gap-1.5"
                         >
                           <Plus size={12} /> Create Group
                         </button>
@@ -823,7 +823,7 @@ export default function JuniorDashboard() {
                         {dashData.joinedCommunities.map((item, i) => (
                           <div key={i} className="bg-surface dark:bg-[#283036] p-5 rounded-3xl border border-surface/60 dark:border-[#38434F] flex items-center justify-between group hover:shadow-md transition-all cursor-pointer">
                             <div className="flex items-center gap-4">
-                              <div className="w-11 h-11 rounded-xl bg-purple-50 flex items-center justify-center text-purple-600 font-extrabold text-sm border border-purple-100 group-hover:scale-105 transition-transform duration-300">
+                              <div className="w-11 h-11 rounded-xl bg-[#FFF3D6] flex items-center justify-center text-[#F4A01C] font-extrabold text-sm border border-[#F4A01C]/20 group-hover:scale-105 transition-transform duration-300">
                                 {item.communities.display_name[0]}
                               </div>
                               <div>
@@ -831,7 +831,7 @@ export default function JuniorDashboard() {
                                 <p className="text-[9px] font-black text-[#94A3B8] dark:text-[#B0B7BE] uppercase tracking-wider mt-1">Private Hub Member</p>
                               </div>
                             </div>
-                            <button onClick={() => router.push(`/community/c/${item.communities.slug}`)} className="p-2.5 rounded-xl bg-app dark:bg-[#1D2226] text-slate-400 dark:text-[#B0B7BE] group-hover:bg-purple-50 group-hover:text-purple-600 transition-colors cursor-pointer border border-transparent group-hover:border-purple-100">
+                            <button onClick={() => router.push(`/community/c/${item.communities.slug}`)} className="p-2.5 rounded-xl bg-app dark:bg-[#1D2226] text-slate-400 dark:text-[#B0B7BE] group-hover:bg-[#FFF3D6] group-hover:text-[#F4A01C] transition-colors cursor-pointer border border-transparent group-hover:border-[#F4A01C]/20">
                               <ChevronRight size={16} />
                             </button>
                           </div>
@@ -854,7 +854,7 @@ export default function JuniorDashboard() {
 
                     <div className="space-y-4">
                       {dashData.myReferrals.length > 0 ? dashData.myReferrals.map((req, i) => (
-                        <div key={i} className="bg-surface dark:bg-[#283036] p-5 rounded-3xl border border-surface/60 dark:border-[#38434F] hover:border-purple-200 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4 group cursor-pointer shadow-sm">
+                        <div key={i} className="bg-surface dark:bg-[#283036] p-5 rounded-3xl border border-surface/60 dark:border-[#38434F] hover:border-[#F4A01C]/30 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4 group cursor-pointer shadow-sm">
                           <div className="flex items-center gap-4">
                             <div
                               onClick={() => router.push(`/u/${req.senior.unique_id}`)}
@@ -899,7 +899,7 @@ export default function JuniorDashboard() {
 
               {/* Gamified Growth Road Map */}
               <div className="bg-surface dark:bg-[#283036] rounded-3xl border border-surface/60 dark:border-[#38434F] p-6 shadow-sm overflow-hidden relative group">
-                <div className="absolute top-0 right-0 w-24 h-24 bg-purple-50 group-hover:bg-purple-100 transition-colors rounded-bl-full -mr-8 -mt-8" />
+                <div className="absolute top-0 right-0 w-24 h-24 bg-[#FFF3D6] group-hover:bg-[#FFF3D6] transition-colors rounded-bl-full -mr-8 -mt-8" />
                 <h3 className="text-sm font-bold text-slate-800 dark:text-white m-0 mb-6 uppercase tracking-wider relative z-10 font-bold">Campus Career Roadmap</h3>
                 
                 <div className="space-y-3 relative z-10">
@@ -916,7 +916,7 @@ export default function JuniorDashboard() {
                         </div>
                         <span className={`text-xs font-bold ${task.done ? 'text-green-800' : 'text-[#64748B] dark:text-[#B0B7BE]'}`}>{task.label}</span>
                       </div>
-                      <span className={`text-[10px] font-black ${task.done ? 'text-green-600' : 'text-[#7C3AED]'}`}>{task.rp} RP</span>
+                      <span className={`text-[10px] font-black ${task.done ? 'text-green-600' : 'text-[#F4A01C]'}`}>{task.rp} RP</span>
                     </div>
                   ))}
                 </div>

@@ -34,7 +34,7 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
                     href={item.href}
                     className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                       isActive
-                        ? 'bg-purple-50 dark:bg-[#0A66C2]/15 text-[#7C3AED] dark:text-white'
+                        ? 'bg-[#FFF3D6] dark:bg-[#0A66C2]/15 text-[#F4A01C] dark:text-white'
                         : 'text-gray-600 dark:text-[#B0B7BE] hover:bg-surface-hover dark:hover:bg-[#283036]'
                     }`}
                   >

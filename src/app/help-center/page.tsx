@@ -57,7 +57,7 @@ export default function HelpCenterPage() {
             <div key={index} className="border-b border-gray-800">
               <button
                 onClick={() => setOpenItem(openItem === index ? null : index)}
-                className="w-full py-4 text-left flex items-center justify-between hover:text-purple-400 transition-colors"
+                className="w-full py-4 text-left flex items-center justify-between hover:text-[#F4A01C] transition-colors"
               >
                 <span className="font-semibold">{faq.question}</span>
                 <svg 
@@ -87,7 +87,7 @@ export default function HelpCenterPage() {
             Still need help? Email{" "}
             <a 
               href="mailto:support@claspire.in" 
-              className="text-purple-400 hover:text-purple-300 transition-colors"
+              className="text-[#F4A01C] hover:text-[#F4A01C]/60 transition-colors"
             >
               support@claspire.in
             </a>

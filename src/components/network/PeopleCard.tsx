@@ -45,7 +45,7 @@ function ClaspireBanner() {
   return (
     <div className="absolute inset-0 w-full h-full bg-[#1E1B4B] flex items-center justify-center">
       <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: 'radial-gradient(circle at 20px 20px, white 1.5px, transparent 0)', backgroundSize: '30px 30px' }} />
-      <div className="absolute inset-0 bg-gradient-to-t from-[#312E81]/40 via-transparent to-[#4C1D95]/20" />
+      <div className="absolute inset-0 bg-gradient-to-t from-[#312E81]/40 via-transparent to-[#0A2540]/20" />
       <span className="relative text-[15px] lg:text-lg font-extrabold tracking-[0.2em] bg-gradient-to-r from-purple-300 via-fuchsia-300 to-purple-200 bg-clip-text text-transparent select-none">
         CLASPIRE
       </span>
@@ -137,7 +137,7 @@ export default function PeopleCard({ person, onConnect, onRemove, onRespond, onW
     ? matchScore >= 90
       ? 'text-emerald-600 bg-emerald-50 border-emerald-200'
       : matchScore >= 70
-        ? 'text-purple-600 bg-purple-50 border-purple-200'
+        ? 'text-[#F4A01C] bg-[#FFF3D6] border-[#F4A01C]/30'
         : matchScore >= 50
           ? 'text-amber-600 bg-amber-50 border-amber-200'
           : 'text-gray-500 dark:text-[#B0B7BE] bg-app dark:bg-[#1D2226] border-surface dark:border-[#38434F]'
@@ -204,7 +204,7 @@ export default function PeopleCard({ person, onConnect, onRemove, onRespond, onW
           )}
 
           {person.mutualConnections > 0 && (
-            <span className="hidden lg:inline-flex items-center gap-0.5 text-[10px] font-medium text-purple-600 bg-purple-50/80 px-1.5 py-0.5 rounded-full border border-purple-100/60">
+            <span className="hidden lg:inline-flex items-center gap-0.5 text-[10px] font-medium text-[#F4A01C] bg-[#FFF3D6]/80 px-1.5 py-0.5 rounded-full border border-[#F4A01C]/20/60">
               <Users size={10} />
               {person.mutualConnections}
             </span>
@@ -218,7 +218,7 @@ export default function PeopleCard({ person, onConnect, onRemove, onRespond, onW
               <button
                 onClick={(e) => { e.stopPropagation(); handleConnect() }}
                 disabled={connecting}
-                className="w-full h-7 lg:h-8 rounded-lg text-[10px] lg:text-xs font-semibold text-white bg-[#7C3AED] hover:bg-[#6D28D9] flex items-center justify-center gap-1 disabled:opacity-50 transition-all duration-200"
+                className="w-full h-7 lg:h-8 rounded-lg text-[10px] lg:text-xs font-semibold text-white bg-[#F4A01C] hover:bg-[#E09410] flex items-center justify-center gap-1 disabled:opacity-50 transition-all duration-200"
               >
                 {connecting ? <Loader2 size={11} className="animate-spin" /> : <UserPlus size={12} />}
                 Connect

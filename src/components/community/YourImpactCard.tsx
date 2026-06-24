@@ -11,7 +11,7 @@ interface YourImpactCardProps {
 function YourImpactCard({ doubtCount, answerCount, referralCount, upvotesReceived = 0 }: YourImpactCardProps) {
   const metrics = [
     { label: 'Posts Created', value: doubtCount, icon: MessageSquare, color: 'text-blue-500' },
-    { label: 'Answers Given', value: answerCount, icon: MessageCircle, color: 'text-purple-500' },
+    { label: 'Answers Given', value: answerCount, icon: MessageCircle, color: 'text-[#F4A01C]' },
     { label: 'Upvotes Earned', value: upvotesReceived, icon: ThumbsUp, color: 'text-emerald-500' },
     { label: 'Referrals Shared', value: referralCount, icon: Share2, color: 'text-rose-500' },
   ]

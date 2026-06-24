@@ -36,7 +36,7 @@ export default function SeniorDashboardLayout({
         <div style={{
           width: 40, height: 40,
           border: '3px solid #F3F4F6',
-          borderTop: '3px solid #7C3AED',
+          borderTop: '3px solid #F4A01C',
           borderRadius: '50%',
           animation: 'spin 0.8s linear infinite'
         }} />

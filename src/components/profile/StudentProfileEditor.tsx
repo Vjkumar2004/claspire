@@ -29,9 +29,9 @@ function SkillsEditor({ skills, onChange }: { skills: string[]; onChange: (skill
     <div>
       <div className="flex flex-wrap gap-2 mb-3">
         {skills.map((s) => (
-          <span key={s} className="skill-pill inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-purple-50 to-purple-100/70 text-purple-700 text-[11px] font-bold border border-purple-200/60 shadow-sm dark:shadow-[#1D2226]/50">
+          <span key={s} className="skill-pill inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-purple-50 to-purple-100/70 text-[#E09410] text-[11px] font-bold border border-[#F4A01C]/30/60 shadow-sm dark:shadow-[#1D2226]/50">
             {s}
-            <button type="button" onClick={() => onChange(skills.filter((x) => x !== s))} className="text-purple-400 hover:text-purple-700 transition-colors">
+            <button type="button" onClick={() => onChange(skills.filter((x) => x !== s))} className="text-[#F4A01C] hover:text-[#E09410] transition-colors">
               <X size={12} />
             </button>
           </span>
@@ -44,13 +44,13 @@ function SkillsEditor({ skills, onChange }: { skills: string[]; onChange: (skill
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), add())}
             placeholder="Add a skill (e.g. React, Python, AWS...)"
-            className="w-full bg-surface dark:bg-[#222B31] border border-surface dark:border-[#38434F] rounded-xl px-4 py-2.5 text-xs font-semibold outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100 transition-all placeholder:text-slate-300 dark:placeholder:text-[#8B949E] dark:text-white"
+            className="w-full bg-surface dark:bg-[#222B31] border border-surface dark:border-[#38434F] rounded-xl px-4 py-2.5 text-xs font-semibold outline-none focus:border-[#F4A01C] focus:ring-2 focus:ring-purple-100 transition-all placeholder:text-slate-300 dark:placeholder:text-[#8B949E] dark:text-white"
           />
         </div>
         <button
           type="button"
           onClick={add}
-          className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#7C3AED] to-[#6D28D9] text-white text-xs font-bold hover:shadow-lg hover:shadow-purple-500/25 transition-all flex items-center gap-1.5"
+          className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#F4A01C] to-[#E09410] text-white text-xs font-bold hover:shadow-lg hover:shadow-[#F4A01C]/25 transition-all flex items-center gap-1.5"
         >
           <Plus size={14} /> Add
         </button>
@@ -106,7 +106,7 @@ export default function StudentProfileEditor({
     }
   }
 
-  const projectColors = ['from-blue-500 to-indigo-600', 'from-emerald-500 to-teal-600', 'from-amber-500 to-orange-600', 'from-purple-500 to-pink-600', 'from-cyan-500 to-blue-600', 'from-rose-500 to-red-600']
+  const projectColors = ['from-blue-500 to-indigo-600', 'from-emerald-500 to-teal-600', 'from-amber-500 to-orange-600', 'from-[#F4A01C] to-pink-600', 'from-cyan-500 to-blue-600', 'from-rose-500 to-red-600']
 
   function TechStackInput({ tags, onChange }: { tags: string[]; onChange: (tags: string[]) => void }) {
     const [input, setInput] = useState('')
@@ -136,7 +136,7 @@ export default function StudentProfileEditor({
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), add())}
             placeholder="Tech stack (e.g. React, Node.js...)"
-            className="flex-1 bg-surface dark:bg-[#222B31] border border-surface dark:border-[#38434F] rounded-lg px-3 py-1.5 text-[10px] font-semibold outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100 transition-all placeholder:text-slate-300 dark:placeholder:text-[#8B949E] dark:text-white"
+            className="flex-1 bg-surface dark:bg-[#222B31] border border-surface dark:border-[#38434F] rounded-lg px-3 py-1.5 text-[10px] font-semibold outline-none focus:border-[#F4A01C] focus:ring-2 focus:ring-purple-100 transition-all placeholder:text-slate-300 dark:placeholder:text-[#8B949E] dark:text-white"
           />
           <button
             type="button"
@@ -158,7 +158,7 @@ export default function StudentProfileEditor({
         <div className="px-6 pt-6 pb-4 border-b border-surface dark:border-[#38434F]">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-50 to-purple-100 flex items-center justify-center">
-              <BookOpen size={15} className="text-purple-600" />
+              <BookOpen size={15} className="text-[#F4A01C]" />
             </div>
             <div>
               <h2 className="text-sm font-extrabold text-[#0F172A] dark:text-white m-0">About Me</h2>
@@ -171,7 +171,7 @@ export default function StudentProfileEditor({
             value={formData.bio}
             onChange={(e) => onFormChange({ bio: e.target.value.slice(0, 400) })}
             placeholder="Share your goals, interests, and what you're looking for in your career journey..."
-            className="w-full bg-[#F8FAFC] dark:bg-[#222B31] border border-surface dark:border-[#38434F] rounded-xl px-4 py-3.5 text-xs font-medium h-28 resize-none outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100 transition-all placeholder:text-slate-300 dark:placeholder:text-[#8B949E] dark:text-white"
+            className="w-full bg-[#F8FAFC] dark:bg-[#222B31] border border-surface dark:border-[#38434F] rounded-xl px-4 py-3.5 text-xs font-medium h-28 resize-none outline-none focus:border-[#F4A01C] focus:ring-2 focus:ring-purple-100 transition-all placeholder:text-slate-300 dark:placeholder:text-[#8B949E] dark:text-white"
           />
           <div className="flex justify-between items-center mt-2">
             <p className="text-[10px] text-slate-400 dark:text-[#B0B7BE] font-medium m-0">Help seniors understand your background</p>
@@ -208,7 +208,7 @@ export default function StudentProfileEditor({
                 value={formData.branch}
                 onChange={(e) => onFormChange({ branch: e.target.value })}
                 placeholder="e.g. Computer Science"
-                className="w-full bg-surface dark:bg-[#222B31] border border-surface dark:border-[#38434F] rounded-xl px-4 py-3 text-xs font-bold outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100 transition-all placeholder:text-slate-300 dark:placeholder:text-[#8B949E] dark:text-white"
+                className="w-full bg-surface dark:bg-[#222B31] border border-surface dark:border-[#38434F] rounded-xl px-4 py-3 text-xs font-bold outline-none focus:border-[#F4A01C] focus:ring-2 focus:ring-purple-100 transition-all placeholder:text-slate-300 dark:placeholder:text-[#8B949E] dark:text-white"
               />
             </div>
             <div>
@@ -218,7 +218,7 @@ export default function StudentProfileEditor({
                 <select
                   value={formData.passout_year}
                   onChange={(e) => onFormChange({ passout_year: e.target.value })}
-                  className="w-full bg-surface dark:bg-[#222B31] border border-surface dark:border-[#38434F] rounded-xl pl-9 pr-4 py-3 text-xs font-bold outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100 transition-all appearance-none dark:text-white"
+                  className="w-full bg-surface dark:bg-[#222B31] border border-surface dark:border-[#38434F] rounded-xl pl-9 pr-4 py-3 text-xs font-bold outline-none focus:border-[#F4A01C] focus:ring-2 focus:ring-purple-100 transition-all appearance-none dark:text-white"
                 >
                   {[2024, 2025, 2026, 2027, 2028, 2029, 2030].map((y) => (
                     <option key={y} value={y}>{y}</option>
@@ -233,7 +233,7 @@ export default function StudentProfileEditor({
                 <select
                   value={formData.year}
                   onChange={(e) => onFormChange({ year: e.target.value })}
-                  className="w-full bg-surface dark:bg-[#222B31] border border-surface dark:border-[#38434F] rounded-xl pl-9 pr-4 py-3 text-xs font-bold outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100 transition-all appearance-none dark:text-white"
+                  className="w-full bg-surface dark:bg-[#222B31] border border-surface dark:border-[#38434F] rounded-xl pl-9 pr-4 py-3 text-xs font-bold outline-none focus:border-[#F4A01C] focus:ring-2 focus:ring-purple-100 transition-all appearance-none dark:text-white"
                 >
                   {['1', '2', '3', '4'].map((y) => (
                     <option key={y} value={y}>Year {y}</option>
@@ -281,7 +281,7 @@ export default function StudentProfileEditor({
             <button
               type="button"
               onClick={() => onExtrasChange({ projects: [...extras.projects, { title: '', description: '', tech_stack: [] }] })}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-[#7C3AED] to-[#6D28D9] text-white text-[10px] font-bold hover:shadow-lg hover:shadow-purple-500/25 transition-all"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-[#F4A01C] to-[#E09410] text-white text-[10px] font-bold hover:shadow-lg hover:shadow-[#F4A01C]/25 transition-all"
             >
               <Plus size={13} /> Add Project
             </button>
@@ -297,7 +297,7 @@ export default function StudentProfileEditor({
             </div>
           )}
           {extras.projects.map((p, i) => (
-            <div key={i} className="group relative bg-gradient-to-br from-slate-50 dark:from-[#283036] to-white dark:to-[#283036] rounded-xl border border-surface dark:border-[#38434F] p-5 hover:border-purple-200 hover:shadow-md transition-all">
+            <div key={i} className="group relative bg-gradient-to-br from-slate-50 dark:from-[#283036] to-white dark:to-[#283036] rounded-xl border border-surface dark:border-[#38434F] p-5 hover:border-[#F4A01C]/30 hover:shadow-md transition-all">
               <div className="flex items-start gap-4">
                 <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${projectColors[i % projectColors.length]} flex items-center justify-center text-white text-sm font-extrabold flex-shrink-0 shadow-sm dark:shadow-[#1D2226]/50`}>
                   {p.title?.charAt(0)?.toUpperCase() || 'P'}
@@ -307,13 +307,13 @@ export default function StudentProfileEditor({
                     value={p.title}
                     onChange={(e) => updateProject(i, { title: e.target.value })}
                     placeholder="Project title"
-                    className="w-full bg-surface dark:bg-[#222B31] border border-surface dark:border-[#38434F] rounded-lg px-3.5 py-2 text-xs font-bold outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100 transition-all placeholder:text-slate-300 dark:placeholder:text-[#8B949E] dark:text-white"
+                    className="w-full bg-surface dark:bg-[#222B31] border border-surface dark:border-[#38434F] rounded-lg px-3.5 py-2 text-xs font-bold outline-none focus:border-[#F4A01C] focus:ring-2 focus:ring-purple-100 transition-all placeholder:text-slate-300 dark:placeholder:text-[#8B949E] dark:text-white"
                   />
                   <textarea
                     value={p.description || ''}
                     onChange={(e) => updateProject(i, { description: e.target.value })}
                     placeholder="Brief description of your project..."
-                    className="w-full bg-surface dark:bg-[#222B31] border border-surface dark:border-[#38434F] rounded-lg px-3.5 py-2.5 text-xs font-medium h-16 resize-none outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100 transition-all placeholder:text-slate-300 dark:placeholder:text-[#8B949E] dark:text-white"
+                    className="w-full bg-surface dark:bg-[#222B31] border border-surface dark:border-[#38434F] rounded-lg px-3.5 py-2.5 text-xs font-medium h-16 resize-none outline-none focus:border-[#F4A01C] focus:ring-2 focus:ring-purple-100 transition-all placeholder:text-slate-300 dark:placeholder:text-[#8B949E] dark:text-white"
                   />
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                     <div className="relative">
@@ -322,7 +322,7 @@ export default function StudentProfileEditor({
                         value={p.github_url || ''}
                         onChange={(e) => updateProject(i, { github_url: e.target.value })}
                         placeholder="GitHub URL"
-                        className="w-full bg-surface dark:bg-[#222B31] border border-surface dark:border-[#38434F] rounded-lg pl-8 pr-3 py-2 text-xs font-semibold outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100 transition-all placeholder:text-slate-300 dark:placeholder:text-[#8B949E] dark:text-white"
+                        className="w-full bg-surface dark:bg-[#222B31] border border-surface dark:border-[#38434F] rounded-lg pl-8 pr-3 py-2 text-xs font-semibold outline-none focus:border-[#F4A01C] focus:ring-2 focus:ring-purple-100 transition-all placeholder:text-slate-300 dark:placeholder:text-[#8B949E] dark:text-white"
                       />
                     </div>
                     <div className="relative">
@@ -331,7 +331,7 @@ export default function StudentProfileEditor({
                         value={p.live_url || ''}
                         onChange={(e) => updateProject(i, { live_url: e.target.value })}
                         placeholder="Live demo URL"
-                        className="w-full bg-surface dark:bg-[#222B31] border border-surface dark:border-[#38434F] rounded-lg pl-8 pr-3 py-2 text-xs font-semibold outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100 transition-all placeholder:text-slate-300 dark:placeholder:text-[#8B949E] dark:text-white"
+                        className="w-full bg-surface dark:bg-[#222B31] border border-surface dark:border-[#38434F] rounded-lg pl-8 pr-3 py-2 text-xs font-semibold outline-none focus:border-[#F4A01C] focus:ring-2 focus:ring-purple-100 transition-all placeholder:text-slate-300 dark:placeholder:text-[#8B949E] dark:text-white"
                       />
                     </div>
                   </div>
@@ -372,7 +372,7 @@ export default function StudentProfileEditor({
             <button
               type="button"
               onClick={() => onExtrasChange({ certifications: [...extras.certifications, { name: '' }] })}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-[#7C3AED] to-[#6D28D9] text-white text-[10px] font-bold hover:shadow-lg hover:shadow-purple-500/25 transition-all"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-[#F4A01C] to-[#E09410] text-white text-[10px] font-bold hover:shadow-lg hover:shadow-[#F4A01C]/25 transition-all"
             >
               <Plus size={13} /> Add
             </button>
@@ -393,19 +393,19 @@ export default function StudentProfileEditor({
                     value={c.name}
                     onChange={(e) => updateCert(i, { name: e.target.value })}
                     placeholder="Certification name"
-                    className="bg-surface dark:bg-[#222B31] border border-surface dark:border-[#38434F] rounded-lg px-3 py-2 text-xs font-bold outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100 transition-all placeholder:text-slate-300 dark:placeholder:text-[#8B949E] dark:text-white"
+                    className="bg-surface dark:bg-[#222B31] border border-surface dark:border-[#38434F] rounded-lg px-3 py-2 text-xs font-bold outline-none focus:border-[#F4A01C] focus:ring-2 focus:ring-purple-100 transition-all placeholder:text-slate-300 dark:placeholder:text-[#8B949E] dark:text-white"
                   />
                   <input
                     value={c.issuer || ''}
                     onChange={(e) => updateCert(i, { issuer: e.target.value })}
                     placeholder="Issuer"
-                    className="bg-surface dark:bg-[#222B31] border border-surface dark:border-[#38434F] rounded-lg px-3 py-2 text-xs font-semibold outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100 transition-all placeholder:text-slate-300 dark:placeholder:text-[#8B949E] dark:text-white"
+                    className="bg-surface dark:bg-[#222B31] border border-surface dark:border-[#38434F] rounded-lg px-3 py-2 text-xs font-semibold outline-none focus:border-[#F4A01C] focus:ring-2 focus:ring-purple-100 transition-all placeholder:text-slate-300 dark:placeholder:text-[#8B949E] dark:text-white"
                   />
                   <input
                     value={c.year || ''}
                     onChange={(e) => updateCert(i, { year: e.target.value })}
                     placeholder="Year"
-                    className="bg-surface dark:bg-[#222B31] border border-surface dark:border-[#38434F] rounded-lg px-3 py-2 text-xs font-semibold outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100 transition-all placeholder:text-slate-300 dark:placeholder:text-[#8B949E] dark:text-white"
+                    className="bg-surface dark:bg-[#222B31] border border-surface dark:border-[#38434F] rounded-lg px-3 py-2 text-xs font-semibold outline-none focus:border-[#F4A01C] focus:ring-2 focus:ring-purple-100 transition-all placeholder:text-slate-300 dark:placeholder:text-[#8B949E] dark:text-white"
                   />
                 </div>
               </div>
@@ -444,7 +444,7 @@ export default function StudentProfileEditor({
                   value={extras.social_links?.linkedin || ''}
                   onChange={(e) => onExtrasChange({ social_links: { ...extras.social_links, linkedin: e.target.value } as SocialLinks })}
                   placeholder="https://linkedin.com/in/..."
-                  className="w-full bg-surface dark:bg-[#222B31] border border-surface dark:border-[#38434F] rounded-xl pl-10 pr-4 py-3 text-xs font-semibold outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100 transition-all placeholder:text-slate-300 dark:placeholder:text-[#8B949E] dark:text-white"
+                  className="w-full bg-surface dark:bg-[#222B31] border border-surface dark:border-[#38434F] rounded-xl pl-10 pr-4 py-3 text-xs font-semibold outline-none focus:border-[#F4A01C] focus:ring-2 focus:ring-purple-100 transition-all placeholder:text-slate-300 dark:placeholder:text-[#8B949E] dark:text-white"
                 />
               </div>
             </div>
@@ -456,7 +456,7 @@ export default function StudentProfileEditor({
                   value={extras.social_links?.github || ''}
                   onChange={(e) => onExtrasChange({ social_links: { ...extras.social_links, github: e.target.value } as SocialLinks })}
                   placeholder="https://github.com/username"
-                  className="w-full bg-surface dark:bg-[#222B31] border border-surface dark:border-[#38434F] rounded-xl pl-10 pr-4 py-3 text-xs font-semibold outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100 transition-all placeholder:text-slate-300 dark:placeholder:text-[#8B949E] dark:text-white"
+                  className="w-full bg-surface dark:bg-[#222B31] border border-surface dark:border-[#38434F] rounded-xl pl-10 pr-4 py-3 text-xs font-semibold outline-none focus:border-[#F4A01C] focus:ring-2 focus:ring-purple-100 transition-all placeholder:text-slate-300 dark:placeholder:text-[#8B949E] dark:text-white"
                 />
               </div>
             </div>
@@ -469,7 +469,7 @@ export default function StudentProfileEditor({
                 <p className="text-xs font-bold text-slate-700 dark:text-[#B0B7BE] m-0">{extras.resume_url ? 'Resume uploaded' : 'No resume uploaded'}</p>
                 <p className="text-[10px] text-slate-400 dark:text-[#B0B7BE] m-0">PDF format, max 5MB</p>
               </div>
-              <label className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#7C3AED] to-[#6D28D9] text-white text-xs font-bold cursor-pointer hover:shadow-lg hover:shadow-purple-500/25 transition-all">
+              <label className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#F4A01C] to-[#E09410] text-white text-xs font-bold cursor-pointer hover:shadow-lg hover:shadow-[#F4A01C]/25 transition-all">
                 {uploadingResume ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />}
                 {extras.resume_url ? 'Replace' : 'Upload'}
                 <input type="file" accept=".pdf" className="hidden" onChange={handleResumeUpload} />
@@ -479,7 +479,7 @@ export default function StudentProfileEditor({
                   href={extras.resume_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-xs font-bold text-purple-600 hover:text-purple-700 hover:underline"
+                  className="inline-flex items-center gap-1 text-xs font-bold text-[#F4A01C] hover:text-[#E09410] hover:underline"
                 >
                   <ExternalLink size={12} /> View
                 </a>
@@ -522,17 +522,17 @@ export default function StudentProfileEditor({
                 }
                 className={`toggle-card text-left p-4 rounded-xl border-2 ${
                   extras.areas_looking_for[key]
-                    ? 'active border-purple-300 bg-gradient-to-br from-purple-50 to-purple-100/50'
+                    ? 'active border-[#F4A01C]/50 bg-gradient-to-br from-purple-50 to-purple-100/50'
                     : 'border-surface dark:border-[#38434F] bg-surface dark:bg-[#283036] hover:bg-app dark:hover:bg-[#1D2226]'
                 } transition-all`}
               >
                 <div className="flex items-center gap-2 mb-1.5">
                   <span className="text-lg">{emoji}</span>
-                  <span className={`text-xs font-extrabold ${extras.areas_looking_for[key] ? 'text-purple-700' : 'text-slate-700 dark:text-[#B0B7BE]'}`}>
+                  <span className={`text-xs font-extrabold ${extras.areas_looking_for[key] ? 'text-[#E09410]' : 'text-slate-700 dark:text-[#B0B7BE]'}`}>
                     {label}
                   </span>
                   {extras.areas_looking_for[key] && (
-                    <div className="ml-auto w-5 h-5 rounded-full bg-purple-600 flex items-center justify-center">
+                    <div className="ml-auto w-5 h-5 rounded-full bg-[#F4A01C] flex items-center justify-center">
                       <Check size={11} className="text-white" />
                     </div>
                   )}

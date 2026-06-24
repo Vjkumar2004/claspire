@@ -95,7 +95,7 @@ export default function JuniorDoubtsPage() {
             <div style={{
               width: 34, height: 34,
               borderRadius: 10,
-              background: 'linear-gradient(135deg,#7C3AED,#06B6D4)',
+              background: 'linear-gradient(135deg,#F4A01C,#06B6D4)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center'
@@ -107,7 +107,7 @@ export default function JuniorDoubtsPage() {
               fontWeight: 800,
               color: '#0A0A0A'
             }}>
-              cl<span style={{ color: '#7C3AED' }}>aspire</span>
+              cl<span style={{ color: '#F4A01C' }}>aspire</span>
             </span>
           </div>
         </div>
@@ -172,7 +172,7 @@ export default function JuniorDoubtsPage() {
                 marginBottom: 2,
                 textDecoration: 'none',
                 background: item.active ? '#F3F0FF' : 'transparent',
-                color: item.active ? '#7C3AED' : '#6B7280',
+                color: item.active ? '#F4A01C' : '#6B7280',
                 fontWeight: item.active ? 700 : 500,
                 fontSize: 14
               }}
@@ -184,7 +184,7 @@ export default function JuniorDoubtsPage() {
                   marginLeft: 'auto',
                   width: 6, height: 6,
                   borderRadius: '50%',
-                  background: '#7C3AED'
+                  background: '#F4A01C'
                 }} />
               )}
             </a>
@@ -226,7 +226,7 @@ export default function JuniorDoubtsPage() {
             <button
               onClick={() => router.push('/community?create=true')}
               style={{
-                background: 'linear-gradient(135deg, #7C3AED, #06B6D4)',
+                background: 'linear-gradient(135deg, #F4A01C, #06B6D4)',
                 color: 'white',
                 border: 'none',
                 borderRadius: 12,
@@ -308,7 +308,7 @@ export default function JuniorDoubtsPage() {
                     borderRadius: 6,
                     border: 'none',
                     background: filter === option.value ? 'white' : 'transparent',
-                    color: filter === option.value ? '#7C3AED' : '#6B7280',
+                    color: filter === option.value ? '#F4A01C' : '#6B7280',
                     fontSize: 12,
                     fontWeight: 600,
                     cursor: 'pointer'
@@ -361,7 +361,7 @@ export default function JuniorDoubtsPage() {
                   style={{
                     padding: '10px 20px',
                     borderRadius: 8,
-                    background: '#7C3AED',
+                    background: '#F4A01C',
                     color: 'white',
                     border: 'none',
                     fontSize: 14,

@@ -118,7 +118,7 @@ export default function MessageRequestButton({ seniorId, seniorName }: MessageRe
       <button
         onClick={handleSendRequest}
         disabled={sending}
-        className="w-full bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm shadow-purple-200/50"
+        className="w-full bg-[#F4A01C] hover:bg-[#E09410] text-white rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm shadow-[#F4A01C]/20/50"
       >
         {sending ? (
           <>

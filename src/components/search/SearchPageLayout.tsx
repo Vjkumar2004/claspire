@@ -165,11 +165,11 @@ function SearchPageContent({ activeFilter }: SearchPageLayoutProps) {
                       onClick={() => handleTabChange(f.id)}
                       className={`w-full flex items-center gap-3 px-3 py-2.5 text-left rounded-md font-semibold text-xs transition-colors cursor-pointer ${
                         isActive
-                          ? 'bg-purple-50 text-[#7C3AED]'
+                          ? 'bg-[#FFF3D6] text-[#F4A01C]'
                           : 'text-gray-600 hover:text-black hover:bg-app'
                       }`}
                     >
-                      <f.icon className={`w-4 h-4 ${isActive ? 'text-[#7C3AED]' : 'text-gray-400'}`} />
+                      <f.icon className={`w-4 h-4 ${isActive ? 'text-[#F4A01C]' : 'text-gray-400'}`} />
                       <span>{f.label}</span>
                     </button>
                   )
@@ -180,7 +180,7 @@ function SearchPageContent({ activeFilter }: SearchPageLayoutProps) {
             {/* Tips Widget */}
             <div className="bg-surface border border-surface rounded-md p-4 shadow-[0_1px_3px_rgba(0,0,0,0.05)] hidden lg:block">
               <div className="flex gap-2.5 items-start">
-                <Info className="w-4 h-4 text-purple-600 mt-0.5 flex-shrink-0" />
+                <Info className="w-4 h-4 text-[#F4A01C] mt-0.5 flex-shrink-0" />
                 <div>
                   <h3 className="font-bold text-gray-900 text-xs">Search Tips</h3>
                   <p className="text-[11px] text-gray-500 mt-1 leading-normal font-medium">
@@ -197,7 +197,7 @@ function SearchPageContent({ activeFilter }: SearchPageLayoutProps) {
             {/* Desktop search results summary */}
             <div className="bg-surface border border-surface rounded-md p-4 sm:p-5 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
               <h1 className="text-base sm:text-lg font-bold text-gray-900 leading-tight">
-                Search results for "<span className="text-[#7C3AED]">{queryParam || 'empty'}</span>"
+                Search results for "<span className="text-[#F4A01C]">{queryParam || 'empty'}</span>"
               </h1>
               <p className="text-xs text-gray-500 font-semibold mt-1">
                 Showing {total} {total === 1 ? 'match' : 'matches'} filtered by {FILTERS.find((f) => f.id === activeFilter)?.label}
@@ -214,7 +214,7 @@ function SearchPageContent({ activeFilter }: SearchPageLayoutProps) {
                     onClick={() => handleTabChange(f.id)}
                     className={`px-4 py-1.5 rounded-full border text-xs font-bold whitespace-nowrap transition-all flex-shrink-0 cursor-pointer ${
                       isActive
-                        ? 'bg-[#7C3AED] border-transparent text-white shadow-sm'
+                        ? 'bg-[#F4A01C] border-transparent text-white shadow-sm'
                         : 'bg-surface border-surface text-gray-700 hover:border-gray-300'
                     }`}
                   >
@@ -281,7 +281,7 @@ function SearchPageContent({ activeFilter }: SearchPageLayoutProps) {
                     let viewMoreSeniorsCard = null
                     if (idx === lastSeniorIdx && activeFilter === 'all') {
                       viewMoreSeniorsCard = (
-                        <div className="bg-gradient-to-r from-purple-50/50 via-white to-purple-50/20 border border-purple-100 rounded-md p-3.5 text-center shadow-[0_1px_3px_rgba(124,58,237,0.02)] mt-2 mb-4">
+                        <div className="bg-gradient-to-r from-purple-50/50 via-white to-purple-50/20 border border-[#F4A01C]/20 rounded-md p-3.5 text-center shadow-[0_1px_3px_rgba(124,58,237,0.02)] mt-2 mb-4">
                           <p className="text-[11px] font-semibold text-gray-500">
                             Want to network with more alumni or mentors from {queryParam}?
                           </p>
@@ -290,7 +290,7 @@ function SearchPageContent({ activeFilter }: SearchPageLayoutProps) {
                               handleTabChange('people')
                               window.scrollTo({ top: 0, behavior: 'smooth' })
                             }}
-                            className="mt-2 px-4 py-1.5 bg-[#7C3AED] hover:bg-[#6D28D9] text-white font-bold text-xs rounded-full shadow-sm cursor-pointer transition-all hover:shadow"
+                            className="mt-2 px-4 py-1.5 bg-[#F4A01C] hover:bg-[#E09410] text-white font-bold text-xs rounded-full shadow-sm cursor-pointer transition-all hover:shadow"
                           >
                             View All {queryParam} Seniors & Alumni →
                           </button>
@@ -311,7 +311,7 @@ function SearchPageContent({ activeFilter }: SearchPageLayoutProps) {
                 {/* Load more infinite scroll element */}
                 {hasMore && (
                   <div ref={loadMoreRef} className="py-6 flex justify-center">
-                    <div className="w-6 h-6 border-2 border-purple-600 border-t-transparent rounded-full animate-spin" />
+                    <div className="w-6 h-6 border-2 border-[#F4A01C] border-t-transparent rounded-full animate-spin" />
                   </div>
                 )}
                 
@@ -323,8 +323,8 @@ function SearchPageContent({ activeFilter }: SearchPageLayoutProps) {
               </div>
             ) : (
               <div className="bg-surface border border-surface rounded-md p-8 sm:p-12 shadow-[0_1px_3px_rgba(0,0,0,0.05)] text-center">
-                <div className="w-16 h-16 rounded-full bg-purple-50 border border-purple-100 flex items-center justify-center mx-auto mb-5">
-                  <Compass className="w-8 h-8 text-[#7C3AED]" />
+                <div className="w-16 h-16 rounded-full bg-[#FFF3D6] border border-[#F4A01C]/20 flex items-center justify-center mx-auto mb-5">
+                  <Compass className="w-8 h-8 text-[#F4A01C]" />
                 </div>
                 
                 <h3 className="text-base font-black text-gray-900 tracking-tight leading-snug">
@@ -343,14 +343,14 @@ function SearchPageContent({ activeFilter }: SearchPageLayoutProps) {
             {/* Dynamic Placements Recommendation card */}
             <div className="bg-surface border border-surface rounded-md p-4 sm:p-5 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
               <h3 className="text-xs font-bold text-gray-950 uppercase tracking-wider mb-4 pb-3 border-b border-surface flex items-center gap-1.5">
-                <TrendingUp className="w-4 h-4 text-purple-600" />
+                <TrendingUp className="w-4 h-4 text-[#F4A01C]" />
                 Active Placements
               </h3>
               
               <div className="space-y-3">
                 {trendingJobs.map((rec, i) => (
                   <div key={i} className="group cursor-pointer" onClick={() => router.push('/jobs')}>
-                    <h4 className="text-xs font-bold text-gray-800 group-hover:text-[#7C3AED] transition-colors leading-tight">
+                    <h4 className="text-xs font-bold text-gray-800 group-hover:text-[#F4A01C] transition-colors leading-tight">
                       {rec.role}
                     </h4>
                     <p className="text-[10px] text-gray-500 font-semibold mt-0.5 leading-none">
@@ -361,7 +361,7 @@ function SearchPageContent({ activeFilter }: SearchPageLayoutProps) {
               </div>
               
               <div className="mt-4 pt-3.5 border-t border-surface">
-                <Link href="/jobs" className="text-[11px] font-bold text-[#7C3AED] hover:text-[#6D28D9] hover:underline no-underline block text-center">
+                <Link href="/jobs" className="text-[11px] font-bold text-[#F4A01C] hover:text-[#E09410] hover:underline no-underline block text-center">
                   Explore Placements →
                 </Link>
               </div>
@@ -383,7 +383,7 @@ export default function SearchPageLayout({ activeFilter }: SearchPageLayoutProps
   return (
     <Suspense fallback={
       <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center font-plus-jakarta-sans text-xs">
-        <div className="w-8 h-8 border-2 border-purple-600 border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-2 border-[#F4A01C] border-t-transparent rounded-full animate-spin" />
       </div>
     }>
       <SearchPageContent activeFilter={activeFilter} />

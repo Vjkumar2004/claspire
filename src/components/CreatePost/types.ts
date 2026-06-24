@@ -41,7 +41,7 @@ export const POST_TYPES = [
     icon: '❓',
     label: 'Doubt',
     desc: 'Get help from the community',
-    color: '#8B5CF6',
+    color: '#F4A01C',
     bg: 'rgba(139, 92, 246, 0.1)',
     border: 'rgba(139, 92, 246, 0.2)'
   },

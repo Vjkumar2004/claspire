@@ -27,7 +27,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-[#F8FAFC]">
       <div className="max-w-3xl mx-auto px-6 py-20">
-        <Link href="/blog" className="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-purple-600 mb-12 transition-colors">
+        <Link href="/blog" className="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-[#F4A01C] mb-12 transition-colors">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M19 12H5M5 12L12 19M5 12L12 5"/>
           </svg>
@@ -40,7 +40,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             <span className="text-gray-300">·</span>
             <span className="text-sm text-gray-400">{post.author}</span>
             {post.tags.slice(0,3).map(tag => (
-              <span key={tag} className="text-xs bg-purple-100 text-purple-700 px-2.5 py-1 rounded-full font-medium">{tag}</span>
+              <span key={tag} className="text-xs bg-[#FFF3D6] text-[#E09410] px-2.5 py-1 rounded-full font-medium">{tag}</span>
             ))}
           </div>
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 leading-tight mb-4">{post.title}</h1>
@@ -48,15 +48,15 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         </div>
 
         <div className="border-t border-surface pt-10">
-          <div className="prose prose-lg prose-gray max-w-none prose-headings:font-semibold prose-headings:text-gray-900 prose-a:text-purple-600 prose-a:no-underline hover:prose-a:underline prose-strong:text-gray-900 prose-li:text-gray-600">
+          <div className="prose prose-lg prose-gray max-w-none prose-headings:font-semibold prose-headings:text-gray-900 prose-a:text-[#F4A01C] prose-a:no-underline hover:prose-a:underline prose-strong:text-gray-900 prose-li:text-gray-600">
             <MDXRemote source={post.content} />
           </div>
         </div>
 
-        <div className="mt-16 p-8 bg-purple-50 rounded-2xl border border-purple-100">
+        <div className="mt-16 p-8 bg-[#FFF3D6] rounded-2xl border border-[#F4A01C]/20">
           <h3 className="text-lg font-semibold text-gray-900 mb-2">Ready to connect with seniors from your college?</h3>
           <p className="text-gray-600 mb-4">Join Claspire — India&apos;s college senior-student community platform.</p>
-          <Link href="https://claspire.in" className="inline-block bg-purple-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-purple-700 transition-colors">
+          <Link href="https://claspire.in" className="inline-block bg-[#F4A01C] text-white px-6 py-3 rounded-xl font-medium hover:bg-[#E09410] transition-colors">
             Join Claspire Free →
           </Link>
         </div>

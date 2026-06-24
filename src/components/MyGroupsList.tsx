@@ -278,7 +278,7 @@ export default function MyGroupsList() {
   if (error) return (
     <div className="bg-surface dark:bg-[#283036] rounded-2xl p-6 shadow-sm dark:shadow-[#1D2226]/50 text-center py-8">
       <p className="text-red-600 font-medium mb-3">{error}</p>
-      <button onClick={fetchGroups} className="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm">Try Again</button>
+      <button onClick={fetchGroups} className="px-4 py-2 bg-[#F4A01C] text-white rounded-lg text-sm">Try Again</button>
     </div>
   )
 
@@ -301,13 +301,13 @@ export default function MyGroupsList() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: index * 0.1 }}
-            className="bg-gradient-to-r from-gray-50 to-white border border-surface dark:border-[#38434F] rounded-xl sm:rounded-2xl p-4 sm:p-5 hover:shadow-lg transition-all hover:border-purple-200"
+            className="bg-gradient-to-r from-gray-50 to-white border border-surface dark:border-[#38434F] rounded-xl sm:rounded-2xl p-4 sm:p-5 hover:shadow-lg transition-all hover:border-[#F4A01C]/30"
           >
             <div className="flex flex-col sm:flex-row sm:items-start gap-4">
               {/* Creator */}
               <div className="flex items-center gap-3">
                 <div className="relative">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white font-bold overflow-hidden flex-shrink-0">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#F4A01C] to-indigo-600 flex items-center justify-center text-white font-bold overflow-hidden flex-shrink-0">
                     {group.creator?.avatar_url
                       ? <img src={group.creator.avatar_url} className="w-full h-full object-cover" />
                       : group.creator?.full_name?.[0] || 'A'}
@@ -321,7 +321,7 @@ export default function MyGroupsList() {
                 <div>
                   <div className="flex items-center gap-2">
                     <p className="font-semibold text-gray-900 dark:text-white text-sm">{group.creator?.full_name || 'Admin'}</p>
-                    <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full font-medium">Admin</span>
+                    <span className="text-xs bg-[#FFF3D6] text-[#E09410] px-2 py-0.5 rounded-full font-medium">Admin</span>
                   </div>
                   <p className="text-xs text-gray-500 dark:text-[#B0B7BE]">Created {formatDate(group.created_at)}</p>
                 </div>
@@ -379,7 +379,7 @@ export default function MyGroupsList() {
                     )}
                     <button
                       onClick={() => window.open(`/community/c/${group.communities?.slug || 'kamaraj'}/group/${group.slug}`, '_blank')}
-                      className="p-2 bg-purple-50 text-purple-600 hover:bg-purple-100 rounded-lg transition-colors"
+                      className="p-2 bg-[#FFF3D6] text-[#F4A01C] hover:bg-[#FFF3D6] rounded-lg transition-colors"
                       title="View Group"
                     >
                       <Eye size={16} />

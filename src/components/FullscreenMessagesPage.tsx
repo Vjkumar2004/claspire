@@ -42,7 +42,7 @@ export default function FullscreenMessagesPage({ role }: FullscreenMessagesPageP
   if (loading) {
     return (
       <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-surface dark:bg-[#283036]">
-        <Loader2 className="animate-spin text-purple-600" size={28} />
+        <Loader2 className="animate-spin text-[#F4A01C]" size={28} />
       </div>
     )
   }

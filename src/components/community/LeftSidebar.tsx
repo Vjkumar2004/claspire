@@ -54,7 +54,7 @@ function LeftSidebar({ user, userCommunity, filter, setFilter, setFeedSearchQuer
           <div className="flex items-center gap-1 mt-2">
             <span className={`text-[8px] font-extrabold uppercase px-2 py-0.5 rounded-full border ${user?.role === 'senior'
               ? 'bg-emerald-50 text-emerald-600 border-emerald-100'
-              : 'bg-purple-50 text-purple-600 border-purple-100'
+              : 'bg-[#FFF3D6] text-[#F4A01C] border-[#F4A01C]/20'
               }`}>
               {user?.role === 'senior' ? '★ Verified Senior Mentor' : 'Mentee Member'}
             </span>
@@ -88,7 +88,7 @@ function LeftSidebar({ user, userCommunity, filter, setFilter, setFeedSearchQuer
           {/* High Density Metric Tally grid */}
           <div className="w-full pt-3 grid grid-cols-2 gap-2 text-center">
             <div className="p-2 bg-app dark:bg-[#1D2226] rounded border border-surface dark:border-[#38434F]">
-              <span className="block text-[14px] font-black text-[#7C3AED] leading-none">
+              <span className="block text-[14px] font-black text-[#F4A01C] leading-none">
                 {user?.rise_points || user?.points || 0}
               </span>
               <span className="text-[8px] uppercase tracking-wider text-slate-400 dark:text-[#B0B7BE] font-extrabold mt-1 block">
@@ -141,10 +141,10 @@ function LeftSidebar({ user, userCommunity, filter, setFilter, setFeedSearchQuer
                   setFilter(item.key)
                   setFeedSearchQuery('') // Reset query on layout change
                 }}
-                className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 text-left rounded font-bold text-xs transition-colors cursor-pointer ${isActive ? 'bg-purple-50 text-[#7C3AED]' : 'text-slate-600 dark:text-[#B0B7BE] hover:text-black dark:hover:text-white hover:bg-app dark:hover:bg-[#1D2226]'
+                className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 text-left rounded font-bold text-xs transition-colors cursor-pointer ${isActive ? 'bg-[#FFF3D6] text-[#F4A01C]' : 'text-slate-600 dark:text-[#B0B7BE] hover:text-black dark:hover:text-white hover:bg-app dark:hover:bg-[#1D2226]'
                   }`}
               >
-                <item.icon className={`w-3.5 h-3.5 ${isActive ? 'text-[#7C3AED]' : 'text-slate-400 dark:text-[#B0B7BE]'}`} />
+                <item.icon className={`w-3.5 h-3.5 ${isActive ? 'text-[#F4A01C]' : 'text-slate-400 dark:text-[#B0B7BE]'}`} />
                 <span>{item.label}</span>
               </button>
             )

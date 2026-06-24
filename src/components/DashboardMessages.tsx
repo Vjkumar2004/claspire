@@ -280,7 +280,7 @@ export default function DashboardMessages({
   if (!currentUserId) {
     return (
       <div className={`flex items-center justify-center ${fullscreen ? 'fixed inset-0 bg-surface dark:bg-[#283036]' : 'h-64'}`}>
-        <Loader2 className="animate-spin text-purple-600" size={24} />
+        <Loader2 className="animate-spin text-[#F4A01C]" size={24} />
       </div>
     )
   }
@@ -331,12 +331,12 @@ export default function DashboardMessages({
           {!fullscreen && (
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-black text-black dark:text-white flex items-center gap-2">
-                <MessageSquare size={20} className="text-purple-600" />
+                <MessageSquare size={20} className="text-[#F4A01C]" />
                 {role === 'senior' ? 'Messages' : 'Mentors'}
               </h2>
               <button
                 onClick={() => setShowNewMessage(!showNewMessage)}
-                className="w-8 h-8 rounded-xl bg-purple-600 text-white flex items-center justify-center hover:bg-purple-700 transition-colors"
+                className="w-8 h-8 rounded-xl bg-[#F4A01C] text-white flex items-center justify-center hover:bg-[#E09410] transition-colors"
                 title="New Message"
               >
                 {showNewMessage ? <X size={16} /> : <Plus size={16} />}
@@ -358,7 +358,7 @@ export default function DashboardMessages({
                   value={userSearchQuery}
                   onChange={(e) => setUserSearchQuery(e.target.value)}
                   autoFocus
-                  className="w-full bg-purple-50 border border-purple-200 rounded-xl pl-10 pr-4 py-2.5 text-xs focus:outline-none focus:border-purple-600 transition-colors"
+                  className="w-full bg-[#FFF3D6] border border-[#F4A01C]/30 rounded-xl pl-10 pr-4 py-2.5 text-xs focus:outline-none focus:border-[#F4A01C] transition-colors"
                 />
               </div>
             </div>
@@ -370,7 +370,7 @@ export default function DashboardMessages({
                 placeholder="Search chats..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-app dark:bg-[#1D2226] border border-surface dark:border-[#38434F] rounded-xl pl-10 pr-4 py-2 text-xs focus:outline-none focus:border-purple-600 transition-colors"
+                className="w-full bg-app dark:bg-[#1D2226] border border-surface dark:border-[#38434F] rounded-xl pl-10 pr-4 py-2 text-xs focus:outline-none focus:border-[#F4A01C] transition-colors"
               />
             </div>
           )}
@@ -382,7 +382,7 @@ export default function DashboardMessages({
             <div>
               {searching ? (
                 <div className="flex items-center justify-center p-8">
-                  <Loader2 className="animate-spin text-purple-600" size={20} />
+                  <Loader2 className="animate-spin text-[#F4A01C]" size={20} />
                 </div>
               ) : userSearchQuery.length < 2 ? (
                 <div className="p-6 text-center text-gray-400 dark:text-[#B0B7BE]">
@@ -398,7 +398,7 @@ export default function DashboardMessages({
                     <div
                       key={user.id}
                       onClick={() => startNewChat(user)}
-                      className="p-4 cursor-pointer hover:bg-purple-50 transition-colors flex gap-3"
+                      className="p-4 cursor-pointer hover:bg-[#FFF3D6] transition-colors flex gap-3"
                     >
                       <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden ${user.avatar_url ? 'bg-transparent shadow-sm dark:shadow-[#1D2226]/50' : 'bg-red-500 text-white'
                         }`}>
@@ -436,7 +436,7 @@ export default function DashboardMessages({
             <>
               {loading ? (
                 <div className="flex items-center justify-center p-8">
-                  <Loader2 className="animate-spin text-purple-600" size={20} />
+                  <Loader2 className="animate-spin text-[#F4A01C]" size={20} />
                 </div>
               ) : filteredConversations.length === 0 ? (
                 <div className="p-8 text-center text-gray-400 dark:text-[#B0B7BE]">
@@ -451,7 +451,7 @@ export default function DashboardMessages({
                   </p>
                   <button
                     onClick={() => setShowNewMessage(true)}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white text-xs font-bold rounded-xl hover:bg-purple-700 transition-colors"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-[#F4A01C] text-white text-xs font-bold rounded-xl hover:bg-[#E09410] transition-colors"
                   >
                     <Plus size={14} /> New Message
                   </button>
@@ -462,10 +462,10 @@ export default function DashboardMessages({
                     <div
                       key={conv.id}
                       onClick={() => setSelectedChat(conv)}
-                      className={`p-4 cursor-pointer hover:bg-app dark:bg-[#1D2226] dark:hover:bg-[#1D2226] transition-colors flex gap-3 relative ${selectedChat?.id === conv.id ? 'bg-purple-50/50' : ''}`}
+                      className={`p-4 cursor-pointer hover:bg-app dark:bg-[#1D2226] dark:hover:bg-[#1D2226] transition-colors flex gap-3 relative ${selectedChat?.id === conv.id ? 'bg-[#FFF3D6]/50' : ''}`}
                     >
                       {conv.unread && (
-                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-purple-600 rounded-r" />
+                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#F4A01C] rounded-r" />
                       )}
                       <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden ${conv.otherUser.avatar_url ? 'bg-transparent shadow-sm dark:shadow-[#1D2226]/50' : 'bg-red-500 text-white'
                         }`}>
@@ -511,7 +511,7 @@ export default function DashboardMessages({
                 <ArrowLeft size={20} />
               </button>
 
-              <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-bold text-sm overflow-hidden flex-shrink-0">
+              <div className="w-10 h-10 rounded-full bg-[#FFF3D6] flex items-center justify-center text-[#F4A01C] font-bold text-sm overflow-hidden flex-shrink-0">
                 {selectedChat.otherUser.avatar_url ? (
                   <img
                     src={selectedChat.otherUser.avatar_url}
@@ -544,16 +544,16 @@ export default function DashboardMessages({
           </div>
         ) : (
           <div className={`h-full w-full flex flex-col items-center justify-center text-center p-8 ${fullscreen ? 'bg-[#efeae2] dark:bg-[#1D2226]' : 'bg-surface dark:bg-[#283036] border border-surface dark:border-[#38434F] rounded-3xl shadow-sm dark:shadow-[#1D2226]/50'}`}>
-            <div className="w-20 h-20 bg-purple-50 rounded-full flex items-center justify-center mb-4">
-              <MessageSquare size={40} className="text-purple-600" />
+            <div className="w-20 h-20 bg-[#FFF3D6] rounded-full flex items-center justify-center mb-4">
+              <MessageSquare size={40} className="text-[#F4A01C]" />
             </div>
             <h3 className="text-xl font-bold text-black dark:text-white mb-2">Start a Conversation</h3>
             <p className="text-gray-500 dark:text-[#B0B7BE] max-w-xs mx-auto mb-6">
-              Click the <strong className="text-purple-600">+</strong> button to search for {role === 'senior' ? 'students' : 'seniors'} and start messaging.
+              Click the <strong className="text-[#F4A01C]">+</strong> button to search for {role === 'senior' ? 'students' : 'seniors'} and start messaging.
             </p>
             <button
               onClick={() => setShowNewMessage(true)}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 text-white text-sm font-bold rounded-2xl hover:bg-purple-700 transition-colors shadow-lg shadow-purple-100"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-[#F4A01C] text-white text-sm font-bold rounded-2xl hover:bg-[#E09410] transition-colors shadow-lg shadow-purple-100"
             >
               <Plus size={18} /> New Message
             </button>

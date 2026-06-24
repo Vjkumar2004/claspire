@@ -185,7 +185,7 @@ export default function NotificationBell({ align = 'right', dark = false }: Noti
                   {unreadCount > 0 && (
                     <button
                       onClick={() => markAsRead()}
-                      className="text-[11px] font-bold text-purple-600 hover:text-purple-700 transition-colors flex items-center gap-1"
+                      className="text-[11px] font-bold text-[#F4A01C] hover:text-[#E09410] transition-colors flex items-center gap-1"
                     >
                       <Check size={12} />
                       Mark all read
@@ -229,10 +229,10 @@ export default function NotificationBell({ align = 'right', dark = false }: Noti
                       <div
                         key={notif.id}
                         onClick={() => !notif.is_read && markAsRead(notif.id)}
-                        className={`p-4 hover:bg-app dark:hover:bg-[#1D2226] transition-all cursor-pointer group relative ${!notif.is_read ? 'bg-purple-50/30' : ''}`}
+                        className={`p-4 hover:bg-app dark:hover:bg-[#1D2226] transition-all cursor-pointer group relative ${!notif.is_read ? 'bg-[#FFF3D6]/30' : ''}`}
                       >
                         {!notif.is_read && (
-                          <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-purple-500" />
+                          <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-[#F4A01C]" />
                         )}
                         
                         <div className="flex gap-3">
@@ -254,7 +254,7 @@ export default function NotificationBell({ align = 'right', dark = false }: Noti
                               <Link 
                                 href={notif.link}
                                 onClick={() => setIsOpen(false)}
-                                className="inline-flex items-center gap-1 text-[11px] font-bold text-purple-600 mt-2 hover:underline"
+                                className="inline-flex items-center gap-1 text-[11px] font-bold text-[#F4A01C] mt-2 hover:underline"
                               >
                                 View Details
                                 <ExternalLink size={10} />
@@ -267,7 +267,7 @@ export default function NotificationBell({ align = 'right', dark = false }: Noti
                     {/* Sentinel for infinite scroll */}
                     <div ref={sentinelRef} className="py-4 flex items-center justify-center">
                       {loading && (
-                        <div className="h-5 w-5 border-2 border-purple-400 border-t-transparent rounded-full animate-spin" />
+                        <div className="h-5 w-5 border-2 border-[#F4A01C] border-t-transparent rounded-full animate-spin" />
                       )}
                       {!hasMore && notifications.length >= 50 && (
                         <p className="text-[10px] text-gray-400 dark:text-[#B0B7BE]">All caught up</p>
@@ -313,7 +313,7 @@ export default function NotificationBell({ align = 'right', dark = false }: Noti
                   <Link 
                      href={user?.role === 'senior' ? '/dashboard/senior' : '/dashboard/junior'}
                      onClick={() => setIsOpen(false)}
-                     className="text-[11px] font-bold text-gray-400 dark:text-[#B0B7BE] uppercase tracking-wider hover:text-purple-600 transition-colors no-underline block"
+                     className="text-[11px] font-bold text-gray-400 dark:text-[#B0B7BE] uppercase tracking-wider hover:text-[#F4A01C] transition-colors no-underline block"
                   >
                      View All Activity
                   </Link>

@@ -33,7 +33,7 @@ export default function MyGroupsModal({ isOpen, onClose, currentUser }: MyGroups
             className="relative bg-surface dark:bg-[#283036] rounded-[32px] w-full max-w-4xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
           >
             {/* Header */}
-            <div className="bg-gradient-to-r from-purple-600 to-indigo-600 p-6 text-white">
+            <div className="bg-gradient-to-r from-[#0A2540] to-indigo-600 p-6 text-white">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 bg-surface dark:bg-[#283036]/20 rounded-full flex items-center justify-center">

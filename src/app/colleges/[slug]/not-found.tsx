@@ -5,8 +5,8 @@ export default function CollegeNotFound() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 flex items-center justify-center px-4">
       <div className="max-w-md w-full text-center">
-        <div className="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
-          <GraduationCap className="w-10 h-10 text-purple-600" />
+        <div className="w-20 h-20 bg-[#FFF3D6] rounded-full flex items-center justify-center mx-auto mb-6">
+          <GraduationCap className="w-10 h-10 text-[#F4A01C]" />
         </div>
         
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">College Not Found</h1>
@@ -17,7 +17,7 @@ export default function CollegeNotFound() {
         <div className="space-y-4">
           <Link 
             href="/colleges" 
-            className="inline-flex items-center gap-2 bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors font-medium"
+            className="inline-flex items-center gap-2 bg-[#F4A01C] text-white px-6 py-3 rounded-lg hover:bg-[#E09410] transition-colors font-medium"
           >
             <ArrowLeft className="w-4 h-4" />
             Browse All Colleges
@@ -27,7 +27,7 @@ export default function CollegeNotFound() {
             Or{' '}
             <Link 
               href="/signup" 
-              className="text-purple-600 hover:text-purple-700 font-medium"
+              className="text-[#F4A01C] hover:text-[#E09410] font-medium"
             >
               sign up
             </Link>{' '}

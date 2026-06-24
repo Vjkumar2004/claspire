@@ -39,7 +39,7 @@ function YourProgressCard({ risePoints, rpLevel }: YourProgressCardProps) {
           <Zap className="w-4 h-4 text-amber-500" />
           Your Progress
         </h4>
-        <span className="text-[9px] font-bold text-purple-600 dark:text-[#0A66C2] bg-purple-50 dark:bg-[#0A66C2]/15 px-2 py-0.5 rounded-full">
+        <span className="text-[9px] font-bold text-[#F4A01C] dark:text-[#0A66C2] bg-[#FFF3D6] dark:bg-[#0A66C2]/15 px-2 py-0.5 rounded-full">
           Level {rpLevel}
         </span>
       </div>
@@ -55,7 +55,7 @@ function YourProgressCard({ risePoints, rpLevel }: YourProgressCardProps) {
         {/* Progress Bar */}
         <div className="w-full h-2 bg-slate-100 dark:bg-[#1D2226] rounded-full overflow-hidden">
           <div 
-            className="h-full bg-gradient-to-r from-purple-500 to-purple-600 rounded-full transition-all duration-300"
+            className="h-full bg-gradient-to-r from-[#F4A01C] to-[#E09410] rounded-full transition-all duration-300"
             style={{ width: `${progress}%` }}
           />
         </div>

@@ -52,7 +52,7 @@ export default function Navbar() {
     pathname === '/dashboard/junior/messages' ||
     pathname?.startsWith('/community/c/') && pathname?.includes('/group/')
 
-  const isLandingPage = pathname === '/'
+  const isLandingPage = true
 
   // Sync mobile menu state with body class for BottomNavbar visibility
   useEffect(() => {
@@ -191,15 +191,15 @@ export default function Navbar() {
             <div className="flex items-center gap-2 lg:gap-4">
               <button
                 onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                className="p-2 rounded-full text-gray-600 dark:text-[#B0B7BE] hover:text-black dark:hover:text-white hover:bg-surface-hover dark:hover:bg-[#283036] transition-colors cursor-pointer"
+                className="p-2 rounded-full text-white/70 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
                 title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
               >
                 {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
               </button>
-              <NotificationBell dark />
+              <NotificationBell />
               <Link 
                 href={user?.role === 'senior' ? '/dashboard/senior/messages' : '/dashboard/junior/messages'}
-                className="relative p-2 rounded-full text-gray-600 dark:text-[#B0B7BE] hover:text-black dark:hover:text-white hover:bg-surface-hover dark:hover:bg-[#283036] transition-colors"
+                className="relative p-2 rounded-full text-white/70 hover:text-white hover:bg-white/10 transition-colors"
               >
                 <MessageSquare size={20} />
                 {unreadMessageCount > 0 && (
@@ -211,7 +211,7 @@ export default function Navbar() {
               <div style={{ position: 'relative' }}>
                 <button
                   onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-                  className="flex items-center gap-2 bg-transparent border-[1.5px] border-[#E5E7EB] dark:border-[#38434F] rounded-full p-[6px] pr-3 cursor-pointer transition-colors hover:border-gray-300 dark:hover:border-gray-600"
+                  className="flex items-center gap-2 bg-transparent border-[1.5px] border-white/20 rounded-full p-[6px] pr-3 cursor-pointer transition-colors hover:border-white/40 text-white/70 hover:text-white"
                 >
                   <div style={{
                     width: 28, height: 28,
@@ -243,7 +243,7 @@ export default function Navbar() {
                         .slice(0, 2) || 'U'
                     )}
                   </div>
-                  <span style={{ fontSize: 13, fontWeight: 600 }} className="text-[#0A0A0A] hidden xl:block dark:text-white">
+                  <span style={{ fontSize: 13, fontWeight: 600 }} className="text-white hidden xl:block">
                     {user.full_name?.split(' ')[0]}
                   </span>
                   <svg width="12" height="12" viewBox="0 0 12 12" fill="none"
@@ -251,7 +251,7 @@ export default function Navbar() {
                       transform: profileDropdownOpen ? 'rotate(180deg)' : 'rotate(0)',
                       transition: 'transform 0.2s'
                     }}>
-                    <path d="M2 4l4 4 4-4" stroke="#9CA3AF" strokeWidth="1.5" strokeLinecap="round" />
+                    <path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
                   </svg>
                 </button>
 

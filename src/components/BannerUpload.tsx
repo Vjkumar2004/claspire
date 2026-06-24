@@ -95,7 +95,7 @@ export default function BannerUpload({
         style={{
           background: displayUrl 
             ? `url(${displayUrl}) center/cover no-repeat` 
-            : 'linear-gradient(135deg, #7C3AED 0%, #06B6D4 100%)'
+            : 'linear-gradient(135deg, #F4A01C 0%, #06B6D4 100%)'
         }}
       >
         {/* Loading overlay */}

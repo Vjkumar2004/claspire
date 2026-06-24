@@ -191,7 +191,7 @@ export default function DiscoverTab({ onConnectAction }: DiscoverTabProps) {
             placeholder="Search..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full h-10 lg:h-[52px] pl-9 lg:pl-11 pr-8 lg:pr-20 text-xs lg:text-sm border border-surface dark:border-[#38434F] rounded-xl bg-surface dark:bg-[#283036] text-gray-900 dark:text-white outline-none focus:border-purple-400 focus:ring-[3px] focus:ring-purple-500/15 transition-all duration-200 font-medium placeholder:text-gray-400 dark:text-[#B0B7BE]"
+            className="w-full h-10 lg:h-[52px] pl-9 lg:pl-11 pr-8 lg:pr-20 text-xs lg:text-sm border border-surface dark:border-[#38434F] rounded-xl bg-surface dark:bg-[#283036] text-gray-900 dark:text-white outline-none focus:border-[#F4A01C] focus:ring-[3px] focus:ring-[#F4A01C]/15 transition-all duration-200 font-medium placeholder:text-gray-400 dark:text-[#B0B7BE]"
           />
           <div className="hidden lg:flex absolute right-3.5 top-1/2 -translate-y-1/2 items-center gap-1.5 text-[10px] font-semibold text-gray-400 dark:text-[#B0B7BE] bg-gray-100 dark:bg-[#1D2226]/80 dark:bg-[#1D2226]/80 border border-surface dark:border-[#38434F]/60 dark:border-[#38434F]/60 rounded-lg px-2 py-1 pointer-events-none">
             <span className="text-[9px]">⌘</span>K
@@ -249,7 +249,7 @@ export default function DiscoverTab({ onConnectAction }: DiscoverTabProps) {
               </h3>
               <p className="hidden lg:block text-sm text-gray-500 dark:text-[#B0B7BE] mt-1">Professionals and students relevant to your network</p>
             </div>
-            <button className="hidden lg:flex text-sm font-semibold text-purple-600 hover:text-purple-700 items-center gap-1">
+            <button className="hidden lg:flex text-sm font-semibold text-[#F4A01C] hover:text-[#E09410] items-center gap-1">
               View all <ChevronRight size={14} />
             </button>
           </div>
@@ -284,8 +284,8 @@ export default function DiscoverTab({ onConnectAction }: DiscoverTabProps) {
         </>
       ) : (
         <div className="text-center py-16 network-card">
-          <div className="w-16 h-16 bg-purple-50 dark:bg-purple-900/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <Users size={24} className="text-purple-400 dark:text-purple-300" />
+          <div className="w-16 h-16 bg-[#FFF3D6] dark:bg-purple-900/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <Users size={24} className="text-[#F4A01C] dark:text-purple-300" />
           </div>
           <h3 className="text-base font-bold text-gray-900 dark:text-white mb-2">No people found</h3>
           <p className="text-gray-500 dark:text-[#B0B7BE] text-sm mb-4">Try adjusting your search or filters</p>
@@ -295,7 +295,7 @@ export default function DiscoverTab({ onConnectAction }: DiscoverTabProps) {
                 setSearchQuery('')
                 setRoleFilter('')
               }}
-              className="text-sm font-bold text-purple-600 hover:underline"
+              className="text-sm font-bold text-[#F4A01C] hover:underline"
             >
               Reset filters
             </button>

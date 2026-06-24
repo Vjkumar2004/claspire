@@ -296,7 +296,7 @@ export default function ProfilePage() {
     return (
       <div className="min-h-screen bg-[#F3F4F6] dark:bg-[#1D2226] flex items-center justify-center">
         <div className="relative">
-          <div className="w-12 h-12 border-3 border-[#7C3AED] border-t-transparent rounded-full animate-spin" />
+          <div className="w-12 h-12 border-3 border-[#F4A01C] border-t-transparent rounded-full animate-spin" />
           <div className="absolute inset-0 w-12 h-12 border-3 border-[#A78BFA] border-t-transparent rounded-full animate-spin" style={{ animationDirection: 'reverse', animationDuration: '0.8s', opacity: 0.5 }} />
         </div>
       </div>
@@ -310,12 +310,12 @@ export default function ProfilePage() {
       <aside className="fixed left-0 top-16 bottom-0 w-[260px] bg-surface dark:bg-[#283036] border-r border-surface/80 dark:border-[#38434F]/80 shadow-sm hidden lg:flex flex-col z-50">
         <div className="p-6 border-b border-surface dark:border-[#38434F]">
           <div className="flex items-center gap-3">
-            <div className={`w-10 h-10 rounded-xl ${avatarUrl ? 'bg-transparent' : 'bg-gradient-to-br from-[#7C3AED] to-[#6D28D9]'} flex items-center justify-center text-white font-extrabold text-sm overflow-hidden shadow-md`}>
+            <div className={`w-10 h-10 rounded-xl ${avatarUrl ? 'bg-transparent' : 'bg-gradient-to-br from-[#F4A01C] to-[#E09410]'} flex items-center justify-center text-white font-extrabold text-sm overflow-hidden shadow-md`}>
               {avatarUrl ? <img src={avatarUrl} alt="" className="w-full h-full object-cover" /> : initials}
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-sm font-bold text-[#0F172A] dark:text-white truncate leading-tight">{user.full_name}</p>
-              <p className="text-[10px] font-semibold text-[#7C3AED] uppercase tracking-wider mt-0.5">{isSenior ? 'Senior' : 'Student'}</p>
+              <p className="text-[10px] font-semibold text-[#F4A01C] uppercase tracking-wider mt-0.5">{isSenior ? 'Senior' : 'Student'}</p>
             </div>
           </div>
         </div>
@@ -329,14 +329,14 @@ export default function ProfilePage() {
               onClick={() => scrollToSection(item.id)}
               className={`sidebar-nav-item w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold border-none cursor-pointer ${
                 activeSection === item.id
-                  ? 'active bg-[#F5F3FF] text-[#7C3AED]'
+                  ? 'active bg-[#F5F3FF] text-[#F4A01C]'
                   : 'text-slate-500 dark:text-[#B0B7BE] hover:bg-app dark:hover:bg-[#1D2226] hover:text-slate-700'
               }`}
             >
-              <item.icon size={16} className={activeSection === item.id ? 'text-[#7C3AED]' : 'text-slate-400 dark:text-[#B0B7BE]'} />
+              <item.icon size={16} className={activeSection === item.id ? 'text-[#F4A01C]' : 'text-slate-400 dark:text-[#B0B7BE]'} />
               <span>{item.label}</span>
               {activeSection === item.id && (
-                <span className="ml-auto w-1.5 h-5 rounded-full bg-gradient-to-b from-[#7C3AED] to-[#6D28D9]" />
+                <span className="ml-auto w-1.5 h-5 rounded-full bg-gradient-to-b from-[#F4A01C] to-[#E09410]" />
               )}
             </button>
           ))}
@@ -363,7 +363,7 @@ export default function ProfilePage() {
       {/* ===== MOBILE HEADER ===== */}
       <div className="lg:hidden fixed top-0 left-0 right-0 h-14 bg-surface/95 dark:bg-[#283036]/95 backdrop-blur-lg border-b border-surface dark:border-[#38434F] z-50 px-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className={`w-7 h-7 rounded-lg ${avatarUrl ? '' : 'bg-gradient-to-br from-[#7C3AED] to-[#6D28D9]'} flex items-center justify-center text-white font-bold text-[10px] overflow-hidden shadow-sm`}>
+          <div className={`w-7 h-7 rounded-lg ${avatarUrl ? '' : 'bg-gradient-to-br from-[#F4A01C] to-[#E09410]'} flex items-center justify-center text-white font-bold text-[10px] overflow-hidden shadow-sm`}>
             {avatarUrl ? <img src={avatarUrl} alt="" className="w-full h-full object-cover" /> : initials}
           </div>
           <span className="text-sm font-bold text-[#0F172A] dark:text-white">Edit Profile</span>
@@ -372,7 +372,7 @@ export default function ProfilePage() {
           type="button"
           onClick={handleSave}
           disabled={saving}
-          className="px-4 py-1.5 rounded-lg bg-[#7C3AED] text-white text-xs font-bold disabled:opacity-50 hover:bg-[#6D28D9] transition-colors"
+          className="px-4 py-1.5 rounded-lg bg-[#F4A01C] text-white text-xs font-bold disabled:opacity-50 hover:bg-[#E09410] transition-colors"
         >
           {saving ? 'Saving...' : 'Save'}
         </button>
@@ -489,7 +489,7 @@ export default function ProfilePage() {
               type="button"
               onClick={handleSave}
               disabled={saving}
-              className="inline-flex items-center justify-center gap-2 h-12 rounded-2xl bg-[#7C3AED] text-white text-sm font-bold hover:bg-[#6D28D9] transition-all disabled:opacity-50 shadow-lg shadow-purple-500/20 cursor-pointer"
+              className="inline-flex items-center justify-center gap-2 h-12 rounded-2xl bg-[#F4A01C] text-white text-sm font-bold hover:bg-[#E09410] transition-all disabled:opacity-50 shadow-lg shadow-[#F4A01C]/20 cursor-pointer"
             >
               <Sparkles size={15} />
               {saving ? 'Saving...' : 'Save Changes'}
@@ -628,7 +628,7 @@ export default function ProfilePage() {
               { icon: <Trophy size={14} />, value: user.rise_points || 0, label: 'RP', color: 'from-amber-500 to-orange-600' },
               { icon: <HelpCircle size={14} />, value: user.doubt_count || 0, label: 'Q', color: 'from-blue-500 to-indigo-600' },
               { icon: <Star size={14} />, value: user.answer_count || 0, label: 'A', color: 'from-emerald-500 to-teal-600' },
-              { icon: <Eye size={14} />, value: viewCount, label: 'PV', color: 'from-violet-500 to-purple-600' },
+              { icon: <Eye size={14} />, value: viewCount, label: 'PV', color: 'from-violet-500 to-[#E09410]' },
               { icon: <UserPlus size={14} />, value: 0, label: 'C', color: 'from-pink-500 to-rose-600' },
               { icon: <Target size={14} />, value: user.rp_level ? `Lv.${user.rp_level}` : '--', label: 'LV', color: 'from-cyan-500 to-blue-600' },
             ].map((stat, i) => (
@@ -657,7 +657,7 @@ export default function ProfilePage() {
                 }}
                 className={`flex-shrink-0 px-3.5 py-1.5 rounded-full text-[11px] font-bold whitespace-nowrap border-none cursor-pointer transition-all ${
                   activeSection === item.id
-                    ? 'bg-[#7C3AED] text-white shadow-sm'
+                    ? 'bg-[#F4A01C] text-white shadow-sm'
                     : 'bg-surface dark:bg-[#283036] text-slate-500 dark:text-[#B0B7BE] hover:bg-surface-hover dark:hover:bg-[#1D2226] border border-surface dark:border-[#38434F]'
                 }`}
               >
@@ -674,7 +674,7 @@ export default function ProfilePage() {
               { icon: <Trophy size={15} />, value: user.rise_points || 0, label: 'Rise Points', color: 'from-amber-500 to-orange-600' },
               { icon: <HelpCircle size={15} />, value: user.doubt_count || 0, label: 'Questions', color: 'from-blue-500 to-indigo-600' },
               { icon: <Star size={15} />, value: user.answer_count || 0, label: 'Answers', color: 'from-emerald-500 to-teal-600' },
-              { icon: <Eye size={15} />, value: viewCount, label: 'Profile Views', color: 'from-violet-500 to-purple-600' },
+              { icon: <Eye size={15} />, value: viewCount, label: 'Profile Views', color: 'from-violet-500 to-[#E09410]' },
               { icon: <UserPlus size={15} />, value: 0, label: 'Connections', color: 'from-pink-500 to-rose-600' },
               { icon: <Target size={15} />, value: user.rp_level ? `Lv.${user.rp_level}` : '--', label: 'Level', color: 'from-cyan-500 to-blue-600' },
             ].map((stat, i) => (
@@ -750,10 +750,10 @@ export default function ProfilePage() {
               {/* CARD 1: Community Stats */}
               <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0B0F19] to-[#1A103D] p-6 border border-slate-800/50">
                 <div className="absolute inset-0 hero-dot-pattern opacity-20" />
-                <div className="absolute -top-20 -right-20 w-40 h-40 bg-purple-500/10 rounded-full blur-[60px]" />
+                <div className="absolute -top-20 -right-20 w-40 h-40 bg-[#F4A01C]/10 rounded-full blur-[60px]" />
                 <div className="relative z-10">
                   <div className="flex items-center gap-2 mb-1">
-                    <BarChart3 size={14} className="text-purple-400" />
+                    <BarChart3 size={14} className="text-[#F4A01C]" />
                     <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Community Stats</p>
                   </div>
                   <p className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-purple-200 mb-2">{user.rise_points || 0}</p>
@@ -777,11 +777,11 @@ export default function ProfilePage() {
                   <div className="mt-5 pt-4 border-t border-white/5">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-[10px] font-semibold text-white/40">Level Progress</span>
-                      <span className="text-[10px] font-bold text-purple-400">Lv.{user.rp_level || 1}</span>
+                      <span className="text-[10px] font-bold text-[#F4A01C]">Lv.{user.rp_level || 1}</span>
                     </div>
                     <div className="h-1.5 rounded-full bg-surface/5 overflow-hidden">
                       <div
-                        className="h-full rounded-full bg-gradient-to-r from-purple-500 to-purple-300"
+                        className="h-full rounded-full bg-gradient-to-r from-[#F4A01C] to-purple-300"
                         style={{ width: `${Math.min((user.rise_points || 0) % 100, 100)}%` }}
                       />
                     </div>
@@ -792,10 +792,10 @@ export default function ProfilePage() {
               {/* CARD 2: Claspire ID */}
               <div className="bg-surface dark:bg-[#283036] rounded-3xl border border-surface/80 dark:border-[#38434F]/80 shadow-sm p-6">
                 <div className="flex items-center gap-2 mb-3">
-                  <Share2 size={14} className="text-purple-600" />
+                  <Share2 size={14} className="text-[#F4A01C]" />
                   <h3 className="text-xs font-extrabold text-[#0F172A] dark:text-white m-0">Claspire ID</h3>
                 </div>
-                <p className="text-lg font-black text-purple-600 font-mono tracking-wider m-0">{user.unique_id}</p>
+                <p className="text-lg font-black text-[#F4A01C] font-mono tracking-wider m-0">{user.unique_id}</p>
                 <p className="text-[10px] text-slate-400 dark:text-[#B0B7BE] mt-2 font-medium">
                   Share your public profile link
                 </p>
@@ -806,7 +806,7 @@ export default function ProfilePage() {
                   <button
                     type="button"
                     onClick={copyClaspireId}
-                    className="p-2.5 rounded-xl bg-[#7C3AED] hover:bg-[#6D28D9] text-white transition-colors"
+                    className="p-2.5 rounded-xl bg-[#F4A01C] hover:bg-[#E09410] text-white transition-colors"
                   >
                     {copied ? <Check size={16} /> : <Copy size={16} />}
                   </button>
@@ -822,7 +822,7 @@ export default function ProfilePage() {
                 <div className="grid grid-cols-3 gap-3">
                   {[
                     { emoji: '🏆', label: 'Top Contributor', color: 'from-amber-50 to-amber-100/50 dark:from-amber-900/20 dark:to-amber-800/10', textColor: 'text-amber-700 dark:text-amber-400', earned: user.doubt_count >= 5 },
-                    { emoji: '⭐', label: 'Rise Star', color: 'from-purple-50 to-purple-100/50 dark:from-purple-900/20 dark:to-purple-800/10', textColor: 'text-purple-700 dark:text-purple-400', earned: (user.rise_points || 0) >= 100 },
+                    { emoji: '⭐', label: 'Rise Star', color: 'from-purple-50 to-purple-100/50 dark:from-purple-900/20 dark:to-purple-800/10', textColor: 'text-[#E09410] dark:text-purple-400', earned: (user.rise_points || 0) >= 100 },
                     { emoji: '🎓', label: 'Scholar', color: 'from-blue-50 to-blue-100/50 dark:from-blue-900/20 dark:to-blue-800/10', textColor: 'text-blue-700 dark:text-blue-400', earned: true },
                     { emoji: '🤝', label: 'Connector', color: 'from-emerald-50 to-emerald-100/50 dark:from-emerald-900/20 dark:to-emerald-800/10', textColor: 'text-emerald-700 dark:text-emerald-400', earned: false },
                     { emoji: '💡', label: 'Innovator', color: 'from-cyan-50 to-cyan-100/50 dark:from-cyan-900/20 dark:to-cyan-800/10', textColor: 'text-cyan-700 dark:text-cyan-400', earned: false },
@@ -846,10 +846,10 @@ export default function ProfilePage() {
               <div className="bg-surface dark:bg-[#283036] rounded-3xl border border-surface/80 dark:border-[#38434F]/80 shadow-sm p-6">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
-                    <Target size={14} className="text-purple-600" />
+                    <Target size={14} className="text-[#F4A01C]" />
                     <h3 className="text-xs font-extrabold text-[#0F172A] dark:text-white m-0">Profile Completion</h3>
                   </div>
-                  <span className="text-lg font-extrabold text-[#7C3AED]">{completion}%</span>
+                  <span className="text-lg font-extrabold text-[#F4A01C]">{completion}%</span>
                 </div>
 
                 <div className="flex items-center gap-6">
@@ -869,13 +869,13 @@ export default function ProfilePage() {
                       />
                       <defs>
                         <linearGradient id="completionGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                          <stop offset="0%" stopColor="#7C3AED" />
+                          <stop offset="0%" stopColor="#F4A01C" />
                           <stop offset="100%" stopColor="#A78BFA" />
                         </linearGradient>
                       </defs>
                     </svg>
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-xl font-extrabold text-[#7C3AED]">{completion}%</span>
+                      <span className="text-xl font-extrabold text-[#F4A01C]">{completion}%</span>
                     </div>
                   </div>
 

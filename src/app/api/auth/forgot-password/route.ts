@@ -38,7 +38,7 @@ async function sendOTPviaSMTP(email: string, otp: string, fullName: string): Pro
                     <td align="center" style="padding: 30px 40px; background-color: #ffffff; border-bottom: 1px solid #f3f4f6;">
                       <!-- Styled text for logo to ensure visibility across all email clients -->
                       <div style="font-size: 32px; font-weight: 800; letter-spacing: -1px;">
-                        <span style="color: #7C3AED;">claspire</span>
+                        <span style="color: #F4A01C;">claspire</span>
                       </div>
                     </td>
                   </tr>
@@ -53,9 +53,9 @@ async function sendOTPviaSMTP(email: string, otp: string, fullName: string): Pro
                       </p>
                       
                       <!-- OTP Box -->
-                      <div style="background-color: #f5f3ff; border: 2px dashed #8b5cf6; border-radius: 12px; padding: 24px; text-align: center; margin-bottom: 30px;">
-                        <span style="display: block; color: #6d28d9; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Your Verification Code</span>
-                        <span style="color: #7C3AED; font-size: 42px; font-weight: 800; letter-spacing: 8px; font-family: monospace;">${otp}</span>
+                      <div style="background-color: #f5f3ff; border: 2px dashed #F4A01C; border-radius: 12px; padding: 24px; text-align: center; margin-bottom: 30px;">
+                        <span style="display: block; color: #E09410; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Your Verification Code</span>
+                        <span style="color: #F4A01C; font-size: 42px; font-weight: 800; letter-spacing: 8px; font-family: monospace;">${otp}</span>
                       </div>
                       
                       <p style="color: #6b7280; font-size: 14px; line-height: 20px; margin: 0; text-align: center;">
@@ -108,14 +108,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    if (!turnstileToken) {
-      return NextResponse.json(
-        { error: 'Security check required. Please refresh the page.' },
-        { status: 400 }
-      )
-    }
-
-    const turnstileValid = await verifyTurnstileToken(turnstileToken)
+    const turnstileValid = await verifyTurnstileToken(turnstileToken || '')
     if (!turnstileValid) {
       return NextResponse.json(
         { error: 'Security check failed. Please refresh the page.' },

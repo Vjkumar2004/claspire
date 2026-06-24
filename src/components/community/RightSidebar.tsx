@@ -83,7 +83,7 @@ function RightSidebar({ communities, userCommunity, posts, todayPosts, todayAnsw
         <div className="bg-surface dark:bg-[#283036] rounded-md border border-surface dark:border-[#38434F] overflow-hidden shadow-sm">
           <div className="p-3.5 border-b border-surface dark:border-[#38434F] flex items-center justify-between">
             <h4 className="font-bold text-slate-900 dark:text-white text-xs flex items-center gap-1.5">
-              <TrendingUp className="w-4 h-4 text-purple-600" />
+              <TrendingUp className="w-4 h-4 text-[#F4A01C]" />
               Campus Leaders
             </h4>
           </div>
@@ -95,7 +95,7 @@ function RightSidebar({ communities, userCommunity, posts, todayPosts, todayAnsw
                 onClick={() => router.push(`/community/c/${c.slug}`)}
                 className="flex items-center gap-2.5 p-2 rounded hover:bg-app dark:hover:bg-[#1D2226] cursor-pointer transition-colors"
               >
-                <div className="w-7 h-7 rounded bg-purple-50 border border-surface dark:border-[#38434F] flex items-center justify-center font-bold text-[#7C3AED] overflow-hidden text-[10px] flex-shrink-0">
+                <div className="w-7 h-7 rounded bg-[#FFF3D6] border border-surface dark:border-[#38434F] flex items-center justify-center font-bold text-[#F4A01C] overflow-hidden text-[10px] flex-shrink-0">
                   {c.colleges?.logo_url ? (
                     <img src={c.colleges.logo_url} alt={c.colleges?.short_name || c.slug} className="w-full h-full object-contain" />
                   ) : (
@@ -112,7 +112,7 @@ function RightSidebar({ communities, userCommunity, posts, todayPosts, todayAnsw
 
           <button
             onClick={() => router.push('/colleges')}
-            className="w-full py-2 bg-purple-50 hover:bg-purple-100 text-[#7C3AED] text-[11px] font-bold text-center border-t border-surface dark:border-[#38434F] transition-colors cursor-pointer block"
+            className="w-full py-2 bg-[#FFF3D6] hover:bg-[#FFF3D6] text-[#F4A01C] text-[11px] font-bold text-center border-t border-surface dark:border-[#38434F] transition-colors cursor-pointer block"
           >
             Explore Campuses ↗
           </button>

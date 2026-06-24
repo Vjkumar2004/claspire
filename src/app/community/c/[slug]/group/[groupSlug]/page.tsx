@@ -306,7 +306,7 @@ export default function GroupChatPage() {
 
   const chatContent = loading ? (
     <div className="flex-1 flex items-center justify-center bg-[#efeae2] dark:bg-[#1D2226]">
-      <div className="w-8 h-8 border-4 border-purple-100 border-t-purple-600 rounded-full animate-spin" />
+      <div className="w-8 h-8 border-4 border-[#F4A01C]/20 border-t-purple-600 rounded-full animate-spin" />
     </div>
   ) : !groupData ? null : (
     <>
@@ -319,7 +319,7 @@ export default function GroupChatPage() {
           <button onClick={() => router.push(`/community/c/${slug}`)} className="hidden lg:block p-2 -ml-1 hover:bg-surface-hover dark:bg-[#283036] dark:hover:bg-[#1D2226] rounded-full transition-colors flex-shrink-0">
             <ArrowLeft size={20} className="text-gray-700 dark:text-[#B0B7BE]" />
           </button>
-          <div className="w-10 h-10 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center font-bold text-base overflow-hidden flex-shrink-0">
+          <div className="w-10 h-10 rounded-full bg-[#FFF3D6] text-[#F4A01C] flex items-center justify-center font-bold text-base overflow-hidden flex-shrink-0">
             {groupData.group.name[0]?.toUpperCase()}
           </div>
           <div className="flex-1 min-w-0">
@@ -330,7 +330,7 @@ export default function GroupChatPage() {
         <div className="flex-shrink-0 pl-2">
           <button onClick={() => setShowMembers(!showMembers)} className="p-2 hover:bg-surface-hover dark:bg-[#283036] dark:hover:bg-[#1D2226] rounded-full transition-colors relative">
             <Users size={20} className="text-gray-700 dark:text-[#B0B7BE]" />
-            <span className="absolute top-0 right-0 w-4 h-4 bg-purple-600 text-white text-[10px] rounded-full flex items-center justify-center font-bold shadow-sm border border-white">
+            <span className="absolute top-0 right-0 w-4 h-4 bg-[#F4A01C] text-white text-[10px] rounded-full flex items-center justify-center font-bold shadow-sm border border-white">
               {groupData.group.member_count}
             </span>
           </button>
@@ -357,7 +357,7 @@ export default function GroupChatPage() {
               {groupData.members.map((member) => (
                 <div key={member.id} className="px-4 py-3 hover:bg-surface-hover dark:bg-[#283036] dark:hover:bg-[#1D2226] transition-colors flex items-center gap-3">
                   <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm overflow-hidden flex-shrink-0 ${
-                    member.avatar_url ? 'bg-transparent shadow-sm' : member.role === 'senior' ? 'bg-gradient-to-br from-amber-500 to-orange-600' : 'bg-gradient-to-br from-purple-500 to-purple-700'
+                    member.avatar_url ? 'bg-transparent shadow-sm' : member.role === 'senior' ? 'bg-gradient-to-br from-amber-500 to-orange-600' : 'bg-gradient-to-br from-[#F4A01C] to-purple-700'
                   }`}>
                     {member.avatar_url ? <img src={member.avatar_url} alt={member.full_name} className="w-full h-full object-cover" /> : member.full_name[0]?.toUpperCase()}
                   </div>
@@ -365,7 +365,7 @@ export default function GroupChatPage() {
                     <div className="flex items-center gap-1.5">
                       <span className="font-semibold text-sm text-gray-900 dark:text-white truncate">{member.full_name}</span>
                       {member.membership_role === 'admin' && (
-                        <span className="text-[10px] bg-purple-100 text-purple-600 px-2 py-0.5 rounded-full font-bold flex-shrink-0">Admin</span>
+                        <span className="text-[10px] bg-[#FFF3D6] text-[#F4A01C] px-2 py-0.5 rounded-full font-bold flex-shrink-0">Admin</span>
                       )}
                     </div>
                     <p className="text-xs text-gray-500 dark:text-[#B0B7BE]">Joined {timeAgo(member.joined_at)}</p>
@@ -382,7 +382,7 @@ export default function GroupChatPage() {
         {messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full gap-3 opacity-60">
             <div className="w-12 h-12 bg-surface dark:bg-[#283036] rounded-full flex items-center justify-center shadow-sm">
-              <Sparkles size={24} className="text-purple-600" />
+              <Sparkles size={24} className="text-[#F4A01C]" />
             </div>
             <p className="text-sm text-gray-600 dark:text-[#B0B7BE] font-medium">{groupData.isMember ? 'Be the first to say something! 👋' : 'Join to start chatting'}</p>
           </div>
@@ -400,7 +400,7 @@ export default function GroupChatPage() {
                     <div className="w-8 h-8 flex-shrink-0 mt-auto">
                       {showAvatar ? (
                         <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-xs overflow-hidden shadow-sm ${
-                          message.sender?.avatar_url ? 'bg-transparent' : message.sender?.role === 'senior' ? 'bg-amber-500' : 'bg-purple-600'
+                          message.sender?.avatar_url ? 'bg-transparent' : message.sender?.role === 'senior' ? 'bg-amber-500' : 'bg-[#F4A01C]'
                         }`}>
                           {message.sender?.avatar_url ? <img src={message.sender.avatar_url} className="w-full h-full object-cover" /> : message.sender?.full_name?.[0]?.toUpperCase()}
                         </div>
@@ -410,11 +410,11 @@ export default function GroupChatPage() {
 
                   <div className="flex flex-col gap-0.5 relative">
                     {!isOwn && showAvatar && (
-                      <span className="text-[11px] font-semibold text-purple-600 px-1 ml-1">{message.sender?.full_name}</span>
+                      <span className="text-[11px] font-semibold text-[#F4A01C] px-1 ml-1">{message.sender?.full_name}</span>
                     )}
                     <div className={`px-4 py-2 text-sm leading-relaxed shadow-sm ${
                       isOwn
-                        ? 'bg-purple-600 text-white rounded-2xl rounded-br-none'
+                        ? 'bg-[#F4A01C] text-white rounded-2xl rounded-br-none'
                         : 'bg-surface dark:bg-[#283036] text-gray-800 dark:text-white border border-surface dark:border-[#38434F] rounded-2xl rounded-bl-none'
                     }`}>
                       <p className="whitespace-pre-wrap break-words">{message.content}</p>
@@ -440,12 +440,12 @@ export default function GroupChatPage() {
       onChange={(e) => setNewMessage(e.target.value)}
       placeholder="Type a message..."
       disabled={sending || !groupData.canMessage}
-      className="flex-1 bg-surface dark:bg-[#283036] border border-surface dark:border-[#38434F] text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-[#B0B7BE] rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-colors disabled:opacity-50 shadow-sm"
+      className="flex-1 bg-surface dark:bg-[#283036] border border-surface dark:border-[#38434F] text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-[#B0B7BE] rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-[#F4A01C] focus:ring-1 focus:ring-[#F4A01C] transition-colors disabled:opacity-50 shadow-sm"
     />
     <button
       type="submit"
       disabled={!newMessage.trim() || sending || !groupData.canMessage}
-      className="p-3 flex-shrink-0 bg-purple-600 hover:bg-purple-700 text-white rounded-2xl flex items-center justify-center transition-colors disabled:opacity-50 active:scale-95 shadow-sm"
+      className="p-3 flex-shrink-0 bg-[#F4A01C] hover:bg-[#E09410] text-white rounded-2xl flex items-center justify-center transition-colors disabled:opacity-50 active:scale-95 shadow-sm"
     >
       {sending ? (
         <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
@@ -460,7 +460,7 @@ export default function GroupChatPage() {
       Waiting for admin approval...
     </div>
   ) : (
-    <button onClick={handleJoin} disabled={joining} className="w-full bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-2xl font-bold text-sm transition-all active:scale-[0.98] disabled:opacity-50 shadow-sm shadow-purple-200">
+    <button onClick={handleJoin} disabled={joining} className="w-full bg-[#F4A01C] hover:bg-[#E09410] text-white px-6 py-3 rounded-2xl font-bold text-sm transition-all active:scale-[0.98] disabled:opacity-50 shadow-sm shadow-[#F4A01C]/20">
       {joining ? 'Joining...' : groupData.group?.is_private ? '🔒 Request to Join' : '✦ Join to Participate'}
     </button>
   )}
@@ -477,9 +477,9 @@ export default function GroupChatPage() {
               className="bg-surface dark:bg-[#283036] rounded-3xl w-full max-w-md overflow-hidden shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="bg-purple-50 p-5 border-b border-purple-100">
+              <div className="bg-[#FFF3D6] p-5 border-b border-[#F4A01C]/20">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center text-purple-600">
+                  <div className="w-10 h-10 bg-[#FFF3D6] rounded-full flex items-center justify-center text-[#F4A01C]">
                     <Users size={20} />
                   </div>
                   <div>
@@ -491,7 +491,7 @@ export default function GroupChatPage() {
               <div className="p-5 space-y-3 max-h-[50vh] overflow-y-auto">
                 {['Be respectful and professional', 'Share relevant content only', 'No spam or self-promotion', 'Protect member privacy', 'Report inappropriate content'].map((rule, i) => (
                   <div key={i} className="flex items-center gap-3 text-sm text-gray-600 dark:text-[#B0B7BE]">
-                    <span className="w-5 h-5 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">✓</span>
+                    <span className="w-5 h-5 bg-[#FFF3D6] text-[#F4A01C] rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">✓</span>
                     {rule}
                   </div>
                 ))}
@@ -501,7 +501,7 @@ export default function GroupChatPage() {
                 <label className="flex items-start gap-3 cursor-pointer mt-4">
                   <input 
                     type="checkbox" 
-                    className="mt-0.5 w-4 h-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500" 
+                    className="mt-0.5 w-4 h-4 rounded border-gray-300 text-[#F4A01C] focus:ring-[#F4A01C]" 
                     checked={termsAccepted}
                     onChange={(e) => setTermsAccepted(e.target.checked)}
                   />
@@ -516,7 +516,7 @@ export default function GroupChatPage() {
                   disabled={!termsAccepted} 
                   className={`flex-1 py-2.5 rounded-2xl text-white text-sm font-bold transition-all shadow-sm ${
                     termsAccepted 
-                      ? 'bg-purple-600 hover:bg-purple-700 active:scale-95' 
+                      ? 'bg-[#F4A01C] hover:bg-[#E09410] active:scale-95' 
                       : 'bg-gray-300 cursor-not-allowed'
                   }`}
                 >

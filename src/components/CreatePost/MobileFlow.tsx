@@ -28,9 +28,9 @@ export default function MobileFlow({ data, setData, context, onSubmit, loading }
         <div className="flex flex-col">
           <h2 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">Create Post</h2>
           <div className="flex items-center gap-1 mt-1">
-            <span className="h-1.5 w-6 rounded-full bg-purple-500"></span>
-            <span className={`h-1.5 w-6 rounded-full ${step >= 2 ? 'bg-purple-500' : 'bg-slate-200 dark:bg-white/10'}`}></span>
-            <span className={`h-1.5 w-6 rounded-full ${step >= 3 ? 'bg-purple-500' : 'bg-slate-200 dark:bg-white/10'}`}></span>
+            <span className="h-1.5 w-6 rounded-full bg-[#F4A01C]"></span>
+            <span className={`h-1.5 w-6 rounded-full ${step >= 2 ? 'bg-[#F4A01C]' : 'bg-slate-200 dark:bg-white/10'}`}></span>
+            <span className={`h-1.5 w-6 rounded-full ${step >= 3 ? 'bg-[#F4A01C]' : 'bg-slate-200 dark:bg-white/10'}`}></span>
           </div>
         </div>
         <button onClick={context.onClose} className="p-2 bg-slate-100 dark:bg-white/5 rounded-full text-slate-500 dark:text-white/60 hover:text-slate-900 dark:hover:text-white">
@@ -56,17 +56,17 @@ export default function MobileFlow({ data, setData, context, onSubmit, loading }
                     onClick={() => setData({ ...data, type: t.key as PostType })}
                     className={`w-full flex items-center gap-4 p-4 rounded-2xl border transition-all duration-300 ${
                       isSelected 
-                        ? 'border-purple-500 bg-purple-50 dark:bg-purple-500/10 shadow-[0_0_30px_rgba(139,92,246,0.15)] scale-[1.02]' 
+                        ? 'border-[#F4A01C] bg-[#FFF3D6] dark:bg-purple-500/10 shadow-[0_0_30px_rgba(139,92,246,0.15)] scale-[1.02]' 
                         : 'border-slate-200 bg-slate-50 dark:border-white/5 dark:bg-white/5 hover:border-slate-300 dark:hover:border-white/20'
                     }`}
                   >
                     <div className="text-3xl bg-slate-100 dark:bg-white/5 p-3 rounded-xl">{t.icon}</div>
                     <div className="text-left flex-1">
-                      <div className={`font-bold text-lg ${isSelected ? 'text-purple-700 dark:text-purple-300' : 'text-slate-900 dark:text-white'}`}>{t.label}</div>
+                      <div className={`font-bold text-lg ${isSelected ? 'text-[#E09410] dark:text-purple-300' : 'text-slate-900 dark:text-white'}`}>{t.label}</div>
                       <div className="text-sm text-slate-500 dark:text-white/50">{t.desc}</div>
                     </div>
                     {isSelected && (
-                      <div className="w-6 h-6 rounded-full bg-purple-500 flex items-center justify-center text-white">
+                      <div className="w-6 h-6 rounded-full bg-[#F4A01C] flex items-center justify-center text-white">
                         <Check size={14} />
                       </div>
                     )}
@@ -87,7 +87,7 @@ export default function MobileFlow({ data, setData, context, onSubmit, loading }
                 value={data.title}
                 onChange={e => setData({ ...data, title: e.target.value })}
                 maxLength={120}
-                className="w-full bg-slate-50 border border-slate-200 dark:bg-white/5 dark:border-white/10 rounded-2xl px-4 py-4 text-lg font-bold text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-white/30 outline-none focus:border-purple-500/50 transition-colors"
+                className="w-full bg-slate-50 border border-slate-200 dark:bg-white/5 dark:border-white/10 rounded-2xl px-4 py-4 text-lg font-bold text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-white/30 outline-none focus:border-[#F4A01C]/50 transition-colors"
               />
               <div className="text-right text-xs text-slate-400 dark:text-white/40">{data.title.length} / 120</div>
             </div>
@@ -154,11 +154,11 @@ export default function MobileFlow({ data, setData, context, onSubmit, loading }
                   onClick={() => setData({ ...data, visibility: 'private' })}
                   className={`flex items-start gap-3 p-4 rounded-2xl border text-left transition-all ${
                     data.visibility === 'private'
-                      ? 'border-purple-500/50 bg-purple-50 dark:bg-purple-500/10'
+                      ? 'border-[#F4A01C]/50 bg-[#FFF3D6] dark:bg-purple-500/10'
                       : 'border-slate-200 bg-slate-50 dark:border-white/10 dark:bg-white/5'
                   }`}
                 >
-                  <Lock className={`mt-0.5 ${data.visibility === 'private' ? 'text-purple-500 dark:text-purple-400' : 'text-slate-400 dark:text-white/50'}`} size={20} />
+                  <Lock className={`mt-0.5 ${data.visibility === 'private' ? 'text-[#F4A01C] dark:text-purple-400' : 'text-slate-400 dark:text-white/50'}`} size={20} />
                   <div>
                     <div className="font-bold text-slate-900 dark:text-white">Community Only</div>
                     <div className="text-sm text-slate-500 dark:text-white/50">Visible only to c/{context.communitySlug} members</div>
@@ -172,7 +172,7 @@ export default function MobileFlow({ data, setData, context, onSubmit, loading }
                 <label className="text-sm font-semibold text-slate-700 dark:text-white/80 ml-1">Post As</label>
                 <div className="p-4 rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-purple-500 to-cyan-500 flex items-center justify-center overflow-hidden">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#F4A01C] to-cyan-500 flex items-center justify-center overflow-hidden">
                       {data.isCollegePost && context.collegeLogo ? (
                         <img src={context.collegeLogo} className="w-full h-full object-cover" alt="" />
                       ) : (
@@ -186,7 +186,7 @@ export default function MobileFlow({ data, setData, context, onSubmit, loading }
                   </div>
                   <button
                     onClick={() => setData({ ...data, isCollegePost: !data.isCollegePost })}
-                    className="text-purple-400 text-sm font-bold bg-purple-500/10 px-3 py-1.5 rounded-lg hover:bg-purple-500/20"
+                    className="text-[#F4A01C] text-sm font-bold bg-[#F4A01C]/10 px-3 py-1.5 rounded-lg hover:bg-[#F4A01C]/20"
                   >
                     Switch
                   </button>
@@ -200,7 +200,7 @@ export default function MobileFlow({ data, setData, context, onSubmit, loading }
                 <span className="text-xl">{selectedTypeInfo?.icon}</span>
                 <span className="font-bold text-slate-900 dark:text-white">{data.title || 'Untitled Post'}</span>
               </div>
-              <div className="text-sm text-slate-500 dark:text-white/50 line-clamp-2 [&>blockquote]:border-l-4 [&>blockquote]:border-purple-500 [&>blockquote]:pl-4 [&>blockquote]:text-slate-500 dark:[&>blockquote]:text-white/70 [&>ul]:list-disc [&>ul]:pl-5 [&>ol]:list-decimal [&>ol]:pl-5 [&>a]:text-cyan-500 dark:[&>a]:text-cyan-400 [&>a]:underline">
+              <div className="text-sm text-slate-500 dark:text-white/50 line-clamp-2 [&>blockquote]:border-l-4 [&>blockquote]:border-[#F4A01C] [&>blockquote]:pl-4 [&>blockquote]:text-slate-500 dark:[&>blockquote]:text-white/70 [&>ul]:list-disc [&>ul]:pl-5 [&>ol]:list-decimal [&>ol]:pl-5 [&>a]:text-cyan-500 dark:[&>a]:text-cyan-400 [&>a]:underline">
                 {data.content ? (
                   <div dangerouslySetInnerHTML={{ __html: data.content }} />
                 ) : (
@@ -244,7 +244,7 @@ export default function MobileFlow({ data, setData, context, onSubmit, loading }
           <button 
             onClick={onSubmit}
             disabled={loading || !data.title.trim() || !data.content.trim()}
-            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-cyan-500 text-white rounded-xl font-bold shadow-[0_0_20px_rgba(139,92,246,0.3)] hover:shadow-[0_0_30px_rgba(139,92,246,0.5)] transition-all disabled:opacity-50"
+            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#F4A01C] to-cyan-500 text-white rounded-xl font-bold shadow-[0_0_20px_rgba(139,92,246,0.3)] hover:shadow-[0_0_30px_rgba(139,92,246,0.5)] transition-all disabled:opacity-50"
           >
             {loading ? 'Publishing...' : 'Publish Post 🚀'}
           </button>

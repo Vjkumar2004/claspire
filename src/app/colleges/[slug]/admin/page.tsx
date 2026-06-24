@@ -193,7 +193,7 @@ export default function CollegeAdminDashboard() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#1D2226] flex items-center justify-center">
-        <Loader2 size={32} className="animate-spin text-purple-600" />
+        <Loader2 size={32} className="animate-spin text-[#F4A01C]" />
       </div>
     )
   }
@@ -207,7 +207,7 @@ export default function CollegeAdminDashboard() {
           <p className="text-sm text-gray-500 dark:text-[#B0B7BE] mt-2">You are not authorized to manage this college.</p>
           <Link
             href={`/colleges/${slug}`}
-            className="inline-flex items-center gap-2 mt-4 text-purple-600 hover:text-purple-700 font-bold text-sm"
+            className="inline-flex items-center gap-2 mt-4 text-[#F4A01C] hover:text-[#E09410] font-bold text-sm"
           >
             <ArrowLeft size={16} /> Back to College
           </Link>
@@ -231,12 +231,12 @@ export default function CollegeAdminDashboard() {
               </Link>
               <div>
                 <h1 className="text-xl font-black text-gray-900 dark:text-white tracking-tight flex items-center gap-2">
-                  <Shield size={20} className="text-purple-600" />
+                  <Shield size={20} className="text-[#F4A01C]" />
                   {college.name}
                 </h1>
                 <p className="text-xs text-gray-500 dark:text-[#B0B7BE] font-medium">
                   College Admin Dashboard
-                  <span className="ml-2 text-[10px] uppercase tracking-wider font-bold text-purple-600 bg-purple-50 dark:bg-purple-900/20 px-2 py-0.5 rounded-full">
+                  <span className="ml-2 text-[10px] uppercase tracking-wider font-bold text-[#F4A01C] bg-[#FFF3D6] dark:bg-purple-900/20 px-2 py-0.5 rounded-full">
                     {admin.role}
                   </span>
                 </p>
@@ -245,7 +245,7 @@ export default function CollegeAdminDashboard() {
             <button
               onClick={handleSave}
               disabled={saving}
-              className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-5 py-2.5 rounded-lg font-bold text-sm transition-all disabled:opacity-50 shadow-lg shadow-purple-200/50"
+              className="inline-flex items-center gap-2 bg-[#F4A01C] hover:bg-[#E09410] text-white px-5 py-2.5 rounded-lg font-bold text-sm transition-all disabled:opacity-50 shadow-lg shadow-[#F4A01C]/20/50"
             >
               {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
               {saving ? 'Saving...' : 'Save Changes'}
@@ -273,7 +273,7 @@ export default function CollegeAdminDashboard() {
           {/* Banner */}
           <div className="bg-surface dark:bg-[#283036] rounded-xl border border-surface dark:border-[#38434F] overflow-hidden">
             <div
-              className="h-48 bg-gradient-to-br from-purple-600 to-indigo-700 relative flex items-center justify-center group cursor-pointer"
+              className="h-48 bg-gradient-to-br from-[#0A2540] to-indigo-700 relative flex items-center justify-center group cursor-pointer"
               onClick={() => bannerInputRef.current?.click()}
             >
               {(college.banner_url || bannerPreview) && (
@@ -312,7 +312,7 @@ export default function CollegeAdminDashboard() {
                       className="w-full h-full object-contain p-2"
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-gray-300 group-hover:text-purple-400 transition-colors">
+                    <div className="w-full h-full flex items-center justify-center text-gray-300 group-hover:text-[#F4A01C] transition-colors">
                       <Upload size={24} />
                     </div>
                   )}
@@ -355,7 +355,7 @@ export default function CollegeAdminDashboard() {
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Write a description for your college..."
                   rows={5}
-                  className="w-full bg-app dark:bg-[#1D2226] border border-surface dark:border-[#38434F] rounded-lg px-4 py-3 text-sm font-medium outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 resize-none"
+                  className="w-full bg-app dark:bg-[#1D2226] border border-surface dark:border-[#38434F] rounded-lg px-4 py-3 text-sm font-medium outline-none focus:border-[#F4A01C] focus:ring-1 focus:ring-[#F4A01C] resize-none"
                 />
                 <p className="text-[10px] text-gray-400 mt-1">This description will appear on the college profile page.</p>
               </div>
@@ -372,7 +372,7 @@ export default function CollegeAdminDashboard() {
                     value={websiteUrl}
                     onChange={(e) => setWebsiteUrl(e.target.value)}
                     placeholder="https://www.college.ac.in"
-                    className="w-full pl-10 pr-4 py-2.5 bg-app dark:bg-[#1D2226] border border-surface dark:border-[#38434F] rounded-lg text-sm font-medium outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
+                    className="w-full pl-10 pr-4 py-2.5 bg-app dark:bg-[#1D2226] border border-surface dark:border-[#38434F] rounded-lg text-sm font-medium outline-none focus:border-[#F4A01C] focus:ring-1 focus:ring-[#F4A01C]"
                   />
                 </div>
               </div>
@@ -391,7 +391,7 @@ export default function CollegeAdminDashboard() {
                     value={avgPackage}
                     onChange={(e) => setAvgPackage(e.target.value)}
                     placeholder="12.5"
-                    className="w-full pl-10 pr-4 py-2.5 bg-app dark:bg-[#1D2226] border border-surface dark:border-[#38434F] rounded-lg text-sm font-medium outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
+                    className="w-full pl-10 pr-4 py-2.5 bg-app dark:bg-[#1D2226] border border-surface dark:border-[#38434F] rounded-lg text-sm font-medium outline-none focus:border-[#F4A01C] focus:ring-1 focus:ring-[#F4A01C]"
                   />
                 </div>
                 <p className="text-[10px] text-gray-400 mt-1">The highest or average placement package for this college.</p>
@@ -408,7 +408,7 @@ export default function CollegeAdminDashboard() {
                       <button
                         key={platform}
                         onClick={() => addSocialLink(platform)}
-                        className="text-[10px] font-bold text-purple-600 hover:text-purple-700 bg-purple-50 dark:bg-purple-900/20 px-2 py-1 rounded transition-colors"
+                        className="text-[10px] font-bold text-[#F4A01C] hover:text-[#E09410] bg-[#FFF3D6] dark:bg-purple-900/20 px-2 py-1 rounded transition-colors"
                       >
                         +{platform}
                       </button>
@@ -429,7 +429,7 @@ export default function CollegeAdminDashboard() {
                             value={value}
                             onChange={(e) => updateSocialLink(platform, e.target.value)}
                             placeholder={`https://${platform}.com/...`}
-                            className="w-full pl-10 pr-4 py-2 bg-app dark:bg-[#1D2226] border border-surface dark:border-[#38434F] rounded-lg text-sm font-medium outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
+                            className="w-full pl-10 pr-4 py-2 bg-app dark:bg-[#1D2226] border border-surface dark:border-[#38434F] rounded-lg text-sm font-medium outline-none focus:border-[#F4A01C] focus:ring-1 focus:ring-[#F4A01C]"
                           />
                         </div>
                         <button
@@ -449,7 +449,7 @@ export default function CollegeAdminDashboard() {
           {/* Admin Info */}
           <div className="bg-surface dark:bg-[#283036] rounded-xl border border-surface dark:border-[#38434F] p-6">
             <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-              <Shield size={16} className="text-purple-600" />
+              <Shield size={16} className="text-[#F4A01C]" />
               Admin Details
             </h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
@@ -476,9 +476,9 @@ export default function CollegeAdminDashboard() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               <Link
                 href={`/colleges/${slug}`}
-                className="flex items-center gap-3 p-3 rounded-lg bg-app dark:bg-[#1D2226] border border-surface dark:border-[#38434F] hover:border-purple-300 transition-colors"
+                className="flex items-center gap-3 p-3 rounded-lg bg-app dark:bg-[#1D2226] border border-surface dark:border-[#38434F] hover:border-[#F4A01C]/50 transition-colors"
               >
-                <Building2 size={18} className="text-purple-600" />
+                <Building2 size={18} className="text-[#F4A01C]" />
                 <div>
                   <p className="text-xs font-bold text-gray-900 dark:text-white">View College Page</p>
                   <p className="text-[10px] text-gray-500">See how your college looks</p>
@@ -486,9 +486,9 @@ export default function CollegeAdminDashboard() {
               </Link>
               <Link
                 href={`/community/c/${slug}`}
-                className="flex items-center gap-3 p-3 rounded-lg bg-app dark:bg-[#1D2226] border border-surface dark:border-[#38434F] hover:border-purple-300 transition-colors"
+                className="flex items-center gap-3 p-3 rounded-lg bg-app dark:bg-[#1D2226] border border-surface dark:border-[#38434F] hover:border-[#F4A01C]/50 transition-colors"
               >
-                <ExternalLink size={18} className="text-purple-600" />
+                <ExternalLink size={18} className="text-[#F4A01C]" />
                 <div>
                   <p className="text-xs font-bold text-gray-900 dark:text-white">Community Hub</p>
                   <p className="text-[10px] text-gray-500">View college community</p>

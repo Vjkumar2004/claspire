@@ -32,7 +32,7 @@ function GroupItem({ group, isActive, onClick }: { group: GroupListItem; isActiv
       }`}
     >
       <div className="relative flex-shrink-0">
-        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-purple-700 text-white flex items-center justify-center text-sm font-bold shadow-sm">
+        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#F4A01C] to-purple-700 text-white flex items-center justify-center text-sm font-bold shadow-sm">
           {group.name[0]?.toUpperCase()}
         </div>
         {hasUnread && (
@@ -59,7 +59,7 @@ function GroupItem({ group, isActive, onClick }: { group: GroupListItem; isActiv
               : 'No messages yet'}
           </span>
           {badge && (
-            <span className="flex-shrink-0 min-w-[18px] h-[18px] rounded-full bg-purple-600 text-white text-[10px] font-bold flex items-center justify-center px-1">
+            <span className="flex-shrink-0 min-w-[18px] h-[18px] rounded-full bg-[#F4A01C] text-white text-[10px] font-bold flex items-center justify-center px-1">
               {badge}
             </span>
           )}
@@ -117,7 +117,7 @@ export default function GroupsSidebar({ currentGroupSlug, onClose }: GroupsSideb
       <div className="flex-1 overflow-y-auto custom-scrollbar">
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <Loader2 size={20} className="animate-spin text-purple-600" />
+            <Loader2 size={20} className="animate-spin text-[#F4A01C]" />
           </div>
         ) : filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 px-6 text-center">

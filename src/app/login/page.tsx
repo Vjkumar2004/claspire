@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { Eye, EyeOff } from 'lucide-react'
 import GoogleSignInButton from '@/components/auth/GoogleSignInButton'
 import AuthLayout from '@/components/auth/AuthLayout'
+import { Turnstile } from '@marsidev/react-turnstile'
 
 function LoginPageContent() {
   const router = useRouter()
@@ -18,6 +19,7 @@ function LoginPageContent() {
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [turnstileToken, setTurnstileToken] = useState('')
 
   const handleGoogleSuccess = async (credential: string) => {
     setLoading(true)
@@ -78,7 +80,7 @@ function LoginPageContent() {
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#FAFAFA] dark:bg-[#1D2226]">
-        <div className="w-10 h-10 border-3 border-surface dark:border-[#38434F] border-t-purple-600 rounded-full animate-spin" />
+        <div className="w-10 h-10 border-3 border-surface dark:border-[#38434F] border-t-[#F4A01C] rounded-full animate-spin" />
       </div>
     )
   }
@@ -96,7 +98,7 @@ function LoginPageContent() {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ email, password, turnstileToken })
       })
 
       const data = await res.json()
@@ -166,7 +168,7 @@ function LoginPageContent() {
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handleLogin()}
-                className="w-full h-11 px-3.5 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:text-[#B0B7BE] border border-surface dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 bg-surface dark:bg-[#283036]"
+                className="w-full h-11 px-3.5 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:text-[#B0B7BE] border border-surface dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-[#F4A01C] focus:ring-2 focus:ring-[#F4A01C]/10 bg-surface dark:bg-[#283036]"
               />
             </div>
 
@@ -177,7 +179,7 @@ function LoginPageContent() {
                 </label>
                 <Link
                   href="/forgot-password"
-                  className="text-xs font-semibold text-purple-600 hover:text-purple-700 no-underline"
+                  className="text-xs font-semibold text-[#F4A01C] hover:text-[#E09410] no-underline"
                 >
                   Forgot password?
                 </Link>
@@ -189,7 +191,7 @@ function LoginPageContent() {
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && handleLogin()}
-                  className="w-full h-11 px-3.5 pr-11 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:text-[#B0B7BE] border border-surface dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 bg-surface dark:bg-[#283036]"
+                  className="w-full h-11 px-3.5 pr-11 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:text-[#B0B7BE] border border-surface dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-[#F4A01C] focus:ring-2 focus:ring-[#F4A01C]/10 bg-surface dark:bg-[#283036]"
                 />
                 <button
                   type="button"
@@ -208,10 +210,18 @@ function LoginPageContent() {
             </div>
           )}
 
+          <div className="flex justify-center mb-4">
+            <Turnstile
+              siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+              onSuccess={(token) => setTurnstileToken(token)}
+              onError={() => setError('Security check failed. Please refresh.')}
+            />
+          </div>
+
           <button
             onClick={handleLogin}
-            disabled={loading}
-            className="w-full h-11 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-400 text-white text-sm font-semibold rounded-xl transition-all duration-150 flex items-center justify-center gap-2 border-none cursor-pointer disabled:cursor-not-allowed shadow-sm"
+            disabled={loading || !turnstileToken}
+            className="w-full h-11 bg-[#F4A01C] hover:bg-[#E09410] disabled:bg-[#F4A01C]/50 text-[#0A2540] text-sm font-semibold rounded-xl transition-all duration-150 flex items-center justify-center gap-2 border-none cursor-pointer disabled:cursor-not-allowed shadow-sm"
           >
             {loading ? (
               <>
@@ -225,7 +235,7 @@ function LoginPageContent() {
 
           <p className="text-center text-sm text-gray-400 dark:text-[#B0B7BE]">
             Don't have an account?{' '}
-            <Link href="/signup" className="font-semibold text-purple-600 hover:text-purple-700 no-underline">
+            <Link href="/signup" className="font-semibold text-[#F4A01C] hover:text-[#E09410] no-underline">
               Sign up free
             </Link>
           </p>
@@ -243,7 +253,7 @@ export default function LoginPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen flex items-center justify-center bg-[#FAFAFA] dark:bg-[#1D2226]">
-        <div className="w-10 h-10 border-3 border-surface dark:border-[#38434F] border-t-purple-600 rounded-full animate-spin" />
+        <div className="w-10 h-10 border-3 border-surface dark:border-[#38434F] border-t-[#F4A01C] rounded-full animate-spin" />
       </div>
     }>
       <LoginPageContent />

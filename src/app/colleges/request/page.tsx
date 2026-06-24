@@ -160,7 +160,7 @@ export default function CollegeRequestPage() {
 
       {/* ── Hero ── */}
       <div className="relative pt-24 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden bg-gradient-to-br from-[#0F172A] to-[#1E293B]">
-         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-[100px] -mr-64 -mt-64" />
+         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#F4A01C]/10 rounded-full blur-[100px] -mr-64 -mt-64" />
          <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-cyan-500/10 rounded-full blur-[80px] -ml-48 -mb-48" />
 
          <div className="max-w-4xl mx-auto text-center relative z-10">
@@ -168,7 +168,7 @@ export default function CollegeRequestPage() {
                initial={{ opacity: 0, y: 20 }}
                animate={{ opacity: 1, y: 0 }}
             >
-               <div className="inline-flex items-center gap-2 bg-surface/5 border border-white/10 rounded-full px-4 py-2 text-[10px] font-black text-purple-400 tracking-[0.2em] uppercase mb-6">
+               <div className="inline-flex items-center gap-2 bg-surface/5 border border-white/10 rounded-full px-4 py-2 text-[10px] font-black text-[#F4A01C] tracking-[0.2em] uppercase mb-6">
                   <Sparkles size={14} /> Can&apos;t find your college?
                </div>
                <h1 className="text-4xl md:text-6xl font-black text-white mb-6 font-instrument-serif leading-tight">Request Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-300">College Hub</span></h1>
@@ -200,7 +200,7 @@ export default function CollegeRequestPage() {
                             value={formData.college_name}
                             onChange={(e) => setFormData({...formData, college_name: e.target.value})}
                             placeholder="e.g. SRM Institute of Science and Technology"
-                            className="w-full bg-app dark:bg-[#222B31] border border-surface dark:border-[#38434F] rounded-2xl px-5 py-4 text-sm text-[#0F172A] dark:text-white outline-none focus:bg-surface dark:focus:bg-[#283036] focus:border-purple-600 focus:shadow-[0_0_0_4px_rgba(124,58,237,0.05)] transition-all font-bold dark:placeholder:text-[#8B949E]"
+                            className="w-full bg-app dark:bg-[#222B31] border border-surface dark:border-[#38434F] rounded-2xl px-5 py-4 text-sm text-[#0F172A] dark:text-white outline-none focus:bg-surface dark:focus:bg-[#283036] focus:border-[#F4A01C] focus:shadow-[0_0_0_4px_rgba(124,58,237,0.05)] transition-all font-bold dark:placeholder:text-[#8B949E]"
                         />
                         </div>
                         <div>
@@ -210,7 +210,7 @@ export default function CollegeRequestPage() {
                             value={formData.short_name}
                             onChange={(e) => setFormData({...formData, short_name: e.target.value})}
                             placeholder="e.g. SRM"
-                            className="w-full bg-app dark:bg-[#222B31] border border-surface dark:border-[#38434F] rounded-2xl px-5 py-4 text-sm text-[#0F172A] dark:text-white outline-none focus:bg-surface dark:focus:bg-[#283036] focus:border-purple-600 focus:shadow-[0_0_0_4px_rgba(124,58,237,0.05)] transition-all font-bold dark:placeholder:text-[#8B949E]"
+                            className="w-full bg-app dark:bg-[#222B31] border border-surface dark:border-[#38434F] rounded-2xl px-5 py-4 text-sm text-[#0F172A] dark:text-white outline-none focus:bg-surface dark:focus:bg-[#283036] focus:border-[#F4A01C] focus:shadow-[0_0_0_4px_rgba(124,58,237,0.05)] transition-all font-bold dark:placeholder:text-[#8B949E]"
                         />
                         </div>
                         <div>
@@ -218,7 +218,7 @@ export default function CollegeRequestPage() {
                         <select 
                             value={formData.college_type}
                             onChange={(e) => setFormData({...formData, college_type: e.target.value})}
-                            className="w-full bg-app dark:bg-[#222B31] border border-surface dark:border-[#38434F] rounded-2xl px-5 py-4 text-sm text-[#0F172A] dark:text-white outline-none focus:bg-surface dark:focus:bg-[#283036] focus:border-purple-600 focus:shadow-[0_0_0_4px_rgba(124,58,237,0.05)] transition-all appearance-none cursor-pointer font-bold dark:placeholder:text-[#8B949E]"
+                            className="w-full bg-app dark:bg-[#222B31] border border-surface dark:border-[#38434F] rounded-2xl px-5 py-4 text-sm text-[#0F172A] dark:text-white outline-none focus:bg-surface dark:focus:bg-[#283036] focus:border-[#F4A01C] focus:shadow-[0_0_0_4px_rgba(124,58,237,0.05)] transition-all appearance-none cursor-pointer font-bold dark:placeholder:text-[#8B949E]"
                         >
                             {collegeTypes.map(t => <option key={t} value={t}>{t}</option>)}
                         </select>
@@ -230,7 +230,7 @@ export default function CollegeRequestPage() {
                             value={formData.location}
                             onChange={(e) => setFormData({...formData, location: e.target.value})}
                             placeholder="e.g. Chennai"
-                            className="w-full bg-app dark:bg-[#222B31] border border-surface dark:border-[#38434F] rounded-2xl px-5 py-4 text-sm text-[#0F172A] dark:text-white outline-none focus:bg-surface dark:focus:bg-[#283036] focus:border-purple-600 focus:shadow-[0_0_0_4px_rgba(124,58,237,0.05)] transition-all font-bold dark:placeholder:text-[#8B949E]"
+                            className="w-full bg-app dark:bg-[#222B31] border border-surface dark:border-[#38434F] rounded-2xl px-5 py-4 text-sm text-[#0F172A] dark:text-white outline-none focus:bg-surface dark:focus:bg-[#283036] focus:border-[#F4A01C] focus:shadow-[0_0_0_4px_rgba(124,58,237,0.05)] transition-all font-bold dark:placeholder:text-[#8B949E]"
                         />
                         </div>
                         <div>
@@ -238,7 +238,7 @@ export default function CollegeRequestPage() {
                         <select 
                             required value={formData.state}
                             onChange={(e) => setFormData({...formData, state: e.target.value})}
-                            className="w-full bg-app dark:bg-[#222B31] border border-surface dark:border-[#38434F] rounded-2xl px-5 py-4 text-sm text-[#0F172A] dark:text-white outline-none focus:bg-surface dark:focus:bg-[#283036] focus:border-purple-600 focus:shadow-[0_0_0_4px_rgba(124,58,237,0.05)] transition-all appearance-none cursor-pointer font-bold dark:placeholder:text-[#8B949E]"
+                            className="w-full bg-app dark:bg-[#222B31] border border-surface dark:border-[#38434F] rounded-2xl px-5 py-4 text-sm text-[#0F172A] dark:text-white outline-none focus:bg-surface dark:focus:bg-[#283036] focus:border-[#F4A01C] focus:shadow-[0_0_0_4px_rgba(124,58,237,0.05)] transition-all appearance-none cursor-pointer font-bold dark:placeholder:text-[#8B949E]"
                         >
                             <option value="">Select State</option>
                             {states.map(s => <option key={s} value={s}>{s}</option>)}
@@ -251,7 +251,7 @@ export default function CollegeRequestPage() {
                             value={formData.email_domain}
                             onChange={(e) => setFormData({...formData, email_domain: e.target.value})}
                             placeholder="e.g. srmist.edu.in"
-                            className="w-full bg-app dark:bg-[#222B31] border border-surface dark:border-[#38434F] rounded-2xl px-5 py-4 text-sm text-[#0F172A] dark:text-white outline-none focus:bg-surface dark:focus:bg-[#283036] focus:border-purple-600 focus:shadow-[0_0_0_4px_rgba(124,58,237,0.05)] transition-all font-bold dark:placeholder:text-[#8B949E]"
+                            className="w-full bg-app dark:bg-[#222B31] border border-surface dark:border-[#38434F] rounded-2xl px-5 py-4 text-sm text-[#0F172A] dark:text-white outline-none focus:bg-surface dark:focus:bg-[#283036] focus:border-[#F4A01C] focus:shadow-[0_0_0_4px_rgba(124,58,237,0.05)] transition-all font-bold dark:placeholder:text-[#8B949E]"
                         />
                         </div>
                         <div>
@@ -261,7 +261,7 @@ export default function CollegeRequestPage() {
                             value={formData.website_url}
                             onChange={(e) => setFormData({...formData, website_url: e.target.value})}
                             placeholder="https://www.college.ac.in"
-                            className="w-full bg-app dark:bg-[#222B31] border border-surface dark:border-[#38434F] rounded-2xl px-5 py-4 text-sm text-[#0F172A] dark:text-white outline-none focus:bg-surface dark:focus:bg-[#283036] focus:border-purple-600 focus:shadow-[0_0_0_4px_rgba(124,58,237,0.05)] transition-all font-bold dark:placeholder:text-[#8B949E]"
+                            className="w-full bg-app dark:bg-[#222B31] border border-surface dark:border-[#38434F] rounded-2xl px-5 py-4 text-sm text-[#0F172A] dark:text-white outline-none focus:bg-surface dark:focus:bg-[#283036] focus:border-[#F4A01C] focus:shadow-[0_0_0_4px_rgba(124,58,237,0.05)] transition-all font-bold dark:placeholder:text-[#8B949E]"
                         />
                         </div>
                         <div className="md:col-span-2">
@@ -270,7 +270,7 @@ export default function CollegeRequestPage() {
                             value={formData.additional_info}
                             onChange={(e) => setFormData({...formData, additional_info: e.target.value})}
                             placeholder="Anything else we should know?"
-                            className="w-full bg-app dark:bg-[#222B31] border border-surface dark:border-[#38434F] rounded-2xl px-5 py-4 text-sm text-[#0F172A] dark:text-white outline-none focus:bg-surface dark:focus:bg-[#283036] focus:border-purple-600 transition-all h-24 resize-none font-medium dark:placeholder:text-[#8B949E]"
+                            className="w-full bg-app dark:bg-[#222B31] border border-surface dark:border-[#38434F] rounded-2xl px-5 py-4 text-sm text-[#0F172A] dark:text-white outline-none focus:bg-surface dark:focus:bg-[#283036] focus:border-[#F4A01C] transition-all h-24 resize-none font-medium dark:placeholder:text-[#8B949E]"
                         />
                         </div>
                     </div>
@@ -290,7 +290,7 @@ export default function CollegeRequestPage() {
 
                     <button 
                         type="submit" disabled={loading}
-                        className="w-full bg-gradient-to-r from-purple-600 to-cyan-500 text-white font-black py-5 rounded-3xl shadow-xl shadow-purple-200/50 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                        className="w-full bg-gradient-to-r from-[#0A2540] to-[#1B4F72] text-white font-black py-5 rounded-3xl shadow-xl shadow-[#F4A01C]/20/50 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                     >
                         {loading ? 'Submitting Request...' : <><Send size={18} /> Send Request for Approval</>}
                     </button>
@@ -307,11 +307,11 @@ export default function CollegeRequestPage() {
                         <p className="text-xs text-gray-500 dark:text-[#B0B7BE] mb-8 font-medium">Upload a clear logo for your college community.</p>
                         
                         <div className="relative group mx-auto mb-8">
-                            <div className="w-32 h-32 md:w-36 md:h-36 bg-surface dark:bg-[#283036] rounded-[32px] border-2 border-dashed border-surface dark:border-[#38434F] flex items-center justify-center overflow-hidden transition-all group-hover:border-purple-400">
+                            <div className="w-32 h-32 md:w-36 md:h-36 bg-surface dark:bg-[#283036] rounded-[32px] border-2 border-dashed border-surface dark:border-[#38434F] flex items-center justify-center overflow-hidden transition-all group-hover:border-[#F4A01C]">
                                 {logoPreview ? (
                                     <img src={logoPreview} alt="Logo Preview" className="w-full h-full object-contain p-4" />
                                 ) : (
-                                    <div className="flex flex-col items-center gap-2 text-gray-300 dark:text-[#B0B7BE] group-hover:text-purple-400">
+                                    <div className="flex flex-col items-center gap-2 text-gray-300 dark:text-[#B0B7BE] group-hover:text-[#F4A01C]">
                                         <Upload size={32} />
                                         <span className="text-[10px] font-black uppercase tracking-widest">PNG / JPG</span>
                                     </div>
@@ -324,7 +324,7 @@ export default function CollegeRequestPage() {
                                     className="absolute inset-0 opacity-0 cursor-pointer"
                                 />
                             </div>
-                            <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-purple-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-purple-200 pointer-events-none group-hover:scale-110 transition-transform">
+                            <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-[#F4A01C] rounded-2xl flex items-center justify-center text-white shadow-lg shadow-[#F4A01C]/20 pointer-events-none group-hover:scale-110 transition-transform">
                                 <Plus size={20} />
                             </div>
                         </div>
@@ -364,7 +364,7 @@ export default function CollegeRequestPage() {
 
                     {/* Active Colleges */}
                     <div className="bg-[#0F172A] rounded-3xl p-6 text-white relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-24 h-24 bg-purple-600/20 rounded-full blur-2xl -mr-12 -mt-12" />
+                        <div className="absolute top-0 right-0 w-24 h-24 bg-[#F4A01C]/20 rounded-full blur-2xl -mr-12 -mt-12" />
                         <h4 className="text-[10px] font-black uppercase tracking-widest mb-4 flex items-center gap-2 opacity-60">
                            <Info size={14} /> Active Hubs
                         </h4>

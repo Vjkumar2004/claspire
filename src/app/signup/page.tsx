@@ -9,6 +9,7 @@ import { supabase } from '@/lib/supabase'
 import { Eye, EyeOff } from 'lucide-react'
 import GoogleSignInButton from '@/components/auth/GoogleSignInButton'
 import AuthLayout from '@/components/auth/AuthLayout'
+import { Turnstile } from '@marsidev/react-turnstile'
 
 export default function SignupPage() {
   const router = useRouter()
@@ -19,6 +20,7 @@ export default function SignupPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [googleId, setGoogleId] = useState<string | null>(null)
+  const [turnstileToken, setTurnstileToken] = useState('')
 
   useEffect(() => {
     const storedEmail = sessionStorage.getItem('google_signup_email')
@@ -125,7 +127,8 @@ export default function SignupPage() {
           role: activeRole, 
           profileData, 
           password, 
-          google_id: googleId 
+          google_id: googleId,
+          turnstileToken
         })
       })
 
@@ -452,7 +455,8 @@ export default function SignupPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           email: emailToUse,
-          name: activeRole === 'senior' ? seniorData.full_name : studentData.full_name
+          name: activeRole === 'senior' ? seniorData.full_name : studentData.full_name,
+          turnstileToken
         })
       })
 
@@ -463,6 +467,7 @@ export default function SignupPage() {
       }
 
       setOtpSent(true)
+      setTurnstileToken('') // Reset token for OTP step
       setResendTimer(30)
       const interval = setInterval(() => {
         setResendTimer(prev => {
@@ -543,7 +548,7 @@ export default function SignupPage() {
       const createRes = await fetch('/api/auth/create-user', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, role: activeRole, profileData, password })
+        body: JSON.stringify({ email, role: activeRole, profileData, password, turnstileToken })
       })
 
       const createData = await createRes.json()
@@ -592,7 +597,7 @@ export default function SignupPage() {
           </p>
           <p className="text-sm text-gray-400 dark:text-[#B0B7BE] font-plus-jakarta-sans pt-1">
             Already have an account?{' '}
-            <Link href="/login" className="font-semibold text-purple-600 hover:text-purple-700 no-underline">
+            <Link href="/login" className="font-semibold text-[#F4A01C] hover:text-[#E09410] no-underline">
               Sign in
             </Link>
           </p>
@@ -678,7 +683,7 @@ export default function SignupPage() {
                       placeholder="Arun Kumar"
                       value={studentData.full_name}
                       onChange={(e) => setStudentData({...studentData, full_name: e.target.value})}
-                      className="w-full h-11 px-3.5 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:text-[#B0B7BE] border border-surface dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 bg-surface dark:bg-[#283036]"
+                      className="w-full h-11 px-3.5 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:text-[#B0B7BE] border border-surface dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-[#F4A01C] focus:ring-2 focus:ring-[#F4A01C]/10 bg-surface dark:bg-[#283036]"
                       required
                     />
                   </div>
@@ -695,7 +700,7 @@ export default function SignupPage() {
                           setShowStudentCollegeDropdown(true);
                         }}
                         onFocus={() => setShowStudentCollegeDropdown(true)}
-                        className="w-full h-11 px-3.5 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:text-[#B0B7BE] border border-surface dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 bg-surface dark:bg-[#283036]"
+                        className="w-full h-11 px-3.5 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:text-[#B0B7BE] border border-surface dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-[#F4A01C] focus:ring-2 focus:ring-[#F4A01C]/10 bg-surface dark:bg-[#283036]"
                       />
                       {showStudentCollegeDropdown && studentData.college_name && (
                         <div className="absolute top-full left-0 right-0 bg-surface dark:bg-[#283036] border border-surface dark:border-[#38434F] rounded-xl mt-1.5 max-h-48 overflow-y-auto z-10 shadow-sm">
@@ -725,7 +730,7 @@ export default function SignupPage() {
                                       className="w-full h-full object-contain"
                                     />
                                   ) : (
-                                    <div className="text-[10px] font-black text-purple-600">
+                                    <div className="text-[10px] font-black text-[#F4A01C]">
                                       {college.short_name.toUpperCase()}
                                     </div>
                                   )}
@@ -749,7 +754,7 @@ export default function SignupPage() {
                     <select
                       value={studentData.branch}
                       onChange={(e) => setStudentData({...studentData, branch: e.target.value})}
-                      className="w-full h-11 px-3.5 text-sm text-gray-900 dark:text-white border border-surface dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 bg-surface dark:bg-[#283036]"
+                      className="w-full h-11 px-3.5 text-sm text-gray-900 dark:text-white border border-surface dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-[#F4A01C] focus:ring-2 focus:ring-[#F4A01C]/10 bg-surface dark:bg-[#283036]"
                     >
                       <option value="">Select Branch</option>
                       <optgroup label="Engineering & Technology">
@@ -933,7 +938,7 @@ export default function SignupPage() {
                       <select
                         value={studentData.year}
                         onChange={(e) => setStudentData({...studentData, year: e.target.value})}
-                        className="w-full h-11 px-3.5 text-sm text-gray-900 dark:text-white border border-surface dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-purple-500 bg-surface dark:bg-[#283036]"
+                        className="w-full h-11 px-3.5 text-sm text-gray-900 dark:text-white border border-surface dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-[#F4A01C] bg-surface dark:bg-[#283036]"
                       >
                         <option value="">Select Year</option>
                         <optgroup label="Bachelor's">
@@ -963,7 +968,7 @@ export default function SignupPage() {
                       <select
                         value={studentData.passout_year}
                         onChange={(e) => setStudentData({...studentData, passout_year: e.target.value})}
-                        className="w-full h-11 px-3.5 text-sm text-gray-900 dark:text-white border border-surface dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-purple-500 bg-surface dark:bg-[#283036]"
+                        className="w-full h-11 px-3.5 text-sm text-gray-900 dark:text-white border border-surface dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-[#F4A01C] bg-surface dark:bg-[#283036]"
                       >
                         <option value="">Year</option>
                         {[2025, 2026, 2027, 2028, 2029, 2030, 2031, 2032, 2033, 2034, 2035].map(y => <option key={y} value={y}>{y}</option>)}
@@ -978,7 +983,7 @@ export default function SignupPage() {
                       placeholder="yourname@gmail.com"
                       value={studentData.email}
                       onChange={(e) => setStudentData({...studentData, email: e.target.value})}
-                      className={`w-full h-11 px-3.5 text-sm border border-surface dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 bg-surface dark:bg-[#283036] placeholder:text-gray-400 dark:text-[#B0B7BE] ${googleId ? 'bg-gray-100 text-gray-400 dark:text-[#B0B7BE] cursor-not-allowed' : 'text-gray-900 dark:text-white'}`}
+                      className={`w-full h-11 px-3.5 text-sm border border-surface dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-[#F4A01C] focus:ring-2 focus:ring-[#F4A01C]/10 bg-surface dark:bg-[#283036] placeholder:text-gray-400 dark:text-[#B0B7BE] ${googleId ? 'bg-gray-100 text-gray-400 dark:text-[#B0B7BE] cursor-not-allowed' : 'text-gray-900 dark:text-white'}`}
                       readOnly={!!googleId}
                     />
                   </div>
@@ -991,7 +996,7 @@ export default function SignupPage() {
                         placeholder="Minimum 6 characters"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="w-full h-11 px-3.5 pr-11 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:text-[#B0B7BE] border border-surface dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 bg-surface dark:bg-[#283036]"
+                        className="w-full h-11 px-3.5 pr-11 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:text-[#B0B7BE] border border-surface dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-[#F4A01C] focus:ring-2 focus:ring-[#F4A01C]/10 bg-surface dark:bg-[#283036]"
                       />
                       <button
                         type="button"
@@ -1011,7 +1016,7 @@ export default function SignupPage() {
                         placeholder="Confirm password"
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
-                        className="w-full h-11 px-3.5 pr-11 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:text-[#B0B7BE] border border-surface dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 bg-surface dark:bg-[#283036]"
+                        className="w-full h-11 px-3.5 pr-11 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:text-[#B0B7BE] border border-surface dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-[#F4A01C] focus:ring-2 focus:ring-[#F4A01C]/10 bg-surface dark:bg-[#283036]"
                       />
                       <button
                         type="button"
@@ -1035,7 +1040,7 @@ export default function SignupPage() {
                       id="terms-student"
                       checked={agreedToTerms}
                       onChange={(e) => setAgreedToTerms(e.target.checked)}
-                      className="w-4 h-4 mt-0.5 rounded border-gray-300 text-purple-600 focus:ring-purple-500 accent-purple-600 flex-shrink-0 cursor-pointer"
+                      className="w-4 h-4 mt-0.5 rounded border-gray-300 text-[#F4A01C] focus:ring-[#F4A01C] accent-purple-600 flex-shrink-0 cursor-pointer"
                     />
                     <label 
                       htmlFor="terms-student" 
@@ -1044,7 +1049,7 @@ export default function SignupPage() {
                       I agree to Claspire's{' '}
                       <Link 
                         href="/terms" 
-                        className="text-purple-600 font-semibold hover:underline"
+                        className="text-[#F4A01C] font-semibold hover:underline"
                         target="_blank"
                       >
                         Terms of Service
@@ -1052,7 +1057,7 @@ export default function SignupPage() {
                       {' '}and{' '}
                       <Link 
                         href="/privacy-policy" 
-                        className="text-purple-600 font-semibold hover:underline"
+                        className="text-[#F4A01C] font-semibold hover:underline"
                         target="_blank"
                       >
                         Privacy Policy
@@ -1061,11 +1066,19 @@ export default function SignupPage() {
                     </label>
                   </div>
 
+                  <div className="flex justify-center my-4">
+                    <Turnstile
+                      siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+                      onSuccess={(token) => setTurnstileToken(token)}
+                      onError={() => setError('Security check failed. Please refresh.')}
+                    />
+                  </div>
+
                   <button
                     type="button"
                     onClick={handleSubmit}
-                    disabled={loading || !agreedToTerms}
-                    className="w-full h-11 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-400 text-white text-sm font-semibold rounded-xl transition-all duration-150 flex items-center justify-center gap-2 border-none cursor-pointer disabled:cursor-not-allowed shadow-sm"
+                    disabled={loading || !agreedToTerms || !turnstileToken}
+                    className="w-full h-11 bg-[#F4A01C] hover:bg-[#E09410] disabled:bg-purple-400 text-white text-sm font-semibold rounded-xl transition-all duration-150 flex items-center justify-center gap-2 border-none cursor-pointer disabled:cursor-not-allowed shadow-sm"
                   >
                     {loading ? (
                       <>
@@ -1097,7 +1110,7 @@ export default function SignupPage() {
                           key={method.key}
                           onClick={() => method.available && setVerifyMethod(method.key as any)}
                           className={`flex items-center gap-3 p-3.5 border rounded-xl cursor-pointer transition-all ${
-                            verifyMethod === method.key ? "border-purple-500 bg-purple-50/50 dark:bg-purple-900/20" : "border-surface dark:border-[#38434F] hover:border-purple-200 dark:hover:border-purple-700"
+                            verifyMethod === method.key ? "border-[#F4A01C] bg-[#FFF3D6]/50 dark:bg-purple-900/20" : "border-surface dark:border-[#38434F] hover:border-[#F4A01C]/30 dark:hover:border-purple-700"
                           } ${!method.available && 'opacity-60 cursor-not-allowed'}`}
                         >
                           <div className="w-9 h-9 bg-surface dark:bg-[#283036] rounded-lg flex items-center justify-center text-base border border-surface dark:border-[#38434F]">{method.icon}</div>
@@ -1123,7 +1136,7 @@ export default function SignupPage() {
                               type="checkbox" 
                               checked={seniorData.is_fresher}
                               onChange={e => setSeniorData({...seniorData, is_fresher: e.target.checked})}
-                              className="w-3.5 h-3.5 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                              className="w-3.5 h-3.5 rounded border-gray-300 text-[#F4A01C] focus:ring-[#F4A01C]"
                             />
                             <span className="text-[11px] font-medium text-gray-500 dark:text-[#B0B7BE]">I don't have work email (Fresher)</span>
                           </label>
@@ -1133,7 +1146,7 @@ export default function SignupPage() {
                           placeholder={seniorData.is_fresher ? "yourname@gmail.com" : "name@company.com"}
                           value={seniorData.work_email}
                           onChange={e => setSeniorData({...seniorData, work_email: e.target.value})}
-                          className={`w-full h-11 px-3.5 text-sm border border-surface dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 bg-surface dark:bg-[#283036] placeholder:text-gray-400 dark:text-[#B0B7BE] ${googleId ? 'bg-gray-100 text-gray-400 dark:text-[#B0B7BE] cursor-not-allowed' : 'text-gray-900 dark:text-white'}`}
+                          className={`w-full h-11 px-3.5 text-sm border border-surface dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-[#F4A01C] focus:ring-2 focus:ring-[#F4A01C]/10 bg-surface dark:bg-[#283036] placeholder:text-gray-400 dark:text-[#B0B7BE] ${googleId ? 'bg-gray-100 text-gray-400 dark:text-[#B0B7BE] cursor-not-allowed' : 'text-gray-900 dark:text-white'}`}
                           readOnly={!!googleId}
                         />
                         {!seniorData.is_fresher && !googleId && <p className="text-[10px] text-gray-400 dark:text-[#B0B7BE] mt-0.5">Use office email for instant approval</p>}
@@ -1146,7 +1159,7 @@ export default function SignupPage() {
                           placeholder="Full Name"
                           value={seniorData.full_name}
                           onChange={e => setSeniorData({...seniorData, full_name: e.target.value})}
-                          className="w-full h-11 px-3.5 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:text-[#B0B7BE] border border-surface dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 bg-surface dark:bg-[#283036]"
+                          className="w-full h-11 px-3.5 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:text-[#B0B7BE] border border-surface dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-[#F4A01C] focus:ring-2 focus:ring-[#F4A01C]/10 bg-surface dark:bg-[#283036]"
                         />
                       </div>
 
@@ -1162,7 +1175,7 @@ export default function SignupPage() {
                               setShowSeniorCollegeDropdown(true);
                             }}
                             onFocus={() => setShowSeniorCollegeDropdown(true)}
-                            className="w-full h-11 px-3.5 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:text-[#B0B7BE] border border-surface dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 bg-surface dark:bg-[#283036]"
+                            className="w-full h-11 px-3.5 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:text-[#B0B7BE] border border-surface dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-[#F4A01C] focus:ring-2 focus:ring-[#F4A01C]/10 bg-surface dark:bg-[#283036]"
                           />
                           {showSeniorCollegeDropdown && seniorData.college_name && (
                             <div className="absolute top-full left-0 right-0 bg-surface dark:bg-[#283036] border border-surface dark:border-[#38434F] rounded-xl mt-1.5 max-h-48 overflow-y-auto z-10 shadow-sm">
@@ -1192,7 +1205,7 @@ export default function SignupPage() {
                                           className="w-full h-full object-contain"
                                         />
                                       ) : (
-                                        <div className="text-[10px] font-black text-purple-600">
+                                        <div className="text-[10px] font-black text-[#F4A01C]">
                                           {college.short_name.toUpperCase()}
                                         </div>
                                       )}
@@ -1221,7 +1234,7 @@ export default function SignupPage() {
                             placeholder="Google, etc."
                             value={seniorData.company}
                             onChange={e => setSeniorData({...seniorData, company: e.target.value})}
-                            className="w-full h-11 px-3.5 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:text-[#B0B7BE] border border-surface dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 bg-surface dark:bg-[#283036]"
+                            className="w-full h-11 px-3.5 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:text-[#B0B7BE] border border-surface dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-[#F4A01C] focus:ring-2 focus:ring-[#F4A01C]/10 bg-surface dark:bg-[#283036]"
                           />
                         </div>
                         <div>
@@ -1233,7 +1246,7 @@ export default function SignupPage() {
                             placeholder="Software Engineer"
                             value={seniorData.designation}
                             onChange={e => setSeniorData({...seniorData, designation: e.target.value})}
-                            className="w-full h-11 px-3.5 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:text-[#B0B7BE] border border-surface dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 bg-surface dark:bg-[#283036]"
+                            className="w-full h-11 px-3.5 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:text-[#B0B7BE] border border-surface dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-[#F4A01C] focus:ring-2 focus:ring-[#F4A01C]/10 bg-surface dark:bg-[#283036]"
                           />
                         </div>
                       </div>
@@ -1248,7 +1261,7 @@ export default function SignupPage() {
                             placeholder="e.g. 5"
                             value={seniorData.experience_years}
                             onChange={e => setSeniorData({...seniorData, experience_years: e.target.value})}
-                            className="w-full h-11 px-3.5 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:text-[#B0B7BE] border border-surface dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 bg-surface dark:bg-[#283036]"
+                            className="w-full h-11 px-3.5 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:text-[#B0B7BE] border border-surface dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-[#F4A01C] focus:ring-2 focus:ring-[#F4A01C]/10 bg-surface dark:bg-[#283036]"
                           />
                         </div>
                       )}
@@ -1261,7 +1274,7 @@ export default function SignupPage() {
                             placeholder="CSE, BA, B.Com, B.Sc, etc."
                             value={seniorData.branch}
                             onChange={e => setSeniorData({...seniorData, branch: e.target.value})}
-                            className="w-full h-11 px-3.5 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:text-[#B0B7BE] border border-surface dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 bg-surface dark:bg-[#283036]"
+                            className="w-full h-11 px-3.5 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:text-[#B0B7BE] border border-surface dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-[#F4A01C] focus:ring-2 focus:ring-[#F4A01C]/10 bg-surface dark:bg-[#283036]"
                           />
                         </div>
                         <div>
@@ -1269,7 +1282,7 @@ export default function SignupPage() {
                           <select 
                             value={seniorData.passout_year}
                             onChange={e => setSeniorData({...seniorData, passout_year: e.target.value})}
-                            className="w-full h-11 px-3.5 text-sm text-gray-900 dark:text-white border border-surface dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-purple-500 bg-surface dark:bg-[#283036]"
+                            className="w-full h-11 px-3.5 text-sm text-gray-900 dark:text-white border border-surface dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-[#F4A01C] bg-surface dark:bg-[#283036]"
                           >
                             <option value="">Year</option>
                             {[2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018].map(y => <option key={y} value={y}>{y}</option>)}
@@ -1285,7 +1298,7 @@ export default function SignupPage() {
                             placeholder="Minimum 6 characters"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            className="w-full h-11 px-3.5 pr-11 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:text-[#B0B7BE] border border-surface dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 bg-surface dark:bg-[#283036]"
+                            className="w-full h-11 px-3.5 pr-11 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:text-[#B0B7BE] border border-surface dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-[#F4A01C] focus:ring-2 focus:ring-[#F4A01C]/10 bg-surface dark:bg-[#283036]"
                           />
                           <button
                             type="button"
@@ -1305,7 +1318,7 @@ export default function SignupPage() {
                             placeholder="Confirm password"
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
-                            className="w-full h-11 px-3.5 pr-11 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:text-[#B0B7BE] border border-surface dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 bg-surface dark:bg-[#283036]"
+                            className="w-full h-11 px-3.5 pr-11 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:text-[#B0B7BE] border border-surface dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-[#F4A01C] focus:ring-2 focus:ring-[#F4A01C]/10 bg-surface dark:bg-[#283036]"
                           />
                           <button
                             type="button"
@@ -1329,7 +1342,7 @@ export default function SignupPage() {
                           id="terms-senior"
                           checked={agreedToTerms}
                           onChange={(e) => setAgreedToTerms(e.target.checked)}
-                          className="w-4 h-4 mt-0.5 rounded border-gray-300 text-purple-600 focus:ring-purple-500 accent-purple-600 flex-shrink-0 cursor-pointer"
+                          className="w-4 h-4 mt-0.5 rounded border-gray-300 text-[#F4A01C] focus:ring-[#F4A01C] accent-purple-600 flex-shrink-0 cursor-pointer"
                         />
                         <label 
                           htmlFor="terms-senior" 
@@ -1338,7 +1351,7 @@ export default function SignupPage() {
                           I agree to Claspire's{' '}
                           <Link 
                             href="/terms" 
-                            className="text-purple-600 font-semibold hover:underline"
+                            className="text-[#F4A01C] font-semibold hover:underline"
                             target="_blank"
                           >
                             Terms of Service
@@ -1346,7 +1359,7 @@ export default function SignupPage() {
                           {' '}and{' '}
                           <Link 
                             href="/privacy-policy" 
-                            className="text-purple-600 font-semibold hover:underline"
+                            className="text-[#F4A01C] font-semibold hover:underline"
                             target="_blank"
                           >
                             Privacy Policy
@@ -1355,11 +1368,19 @@ export default function SignupPage() {
                         </label>
                       </div>
 
+                      <div className="flex justify-center my-4">
+                        <Turnstile
+                          siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+                          onSuccess={(token) => setTurnstileToken(token)}
+                          onError={() => setError('Security check failed. Please refresh.')}
+                        />
+                      </div>
+
                       <button
                         type="button"
                         onClick={handleSubmit}
-                        disabled={loading || !verifyMethod || !agreedToTerms}
-                        className="w-full h-11 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-400 text-white text-sm font-semibold rounded-xl transition-all duration-150 flex items-center justify-center gap-2 border-none cursor-pointer disabled:cursor-not-allowed shadow-sm"
+                        disabled={loading || !verifyMethod || !agreedToTerms || !turnstileToken}
+                        className="w-full h-11 bg-[#F4A01C] hover:bg-[#E09410] disabled:bg-purple-400 text-white text-sm font-semibold rounded-xl transition-all duration-150 flex items-center justify-center gap-2 border-none cursor-pointer disabled:cursor-not-allowed shadow-sm"
                       >
                         {loading ? (
                           <>
@@ -1385,7 +1406,7 @@ export default function SignupPage() {
                 <h2 className="text-xl font-bold text-gray-900 dark:text-white font-plus-jakarta-sans">Check your email 📧</h2>
                 <p className="text-sm text-gray-500 dark:text-[#B0B7BE]">
                   Enter the code sent to{' '}
-                  <span className="font-bold text-purple-600">
+                  <span className="font-bold text-[#F4A01C]">
                     {activeRole === 'student' ? studentData.email : seniorData.work_email}
                   </span>
                 </p>
@@ -1405,7 +1426,7 @@ export default function SignupPage() {
                     value={digit}
                     onChange={e => handleOtpChange(index, e.target.value)}
                     onKeyDown={e => handleOtpKeyDown(index, e)}
-                    className="w-11 h-13 border border-surface dark:border-[#38434F] rounded-xl text-center text-lg font-bold focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 outline-none bg-surface dark:bg-[#283036] text-gray-900 dark:text-white"
+                    className="w-11 h-13 border border-surface dark:border-[#38434F] rounded-xl text-center text-lg font-bold focus:border-[#F4A01C] focus:ring-2 focus:ring-[#F4A01C]/10 outline-none bg-surface dark:bg-[#283036] text-gray-900 dark:text-white"
                   />
                 ))}
               </div>
@@ -1416,10 +1437,18 @@ export default function SignupPage() {
                 </div>
               )}
 
+              <div className="flex justify-center my-4">
+                <Turnstile
+                  siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+                  onSuccess={(token) => setTurnstileToken(token)}
+                  onError={() => setError('Security check failed. Please refresh.')}
+                />
+              </div>
+
               <button
                 onClick={verifyAndCreate}
-                disabled={loading}
-                className="w-full h-11 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-400 text-white text-sm font-semibold rounded-xl transition-all duration-150 flex items-center justify-center gap-2 border-none cursor-pointer disabled:cursor-not-allowed shadow-sm"
+                disabled={loading || !turnstileToken}
+                className="w-full h-11 bg-[#F4A01C] hover:bg-[#E09410] disabled:bg-purple-400 text-white text-sm font-semibold rounded-xl transition-all duration-150 flex items-center justify-center gap-2 border-none cursor-pointer disabled:cursor-not-allowed shadow-sm"
               >
                 {loading ? (
                   <>
@@ -1432,11 +1461,11 @@ export default function SignupPage() {
               </button>
 
               <div className="flex justify-between items-center">
-                <button onClick={() => setOtpSent(false)} className="text-xs text-gray-400 dark:text-[#B0B7BE] hover:text-purple-600 bg-transparent border-none cursor-pointer">← Change Email</button>
+                <button onClick={() => setOtpSent(false)} className="text-xs text-gray-400 dark:text-[#B0B7BE] hover:text-[#F4A01C] bg-transparent border-none cursor-pointer">← Change Email</button>
                 {resendTimer > 0 ? (
                   <span className="text-xs text-gray-400 dark:text-[#B0B7BE]">Resend in {resendTimer}s</span>
                 ) : (
-                  <button onClick={sendOTP} className="text-xs text-purple-600 font-bold hover:underline bg-transparent border-none cursor-pointer">Resend code</button>
+                  <button onClick={sendOTP} className="text-xs text-[#F4A01C] font-bold hover:underline bg-transparent border-none cursor-pointer">Resend code</button>
                 )}
               </div>
             </div>

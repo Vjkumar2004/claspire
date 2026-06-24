@@ -202,7 +202,7 @@ export default function SearchBar({ isMobileOverlay = false, onCloseMobile }: { 
       case 'job':
         return <Briefcase className="w-4 h-4 text-amber-600" />
       case 'community':
-        return <Building2 className="w-4 h-4 text-purple-600" />
+        return <Building2 className="w-4 h-4 text-[#F4A01C]" />
       case 'college':
         return <GraduationCap className="w-4 h-4 text-indigo-600" />
       case 'group':
@@ -223,7 +223,7 @@ export default function SearchBar({ isMobileOverlay = false, onCloseMobile }: { 
       case 'job':
         return 'bg-amber-50 border-amber-100 text-amber-700'
       case 'community':
-        return 'bg-purple-50 border-purple-100 text-[#7C3AED]'
+        return 'bg-[#FFF3D6] border-[#F4A01C]/20 text-[#F4A01C]'
       case 'college':
         return 'bg-indigo-50 border-indigo-100 text-indigo-700'
       case 'group':
@@ -286,7 +286,7 @@ export default function SearchBar({ isMobileOverlay = false, onCloseMobile }: { 
         }`}>
           {loading && suggestions.length === 0 ? (
             <div className="p-4 flex items-center justify-center gap-2 text-gray-500 dark:text-[#B0B7BE] font-bold">
-              <RefreshCw className="w-4 h-4 animate-spin text-[#7C3AED]" />
+              <RefreshCw className="w-4 h-4 animate-spin text-[#F4A01C]" />
               Searching Clasipire...
             </div>
           ) : !query ? (
@@ -370,8 +370,8 @@ export default function SearchBar({ isMobileOverlay = false, onCloseMobile }: { 
                   </div>
                   <button
                     onClick={() => handleSuggestionClick(topMatch)}
-                    className={`w-full flex items-center gap-3.5 p-2 text-left rounded-md border border-purple-100/80 bg-surface dark:bg-[#283036] hover:bg-purple-50/20 transition-all cursor-pointer shadow-[0_1px_3px_rgba(124,58,237,0.03)] ${
-                      activeIndex === 0 ? 'bg-purple-50/30 border-purple-300' : ''
+                    className={`w-full flex items-center gap-3.5 p-2 text-left rounded-md border border-[#F4A01C]/20/80 bg-surface dark:bg-[#283036] hover:bg-[#FFF3D6]/20 transition-all cursor-pointer shadow-[0_1px_3px_rgba(124,58,237,0.03)] ${
+                      activeIndex === 0 ? 'bg-[#FFF3D6]/30 border-[#F4A01C]/50' : ''
                     }`}
                   >
                     <div className="w-10 h-10 rounded-md bg-surface dark:bg-[#283036] border border-gray-150 flex items-center justify-center flex-shrink-0 overflow-hidden shadow-sm dark:shadow-[#1D2226]/50">
@@ -546,7 +546,7 @@ export default function SearchBar({ isMobileOverlay = false, onCloseMobile }: { 
               <div className="p-1.5 bg-app dark:bg-[#1D2226]">
                 <button
                   onClick={() => handleSearchSubmit(query)}
-                  className="w-full py-2 text-center text-[#7C3AED] hover:text-[#6D28D9] font-bold text-xs hover:underline cursor-pointer"
+                  className="w-full py-2 text-center text-[#F4A01C] hover:text-[#E09410] font-bold text-xs hover:underline cursor-pointer"
                 >
                   Search all results for "{query}" →
                 </button>

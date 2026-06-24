@@ -3,6 +3,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Mail, ArrowLeft, CheckCircle, Key } from 'lucide-react'
+import { Turnstile } from '@marsidev/react-turnstile'
 
 // Note: This is a client component, so we don't export Next.js routing config
 
@@ -14,6 +15,7 @@ export default function ForgotPasswordPage() {
   const [success, setSuccess] = useState(false)
   const [step, setStep] = useState<'email' | 'otp'>('email')
   const [resetToken, setResetToken] = useState('')
+  const [turnstileToken, setTurnstileToken] = useState('')
 
   const handleSendOTP = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -26,7 +28,7 @@ export default function ForgotPasswordPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email: email.toLowerCase().trim() }),
+        body: JSON.stringify({ email: email.toLowerCase().trim(), turnstileToken }),
       })
 
       const data = await response.json()
@@ -119,7 +121,7 @@ export default function ForgotPasswordPage() {
         {/* Logo */}
         <Link href="/" className="flex justify-center mb-8">
           <span className="font-plus-jakarta-sans font-bold text-2xl text-black dark:text-white">
-            cl<span style={{ color: '#7C3AED' }}>aspire</span>
+            cl<span style={{ color: '#F4A01C' }}>aspire</span>
           </span>
         </Link>
 
@@ -135,11 +137,11 @@ export default function ForgotPasswordPage() {
 
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="w-12 h-12 bg-[#FFF3D6] rounded-full flex items-center justify-center mx-auto mb-4">
               {step === 'email' ? (
-                <Mail size={24} className="text-purple-600" />
+                <Mail size={24} className="text-[#F4A01C]" />
               ) : (
-                <Key size={24} className="text-purple-600" />
+                <Key size={24} className="text-[#F4A01C]" />
               )}
             </div>
             
@@ -175,14 +177,22 @@ export default function ForgotPasswordPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-[#38434F] rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-[#222B31] dark:text-white dark:placeholder:text-[#8B949E] dark:focus:bg-[#283036]"
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-[#38434F] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F4A01C] focus:border-transparent dark:bg-[#222B31] dark:text-white dark:placeholder:text-[#8B949E] dark:focus:bg-[#283036]"
                   placeholder="Enter your email address"
+                />
+              </div>
+
+              <div className="flex justify-center">
+                <Turnstile
+                  siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+                  onSuccess={(token) => setTurnstileToken(token)}
+                  onError={() => setError('Security check failed. Please refresh.')}
                 />
               </div>
 
               <button
                 type="submit"
-                disabled={loading || !email}
+                disabled={loading || !email || !turnstileToken}
                 className="w-full bg-black text-white py-3 rounded-lg text-sm font-semibold hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {loading ? (
@@ -215,7 +225,7 @@ export default function ForgotPasswordPage() {
                   onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
                   required
                   maxLength={6}
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-[#38434F] rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-center text-xl font-semibold tracking-widest dark:bg-[#222B31] dark:text-white dark:placeholder:text-[#8B949E] dark:focus:bg-[#283036]"
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-[#38434F] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F4A01C] focus:border-transparent text-center text-xl font-semibold tracking-widest dark:bg-[#222B31] dark:text-white dark:placeholder:text-[#8B949E] dark:focus:bg-[#283036]"
                   placeholder="000000"
                 />
               </div>
@@ -254,7 +264,7 @@ export default function ForgotPasswordPage() {
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600 dark:text-[#B0B7BE]">
               Remember your password?{' '}
-              <Link href="/login" className="text-purple-600 font-semibold hover:underline">
+              <Link href="/login" className="text-[#F4A01C] font-semibold hover:underline">
                 Sign in
               </Link>
             </p>
