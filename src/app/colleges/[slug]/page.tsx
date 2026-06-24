@@ -289,7 +289,7 @@ export default async function CollegePage({ params }: { params: Promise<{ slug: 
       <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#1D2226]">
         {/* Banner Hero */}
         {community.colleges?.banner_url && (
-          <div className="h-48 sm:h-56 md:h-64 w-full overflow-hidden bg-gradient-to-br from-[#0A2540] to-indigo-700">
+          <div className="h-48 sm:h-56 md:h-64 w-full overflow-hidden bg-[#0A66C2]">
             <img
               src={community.colleges.banner_url}
               alt={`${collegeName} banner`}
@@ -303,7 +303,7 @@ export default async function CollegePage({ params }: { params: Promise<{ slug: 
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
             <Link 
               href="/colleges" 
-              className="text-[#F4A01C] hover:text-[#E09410] text-xs font-bold mb-6 inline-flex items-center gap-1 uppercase tracking-wider no-underline"
+              className="text-[#0A66C2] hover:text-[#004182] text-xs font-bold mb-6 inline-flex items-center gap-1 uppercase tracking-wider no-underline"
             >
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -342,8 +342,8 @@ export default async function CollegePage({ params }: { params: Promise<{ slug: 
                       Verified College
                     </span>
                   )}
-                  <span className="bg-[#FFF3D6] text-[#F4A01C] text-[10px] font-bold px-2.5 py-1 rounded border border-[#F4A01C]/20 uppercase tracking-wider flex items-center gap-1.5 shadow-sm">
-                    <Sparkles size={12} className="text-[#F4A01C]" />
+                  <span className="bg-[#EAF4FF] text-[#0A66C2] text-[10px] font-bold px-2.5 py-1 rounded border border-[#0A66C2]/20 uppercase tracking-wider flex items-center gap-1.5 shadow-sm">
+                    <Sparkles size={12} className="text-[#0A66C2]" />
                     Community Hub
                   </span>
                   <span className="bg-green-50 text-green-700 text-[10px] font-bold px-2.5 py-1 rounded border border-green-100 uppercase tracking-wider flex items-center gap-1.5 shadow-sm">
@@ -370,7 +370,7 @@ export default async function CollegePage({ params }: { params: Promise<{ slug: 
                     href={community.colleges.website_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-[#F4A01C] hover:text-[#E09410] text-xs font-bold no-underline"
+                    className="inline-flex items-center gap-1.5 text-[#0A66C2] hover:text-[#004182] text-xs font-bold no-underline"
                   >
                     <Globe size={14} />
                     {community.colleges.website_url.replace(/^https?:\/\//, '').replace(/\/$/, '')}
@@ -385,7 +385,7 @@ export default async function CollegePage({ params }: { params: Promise<{ slug: 
                         href={url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="w-8 h-8 rounded-full bg-gray-100 dark:bg-[#283036] hover:bg-[#F4A01C]/10 dark:hover:bg-[#F4A01C]/20 flex items-center justify-center text-gray-500 dark:text-[#B0B7BE] hover:text-[#F4A01C] transition-all border border-surface dark:border-[#38434F]"
+                        className="w-8 h-8 rounded-full bg-gray-100 dark:bg-[#283036] hover:bg-[#0A66C2]/10 dark:hover:bg-[#0A66C2]/20 flex items-center justify-center text-gray-500 dark:text-[#B0B7BE] hover:text-[#0A66C2] transition-all border border-surface dark:border-[#38434F]"
                         title={platform}
                       >
                         {platform === 'linkedin' && (
@@ -418,7 +418,7 @@ export default async function CollegePage({ params }: { params: Promise<{ slug: 
                   <div className="space-y-3.5">
                     <div className="flex items-center justify-between group">
                       <div className="flex items-center gap-2.5 text-gray-600 dark:text-[#B0B7BE]">
-                        <Users size={16} className="text-gray-400 dark:text-[#B0B7BE] group-hover:text-[#F4A01C] transition-colors" />
+                        <Users size={16} className="text-gray-400 dark:text-[#B0B7BE] group-hover:text-[#0A66C2] transition-colors" />
                         <span className="text-sm font-semibold">Total Members</span>
                       </div>
                       <span className="text-sm font-bold text-gray-900 dark:text-white bg-surface dark:bg-[#283036] px-2 py-0.5 rounded border border-surface dark:border-[#38434F] shadow-sm">{community.member_count || 0}+</span>
@@ -467,8 +467,8 @@ export default async function CollegePage({ params }: { params: Promise<{ slug: 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div className="bg-surface dark:bg-[#283036] rounded-md p-4 sm:p-5 border border-surface dark:border-[#38434F] hover:shadow-md transition-all shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-[#FFF3D6] rounded-md flex items-center justify-center border border-[#F4A01C]/20">
-                      <Users className="w-5 h-5 text-[#F4A01C]" />
+                    <div className="w-10 h-10 bg-[#EAF4FF] rounded-md flex items-center justify-center border border-[#0A66C2]/20">
+                      <Users className="w-5 h-5 text-[#0A66C2]" />
                     </div>
                     <div>
                       <p className="text-lg font-bold text-gray-900 dark:text-white leading-tight">{seniors.length}+</p>
@@ -512,13 +512,13 @@ export default async function CollegePage({ params }: { params: Promise<{ slug: 
                     posts.map((post: any) => (
                       <div key={post.id} className="border-b border-gray-150 dark:border-[#38434F] pb-4 last:border-b-0 last:pb-0">
                         <div className="flex items-start gap-3">
-                          <div className="w-8 h-8 bg-[#FFF3D6] rounded-md flex items-center justify-center flex-shrink-0 mt-1 border border-[#F4A01C]/20">
+                          <div className="w-8 h-8 bg-[#EAF4FF] rounded-md flex items-center justify-center flex-shrink-0 mt-1 border border-[#0A66C2]/20">
                             {post.type === 'doubt' ? (
-                              <HelpCircle size={14} className="text-[#F4A01C]" />
+                              <HelpCircle size={14} className="text-[#0A66C2]" />
                             ) : post.type === 'discussion' ? (
-                              <MessageSquare size={14} className="text-[#F4A01C]" />
+                              <MessageSquare size={14} className="text-[#0A66C2]" />
                             ) : (
-                              <FileText size={14} className="text-[#F4A01C]" />
+                              <FileText size={14} className="text-[#0A66C2]" />
                             )}
                           </div>
                           <div className="flex-1 min-w-0">
@@ -533,7 +533,7 @@ export default async function CollegePage({ params }: { params: Promise<{ slug: 
                               {post.upvote_count > 0 && (
                                 <>
                                   <span>•</span>
-                                  <span className="text-[#F4A01C] font-bold">{post.upvote_count} upvotes</span>
+                                  <span className="text-[#0A66C2] font-bold">{post.upvote_count} upvotes</span>
                                 </>
                               )}
                             </div>
@@ -570,29 +570,29 @@ export default async function CollegePage({ params }: { params: Promise<{ slug: 
               </div>
 
               {/* CTA Card */}
-              <div className="bg-gradient-to-br from-[#1F1F2E] to-[#0F0F1A] rounded-md p-5 sm:p-6 text-white border border-gray-800 shadow-md">
+              <div className="bg-[#0A66C2] rounded-md p-5 sm:p-6 text-white border border-gray-800 shadow-md">
                 <h3 className="text-base font-bold mb-4 tracking-tight">Join {collegeName} Community</h3>
                 <ul className="space-y-3.5 mb-6 pl-0">
                   <li className="flex items-start gap-2.5">
-                    <CheckCircle className="w-4 h-4 text-[#F4A01C] mt-0.5 flex-shrink-0" />
+                    <CheckCircle className="w-4 h-4 text-[#0A66C2] mt-0.5 flex-shrink-0" />
                     <span className="text-xs font-medium text-gray-300">Connect with verified seniors</span>
                   </li>
                   <li className="flex items-start gap-2.5">
-                    <CheckCircle className="w-4 h-4 text-[#F4A01C] mt-0.5 flex-shrink-0" />
+                    <CheckCircle className="w-4 h-4 text-[#0A66C2] mt-0.5 flex-shrink-0" />
                     <span className="text-xs font-medium text-gray-300">Get placement guidance</span>
                   </li>
                   <li className="flex items-start gap-2.5">
-                    <CheckCircle className="w-4 h-4 text-[#F4A01C] mt-0.5 flex-shrink-0" />
+                    <CheckCircle className="w-4 h-4 text-[#0A66C2] mt-0.5 flex-shrink-0" />
                     <span className="text-xs font-medium text-gray-300">Access job referrals</span>
                   </li>
                   <li className="flex items-start gap-2.5">
-                    <CheckCircle className="w-4 h-4 text-[#F4A01C] mt-0.5 flex-shrink-0" />
+                    <CheckCircle className="w-4 h-4 text-[#0A66C2] mt-0.5 flex-shrink-0" />
                     <span className="text-xs font-medium text-gray-300">Free mentorship</span>
                   </li>
                 </ul>
                 <Link 
                   href={`/community/c/${slug}`}
-                  className="block w-full bg-[#F4A01C] hover:bg-[#E09410] text-white text-center font-bold py-3 px-4 rounded-md transition-colors text-sm uppercase tracking-wider no-underline border-none"
+                  className="block w-full bg-[#0A66C2] hover:bg-[#004182] text-white text-center font-bold py-3 px-4 rounded-md transition-colors text-sm uppercase tracking-wider no-underline border-none"
                 >
                   {isMember ? 'View Community' : 'Join Community'}
                   <ArrowRight className="w-4 h-4 inline ml-1.5 animate-pulse" />
@@ -608,7 +608,7 @@ export default async function CollegePage({ params }: { params: Promise<{ slug: 
                   {seniors.length > 0 ? (
                     seniors.slice(0, 6).map((senior: any) => (
                       <div key={senior.id} className="flex items-center gap-3">
-                        <div className="w-9 h-9 bg-[#FFF3D6] rounded-md flex items-center justify-center flex-shrink-0 border border-[#F4A01C]/20 overflow-hidden">
+                        <div className="w-9 h-9 bg-[#EAF4FF] rounded-md flex items-center justify-center flex-shrink-0 border border-[#0A66C2]/20 overflow-hidden">
                           <ProfileImage
                             src={senior.profile_pic}
                             alt={senior.full_name}
@@ -639,7 +639,7 @@ export default async function CollegePage({ params }: { params: Promise<{ slug: 
                   <div className="p-3 sm:p-4 border-t border-surface dark:border-[#38434F] bg-app/50">
                     <Link 
                       href={`/community/c/${slug}`}
-                      className="text-[#F4A01C] hover:text-[#E09410] text-xs font-bold no-underline flex items-center justify-center gap-1"
+                      className="text-[#0A66C2] hover:text-[#004182] text-xs font-bold no-underline flex items-center justify-center gap-1"
                     >
                       View all {seniors.length} seniors <ArrowRight size={12} />
                     </Link>

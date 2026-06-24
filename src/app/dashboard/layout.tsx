@@ -28,7 +28,7 @@ export default function DashboardLayout({
         alignItems: 'center',
         justifyContent: 'center',
         height: '100vh',
-        background: 'linear-gradient(135deg, #F4A01C, #06B6D4)',
+        background: 'linear-gradient(135deg, #0A66C2, #06B6D4)',
       }}>
         <div style={{
           width: 40,

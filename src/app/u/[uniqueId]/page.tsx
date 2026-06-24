@@ -69,7 +69,7 @@ export default function PublicProfilePage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#1D2226] flex items-center justify-center">
-        <div className="w-10 h-10 border-3 border-[#F4A01C] border-t-transparent rounded-full animate-spin" />
+        <div className="w-10 h-10 border-3 border-[#0A66C2] border-t-transparent rounded-full animate-spin" />
       </div>
     )
   }
@@ -79,7 +79,7 @@ export default function PublicProfilePage() {
       <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#1D2226] flex flex-col items-center justify-center p-6 text-center">
         <Info size={32} className="text-red-400 mb-4" />
         <h1 className="text-lg font-extrabold text-gray-900 dark:text-white">Profile not found</h1>
-        <button type="button" onClick={() => router.push('/')} className="mt-4 px-6 py-2.5 bg-[#F4A01C] text-white rounded-lg font-bold cursor-pointer border-none">
+        <button type="button" onClick={() => router.push('/')} className="mt-4 px-6 py-2.5 bg-[#0A66C2] text-white rounded-lg font-bold cursor-pointer border-none">
           Go Home
         </button>
       </div>
@@ -131,7 +131,7 @@ export default function PublicProfilePage() {
                 {/* Avatar */}
                 <div className="-mt-14 mb-3">
                   <div
-                    className={`w-28 h-28 rounded-2xl overflow-hidden border-4 border-white dark:border-[#1D2226] shadow-md ${!user.avatar_url ? 'bg-gradient-to-br from-[#F4A01C] to-[#4F46E5] flex items-center justify-center text-white text-2xl font-black' : 'cursor-pointer'}`}
+                    className={`w-28 h-28 rounded-2xl overflow-hidden border-4 border-white dark:border-[#1D2226] shadow-md ${!user.avatar_url ? 'bg-[#0A66C2] flex items-center justify-center text-white text-2xl font-black' : 'cursor-pointer'}`}
                     onClick={() => user.avatar_url && setAvatarViewerOpen(true)}
                     title={user.avatar_url ? 'View profile photo' : undefined}
                   >
@@ -196,12 +196,12 @@ export default function PublicProfilePage() {
                       </a>
                     )}
                     {portfolioUrl && (
-                      <a href={portfolioUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-surface dark:border-[#38434F] text-slate-500 dark:text-[#B0B7BE] hover:text-[#F4A01C] hover:border-[#F4A01C]/30 text-xs font-medium no-underline transition-all dark:hover:bg-[#1D2226]">
+                      <a href={portfolioUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-surface dark:border-[#38434F] text-slate-500 dark:text-[#B0B7BE] hover:text-[#0A66C2] hover:border-[#0A66C2]/30 text-xs font-medium no-underline transition-all dark:hover:bg-[#1D2226]">
                         <ExternalLink size={13} /> Portfolio
                       </a>
                     )}
                     {resumeUrl && (
-                      <a href={resumeUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-surface dark:border-[#38434F] text-slate-500 dark:text-[#B0B7BE] hover:text-[#F4A01C] hover:border-[#F4A01C]/30 text-xs font-medium no-underline transition-all dark:hover:bg-[#1D2226]">
+                      <a href={resumeUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-surface dark:border-[#38434F] text-slate-500 dark:text-[#B0B7BE] hover:text-[#0A66C2] hover:border-[#0A66C2]/30 text-xs font-medium no-underline transition-all dark:hover:bg-[#1D2226]">
                         <ExternalLink size={13} /> Resume
                       </a>
                     )}
@@ -249,7 +249,7 @@ export default function PublicProfilePage() {
               <div className="bg-surface dark:bg-[#283036] rounded-xl border border-surface/80 dark:border-[#38434F] shadow-sm dark:shadow-[#1D2226]/50 p-6">
                 <h2 className="text-xs font-bold text-slate-400 dark:text-[#B0B7BE] uppercase tracking-wider mb-5 m-0">Featured Project</h2>
                 <div className="flex items-start gap-5">
-                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[#F4A01C]/10 to-[#4F46E5]/10 flex items-center justify-center text-xl font-bold text-[#F4A01C] shrink-0">
+                  <div className="w-14 h-14 rounded-xl bg-[#EAF4FF] flex items-center justify-center text-xl font-bold text-[#0A66C2] shrink-0">
                     {allProjects[0].title[0]}
                   </div>
                   <div className="min-w-0 flex-1">
@@ -270,12 +270,12 @@ export default function PublicProfilePage() {
                     })()}
                     <div className="flex gap-4 mt-3">
                       {allProjects[0].github_url && (
-                        <a href={allProjects[0].github_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-slate-500 dark:text-[#B0B7BE] hover:text-[#F4A01C] text-xs font-medium no-underline transition-colors">
+                        <a href={allProjects[0].github_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-slate-500 dark:text-[#B0B7BE] hover:text-[#0A66C2] text-xs font-medium no-underline transition-colors">
                           <Github size={14} /> GitHub
                         </a>
                       )}
                       {allProjects[0].live_url && (
-                        <a href={allProjects[0].live_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-slate-500 dark:text-[#B0B7BE] hover:text-[#F4A01C] text-xs font-medium no-underline transition-colors">
+                        <a href={allProjects[0].live_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-slate-500 dark:text-[#B0B7BE] hover:text-[#0A66C2] text-xs font-medium no-underline transition-colors">
                           <ExternalLink size={14} /> Live Demo
                         </a>
                       )}
@@ -294,10 +294,10 @@ export default function PublicProfilePage() {
                         </div>
                         <div className="flex gap-2 shrink-0">
                           {p.github_url && (
-                            <a href={p.github_url} target="_blank" rel="noopener noreferrer" className="text-slate-400 dark:text-[#B0B7BE] hover:text-[#F4A01C] transition-colors"><Github size={14} /></a>
+                            <a href={p.github_url} target="_blank" rel="noopener noreferrer" className="text-slate-400 dark:text-[#B0B7BE] hover:text-[#0A66C2] transition-colors"><Github size={14} /></a>
                           )}
                           {p.live_url && (
-                            <a href={p.live_url} target="_blank" rel="noopener noreferrer" className="text-slate-400 dark:text-[#B0B7BE] hover:text-[#F4A01C] transition-colors"><ExternalLink size={14} /></a>
+                            <a href={p.live_url} target="_blank" rel="noopener noreferrer" className="text-slate-400 dark:text-[#B0B7BE] hover:text-[#0A66C2] transition-colors"><ExternalLink size={14} /></a>
                           )}
                         </div>
                       </div>
@@ -410,7 +410,7 @@ export default function PublicProfilePage() {
               <button
                 type="button"
                 onClick={() => router.push('/profile')}
-                className="w-full py-2.5 rounded-lg bg-[#F4A01C] text-white text-xs font-semibold border-none cursor-pointer hover:bg-[#E09410] transition-colors"
+                className="w-full py-2.5 rounded-lg bg-[#0A66C2] text-white text-xs font-semibold border-none cursor-pointer hover:bg-[#004182] transition-colors"
               >
                 Edit Profile
               </button>
@@ -493,7 +493,7 @@ function ImpactStat({ label, value, highlight }: { label: string; value: number;
   return (
     <div className="flex items-center justify-between">
       <span className="text-xs text-slate-500 dark:text-[#B0B7BE]">{label}</span>
-      <span className={`text-sm font-semibold ${highlight ? 'text-[#F4A01C]' : 'text-slate-800 dark:text-white'}`}>{value}</span>
+      <span className={`text-sm font-semibold ${highlight ? 'text-[#0A66C2]' : 'text-slate-800 dark:text-white'}`}>{value}</span>
     </div>
   )
 }

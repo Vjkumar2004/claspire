@@ -40,7 +40,7 @@ const convertUrlsToLinks = (text: string) => {
       const before = line.substring(lastIdx, matchStart)
       if (before) parts.push(<span key={`t-${lineIndex}-${matchIndex}`}>{before}</span>)
       parts.push(
-        <a key={`l-${lineIndex}-${matchIndex}`} href={match} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ color: '#F4A01C', fontWeight: 600, wordBreak: 'break-all' }}>{match}</a>
+        <a key={`l-${lineIndex}-${matchIndex}`} href={match} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ color: '#0A66C2', fontWeight: 600, wordBreak: 'break-all' }}>{match}</a>
       )
       lastIdx = matchStart + match.length
     })
@@ -401,8 +401,8 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
   const getTypeStyle = (type: string) => {
     switch (type) {
       case 'doubt': return { label: 'Doubt', color: '#2563EB', bg: '#EFF6FF', border: '#BFDBFE', highlight: '#3B82F6' }
-      case 'discussion': return { label: 'Discussion', color: '#F4A01C', bg: '#F5F3FF', border: '#DDD6FE', highlight: '#F4A01C' }
-      case 'experience': return { label: 'Experience', color: '#D97706', bg: '#FFFBEB', border: '#FDE68A', highlight: '#F59E0B' }
+      case 'discussion': return { label: 'Discussion', color: '#0A66C2', bg: '#F5F3FF', border: '#DDD6FE', highlight: '#0A66C2' }
+      case 'experience': return { label: 'Experience', color: '#D97706', bg: '#FFFBEB', border: '#FDE68A', highlight: '#0A66C2' }
       case 'referral_hunt': return { label: 'Referral', color: '#059669', bg: '#ECFDF5', border: '#A7F3D0', highlight: '#10B981' }
       case 'resource': return { label: 'Resource', color: '#DC2626', bg: '#FEF2F2', border: '#FECACA', highlight: '#EF4444' }
       default: return { label: type, color: '#64748B', bg: '#F8FAFC', border: '#F1F5F9', highlight: '#94A3B8' }
@@ -410,8 +410,8 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
   }
 
   const LockScreen = ({ title, description, ctaText, ctaAction }: { title: string; description: string; userRole?: string; ctaText: string; ctaAction: () => void }) => (
-    <div className="bg-surface dark:bg-[#1D2226] rounded-2xl border border-[#F4A01C]/20/80 shadow-sm py-16 px-6 sm:px-10 text-center">
-      <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#F4A01C] to-cyan-500 flex items-center justify-center mx-auto mb-5 text-white shadow-lg shadow-[#F4A01C]/20/50">
+    <div className="bg-surface dark:bg-[#1D2226] rounded-2xl border border-[#0A66C2]/20/80 shadow-sm py-16 px-6 sm:px-10 text-center">
+      <div className="w-16 h-16 rounded-2xl bg-[#0A66C2] flex items-center justify-center mx-auto mb-5 text-white shadow-lg shadow-[#0A66C2]/20/50">
         <Lock size={32} />
       </div>
       <h3 className="text-xl font-extrabold text-slate-900 dark:text-white m-0 mb-3">{title}</h3>
@@ -419,7 +419,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
       <button
         type="button"
         onClick={ctaAction}
-        className="inline-flex items-center justify-center px-8 py-3 rounded-xl bg-[#F4A01C] hover:bg-[#E09410] text-white text-sm font-bold border-none cursor-pointer shadow-sm transition-colors"
+        className="inline-flex items-center justify-center px-8 py-3 rounded-xl bg-[#0A66C2] hover:bg-[#004182] text-white text-sm font-bold border-none cursor-pointer shadow-sm transition-colors"
       >
         {ctaText}
       </button>
@@ -531,7 +531,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
 
   if (loading) return (
     <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#1D2226] flex flex-col items-center justify-center gap-3 font-plus-jakarta-sans">
-      <div className="w-10 h-10 border-4 border-[#F4A01C]/20 border-t-purple-600 rounded-full animate-spin" />
+      <div className="w-10 h-10 border-4 border-[#0A66C2]/20 border-t-purple-600 rounded-full animate-spin" />
       <p className="text-xs text-slate-500 dark:text-[#B0B7BE] font-semibold">Loading community...</p>
     </div>
   )
@@ -581,7 +581,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
     <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#1D2226] font-plus-jakarta-sans text-sm text-slate-800 dark:text-white pb-24 lg:pb-8">
       {/* College Banner */}
       {community.colleges?.banner_url && (
-        <div className="h-40 sm:h-48 w-full overflow-hidden bg-gradient-to-br from-[#0A2540] to-indigo-700">
+        <div className="h-40 sm:h-48 w-full overflow-hidden bg-[#0A66C2]">
           <img
             src={community.colleges.banner_url}
             alt={`${community.colleges.name} banner`}
@@ -594,7 +594,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
       <header className="border-b border-surface dark:border-[#38434F]/80 bg-surface dark:bg-[#1D2226]">
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 pt-6 pb-8">
           <nav className="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-[#B0B7BE] mb-6">
-            <button type="button" onClick={() => router.push('/community')} className="hover:text-[#F4A01C] transition-colors border-none bg-transparent cursor-pointer p-0">
+            <button type="button" onClick={() => router.push('/community')} className="hover:text-[#0A66C2] transition-colors border-none bg-transparent cursor-pointer p-0">
               Communities
             </button>
             <ChevronRight size={14} className="text-slate-300 dark:text-[#B0B7BE] shrink-0" />
@@ -603,7 +603,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
 
           <div className="flex flex-col md:flex-row gap-6 md:items-start">
             <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl border border-surface dark:border-[#38434F]/80 bg-surface dark:bg-[#1D2226] shadow-sm p-2 shrink-0 mx-auto md:mx-0">
-              <div className={`w-full h-full rounded-xl flex items-center justify-center overflow-hidden text-3xl font-black ${collegeLogo ? 'bg-surface dark:bg-[#1D2226]' : 'bg-gradient-to-br from-[#F4A01C] to-[#4F46E5] text-white'}`}>
+              <div className={`w-full h-full rounded-xl flex items-center justify-center overflow-hidden text-3xl font-black ${collegeLogo ? 'bg-surface dark:bg-[#1D2226]' : 'bg-[#0A66C2] text-white'}`}>
                 {collegeLogo ? (
                   <img src={collegeLogo} alt={collegeShort || community.slug} className="w-full h-full object-contain" />
                 ) : (
@@ -614,11 +614,11 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
 
             <div className="flex-1 min-w-0 text-center md:text-left">
               <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 mb-3">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-[#E09410] bg-[#FFF3D6] border border-[#F4A01C]/20 px-2.5 py-1 rounded-full">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-[#004182] bg-[#EAF4FF] border border-[#0A66C2]/20 px-2.5 py-1 rounded-full">
                   Official College Hub
                 </span>
                 <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-[#B0B7BE] bg-app dark:bg-[#283036] border border-surface dark:border-[#38434F] px-2.5 py-1 rounded-full">
-                  <Users size={13} className="text-[#F4A01C]" />
+                  <Users size={13} className="text-[#0A66C2]" />
                   {displayMemberCount} members
                 </span>
                 <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-[#B0B7BE] bg-app dark:bg-[#283036] border border-surface dark:border-[#38434F] px-2.5 py-1 rounded-full">
@@ -647,7 +647,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                   <button
                     type="button"
                     onClick={() => router.push('/signup')}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#F4A01C] hover:bg-[#E09410] text-white text-xs font-bold border-none cursor-pointer shadow-sm transition-colors"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#0A66C2] hover:bg-[#004182] text-white text-xs font-bold border-none cursor-pointer shadow-sm transition-colors"
                   >
                     Join Community
                   </button>
@@ -660,7 +660,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                     type="button"
                     onClick={handleJoin}
                     disabled={joining}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#F4A01C] hover:bg-[#E09410] disabled:opacity-60 text-white text-xs font-bold border-none cursor-pointer shadow-sm transition-colors"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#0A66C2] hover:bg-[#004182] disabled:opacity-60 text-white text-xs font-bold border-none cursor-pointer shadow-sm transition-colors"
                   >
                     {joining ? (
                       <>
@@ -699,7 +699,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                   tab.locked
                     ? 'text-slate-300 dark:text-[#B0B7BE] cursor-not-allowed'
                     : activeTab === tab.id
-                      ? 'text-[#F4A01C] cursor-pointer'
+                      ? 'text-[#0A66C2] cursor-pointer'
                       : 'text-slate-500 dark:text-[#B0B7BE] hover:text-slate-800 dark:text-white dark:hover:text-white cursor-pointer'
                 }`}
               >
@@ -707,7 +707,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                 {tab.label}
                 {tab.locked && <Lock size={12} />}
                 {activeTab === tab.id && !tab.locked && (
-                  <span className="absolute bottom-0 left-2 right-2 h-0.5 bg-[#F4A01C] rounded-full" />
+                  <span className="absolute bottom-0 left-2 right-2 h-0.5 bg-[#0A66C2] rounded-full" />
                 )}
               </button>
             ))}
@@ -725,14 +725,14 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                   <button
                     type="button"
                     onClick={() => setShowPostModal(true)}
-                    className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-[#F4A01C] hover:bg-[#E09410] text-white text-xs font-bold border-none cursor-pointer shadow-sm transition-colors"
+                    className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-[#0A66C2] hover:bg-[#004182] text-white text-xs font-bold border-none cursor-pointer shadow-sm transition-colors"
                   >
                     <MessageSquarePlus size={16} /> Create Post
                   </button>
                 </div>
               )}
               {(hasJoined || isAlreadyMember) && !canPost && userRole !== 'guest' && (
-                <div className="mx-4 sm:mx-0 px-4 py-3 rounded-xl bg-[#FFF3D6] border border-[#F4A01C]/20 text-xs font-semibold text-[#0A2540] leading-relaxed">
+                <div className="mx-4 sm:mx-0 px-4 py-3 rounded-xl bg-[#EAF4FF] border border-[#0A66C2]/20 text-xs font-semibold text-[#0A66C2] leading-relaxed">
                   You joined as a member. You can view posts and updates; only students from this college can post here.
                 </div>
               )}
@@ -746,7 +746,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                         sessionStorage.setItem(`community-feed-back-intent-${slug}`, 'true')
                         router.push(`/community/c/${community.slug}/p/${post.id}`)
                       }}
-                      className="bg-white dark:bg-[#1D2226] rounded-none sm:rounded-2xl border-y sm:border border-slate-100 dark:border-[#38434F]/80 shadow-sm sm:shadow p-4 sm:p-5 cursor-pointer hover:border-[#F4A01C]/30 hover:shadow-md transition-all"
+                      className="bg-white dark:bg-[#1D2226] rounded-none sm:rounded-2xl border-y sm:border border-slate-100 dark:border-[#38434F]/80 shadow-sm sm:shadow p-4 sm:p-5 cursor-pointer hover:border-[#0A66C2]/30 hover:shadow-md transition-all"
                     >
                       <div className="flex items-start justify-between gap-3 mb-3">
                         <div className="flex items-center gap-3 min-w-0">
@@ -774,11 +774,11 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                                       e.stopPropagation()
                                       router.push(`/colleges/${post.communities?.colleges?.slug || post.communities?.slug}`)
                                     }}
-                                    className="text-sm font-bold text-slate-900 dark:text-white hover:text-[#F4A01C] border-none bg-transparent cursor-pointer p-0 truncate max-w-full"
+                                    className="text-sm font-bold text-slate-900 dark:text-white hover:text-[#0A66C2] border-none bg-transparent cursor-pointer p-0 truncate max-w-full"
                                   >
                                     {post.communities?.colleges?.name || post.communities?.colleges?.short_name || 'College'}
                                   </button>
-                                  <span className="text-[9px] font-bold uppercase px-2 py-0.5 rounded-full border bg-[#FFF3D6] text-[#E09410] border-[#F4A01C]/30">
+                                  <span className="text-[9px] font-bold uppercase px-2 py-0.5 rounded-full border bg-[#EAF4FF] text-[#004182] border-[#0A66C2]/30">
                                     Official
                                   </span>
                                 </div>
@@ -802,8 +802,8 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                                   post.users?.avatar_url
                                     ? 'bg-slate-100 dark:bg-[#283036]'
                                     : post.users?.role === 'senior'
-                                      ? 'bg-gradient-to-br from-emerald-500 to-teal-400'
-                                      : 'bg-gradient-to-br from-[#F4A01C] to-indigo-500'
+                                      ? 'bg-emerald-600'
+                                      : 'bg-[#0A66C2]'
                                 }`}
                               >
                                 {post.users?.avatar_url ? (
@@ -819,14 +819,14 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                                     e.stopPropagation()
                                     router.push(`/u/${post.users?.unique_id}`)
                                   }}
-                                  className="text-sm font-bold text-slate-900 dark:text-white hover:text-[#F4A01C] flex items-center gap-1.5 border-none bg-transparent cursor-pointer p-0 truncate max-w-full"
+                                  className="text-sm font-bold text-slate-900 dark:text-white hover:text-[#0A66C2] flex items-center gap-1.5 border-none bg-transparent cursor-pointer p-0 truncate max-w-full"
                                 >
                                   {post.users?.full_name}
                                   {post.users?.role === 'senior' && <Crown size={12} className="text-amber-500 shrink-0" />}
                                 </button>
                                 <div className="flex flex-wrap items-center gap-1.5 mt-0.5">
                                   {post.is_network_post && (
-                                    <span className="text-[9px] font-bold uppercase text-[#E09410] bg-[#FFF3D6] border border-[#F4A01C]/20 px-2 py-0.5 rounded-full">Network</span>
+                                    <span className="text-[9px] font-bold uppercase text-[#004182] bg-[#EAF4FF] border border-[#0A66C2]/20 px-2 py-0.5 rounded-full">Network</span>
                                   )}
                                   <span className="text-[9px] font-bold uppercase px-2 py-0.5 rounded-full border" style={{ color: s.color, background: s.bg, borderColor: s.border }}>{s.label}</span>
                                   <span className="text-[10px] text-slate-400 dark:text-[#B0B7BE] font-semibold inline-flex items-center gap-1">
@@ -850,7 +850,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
 
                       <div className="flex flex-wrap items-center gap-4 pt-3 mt-3 border-t border-surface dark:border-[#38434F] text-xs font-semibold text-slate-500 dark:text-[#B0B7BE]">
                         <span className="inline-flex items-center gap-1.5">
-                          <ArrowUp size={14} className="text-[#F4A01C]" />
+                          <ArrowUp size={14} className="text-[#0A66C2]" />
                           {post.upvote_count ?? 0} upvotes
                         </span>
                         <span className="inline-flex items-center gap-1.5">
@@ -870,7 +870,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                 })
               ) : (
                 <div className="text-center py-16 px-6 bg-surface dark:bg-[#1D2226] rounded-2xl border border-surface dark:border-[#38434F]/80">
-                  <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-[#FFF3D6] flex items-center justify-center text-[#F4A01C]">
+                  <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-[#EAF4FF] flex items-center justify-center text-[#0A66C2]">
                     <MessageSquare size={32} />
                   </div>
                   <h3 className="text-lg font-extrabold text-slate-900 dark:text-white m-0 mb-2">No posts yet</h3>
@@ -887,7 +887,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                   {jobs && jobs.length > 0 ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {jobs.map((job: any) => (
-                        <article key={job.id} className="bg-surface dark:bg-[#1D2226] rounded-2xl border border-surface dark:border-[#38434F]/80 shadow-sm p-5 hover:border-[#F4A01C]/30 hover:shadow-md transition-all">
+                        <article key={job.id} className="bg-surface dark:bg-[#1D2226] rounded-2xl border border-surface dark:border-[#38434F]/80 shadow-sm p-5 hover:border-[#0A66C2]/30 hover:shadow-md transition-all">
                           <div className="flex justify-between items-start gap-3 mb-4">
                             <div className="w-12 h-12 rounded-xl bg-app dark:bg-[#283036] border border-surface dark:border-[#38434F] flex items-center justify-center text-2xl shrink-0">
                               🏢
@@ -921,7 +921,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                               href={job.description}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="flex-1 text-center py-2.5 rounded-xl bg-[#FFF3D6] hover:bg-[#FFF3D6] text-[#F4A01C] text-xs font-bold no-underline transition-colors"
+                              className="flex-1 text-center py-2.5 rounded-xl bg-[#EAF4FF] hover:bg-[#EAF4FF] text-[#0A66C2] text-xs font-bold no-underline transition-colors"
                             >
                               View details
                             </a>
@@ -932,7 +932,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                                   setSelectedJob(job)
                                   setReferralConfirmOpen(true)
                                 }}
-                                className="flex-1 py-2.5 rounded-xl bg-[#F4A01C] hover:bg-[#E09410] text-white text-xs font-bold border-none cursor-pointer transition-colors"
+                                className="flex-1 py-2.5 rounded-xl bg-[#0A66C2] hover:bg-[#004182] text-white text-xs font-bold border-none cursor-pointer transition-colors"
                               >
                                 Get referral
                               </button>
@@ -984,7 +984,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                 <button
                   type="button"
                   onClick={() => setShowCreateGroupModal(true)}
-                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#F4A01C] hover:bg-[#E09410] text-white text-xs font-bold border-none cursor-pointer shadow-sm transition-colors shrink-0"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#0A66C2] hover:bg-[#004182] text-white text-xs font-bold border-none cursor-pointer shadow-sm transition-colors shrink-0"
                 >
                   <Users size={16} />
                   Create Group
@@ -1017,11 +1017,11 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                     tabIndex={0}
                     onClick={() => router.push(`/community/c/${slug}/group/${group.slug}`)}
                     onKeyDown={(e) => e.key === 'Enter' && router.push(`/community/c/${slug}/group/${group.slug}`)}
-                    className="bg-surface dark:bg-[#1D2226] rounded-2xl border border-surface dark:border-[#38434F]/80 shadow-sm p-4 sm:p-5 cursor-pointer hover:border-[#F4A01C]/30 hover:shadow-md transition-all"
+                    className="bg-surface dark:bg-[#1D2226] rounded-2xl border border-surface dark:border-[#38434F]/80 shadow-sm p-4 sm:p-5 cursor-pointer hover:border-[#0A66C2]/30 hover:shadow-md transition-all"
                   >
                     <div className="flex items-center gap-3 mb-3">
                       <div className="relative shrink-0">
-                        <div className="w-11 h-11 rounded-full overflow-hidden flex items-center justify-center text-sm font-bold text-white border-2 border-surface dark:border-[#38434F] bg-gradient-to-br from-[#F4A01C] to-cyan-500">
+                        <div className="w-11 h-11 rounded-full overflow-hidden flex items-center justify-center text-sm font-bold text-white border-2 border-surface dark:border-[#38434F] bg-[#0A66C2]">
                           {group.creator?.avatar_url ? (
                             <img src={group.creator.avatar_url} alt="" className="w-full h-full object-cover" />
                           ) : (
@@ -1038,7 +1038,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                         <div className="flex items-center gap-1.5 min-w-0">
                           <p className="text-sm font-bold text-slate-900 dark:text-white m-0 truncate">{group.creator?.full_name || 'Group Admin'}</p>
                           <span className={`text-[9px] font-bold uppercase px-1.5 py-0.5 rounded shrink-0 ${
-                            group.creator?.role === 'senior' ? 'bg-amber-50 text-amber-700' : 'bg-[#FFF3D6] text-[#E09410]'
+                            group.creator?.role === 'senior' ? 'bg-amber-50 text-amber-700' : 'bg-[#EAF4FF] text-[#004182]'
                           }`}>
                             {group.creator?.role === 'senior' ? 'Senior' : 'Admin'}
                           </span>
@@ -1093,7 +1093,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                       className={`w-full py-2.5 rounded-xl text-xs font-bold border-none cursor-pointer flex items-center justify-center gap-1.5 transition-colors ${
                         group.is_joined
                           ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
-                          : 'bg-[#F4A01C] hover:bg-[#E09410] text-white'
+                          : 'bg-[#0A66C2] hover:bg-[#004182] text-white'
                       }`}
                     >
                       {group.is_joined ? (
@@ -1107,7 +1107,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
               </div>
             ) : (
               <div className="text-center py-16 px-6 bg-surface dark:bg-[#1D2226] rounded-2xl border border-surface dark:border-[#38434F]/80">
-                <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-[#FFF3D6] flex items-center justify-center text-[#F4A01C]">
+                <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-[#EAF4FF] flex items-center justify-center text-[#0A66C2]">
                   <Users size={32} />
                 </div>
                 <h3 className="text-lg font-extrabold text-slate-900 dark:text-white m-0 mb-2">No groups yet</h3>
@@ -1118,7 +1118,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                   <button
                     type="button"
                     onClick={() => setShowCreateGroupModal(true)}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#F4A01C] hover:bg-[#E09410] text-white text-xs font-bold border-none cursor-pointer transition-colors"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#0A66C2] hover:bg-[#004182] text-white text-xs font-bold border-none cursor-pointer transition-colors"
                   >
                     <Users size={16} />
                     Create first group
@@ -1133,7 +1133,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                   <button
                     type="button"
                     onClick={() => router.push('/signup')}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#F4A01C] hover:bg-[#E09410] text-white text-xs font-bold border-none cursor-pointer transition-colors"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#0A66C2] hover:bg-[#004182] text-white text-xs font-bold border-none cursor-pointer transition-colors"
                   >
                     Sign up to create groups
                   </button>
@@ -1146,12 +1146,12 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
         {/* Sidebar */}
         <aside className="hidden lg:flex flex-col gap-4 lg:sticky lg:top-[7.5rem] lg:self-start">
           <div className="bg-surface dark:bg-[#1D2226] rounded-2xl border border-surface dark:border-[#38434F]/80 shadow-sm p-4">
-            <h4 className="text-[10px] font-bold uppercase tracking-wider text-[#F4A01C] mb-3 flex items-center gap-1.5 m-0">
+            <h4 className="text-[10px] font-bold uppercase tracking-wider text-[#0A66C2] mb-3 flex items-center gap-1.5 m-0">
               <Zap size={12} /> Community pulse
             </h4>
             <div className="grid grid-cols-2 gap-2">
               {[
-                { label: 'Seniors', val: verifiedSeniors, icon: <Crown size={14} className="text-[#F4A01C]" />, bg: 'bg-[#FFF3D6]' },
+                { label: 'Seniors', val: verifiedSeniors, icon: <Crown size={14} className="text-[#0A66C2]" />, bg: 'bg-[#EAF4FF]' },
                 { label: 'Members', val: totalMembers, icon: <Users size={14} className="text-cyan-600" />, bg: 'bg-cyan-50' },
                 { label: 'Posts', val: posts?.length || 0, icon: <MessageCircle size={14} className="text-amber-600" />, bg: 'bg-amber-50' },
                 { label: 'Jobs', val: jobs?.length || 0, icon: <Target size={14} className="text-emerald-600" />, bg: 'bg-emerald-50' },
@@ -1174,10 +1174,10 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
             </div>
             <div className="space-y-2">
               {topContributors.length > 0 ? topContributors.map(([id, c]: any, i) => (
-                <div key={id} className={`flex items-center gap-3 p-2 rounded-xl ${i === 0 ? 'bg-[#FFF3D6]/80' : ''}`}>
+                <div key={id} className={`flex items-center gap-3 p-2 rounded-xl ${i === 0 ? 'bg-[#EAF4FF]/80' : ''}`}>
                   <div className="relative shrink-0">
                     <div className={`w-9 h-9 rounded-lg overflow-hidden flex items-center justify-center text-xs font-bold text-white ${
-                      c.avatar_url ? 'bg-slate-100 dark:bg-[#283036]' : c.role === 'senior' ? 'bg-gradient-to-br from-emerald-500 to-teal-500' : 'bg-gradient-to-br from-[#0A2540] to-indigo-600'
+                      c.avatar_url ? 'bg-slate-100 dark:bg-[#283036]' : c.role === 'senior' ? 'bg-emerald-600' : 'bg-[#0A66C2]'
                     }`}>
                       {c.avatar_url ? <img src={c.avatar_url} alt="" className="w-full h-full object-cover" /> : c.name[0]}
                     </div>
@@ -1208,7 +1208,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                 { t: 'Trust verified seniors', d: 'Prioritize guidance from verified mentors.' },
               ].map((r, i) => (
                 <li key={i} className="flex gap-3">
-                  <span className="text-xs font-extrabold text-[#F4A01C]/60 w-4 shrink-0">{i + 1}</span>
+                  <span className="text-xs font-extrabold text-[#0A66C2]/60 w-4 shrink-0">{i + 1}</span>
                   <div>
                     <p className="text-xs font-bold text-slate-700 dark:text-white m-0">{r.t}</p>
                     <p className="text-[11px] text-slate-500 dark:text-[#B0B7BE] m-0 mt-0.5 leading-relaxed">{r.d}</p>
@@ -1245,7 +1245,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
       {referralConfirmOpen && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(12px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
           <div className="animate-fade bg-surface dark:bg-[#1D2226]" style={{ width: '100%', maxWidth: 400, borderRadius: 28, overflow: 'hidden', boxShadow: '0 40px 80px rgba(0,0,0,0.4)', padding: 32, textAlign: 'center' }}>
-            <div style={{ width: 64, height: 64, background: '#F5F3FF', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', color: '#F4A01C' }}>
+            <div style={{ width: 64, height: 64, background: '#F5F3FF', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', color: '#0A66C2' }}>
               <Target size={32} />
             </div>
             <h3 className="text-slate-900 dark:text-white" style={{ fontSize: 20, fontWeight: 800, marginBottom: 12 }}>Confirm Referral Request</h3>
@@ -1265,7 +1265,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
               <button
                 onClick={handleRequestReferral}
                 disabled={requestLoading}
-                style={{ flex: 2, background: 'linear-gradient(135deg, #F4A01C, #06B6D4)', color: 'white', border: 'none', padding: '12px', borderRadius: 14, fontSize: 13, fontWeight: 800, cursor: 'pointer', opacity: requestLoading ? 0.7 : 1 }}
+                style={{ flex: 2, background: 'linear-gradient(135deg, #0A66C2, #06B6D4)', color: 'white', border: 'none', padding: '12px', borderRadius: 14, fontSize: 13, fontWeight: 800, cursor: 'pointer', opacity: requestLoading ? 0.7 : 1 }}
               >
                 {requestLoading ? 'Sending...' : 'Confirm Request'}
               </button>
@@ -1317,7 +1317,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
                   {/* Own college — students */}
                   <div>
-                    <h4 style={{ fontSize: 13, fontWeight: 800, color: '#C87D0E', margin: '0 0 10px', display: 'flex', alignItems: 'center', gap: 8, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                    <h4 style={{ fontSize: 13, fontWeight: 800, color: '#004182', margin: '0 0 10px', display: 'flex', alignItems: 'center', gap: 8, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                       <GraduationCap size={15} />
                       Own College — Students ({memberGroups.ownStudents.length})
                     </h4>
@@ -1325,8 +1325,8 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                         {memberGroups.ownStudents.map((member) =>
                           renderMemberRow(member, {
-                            className: 'bg-[#FFF3D6] border-[#F4A01C]/30 dark:bg-purple-900/20 dark:border-purple-800/60',
-                            avatarBg: 'linear-gradient(135deg, #F4A01C, #06B6D4)',
+                            className: 'bg-[#EAF4FF] border-[#0A66C2]/30 dark:bg-purple-900/20 dark:border-purple-800/60',
+                            avatarBg: 'linear-gradient(135deg, #0A66C2, #06B6D4)',
                           })
                         )}
                       </div>
@@ -1348,7 +1348,7 @@ function CommunityPageContent({ params }: { params: Promise<{ slug: string }> })
                         {memberGroups.ownSeniors.map((member) =>
                           renderMemberRow(member, {
                             className: 'bg-amber-50 border-amber-200 dark:bg-amber-900/20 dark:border-amber-800/60',
-                            avatarBg: 'linear-gradient(135deg, #F59E0B, #D97706)',
+                            avatarBg: 'linear-gradient(135deg, #0A66C2, #D97706)',
                           })
                         )}
                       </div>
@@ -1423,7 +1423,7 @@ export default function CommunityPage({ params }: { params: Promise<{ slug: stri
   return (
     <Suspense fallback={
       <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#1D2226] flex flex-col items-center justify-center gap-3 font-plus-jakarta-sans">
-        <div className="w-10 h-10 border-4 border-[#F4A01C]/20 border-t-purple-600 rounded-full animate-spin" />
+        <div className="w-10 h-10 border-4 border-[#0A66C2]/20 border-t-purple-600 rounded-full animate-spin" />
         <p className="text-xs text-slate-500 dark:text-[#B0B7BE] font-semibold">Loading community...</p>
       </div>
     }>

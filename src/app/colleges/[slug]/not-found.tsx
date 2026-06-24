@@ -3,10 +3,10 @@ import { GraduationCap, ArrowLeft, Search } from 'lucide-react'
 
 export default function CollegeNotFound() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-[#F4F2EE] flex items-center justify-center px-4">
       <div className="max-w-md w-full text-center">
-        <div className="w-20 h-20 bg-[#FFF3D6] rounded-full flex items-center justify-center mx-auto mb-6">
-          <GraduationCap className="w-10 h-10 text-[#F4A01C]" />
+        <div className="w-20 h-20 bg-[#EAF4FF] rounded-full flex items-center justify-center mx-auto mb-6">
+          <GraduationCap className="w-10 h-10 text-[#0A66C2]" />
         </div>
         
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">College Not Found</h1>
@@ -17,7 +17,7 @@ export default function CollegeNotFound() {
         <div className="space-y-4">
           <Link 
             href="/colleges" 
-            className="inline-flex items-center gap-2 bg-[#F4A01C] text-white px-6 py-3 rounded-lg hover:bg-[#E09410] transition-colors font-medium"
+            className="inline-flex items-center gap-2 bg-[#0A66C2] text-white px-6 py-3 rounded-lg hover:bg-[#004182] transition-colors font-medium"
           >
             <ArrowLeft className="w-4 h-4" />
             Browse All Colleges
@@ -27,7 +27,7 @@ export default function CollegeNotFound() {
             Or{' '}
             <Link 
               href="/signup" 
-              className="text-[#F4A01C] hover:text-[#E09410] font-medium"
+              className="text-[#0A66C2] hover:text-[#004182] font-medium"
             >
               sign up
             </Link>{' '}

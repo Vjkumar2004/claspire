@@ -52,13 +52,13 @@ export default function ImageUploadZone({ images, imageUrls, onImagesSelected, o
           onClick={() => fileInputRef.current?.click()}
           className={`relative group cursor-pointer overflow-hidden rounded-2xl border-2 border-dashed transition-all duration-300 ${
             isDragging 
-              ? 'border-[#F4A01C] bg-[#FFF3D6] dark:bg-purple-500/10' 
-              : 'border-slate-200 bg-slate-50 dark:border-white/10 dark:bg-white/5 hover:border-[#F4A01C]/50 hover:bg-slate-100 dark:hover:bg-white/10'
+              ? 'border-[#0A66C2] bg-[#EAF4FF] dark:bg-purple-500/10' 
+              : 'border-slate-200 bg-slate-50 dark:border-white/10 dark:bg-white/5 hover:border-[#0A66C2]/50 hover:bg-slate-100 dark:hover:bg-white/10'
           }`}
         >
           <div className="px-6 py-10 flex flex-col items-center justify-center text-center">
-            <div className={`p-4 rounded-full mb-4 transition-all duration-300 ${isDragging ? 'bg-[#FFF3D6] dark:bg-purple-500/20 scale-110' : 'bg-slate-200 dark:bg-white/5 group-hover:bg-[#FFF3D6] dark:group-hover:bg-purple-500/20 group-hover:scale-110'}`}>
-              <UploadCloud size={32} className={isDragging ? 'text-[#F4A01C] dark:text-purple-400' : 'text-slate-400 dark:text-white/60 group-hover:text-[#F4A01C] dark:group-hover:text-purple-400'} />
+            <div className={`p-4 rounded-full mb-4 transition-all duration-300 ${isDragging ? 'bg-[#EAF4FF] dark:bg-purple-500/20 scale-110' : 'bg-slate-200 dark:bg-white/5 group-hover:bg-[#EAF4FF] dark:group-hover:bg-purple-500/20 group-hover:scale-110'}`}>
+              <UploadCloud size={32} className={isDragging ? 'text-[#0A66C2] dark:text-purple-400' : 'text-slate-400 dark:text-white/60 group-hover:text-[#0A66C2] dark:group-hover:text-purple-400'} />
             </div>
             <h3 className="text-slate-900 dark:text-white font-medium mb-1">Drag & Drop Images Here</h3>
             <p className="text-slate-500 dark:text-white/50 text-sm mb-4">or click to upload</p>

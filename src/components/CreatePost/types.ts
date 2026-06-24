@@ -41,7 +41,7 @@ export const POST_TYPES = [
     icon: '❓',
     label: 'Doubt',
     desc: 'Get help from the community',
-    color: '#F4A01C',
+    color: '#0A66C2',
     bg: 'rgba(139, 92, 246, 0.1)',
     border: 'rgba(139, 92, 246, 0.2)'
   },
@@ -59,7 +59,7 @@ export const POST_TYPES = [
     icon: '⭐',
     label: 'Experience',
     desc: 'Share your story',
-    color: '#F59E0B',
+    color: '#0A66C2',
     bg: 'rgba(245, 158, 11, 0.1)',
     border: 'rgba(245, 158, 11, 0.2)'
   },

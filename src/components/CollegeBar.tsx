@@ -36,20 +36,9 @@ export default function CollegeBar() {
   if (loading || colleges.length === 0) return null;
 
   return (
-    <section className="bg-[#FFF8EE] border-t border-b border-[#E8DFD0] py-5 overflow-hidden">
+    <section className="bg-[#F4F2EE] border-t border-b border-[#D9E2EC] py-5 overflow-hidden">
       <div className="container">
-        {/* Label */}
-        <motion.div
-          ref={ref}
-          initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-3.5"
-        >
-          <div className="text-[11px] font-bold tracking-[0.1em] uppercase text-[#5A7184]">
-            STUDENTS FROM THESE COLLEGES ARE ALREADY ON CLASPIRE
-          </div>
-        </motion.div>
+
 
         {/* Marquee */}
         <div className="marquee-wrapper overflow-hidden w-full">
@@ -68,9 +57,9 @@ export default function CollegeBar() {
               return (
                 <div
                   key={`${college.id}-${index}`}
-                  className="inline-flex items-center gap-2 whitespace-nowrap bg-white border border-[#E8DFD0] border-l-[3px] border-l-[#F4A01C] rounded-lg px-3.5 py-2 flex-shrink-0 shadow-sm"
+                  className="inline-flex items-center gap-2 whitespace-nowrap bg-white border border-[#D9E2EC] border-l-[3px] border-l-[#0A66C2] rounded-lg px-3.5 py-2 flex-shrink-0 shadow-sm"
                 >
-                  <div className="w-7 h-7 rounded-full overflow-hidden flex-shrink-0 bg-[#FFF8EE] border border-[#E8DFD0] flex items-center justify-center">
+                  <div className="w-7 h-7 rounded-full overflow-hidden flex-shrink-0 bg-[#F4F2EE] border border-[#D9E2EC] flex items-center justify-center">
                     {logo ? (
                       <img
                         src={logo}
@@ -78,12 +67,12 @@ export default function CollegeBar() {
                         className="w-full h-full object-contain"
                       />
                     ) : (
-                      <span className="text-[10px] font-black text-[#1B4F72]">
+                      <span className="text-[10px] font-black text-[#004182]">
                         {getCollegeInitial(college)}
                       </span>
                     )}
                   </div>
-                  <span className="text-sm font-semibold text-[#0A2540] whitespace-nowrap">
+                  <span className="text-sm font-semibold text-[#0A66C2] whitespace-nowrap">
                     {college.name}
                   </span>
                 </div>

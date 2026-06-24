@@ -77,7 +77,7 @@ export default function TermsPage() {
             <h2 className="text-black dark:text-white font-semibold mb-2 text-xl">6. Contact</h2>
             <p className="text-gray-600 dark:text-[#B0B7BE] leading-relaxed">
               If you have any questions about these Terms of Service, please contact us at:{" "}
-              <a href="mailto:claspire.community@gmail.com" className="text-[#F4A01C] hover:text-[#0A2540] dark:text-purple-400 dark:hover:text-purple-300 transition-colors">
+              <a href="mailto:claspire.community@gmail.com" className="text-[#0A66C2] hover:text-[#0A66C2] dark:text-purple-400 dark:hover:text-purple-300 transition-colors">
                 claspire.community@gmail.com
               </a>
             </p>

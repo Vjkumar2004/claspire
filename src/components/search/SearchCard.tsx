@@ -11,7 +11,7 @@ export function HighlightText({ text, query }: { text: string; query: string }) 
     <>
       {parts.map((part, i) =>
         part.toLowerCase() === query.toLowerCase() ? (
-          <mark key={i} className="bg-[#FFF3D6] text-[#F4A01C] font-semibold px-0.5 rounded">
+          <mark key={i} className="bg-[#EAF4FF] text-[#0A66C2] font-semibold px-0.5 rounded">
             {part}
           </mark>
         ) : (
@@ -54,11 +54,11 @@ export default function SearchCard({ card, query }: { card: SearchCardProps; que
       case 'job':
         return { bg: 'bg-amber-50 border-amber-100 text-amber-700', label: 'Job Opening' }
       case 'community':
-        return { bg: 'bg-[#FFF3D6] border-[#F4A01C]/20 text-[#F4A01C]', label: 'Community Hub' }
+        return { bg: 'bg-[#EAF4FF] border-[#0A66C2]/20 text-[#0A66C2]', label: 'Community Hub' }
       case 'college':
         return { bg: 'bg-indigo-50 border-indigo-100 text-indigo-700', label: 'College' }
       case 'group':
-        return { bg: 'bg-cyan-50 border-cyan-100 text-cyan-700', label: 'Public Group' }
+        return { bg: 'bg-cyan-50 border-cyan-100 text-[#0A66C2]', label: 'Public Group' }
       case 'post':
         const postType = card.subtitle.split(' • ')[1] || 'Post'
         const capitalizedType = postType.charAt(0).toUpperCase() + postType.slice(1)
@@ -87,7 +87,7 @@ export default function SearchCard({ card, query }: { card: SearchCardProps; que
       case 'job':
         return <Briefcase className="w-5 h-5 text-amber-600" />
       case 'community':
-        return <Building2 className="w-5 h-5 text-[#F4A01C]" />
+        return <Building2 className="w-5 h-5 text-[#0A66C2]" />
       case 'college':
         return <GraduationCap className="w-5 h-5 text-indigo-600" />
       case 'group':
@@ -176,7 +176,7 @@ export default function SearchCard({ card, query }: { card: SearchCardProps; que
             )}
           </div>
 
-          <h3 className="text-sm sm:text-base font-bold text-gray-900 dark:text-white leading-snug tracking-tight hover:text-[#F4A01C] transition-colors">
+          <h3 className="text-sm sm:text-base font-bold text-gray-900 dark:text-white leading-snug tracking-tight hover:text-[#0A66C2] transition-colors">
             <Link href={card.href} onClick={handleCardClick} className="no-underline text-inherit">
               <HighlightText text={card.title} query={query} />
             </Link>
@@ -221,7 +221,7 @@ export default function SearchCard({ card, query }: { card: SearchCardProps; que
         <Link href={card.href} onClick={handleCardClick} className="w-full sm:w-auto no-underline">
           <button
             className={`w-full sm:w-auto px-3.5 sm:px-4 py-1.5 sm:py-2 text-[11px] sm:text-xs font-bold rounded-md transition-all duration-150 cursor-pointer ${action.primary
-              ? 'bg-[#F4A01C] hover:bg-[#E09410] text-white shadow-sm dark:shadow-[#1D2226]/50 border border-transparent'
+              ? 'bg-[#0A66C2] hover:bg-[#004182] text-white shadow-sm dark:shadow-[#1D2226]/50 border border-transparent'
               : 'bg-surface dark:bg-[#283036] hover:bg-app dark:hover:bg-[#1D2226] text-gray-700 border border-gray-300 hover:border-gray-400 shadow-sm dark:shadow-[#1D2226]/50'
               }`}
           >

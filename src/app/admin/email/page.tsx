@@ -334,9 +334,9 @@ export default function AdminEmailCampaignsPage() {
 
     if (templateType === 'digest') {
       return (
-        <div className="rounded-lg bg-[#FFF3D6] dark:bg-purple-900/10 border border-[#F4A01C]/20 dark:border-purple-900/30 p-4">
-          <p className="text-sm text-[#E09410] dark:text-purple-300 font-medium">Weekly Digest</p>
-          <p className="text-xs text-[#F4A01C] dark:text-purple-400 mt-1">
+        <div className="rounded-lg bg-[#EAF4FF] dark:bg-purple-900/10 border border-[#0A66C2]/20 dark:border-purple-900/30 p-4">
+          <p className="text-sm text-[#004182] dark:text-purple-300 font-medium">Weekly Digest</p>
+          <p className="text-xs text-[#0A66C2] dark:text-purple-400 mt-1">
             A pre-formatted weekly digest will be sent with a roundup of the latest opportunities.
             No additional fields required.
           </p>

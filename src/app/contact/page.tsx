@@ -42,21 +42,21 @@ export default function ContactPage() {
         {/* Contact Cards */}
         <div className="grid md:grid-cols-2 gap-6 mb-8">
           <div className="border border-surface dark:border-[#38434F] rounded-xl p-6 bg-app dark:bg-[#1D2226]">
-            <div className="mb-3 text-[#F4A01C]"><Mail size={28} /></div>
+            <div className="mb-3 text-[#0A66C2]"><Mail size={28} /></div>
             <h3 className="font-semibold mb-2 text-lg">Email Us</h3>
             <a 
               href="mailto:claspire.community@gmail.com" 
-              className="text-[#F4A01C] hover:text-[#0A2540] font-medium transition-colors break-all"
+              className="text-[#0A66C2] hover:text-[#0A66C2] font-medium transition-colors break-all"
             >
               claspire.community@gmail.com
             </a>
           </div>
           <div className="border border-surface dark:border-[#38434F] rounded-xl p-6 bg-app dark:bg-[#1D2226]">
-            <div className="mb-3 text-[#F4A01C]"><Phone size={28} /></div>
+            <div className="mb-3 text-[#0A66C2]"><Phone size={28} /></div>
             <h3 className="font-semibold mb-2 text-lg">Call Us</h3>
             <a 
               href="tel:+919092322803" 
-              className="text-[#F4A01C] hover:text-[#0A2540] font-medium transition-colors"
+              className="text-[#0A66C2] hover:text-[#0A66C2] font-medium transition-colors"
             >
               +91 9092322803
             </a>
@@ -69,7 +69,7 @@ export default function ContactPage() {
             For college partnership requests, email:{" "}
             <a 
               href="mailto:colleges@claspire.in" 
-              className="text-[#F4A01C] hover:text-[#0A2540] font-medium transition-colors"
+              className="text-[#0A66C2] hover:text-[#0A66C2] font-medium transition-colors"
             >
               colleges@claspire.in
             </a>

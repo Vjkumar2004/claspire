@@ -218,7 +218,7 @@ export default function AvatarUpload({
             ? 'transparent'
             : fallbackType === 'camera' 
               ? 'transparent'
-              : 'linear-gradient(135deg, #F4A01C, #06B6D4)',
+              : 'linear-gradient(135deg, #0A66C2, #06B6D4)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -280,7 +280,7 @@ export default function AvatarUpload({
             width: 30,
             height: 30,
             borderRadius: '50%',
-            background: 'linear-gradient(135deg, #F4A01C, #06B6D4)',
+            background: 'linear-gradient(135deg, #0A66C2, #06B6D4)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',

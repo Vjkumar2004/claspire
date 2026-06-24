@@ -8,6 +8,27 @@
   --color-surface: var(--surface-background);
   --color-surface-border: var(--surface-border);
   --color-surface-hover: var(--surface-hover);
+
+  --color-amber-50: #EAF4FF;
+  --color-amber-100: #EAF4FF;
+  --color-amber-200: #D9E2EC;
+  --color-amber-300: #0A66C2;
+  --color-amber-400: #0A66C2;
+  --color-amber-500: #0A66C2;
+  --color-amber-600: #004182;
+  --color-amber-700: #004182;
+  --color-amber-800: #004182;
+  --color-amber-950: #004182;
+
+  --color-orange-50: #EAF4FF;
+  --color-orange-100: #EAF4FF;
+  --color-orange-200: #D9E2EC;
+  --color-orange-300: #0A66C2;
+  --color-orange-400: #0A66C2;
+  --color-orange-500: #0A66C2;
+  --color-orange-600: #004182;
+  --color-orange-700: #004182;
+  --color-orange-850: #004182;
 }
 
 .bg-app {
@@ -94,22 +115,22 @@ section {
   --white: #FFFFFF;
   --border: #E5E7EB;
 
-  /* Navy + Saffron Design Tokens */
-  --accent: #F4A01C;
-  --accent-hover: #E09410;
-  --accent-dark: #C87D0E;
-  --accent-light: #FFF3D6;
-  --navy: #0A2540;
-  --navy-mid: #1B4F72;
-  --navy-light: #E8F1F8;
-  --muted: #5A7184;
+  /* Navy + Saffron Design Tokens migrated to LinkedIn Blue & White theme */
+  --accent: #0A66C2;
+  --accent-hover: #004182;
+  --accent-dark: #004182;
+  --accent-light: #EAF4FF;
+  --navy: #0A66C2;
+  --navy-mid: #004182;
+  --navy-light: #EAF4FF;
+  --muted: #666666;
 
   /* Global Theme Palette */
   --bg-app: #F4F2EE;
   --surface: #FFFFFF;
   --app-background: #F4F2EE;
   --surface-background: #FFFFFF;
-  --surface-border: #E8E5DF;
+  --surface-border: #D9E2EC;
   --surface-hover: #F1EFEA;
 }
 
@@ -243,15 +264,12 @@ h6 {
 /* ===== NETWORK PAGE PREMIUM STYLES ===== */
 
 .gradient-text-purple {
-  background: linear-gradient(to right, #F4A01C, #E09410);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #0A66C2;
 }
 
 .network-card {
   background: #FFFFFF;
-  border: 1px solid rgba(229, 231, 235, 0.8);
+  border: 1px solid rgba(217, 226, 236, 0.8);
   border-radius: 16px;
   transition: box-shadow 0.3s ease, transform 0.3s ease, border-color 0.3s ease;
 }
@@ -266,21 +284,21 @@ h6 {
 }
 
 .btn-connect {
-  background: linear-gradient(135deg, #0A2540 0%, #1B4F72 100%);
+  background: #0A66C2;
   color: #FFFFFF;
   border: none;
   transition: all 0.2s ease;
 }
 .btn-connect:hover {
-  background: linear-gradient(135deg, #1B4F72 0%, #0A2540 100%);
-  box-shadow: 0 4px 12px rgba(10, 37, 64, 0.3);
+  background: #004182;
+  box-shadow: 0 4px 12px rgba(10, 102, 194, 0.3);
 }
 
 .glass-card {
   background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(229, 231, 235, 0.6);
+  border: 1px solid rgba(217, 226, 236, 0.6);
   border-radius: 16px;
 }
 
@@ -355,9 +373,9 @@ h6 {
 }
 
 .filter-chip-active {
-  background: #FFF3D6;
-  color: #F4A01C;
-  border-color: #F4A01C;
+  background: #EAF4FF;
+  color: #0A66C2;
+  border-color: #0A66C2;
 }
 
 .dark .filter-chip-active {
@@ -366,8 +384,8 @@ h6 {
 }
 
 .sidebar-nav-active {
-  background: #0A2540;
-  color: #F4A01C;
+  background: #EAF4FF;
+  color: #0A66C2;
   font-weight: 700;
 }
 
@@ -379,7 +397,7 @@ h6 {
 .strength-bar-fill {
   height: 100%;
   border-radius: 2px;
-  background: linear-gradient(90deg, #F4A01C, #10B981, #0A2540);
+  background: #0A66C2;
   transition: width 0.6s ease;
 }
 
@@ -436,14 +454,14 @@ h6 {
 }
 
 .hero-gradient {
-  background: linear-gradient(135deg, #0A2540 0%, #1B4F72 100%);
+  background: #0A66C2;
 }
 
 .hero-pattern-overlay {
   background-image:
-    radial-gradient(circle at 20% 50%, rgba(244, 160, 28, 0.12) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(10, 37, 64, 0.15) 0%, transparent 50%),
-    radial-gradient(circle at 50% 80%, rgba(27, 79, 114, 0.1) 0%, transparent 50%);
+    radial-gradient(circle at 20% 50%, rgba(10, 102, 194, 0.12) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(10, 102, 194, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 50% 80%, rgba(10, 102, 194, 0.1) 0%, transparent 50%);
 }
 
 .hero-dot-pattern {
@@ -502,7 +520,7 @@ h6 {
   transform: translateY(-50%);
   width: 3px;
   height: 0;
-  background: linear-gradient(180deg, #F4A01C, #E09410);
+  background: #0A66C2;
   border-radius: 0 3px 3px 0;
   transition: height 0.2s ease;
 }
@@ -524,9 +542,9 @@ h6 {
   cursor: pointer;
 }
 .toggle-card.active {
-  border-color: #F4A01C;
-  background: #FFF3D6;
-  box-shadow: 0 2px 8px rgba(244, 160, 28, 0.2);
+  border-color: #0A66C2;
+  background: #EAF4FF;
+  box-shadow: 0 2px 8px rgba(10, 102, 194, 0.2);
 }
 
 .dark .toggle-card.active {
@@ -535,7 +553,7 @@ h6 {
 }
 
 .toggle-card:not(.active):hover {
-  border-color: #F4A01C;
+  border-color: #0A66C2;
   background: #FAFAFA;
 }
 
@@ -550,7 +568,7 @@ h6 {
   100% { background-position: 200% center; }
 }
 .badge-shimmer {
-  background: linear-gradient(90deg, #FBBF24, #F59E0B, #FBBF24);
+  background: linear-gradient(90deg, #0A66C2, #004182, #0A66C2);
   background-size: 200% auto;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -614,12 +632,12 @@ h6 {
 /* Landing page theme — preserve Navy + Saffron section backgrounds */
 :root:not(.dark) .landing-page,
 :root:not(.dark) .landing-page.min-h-screen {
-  background-color: #FFF8EE !important;
+  background-color: #F4F2EE !important;
   background-image: none !important;
 }
 
 .landing-page section.bg-\[\#FFF8EE\] {
-  background-color: #FFF8EE !important;
+  background-color: #F4F2EE !important;
   background-image: none !important;
 }
 
@@ -628,13 +646,13 @@ h6 {
   background-image: none !important;
 }
 
-.landing-page section.bg-\[\#0A2540\] {
-  background-color: #0A2540 !important;
+.landing-page section.bg-\[\#0A66C2\] {
+  background-color: #0A66C2 !important;
   background-image: none !important;
 }
 
-.landing-page footer.bg-\[\#0A2540\] {
-  background-color: #0A2540 !important;
+.landing-page footer.bg-\[\#0A66C2\] {
+  background-color: #0A66C2 !important;
 }
 
 /* Smooth visual transitions for theme changes */

@@ -91,12 +91,12 @@ export default function AdminSidebar() {
       >
         <div className="p-5 border-b border-surface dark:border-[#38434F] flex items-center justify-between">
           <Link href="/admin" className="flex items-center gap-2.5 no-underline" onClick={close}>
-            <div className="w-8 h-8 bg-gradient-to-br from-[#0A2540] to-indigo-600 rounded-lg flex items-center justify-center shrink-0">
+            <div className="w-8 h-8 bg-[#0A66C2] rounded-lg flex items-center justify-center shrink-0">
               <Shield size={16} className="text-white" />
             </div>
             <div>
               <p className="text-sm font-black text-gray-900 dark:text-white leading-tight">Claspire</p>
-              <p className="text-[9px] font-bold text-[#F4A01C] uppercase tracking-widest">Admin Panel</p>
+              <p className="text-[9px] font-bold text-[#0A66C2] uppercase tracking-widest">Admin Panel</p>
             </div>
           </Link>
           <button
@@ -128,7 +128,7 @@ export default function AdminSidebar() {
                 href={item.href}
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-bold transition-all no-underline ${
                   isActive
-                    ? 'bg-[#FFF3D6] dark:bg-purple-900/20 text-[#E09410] dark:text-purple-300'
+                    ? 'bg-[#EAF4FF] dark:bg-purple-900/20 text-[#004182] dark:text-purple-300'
                     : 'text-gray-600 dark:text-[#B0B7BE] hover:bg-app dark:hover:bg-[#1D2226]'
                 }`}
               >

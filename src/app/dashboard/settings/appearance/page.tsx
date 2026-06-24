@@ -49,13 +49,13 @@ export default function AppearancePage() {
               onClick={() => setTheme(option.value)}
               className={`relative flex items-start gap-4 p-5 rounded-xl border-2 text-left w-full transition-all ${
                 isActive
-                  ? 'border-[#F4A01C] dark:border-[#0A66C2] bg-[#FFF3D6] dark:bg-[#0A66C2]/10'
+                  ? 'border-[#0A66C2] dark:border-[#0A66C2] bg-[#EAF4FF] dark:bg-[#0A66C2]/10'
                   : 'border-surface dark:border-[#38434F] bg-surface dark:bg-[#283036] hover:border-gray-300 dark:hover:border-[#4A5568]'
               }`}
             >
               <div className={`flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center ${
                 isActive
-                  ? 'bg-[#F4A01C] dark:bg-[#0A66C2] text-white'
+                  ? 'bg-[#0A66C2] dark:bg-[#0A66C2] text-white'
                   : 'bg-gray-100 dark:bg-[#1D2226] text-gray-500 dark:text-[#B0B7BE]'
               }`}>
                 <Icon size={20} />
@@ -81,7 +81,7 @@ export default function AppearancePage() {
                 </div>
               </div>
               {isActive && (
-                <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-[#F4A01C] dark:bg-[#0A66C2] flex items-center justify-center">
+                <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-[#0A66C2] dark:bg-[#0A66C2] flex items-center justify-center">
                   <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
                     <path d="M2.5 6L5 8.5L9.5 3.5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>

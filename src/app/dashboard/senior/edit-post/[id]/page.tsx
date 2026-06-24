@@ -24,7 +24,7 @@ const stripHtml = (html: string) => {
 }
 
 const POST_TYPES = [
-  { key: 'doubt', icon: '❓', label: 'Doubt', desc: 'Ask a question', color: '#F4A01C', bg: '#F5F3FF', border: '#DDD6FE' },
+  { key: 'doubt', icon: '❓', label: 'Doubt', desc: 'Ask a question', color: '#0A66C2', bg: '#F5F3FF', border: '#DDD6FE' },
   { key: 'discussion', icon: '💬', label: 'Discussion', desc: 'Start a conversation', color: '#2563EB', bg: '#EFF6FF', border: '#BFDBFE' },
   { key: 'experience', icon: '🏆', label: 'Experience', desc: 'Share your story', color: '#D97706', bg: '#FFFBEB', border: '#FDE68A' },
   { key: 'referral_hunt', icon: '🎯', label: 'Referral Hunt', desc: 'Find a referral', color: '#059669', bg: '#ECFDF5', border: '#A7F3D0' },
@@ -281,7 +281,7 @@ export default function EditPostPage() {
     return (
       <div className="min-h-screen bg-[#FAFBFC] flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 size={32} className="animate-spin text-[#F4A01C]" />
+          <Loader2 size={32} className="animate-spin text-[#0A66C2]" />
           <p className="text-sm font-semibold text-gray-500">Loading post...</p>
         </div>
       </div>
@@ -329,7 +329,7 @@ export default function EditPostPage() {
             <button
               onClick={handleSave}
               disabled={saving || imageUploading || imageCompressing}
-              className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-[#0A2540] to-[#1B4F72] text-white rounded-xl text-sm font-black hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 px-5 py-2.5 bg-[#0A66C2] text-white rounded-xl text-sm font-black hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {imageCompressing ? (
                 <>
@@ -395,7 +395,7 @@ export default function EditPostPage() {
             value={title}
             onChange={e => setTitle(e.target.value)}
             placeholder="Give your post a clear title..."
-            className="w-full border border-surface rounded-xl px-4 py-3 text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#F4A01C]/20 focus:border-[#F4A01C] transition-all placeholder:text-gray-300"
+            className="w-full border border-surface rounded-xl px-4 py-3 text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0A66C2]/20 focus:border-[#0A66C2] transition-all placeholder:text-gray-300"
             maxLength={150}
           />
           <p className="text-[10px] text-gray-400 mt-1.5 text-right">{title.length}/150</p>
@@ -411,7 +411,7 @@ export default function EditPostPage() {
             onChange={e => setContent(e.target.value)}
             placeholder="Write your content here..."
             rows={8}
-            className="w-full border border-surface rounded-xl px-4 py-3 text-sm font-medium text-gray-900 leading-relaxed focus:outline-none focus:ring-2 focus:ring-[#F4A01C]/20 focus:border-[#F4A01C] transition-all placeholder:text-gray-300 resize-none"
+            className="w-full border border-surface rounded-xl px-4 py-3 text-sm font-medium text-gray-900 leading-relaxed focus:outline-none focus:ring-2 focus:ring-[#0A66C2]/20 focus:border-[#0A66C2] transition-all placeholder:text-gray-300 resize-none"
           />
           <p className="text-[10px] text-gray-400 mt-1.5 text-right">{content.length} characters</p>
         </div>
@@ -426,7 +426,7 @@ export default function EditPostPage() {
               <button
                 onClick={() => imageRef.current?.click()}
                 disabled={imageUploading || imageCompressing}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-[#FFF3D6] text-[#F4A01C] rounded-lg text-xs font-bold hover:bg-[#FFF3D6] transition-colors disabled:opacity-50"
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-[#EAF4FF] text-[#0A66C2] rounded-lg text-xs font-bold hover:bg-[#EAF4FF] transition-colors disabled:opacity-50"
               >
                 <ImagePlus size={14} />
                 Add Image
@@ -510,7 +510,7 @@ export default function EditPostPage() {
           {totalImageCount === 0 && !imageUploading && (
             <button
               onClick={() => imageRef.current?.click()}
-              className="w-full border-2 border-dashed border-surface rounded-xl py-10 flex flex-col items-center gap-2 hover:border-[#F4A01C]/50 hover:bg-[#FFF3D6]/30 transition-all cursor-pointer"
+              className="w-full border-2 border-dashed border-surface rounded-xl py-10 flex flex-col items-center gap-2 hover:border-[#0A66C2]/50 hover:bg-[#EAF4FF]/30 transition-all cursor-pointer"
             >
               <ImagePlus size={28} className="text-gray-300" />
               <span className="text-xs font-semibold text-gray-400">Click to add images (max 5, each less than 2MB)</span>
@@ -528,7 +528,7 @@ export default function EditPostPage() {
               {tags.map((tag, i) => (
                 <span
                   key={i}
-                  className="inline-flex items-center gap-1.5 bg-[#FFF3D6] text-[#F4A01C] text-xs font-bold px-2.5 py-1 rounded-lg"
+                  className="inline-flex items-center gap-1.5 bg-[#EAF4FF] text-[#0A66C2] text-xs font-bold px-2.5 py-1 rounded-lg"
                 >
                   #{tag}
                   <button onClick={() => removeTag(tag)} className="hover:text-red-500 transition-colors">
@@ -577,13 +577,13 @@ export default function EditPostPage() {
               onClick={() => setVisibility('private')}
               className={`flex-1 flex items-center gap-2.5 p-3 rounded-xl border-[1.5px] transition-all ${
                 visibility === 'private'
-                  ? 'border-[#F4A01C]/50 bg-[#FFF3D6]'
+                  ? 'border-[#0A66C2]/50 bg-[#EAF4FF]'
                   : 'border-surface bg-surface'
               }`}
             >
-              <Lock size={16} className={visibility === 'private' ? 'text-[#F4A01C]' : 'text-gray-400'} />
+              <Lock size={16} className={visibility === 'private' ? 'text-[#0A66C2]' : 'text-gray-400'} />
               <div>
-                <div className={`text-xs font-bold ${visibility === 'private' ? 'text-[#E09410]' : 'text-gray-600'}`}>Private</div>
+                <div className={`text-xs font-bold ${visibility === 'private' ? 'text-[#004182]' : 'text-gray-600'}`}>Private</div>
                 <div className="text-[10px] text-gray-400 font-medium">Community only</div>
               </div>
             </button>
@@ -595,7 +595,7 @@ export default function EditPostPage() {
           <button
             onClick={handleSave}
             disabled={saving || imageUploading || imageCompressing}
-            className="w-full flex items-center justify-center gap-2 px-5 py-4 bg-gradient-to-r from-[#0A2540] to-[#1B4F72] text-white rounded-2xl text-sm font-black hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full flex items-center justify-center gap-2 px-5 py-4 bg-[#0A66C2] text-white rounded-2xl text-sm font-black hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {imageCompressing ? (
               <>

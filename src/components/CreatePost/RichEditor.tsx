@@ -47,8 +47,8 @@ export default function RichEditor({ value, onChange, placeholder }: RichEditorP
   ]
 
   return (
-    <div className="group relative rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 transition-colors focus-within:border-[#F4A01C]/50 flex flex-col min-h-[160px]">
-      <div className="absolute -inset-0.5 bg-gradient-to-r from-[#F4A01C]/20 to-cyan-500/20 rounded-2xl blur opacity-0 group-focus-within:opacity-100 transition duration-500 pointer-events-none"></div>
+    <div className="group relative rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 transition-colors focus-within:border-[#0A66C2]/50 flex flex-col min-h-[160px]">
+      <div className="absolute -inset-0.5 bg-[#0A66C2]/20 rounded-2xl blur opacity-0 group-focus-within:opacity-100 transition duration-500 pointer-events-none"></div>
       
       <div className="relative rounded-2xl bg-white/80 dark:bg-[#0f172a]/80 backdrop-blur-xl overflow-hidden flex flex-col flex-1">
         {/* Toolbar */}
@@ -86,7 +86,7 @@ export default function RichEditor({ value, onChange, placeholder }: RichEditorP
             contentEditable
             onInput={handleInput}
             onBlur={handleInput}
-            className="w-full min-h-[120px] outline-none text-slate-900 dark:text-white font-sans text-base leading-relaxed whitespace-pre-wrap [&>blockquote]:border-l-4 [&>blockquote]:border-[#F4A01C] [&>blockquote]:pl-4 [&>blockquote]:text-slate-500 dark:[&>blockquote]:text-white/70 [&>ul]:list-disc [&>ul]:pl-5 [&>ol]:list-decimal [&>ol]:pl-5 [&>a]:text-cyan-600 dark:[&>a]:text-cyan-400 [&>a]:underline"
+            className="w-full min-h-[120px] outline-none text-slate-900 dark:text-white font-sans text-base leading-relaxed whitespace-pre-wrap [&>blockquote]:border-l-4 [&>blockquote]:border-[#0A66C2] [&>blockquote]:pl-4 [&>blockquote]:text-slate-500 dark:[&>blockquote]:text-white/70 [&>ul]:list-disc [&>ul]:pl-5 [&>ol]:list-decimal [&>ol]:pl-5 [&>a]:text-cyan-600 dark:[&>a]:text-cyan-400 [&>a]:underline"
           />
         </div>
       </div>

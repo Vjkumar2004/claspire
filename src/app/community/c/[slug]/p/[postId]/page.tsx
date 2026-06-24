@@ -38,7 +38,7 @@ const formatCount = (n: number) => {
 
 const typeStyles: Record<string, { label: string; icon: string; classes: string }> = {
   doubt: { label: 'Doubt', icon: '❓', classes: 'bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-500/30' },
-  discussion: { label: 'Discussion', icon: '💬', classes: 'bg-[#FFF3D6] dark:bg-purple-500/20 text-[#E09410] dark:text-purple-300 border-[#F4A01C]/30 dark:border-purple-500/30' },
+  discussion: { label: 'Discussion', icon: '💬', classes: 'bg-[#EAF4FF] dark:bg-purple-500/20 text-[#004182] dark:text-purple-300 border-[#0A66C2]/30 dark:border-purple-500/30' },
   experience: { label: 'Experience', icon: '⭐', classes: 'bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-500/30' },
   referral_hunt: { label: 'Referral Hunt', icon: '🎯', classes: 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-500/30' },
   resource: { label: 'Resource', icon: '📚', classes: 'bg-red-100 dark:bg-red-500/20 text-red-700 dark:text-red-300 border-red-200 dark:border-red-500/30' },
@@ -363,7 +363,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
     return (
       <div className="min-h-screen bg-gradient-to-b from-[#F5F4FF] dark:from-[#1D2226] to-white dark:to-[#1D2226] flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-10 h-10 border-[3px] border-[#F4A01C]/20 border-t-[#F4A01C] rounded-full animate-spin" />
+          <div className="w-10 h-10 border-[3px] border-[#0A66C2]/20 border-t-[#0A66C2] rounded-full animate-spin" />
           <p className="text-sm text-slate-400 dark:text-[#B0B7BE] font-semibold">Loading post...</p>
         </div>
       </div>
@@ -398,7 +398,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
       <div className={`flex items-start gap-3 ${isReply ? 'pl-2' : ''}`}>
         <button
           onClick={() => router.push(`/u/${answer.users?.unique_id}`)}
-          className={`${isReply ? 'w-7 h-7 text-[10px]' : 'w-9 h-9 text-xs'} rounded-lg bg-gradient-to-br from-[#F4A01C] to-cyan-400 flex items-center justify-center font-bold text-white overflow-hidden flex-shrink-0 hover:scale-105 transition-transform`}
+          className={`${isReply ? 'w-7 h-7 text-[10px]' : 'w-9 h-9 text-xs'} rounded-lg bg-[#0A66C2] flex items-center justify-center font-bold text-white overflow-hidden flex-shrink-0 hover:scale-105 transition-transform`}
         >
           {answer.users?.avatar_url ? (
             <img src={answer.users.avatar_url} alt={answer.users.full_name} className="w-full h-full object-cover" />
@@ -411,7 +411,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
           <div className="flex items-center gap-2 flex-wrap mb-1">
             <button
               onClick={() => router.push(`/u/${answer.users?.unique_id}`)}
-              className="text-sm font-bold text-slate-900 dark:text-white hover:text-[#F4A01C] transition-colors"
+              className="text-sm font-bold text-slate-900 dark:text-white hover:text-[#0A66C2] transition-colors"
             >
               {answer.users?.full_name}
             </button>
@@ -434,14 +434,14 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
                   setReplyToAnswerId(replyToAnswerId === answer.id ? null : answer.id)
                   if (replyToAnswerId !== answer.id) setNewAnswer('')
                 }}
-                className="text-xs font-bold text-slate-400 dark:text-[#B0B7BE] hover:text-[#F4A01C] transition-colors"
+                className="text-xs font-bold text-slate-400 dark:text-[#B0B7BE] hover:text-[#0A66C2] transition-colors"
               >
                 Reply
               </button>
               {replies.filter((r: any) => r.parent_answer_id === answer.id).length > 0 && (
                 <button
                   onClick={() => setExpandedReplies((prev) => ({ ...prev, [answer.id]: !prev[answer.id] }))}
-                  className="text-xs font-bold text-[#F4A01C] bg-[#FFF3D6] px-2.5 py-1 rounded-md hover:bg-[#FFF3D6] transition-colors"
+                  className="text-xs font-bold text-[#0A66C2] bg-[#EAF4FF] px-2.5 py-1 rounded-md hover:bg-[#EAF4FF] transition-colors"
                 >
                   {expandedReplies[answer.id]
                     ? 'Hide Replies'
@@ -467,13 +467,13 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#F5F4FF] dark:from-[#1D2226] via-white dark:via-[#283036] to-slate-50 dark:to-[#1D2226]">
       {/* Breadcrumb */}
-      <div className="sticky top-0 z-20 bg-surface/80 dark:bg-[#1D2226]/80 backdrop-blur-md border-b border-[#F4A01C]/20/60 dark:border-[#38434F]">
+      <div className="sticky top-0 z-20 bg-surface/80 dark:bg-[#1D2226]/80 backdrop-blur-md border-b border-[#0A66C2]/20/60 dark:border-[#38434F]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center gap-2 text-xs font-semibold text-slate-400 dark:text-[#B0B7BE]">
-          <button onClick={() => router.push('/community')} className="text-[#F4A01C] hover:underline">
+          <button onClick={() => router.push('/community')} className="text-[#0A66C2] hover:underline">
             Community
           </button>
           <ChevronRight className="w-3 h-3 shrink-0" />
-          <button onClick={() => router.push(`/community/c/${slug}`)} className="text-[#F4A01C] hover:underline">
+          <button onClick={() => router.push(`/community/c/${slug}`)} className="text-[#0A66C2] hover:underline">
             c/{slug}
           </button>
           <ChevronRight className="w-3 h-3 shrink-0" />
@@ -484,7 +484,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 pb-28">
         <button
           onClick={() => router.back()}
-          className="inline-flex items-center gap-2 text-sm font-bold text-[#F4A01C] dark:text-purple-300 bg-surface dark:bg-[#283036] border border-[#F4A01C]/20 dark:border-[#38434F] rounded-xl px-4 py-2 mb-6 hover:bg-[#FFF3D6] dark:hover:bg-[#1D2226] transition-colors shadow-sm"
+          className="inline-flex items-center gap-2 text-sm font-bold text-[#0A66C2] dark:text-purple-300 bg-surface dark:bg-[#283036] border border-[#0A66C2]/20 dark:border-[#38434F] rounded-xl px-4 py-2 mb-6 hover:bg-[#EAF4FF] dark:hover:bg-[#1D2226] transition-colors shadow-sm"
         >
           <ArrowLeft className="w-4 h-4" />
           Back
@@ -500,7 +500,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
               transition={{ duration: 0.3 }}
               className="bg-surface dark:bg-[#283036] rounded-2xl border border-surface dark:border-[#38434F] dark:border-[#38434F] shadow-sm overflow-hidden"
             >
-              <div className="h-1.5 bg-gradient-to-r from-[#F4A01C] via-violet-400 to-cyan-400" />
+              <div className="h-1.5 bg-[#0A66C2]" />
 
               <div className="p-5 sm:p-7">
                 {/* Compact author header — full context on mobile, minimal on desktop */}
@@ -522,11 +522,11 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
                           <div className="flex items-center gap-2 flex-wrap">
                             <button
                               onClick={() => router.push(`/colleges/${post.communities?.colleges?.slug || post.communities?.slug}`)}
-                              className="font-bold text-slate-900 dark:text-white hover:text-[#F4A01C] transition-colors text-sm"
+                              className="font-bold text-slate-900 dark:text-white hover:text-[#0A66C2] transition-colors text-sm"
                             >
                               {post.communities?.colleges?.name || post.communities?.colleges?.short_name || 'College'}
                             </button>
-                            <span className="lg:hidden inline-flex items-center gap-0.5 text-[8px] font-black uppercase bg-[#FFF3D6] dark:bg-purple-500/20 text-[#E09410] dark:text-purple-300 border border-[#F4A01C]/30 dark:border-purple-500/30 px-1.5 py-0.5 rounded">
+                            <span className="lg:hidden inline-flex items-center gap-0.5 text-[8px] font-black uppercase bg-[#EAF4FF] dark:bg-purple-500/20 text-[#004182] dark:text-purple-300 border border-[#0A66C2]/30 dark:border-purple-500/30 px-1.5 py-0.5 rounded">
                               Official
                             </span>
                           </div>
@@ -539,7 +539,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
                               <span className="text-slate-300 dark:text-[#B0B7BE]">•</span>
                               <button
                                 onClick={() => router.push(`/community/c/${slug}`)}
-                                className="text-[#F4A01C] bg-[#FFF3D6] px-2 py-0.5 rounded-full hover:bg-[#FFF3D6] transition-colors"
+                                className="text-[#0A66C2] bg-[#EAF4FF] px-2 py-0.5 rounded-full hover:bg-[#EAF4FF] transition-colors"
                               >
                                 c/{slug}
                               </button>
@@ -560,7 +560,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
                       <>
                         <button
                           onClick={() => router.push(`/u/${post.users?.unique_id}`)}
-                          className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-[#F4A01C] to-cyan-400 flex items-center justify-center font-bold text-white text-sm overflow-hidden shrink-0 hover:scale-105 transition-transform shadow-md"
+                          className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#0A66C2] flex items-center justify-center font-bold text-white text-sm overflow-hidden shrink-0 hover:scale-105 transition-transform shadow-md"
                         >
                           {post.users?.avatar_url ? (
                             <img src={post.users.avatar_url} alt={post.users.full_name} className="w-full h-full object-cover" />
@@ -572,7 +572,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
                           <div className="flex items-center gap-2 flex-wrap">
                             <button
                               onClick={() => router.push(`/u/${post.users?.unique_id}`)}
-                              className="font-bold text-slate-900 dark:text-white hover:text-[#F4A01C] transition-colors text-sm"
+                              className="font-bold text-slate-900 dark:text-white hover:text-[#0A66C2] transition-colors text-sm"
                             >
                               {post.users?.full_name}
                             </button>
@@ -585,7 +585,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
                                 </span>
                               )}
                               {post.users?.is_verified && (
-                                <span className="text-[8px] font-black uppercase bg-[#FFF3D6] dark:bg-purple-500/20 text-[#F4A01C] dark:text-purple-300 border border-[#F4A01C]/20 dark:border-purple-500/30 px-1.5 py-0.5 rounded">
+                                <span className="text-[8px] font-black uppercase bg-[#EAF4FF] dark:bg-purple-500/20 text-[#0A66C2] dark:text-purple-300 border border-[#0A66C2]/20 dark:border-purple-500/30 px-1.5 py-0.5 rounded">
                                   Verified
                                 </span>
                               )}
@@ -601,7 +601,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
                               <span className="text-slate-300 dark:text-[#B0B7BE]">•</span>
                               <button
                                 onClick={() => router.push(`/community/c/${slug}`)}
-                                className="text-[#F4A01C] bg-[#FFF3D6] px-2 py-0.5 rounded-full hover:bg-[#FFF3D6] transition-colors"
+                                className="text-[#0A66C2] bg-[#EAF4FF] px-2 py-0.5 rounded-full hover:bg-[#EAF4FF] transition-colors"
                               >
                                 c/{slug}
                               </button>
@@ -642,7 +642,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
                     {post.tags.map((tag: string) => (
                       <span
                         key={tag}
-                        className="text-[10px] font-bold text-[#F4A01C] dark:text-purple-300 bg-[#FFF3D6] dark:bg-purple-500/20 border border-[#F4A01C]/20 dark:border-purple-500/30 px-2 py-0.5 rounded-full"
+                        className="text-[10px] font-bold text-[#0A66C2] dark:text-purple-300 bg-[#EAF4FF] dark:bg-purple-500/20 border border-[#0A66C2]/20 dark:border-purple-500/30 px-2 py-0.5 rounded-full"
                       >
                         #{tag}
                       </span>
@@ -670,7 +670,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
                         </div>
                       ))}
                     </div>
-                    <span className="text-xs text-slate-500 dark:text-[#B0B7BE] font-semibold group-hover:text-[#F4A01C] transition-colors">
+                    <span className="text-xs text-slate-500 dark:text-[#B0B7BE] font-semibold group-hover:text-[#0A66C2] transition-colors">
                       {formatCount(post.upvote_count || 0)} appreciation{(post.upvote_count || 0) !== 1 ? 's' : ''} — tap to see who
                     </span>
                   </button>
@@ -684,7 +684,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
                   disabled={voteLoading}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                     userVote === 'upvote'
-                       ? 'bg-[#FFF3D6] dark:bg-purple-500/20 text-[#F4A01C] dark:text-purple-300 shadow-sm'
+                       ? 'bg-[#EAF4FF] dark:bg-purple-500/20 text-[#0A66C2] dark:text-purple-300 shadow-sm'
                       : 'hover:bg-surface-hover dark:hover:bg-[#1D2226] dark:bg-[#283036] text-slate-500 dark:text-[#B0B7BE]'
                   } ${voteLoading ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}
                 >
@@ -712,7 +712,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
 
                   <button
                     onClick={handleShare}
-                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-app dark:bg-[#1D2226] text-slate-500 dark:text-[#B0B7BE] border border-surface dark:border-[#38434F] hover:bg-[#FFF3D6] hover:text-[#F4A01C] hover:border-[#F4A01C]/30 transition-colors ml-auto"
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-app dark:bg-[#1D2226] text-slate-500 dark:text-[#B0B7BE] border border-surface dark:border-[#38434F] hover:bg-[#EAF4FF] hover:text-[#0A66C2] hover:border-[#0A66C2]/30 transition-colors ml-auto"
                   >
                     <Share2 className="w-3.5 h-3.5" />
                     Share
@@ -724,15 +724,15 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
             {/* Discussion */}
             <section>
               <h2 className="text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2 mb-4">
-                <MessageCircle className="w-4 h-4 text-[#F4A01C]" />
+                <MessageCircle className="w-4 h-4 text-[#0A66C2]" />
                 Discussion
                 <span className="text-sm font-bold text-slate-400 dark:text-[#B0B7BE]">({answers.length})</span>
               </h2>
 
               {answers.length === 0 ? (
                 <div className="bg-surface dark:bg-[#283036] rounded-2xl border border-surface dark:border-[#38434F] dark:border-[#38434F] p-10 text-center">
-                  <div className="w-12 h-12 rounded-full bg-[#FFF3D6] dark:bg-purple-500/20 flex items-center justify-center mx-auto mb-3">
-                    <Sparkles className="w-5 h-5 text-[#F4A01C] dark:text-purple-300" />
+                  <div className="w-12 h-12 rounded-full bg-[#EAF4FF] dark:bg-purple-500/20 flex items-center justify-center mx-auto mb-3">
+                    <Sparkles className="w-5 h-5 text-[#0A66C2] dark:text-purple-300" />
                   </div>
                   <p className="text-sm font-bold text-slate-600 dark:text-[#B0B7BE] mb-1">No answers yet</p>
                   <p className="text-xs text-slate-400 dark:text-[#B0B7BE]">Be the first to help — share your experience!</p>
@@ -767,12 +767,12 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
                   value={newAnswer}
                   onChange={(e) => setNewAnswer(e.target.value)}
                   placeholder={replyToAnswerId ? 'Write your reply...' : 'Write your answer here...'}
-                  className="w-full min-h-[80px] p-3 rounded-xl border border-surface dark:border-[#38434F] bg-surface dark:bg-[#283036] text-sm text-slate-700 dark:text-[#B0B7BE] outline-none resize-y focus:border-[#F4A01C] focus:ring-2 focus:ring-purple-100 dark:focus:ring-purple-500/20 transition-all"
+                  className="w-full min-h-[80px] p-3 rounded-xl border border-surface dark:border-[#38434F] bg-surface dark:bg-[#283036] text-sm text-slate-700 dark:text-[#B0B7BE] outline-none resize-y focus:border-[#0A66C2] focus:ring-2 focus:ring-purple-100 dark:focus:ring-purple-500/20 transition-all"
                 />
                 <button
                   onClick={handleSubmitAnswer}
                   disabled={!newAnswer.trim() || submitting}
-                  className="mt-3 inline-flex items-center gap-2 text-sm font-bold text-white bg-gradient-to-r from-[#F4A01C] to-cyan-500 rounded-xl px-5 py-2.5 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg hover:shadow-[#F4A01C]/20 transition-all"
+                  className="mt-3 inline-flex items-center gap-2 text-sm font-bold text-white bg-[#0A66C2] rounded-xl px-5 py-2.5 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg hover:shadow-[#0A66C2]/20 transition-all"
                 >
                   <Send className="w-4 h-4" />
                   {submitting ? 'Posting...' : replyToAnswerId ? 'Post Reply' : 'Post Answer'}
@@ -783,7 +783,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
                 <p className="text-sm text-slate-500 dark:text-[#B0B7BE] font-medium mb-4">Login to post your answer</p>
                 <button
                   onClick={() => router.push('/login')}
-                  className="text-sm font-bold text-white bg-gradient-to-r from-[#F4A01C] to-cyan-500 rounded-xl px-6 py-2.5 hover:shadow-lg hover:shadow-[#F4A01C]/20 transition-all"
+                  className="text-sm font-bold text-white bg-[#0A66C2] rounded-xl px-6 py-2.5 hover:shadow-lg hover:shadow-[#0A66C2]/20 transition-all"
                 >
                   Login →
                 </button>
@@ -814,11 +814,11 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
                       )}
                     </div>
                     <div className="min-w-0">
-                      <p className="font-bold text-slate-900 dark:text-white group-hover:text-[#F4A01C] transition-colors truncate">
+                      <p className="font-bold text-slate-900 dark:text-white group-hover:text-[#0A66C2] transition-colors truncate">
                         {post.communities?.colleges?.name || post.communities?.colleges?.short_name || 'College'}
                       </p>
                       <div className="flex flex-wrap gap-1 mt-1">
-                        <span className="inline-flex items-center gap-0.5 text-[8px] font-black uppercase bg-[#FFF3D6] dark:bg-purple-500/20 text-[#E09410] dark:text-purple-300 border border-[#F4A01C]/30 dark:border-purple-500/30 px-1.5 py-0.5 rounded">
+                        <span className="inline-flex items-center gap-0.5 text-[8px] font-black uppercase bg-[#EAF4FF] dark:bg-purple-500/20 text-[#004182] dark:text-purple-300 border border-[#0A66C2]/30 dark:border-purple-500/30 px-1.5 py-0.5 rounded">
                           Official
                         </span>
                       </div>
@@ -829,7 +829,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
                     onClick={() => router.push(`/u/${post.users?.unique_id}`)}
                     className="flex items-center gap-3 w-full text-left group mb-4"
                   >
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#F4A01C] to-cyan-400 flex items-center justify-center font-bold text-white text-lg overflow-hidden shrink-0 group-hover:scale-105 transition-transform">
+                    <div className="w-12 h-12 rounded-xl bg-[#0A66C2] flex items-center justify-center font-bold text-white text-lg overflow-hidden shrink-0 group-hover:scale-105 transition-transform">
                       {post.users?.avatar_url ? (
                         <img src={post.users.avatar_url} alt={post.users.full_name} className="w-full h-full object-cover" />
                       ) : (
@@ -837,7 +837,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
                       )}
                     </div>
                     <div className="min-w-0">
-                      <p className="font-bold text-slate-900 dark:text-white group-hover:text-[#F4A01C] transition-colors truncate">
+                      <p className="font-bold text-slate-900 dark:text-white group-hover:text-[#0A66C2] transition-colors truncate">
                         {post.users?.full_name}
                       </p>
                       <div className="flex flex-wrap gap-1 mt-1">
@@ -848,7 +848,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
                           </span>
                         )}
                         {post.users?.is_verified && (
-                          <span className="text-[8px] font-black uppercase bg-[#FFF3D6] dark:bg-purple-500/20 text-[#F4A01C] dark:text-purple-300 border border-[#F4A01C]/20 dark:border-purple-500/30 px-1.5 py-0.5 rounded">
+                          <span className="text-[8px] font-black uppercase bg-[#EAF4FF] dark:bg-purple-500/20 text-[#0A66C2] dark:text-purple-300 border border-[#0A66C2]/20 dark:border-purple-500/30 px-1.5 py-0.5 rounded">
                             Verified
                           </span>
                         )}
@@ -887,7 +887,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
                     <dd>
                               <button
                                 onClick={() => router.push(`/community/c/${slug}`)}
-                                className="text-[#F4A01C] dark:text-purple-300 bg-[#FFF3D6] dark:bg-purple-500/20 px-2 py-0.5 rounded-full hover:bg-[#FFF3D6] dark:hover:bg-purple-500/30 transition-colors"
+                                className="text-[#0A66C2] dark:text-purple-300 bg-[#EAF4FF] dark:bg-purple-500/20 px-2 py-0.5 rounded-full hover:bg-[#EAF4FF] dark:hover:bg-purple-500/30 transition-colors"
                               >
                                 c/{slug}
                               </button>
@@ -907,11 +907,11 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
                   onClick={() => router.push(`/community/c/${slug}`)}
                   className="flex items-start gap-3 w-full text-left group"
                 >
-                  <div className="w-10 h-10 rounded-xl bg-[#FFF3D6] dark:bg-purple-500/20 border border-[#F4A01C]/20 dark:border-purple-500/30 flex items-center justify-center shrink-0">
-                    <Building2 className="w-5 h-5 text-[#F4A01C]" />
+                  <div className="w-10 h-10 rounded-xl bg-[#EAF4FF] dark:bg-purple-500/20 border border-[#0A66C2]/20 dark:border-purple-500/30 flex items-center justify-center shrink-0">
+                    <Building2 className="w-5 h-5 text-[#0A66C2]" />
                   </div>
                   <div className="min-w-0">
-                    <p className="font-bold text-slate-900 dark:text-white group-hover:text-[#F4A01C] transition-colors truncate">
+                    <p className="font-bold text-slate-900 dark:text-white group-hover:text-[#0A66C2] transition-colors truncate">
                       {communityName}
                     </p>
                     <p className="text-[11px] text-slate-400 dark:text-[#B0B7BE] font-semibold mt-0.5">c/{slug}</p>

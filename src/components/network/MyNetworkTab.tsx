@@ -88,8 +88,8 @@ export default function MyNetworkTab({ refreshKey = 0 }: MyNetworkTabProps) {
   if (connections.length === 0) {
     return (
       <div className="text-center py-12 network-card">
-        <div className="w-14 h-14 bg-[#FFF3D6] dark:bg-purple-900/20 rounded-2xl flex items-center justify-center mx-auto mb-3">
-          <Users size={22} className="text-[#F4A01C] dark:text-purple-300" />
+        <div className="w-14 h-14 bg-[#EAF4FF] dark:bg-purple-900/20 rounded-2xl flex items-center justify-center mx-auto mb-3">
+          <Users size={22} className="text-[#0A66C2] dark:text-purple-300" />
         </div>
         <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-1">No connections yet</h3>
         <p className="text-xs text-gray-500 dark:text-[#B0B7BE]">Discover people to connect with in the Discover tab</p>
@@ -127,7 +127,7 @@ export default function MyNetworkTab({ refreshKey = 0 }: MyNetworkTabProps) {
                 <div className="flex items-center gap-2">
                   <h4
                     onClick={() => router.push(`/u/${conn.unique_id}`)}
-                    className="text-sm font-bold text-gray-900 dark:text-white hover:text-[#F4A01C] cursor-pointer truncate flex items-center gap-1.5"
+                    className="text-sm font-bold text-gray-900 dark:text-white hover:text-[#0A66C2] cursor-pointer truncate flex items-center gap-1.5"
                   >
                     <span className="truncate">{conn.full_name}</span>
                     {conn.last_seen && (
@@ -196,7 +196,7 @@ export default function MyNetworkTab({ refreshKey = 0 }: MyNetworkTabProps) {
           placeholder="Search your connections..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full pl-10 pr-3 py-2.5 text-sm border border-surface dark:border-[#38434F] rounded-xl bg-surface dark:bg-[#283036] text-gray-900 dark:text-white outline-none focus:border-[#F4A01C]/50 focus:ring-2 focus:ring-purple-50 dark:focus:ring-purple-900/30 transition-all font-medium"
+          className="w-full pl-10 pr-3 py-2.5 text-sm border border-surface dark:border-[#38434F] rounded-xl bg-surface dark:bg-[#283036] text-gray-900 dark:text-white outline-none focus:border-[#0A66C2]/50 focus:ring-2 focus:ring-purple-50 dark:focus:ring-purple-900/30 transition-all font-medium"
         />
       </div>
 

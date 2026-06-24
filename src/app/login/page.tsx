@@ -80,7 +80,7 @@ function LoginPageContent() {
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#FAFAFA] dark:bg-[#1D2226]">
-        <div className="w-10 h-10 border-3 border-surface dark:border-[#38434F] border-t-[#F4A01C] rounded-full animate-spin" />
+        <div className="w-10 h-10 border-3 border-surface dark:border-[#38434F] border-t-[#0A66C2] rounded-full animate-spin" />
       </div>
     )
   }
@@ -168,7 +168,7 @@ function LoginPageContent() {
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handleLogin()}
-                className="w-full h-11 px-3.5 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:text-[#B0B7BE] border border-surface dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-[#F4A01C] focus:ring-2 focus:ring-[#F4A01C]/10 bg-surface dark:bg-[#283036]"
+                className="w-full h-11 px-3.5 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:text-[#B0B7BE] border border-surface dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-[#0A66C2] focus:ring-2 focus:ring-[#0A66C2]/10 bg-surface dark:bg-[#283036]"
               />
             </div>
 
@@ -179,7 +179,7 @@ function LoginPageContent() {
                 </label>
                 <Link
                   href="/forgot-password"
-                  className="text-xs font-semibold text-[#F4A01C] hover:text-[#E09410] no-underline"
+                  className="text-xs font-semibold text-[#0A66C2] hover:text-[#004182] no-underline"
                 >
                   Forgot password?
                 </Link>
@@ -191,7 +191,7 @@ function LoginPageContent() {
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && handleLogin()}
-                  className="w-full h-11 px-3.5 pr-11 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:text-[#B0B7BE] border border-surface dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-[#F4A01C] focus:ring-2 focus:ring-[#F4A01C]/10 bg-surface dark:bg-[#283036]"
+                  className="w-full h-11 px-3.5 pr-11 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:text-[#B0B7BE] border border-surface dark:border-[#38434F] rounded-xl outline-none transition-all duration-150 focus:border-[#0A66C2] focus:ring-2 focus:ring-[#0A66C2]/10 bg-surface dark:bg-[#283036]"
                 />
                 <button
                   type="button"
@@ -221,7 +221,7 @@ function LoginPageContent() {
           <button
             onClick={handleLogin}
             disabled={loading || !turnstileToken}
-            className="w-full h-11 bg-[#F4A01C] hover:bg-[#E09410] disabled:bg-[#F4A01C]/50 text-[#0A2540] text-sm font-semibold rounded-xl transition-all duration-150 flex items-center justify-center gap-2 border-none cursor-pointer disabled:cursor-not-allowed shadow-sm"
+            className="w-full h-11 bg-[#0A66C2] hover:bg-[#004182] disabled:bg-[#0A66C2]/50 text-[#0A66C2] text-sm font-semibold rounded-xl transition-all duration-150 flex items-center justify-center gap-2 border-none cursor-pointer disabled:cursor-not-allowed shadow-sm"
           >
             {loading ? (
               <>
@@ -235,7 +235,7 @@ function LoginPageContent() {
 
           <p className="text-center text-sm text-gray-400 dark:text-[#B0B7BE]">
             Don't have an account?{' '}
-            <Link href="/signup" className="font-semibold text-[#F4A01C] hover:text-[#E09410] no-underline">
+            <Link href="/signup" className="font-semibold text-[#0A66C2] hover:text-[#004182] no-underline">
               Sign up free
             </Link>
           </p>
@@ -253,7 +253,7 @@ export default function LoginPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen flex items-center justify-center bg-[#FAFAFA] dark:bg-[#1D2226]">
-        <div className="w-10 h-10 border-3 border-surface dark:border-[#38434F] border-t-[#F4A01C] rounded-full animate-spin" />
+        <div className="w-10 h-10 border-3 border-surface dark:border-[#38434F] border-t-[#0A66C2] rounded-full animate-spin" />
       </div>
     }>
       <LoginPageContent />

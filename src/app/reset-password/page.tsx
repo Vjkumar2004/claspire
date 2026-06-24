@@ -126,7 +126,7 @@ function ResetPasswordPageContent() {
       <div className="min-h-screen bg-app dark:bg-[#1D2226] flex items-center justify-center p-4">
         <div className="w-full max-w-md">
           <div className="bg-surface dark:bg-[#283036] rounded-2xl shadow-lg p-8 text-center">
-            <div className="w-8 h-8 border-2 border-[#F4A01C] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <div className="w-8 h-8 border-2 border-[#0A66C2] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
             <p className="text-gray-600 dark:text-[#B0B7BE]">Validating reset link...</p>
           </div>
         </div>
@@ -154,7 +154,7 @@ function ResetPasswordPageContent() {
             <div className="space-y-3">
               <Link
                 href="/forgot-password"
-                className="block w-full bg-[#F4A01C] text-white py-3 rounded-lg text-sm font-semibold text-center hover:bg-[#E09410] transition-colors"
+                className="block w-full bg-[#0A66C2] text-white py-3 rounded-lg text-sm font-semibold text-center hover:bg-[#004182] transition-colors"
               >
                 Request New Reset Link
               </Link>
@@ -207,15 +207,15 @@ function ResetPasswordPageContent() {
         {/* Logo */}
         <Link href="/" className="flex justify-center mb-8">
           <span className="font-plus-jakarta-sans font-bold text-2xl text-black dark:text-white">
-            cl<span style={{ color: '#F4A01C' }}>aspire</span>
+            cl<span style={{ color: '#0A66C2' }}>aspire</span>
           </span>
         </Link>
 
         <div className="bg-surface dark:bg-[#283036] rounded-2xl shadow-lg p-8">
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="w-12 h-12 bg-[#FFF3D6] rounded-full flex items-center justify-center mx-auto mb-4">
-              <Lock size={24} className="text-[#F4A01C]" />
+            <div className="w-12 h-12 bg-[#EAF4FF] rounded-full flex items-center justify-center mx-auto mb-4">
+              <Lock size={24} className="text-[#0A66C2]" />
             </div>
             
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
@@ -247,7 +247,7 @@ function ResetPasswordPageContent() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="w-full px-4 py-3 pr-12 border border-gray-300 dark:border-[#38434F] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F4A01C] focus:border-transparent dark:bg-[#222B31] dark:text-white dark:placeholder:text-[#8B949E] dark:focus:bg-[#283036]"
+                  className="w-full px-4 py-3 pr-12 border border-gray-300 dark:border-[#38434F] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0A66C2] focus:border-transparent dark:bg-[#222B31] dark:text-white dark:placeholder:text-[#8B949E] dark:focus:bg-[#283036]"
                   placeholder="Enter new password"
                 />
                 <button
@@ -272,7 +272,7 @@ function ResetPasswordPageContent() {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
-                  className="w-full px-4 py-3 pr-12 border border-gray-300 dark:border-[#38434F] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F4A01C] focus:border-transparent dark:bg-[#222B31] dark:text-white dark:placeholder:text-[#8B949E] dark:focus:bg-[#283036]"
+                  className="w-full px-4 py-3 pr-12 border border-gray-300 dark:border-[#38434F] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0A66C2] focus:border-transparent dark:bg-[#222B31] dark:text-white dark:placeholder:text-[#8B949E] dark:focus:bg-[#283036]"
                   placeholder="Confirm new password"
                 />
                 <button
@@ -305,7 +305,7 @@ function ResetPasswordPageContent() {
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600 dark:text-[#B0B7BE]">
               Remember your password?{' '}
-              <Link href="/login" className="text-[#F4A01C] font-semibold hover:underline">
+              <Link href="/login" className="text-[#0A66C2] font-semibold hover:underline">
                 Sign in
               </Link>
             </p>
@@ -326,7 +326,7 @@ export default function ResetPasswordPage() {
       <div className="min-h-screen bg-app dark:bg-[#1D2226] flex items-center justify-center p-4">
         <div className="w-full max-w-md">
           <div className="bg-surface dark:bg-[#283036] rounded-2xl shadow-lg p-8 text-center">
-            <div className="w-8 h-8 border-2 border-[#F4A01C] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <div className="w-8 h-8 border-2 border-[#0A66C2] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
             <p className="text-gray-600 dark:text-[#B0B7BE]">Loading...</p>
           </div>
         </div>

@@ -30,9 +30,9 @@ function SkillsEditor({ skills, onChange }: { skills: string[]; onChange: (skill
     <div>
       <div className="flex flex-wrap gap-2 mb-3">
         {skills.map((s) => (
-          <span key={s} className="skill-pill inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-cyan-50 to-cyan-100/70 text-cyan-700 text-[11px] font-bold border border-cyan-200/60 shadow-sm dark:shadow-[#1D2226]/50">
+          <span key={s} className="skill-pill inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#EAF4FF] text-[#0A66C2] text-[11px] font-bold border border-[#D9E2EC]/60 shadow-sm dark:shadow-[#1D2226]/50">
             {s}
-            <button type="button" onClick={() => onChange(skills.filter((x) => x !== s))} className="text-cyan-400 hover:text-cyan-700 transition-colors">
+            <button type="button" onClick={() => onChange(skills.filter((x) => x !== s))} className="text-cyan-400 hover:text-[#0A66C2] transition-colors">
               <X size={12} />
             </button>
           </span>
@@ -51,7 +51,7 @@ function SkillsEditor({ skills, onChange }: { skills: string[]; onChange: (skill
         <button
           type="button"
           onClick={add}
-          className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-cyan-500 text-white text-xs font-bold hover:shadow-lg hover:shadow-cyan-500/25 transition-all flex items-center gap-1.5"
+          className="px-4 py-2.5 rounded-xl bg-[#0A66C2] text-white text-xs font-bold hover:shadow-lg hover:shadow-[#0A66C2]/25 transition-all flex items-center gap-1.5"
         >
           <Plus size={14} /> Add
         </button>
@@ -111,7 +111,7 @@ export default function SeniorProfileEditor({
     }
   }
 
-  const projectColors = ['from-blue-500 to-indigo-600', 'from-emerald-500 to-teal-600', 'from-amber-500 to-orange-600', 'from-[#F4A01C] to-pink-600', 'from-cyan-500 to-blue-600', 'from-rose-500 to-red-600']
+  const projectColors = ['from-blue-500 to-blue-600', 'from-emerald-500 to-teal-600', 'from-amber-500 to-orange-600', 'from-[#0A66C2] to-pink-600', 'from-cyan-500 to-blue-600', 'from-rose-500 to-red-600']
 
   function TechStackInput({ tags, onChange }: { tags: string[]; onChange: (tags: string[]) => void }) {
     const [input, setInput] = useState('')
@@ -162,7 +162,7 @@ export default function SeniorProfileEditor({
       <section id="about-me" className="bg-surface dark:bg-[#283036] rounded-3xl border border-surface/80 dark:border-[#38434F] shadow-sm dark:shadow-[#1D2226]/50 overflow-hidden scroll-mt-20">
         <div className="px-6 pt-6 pb-4 border-b border-surface dark:border-[#38434F]">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-50 to-cyan-100 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#EAF4FF] flex items-center justify-center">
               <BookOpen size={15} className="text-cyan-600" />
             </div>
             <div>
@@ -189,7 +189,7 @@ export default function SeniorProfileEditor({
       <section id="professional-info" className="bg-surface dark:bg-[#283036] rounded-3xl border border-surface/80 dark:border-[#38434F] shadow-sm dark:shadow-[#1D2226]/50 overflow-hidden scroll-mt-20">
         <div className="px-6 pt-6 pb-4 border-b border-surface dark:border-[#38434F]">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#EAF4FF] flex items-center justify-center">
               <Briefcase size={15} className="text-blue-600" />
             </div>
             <div>
@@ -247,7 +247,7 @@ export default function SeniorProfileEditor({
             </div>
             <div>
               <p className="text-[9px] font-bold text-slate-400 dark:text-[#B0B7BE] uppercase tracking-widest mb-1.5">Alumni College</p>
-              <div className="flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-slate-50 dark:from-[#283036] to-slate-100/50 dark:to-[#283036]/50 rounded-xl border border-surface dark:border-[#38434F]">
+              <div className="flex items-center gap-2 px-4 py-3 bg-slate-50 dark:bg-[#283036] rounded-xl border border-surface dark:border-[#38434F]">
                 <GraduationCap size={14} className="text-slate-400 dark:text-[#B0B7BE] flex-shrink-0" />
                 <p className="text-xs font-bold text-slate-700 dark:text-[#B0B7BE] m-0">{collegeName || 'Not assigned'}</p>
               </div>
@@ -275,7 +275,7 @@ export default function SeniorProfileEditor({
       <section id="skills" className="bg-surface dark:bg-[#283036] rounded-3xl border border-surface/80 dark:border-[#38434F] shadow-sm dark:shadow-[#1D2226]/50 overflow-hidden scroll-mt-20">
         <div className="px-6 pt-6 pb-4 border-b border-surface dark:border-[#38434F]">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-50 to-emerald-100 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#EAF4FF] flex items-center justify-center">
               <Plus size={15} className="text-emerald-600" />
             </div>
             <div>
@@ -294,7 +294,7 @@ export default function SeniorProfileEditor({
         <div className="px-6 pt-6 pb-4 border-b border-surface dark:border-[#38434F]">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-50 to-amber-100 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-[#EAF4FF] flex items-center justify-center">
                 <ExternalLink size={15} className="text-amber-600" />
               </div>
               <div>
@@ -305,7 +305,7 @@ export default function SeniorProfileEditor({
             <button
               type="button"
               onClick={() => onExtrasChange({ projects: [...projects, { title: '', description: '', tech_stack: [] }] })}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-cyan-600 to-cyan-500 text-white text-[10px] font-bold hover:shadow-lg hover:shadow-cyan-500/25 transition-all"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#0A66C2] text-white text-[10px] font-bold hover:shadow-lg hover:shadow-[#0A66C2]/25 transition-all"
             >
               <Plus size={13} /> Add Project
             </button>
@@ -321,9 +321,9 @@ export default function SeniorProfileEditor({
             </div>
           )}
           {projects.map((p, i) => (
-            <div key={i} className="group relative bg-gradient-to-br from-slate-50 dark:from-[#283036] to-white dark:to-[#283036] rounded-xl border border-surface dark:border-[#38434F] p-5 hover:border-cyan-200 hover:shadow-md transition-all">
+            <div key={i} className="group relative bg-white dark:bg-[#283036] rounded-xl border border-surface dark:border-[#38434F] p-5 hover:border-[#D9E2EC] hover:shadow-md transition-all">
               <div className="flex items-start gap-4">
-                <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${projectColors[i % projectColors.length]} flex items-center justify-center text-white text-sm font-extrabold flex-shrink-0 shadow-sm dark:shadow-[#1D2226]/50`}>
+                <div className={`w-10 h-10 rounded-xl ${projectColors[i % projectColors.length]} flex items-center justify-center text-white text-sm font-extrabold flex-shrink-0 shadow-sm dark:shadow-[#1D2226]/50`}>
                   {p.title?.charAt(0)?.toUpperCase() || 'P'}
                 </div>
                 <div className="flex-1 min-w-0 space-y-2.5">
@@ -385,7 +385,7 @@ export default function SeniorProfileEditor({
         <div className="px-6 pt-6 pb-4 border-b border-surface dark:border-[#38434F]">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-50 to-amber-100 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-[#EAF4FF] flex items-center justify-center">
                 <Pencil size={15} className="text-amber-600" />
               </div>
               <div>
@@ -396,7 +396,7 @@ export default function SeniorProfileEditor({
             <button
               type="button"
               onClick={() => onExtrasChange({ certifications: [...certifications, { name: '' }] })}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-cyan-600 to-cyan-500 text-white text-[10px] font-bold hover:shadow-lg hover:shadow-cyan-500/25 transition-all"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#0A66C2] text-white text-[10px] font-bold hover:shadow-lg hover:shadow-[#0A66C2]/25 transition-all"
             >
               <Plus size={13} /> Add
             </button>
@@ -407,9 +407,9 @@ export default function SeniorProfileEditor({
             <p className="text-xs font-medium text-slate-400 dark:text-[#B0B7BE] text-center py-4 m-0">No certifications yet. Click Add to add your certifications.</p>
           )}
           {certifications.map((c, i) => (
-            <div key={i} className="group relative bg-gradient-to-br from-slate-50 dark:from-[#283036] to-white dark:to-[#283036] rounded-xl border border-surface dark:border-[#38434F] p-4 hover:border-amber-200 hover:shadow-sm transition-all">
+            <div key={i} className="group relative bg-white dark:bg-[#283036] rounded-xl border border-surface dark:border-[#38434F] p-4 hover:border-amber-200 hover:shadow-sm transition-all">
               <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-50 to-amber-100 flex items-center justify-center flex-shrink-0">
+                <div className="w-8 h-8 rounded-lg bg-[#EAF4FF] flex items-center justify-center flex-shrink-0">
                   <Pencil size={13} className="text-amber-600" />
                 </div>
                 <div className="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-2.5">
@@ -449,8 +449,8 @@ export default function SeniorProfileEditor({
       <section id="links" className="bg-surface dark:bg-[#283036] rounded-3xl border border-surface/80 dark:border-[#38434F] shadow-sm dark:shadow-[#1D2226]/50 overflow-hidden scroll-mt-20">
         <div className="px-6 pt-6 pb-4 border-b border-surface dark:border-[#38434F]">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-50 to-violet-100 flex items-center justify-center">
-              <ExternalLink size={15} className="text-violet-600" />
+            <div className="w-8 h-8 rounded-lg bg-[#EAF4FF] flex items-center justify-center">
+              <ExternalLink size={15} className="text-[#0A66C2]" />
             </div>
             <div>
               <h2 className="text-sm font-extrabold text-[#0F172A] dark:text-white m-0">Professional Links</h2>
@@ -516,8 +516,8 @@ export default function SeniorProfileEditor({
       <section id="resume" className="bg-surface dark:bg-[#283036] rounded-3xl border border-surface/80 dark:border-[#38434F] shadow-sm dark:shadow-[#1D2226]/50 overflow-hidden scroll-mt-20">
         <div className="px-6 pt-6 pb-4 border-b border-surface dark:border-[#38434F]">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-50 to-violet-100 flex items-center justify-center">
-              <FileText size={15} className="text-violet-600" />
+            <div className="w-8 h-8 rounded-lg bg-[#EAF4FF] flex items-center justify-center">
+              <FileText size={15} className="text-[#0A66C2]" />
             </div>
             <div>
               <h2 className="text-sm font-extrabold text-[#0F172A] dark:text-white m-0">Resume</h2>
@@ -526,13 +526,13 @@ export default function SeniorProfileEditor({
           </div>
         </div>
         <div className="p-6">
-          <div className="flex flex-wrap items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-slate-50 dark:from-[#283036] to-slate-100/50 dark:to-[#283036]/50 border border-surface dark:border-[#38434F]">
+          <div className="flex flex-wrap items-center gap-3 p-4 rounded-xl bg-slate-50 dark:bg-[#283036] border border-surface dark:border-[#38434F]">
             <FileText size={20} className="text-slate-400 dark:text-[#B0B7BE]" />
             <div className="flex-1 min-w-0">
               <p className="text-xs font-bold text-slate-700 dark:text-[#B0B7BE] m-0">{extras.resume_url ? 'Resume uploaded' : 'No resume uploaded'}</p>
               <p className="text-[10px] text-slate-400 dark:text-[#B0B7BE] m-0">PDF format, max 5MB</p>
             </div>
-            <label className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-cyan-500 text-white text-xs font-bold cursor-pointer hover:shadow-lg hover:shadow-cyan-500/25 transition-all">
+            <label className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#0A66C2] text-white text-xs font-bold cursor-pointer hover:shadow-lg hover:shadow-[#0A66C2]/25 transition-all">
               {uploadingResume ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />}
               {extras.resume_url ? 'Replace' : 'Upload'}
               <input type="file" accept=".pdf" className="hidden" onChange={handleResumeUpload} />
@@ -542,7 +542,7 @@ export default function SeniorProfileEditor({
                 href={extras.resume_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-xs font-bold text-cyan-600 hover:text-cyan-700 hover:underline"
+                className="inline-flex items-center gap-1 text-xs font-bold text-cyan-600 hover:text-[#0A66C2] hover:underline"
               >
                 <ExternalLink size={12} /> View
               </a>
@@ -555,7 +555,7 @@ export default function SeniorProfileEditor({
       <section id="mentorship" className="bg-surface dark:bg-[#283036] rounded-3xl border border-surface/80 dark:border-[#38434F] shadow-sm dark:shadow-[#1D2226]/50 overflow-hidden scroll-mt-20">
         <div className="px-6 pt-6 pb-4 border-b border-surface dark:border-[#38434F]">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-rose-50 to-rose-100 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#EAF4FF] flex items-center justify-center">
               <ExternalLink size={15} className="text-rose-600" />
             </div>
             <div>
@@ -583,17 +583,17 @@ export default function SeniorProfileEditor({
                 }
                 className={`toggle-card text-left p-4 rounded-xl border-2 ${
                   mentorship[key]
-                    ? 'active border-cyan-300 bg-gradient-to-br from-cyan-50 to-cyan-100/50'
+                    ? 'active border-[#D9E2EC] bg-[#EAF4FF]/50'
                     : 'border-surface dark:border-[#38434F] bg-surface dark:bg-[#283036] hover:bg-app dark:hover:bg-[#1D2226]'
                 } transition-all`}
               >
                 <div className="flex items-center gap-2 mb-1.5">
                   <span className="text-lg">{emoji}</span>
-                  <span className={`text-xs font-extrabold ${mentorship[key] ? 'text-cyan-700' : 'text-slate-700 dark:text-[#B0B7BE]'}`}>
+                  <span className={`text-xs font-extrabold ${mentorship[key] ? 'text-[#0A66C2]' : 'text-slate-700 dark:text-[#B0B7BE]'}`}>
                     {label}
                   </span>
                   {mentorship[key] && (
-                    <div className="ml-auto w-5 h-5 rounded-full bg-cyan-600 flex items-center justify-center">
+                    <div className="ml-auto w-5 h-5 rounded-full bg-[#0A66C2] flex items-center justify-center">
                       <Check size={11} className="text-white" />
                     </div>
                   )}

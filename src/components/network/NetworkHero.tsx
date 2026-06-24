@@ -47,30 +47,30 @@ export default function NetworkHero({ platformStats, recentSeniors }: NetworkHer
   const stats = [
     { label: 'Students', value: formatCount(platformStats?.students ?? 0), icon: GraduationCap, color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-50 dark:bg-blue-900/30' },
     { label: 'Seniors', value: formatCount(platformStats?.seniors ?? 0), icon: Briefcase, color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-50 dark:bg-emerald-900/30' },
-    { label: 'Mentors', value: formatCount(platformStats?.seniors ?? 0), icon: Users, color: 'text-[#F4A01C] dark:text-purple-400', bg: 'bg-[#FFF3D6] dark:bg-purple-900/30' },
+    { label: 'Mentors', value: formatCount(platformStats?.seniors ?? 0), icon: Users, color: 'text-[#0A66C2] dark:text-blue-400', bg: 'bg-[#EAF4FF] dark:bg-blue-900/30' },
     { label: 'Colleges', value: formatCount(platformStats?.colleges ?? 0), icon: Building2, color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-50 dark:bg-amber-900/30' },
   ]
 
   const nodes = recentSeniors.slice(0, 6)
 
   return (
-    <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-indigo-50 via-purple-50/80 to-fuchsia-50 dark:from-[#1D2226] dark:via-[#283036] dark:to-[#1D2226] border border-[#F4A01C]/20/60 dark:border-[#38434F] shadow-sm">
+    <div className="relative rounded-2xl overflow-hidden bg-[#EAF4FF]/50 dark:from-[#1D2226] dark:via-[#283036] dark:to-[#1D2226] border border-[#0A66C2]/20/60 dark:border-[#38434F] shadow-sm">
       <img src="/network-banner.png" alt="" className="absolute inset-0 w-full h-full object-cover" />
       {/* Gradient blobs */}
-      <div className="hero-blob w-52 h-52 bg-purple-300/20 dark:bg-purple-900/30 -top-16 -right-16" />
+      <div className="hero-blob w-52 h-52 bg-blue-300/10 dark:bg-blue-950/20 -top-16 -right-16" />
       <div className="hero-blob w-72 h-72 bg-blue-300/15 dark:bg-blue-900/30 -bottom-24 -left-24" />
 
       <div className="relative z-10 flex flex-col lg:flex-row">
         {/* Left column */}
         <div className="flex-1 p-5 sm:p-6 lg:p-8">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#FFF3D6]/80 dark:bg-purple-900/30 rounded-full border border-[#F4A01C]/30/50 dark:border-purple-800/50 mb-4">
-            <span className="w-2 h-2 rounded-full bg-[#F4A01C] animate-pulse" />
-            <span className="text-[11px] font-bold text-[#E09410] dark:text-purple-300 uppercase tracking-wider">India&apos;s Student Network</span>
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#EAF4FF]/80 dark:bg-[#0A66C2]/10 rounded-full border border-[#0A66C2]/30/50 dark:border-[#0A66C2]/30 mb-4">
+            <span className="w-2 h-2 rounded-full bg-[#0A66C2] animate-pulse" />
+            <span className="text-[11px] font-bold text-[#004182] dark:text-blue-300 uppercase tracking-wider">India&apos;s Student Network</span>
           </div>
 
           <h1 className="text-2xl sm:text-3xl lg:text-[40px] font-extrabold text-gray-900 dark:text-white tracking-tight leading-[1.1] mb-3">
             Build Your<br />
-            <span className="bg-gradient-to-r from-[#0A2540] to-fuchsia-500 bg-clip-text text-transparent">Professional Network</span>
+            <span className="bg-[#0A66C2] bg-clip-text text-transparent">Professional Network</span>
           </h1>
 
           <p className="text-sm sm:text-base text-gray-500 dark:text-[#B0B7BE] font-medium mb-6 max-w-xl leading-relaxed">

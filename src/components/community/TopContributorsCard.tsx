@@ -45,7 +45,7 @@ function TopContributorsCard({ contributors }: TopContributorsCardProps) {
               className="flex items-center gap-2.5 p-2 rounded hover:bg-app dark:hover:bg-[#1D2226] cursor-pointer transition-colors"
             >
               <span className="text-sm flex-shrink-0">{getRankEmoji(index)}</span>
-              <div className="w-7 h-7 rounded-full bg-[#FFF3D6] dark:bg-purple-900/30 border border-surface dark:border-[#38434F] flex items-center justify-center font-bold text-[#F4A01C] overflow-hidden text-[10px] flex-shrink-0">
+              <div className="w-7 h-7 rounded-full bg-[#EAF4FF] dark:bg-purple-900/30 border border-surface dark:border-[#38434F] flex items-center justify-center font-bold text-[#0A66C2] overflow-hidden text-[10px] flex-shrink-0">
                 {contributor.avatar_url ? (
                   <img src={contributor.avatar_url} alt={contributor.full_name} className="w-full h-full object-cover" />
                 ) : (

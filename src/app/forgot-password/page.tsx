@@ -121,7 +121,7 @@ export default function ForgotPasswordPage() {
         {/* Logo */}
         <Link href="/" className="flex justify-center mb-8">
           <span className="font-plus-jakarta-sans font-bold text-2xl text-black dark:text-white">
-            cl<span style={{ color: '#F4A01C' }}>aspire</span>
+            cl<span style={{ color: '#0A66C2' }}>aspire</span>
           </span>
         </Link>
 
@@ -137,11 +137,11 @@ export default function ForgotPasswordPage() {
 
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="w-12 h-12 bg-[#FFF3D6] rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="w-12 h-12 bg-[#EAF4FF] rounded-full flex items-center justify-center mx-auto mb-4">
               {step === 'email' ? (
-                <Mail size={24} className="text-[#F4A01C]" />
+                <Mail size={24} className="text-[#0A66C2]" />
               ) : (
-                <Key size={24} className="text-[#F4A01C]" />
+                <Key size={24} className="text-[#0A66C2]" />
               )}
             </div>
             
@@ -177,7 +177,7 @@ export default function ForgotPasswordPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-[#38434F] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F4A01C] focus:border-transparent dark:bg-[#222B31] dark:text-white dark:placeholder:text-[#8B949E] dark:focus:bg-[#283036]"
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-[#38434F] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0A66C2] focus:border-transparent dark:bg-[#222B31] dark:text-white dark:placeholder:text-[#8B949E] dark:focus:bg-[#283036]"
                   placeholder="Enter your email address"
                 />
               </div>
@@ -225,7 +225,7 @@ export default function ForgotPasswordPage() {
                   onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
                   required
                   maxLength={6}
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-[#38434F] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F4A01C] focus:border-transparent text-center text-xl font-semibold tracking-widest dark:bg-[#222B31] dark:text-white dark:placeholder:text-[#8B949E] dark:focus:bg-[#283036]"
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-[#38434F] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0A66C2] focus:border-transparent text-center text-xl font-semibold tracking-widest dark:bg-[#222B31] dark:text-white dark:placeholder:text-[#8B949E] dark:focus:bg-[#283036]"
                   placeholder="000000"
                 />
               </div>
@@ -264,7 +264,7 @@ export default function ForgotPasswordPage() {
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600 dark:text-[#B0B7BE]">
               Remember your password?{' '}
-              <Link href="/login" className="text-[#F4A01C] font-semibold hover:underline">
+              <Link href="/login" className="text-[#0A66C2] font-semibold hover:underline">
                 Sign in
               </Link>
             </p>

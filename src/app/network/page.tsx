@@ -199,13 +199,13 @@ export default function NetworkPage() {
 
         {/* ===== MOBILE HEADING (md:hidden) ===== */}
         <div className="md:hidden mb-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#FFF3D6]/80 rounded-full border border-[#F4A01C]/30/50 mb-3">
-            <span className="w-2 h-2 rounded-full bg-[#F4A01C] animate-pulse" />
-            <span className="text-[11px] font-bold text-[#E09410] uppercase tracking-wider">India&apos;s Student Network</span>
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#EAF4FF]/80 rounded-full border border-[#0A66C2]/30/50 mb-3">
+            <span className="w-2 h-2 rounded-full bg-[#0A66C2] animate-pulse" />
+            <span className="text-[11px] font-bold text-[#004182] uppercase tracking-wider">India&apos;s Student Network</span>
           </div>
           <h1 className="text-xl font-extrabold text-gray-900 dark:text-white tracking-tight leading-tight m-0">
             Build Your{' '}
-            <span className="bg-gradient-to-r from-[#0A2540] to-fuchsia-500 bg-clip-text text-transparent">Professional Network</span>
+            <span className="bg-[#0A66C2] bg-clip-text text-transparent">Professional Network</span>
           </h1>
           <p className="text-sm text-gray-500 dark:text-[#B0B7BE] font-medium mt-1 m-0 max-w-md">
             Connect with students, seniors, alumni and mentors across India and grow together.
@@ -230,7 +230,7 @@ export default function NetworkPage() {
                   }`}
                 >
                   {isActive && (
-                    <div className="absolute inset-0 rounded-lg lg:rounded-xl bg-gradient-to-r from-[#0A2540] to-fuchsia-500 shadow-sm shadow-[#F4A01C]/20" />
+                    <div className="absolute inset-0 rounded-lg lg:rounded-xl bg-[#0A66C2] shadow-sm shadow-[#0A66C2]/20" />
                   )}
                   <span className="relative z-10 flex items-center gap-1 lg:gap-2">
                     <Icon size={14} className="lg:size-[16px]" />

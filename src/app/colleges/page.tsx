@@ -41,13 +41,13 @@ export default function CollegesPage() {
       {/* ===== MOBILE HEADER + SEARCH (lg:hidden) ===== */}
       <div className="lg:hidden bg-surface dark:bg-[#283036] border-b border-surface dark:border-[#38434F] dark:border-[#38434F]">
         <div className="px-4 pt-3 pb-2">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#F4A01C]/10 rounded-full border border-[#F4A01C]/20 mb-2">
-            <span className="w-2 h-2 rounded-full bg-[#F4A01C] animate-pulse" />
-            <span className="text-[10px] font-bold text-[#F4A01C] uppercase tracking-wider">College Communities</span>
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#0A66C2]/10 rounded-full border border-[#0A66C2]/20 mb-2">
+            <span className="w-2 h-2 rounded-full bg-[#0A66C2] animate-pulse" />
+            <span className="text-[10px] font-bold text-[#0A66C2] uppercase tracking-wider">College Communities</span>
           </div>
           <h1 className="text-xl font-extrabold text-[#0F172A] dark:text-white tracking-tight leading-tight m-0">
             Find Your{' '}
-            <span className="bg-gradient-to-r from-[#F4A01C] to-[#A78BFA] bg-clip-text text-transparent">College Community</span>
+            <span className="text-[#0A66C2]">College Community</span>
           </h1>
           <p className="text-[11px] text-slate-500 dark:text-[#B0B7BE] font-medium mt-1 m-0">Connect with seniors, get placement guidance, and grow your network.</p>
         </div>
@@ -60,10 +60,10 @@ export default function CollegesPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search your college..."
-                className="w-full h-10 pl-9 pr-3 rounded-xl border border-surface dark:border-[#38434F] bg-[#F8FAFC] dark:bg-[#1D2226] text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-[#B0B7BE] dark:text-[#B0B7BE] outline-none focus:border-[#F4A01C] focus:ring-1 focus:ring-[#F4A01C]/20 transition-all"
+                className="w-full h-10 pl-9 pr-3 rounded-xl border border-surface dark:border-[#38434F] bg-[#F8FAFC] dark:bg-[#1D2226] text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-[#B0B7BE] dark:text-[#B0B7BE] outline-none focus:border-[#0A66C2] focus:ring-1 focus:ring-[#0A66C2]/20 transition-all"
               />
             </div>
-            <button className="h-10 px-4 rounded-xl bg-[#F4A01C] text-white text-xs font-bold border-none cursor-pointer hover:bg-[#E09410] transition-all flex items-center gap-1.5">
+            <button className="h-10 px-4 rounded-xl bg-[#0A66C2] text-white text-xs font-bold border-none cursor-pointer hover:bg-[#004182] transition-all flex items-center gap-1.5">
               <Search size={13} /> Search
             </button>
           </div>
@@ -79,8 +79,8 @@ export default function CollegesPage() {
               const Icon = stat.icon
               return (
                 <div key={stat.label} className="bg-surface dark:bg-[#283036] rounded-xl border border-surface dark:border-[#38434F] p-2.5 text-center shadow-sm">
-                  <div className="w-7 h-7 rounded-lg bg-[#F4A01C]/5 flex items-center justify-center mx-auto mb-1">
-                    <Icon size={13} className="text-[#F4A01C]" />
+                  <div className="w-7 h-7 rounded-lg bg-[#0A66C2]/5 flex items-center justify-center mx-auto mb-1">
+                    <Icon size={13} className="text-[#0A66C2]" />
                   </div>
                   <p className="text-base font-extrabold text-[#0F172A] dark:text-white m-0 leading-none">{stat.value.toLocaleString()}</p>
                   <p className="text-[8px] font-medium text-slate-400 dark:text-[#B0B7BE] m-0 mt-0.5 truncate">{stat.label}</p>
@@ -103,14 +103,14 @@ export default function CollegesPage() {
           <div className="lg:w-2/5">
             {/* Badge */}
             <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-surface/15 dark:bg-[#283036]/15 backdrop-blur-sm rounded-full border border-white/15 dark:border-[#38434F]/15 mb-2.5">
-              <Building2 size={11} className="text-[#F4A01C]/60" />
+              <Building2 size={11} className="text-[#0A66C2]/60" />
               <span className="text-[10px] font-bold text-purple-200 uppercase tracking-wider">College Communities</span>
             </div>
 
             {/* Heading */}
             <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-white leading-tight mb-1.5">
               Find Your{' '}
-              <span className="bg-gradient-to-r from-purple-300 to-fuchsia-300 bg-clip-text text-transparent">College Community</span>
+              <span className="text-[#0A66C2]">College Community</span>
             </h1>
 
             {/* Subtitle */}
@@ -130,7 +130,7 @@ export default function CollegesPage() {
                   const Icon = stat.icon
                   return (
                     <div key={stat.label} className="flex items-center gap-1.5 px-2.5 py-1.5 bg-surface/10 dark:bg-[#283036]/10 backdrop-blur-xl rounded-lg border border-white/10 dark:border-[#38434F]/10">
-                      <Icon size={12} className="text-[#F4A01C]/60" />
+                      <Icon size={12} className="text-[#0A66C2]/60" />
                       <span className="text-xs font-bold text-white">{stat.value.toLocaleString()}</span>
                       <span className="text-[10px] text-white/50 font-medium">{stat.label}</span>
                     </div>
@@ -143,7 +143,7 @@ export default function CollegesPage() {
           {/* ===== RIGHT SIDE (60%) — Desktop search ===== */}
           <div className="hidden lg:flex w-3/5 h-full items-center justify-end">
             <div className="relative w-[520px]">
-              <div className="absolute -inset-1 bg-gradient-to-r from-[#F4A01C] to-fuchsia-500 rounded-xl opacity-25 blur-md" />
+              <div className="absolute -inset-1 bg-[#0A66C2] rounded-xl opacity-25 blur-md" />
               <div className="relative flex items-stretch bg-surface dark:bg-[#283036] rounded-xl overflow-hidden shadow-2xl shadow-purple-900/20 h-12">
                 <div className="flex items-center justify-center pl-4 pr-2 text-gray-400 dark:text-[#B0B7BE]">
                   <Search size={18} />
@@ -165,7 +165,7 @@ export default function CollegesPage() {
           {/* ===== MOBILE: Search bar with button ===== */}
           <div className="lg:hidden mb-5">
             <div className="relative">
-              <div className="absolute -inset-1 bg-gradient-to-r from-[#F4A01C] to-fuchsia-500 rounded-xl opacity-25 blur-md" />
+              <div className="absolute -inset-1 bg-[#0A66C2] rounded-xl opacity-25 blur-md" />
               <div className="relative flex items-stretch bg-surface dark:bg-[#283036] rounded-xl overflow-hidden shadow-2xl shadow-purple-900/20 h-11">
                 <div className="flex items-center justify-center pl-3.5 pr-2 text-gray-400 dark:text-[#B0B7BE]">
                   <Search size={16} />
@@ -177,7 +177,7 @@ export default function CollegesPage() {
                   placeholder="Search your college..."
                   className="flex-1 min-w-0 px-0 text-sm text-gray-900 dark:text-white outline-none bg-transparent placeholder:text-gray-400 dark:placeholder:text-[#B0B7BE] dark:text-[#B0B7BE] font-medium"
                 />
-                <button className="flex-shrink-0 px-5 bg-gradient-to-r from-[#0A2540] to-fuchsia-600 text-white text-xs font-bold flex items-center justify-center">
+                <button className="flex-shrink-0 px-5 bg-[#0A66C2] text-white text-xs font-bold flex items-center justify-center">
                   Search
                 </button>
               </div>
@@ -224,7 +224,7 @@ export default function CollegesPage() {
                   {filtered.length}
                 </span>
                 {/* Mobile Filters button */}
-                <button className="sm:hidden flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-[#FFF3D6] border border-[#F4A01C]/20 text-[11px] font-bold text-[#F4A01C] active:bg-[#FFF3D6] transition-colors">
+                <button className="sm:hidden flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-[#EAF4FF] border border-[#0A66C2]/20 text-[11px] font-bold text-[#0A66C2] active:bg-[#EAF4FF] transition-colors">
                   <Filter size={12} />
                   Filters
                 </button>
@@ -232,7 +232,7 @@ export default function CollegesPage() {
               {!searchQuery && (
                 <button
                   onClick={() => router.push('/colleges/request')}
-                  className="hidden sm:flex items-center gap-1.5 text-xs font-bold text-[#F4A01C] hover:text-[#E09410] bg-[#FFF3D6] hover:bg-[#FFF3D6] px-3.5 py-2 rounded-lg transition-all"
+                  className="hidden sm:flex items-center gap-1.5 text-xs font-bold text-[#0A66C2] hover:text-[#004182] bg-[#EAF4FF] hover:bg-[#EAF4FF] px-3.5 py-2 rounded-lg transition-all"
                 >
                   <Sparkles size={13} />
                   Request College
@@ -300,7 +300,7 @@ export default function CollegesPage() {
                             {logoUrl ? (
                               <img src={logoUrl} alt={c.colleges?.short_name || c.slug} className="w-full h-full object-contain p-2" />
                             ) : (
-                              <span className="text-lg font-black bg-gradient-to-br from-[#0A2540] to-fuchsia-600 bg-clip-text text-transparent">
+                              <span className="text-lg font-black text-[#0A66C2]">
                                 {getCollegeInitial(c.colleges)}
                               </span>
                             )}
@@ -317,7 +317,7 @@ export default function CollegesPage() {
                             </div>
                           )}
                           {(c.colleges?.type) && (
-                            <span className="inline-block mt-3 text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#FFF3D6] text-[#F4A01C] border border-[#F4A01C]/20/80">
+                            <span className="inline-block mt-3 text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#EAF4FF] text-[#0A66C2] border border-[#0A66C2]/20/80">
                               {c.colleges.type}
                             </span>
                           )}
@@ -333,14 +333,14 @@ export default function CollegesPage() {
                                 <span className="font-bold text-gray-800 dark:text-white">{c.senior_count || 0}</span>
                               </div>
                               <div className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-[#B0B7BE] font-medium">
-                                <MessageSquare size={13} className="text-[#F4A01C]" />
+                                <MessageSquare size={13} className="text-[#0A66C2]" />
                                 <span className="font-bold text-gray-800 dark:text-white">{c.doubt_count || 0}</span>
                               </div>
                             </div>
                           </div>
                           <button
                             onClick={(e) => { e.stopPropagation(); router.push(`/colleges/${c.slug}`) }}
-                            className="mt-4 w-full py-2.5 rounded-lg text-xs font-bold text-white bg-gradient-to-r from-[#0A2540] to-fuchsia-600 hover:from-purple-700 hover:to-fuchsia-700 transition-all flex items-center justify-center gap-1.5 shadow-sm"
+                            className="mt-4 w-full py-2.5 rounded-lg text-xs font-bold text-white bg-[#0A66C2] hover:from-purple-700 hover:to-fuchsia-700 transition-all flex items-center justify-center gap-1.5 shadow-sm"
                           >
                             View Community
                             <ChevronRight size={13} />
@@ -366,7 +366,7 @@ export default function CollegesPage() {
                           {logoUrl ? (
                             <img src={logoUrl} alt={c.colleges?.short_name || c.slug} className="w-full h-full object-contain p-1.5" />
                           ) : (
-                            <span className="text-sm font-black bg-gradient-to-br from-[#0A2540] to-fuchsia-600 bg-clip-text text-transparent">
+                            <span className="text-sm font-black text-[#0A66C2]">
                               {getCollegeInitial(c.colleges)}
                             </span>
                           )}
@@ -391,15 +391,15 @@ export default function CollegesPage() {
                               <span className="font-bold text-gray-700 dark:text-[#B0B7BE]">{c.senior_count || 0}</span>
                             </span>
                             <span className="text-[11px] text-gray-500 dark:text-[#B0B7BE] font-medium flex items-center gap-1">
-                              <MessageSquare size={11} className="text-[#F4A01C]" />
+                              <MessageSquare size={11} className="text-[#0A66C2]" />
                               <span className="font-bold text-gray-700 dark:text-[#B0B7BE]">{c.doubt_count || 0}</span>
                             </span>
                           </div>
                         </div>
 
                         {/* Right: Arrow button */}
-                        <button className="w-9 h-9 rounded-full bg-[#FFF3D6] border border-[#F4A01C]/20 flex-shrink-0 flex items-center justify-center active:bg-[#FFF3D6] transition-colors">
-                          <ChevronRight size={15} className="text-[#F4A01C]" />
+                        <button className="w-9 h-9 rounded-full bg-[#EAF4FF] border border-[#0A66C2]/20 flex-shrink-0 flex items-center justify-center active:bg-[#EAF4FF] transition-colors">
+                          <ChevronRight size={15} className="text-[#0A66C2]" />
                         </button>
                       </div>
                     )
@@ -408,10 +408,10 @@ export default function CollegesPage() {
 
                 {/* Request college banner (inline, below grid) */}
                 {!searchQuery && (
-                  <div className="mt-6 bg-gradient-to-r from-purple-50 to-fuchsia-50 border border-[#F4A01C]/20 rounded-xl p-4 sm:p-5 flex items-center justify-between gap-3">
+                  <div className="mt-6 bg-[#EAF4FF] border border-[#0A66C2]/20 rounded-xl p-4 sm:p-5 flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-lg bg-[#FFF3D6] flex items-center justify-center flex-shrink-0">
-                        <Sparkles size={15} className="text-[#F4A01C]" />
+                      <div className="w-9 h-9 rounded-lg bg-[#EAF4FF] flex items-center justify-center flex-shrink-0">
+                        <Sparkles size={15} className="text-[#0A66C2]" />
                       </div>
                       <div className="min-w-0">
                         <p className="text-sm font-bold text-gray-900 dark:text-white">Can't find your college?</p>
@@ -420,7 +420,7 @@ export default function CollegesPage() {
                     </div>
                     <button
                       onClick={() => router.push('/colleges/request')}
-                      className="whitespace-nowrap bg-[#F4A01C] hover:bg-[#E09410] text-white px-4 py-2 rounded-lg font-bold text-xs transition-all flex items-center gap-1.5 shadow-sm flex-shrink-0"
+                      className="whitespace-nowrap bg-[#0A66C2] hover:bg-[#004182] text-white px-4 py-2 rounded-lg font-bold text-xs transition-all flex items-center gap-1.5 shadow-sm flex-shrink-0"
                     >
                       Request
                       <ChevronRight size={13} className="hidden sm:block" />
@@ -438,7 +438,7 @@ export default function CollegesPage() {
                 <p className="text-xs sm:text-sm text-gray-500 dark:text-[#B0B7BE] font-medium mb-5 sm:mb-6">We couldn't find any college matching &quot;{searchQuery}&quot;</p>
                 <button
                   onClick={() => router.push('/colleges/request')}
-                  className="text-xs sm:text-sm font-bold text-white bg-[#F4A01C] hover:bg-[#E09410] px-4 sm:px-5 py-2 sm:py-2.5 rounded-lg transition-all shadow-sm"
+                  className="text-xs sm:text-sm font-bold text-white bg-[#0A66C2] hover:bg-[#004182] px-4 sm:px-5 py-2 sm:py-2.5 rounded-lg transition-all shadow-sm"
                 >
                   Request your college
                 </button>
@@ -453,7 +453,7 @@ export default function CollegesPage() {
               {data?.trending && data.trending.length > 0 && (
                 <div className="bg-surface dark:bg-[#283036] rounded-xl border border-surface dark:border-[#38434F]/80 dark:border-[#38434F] shadow-sm p-5">
                   <div className="flex items-center gap-2 mb-4">
-                    <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-sm">
+                    <div className="w-7 h-7 rounded-lg bg-[#0A66C2] flex items-center justify-center shadow-sm">
                       <TrendingUp size={13} className="text-white" />
                     </div>
                     <h3 className="text-sm font-bold text-gray-900 dark:text-white">Trending Colleges</h3>
@@ -465,7 +465,7 @@ export default function CollegesPage() {
                         <div
                           key={college.id}
                           onClick={() => router.push(`/colleges/${college.slug}`)}
-                          className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-gradient-to-r hover:from-purple-50/60 hover:to-transparent cursor-pointer transition-all group hover:-translate-y-0.5 hover:shadow-sm duration-200"
+                          className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-[#EAF4FF]/60 cursor-pointer transition-all group hover:-translate-y-0.5 hover:shadow-sm duration-200"
                         >
                           <div className="w-9 h-9 rounded-xl bg-gray-100 dark:bg-[#283036] flex items-center justify-center overflow-hidden flex-shrink-0 ring-2 ring-gray-100 dark:ring-[#38434F] group-hover:ring-purple-300 transition-all text-[10px] font-black text-gray-400 dark:text-[#B0B7BE]">
                             {logoUrl ? (
@@ -475,7 +475,7 @@ export default function CollegesPage() {
                             )}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-xs font-bold text-gray-900 dark:text-white truncate group-hover:text-[#F4A01C] transition-colors">
+                            <p className="text-xs font-bold text-gray-900 dark:text-white truncate group-hover:text-[#0A66C2] transition-colors">
                               {college.colleges?.short_name || college.display_name}
                             </p>
                             <div className="flex items-center gap-2 mt-0.5">
@@ -496,7 +496,7 @@ export default function CollegesPage() {
               {data?.fastestGrowing && data.fastestGrowing.length > 0 && (
                 <div className="bg-surface dark:bg-[#283036] rounded-xl border border-surface dark:border-[#38434F]/80 dark:border-[#38434F] shadow-sm p-5">
                   <div className="flex items-center gap-2 mb-4">
-                    <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shadow-sm">
+                    <div className="w-7 h-7 rounded-lg bg-emerald-600 flex items-center justify-center shadow-sm">
                       <Zap size={13} className="text-white" />
                     </div>
                     <h3 className="text-sm font-bold text-gray-900 dark:text-white">Fastest Growing</h3>
@@ -508,7 +508,7 @@ export default function CollegesPage() {
                         <div
                           key={college.id}
                           onClick={() => router.push(`/colleges/${college.slug}`)}
-                          className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-gradient-to-r hover:from-emerald-50/60 hover:to-transparent cursor-pointer transition-all group hover:-translate-y-0.5 hover:shadow-sm duration-200"
+                          className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-[#EAF4FF]/60 hover:to-transparent cursor-pointer transition-all group hover:-translate-y-0.5 hover:shadow-sm duration-200"
                         >
                           <div className="w-9 h-9 rounded-xl bg-gray-100 dark:bg-[#283036] flex items-center justify-center overflow-hidden flex-shrink-0 ring-2 ring-gray-100 dark:ring-[#38434F] group-hover:ring-emerald-300 transition-all text-[10px] font-black text-gray-400 dark:text-[#B0B7BE]">
                             {logoUrl ? (
@@ -539,7 +539,7 @@ export default function CollegesPage() {
               {data?.recentlyActive && data.recentlyActive.length > 0 && (
                 <div className="bg-surface dark:bg-[#283036] rounded-xl border border-surface dark:border-[#38434F]/80 dark:border-[#38434F] shadow-sm p-5">
                   <div className="flex items-center gap-2 mb-4">
-                    <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center shadow-sm">
+                    <div className="w-7 h-7 rounded-lg bg-[#0A66C2] flex items-center justify-center shadow-sm">
                       <Clock size={13} className="text-white" />
                     </div>
                     <h3 className="text-sm font-bold text-gray-900 dark:text-white">Recently Active</h3>
@@ -551,7 +551,7 @@ export default function CollegesPage() {
                         <div
                           key={college.id}
                           onClick={() => router.push(`/colleges/${college.slug}`)}
-                          className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-gradient-to-r hover:from-blue-50/60 hover:to-transparent cursor-pointer transition-all group hover:-translate-y-0.5 hover:shadow-sm duration-200"
+                          className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-[#EAF4FF]/60 hover:to-transparent cursor-pointer transition-all group hover:-translate-y-0.5 hover:shadow-sm duration-200"
                         >
                           <div className="w-9 h-9 rounded-xl bg-gray-100 dark:bg-[#283036] flex items-center justify-center overflow-hidden flex-shrink-0 ring-2 ring-gray-100 dark:ring-[#38434F] group-hover:ring-blue-300 transition-all text-[10px] font-black text-gray-400 dark:text-[#B0B7BE]">
                             {logoUrl ? (
@@ -580,7 +580,7 @@ export default function CollegesPage() {
               <div className="lg:hidden">
                 <button
                   onClick={() => router.push('/colleges/request')}
-                  className="w-full py-3 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-[#0A2540] to-fuchsia-600 flex items-center justify-center gap-2 shadow-sm"
+                  className="w-full py-3 rounded-xl text-xs font-bold text-white bg-[#0A66C2] flex items-center justify-center gap-2 shadow-sm"
                 >
                   <Sparkles size={14} />
                   Request your college

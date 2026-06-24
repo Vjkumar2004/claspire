@@ -31,13 +31,13 @@ export default function RPNotification() {
             zIndex: 9999,
           }}
         >
-          <div className="bg-surface dark:bg-[#283036] rounded-2xl shadow-[0_20px_50px_rgba(124,58,237,0.15)] border border-[#F4A01C]/20 dark:border-[#38434F] p-6 flex items-center gap-6 min-w-[320px] overflow-hidden relative">
+          <div className="bg-surface dark:bg-[#283036] rounded-2xl shadow-[0_20px_50px_rgba(124,58,237,0.15)] border border-[#0A66C2]/20 dark:border-[#38434F] p-6 flex items-center gap-6 min-w-[320px] overflow-hidden relative">
             {/* Background elements */}
-            <div className="absolute top-0 right-0 w-24 h-24 bg-[#FFF3D6] dark:bg-purple-900/20 rounded-full -mr-12 -mt-12 opacity-50" />
+            <div className="absolute top-0 right-0 w-24 h-24 bg-[#EAF4FF] dark:bg-purple-900/20 rounded-full -mr-12 -mt-12 opacity-50" />
             
             {/* Icon stack */}
             <div className="relative">
-              <div className="w-14 h-14 bg-gradient-to-br from-[#0A2540] to-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-[#F4A01C]/20">
+              <div className="w-14 h-14 bg-[#0A66C2] rounded-2xl flex items-center justify-center text-white shadow-lg shadow-[#0A66C2]/20">
                 <Zap size={28} fill="currentColor" />
               </div>
               <motion.div 
@@ -57,7 +57,7 @@ export default function RPNotification() {
                 Congratulations!
               </h4>
               <div className="font-instrument-serif text-3xl text-gray-900 dark:text-white leading-none">
-                +{award.points} <span className="text-lg font-sans font-black text-[#F4A01C] ml-1">RP</span>
+                +{award.points} <span className="text-lg font-sans font-black text-[#0A66C2] ml-1">RP</span>
               </div>
               <p className="text-gray-500 dark:text-[#B0B7BE] text-xs mt-1 font-medium">
                 {award.reason}

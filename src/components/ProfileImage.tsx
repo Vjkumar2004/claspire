@@ -25,7 +25,7 @@ export default function ProfileImage({
 
   if (!isValidUrl || imageError) {
     return (
-      <span className="text-sm font-bold text-[#F4A01C]">
+      <span className="text-sm font-bold text-[#0A66C2]">
         {name?.charAt(0)?.toUpperCase() || 'S'}
       </span>
     )

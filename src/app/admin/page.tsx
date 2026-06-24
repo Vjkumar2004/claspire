@@ -36,7 +36,7 @@ export default async function AdminDashboard() {
 
   const cards = [
     { label: 'Total Users', value: stats.totalUsers, icon: Users, color: 'bg-blue-500' },
-    { label: 'Total Colleges', value: stats.totalColleges, icon: Building2, color: 'bg-[#F4A01C]' },
+    { label: 'Total Colleges', value: stats.totalColleges, icon: Building2, color: 'bg-[#0A66C2]' },
     { label: 'Total Communities', value: stats.totalCommunities, icon: MessageSquare, color: 'bg-emerald-500' },
     { label: 'Total Posts', value: stats.totalPosts, icon: FileText, color: 'bg-amber-500' },
     { label: 'Pending Claims', value: stats.pendingClaims, icon: Shield, color: 'bg-rose-500', href: '/admin/college-claims' },

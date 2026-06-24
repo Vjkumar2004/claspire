@@ -11,7 +11,7 @@ const getTypeStyle = (type: string) => {
     case 'doubt':
       return { label: 'Doubt', color: '#2563EB', bg: '#EFF6FF', border: '#BFDBFE', icon: '❓' }
     case 'discussion':
-      return { label: 'Discussion', color: '#F4A01C', bg: '#F5F3FF', border: '#DDD6FE', icon: '💬' }
+      return { label: 'Discussion', color: '#0A66C2', bg: '#F5F3FF', border: '#DDD6FE', icon: '💬' }
     case 'experience':
       return { label: 'Experience', color: '#D97706', bg: '#FFFBEB', border: '#FDE68A', icon: '⭐' }
     case 'referral_hunt':
@@ -154,12 +154,12 @@ export default function FeedPost({
             onChange={e => setAnswerText(e.target.value)}
             placeholder={!isTopLevel ? "Write a reply..." : "Help by writing an answer..."}
             rows={1}
-            className="flex-1 border border-surface dark:border-[#38434F] hover:border-slate-300 dark:hover:border-[#38434F] rounded p-2 text-[10px] font-semibold focus:outline-none focus:border-[#F4A01C] resize-none"
+            className="flex-1 border border-surface dark:border-[#38434F] hover:border-slate-300 dark:hover:border-[#38434F] rounded p-2 text-[10px] font-semibold focus:outline-none focus:border-[#0A66C2] resize-none"
           />
           <button
             onClick={handleSubmitAnswer}
             disabled={!answerText.trim() || isSubmittingAnswer}
-            className="px-3 py-1.5 bg-[#F4A01C] hover:bg-[#E09410] disabled:bg-slate-200 dark:disabled:bg-[#283036] text-white rounded font-bold text-[10px] cursor-pointer transition-colors flex-shrink-0"
+            className="px-3 py-1.5 bg-[#0A66C2] hover:bg-[#004182] disabled:bg-slate-200 dark:disabled:bg-[#283036] text-white rounded font-bold text-[10px] cursor-pointer transition-colors flex-shrink-0"
           >
             {!isTopLevel ? 'Reply' : 'Send'}
           </button>
@@ -220,7 +220,7 @@ export default function FeedPost({
                 setReplyToAnswerId(replyToAnswerId === answer.id ? null : answer.id)
                 if (replyToAnswerId !== answer.id) setAnswerText('')
               }}
-              className="text-[9px] text-slate-400 dark:text-[#B0B7BE] hover:text-[#F4A01C] font-bold transition-colors"
+              className="text-[9px] text-slate-400 dark:text-[#B0B7BE] hover:text-[#0A66C2] font-bold transition-colors"
             >
               Reply
             </button>
@@ -228,7 +228,7 @@ export default function FeedPost({
             {replies.filter((r: any) => r.parent_answer_id === answer.id).length > 0 && (
               <button 
                 onClick={() => toggleReplies(answer.id)}
-                className="text-[9px] text-[#F4A01C] font-bold transition-colors flex items-center gap-1 bg-[#FFF3D6] px-1.5 py-0.5 rounded"
+                className="text-[9px] text-[#0A66C2] font-bold transition-colors flex items-center gap-1 bg-[#EAF4FF] px-1.5 py-0.5 rounded"
               >
                 {expandedReplies[answer.id] ? 'Hide Replies' : `Show Replies (${replies.filter((r: any) => r.parent_answer_id === answer.id).length})`}
               </button>
@@ -278,11 +278,11 @@ export default function FeedPost({
                 <div className="flex items-center gap-1.5">
                   <button
                     onClick={() => router.push(`/colleges/${post.communities?.colleges?.slug || post.communities?.slug}`)}
-                    className="font-bold text-slate-900 dark:text-white hover:text-[#F4A01C] text-sm text-left leading-none truncate"
+                    className="font-bold text-slate-900 dark:text-white hover:text-[#0A66C2] text-sm text-left leading-none truncate"
                   >
                     {post.communities?.colleges?.name || post.communities?.colleges?.short_name || 'College'}
                   </button>
-                  <span className="text-[8px] font-bold uppercase px-1.5 py-0.5 rounded-full border bg-[#FFF3D6] text-[#E09410] border-[#F4A01C]/30 shrink-0">
+                  <span className="text-[8px] font-bold uppercase px-1.5 py-0.5 rounded-full border bg-[#EAF4FF] text-[#004182] border-[#0A66C2]/30 shrink-0">
                     Official
                   </span>
                 </div>
@@ -307,7 +307,7 @@ export default function FeedPost({
                 <div className="flex items-center gap-1.5">
                   <button
                     onClick={() => router.push(`/u/${post.users?.unique_id}`)}
-                    className="font-bold text-slate-900 dark:text-white hover:text-[#F4A01C] text-sm text-left leading-none truncate"
+                    className="font-bold text-slate-900 dark:text-white hover:text-[#0A66C2] text-sm text-left leading-none truncate"
                   >
                     {post.users?.full_name}
                   </button>
@@ -337,7 +337,7 @@ export default function FeedPost({
       {post.title && (
         <h4
           onClick={() => router.push(`/community/c/${post.communities?.slug}/p/${post.id}`)}
-          className="font-extrabold text-slate-950 dark:text-white text-sm sm:text-base hover:text-[#F4A01C] transition-colors leading-snug tracking-tight mb-1.5 cursor-pointer line-clamp-2"
+          className="font-extrabold text-slate-950 dark:text-white text-sm sm:text-base hover:text-[#0A66C2] transition-colors leading-snug tracking-tight mb-1.5 cursor-pointer line-clamp-2"
         >
           {post.title}
         </h4>
@@ -353,7 +353,7 @@ export default function FeedPost({
           return show && (
             <button
               onClick={() => onToggleContent(post.id)}
-              className="text-[#F4A01C] font-bold hover:underline mt-1 cursor-pointer block text-[11px]"
+              className="text-[#0A66C2] font-bold hover:underline mt-1 cursor-pointer block text-[11px]"
             >
               {expandedContent ? 'Show less' : 'Read more'}
             </button>
@@ -403,7 +403,7 @@ export default function FeedPost({
             ))}
           </div>
           {/* Text */}
-          <span className="text-[11px] text-slate-500 dark:text-[#B0B7BE] font-medium leading-tight group-hover:text-[#F4A01C] transition-colors">
+          <span className="text-[11px] text-slate-500 dark:text-[#B0B7BE] font-medium leading-tight group-hover:text-[#0A66C2] transition-colors">
             {(() => {
                const total = voteData?.upvotes || 0
                const names = recentUpvoters.slice(0, 3).map(u => u.full_name?.split(' ')[0] || 'Someone')
@@ -424,15 +424,15 @@ export default function FeedPost({
           onClick={() => onVote(post.id, 'upvote')}
           className={`group flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full text-[10px] sm:text-[11px] font-extrabold transition-all duration-200 cursor-pointer border ${
             voteData?.userVote === 'upvote'
-              ? 'bg-gradient-to-br from-purple-100 to-indigo-50 border-[#F4A01C]/30 text-[#F4A01C] shadow-[0_2px_8px_-2px_rgba(124,58,237,0.3)]'
-              : 'bg-transparent border-transparent hover:border-[#F4A01C]/30 hover:bg-[#FFF3D6] dark:hover:bg-purple-900/20 text-slate-500 dark:text-[#B0B7BE] hover:text-[#F4A01C]'
+              ? 'bg-[#EAF4FF] border-[#0A66C2]/30 text-[#0A66C2] shadow-[0_2px_8px_-2px_rgba(124,58,237,0.3)]'
+              : 'bg-transparent border-transparent hover:border-[#0A66C2]/30 hover:bg-[#EAF4FF] dark:hover:bg-purple-900/20 text-slate-500 dark:text-[#B0B7BE] hover:text-[#0A66C2]'
           }`}
         >
           <ArrowBigUp 
             className={`w-[18px] h-[18px] sm:w-4 sm:h-4 transition-all duration-200 ${
               voteData?.userVote === 'upvote' 
-                ? 'fill-[#F4A01C] text-[#F4A01C] scale-110' 
-                : 'text-slate-400 dark:text-[#B0B7BE] group-hover:scale-110 group-hover:text-[#F4A01C]'
+                ? 'fill-[#0A66C2] text-[#0A66C2] scale-110' 
+                : 'text-slate-400 dark:text-[#B0B7BE] group-hover:scale-110 group-hover:text-[#0A66C2]'
             }`} 
           />
           <span>{voteData?.upvotes || 0}</span>
@@ -459,7 +459,7 @@ export default function FeedPost({
         {/* Detail button */}
         <button
           onClick={() => router.push(`/community/c/${post.communities?.slug}/p/${post.id}`)}
-          className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full text-[10px] sm:text-[11px] font-bold text-[#F4A01C] hover:bg-[#FFF3D6] dark:hover:bg-purple-900/20 transition-all duration-200 cursor-pointer"
+          className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full text-[10px] sm:text-[11px] font-bold text-[#0A66C2] hover:bg-[#EAF4FF] dark:hover:bg-purple-900/20 transition-all duration-200 cursor-pointer"
         >
           <span className="hidden sm:inline">Detail</span>
           <ArrowRight className="w-[16px] h-[16px] sm:w-3.5 sm:h-3.5" />
@@ -477,13 +477,13 @@ export default function FeedPost({
       {expandedPost === post.id && (
         <div className="border-t border-surface dark:border-[#38434F] mt-2.5 pt-2.5 space-y-2">
           <h5 className="font-bold text-[10px] text-slate-800 dark:text-white flex items-center gap-1">
-            <MessageSquare className="w-3 h-3 text-[#F4A01C]" />
+            <MessageSquare className="w-3 h-3 text-[#0A66C2]" />
             <span>Answers ({postAnswers?.length || 0})</span>
           </h5>
 
           {answersLoading && (
             <div className="flex items-center justify-center gap-2 py-3">
-              <div className="w-3.5 h-3.5 border-2 border-[#F4A01C]/20 border-t-purple-600 rounded-full animate-spin" />
+              <div className="w-3.5 h-3.5 border-2 border-[#0A66C2]/20 border-t-purple-600 rounded-full animate-spin" />
               <span className="text-[9px] text-slate-400 dark:text-[#B0B7BE] font-semibold">Loading answers...</span>
             </div>
           )}

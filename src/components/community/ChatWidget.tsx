@@ -317,13 +317,13 @@ function ChatWidget({ user, isNavVisible }: ChatWidgetProps) {
       {/* ════ MOBILE DIRECT MESSAGING REDESIGN: Floating Circular FAB ════ */}
       <button
         onClick={() => setMobileDrawerOpen(true)}
-        className={`fixed right-6 lg:hidden w-12 h-12 rounded-full bg-[#F4A01C] text-white flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all duration-300 ease-in-out z-50 border border-[#F4A01C] ${isNavVisible ? 'bottom-24' : 'bottom-6'
+        className={`fixed right-6 lg:hidden w-12 h-12 rounded-full bg-[#0A66C2] text-white flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all duration-300 ease-in-out z-50 border border-[#0A66C2] ${isNavVisible ? 'bottom-24' : 'bottom-6'
           }`}
         title="Open Direct Messages"
       >
         <MessageCircle className="w-6 h-6 animate-pulse" />
         {chatThreads.filter(t => t.unread).length > 0 && (
-          <span className="absolute -top-1.5 -right-1.5 bg-rose-500 text-[9px] font-black text-white w-5 h-5 rounded-full flex items-center justify-center border-2 border-[#F4A01C]">
+          <span className="absolute -top-1.5 -right-1.5 bg-rose-500 text-[9px] font-black text-white w-5 h-5 rounded-full flex items-center justify-center border-2 border-[#0A66C2]">
             {chatThreads.filter(t => t.unread).length}
           </span>
         )}
@@ -384,7 +384,7 @@ function ChatWidget({ user, isNavVisible }: ChatWidgetProps) {
                   <div className="flex flex-col h-[50vh] bg-surface dark:bg-[#283036]">
                     {/* User status info */}
                     <div className="px-4 py-2 border-b border-surface dark:border-[#38434F] bg-app dark:bg-[#1D2226] flex items-center gap-2 flex-shrink-0">
-                      <div className="w-6 h-6 rounded bg-[#FFF3D6] flex items-center justify-center font-bold text-slate-800 dark:text-white text-[10px] overflow-hidden">
+                      <div className="w-6 h-6 rounded bg-[#EAF4FF] flex items-center justify-center font-bold text-slate-800 dark:text-white text-[10px] overflow-hidden">
                         {activeChatUser.avatar_url ? (
                           <img src={activeChatUser.avatar_url} alt="Profile" className="w-full h-full object-cover" />
                         ) : (
@@ -406,7 +406,7 @@ function ChatWidget({ user, isNavVisible }: ChatWidgetProps) {
                     >
                       {drawerChatLoading && drawerMessages.length === 0 ? (
                         <div className="flex items-center justify-center h-full gap-2">
-                          <div className="w-4 h-4 border-2 border-[#F4A01C]/20 border-t-purple-600 rounded-full animate-spin" />
+                          <div className="w-4 h-4 border-2 border-[#0A66C2]/20 border-t-purple-600 rounded-full animate-spin" />
                           <span className="text-[10px] text-slate-400 dark:text-[#B0B7BE] font-semibold">Loading history...</span>
                         </div>
                       ) : drawerMessages.length === 0 ? (
@@ -425,7 +425,7 @@ function ChatWidget({ user, isNavVisible }: ChatWidgetProps) {
                               <button
                                 onClick={() => failed && retryDrawerMessage(msg.id, msg.content)}
                                 className={`max-w-[85%] p-2.5 rounded-xl text-[10.5px] font-semibold text-left ${isMine
-                                  ? `bg-[#F4A01C] text-white rounded-br-none`
+                                  ? `bg-[#0A66C2] text-white rounded-br-none`
                                   : 'bg-surface dark:bg-[#283036] border border-surface dark:border-[#38434F] text-slate-800 dark:text-white rounded-bl-none shadow-sm'
                                   } ${failed ? 'ring-2 ring-red-400 cursor-pointer' : ''}`}
                               >
@@ -452,12 +452,12 @@ function ChatWidget({ user, isNavVisible }: ChatWidgetProps) {
                         onChange={e => setDrawerNewMessage(e.target.value)}
                         onKeyDown={e => e.key === 'Enter' && sendDrawerMessage()}
                         placeholder="Type message here..."
-                        className="flex-1 border border-surface dark:border-[#38434F] rounded-xl px-3 py-2 text-xs font-semibold outline-none focus:border-[#F4A01C] transition-colors"
+                        className="flex-1 border border-surface dark:border-[#38434F] rounded-xl px-3 py-2 text-xs font-semibold outline-none focus:border-[#0A66C2] transition-colors"
                       />
                       <button
                         onClick={sendDrawerMessage}
                         disabled={!drawerNewMessage.trim() || drawerChatSending}
-                        className="p-2.5 bg-[#F4A01C] hover:bg-[#E09410] disabled:bg-slate-100 dark:disabled:bg-[#283036] text-white rounded-xl cursor-pointer transition-colors"
+                        className="p-2.5 bg-[#0A66C2] hover:bg-[#004182] disabled:bg-slate-100 dark:disabled:bg-[#283036] text-white rounded-xl cursor-pointer transition-colors"
                       >
                         <Send className="w-4 h-4" />
                       </button>
@@ -468,8 +468,8 @@ function ChatWidget({ user, isNavVisible }: ChatWidgetProps) {
                   <div className="flex flex-col h-[50vh] bg-surface dark:bg-[#283036]">
                     {chatThreads.length === 0 ? (
                       <div className="flex-1 flex flex-col items-center justify-center text-center p-6 bg-app/50 dark:bg-[#1D2226]/50">
-                        <div className="w-12 h-12 bg-[#FFF3D6] rounded-full flex items-center justify-center mb-3 border border-[#F4A01C]/20">
-                          <MessageSquare className="w-6 h-6 text-[#F4A01C]" />
+                        <div className="w-12 h-12 bg-[#EAF4FF] rounded-full flex items-center justify-center mb-3 border border-[#0A66C2]/20">
+                          <MessageSquare className="w-6 h-6 text-[#0A66C2]" />
                         </div>
                         <h4 className="font-bold text-xs text-slate-800 dark:text-white">No active connections yet</h4>
                         <p className="text-[10px] text-slate-400 dark:text-[#B0B7BE] font-semibold mt-1 px-4 leading-normal">
@@ -481,7 +481,7 @@ function ChatWidget({ user, isNavVisible }: ChatWidgetProps) {
                               setMobileDrawerOpen(false)
                               router.push('/seniors')
                             }}
-                            className="px-3 py-1.5 bg-[#F4A01C] text-white text-[9px] font-bold rounded shadow-sm hover:bg-[#E09410] transition-all cursor-pointer"
+                            className="px-3 py-1.5 bg-[#0A66C2] text-white text-[9px] font-bold rounded shadow-sm hover:bg-[#004182] transition-all cursor-pointer"
                           >
                             Explore Seniors
                           </button>
@@ -511,7 +511,7 @@ function ChatWidget({ user, isNavVisible }: ChatWidgetProps) {
                             }}
                             className="flex items-center gap-3.5 p-3.5 hover:bg-surface-hover dark:hover:bg-[#1D2226] bg-surface dark:bg-[#283036] cursor-pointer transition-colors"
                           >
-                            <div className="w-8 h-8 rounded bg-[#FFF3D6] flex items-center justify-center font-bold text-[#F4A01C] text-[10px] overflow-hidden flex-shrink-0 border border-[#F4A01C]/20">
+                            <div className="w-8 h-8 rounded bg-[#EAF4FF] flex items-center justify-center font-bold text-[#0A66C2] text-[10px] overflow-hidden flex-shrink-0 border border-[#0A66C2]/20">
                               {thread.users?.avatar_url ? (
                                 <img src={thread.users.avatar_url} alt="Profile" className="w-full h-full object-cover" />
                               ) : (
@@ -524,7 +524,7 @@ function ChatWidget({ user, isNavVisible }: ChatWidgetProps) {
                                 {thread.users?.role === 'senior' ? '★ Verified Senior' : 'Mentee peer'}
                               </p>
                             </div>
-                            <span className="w-1.5 h-1.5 rounded-full bg-[#F4A01C]" />
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#0A66C2]" />
                           </div>
                         ))}
                       </div>
@@ -536,7 +536,7 @@ function ChatWidget({ user, isNavVisible }: ChatWidgetProps) {
                           setMobileDrawerOpen(false)
                           router.push('/dashboard/junior/messages')
                         }}
-                        className="w-full py-2 bg-[#FFF3D6] hover:bg-[#FFF3D6] text-[#F4A01C] text-[11px] font-bold rounded transition-colors cursor-pointer border border-[#F4A01C]/20"
+                        className="w-full py-2 bg-[#EAF4FF] hover:bg-[#EAF4FF] text-[#0A66C2] text-[11px] font-bold rounded transition-colors cursor-pointer border border-[#0A66C2]/20"
                       >
                         Open Full Messaging Center
                       </button>
@@ -598,7 +598,7 @@ function ChatWidget({ user, isNavVisible }: ChatWidgetProps) {
                 {/* User mini info */}
                 <div className="px-3 py-2 border-b border-surface dark:border-[#38434F] bg-app dark:bg-[#1D2226] flex items-center justify-between flex-shrink-0">
                   <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded bg-[#FFF3D6] flex items-center justify-center font-bold text-slate-800 dark:text-white text-[10px] overflow-hidden">
+                    <div className="w-6 h-6 rounded bg-[#EAF4FF] flex items-center justify-center font-bold text-slate-800 dark:text-white text-[10px] overflow-hidden">
                       {activeChatUser.avatar_url ? (
                         <img src={activeChatUser.avatar_url} alt="Profile" className="w-full h-full object-cover" />
                       ) : (
@@ -621,7 +621,7 @@ function ChatWidget({ user, isNavVisible }: ChatWidgetProps) {
                 >
                   {drawerChatLoading && drawerMessages.length === 0 ? (
                     <div className="flex items-center justify-center h-full gap-2">
-                      <div className="w-3.5 h-3.5 border-2 border-[#F4A01C]/20 border-t-purple-600 rounded-full animate-spin" />
+                      <div className="w-3.5 h-3.5 border-2 border-[#0A66C2]/20 border-t-purple-600 rounded-full animate-spin" />
                       <span className="text-[9px] text-slate-400 dark:text-[#B0B7BE] font-semibold">Loading messages...</span>
                     </div>
                   ) : drawerMessages.length === 0 ? (
@@ -640,7 +640,7 @@ function ChatWidget({ user, isNavVisible }: ChatWidgetProps) {
                           <button
                             onClick={() => failed && retryDrawerMessage(msg.id, msg.content)}
                             className={`max-w-[85%] p-2 rounded-lg text-[10px] font-semibold text-left ${isMine
-                              ? `bg-[#F4A01C] text-white rounded-br-none`
+                              ? `bg-[#0A66C2] text-white rounded-br-none`
                               : 'bg-surface dark:bg-[#283036] border border-surface dark:border-[#38434F] text-slate-800 dark:text-white rounded-bl-none shadow-sm'
                               } ${failed ? 'ring-2 ring-red-400 cursor-pointer' : ''}`}
                           >
@@ -667,12 +667,12 @@ function ChatWidget({ user, isNavVisible }: ChatWidgetProps) {
                     onChange={e => setDrawerNewMessage(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && sendDrawerMessage()}
                     placeholder="Write message..."
-                    className="flex-1 border border-surface dark:border-[#38434F] hover:border-slate-300 dark:hover:border-[#38434F] rounded px-2.5 py-1.5 text-[10px] font-semibold outline-none focus:border-[#F4A01C] transition-colors"
+                    className="flex-1 border border-surface dark:border-[#38434F] hover:border-slate-300 dark:hover:border-[#38434F] rounded px-2.5 py-1.5 text-[10px] font-semibold outline-none focus:border-[#0A66C2] transition-colors"
                   />
                   <button
                     onClick={sendDrawerMessage}
                     disabled={!drawerNewMessage.trim() || drawerChatSending}
-                    className="p-1.5 bg-[#F4A01C] hover:bg-[#E09410] disabled:bg-slate-100 dark:disabled:bg-[#283036] text-white rounded cursor-pointer transition-colors"
+                    className="p-1.5 bg-[#0A66C2] hover:bg-[#004182] disabled:bg-slate-100 dark:disabled:bg-[#283036] text-white rounded cursor-pointer transition-colors"
                   >
                     <Send className="w-3.5 h-3.5" />
                   </button>
@@ -683,8 +683,8 @@ function ChatWidget({ user, isNavVisible }: ChatWidgetProps) {
               <div className="flex flex-col h-full bg-app dark:bg-[#1D2226]">
                 {chatThreads.length === 0 ? (
                   <div className="flex-1 flex flex-col items-center justify-center text-center p-4 bg-surface dark:bg-[#283036]">
-                    <div className="w-10 h-10 bg-[#FFF3D6] rounded-full flex items-center justify-center mb-2 border border-[#F4A01C]/20">
-                      <MessageSquare className="w-5 h-5 text-[#F4A01C]" />
+                    <div className="w-10 h-10 bg-[#EAF4FF] rounded-full flex items-center justify-center mb-2 border border-[#0A66C2]/20">
+                      <MessageSquare className="w-5 h-5 text-[#0A66C2]" />
                     </div>
                     <h4 className="font-bold text-[10px] text-slate-800 dark:text-white">No active connections</h4>
                     <p className="text-[8px] text-slate-400 dark:text-[#B0B7BE] font-semibold mt-1 px-3 leading-normal">
@@ -693,7 +693,7 @@ function ChatWidget({ user, isNavVisible }: ChatWidgetProps) {
                     <div className="mt-3.5 flex gap-1.5">
                       <button
                         onClick={() => router.push('/seniors')}
-                        className="px-2.5 py-1 bg-[#F4A01C] text-white text-[8px] font-bold rounded hover:bg-[#E09410] transition-all cursor-pointer"
+                        className="px-2.5 py-1 bg-[#0A66C2] text-white text-[8px] font-bold rounded hover:bg-[#004182] transition-all cursor-pointer"
                       >
                         Explore Seniors
                       </button>
@@ -720,7 +720,7 @@ function ChatWidget({ user, isNavVisible }: ChatWidgetProps) {
                         }}
                         className="flex items-center gap-3 p-3 hover:bg-surface-hover dark:hover:bg-[#1D2226] bg-surface dark:bg-[#283036] cursor-pointer transition-colors"
                       >
-                        <div className="w-7 h-7 rounded bg-[#FFF3D6] flex items-center justify-center font-bold text-[#F4A01C] text-[10px] overflow-hidden flex-shrink-0">
+                        <div className="w-7 h-7 rounded bg-[#EAF4FF] flex items-center justify-center font-bold text-[#0A66C2] text-[10px] overflow-hidden flex-shrink-0">
                           {thread.users?.avatar_url ? (
                             <img src={thread.users.avatar_url} alt="Profile" className="w-full h-full object-cover" />
                           ) : (
@@ -733,7 +733,7 @@ function ChatWidget({ user, isNavVisible }: ChatWidgetProps) {
                             {thread.users?.role === 'senior' ? '★ Verified Senior' : 'Mentee peer'}
                           </p>
                         </div>
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#F4A01C]" />
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#0A66C2]" />
                       </div>
                     ))}
                   </div>
@@ -747,7 +747,7 @@ function ChatWidget({ user, isNavVisible }: ChatWidgetProps) {
                         : '/dashboard/junior/messages'
                       router.push(messageRoute)
                     }}
-                    className="w-full py-1.5 bg-[#FFF3D6] hover:bg-[#FFF3D6] text-[#F4A01C] text-[10px] font-bold rounded transition-colors cursor-pointer border border-[#F4A01C]/20"
+                    className="w-full py-1.5 bg-[#EAF4FF] hover:bg-[#EAF4FF] text-[#0A66C2] text-[10px] font-bold rounded transition-colors cursor-pointer border border-[#0A66C2]/20"
                   >
                     Full Messaging Console
                   </button>

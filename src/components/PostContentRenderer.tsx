@@ -35,9 +35,9 @@ const convertUrlsToLinks = (html: string) => {
         return ''
       })
       const cleanDomain = getDisplayDomain(cleanUrl)
-      return '<a href="/redirect?url=' + encodeURIComponent(cleanUrl) + '" target="_blank" rel="noopener noreferrer" class="text-[#F4A01C] hover:underline font-medium inline-flex items-center gap-0.5">' + cleanDomain + ' <span class="text-[10px] opacity-70">↗</span></a>' + trailing
+      return '<a href="/redirect?url=' + encodeURIComponent(cleanUrl) + '" target="_blank" rel="noopener noreferrer" class="text-[#0A66C2] hover:underline font-medium inline-flex items-center gap-0.5">' + cleanDomain + ' <span class="text-[10px] opacity-70">↗</span></a>' + trailing
     }
-    return '<a href="mailto:' + email + '" class="text-[#F4A01C] hover:underline font-medium">' + email + '</a>'
+    return '<a href="mailto:' + email + '" class="text-[#0A66C2] hover:underline font-medium">' + email + '</a>'
   })
 
   // Restore protected anchor tags
@@ -65,7 +65,7 @@ export default function PostContentRenderer({ content, clamp }: PostContentRende
     : clamp === 6 ? 'line-clamp-6'
     : ''
 
-  const finalClassName = `text-[13px] sm:text-sm text-slate-700 dark:text-[#CBD5E1] leading-[1.65] font-normal [&>blockquote]:border-l-4 [&>blockquote]:border-[#F4A01C] [&>blockquote]:pl-4 [&>blockquote]:text-slate-500 [&>ul]:list-disc [&>ul]:pl-5 [&>ol]:list-decimal [&>ol]:pl-5 [&_a]:text-[#F4A01C] [&_a]:hover:underline [&_a]:font-medium ${clampClass}`
+  const finalClassName = `text-[13px] sm:text-sm text-slate-700 dark:text-[#CBD5E1] leading-[1.65] font-normal [&>blockquote]:border-l-4 [&>blockquote]:border-[#0A66C2] [&>blockquote]:pl-4 [&>blockquote]:text-slate-500 [&>ul]:list-disc [&>ul]:pl-5 [&>ol]:list-decimal [&>ol]:pl-5 [&_a]:text-[#0A66C2] [&_a]:hover:underline [&_a]:font-medium ${clampClass}`
 
   console.log('[PostContentRenderer]', {
     contentLength: content.length,

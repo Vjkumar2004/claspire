@@ -38,7 +38,7 @@ async function sendOTPviaSMTP(email: string, otp: string, fullName: string): Pro
                     <td align="center" style="padding: 30px 40px; background-color: #ffffff; border-bottom: 1px solid #f3f4f6;">
                       <!-- Styled text for logo to ensure visibility across all email clients -->
                       <div style="font-size: 32px; font-weight: 800; letter-spacing: -1px;">
-                        <span style="color: #F4A01C;">claspire</span>
+                        <span style="color: #0A66C2;">claspire</span>
                       </div>
                     </td>
                   </tr>
@@ -53,9 +53,9 @@ async function sendOTPviaSMTP(email: string, otp: string, fullName: string): Pro
                       </p>
                       
                       <!-- OTP Box -->
-                      <div style="background-color: #f5f3ff; border: 2px dashed #F4A01C; border-radius: 12px; padding: 24px; text-align: center; margin-bottom: 30px;">
-                        <span style="display: block; color: #E09410; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Your Verification Code</span>
-                        <span style="color: #F4A01C; font-size: 42px; font-weight: 800; letter-spacing: 8px; font-family: monospace;">${otp}</span>
+                      <div style="background-color: #f5f3ff; border: 2px dashed #0A66C2; border-radius: 12px; padding: 24px; text-align: center; margin-bottom: 30px;">
+                        <span style="display: block; color: #004182; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Your Verification Code</span>
+                        <span style="color: #0A66C2; font-size: 42px; font-weight: 800; letter-spacing: 8px; font-family: monospace;">${otp}</span>
                       </div>
                       
                       <p style="color: #6b7280; font-size: 14px; line-height: 20px; margin: 0; text-align: center;">

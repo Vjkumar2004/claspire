@@ -114,8 +114,8 @@ export function NotificationPromptProvider({ children }: { children: React.React
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
           <div className="bg-surface dark:bg-[#1D2226] rounded-2xl w-[380px] max-w-full shadow-2xl overflow-hidden animate-fade">
             <div className="p-6">
-              <div className="w-14 h-14 bg-[#FFF3D6] dark:bg-purple-600/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <Bell className="w-7 h-7 text-[#F4A01C]" />
+              <div className="w-14 h-14 bg-[#EAF4FF] dark:bg-[#0A66C2]/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <Bell className="w-7 h-7 text-[#0A66C2]" />
               </div>
 
               <h2 className="text-lg font-bold text-center text-gray-900 dark:text-white mb-1">
@@ -128,7 +128,7 @@ export function NotificationPromptProvider({ children }: { children: React.React
               <ul className="space-y-2.5 mb-6">
                 {BENEFITS.map((benefit) => (
                   <li key={benefit} className="flex items-center gap-3 text-sm text-gray-700 dark:text-[#E4E8EC]">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#F4A01C] flex-shrink-0" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#0A66C2] flex-shrink-0" />
                     {benefit}
                   </li>
                 ))}
@@ -138,7 +138,7 @@ export function NotificationPromptProvider({ children }: { children: React.React
                 <button
                   onClick={handleEnable}
                   disabled={requesting}
-                  className="w-full py-3 bg-[#F4A01C] hover:bg-[#E09410] text-white font-semibold text-sm rounded-xl transition-colors disabled:opacity-50 cursor-pointer"
+                  className="w-full py-3 bg-[#0A66C2] hover:bg-[#004182] text-white font-semibold text-sm rounded-xl transition-colors disabled:opacity-50 cursor-pointer"
                 >
                   {requesting ? 'Requesting…' : 'Enable Notifications'}
                 </button>

@@ -74,7 +74,7 @@ function RedirectPageContent() {
   if (!authChecked) {
     return (
       <div className="min-h-screen bg-[#FAFBFC] dark:bg-[#111827] flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-[#F4A01C]/30 border-t-purple-600 rounded-full animate-spin" />
+        <div className="w-8 h-8 border-4 border-[#0A66C2]/30 border-t-purple-600 rounded-full animate-spin" />
       </div>
     )
   }
@@ -124,7 +124,7 @@ function RedirectPageContent() {
         <div className="flex flex-col gap-3">
           <button
             onClick={() => { window.location.href = targetUrl }}
-            className="w-full bg-[#F4A01C] hover:bg-[#E09410] text-white font-bold py-3 px-4 rounded-xl transition-colors"
+            className="w-full bg-[#0A66C2] hover:bg-[#004182] text-white font-bold py-3 px-4 rounded-xl transition-colors"
           >
             Continue
           </button>
@@ -146,7 +146,7 @@ export default function RedirectPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen bg-[#FAFBFC] dark:bg-[#111827] flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-[#F4A01C]/30 border-t-purple-600 rounded-full animate-spin"></div>
+        <div className="w-8 h-8 border-4 border-[#0A66C2]/30 border-t-purple-600 rounded-full animate-spin"></div>
       </div>
     }>
       <RedirectPageContent />

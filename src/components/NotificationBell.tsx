@@ -137,17 +137,15 @@ export default function NotificationBell({ align = 'right', dark = false }: Noti
       <button
         ref={buttonRef}
         onClick={handleBellClick}
-        className={`relative p-2 rounded-full transition-colors focus:outline-none ${
-          dark 
-            ? 'text-gray-600 dark:text-[#B0B7BE] hover:bg-surface-hover dark:hover:bg-[#1D2226]' 
-            : 'text-white hover:bg-surface/10'
+        className={`relative p-2 rounded-full transition-colors focus:outline-none cursor-pointer ${
+          isOpen
+            ? 'bg-[#EAF4FF] text-[#0A66C2] dark:bg-[#283036] dark:text-white'
+            : 'text-[#666666] dark:text-[#B0B7BE] hover:text-[#191919] dark:hover:text-white hover:bg-[#EAF4FF] dark:hover:bg-[#283036]'
         }`}
       >
         <Bell size={20} />
         {unreadCount > 0 && (
-          <span className={`absolute top-1.5 right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white ring-2 ${
-            dark ? 'ring-white dark:ring-[#1D2226]' : 'ring-indigo-900'
-          }`}>
+          <span className="absolute top-1.5 right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white ring-2 ring-white dark:ring-[#1D2226]">
             {unreadCount}
           </span>
         )}
@@ -185,7 +183,7 @@ export default function NotificationBell({ align = 'right', dark = false }: Noti
                   {unreadCount > 0 && (
                     <button
                       onClick={() => markAsRead()}
-                      className="text-[11px] font-bold text-[#F4A01C] hover:text-[#E09410] transition-colors flex items-center gap-1"
+                      className="text-[11px] font-bold text-[#0A66C2] hover:text-[#004182] transition-colors flex items-center gap-1"
                     >
                       <Check size={12} />
                       Mark all read
@@ -229,10 +227,10 @@ export default function NotificationBell({ align = 'right', dark = false }: Noti
                       <div
                         key={notif.id}
                         onClick={() => !notif.is_read && markAsRead(notif.id)}
-                        className={`p-4 hover:bg-app dark:hover:bg-[#1D2226] transition-all cursor-pointer group relative ${!notif.is_read ? 'bg-[#FFF3D6]/30' : ''}`}
+                        className={`p-4 hover:bg-app dark:hover:bg-[#1D2226] transition-all cursor-pointer group relative ${!notif.is_read ? 'bg-[#EAF4FF]/30' : ''}`}
                       >
                         {!notif.is_read && (
-                          <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-[#F4A01C]" />
+                          <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-[#0A66C2]" />
                         )}
                         
                         <div className="flex gap-3">
@@ -254,7 +252,7 @@ export default function NotificationBell({ align = 'right', dark = false }: Noti
                               <Link 
                                 href={notif.link}
                                 onClick={() => setIsOpen(false)}
-                                className="inline-flex items-center gap-1 text-[11px] font-bold text-[#F4A01C] mt-2 hover:underline"
+                                className="inline-flex items-center gap-1 text-[11px] font-bold text-[#0A66C2] mt-2 hover:underline"
                               >
                                 View Details
                                 <ExternalLink size={10} />
@@ -267,7 +265,7 @@ export default function NotificationBell({ align = 'right', dark = false }: Noti
                     {/* Sentinel for infinite scroll */}
                     <div ref={sentinelRef} className="py-4 flex items-center justify-center">
                       {loading && (
-                        <div className="h-5 w-5 border-2 border-[#F4A01C] border-t-transparent rounded-full animate-spin" />
+                        <div className="h-5 w-5 border-2 border-[#0A66C2] border-t-transparent rounded-full animate-spin" />
                       )}
                       {!hasMore && notifications.length >= 50 && (
                         <p className="text-[10px] text-gray-400 dark:text-[#B0B7BE]">All caught up</p>
@@ -313,7 +311,7 @@ export default function NotificationBell({ align = 'right', dark = false }: Noti
                   <Link 
                      href={user?.role === 'senior' ? '/dashboard/senior' : '/dashboard/junior'}
                      onClick={() => setIsOpen(false)}
-                     className="text-[11px] font-bold text-gray-400 dark:text-[#B0B7BE] uppercase tracking-wider hover:text-[#F4A01C] transition-colors no-underline block"
+                     className="text-[11px] font-bold text-gray-400 dark:text-[#B0B7BE] uppercase tracking-wider hover:text-[#0A66C2] transition-colors no-underline block"
                   >
                      View All Activity
                   </Link>

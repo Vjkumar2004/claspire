@@ -30,24 +30,24 @@ export default function SmartTags({ tags, onAddTag, onRemoveTag }: SmartTagsProp
   return (
     <div className="space-y-3">
       <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-white/80">
-        <Hash size={16} className="text-[#F4A01C] dark:text-purple-400" />
+        <Hash size={16} className="text-[#0A66C2] dark:text-purple-400" />
         Tags
         <span className="text-slate-400 dark:text-white/40 text-xs font-normal">({tags.length}/5)</span>
       </label>
 
       <div className="relative group">
-        <div className="absolute -inset-0.5 bg-gradient-to-r from-[#F4A01C]/20 to-cyan-500/20 rounded-xl blur opacity-0 group-focus-within:opacity-100 transition duration-500"></div>
-        <div className="relative flex flex-wrap items-center gap-2 p-3 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl backdrop-blur-xl transition-colors group-focus-within:border-[#F4A01C]/50">
+        <div className="absolute -inset-0.5 bg-[#0A66C2]/20 rounded-xl blur opacity-0 group-focus-within:opacity-100 transition duration-500"></div>
+        <div className="relative flex flex-wrap items-center gap-2 p-3 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl backdrop-blur-xl transition-colors group-focus-within:border-[#0A66C2]/50">
           {tags.map(tag => (
             <span
               key={tag}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-[#FFF3D6] dark:bg-purple-500/20 text-[#E09410] dark:text-purple-200 text-sm font-medium rounded-lg border border-[#F4A01C]/30 dark:border-purple-500/30"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-[#EAF4FF] dark:bg-purple-500/20 text-[#004182] dark:text-purple-200 text-sm font-medium rounded-lg border border-[#0A66C2]/30 dark:border-purple-500/30"
             >
               #{tag}
               <button
                 type="button"
                 onClick={() => onRemoveTag(tag)}
-                className="hover:bg-[#F4A01C]/30 p-0.5 rounded-md transition-colors"
+                className="hover:bg-[#0A66C2]/30 p-0.5 rounded-md transition-colors"
               >
                 <X size={12} />
               </button>

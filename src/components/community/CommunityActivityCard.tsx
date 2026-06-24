@@ -22,7 +22,7 @@ function CommunityActivityCard({
 }: CommunityActivityCardProps) {
   const primaryActivities = [
     { label: "Today's Posts", value: todayPosts, icon: MessageSquare, color: 'text-blue-500' },
-    { label: "Today's Answers", value: todayAnswers, icon: Activity, color: 'text-[#F4A01C]' },
+    { label: "Today's Answers", value: todayAnswers, icon: Activity, color: 'text-[#0A66C2]' },
     { label: "Referrals Made", value: todayReferrals, icon: Send, color: 'text-emerald-500' },
     { label: "New Seniors", value: todaySeniors, icon: UserCheck, color: 'text-amber-500' },
   ]

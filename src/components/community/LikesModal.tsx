@@ -204,7 +204,7 @@ export default function LikesModal({ isOpen, onClose, postId, totalLikes, curren
                         {voter.full_name}
                       </span>
                       {voter.id === currentUser?.id && (
-                        <span className="text-[10px] font-semibold text-[#F4A01C] bg-[#FFF3D6] px-1.5 py-0.5 rounded">
+                        <span className="text-[10px] font-semibold text-[#0A66C2] bg-[#EAF4FF] px-1.5 py-0.5 rounded">
                           (You)
                         </span>
                       )}

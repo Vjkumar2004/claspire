@@ -2,35 +2,36 @@
 
 import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
+import { Users, MessageSquare, Briefcase, Bot, Video, TrendingUp } from 'lucide-react';
 
 const features = [
   {
-    number: "01",
+    icon: Users,
     title: "College Community",
     description: "Only seniors from YOUR college answer. No strangers, no generic advice."
   },
   {
-    number: "02", 
+    icon: MessageSquare, 
     title: "Doubt Feed",
-    description: "Post any doubt publicly. Verified seniors answer within 2 hours. AI covers the rest."
+    description: "Post any doubt publicly. Verified seniors answer within 3 hours. AI covers the rest."
   },
   {
-    number: "03",
+    icon: Briefcase,
     title: "Job Referrals",
     description: "One-click referral request. AI writes the email. Senior approves in one tap."
   },
   {
-    number: "04",
+    icon: Bot,
     title: "AI Mentor",
-    description: "Trained on Indian placement data. Knows your college's specific placement patterns."
+    description: "Trained on Indian placement data. Knows your college's specific placement pattern."
   },
   {
-    number: "05",
+    icon: Video,
     title: "Live Webinars",
-    description: "Placed seniors host paid Sunday sessions. Learn exactly how they got their offer."
+    description: "Please seniors host paid Sunday sessions. Learn exactly how they got their offer."
   },
   {
-    number: "06",
+    icon: TrendingUp,
     title: "Placement Stats",
     description: "Real data per college, per company. No marketing. No fluff. Just truth."
   }
@@ -56,7 +57,7 @@ export default function Features() {
   };
 
   return (
-    <section className="bg-white py-24 overflow-hidden border-b border-[#E8DFD0]">
+    <section className="bg-white py-24 overflow-hidden border-b border-[#D9E2EC]">
       <div className="container">
         {/* Header */}
         <motion.div
@@ -66,10 +67,10 @@ export default function Features() {
           transition={{ duration: 0.6 }}
           className="max-w-[560px] mb-14"
         >
-          <div className="text-xs font-semibold tracking-wider uppercase text-[#1B4F72] mb-3">
+          <div className="text-xs font-semibold tracking-wider uppercase text-[#004182] mb-3">
             BUILT FOR INDIAN COLLEGE STUDENTS
           </div>
-          <h2 className="font-extrabold text-[clamp(28px,3.5vw,40px)] leading-[1.2] text-[#0A2540] tracking-tight">
+          <h2 className="font-extrabold text-[clamp(28px,3.5vw,40px)] leading-[1.2] text-[#0A66C2] tracking-tight">
             The community your college never gave you
           </h2>
         </motion.div>
@@ -87,16 +88,16 @@ export default function Features() {
               variants={itemVariants}
               whileHover={{ y: -4, boxShadow: '0 10px 25px rgba(10, 37, 64, 0.08)' }}
               transition={{ duration: 0.2 }}
-              className="bg-white p-6 md:p-8 cursor-pointer h-full border border-[#E8DFD0] border-l-[3px] border-l-[#F4A01C] rounded-xl shadow-[0_1px_3px_rgba(10,37,64,0.05)] transition-all flex flex-col justify-between"
+              className="bg-white p-6 md:p-8 cursor-pointer h-full border border-[#D9E2EC] border-l-[3px] border-l-[#0A66C2] rounded-xl shadow-[0_1px_3px_rgba(10,37,64,0.05)] transition-all flex flex-col justify-between"
             >
               <div>
-                <div className="inline-flex items-center justify-center font-bold text-xs text-[#1B4F72] bg-[#FFF0D6] border border-[#F4A01C]/30 rounded-full px-2.5 py-0.5 mb-4 tracking-wider">
-                  0{index + 1}
+                <div className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-[#EAF4FF] text-[#0A66C2] mb-4">
+                  <feature.icon size={20} />
                 </div>
-                <div className="text-base font-bold text-[#0A2540] mb-2 tracking-tight">
+                <div className="text-base font-bold text-[#0A66C2] mb-2 tracking-tight">
                   {feature.title}
                 </div>
-                <div className="text-[13px] text-[#5A7184] leading-relaxed font-medium">
+                <div className="text-[13px] text-[#666666] leading-relaxed font-medium">
                   {feature.description}
                 </div>
               </div>

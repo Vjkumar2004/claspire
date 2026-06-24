@@ -40,7 +40,7 @@ const CLASPIRE_HEADER = `
           </td>
           <td style="vertical-align:middle; padding-left:14px;">
             <p style="margin:0; font-size:18px; font-weight:700; color:#111111; line-height:1.2; font-family:Arial,Helvetica,sans-serif;">
-              cl<span style="color:#F4A01C;">aspire</span>
+              cl<span style="color:#0A66C2;">aspire</span>
             </p>
             <p style="margin:2px 0 0 0; font-size:13px; color:#6b7280; font-weight:400; line-height:1.3; font-family:Arial,Helvetica,sans-serif;">
               Student Community Platform
@@ -73,16 +73,16 @@ const CLASPIRE_FOOTER = `
         Helping students discover opportunities, referrals, and career insights.
       </p>
       <p style="margin:0 0 14px 0; font-size:14px; font-family:Arial,Helvetica,sans-serif;">
-        <a href="https://claspire.in" target="_blank" style="color:#F4A01C; text-decoration:none; font-weight:600;">Visit Claspire &rarr;</a>
+        <a href="https://claspire.in" target="_blank" style="color:#0A66C2; text-decoration:none; font-weight:600;">Visit Claspire &rarr;</a>
       </p>
       <p style="margin:0; font-size:13px; font-family:Arial,Helvetica,sans-serif;">
-        <a href="https://claspire.in" target="_blank" style="color:#F4A01C; text-decoration:none; font-weight:500;">Website</a>
+        <a href="https://claspire.in" target="_blank" style="color:#0A66C2; text-decoration:none; font-weight:500;">Website</a>
         &nbsp;&middot;&nbsp;
-        <a href="https://linkedin.com/company/claspire" target="_blank" style="color:#F4A01C; text-decoration:none; font-weight:500;">LinkedIn</a>
+        <a href="https://linkedin.com/company/claspire" target="_blank" style="color:#0A66C2; text-decoration:none; font-weight:500;">LinkedIn</a>
         &nbsp;&middot;&nbsp;
-        <a href="https://instagram.com/claspire.in" target="_blank" style="color:#F4A01C; text-decoration:none; font-weight:500;">Instagram</a>
+        <a href="https://instagram.com/claspire.in" target="_blank" style="color:#0A66C2; text-decoration:none; font-weight:500;">Instagram</a>
         &nbsp;&middot;&nbsp;
-        <a href="mailto:updates@mail.claspire.in" target="_blank" style="color:#F4A01C; text-decoration:none; font-weight:500;">Email</a>
+        <a href="mailto:updates@mail.claspire.in" target="_blank" style="color:#0A66C2; text-decoration:none; font-weight:500;">Email</a>
       </p>
     </td>
   </tr>
@@ -131,7 +131,7 @@ function ctaButton(url: string, label: string): string {
     <td style="text-align:center;">
       <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto;">
         <tr>
-          <td style="border-radius:12px; text-align:center; padding:0; background:#F4A01C; background:linear-gradient(90deg,#F4A01C,#F4A01C);">
+          <td style="border-radius:12px; text-align:center; padding:0; background:#0A66C2; background:linear-gradient(90deg,#0A66C2,#0A66C2);">
             <a href="${url}" target="_blank" style="display:inline-block; padding:16px 0; width:220px; font-size:15px; font-weight:700; color:#ffffff; border-radius:12px; text-decoration:none; line-height:1; font-family:Arial,Helvetica,sans-serif; text-align:center; box-sizing:border-box;">
               ${label}
             </a>
@@ -202,11 +202,11 @@ function generateJobBody(data: JobFormData, type: TemplateType): string {
   if (data.batch) rightItems.push({ icon: '📅', label: 'Batch', value: data.batch })
 
   const leftHtml = leftItems.map(i =>
-    `<tr><td style="padding:7px 0; font-size:14px; color:#111827; line-height:1.5; font-family:Arial,Helvetica,sans-serif;">${i.icon} <strong style="color:#F4A01C;">${i.label}:</strong> ${i.value}</td></tr>`
+    `<tr><td style="padding:7px 0; font-size:14px; color:#111827; line-height:1.5; font-family:Arial,Helvetica,sans-serif;">${i.icon} <strong style="color:#0A66C2;">${i.label}:</strong> ${i.value}</td></tr>`
   ).join('')
 
   const rightHtml = rightItems.map(i =>
-    `<tr><td style="padding:7px 0; font-size:14px; color:#111827; line-height:1.5; font-family:Arial,Helvetica,sans-serif;">${i.icon} <strong style="color:#F4A01C;">${i.label}:</strong> ${i.value}</td></tr>`
+    `<tr><td style="padding:7px 0; font-size:14px; color:#111827; line-height:1.5; font-family:Arial,Helvetica,sans-serif;">${i.icon} <strong style="color:#0A66C2;">${i.label}:</strong> ${i.value}</td></tr>`
   ).join('')
 
   const detailsHtml = `
@@ -238,7 +238,7 @@ function generateJobBody(data: JobFormData, type: TemplateType): string {
 <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%; margin-bottom:16px;">
   <tr>
     <td>
-      <span style="display:inline-block; background:#f3e8ff; color:#F4A01C; font-size:13px; font-weight:600; padding:8px 16px; border-radius:999px; font-family:Arial,Helvetica,sans-serif;">${badgeText}</span>
+      <span style="display:inline-block; background:#f3e8ff; color:#0A66C2; font-size:13px; font-weight:600; padding:8px 16px; border-radius:999px; font-family:Arial,Helvetica,sans-serif;">${badgeText}</span>
     </td>
   </tr>
 </table>
@@ -276,7 +276,7 @@ function generateCommunityBody(data: CommunityFormData): string {
 <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%; margin-bottom:20px;">
   <tr>
     <td>
-      <span style="display:inline-block; background:#f3e8ff; color:#F4A01C; font-size:13px; font-weight:600; padding:8px 16px; border-radius:999px; font-family:Arial,Helvetica,sans-serif;">📢 Community Update</span>
+      <span style="display:inline-block; background:#f3e8ff; color:#0A66C2; font-size:13px; font-weight:600; padding:8px 16px; border-radius:999px; font-family:Arial,Helvetica,sans-serif;">📢 Community Update</span>
     </td>
   </tr>
 </table>
@@ -296,7 +296,7 @@ function generateDigestBody(): string {
 <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%; margin-bottom:20px;">
   <tr>
     <td>
-      <span style="display:inline-block; background:#f3e8ff; color:#F4A01C; font-size:13px; font-weight:600; padding:8px 16px; border-radius:999px; font-family:Arial,Helvetica,sans-serif;">📬 Weekly Digest</span>
+      <span style="display:inline-block; background:#f3e8ff; color:#0A66C2; font-size:13px; font-weight:600; padding:8px 16px; border-radius:999px; font-family:Arial,Helvetica,sans-serif;">📬 Weekly Digest</span>
     </td>
   </tr>
 </table>

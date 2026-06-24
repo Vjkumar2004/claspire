@@ -180,7 +180,7 @@ export default function ProfileActionBar({ profileUser, viewer, isOwnProfile, co
         className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-colors ${
           localFollow === 'following'
             ? 'bg-gray-100 dark:bg-[#283036] text-gray-600 dark:text-[#B0B7BE] border border-surface dark:border-[#38434F] hover:bg-gray-200 dark:hover:bg-[#1D2226]'
-            : 'bg-surface dark:bg-[#283036] border border-surface dark:border-[#38434F] text-slate-700 dark:text-[#B0B7BE] hover:bg-[#FFF3D6] dark:hover:bg-[#1D2226] hover:border-[#F4A01C]/30 hover:text-[#F4A01C]'
+            : 'bg-surface dark:bg-[#283036] border border-surface dark:border-[#38434F] text-slate-700 dark:text-[#B0B7BE] hover:bg-[#EAF4FF] dark:hover:bg-[#1D2226] hover:border-[#0A66C2]/30 hover:text-[#0A66C2]'
         }`}
       >
         {loading ? (
@@ -260,7 +260,7 @@ export default function ProfileActionBar({ profileUser, viewer, isOwnProfile, co
     }
 
     return (
-      <button onClick={handleConnect} disabled={loading} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface dark:bg-[#283036] border border-surface dark:border-[#38434F] text-slate-700 dark:text-[#B0B7BE] text-xs font-bold hover:bg-[#FFF3D6] dark:hover:bg-[#1D2226] hover:border-[#F4A01C]/30 hover:text-[#F4A01C] transition-colors disabled:opacity-50">
+      <button onClick={handleConnect} disabled={loading} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface dark:bg-[#283036] border border-surface dark:border-[#38434F] text-slate-700 dark:text-[#B0B7BE] text-xs font-bold hover:bg-[#EAF4FF] dark:hover:bg-[#1D2226] hover:border-[#0A66C2]/30 hover:text-[#0A66C2] transition-colors disabled:opacity-50">
         {loading ? <Loader2 size={14} className="animate-spin" /> : <Users size={14} />}
         Connect
       </button>
@@ -270,7 +270,7 @@ export default function ProfileActionBar({ profileUser, viewer, isOwnProfile, co
   if (!isSeniorProfile) {
     return (
       <div className="flex flex-wrap gap-2">
-        <button onClick={requestMentorship} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#F4A01C] hover:bg-[#E09410] text-white text-xs font-bold transition-colors">
+        <button onClick={requestMentorship} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#0A66C2] hover:bg-[#004182] text-white text-xs font-bold transition-colors">
           <GraduationCap size={14} />
           Request Mentorship
         </button>
@@ -288,11 +288,11 @@ export default function ProfileActionBar({ profileUser, viewer, isOwnProfile, co
     <div className="flex flex-wrap gap-2">
       {!viewerIsSenior && (
         <>
-          <button onClick={requestReferral} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-bold transition-colors">
+          <button onClick={requestReferral} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#0A66C2] hover:bg-cyan-700 text-white text-xs font-bold transition-colors">
             <Handshake size={14} />
             Request Referral
           </button>
-          <button onClick={bookMentorshipSession} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#F4A01C] hover:bg-[#E09410] text-white text-xs font-bold transition-colors">
+          <button onClick={bookMentorshipSession} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#0A66C2] hover:bg-[#004182] text-white text-xs font-bold transition-colors">
             <Calendar size={14} />
             Book Mentorship Session
           </button>

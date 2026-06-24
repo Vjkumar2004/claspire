@@ -35,16 +35,16 @@ export default function NetworkSidebar({ activeTab, onTabChange, connections, fo
   const strengthPercent = Math.round((profileStrength / 5) * 100)
 
   const strengthColor = strengthPercent >= 80
-    ? 'from-emerald-400 to-emerald-500'
+    ? 'bg-emerald-500'
     : strengthPercent >= 50
-      ? 'from-amber-400 to-amber-500'
-      : 'from-gray-300 to-gray-400'
+      ? 'bg-[#0A66C2]'
+      : 'bg-gray-400'
 
   return (
     <div className="space-y-3">
       {/* Profile Card - Glassmorphism */}
       <div className="backdrop-blur-xl bg-surface/80 dark:bg-[#283036]/80 rounded-2xl border border-white/40 dark:border-[#38434F] shadow-sm overflow-hidden">
-        <div className={`h-16 ${user?.banner_url ? '' : 'bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-fuchsia-500/10'}`}>
+        <div className={`h-16 ${user?.banner_url ? '' : 'bg-[#EAF4FF]/30'}`}>
           {user?.banner_url && (
             <img src={user.banner_url} alt="Banner" className="w-full h-full object-cover" />
           )}
@@ -61,7 +61,7 @@ export default function NetworkSidebar({ activeTab, onTabChange, connections, fo
             )}
           </div>
           <h3
-            className="text-sm font-bold text-gray-900 dark:text-white text-center mt-2 cursor-pointer hover:text-[#F4A01C] transition-colors"
+            className="text-sm font-bold text-gray-900 dark:text-white text-center mt-2 cursor-pointer hover:text-[#0A66C2] transition-colors"
             onClick={() => router.push(`/u/${user?.unique_id}`)}
           >
             {user?.full_name}
@@ -78,7 +78,7 @@ export default function NetworkSidebar({ activeTab, onTabChange, connections, fo
             </div>
             <div className="h-1.5 rounded-full bg-gray-100 dark:bg-[#1D2226]/80 dark:bg-[#1D2226]/80 overflow-hidden">
               <div
-                className={`h-full rounded-full bg-gradient-to-r ${strengthColor} transition-all duration-700 ease-out`}
+                className={`h-full rounded-full ${strengthColor} transition-all duration-700 ease-out`}
                 style={{ width: `${strengthPercent}%` }}
               />
             </div>
@@ -108,7 +108,7 @@ export default function NetworkSidebar({ activeTab, onTabChange, connections, fo
             </button>
             <button
               onClick={() => router.push(`/u/${user?.unique_id}`)}
-              className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-[11px] font-semibold text-[#F4A01C] bg-[#FFF3D6]/80 border border-[#F4A01C]/30/60 hover:bg-[#FFF3D6] hover:text-[#E09410] transition-all"
+              className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-[11px] font-semibold text-[#0A66C2] bg-[#EAF4FF]/80 border border-[#0A66C2]/30/60 hover:bg-[#EAF4FF] hover:text-[#004182] transition-all"
             >
               <ExternalLink size={12} />
               View Profile
@@ -128,7 +128,7 @@ export default function NetworkSidebar({ activeTab, onTabChange, connections, fo
               onClick={() => onTabChange(link.id)}
               className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-[13px] font-semibold transition-all text-left ${
                 isActive
-                  ? 'bg-gradient-to-r from-purple-50 to-purple-50/50 dark:from-purple-900/30 dark:to-purple-900/10 text-[#E09410] dark:text-purple-400 shadow-sm'
+                  ? 'bg-[#EAF4FF] dark:bg-[#0A66C2]/15 text-[#0A66C2] dark:text-[#0A66C2] shadow-sm'
                   : 'text-gray-500 dark:text-[#B0B7BE] hover:bg-app dark:bg-[#1D2226]/80 dark:bg-[#1D2226]/80 dark:hover:bg-[#1D2226]/80 hover:text-gray-900 dark:text-white dark:hover:text-white'
               }`}
             >
@@ -151,7 +151,7 @@ export default function NetworkSidebar({ activeTab, onTabChange, connections, fo
       <div className="backdrop-blur-xl bg-surface/80 dark:bg-[#283036]/80 rounded-2xl border border-white/40 dark:border-[#38434F] shadow-sm p-3">
         <button
           onClick={() => router.push(`/u/${user?.unique_id}`)}
-          className="w-full flex items-center gap-2.5 text-[11px] font-semibold text-gray-400 dark:text-[#B0B7BE] hover:text-[#F4A01C] transition-colors"
+          className="w-full flex items-center gap-2.5 text-[11px] font-semibold text-gray-400 dark:text-[#B0B7BE] hover:text-[#0A66C2] transition-colors"
         >
           <GraduationCap size={13} />
           <span className="flex-1 text-left">View My Profile</span>

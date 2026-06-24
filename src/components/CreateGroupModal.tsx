@@ -201,11 +201,11 @@ export default function CreateGroupModal({ isOpen, onClose, onSuccess, currentUs
               ) : (
                 <>
                   {/* Header */}
-                  <div className="bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-500/10 dark:to-indigo-500/10 p-6 border-b border-[#F4A01C]/20 dark:border-[#38434F]">
+                  <div className="bg-[#EAF4FF] dark:from-purple-500/10 dark:to-indigo-500/10 p-6 border-b border-[#0A66C2]/20 dark:border-[#38434F]">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 bg-[#FFF3D6] dark:bg-purple-500/20 rounded-full flex items-center justify-center">
-                          <Users size={24} className="text-[#F4A01C] dark:text-purple-300" />
+                        <div className="w-12 h-12 bg-[#EAF4FF] dark:bg-purple-500/20 rounded-full flex items-center justify-center">
+                          <Users size={24} className="text-[#0A66C2] dark:text-purple-300" />
                         </div>
                         <div>
                           <h2 className="text-xl font-black text-gray-900 dark:text-white font-instrument-serif">
@@ -267,7 +267,7 @@ export default function CreateGroupModal({ isOpen, onClose, onSuccess, currentUs
                           placeholder="e.g. Study Squad, Project Team"
                           value={formData.name}
                           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                          className="w-full px-4 py-3 rounded-2xl border border-surface dark:border-[#38434F] bg-surface dark:bg-[#283036] text-gray-900 dark:text-white focus:border-[#F4A01C] focus:ring-2 focus:ring-[#F4A01C]/20 transition-all text-sm"
+                          className="w-full px-4 py-3 rounded-2xl border border-surface dark:border-[#38434F] bg-surface dark:bg-[#283036] text-gray-900 dark:text-white focus:border-[#0A66C2] focus:ring-2 focus:ring-[#0A66C2]/20 transition-all text-sm"
                           disabled={loading}
                         />
                         <p className="text-xs text-gray-500 dark:text-[#B0B7BE]">
@@ -287,7 +287,7 @@ export default function CreateGroupModal({ isOpen, onClose, onSuccess, currentUs
                           placeholder="What's this group about?"
                           value={formData.description}
                           onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                          className="w-full px-4 py-3 rounded-2xl border border-surface dark:border-[#38434F] bg-surface dark:bg-[#283036] text-gray-900 dark:text-white focus:border-[#F4A01C] focus:ring-2 focus:ring-[#F4A01C]/20 transition-all text-sm resize-none"
+                          className="w-full px-4 py-3 rounded-2xl border border-surface dark:border-[#38434F] bg-surface dark:bg-[#283036] text-gray-900 dark:text-white focus:border-[#0A66C2] focus:ring-2 focus:ring-[#0A66C2]/20 transition-all text-sm resize-none"
                           disabled={loading}
                         />
                         <p className="text-xs text-gray-500 dark:text-[#B0B7BE]">
@@ -305,7 +305,7 @@ export default function CreateGroupModal({ isOpen, onClose, onSuccess, currentUs
                           {/* College-only Option */}
                           <label className={`relative block p-4 rounded-2xl border-2 transition-all cursor-pointer ${
                             formData.scope === 'college'
-                              ? 'border-[#F4A01C] bg-[#FFF3D6] dark:bg-purple-500/20'
+                              ? 'border-[#0A66C2] bg-[#EAF4FF] dark:bg-purple-500/20'
                               : 'border-surface dark:border-[#38434F] hover:border-gray-300'
                           } ${!canCreateCollege ? 'opacity-50 cursor-not-allowed' : ''}`}>
                             <div className="flex items-center gap-3">
@@ -319,7 +319,7 @@ export default function CreateGroupModal({ isOpen, onClose, onSuccess, currentUs
                               />
                               <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
                                 formData.scope === 'college'
-                                  ? 'border-[#F4A01C] bg-[#F4A01C]'
+                                  ? 'border-[#0A66C2] bg-[#0A66C2]'
                                   : 'border-gray-300'
                               }`}>
                                 {formData.scope === 'college' && (
@@ -328,7 +328,7 @@ export default function CreateGroupModal({ isOpen, onClose, onSuccess, currentUs
                               </div>
                               <div className="flex-1">
                                 <div className="flex items-center gap-2">
-                                  <Users size={16} className="text-[#F4A01C]" />
+                                  <Users size={16} className="text-[#0A66C2]" />
                                   <span className="font-bold text-sm">College Only</span>
                                   <span className="text-xs text-gray-500 dark:text-[#B0B7BE]">• Only your college students</span>
                                 </div>
@@ -347,7 +347,7 @@ export default function CreateGroupModal({ isOpen, onClose, onSuccess, currentUs
                           {/* Public Option */}
                           <label className={`relative block p-4 rounded-2xl border-2 transition-all cursor-pointer ${
                             formData.scope === 'public'
-                              ? 'border-[#F4A01C] bg-[#FFF3D6] dark:bg-purple-500/20'
+                              ? 'border-[#0A66C2] bg-[#EAF4FF] dark:bg-purple-500/20'
                               : 'border-surface dark:border-[#38434F] hover:border-gray-300'
                           } ${!canCreatePublic ? 'opacity-50 cursor-not-allowed' : ''}`}>
                             <div className="flex items-center gap-3">
@@ -361,7 +361,7 @@ export default function CreateGroupModal({ isOpen, onClose, onSuccess, currentUs
                               />
                               <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
                                 formData.scope === 'public'
-                                  ? 'border-[#F4A01C] bg-[#F4A01C]'
+                                  ? 'border-[#0A66C2] bg-[#0A66C2]'
                                   : 'border-gray-300'
                               }`}>
                                 {formData.scope === 'public' && (
@@ -381,7 +381,7 @@ export default function CreateGroupModal({ isOpen, onClose, onSuccess, currentUs
                           {/* Private Option */}
                           <label className={`relative block p-4 rounded-2xl border-2 transition-all cursor-pointer ${
                             formData.scope === 'private'
-                              ? 'border-[#F4A01C] bg-[#FFF3D6] dark:bg-purple-500/20'
+                              ? 'border-[#0A66C2] bg-[#EAF4FF] dark:bg-purple-500/20'
                               : 'border-surface dark:border-[#38434F] hover:border-gray-300'
                           } ${!canCreatePrivate ? 'opacity-50 cursor-not-allowed' : ''}`}>
                             <div className="flex items-center gap-3">
@@ -395,7 +395,7 @@ export default function CreateGroupModal({ isOpen, onClose, onSuccess, currentUs
                               />
                               <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
                                 formData.scope === 'private'
-                                  ? 'border-[#F4A01C] bg-[#F4A01C]'
+                                  ? 'border-[#0A66C2] bg-[#0A66C2]'
                                   : 'border-gray-300'
                               }`}>
                                 {formData.scope === 'private' && (
@@ -430,7 +430,7 @@ export default function CreateGroupModal({ isOpen, onClose, onSuccess, currentUs
                         
                         <label className={`relative block p-4 rounded-2xl border-2 transition-all cursor-pointer ${
                           formData.is_ephemeral 
-                            ? 'border-[#F4A01C] bg-[#FFF3D6] dark:bg-purple-500/20' 
+                            ? 'border-[#0A66C2] bg-[#EAF4FF] dark:bg-purple-500/20' 
                             : 'border-surface dark:border-[#38434F] hover:border-gray-300'
                         }`}>
                           <div className="flex items-center gap-3">
@@ -442,7 +442,7 @@ export default function CreateGroupModal({ isOpen, onClose, onSuccess, currentUs
                               className="sr-only"
                             />
                             <div className={`w-12 h-6 rounded-full transition-colors ${
-                              formData.is_ephemeral ? 'bg-[#F4A01C]' : 'bg-gray-300 dark:bg-[#38434F]'
+                              formData.is_ephemeral ? 'bg-[#0A66C2]' : 'bg-gray-300 dark:bg-[#38434F]'
                             }`}>
                               <div className={`w-5 h-5 bg-surface dark:bg-[#283036] rounded-full shadow-sm transition-transform ${
                                 formData.is_ephemeral ? 'translate-x-6' : 'translate-x-0.5'
@@ -462,7 +462,7 @@ export default function CreateGroupModal({ isOpen, onClose, onSuccess, currentUs
                       </div>
 
                       {/* Info Box */}
-                      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-500/10 dark:to-indigo-500/10 border border-blue-200 dark:border-blue-500/30 rounded-xl p-4">
+                      <div className="bg-[#EAF4FF] dark:from-blue-500/10 dark:to-indigo-500/10 border border-blue-200 dark:border-blue-500/30 rounded-xl p-4">
                         <div className="flex gap-3">
                           <Sparkles size={16} className="text-blue-600 dark:text-blue-300 flex-shrink-0" />
                           <div>
@@ -490,7 +490,7 @@ export default function CreateGroupModal({ isOpen, onClose, onSuccess, currentUs
                       <button
                         type="submit"
                         disabled={loading || !formData.name.trim() || !formData.description.trim() || !isCommunityAvailable || fetchingCommunity}
-                        className="flex-1 px-4 py-3 rounded-2xl bg-gradient-to-r from-[#0A2540] to-indigo-600 text-white font-bold text-sm hover:from-purple-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                        className="flex-1 px-4 py-3 rounded-2xl bg-[#0A66C2] text-white font-bold text-sm hover:bg-[#004182] transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                       >
                         {loading ? (
                           <>

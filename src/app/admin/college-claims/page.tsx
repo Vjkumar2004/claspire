@@ -134,7 +134,7 @@ export default function CollegeClaimsAdminPage() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">
           <div>
             <h1 className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white tracking-tight flex items-center gap-3">
-              <Shield className="text-[#F4A01C] shrink-0" size={28} />
+              <Shield className="text-[#0A66C2] shrink-0" size={28} />
               College Claims
             </h1>
             <p className="text-sm text-gray-500 dark:text-[#B0B7BE] mt-1">
@@ -148,8 +148,8 @@ export default function CollegeClaimsAdminPage() {
                 onClick={() => setFilter(f as any)}
                 className={`shrink-0 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                   filter === f
-                    ? 'bg-[#F4A01C] text-white shadow-md'
-                    : 'bg-surface dark:bg-[#283036] text-gray-600 dark:text-[#B0B7BE] border border-surface dark:border-[#38434F] hover:border-[#F4A01C]/50'
+                    ? 'bg-[#0A66C2] text-white shadow-md'
+                    : 'bg-surface dark:bg-[#283036] text-gray-600 dark:text-[#B0B7BE] border border-surface dark:border-[#38434F] hover:border-[#0A66C2]/50'
                 }`}
               >
                 {f.charAt(0).toUpperCase() + f.slice(1)}
@@ -165,7 +165,7 @@ export default function CollegeClaimsAdminPage() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by college name, applicant, or email..."
-            className="w-full pl-10 pr-4 py-2.5 bg-surface dark:bg-[#283036] border border-surface dark:border-[#38434F] rounded-lg text-sm font-medium outline-none focus:border-[#F4A01C] focus:ring-1 focus:ring-[#F4A01C]"
+            className="w-full pl-10 pr-4 py-2.5 bg-surface dark:bg-[#283036] border border-surface dark:border-[#38434F] rounded-lg text-sm font-medium outline-none focus:border-[#0A66C2] focus:ring-1 focus:ring-[#0A66C2]"
           />
         </div>
 
@@ -305,7 +305,7 @@ export default function CollegeClaimsAdminPage() {
                       <Link
                         href={`/colleges/${claim.colleges?.slug}`}
                         target="_blank"
-                        className="text-[#F4A01C] hover:text-[#E09410] font-bold flex items-center gap-1"
+                        className="text-[#0A66C2] hover:text-[#004182] font-bold flex items-center gap-1"
                       >
                         View College <ExternalLink size={12} />
                       </Link>
@@ -313,7 +313,7 @@ export default function CollegeClaimsAdminPage() {
                         href={claim.official_website}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-[#F4A01C] hover:text-[#E09410] font-bold flex items-center gap-1"
+                        className="text-[#0A66C2] hover:text-[#004182] font-bold flex items-center gap-1"
                       >
                         Website <ExternalLink size={12} />
                       </a>

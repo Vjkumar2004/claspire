@@ -438,7 +438,7 @@ export default function ChatWindow({
       msg.reply_to.sender_id === currentUserId ? 'You' : otherUserName
     return (
       <div
-        className={`mb-2 pl-2 border-l-2 text-[11px] leading-snug ${isMine ? 'border-white/60 text-white/90' : 'border-[#F4A01C] text-gray-500 dark:text-[#B0B7BE]'
+        className={`mb-2 pl-2 border-l-2 text-[11px] leading-snug ${isMine ? 'border-white/60 text-white/90' : 'border-[#0A66C2] text-gray-500 dark:text-[#B0B7BE]'
           }`}
       >
         <p className="font-bold truncate">{author}</p>
@@ -472,7 +472,7 @@ export default function ChatWindow({
       >
         {loading ? (
           <div className="flex items-center justify-center h-full">
-            <Loader2 className="animate-spin text-[#F4A01C]" size={24} />
+            <Loader2 className="animate-spin text-[#0A66C2]" size={24} />
           </div>
         ) : (
           <>
@@ -480,7 +480,7 @@ export default function ChatWindow({
               <div className="flex justify-center mb-2">
                 <button
                   onClick={loadOlderMessages}
-                  className="flex items-center gap-1 px-3 py-1.5 text-[11px] font-semibold text-[#F4A01C] bg-[#FFF3D6] hover:bg-[#FFF3D6] rounded-full transition-colors"
+                  className="flex items-center gap-1 px-3 py-1.5 text-[11px] font-semibold text-[#0A66C2] bg-[#EAF4FF] hover:bg-[#EAF4FF] rounded-full transition-colors"
                 >
                   <ChevronUp size={14} /> Load older messages
                 </button>
@@ -488,7 +488,7 @@ export default function ChatWindow({
             )}
             {loadingOlder && (
               <div className="flex justify-center mb-2">
-                <Loader2 className="animate-spin text-[#F4A01C]" size={16} />
+                <Loader2 className="animate-spin text-[#0A66C2]" size={16} />
               </div>
             )}
             {messages.length === 0 ? (
@@ -523,7 +523,7 @@ export default function ChatWindow({
                           }
                         }}
                         className={`w-full text-left p-3 rounded-2xl text-sm transition-transform active:scale-[0.99] ${isMine
-                          ? `bg-[#F4A01C] text-white rounded-br-none`
+                          ? `bg-[#0A66C2] text-white rounded-br-none`
                           : 'bg-surface dark:bg-[#283036] border border-surface dark:border-[#38434F] text-gray-800 dark:text-[#B0B7BE] rounded-bl-none shadow-sm dark:shadow-[#1D2226]/50'
                           } ${failed ? 'ring-2 ring-red-400 cursor-pointer' : ''}`}
                       >
@@ -592,8 +592,8 @@ export default function ChatWindow({
       <div className={`flex-shrink-0 ${flat ? 'pb-[max(0.75rem,env(safe-area-inset-bottom))] bg-[#f0f2f5] dark:bg-[#1D2226] border-t border-surface dark:border-[#38434F]' : 'bg-surface dark:bg-[#283036] border-t border-surface dark:border-[#38434F]'}`}>
         {(replyingTo || editingMessage) && (
           <div className="flex items-start gap-2 px-3 pt-3">
-            <div className="flex-1 rounded-xl bg-[#FFF3D6] border border-[#F4A01C]/20 px-3 py-2">
-              <p className="text-[10px] font-black uppercase tracking-wide text-[#F4A01C]">
+            <div className="flex-1 rounded-xl bg-[#EAF4FF] border border-[#0A66C2]/20 px-3 py-2">
+              <p className="text-[10px] font-black uppercase tracking-wide text-[#0A66C2]">
                 {editingMessage ? 'Editing message' : `Replying to ${replyingTo?.sender_id === currentUserId ? 'yourself' : otherUserName}`}
               </p>
               <p className="text-xs text-gray-600 dark:text-[#B0B7BE] truncate mt-0.5">
@@ -623,12 +623,12 @@ export default function ChatWindow({
               onChange={(e) => setNewMessage(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && sendMessage()}
               placeholder={editingMessage ? 'Edit your message...' : replyingTo ? 'Write a reply...' : 'Type a message...'}
-              className="flex-1 bg-surface dark:bg-[#283036] border border-surface dark:border-[#38434F] rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-[#F4A01C] transition-colors"
+              className="flex-1 bg-surface dark:bg-[#283036] border border-surface dark:border-[#38434F] rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-[#0A66C2] transition-colors"
             />
             <button
               onClick={sendMessage}
               disabled={!newMessage.trim()}
-              className="p-3 bg-[#F4A01C] text-white rounded-2xl hover:bg-[#E09410] transition-all disabled:opacity-50 active:scale-95 flex-shrink-0"
+              className="p-3 bg-[#0A66C2] text-white rounded-2xl hover:bg-[#004182] transition-all disabled:opacity-50 active:scale-95 flex-shrink-0"
             >
               <Send size={20} />
             </button>

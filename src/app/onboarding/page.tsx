@@ -48,7 +48,7 @@ function CircleProgress({ pct, size = 64, stroke = 5 }: { pct: number; size?: nu
   const offset = circumference - (pct / 100) * circumference
   return (
     <svg width={size} height={size} className="rotate-[-90deg]">
-      <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="#E8D5FF" strokeWidth={stroke} />
+      <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="#EAF4FF" strokeWidth={stroke} />
       <circle
         cx={size / 2} cy={size / 2} r={radius} fill="none"
         stroke="url(#pg)" strokeWidth={stroke}
@@ -59,8 +59,8 @@ function CircleProgress({ pct, size = 64, stroke = 5 }: { pct: number; size?: nu
       />
       <defs>
         <linearGradient id="pg" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="#F4A01C" />
-          <stop offset="100%" stopColor="#A855F7" />
+          <stop offset="0%" stopColor="#0A66C2" />
+          <stop offset="100%" stopColor="#004182" />
         </linearGradient>
       </defs>
     </svg>
@@ -122,9 +122,9 @@ function OnboardingPersonCard({
       className="bg-white dark:bg-[#1D2226] rounded-xl border border-gray-100 dark:border-[#2D3744] overflow-hidden transition-shadow duration-300"
     >
       {/* Banner */}
-      <div className="h-14 bg-gradient-to-br from-[#1E1B4B] via-[#312E81] to-[#0A2540] relative flex items-center justify-center overflow-hidden">
+      <div className="h-14 bg-[#0A66C2] relative flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 opacity-[0.05]" style={{ backgroundImage: 'radial-gradient(circle at 16px 16px, white 1px, transparent 0)', backgroundSize: '20px 20px' }} />
-        <span className="text-[11px] font-extrabold tracking-[0.2em] text-purple-200/60 select-none">CLASPIRE</span>
+        <span className="text-[11px] font-extrabold tracking-[0.2em] text-blue-200/60 select-none">CLASPIRE</span>
       </div>
 
       {/* Avatar */}
@@ -132,7 +132,7 @@ function OnboardingPersonCard({
         <div className="w-10 h-10 rounded-full border-2 border-white dark:border-[#1D2226] overflow-hidden bg-gray-200 dark:bg-[#283036] shadow-md">
           {person.avatar_url && !person.avatar_url.includes('dicebear') && !person.avatar_url.includes('ui-avatars')
             ? <img src={person.avatar_url} alt={person.full_name} className="w-full h-full object-cover" />
-            : <div className="w-full h-full bg-gradient-to-br from-[#F4A01C] to-violet-600 flex items-center justify-center">
+            : <div className="w-full h-full bg-[#0A66C2] flex items-center justify-center">
                 <span className="text-white font-bold text-xs">{(person.full_name || 'U').slice(0, 2).toUpperCase()}</span>
               </div>
           }
@@ -150,7 +150,7 @@ function OnboardingPersonCard({
           className={`mt-2.5 w-full h-7 rounded-lg text-[10px] font-bold flex items-center justify-center gap-1 transition-all duration-200 ${
             localRequested
               ? 'bg-gray-100 dark:bg-[#283036] text-gray-400 dark:text-gray-500 border border-gray-200 dark:border-[#38434F] cursor-not-allowed'
-              : 'bg-[#F4A01C] hover:bg-[#E09410] text-white active:scale-95'
+              : 'bg-[#0A66C2] hover:bg-[#004182] text-white active:scale-95'
           }`}
         >
           {connecting ? (
@@ -188,7 +188,7 @@ function CommunityCard({
       className="bg-white dark:bg-[#1D2226] rounded-2xl border border-gray-100 dark:border-[#2D3744] overflow-hidden transition-all duration-300 relative flex flex-col"
     >
       {recommended && (
-        <div className="absolute top-2 right-2 z-20 flex items-center gap-1 bg-[#F4A01C] text-white text-[9px] font-bold px-2 py-0.5 rounded-full shadow-lg">
+        <div className="absolute top-2 right-2 z-20 flex items-center gap-1 bg-[#0A66C2] text-white text-[9px] font-bold px-2 py-0.5 rounded-full shadow-lg">
           <Star size={8} className="fill-current" />
           For You
         </div>
@@ -199,7 +199,7 @@ function CommunityCard({
         <div className="w-14 h-14 rounded-2xl overflow-hidden bg-gray-100 dark:bg-[#283036] border border-gray-200 dark:border-[#38434F] shadow-sm flex items-center justify-center mb-3 flex-shrink-0">
           {community.logo_url
             ? <img src={community.logo_url} alt={community.display_name} className="w-full h-full object-contain p-1" />
-            : <Building2 size={22} className="text-[#F4A01C]" />
+            : <Building2 size={22} className="text-[#0A66C2]" />
           }
         </div>
 
@@ -208,7 +208,7 @@ function CommunityCard({
 
         {/* Member count */}
         <div className="flex items-center gap-1 mb-3">
-          <Users size={9} className="text-[#F4A01C]" />
+          <Users size={9} className="text-[#0A66C2]" />
           <span className="text-[10px] font-semibold text-gray-500 dark:text-gray-400">
             {community.member_count > 0 ? `${community.member_count.toLocaleString()} members` : 'New community'}
           </span>
@@ -226,7 +226,7 @@ function CommunityCard({
           className={`w-full h-8 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1 transition-all duration-200 ${
             joined
               ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-700 cursor-not-allowed'
-              : 'bg-[#F4A01C] hover:bg-[#E09410] text-white active:scale-95 shadow-sm shadow-[#F4A01C]/20'
+              : 'bg-[#0A66C2] hover:bg-[#004182] text-white active:scale-95 shadow-sm shadow-[#0A66C2]/20'
           }`}
         >
           {joining ? <Loader2 size={11} className="animate-spin" /> : joined ? <><CheckCircle2 size={11} />Joined</> : <>Join</>}
@@ -265,7 +265,7 @@ function StepWelcome({ onNext }: { onNext: () => void }) {
         transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
         className="mb-6 mt-1"
       >
-        <div className="w-16 h-16 rounded-2xl overflow-hidden shadow-xl shadow-[#F4A01C]/20 bg-white mx-auto">
+        <div className="w-16 h-16 rounded-2xl overflow-hidden shadow-xl shadow-[#0A66C2]/20 bg-white mx-auto">
           <img
             src="/claspire-logo.jpeg"
             alt="Claspire"
@@ -275,7 +275,7 @@ function StepWelcome({ onNext }: { onNext: () => void }) {
               t.style.display = 'none'
               const parent = t.parentElement
               if (parent) {
-                parent.className = 'w-16 h-16 rounded-2xl bg-gradient-to-br from-[#0A2540] to-indigo-600 flex items-center justify-center shadow-xl shadow-[#F4A01C]/20 mx-auto'
+                parent.className = 'w-16 h-16 rounded-2xl bg-[#0A66C2] flex items-center justify-center shadow-xl shadow-[#0A66C2]/20 mx-auto'
                 parent.innerHTML = '<span class="text-white font-extrabold text-2xl">C</span>'
               }
             }}
@@ -309,10 +309,10 @@ function StepWelcome({ onNext }: { onNext: () => void }) {
             animate={{ opacity: 1, x: 0 }}
             whileHover={{ scale: 1.015, x: 2 }}
             transition={{ delay: 0.18 + i * 0.07, duration: 0.25 }}
-            className="flex items-start gap-3.5 p-3.5 bg-white/60 dark:bg-[#1D2226]/60 backdrop-blur-sm rounded-xl border border-gray-100 dark:border-[#2D3744] text-left cursor-default transition-colors group hover:border-[#F4A01C]/30 dark:hover:border-purple-800/50"
+            className="flex items-start gap-3.5 p-3.5 bg-white/60 dark:bg-[#1D2226]/60 backdrop-blur-sm rounded-xl border border-gray-100 dark:border-[#2D3744] text-left cursor-default transition-colors group hover:border-[#0A66C2]/30 dark:hover:border-[#0A66C2]/30"
           >
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-50 to-violet-100 dark:from-purple-900/30 dark:to-violet-900/20 flex items-center justify-center flex-shrink-0 group-hover:from-purple-100 group-hover:to-violet-200 dark:group-hover:from-purple-900/50 transition-colors">
-              <Icon size={16} className="text-[#F4A01C] dark:text-purple-400" />
+            <div className="w-9 h-9 rounded-xl bg-[#EAF4FF] dark:from-blue-900/30 dark:to-blue-950/20 flex items-center justify-center flex-shrink-0 group-hover:from-[#EAF4FF] group-hover:to-blue-100 dark:group-hover:from-blue-900/50 transition-colors">
+              <Icon size={16} className="text-[#0A66C2] dark:text-blue-400" />
             </div>
             <div>
               <h3 className="text-xs font-bold text-gray-900 dark:text-gray-100 mb-0.5">{title}</h3>
@@ -333,7 +333,7 @@ function StepWelcome({ onNext }: { onNext: () => void }) {
         </p>
         <button
           onClick={onNext}
-          className="w-full py-3.5 bg-[#F4A01C] hover:bg-[#E09410] active:bg-[#0A2540] text-white font-bold text-sm rounded-xl transition-all duration-200 shadow-lg shadow-[#F4A01C]/25 flex items-center justify-center gap-2 hover:gap-3"
+          className="w-full py-3.5 bg-[#0A66C2] hover:bg-[#004182] active:bg-[#0A66C2] text-white font-bold text-sm rounded-xl transition-all duration-200 shadow-lg shadow-[#0A66C2]/25 flex items-center justify-center gap-2 hover:gap-3"
         >
           Build My Profile
           <ArrowRight size={15} />
@@ -366,8 +366,8 @@ function StepPhoto({
 
   return (
     <div className="flex flex-col items-center text-center">
-      <div className="w-10 h-10 bg-[#FFF3D6] dark:bg-purple-900/30 rounded-xl flex items-center justify-center mb-4">
-        <Camera size={20} className="text-[#F4A01C]" />
+      <div className="w-10 h-10 bg-[#EAF4FF] dark:bg-blue-900/30 rounded-xl flex items-center justify-center mb-4">
+        <Camera size={20} className="text-[#0A66C2]" />
       </div>
       <h1 className="text-2xl font-extrabold text-gray-900 dark:text-white mb-1.5">Add a Profile Photo</h1>
       <p className="text-gray-500 dark:text-gray-400 text-sm mb-2 max-w-xs">
@@ -379,7 +379,7 @@ function StepPhoto({
       </div>
 
       <div className="relative mb-8">
-        <div className="w-32 h-32 rounded-full ring-4 ring-purple-200 dark:ring-purple-800 ring-offset-4 ring-offset-white dark:ring-offset-[#0A0E14] overflow-hidden">
+        <div className="w-32 h-32 rounded-full ring-4 ring-blue-200 dark:ring-blue-800 ring-offset-4 ring-offset-white dark:ring-offset-[#0A0E14] overflow-hidden">
           <AvatarUpload
             currentUrl={isDefaultAvatar(avatarUrl) ? (isDefaultAvatar(user?.avatar_url) ? '' : (user?.avatar_url || '')) : (avatarUrl || '')}
             userName={user?.full_name || ''}
@@ -426,8 +426,8 @@ function StepHeadlineBio({
 
   return (
     <div className="flex flex-col w-full">
-      <div className="w-10 h-10 bg-[#FFF3D6] dark:bg-purple-900/30 rounded-xl flex items-center justify-center mb-4">
-        <Zap size={18} className="text-[#F4A01C]" />
+      <div className="w-10 h-10 bg-[#EAF4FF] dark:bg-blue-900/30 rounded-xl flex items-center justify-center mb-4">
+        <Zap size={18} className="text-[#0A66C2]" />
       </div>
       <h1 className="text-2xl font-extrabold text-gray-900 dark:text-white mb-1">Headline & Bio</h1>
       <p className="text-gray-500 dark:text-gray-400 text-sm mb-5">Tell people what you do and what you're passionate about.</p>
@@ -443,14 +443,14 @@ function StepHeadlineBio({
               onChange={(e) => onHeadlineChange(e.target.value)}
               placeholder="e.g. Software Engineer"
               maxLength={80}
-              className="w-full h-11 px-4 rounded-xl border border-gray-200 dark:border-[#38434F] bg-gray-50 dark:bg-[#1D2226] text-gray-900 dark:text-white placeholder:text-gray-400 focus:ring-2 focus:ring-[#F4A01C] focus:border-transparent outline-none transition-all text-sm"
+              className="w-full h-11 px-4 rounded-xl border border-gray-200 dark:border-[#38434F] bg-gray-50 dark:bg-[#1D2226] text-gray-900 dark:text-white placeholder:text-gray-400 focus:ring-2 focus:ring-[#0A66C2] focus:border-transparent outline-none transition-all text-sm"
             />
             <div className="flex flex-wrap gap-1.5 mt-2">
               {examples.map((ex) => (
                 <button
                   key={ex}
                   onClick={() => onHeadlineChange(ex)}
-                  className="px-2.5 py-0.5 text-[10px] font-semibold rounded-full bg-gray-100 dark:bg-[#283036] text-gray-600 dark:text-gray-400 hover:bg-[#FFF3D6] hover:text-[#E09410] dark:hover:bg-purple-900/30 dark:hover:text-purple-400 transition-colors"
+                  className="px-2.5 py-0.5 text-[10px] font-semibold rounded-full bg-gray-100 dark:bg-[#283036] text-gray-600 dark:text-gray-400 hover:bg-[#EAF4FF] hover:text-[#004182] dark:hover:bg-blue-900/30 dark:hover:text-blue-400 transition-colors"
                 >
                   {ex}
                 </button>
@@ -468,7 +468,7 @@ function StepHeadlineBio({
               onChange={(e) => onBioChange(e.target.value.slice(0, 150))}
               placeholder="A short introduction about yourself..."
               rows={4}
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-[#38434F] bg-gray-50 dark:bg-[#1D2226] text-gray-900 dark:text-white placeholder:text-gray-400 focus:ring-2 focus:ring-[#F4A01C] focus:border-transparent outline-none transition-all resize-none text-sm"
+              className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-[#38434F] bg-gray-50 dark:bg-[#1D2226] text-gray-900 dark:text-white placeholder:text-gray-400 focus:ring-2 focus:ring-[#0A66C2] focus:border-transparent outline-none transition-all resize-none text-sm"
             />
           </div>
         </div>
@@ -477,13 +477,13 @@ function StepHeadlineBio({
         <div className="hidden lg:block">
           <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Live Preview</p>
           <div className="rounded-2xl border border-gray-200 dark:border-[#2D3744] bg-white dark:bg-[#1D2226] shadow-sm overflow-hidden">
-            <div className="h-14 bg-gradient-to-br from-[#0A2540] to-violet-500" />
+            <div className="h-14 bg-[#0A66C2]" />
             <div className="px-4 pb-4">
               <div className="-mt-6 mb-2.5 flex items-end gap-3">
                 <div className="w-12 h-12 rounded-full border-[3px] border-white dark:border-[#1D2226] overflow-hidden bg-gray-200 flex-shrink-0 shadow-sm">
                   {user?.avatar_url && !user.avatar_url.includes('dicebear') && !user.avatar_url.includes('ui-avatars')
                     ? <img src={user.avatar_url} alt="" className="w-full h-full object-cover" />
-                    : <div className="w-full h-full bg-gradient-to-br from-[#F4A01C] to-violet-600 flex items-center justify-center">
+                    : <div className="w-full h-full bg-[#0A66C2] flex items-center justify-center">
                         <span className="text-white font-bold">{(user?.full_name || 'U')[0]}</span>
                       </div>
                   }
@@ -503,10 +503,10 @@ function StepHeadlineBio({
 
       {/* Mobile preview peek */}
       <div className="lg:hidden mt-4 rounded-xl border border-gray-200 dark:border-[#38434F] bg-gray-50 dark:bg-[#1D2226] px-3.5 py-2.5 flex items-center gap-3">
-        <div className="w-9 h-9 rounded-full overflow-hidden bg-[#FFF3D6] flex-shrink-0">
+        <div className="w-9 h-9 rounded-full overflow-hidden bg-[#EAF4FF] flex-shrink-0">
           {user?.avatar_url && !user.avatar_url.includes('dicebear') && !user.avatar_url.includes('ui-avatars')
             ? <img src={user.avatar_url} alt="" className="w-full h-full object-cover" />
-            : <div className="w-full h-full bg-gradient-to-br from-[#F4A01C] to-violet-600 flex items-center justify-center">
+            : <div className="w-full h-full bg-[#0A66C2] flex items-center justify-center">
                 <span className="text-white font-bold text-xs">{(user?.full_name || 'U')[0]}</span>
               </div>
           }
@@ -544,8 +544,8 @@ function StepConnections({
 }) {
   return (
     <div className="flex flex-col w-full">
-      <div className="w-10 h-10 bg-[#FFF3D6] dark:bg-purple-900/30 rounded-xl flex items-center justify-center mb-4">
-        <Users size={18} className="text-[#F4A01C]" />
+      <div className="w-10 h-10 bg-[#EAF4FF] dark:bg-blue-900/30 rounded-xl flex items-center justify-center mb-4">
+        <Users size={18} className="text-[#0A66C2]" />
       </div>
       <h1 className="text-2xl font-extrabold text-gray-900 dark:text-white mb-1">People You May Know</h1>
       <p className="text-gray-500 dark:text-gray-400 text-sm mb-5">Students and seniors from your college and department.</p>
@@ -604,8 +604,8 @@ function StepCommunity({
 }) {
   return (
     <div className="flex flex-col w-full">
-      <div className="w-10 h-10 bg-[#FFF3D6] dark:bg-purple-900/30 rounded-xl flex items-center justify-center mb-4">
-        <Building2 size={18} className="text-[#F4A01C]" />
+      <div className="w-10 h-10 bg-[#EAF4FF] dark:bg-blue-900/30 rounded-xl flex items-center justify-center mb-4">
+        <Building2 size={18} className="text-[#0A66C2]" />
       </div>
       <h1 className="text-2xl font-extrabold text-gray-900 dark:text-white mb-1">Join Communities</h1>
       <p className="text-gray-500 dark:text-gray-400 text-sm mb-5">Connect with your college, seniors, and interest groups.</p>
@@ -697,7 +697,7 @@ function SuccessScreen({
       className="flex flex-col items-center text-center"
     >
       {/* Logo */}
-      <div className="w-16 h-16 rounded-2xl overflow-hidden shadow-xl shadow-[#F4A01C]/25 bg-white mb-5 mx-auto">
+      <div className="w-16 h-16 rounded-2xl overflow-hidden shadow-xl shadow-[#0A66C2]/25 bg-white mb-5 mx-auto">
         <img
           src="/claspire-logo.jpeg"
           alt="Claspire"
@@ -707,7 +707,7 @@ function SuccessScreen({
             t.style.display = 'none'
             const parent = t.parentElement
             if (parent) {
-              parent.className = 'w-16 h-16 rounded-2xl bg-gradient-to-br from-[#0A2540] to-indigo-600 flex items-center justify-center shadow-xl shadow-[#F4A01C]/25 mb-5 mx-auto'
+              parent.className = 'w-16 h-16 rounded-2xl bg-[#0A66C2] flex items-center justify-center shadow-xl shadow-[#0A66C2]/25 mb-5 mx-auto'
               parent.innerHTML = '<span class="text-white font-extrabold text-2xl">C</span>'
             }
           }}
@@ -730,7 +730,7 @@ function SuccessScreen({
                 : <div className="w-4 h-4 rounded-full border-2 border-gray-300 dark:border-gray-600 flex-shrink-0" />
               }
               <span className={`text-sm font-semibold flex-1 ${done ? 'text-gray-800 dark:text-gray-200' : 'text-gray-400'}`}>{label}</span>
-              {count && <span className="text-[10px] font-bold text-[#F4A01C] bg-[#FFF3D6] dark:bg-purple-900/20 border border-[#F4A01C]/30 dark:border-purple-800 px-2 py-0.5 rounded-full">{count}</span>}
+              {count && <span className="text-[10px] font-bold text-[#0A66C2] bg-[#EAF4FF] dark:bg-blue-900/20 border border-[#0A66C2]/30 dark:border-blue-800 px-2 py-0.5 rounded-full">{count}</span>}
               {!done && !count && <span className="text-[10px] text-amber-600 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 px-2 py-0.5 rounded-full font-bold">Skipped</span>}
             </div>
           ))}
@@ -739,7 +739,7 @@ function SuccessScreen({
 
       <button
         onClick={onEnter}
-        className="w-full py-4 bg-[#F4A01C] hover:bg-[#E09410] active:bg-[#0A2540] text-white font-bold text-base rounded-2xl transition-all duration-200 shadow-xl shadow-[#F4A01C]/30 flex items-center justify-center gap-2 hover:gap-3"
+        className="w-full py-4 bg-[#0A66C2] hover:bg-[#004182] active:bg-[#0A66C2] text-white font-bold text-base rounded-2xl transition-all duration-200 shadow-xl shadow-[#0A66C2]/30 flex items-center justify-center gap-2 hover:gap-3"
       >
         Enter Claspire
         <ArrowRight size={18} />
@@ -771,7 +771,7 @@ function ActionBar({
       <button
         onClick={onNext}
         disabled={loading}
-        className="w-full py-3.5 bg-[#F4A01C] hover:bg-[#E09410] active:bg-[#0A2540] text-white font-bold text-sm rounded-xl transition-all duration-200 shadow-md shadow-[#F4A01C]/20 flex items-center justify-center gap-2 disabled:opacity-60"
+        className="w-full py-3.5 bg-[#0A66C2] hover:bg-[#004182] active:bg-[#0A66C2] text-white font-bold text-sm rounded-xl transition-all duration-200 shadow-md shadow-[#0A66C2]/20 flex items-center justify-center gap-2 disabled:opacity-60"
       >
         {loading ? <Loader2 size={16} className="animate-spin" /> : null}
         {nextLabel}
@@ -819,7 +819,7 @@ function ProgressHeader({ step, total }: { step: number; total: number }) {
                 t.style.display = 'none'
                 const p = t.parentElement
                 if (p) {
-                  p.className = 'w-6 h-6 rounded-lg bg-gradient-to-br from-[#0A2540] to-indigo-600 flex items-center justify-center shadow-sm'
+                  p.className = 'w-6 h-6 rounded-lg bg-[#0A66C2] flex items-center justify-center shadow-sm'
                   p.innerHTML = '<span class="text-white font-bold text-[10px]">C</span>'
                 }
               }}
@@ -829,12 +829,12 @@ function ProgressHeader({ step, total }: { step: number; total: number }) {
             Step {step} of {total}{STEP_TITLES[step] ? ` · ${STEP_TITLES[step]}` : ''}
           </span>
         </div>
-        <span className="text-xs font-bold text-[#F4A01C]">{pct}%</span>
+        <span className="text-xs font-bold text-[#0A66C2]">{pct}%</span>
       </div>
       <div className="h-1.5 bg-gray-200 dark:bg-[#283036] rounded-full overflow-hidden">
         <motion.div
           className="h-full rounded-full"
-          style={{ background: 'linear-gradient(90deg, #F4A01C, #A855F7)' }}
+          style={{ background: 'linear-gradient(90deg, #0A66C2, #004182)' }}
           initial={false}
           animate={{ width: `${pct}%` }}
           transition={{ duration: 0.45, ease: 'easeOut' }}
@@ -999,11 +999,11 @@ function OnboardingPageContent() {
       particleCount: 100,
       spread: 90,
       origin: { y: 0.55 },
-      colors: ['#F4A01C', '#A855F7', '#C4B5FD', '#E09410', '#DDD6FE'],
+      colors: ['#0A66C2', '#38BDF8', '#93C5FD', '#004182', '#60A5FA'],
     })
     setTimeout(() => {
-      confetti({ particleCount: 50, angle: 60, spread: 70, origin: { x: 0, y: 0.6 }, colors: ['#F4A01C', '#A855F7'] })
-      confetti({ particleCount: 50, angle: 120, spread: 70, origin: { x: 1, y: 0.6 }, colors: ['#F4A01C', '#A855F7'] })
+      confetti({ particleCount: 50, angle: 60, spread: 70, origin: { x: 0, y: 0.6 }, colors: ['#0A66C2', '#38BDF8'] })
+      confetti({ particleCount: 50, angle: 120, spread: 70, origin: { x: 1, y: 0.6 }, colors: ['#0A66C2', '#38BDF8'] })
     }, 280)
   }, [])
 
@@ -1092,7 +1092,7 @@ function OnboardingPageContent() {
   if (authLoading) {
     return (
       <div className="flex-1 flex items-center justify-center min-h-screen">
-        <div className="w-10 h-10 border-4 border-[#F4A01C]/30 border-t-purple-600 rounded-full animate-spin" />
+        <div className="w-10 h-10 border-4 border-[#0A66C2]/30 border-t-[#0A66C2] rounded-full animate-spin" />
       </div>
     )
   }
@@ -1201,7 +1201,7 @@ export default function OnboardingPage() {
   return (
     <Suspense fallback={
       <div className="flex-1 flex items-center justify-center min-h-screen">
-        <div className="w-10 h-10 border-4 border-[#F4A01C]/30 border-t-purple-600 rounded-full animate-spin" />
+        <div className="w-10 h-10 border-4 border-[#0A66C2]/30 border-t-[#0A66C2] rounded-full animate-spin" />
       </div>
     }>
       <OnboardingPageContent />

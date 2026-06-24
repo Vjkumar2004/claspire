@@ -45,7 +45,7 @@ export default function CareersPage() {
           </h2>
           <a 
             href="mailto:careers@claspire.in"
-            className="inline-flex items-center gap-2 border border-[#F4A01C] text-[#F4A01C] px-6 py-3 rounded-lg hover:bg-[#F4A01C] hover:text-white transition-colors font-medium"
+            className="inline-flex items-center gap-2 border border-[#0A66C2] text-[#0A66C2] px-6 py-3 rounded-lg hover:bg-[#0A66C2] hover:text-white transition-colors font-medium"
           >
             Send us your profile →
           </a>

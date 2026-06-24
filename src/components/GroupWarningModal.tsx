@@ -30,7 +30,7 @@ export default function GroupWarningModal({ isOpen, onContinue, onCancel }: Grou
             className="relative bg-surface dark:bg-[#283036] rounded-[24px] w-full max-w-sm sm:max-w-md shadow-2xl overflow-hidden"
           >
             {/* Header */}
-            <div className="bg-gradient-to-r from-amber-50 to-orange-50 p-4 sm:p-6 border-b border-amber-100">
+            <div className="bg-[#EAF4FF] p-4 sm:p-6 border-b border-amber-100">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 sm:w-12 sm:h-12 bg-amber-100 rounded-full flex items-center justify-center">
@@ -106,7 +106,7 @@ export default function GroupWarningModal({ isOpen, onContinue, onCancel }: Grou
                 </button>
                 <button
                   onClick={onContinue}
-                  className="flex-1 px-3 py-2.5 sm:px-4 sm:py-3 rounded-xl sm:rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold text-xs sm:text-sm hover:from-amber-600 hover:to-orange-600 transition-all shadow-lg hover:shadow-xl"
+                  className="flex-1 px-3 py-2.5 sm:px-4 sm:py-3 rounded-xl sm:rounded-2xl bg-[#0A66C2] text-white font-bold text-xs sm:text-sm hover:from-amber-600 hover:to-orange-600 transition-all shadow-lg hover:shadow-xl"
                 >
                   I Understand → Continue
                 </button>

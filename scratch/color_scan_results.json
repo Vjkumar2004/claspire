@@ -1,0 +1,836 @@
+[
+  {
+    "file": "src\\app\\admin\\email\\page.tsx",
+    "lineNum": 337,
+    "term": "purple",
+    "content": "<div className=\"rounded-lg bg-[#EAF4FF] dark:bg-purple-900/10 border border-[#0A66C2]/20 dark:border-purple-900/30 p-4\">"
+  },
+  {
+    "file": "src\\app\\admin\\email\\page.tsx",
+    "lineNum": 338,
+    "term": "purple",
+    "content": "<p className=\"text-sm text-[#004182] dark:text-purple-300 font-medium\">Weekly Digest</p>"
+  },
+  {
+    "file": "src\\app\\admin\\email\\page.tsx",
+    "lineNum": 339,
+    "term": "purple",
+    "content": "<p className=\"text-xs text-[#0A66C2] dark:text-purple-400 mt-1\">"
+  },
+  {
+    "file": "src\\app\\admin\\email\\page.tsx",
+    "lineNum": 605,
+    "term": "bg-indigo",
+    "content": "? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20 ring-2 ring-indigo-500/20'"
+  },
+  {
+    "file": "src\\app\\admin\\email\\page.tsx",
+    "lineNum": 668,
+    "term": "text-indigo",
+    "content": "className=\"text-xs text-indigo-600 dark:text-indigo-400 hover:underline\""
+  },
+  {
+    "file": "src\\app\\admin\\email\\page.tsx",
+    "lineNum": 728,
+    "term": "border-indigo",
+    "content": "<div className=\"space-y-2 border-l-2 border-indigo-500 pl-3 ml-1\">"
+  },
+  {
+    "file": "src\\app\\admin\\email\\page.tsx",
+    "lineNum": 740,
+    "term": "border-indigo",
+    "content": "<div className=\"space-y-3 border-l-2 border-indigo-500 pl-3 ml-1\">"
+  },
+  {
+    "file": "src\\app\\admin\\email\\page.tsx",
+    "lineNum": 764,
+    "term": "bg-indigo",
+    "content": "className=\"w-full text-left px-3 py-2.5 text-sm hover:bg-indigo-50 dark:hover:bg-indigo-900/20 flex items-center gap-3 transition-colors\""
+  },
+  {
+    "file": "src\\app\\admin\\email\\page.tsx",
+    "lineNum": 767,
+    "term": "text-indigo",
+    "content": "<div className=\"w-7 h-7 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center text-xs font-medium text-indigo-700 dark:text-indigo-300 flex-shrink-0\">"
+  },
+  {
+    "file": "src\\app\\admin\\email\\page.tsx",
+    "lineNum": 777,
+    "term": "text-indigo",
+    "content": "<span className=\"text-xs text-indigo-600 font-medium flex-shrink-0\">Add</span>"
+  },
+  {
+    "file": "src\\app\\admin\\email\\page.tsx",
+    "lineNum": 794,
+    "term": "text-indigo",
+    "content": "className=\"inline-flex items-center gap-1.5 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 text-xs font-medium px-2.5 py-1.5 rounded-full\""
+  },
+  {
+    "file": "src\\app\\admin\\email\\page.tsx",
+    "lineNum": 812,
+    "term": "text-indigo",
+    "content": "{customRecipientIds.length > 0 && <div className=\"text-xs text-indigo-600 font-medium\">Selected {customRecipientIds.length} user{customRecipientIds.length !== 1 && 's'}</div>}"
+  },
+  {
+    "file": "src\\app\\admin\\email\\page.tsx",
+    "lineNum": 828,
+    "term": "border-indigo",
+    "content": "<div className=\"rounded-xl border border-indigo-100 dark:border-indigo-900/50 bg-white dark:bg-[#1D2226] overflow-hidden shadow-sm\">"
+  },
+  {
+    "file": "src\\app\\admin\\email\\page.tsx",
+    "lineNum": 829,
+    "term": "bg-indigo",
+    "content": "<div className=\"p-6 bg-indigo-50/50 dark:bg-indigo-900/10 border-b border-indigo-100 dark:border-indigo-900/50\">"
+  },
+  {
+    "file": "src\\app\\admin\\email\\page.tsx",
+    "lineNum": 830,
+    "term": "text-indigo",
+    "content": "<h2 className=\"text-xl font-semibold text-indigo-700 dark:text-indigo-400\">Test &amp; Send</h2>"
+  },
+  {
+    "file": "src\\app\\admin\\email\\page.tsx",
+    "lineNum": 857,
+    "term": "bg-indigo",
+    "content": "className=\"w-full inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-indigo-600 text-white hover:bg-indigo-700 h-10 px-4 py-2\""
+  },
+  {
+    "file": "src\\app\\colleges\\page.tsx",
+    "lineNum": 107,
+    "term": "purple",
+    "content": "<span className=\"text-[10px] font-bold text-purple-200 uppercase tracking-wider\">College Communities</span>"
+  },
+  {
+    "file": "src\\app\\colleges\\page.tsx",
+    "lineNum": 147,
+    "term": "purple",
+    "content": "<div className=\"relative flex items-stretch bg-surface dark:bg-[#283036] rounded-xl overflow-hidden shadow-2xl shadow-purple-900/20 h-12\">"
+  },
+  {
+    "file": "src\\app\\colleges\\page.tsx",
+    "lineNum": 169,
+    "term": "purple",
+    "content": "<div className=\"relative flex items-stretch bg-surface dark:bg-[#283036] rounded-xl overflow-hidden shadow-2xl shadow-purple-900/20 h-11\">"
+  },
+  {
+    "file": "src\\app\\colleges\\page.tsx",
+    "lineNum": 343,
+    "term": "purple",
+    "content": "className=\"mt-4 w-full py-2.5 rounded-lg text-xs font-bold text-white bg-[#0A66C2] hover:from-purple-700 hover:to-fuchsia-700 transition-all flex items-center justify-center gap-1.5 shadow-sm\""
+  },
+  {
+    "file": "src\\app\\colleges\\page.tsx",
+    "lineNum": 470,
+    "term": "purple",
+    "content": "<div className=\"w-9 h-9 rounded-xl bg-gray-100 dark:bg-[#283036] flex items-center justify-center overflow-hidden flex-shrink-0 ring-2 ring-gray-100 dark:ring-[#38434F] group-hover:ring-purple-300 transition-all text-[10px] font-black text-gray-400 dark:text-[#B0B7BE]\">"
+  },
+  {
+    "file": "src\\app\\colleges\\request\\page.tsx",
+    "lineNum": 130,
+    "term": "bg-indigo",
+    "content": "className=\"bg-indigo-600 rounded-3xl p-8 text-white relative overflow-hidden mb-10\""
+  },
+  {
+    "file": "src\\app\\colleges\\[slug]\\admin\\page.tsx",
+    "lineNum": 239,
+    "term": "purple",
+    "content": "<span className=\"ml-2 text-[10px] uppercase tracking-wider font-bold text-[#0A66C2] bg-[#EAF4FF] dark:bg-purple-900/20 px-2 py-0.5 rounded-full\">"
+  },
+  {
+    "file": "src\\app\\colleges\\[slug]\\admin\\page.tsx",
+    "lineNum": 411,
+    "term": "purple",
+    "content": "className=\"text-[10px] font-bold text-[#0A66C2] hover:text-[#004182] bg-[#EAF4FF] dark:bg-purple-900/20 px-2 py-1 rounded transition-colors\""
+  },
+  {
+    "file": "src\\app\\colleges\\[slug]\\page.tsx",
+    "lineNum": 548,
+    "term": "purple",
+    "content": "className=\"mx-auto mb-4 text-purple-200\""
+  },
+  {
+    "file": "src\\app\\community\\c\\[slug]\\group\\[groupSlug]\\page.tsx",
+    "lineNum": 309,
+    "term": "purple",
+    "content": "<div className=\"w-8 h-8 border-4 border-[#0A66C2]/20 border-t-purple-600 rounded-full animate-spin\" />"
+  },
+  {
+    "file": "src\\app\\community\\c\\[slug]\\p\\[postId]\\page.tsx",
+    "lineNum": 41,
+    "term": "purple",
+    "content": "discussion: { label: 'Discussion', icon: '💬', classes: 'bg-[#EAF4FF] dark:bg-purple-500/20 text-[#004182] dark:text-purple-300 border-[#0A66C2]/30 dark:border-purple-500/30' },"
+  },
+  {
+    "file": "src\\app\\community\\c\\[slug]\\p\\[postId]\\page.tsx",
+    "lineNum": 487,
+    "term": "purple",
+    "content": "className=\"inline-flex items-center gap-2 text-sm font-bold text-[#0A66C2] dark:text-purple-300 bg-surface dark:bg-[#283036] border border-[#0A66C2]/20 dark:border-[#38434F] rounded-xl px-4 py-2 mb-6 hover:bg-[#EAF4FF] dark:hover:bg-[#1D2226] transition-colors shadow-sm\""
+  },
+  {
+    "file": "src\\app\\community\\c\\[slug]\\p\\[postId]\\page.tsx",
+    "lineNum": 529,
+    "term": "purple",
+    "content": "<span className=\"lg:hidden inline-flex items-center gap-0.5 text-[8px] font-black uppercase bg-[#EAF4FF] dark:bg-purple-500/20 text-[#004182] dark:text-purple-300 border border-[#0A66C2]/30 dark:border-purple-500/30 px-1.5 py-0.5 rounded\">"
+  },
+  {
+    "file": "src\\app\\community\\c\\[slug]\\p\\[postId]\\page.tsx",
+    "lineNum": 588,
+    "term": "purple",
+    "content": "<span className=\"text-[8px] font-black uppercase bg-[#EAF4FF] dark:bg-purple-500/20 text-[#0A66C2] dark:text-purple-300 border border-[#0A66C2]/20 dark:border-purple-500/30 px-1.5 py-0.5 rounded\">"
+  },
+  {
+    "file": "src\\app\\community\\c\\[slug]\\p\\[postId]\\page.tsx",
+    "lineNum": 645,
+    "term": "purple",
+    "content": "className=\"text-[10px] font-bold text-[#0A66C2] dark:text-purple-300 bg-[#EAF4FF] dark:bg-purple-500/20 border border-[#0A66C2]/20 dark:border-purple-500/30 px-2 py-0.5 rounded-full\""
+  },
+  {
+    "file": "src\\app\\community\\c\\[slug]\\p\\[postId]\\page.tsx",
+    "lineNum": 687,
+    "term": "purple",
+    "content": "? 'bg-[#EAF4FF] dark:bg-purple-500/20 text-[#0A66C2] dark:text-purple-300 shadow-sm'"
+  },
+  {
+    "file": "src\\app\\community\\c\\[slug]\\p\\[postId]\\page.tsx",
+    "lineNum": 734,
+    "term": "purple",
+    "content": "<div className=\"w-12 h-12 rounded-full bg-[#EAF4FF] dark:bg-purple-500/20 flex items-center justify-center mx-auto mb-3\">"
+  },
+  {
+    "file": "src\\app\\community\\c\\[slug]\\p\\[postId]\\page.tsx",
+    "lineNum": 735,
+    "term": "purple",
+    "content": "<Sparkles className=\"w-5 h-5 text-[#0A66C2] dark:text-purple-300\" />"
+  },
+  {
+    "file": "src\\app\\community\\c\\[slug]\\p\\[postId]\\page.tsx",
+    "lineNum": 770,
+    "term": "purple",
+    "content": "className=\"w-full min-h-[80px] p-3 rounded-xl border border-surface dark:border-[#38434F] bg-surface dark:bg-[#283036] text-sm text-slate-700 dark:text-[#B0B7BE] outline-none resize-y focus:border-[#0A66C2] focus:ring-2 focus:ring-purple-100 dark:focus:ring-purple-500/20 transition-all\""
+  },
+  {
+    "file": "src\\app\\community\\c\\[slug]\\p\\[postId]\\page.tsx",
+    "lineNum": 821,
+    "term": "purple",
+    "content": "<span className=\"inline-flex items-center gap-0.5 text-[8px] font-black uppercase bg-[#EAF4FF] dark:bg-purple-500/20 text-[#004182] dark:text-purple-300 border border-[#0A66C2]/30 dark:border-purple-500/30 px-1.5 py-0.5 rounded\">"
+  },
+  {
+    "file": "src\\app\\community\\c\\[slug]\\p\\[postId]\\page.tsx",
+    "lineNum": 851,
+    "term": "purple",
+    "content": "<span className=\"text-[8px] font-black uppercase bg-[#EAF4FF] dark:bg-purple-500/20 text-[#0A66C2] dark:text-purple-300 border border-[#0A66C2]/20 dark:border-purple-500/30 px-1.5 py-0.5 rounded\">"
+  },
+  {
+    "file": "src\\app\\community\\c\\[slug]\\p\\[postId]\\page.tsx",
+    "lineNum": 890,
+    "term": "purple",
+    "content": "className=\"text-[#0A66C2] dark:text-purple-300 bg-[#EAF4FF] dark:bg-purple-500/20 px-2 py-0.5 rounded-full hover:bg-[#EAF4FF] dark:hover:bg-purple-500/30 transition-colors\""
+  },
+  {
+    "file": "src\\app\\community\\c\\[slug]\\p\\[postId]\\page.tsx",
+    "lineNum": 910,
+    "term": "purple",
+    "content": "<div className=\"w-10 h-10 rounded-xl bg-[#EAF4FF] dark:bg-purple-500/20 border border-[#0A66C2]/20 dark:border-purple-500/30 flex items-center justify-center shrink-0\">"
+  },
+  {
+    "file": "src\\app\\community\\c\\[slug]\\page.tsx",
+    "lineNum": 534,
+    "term": "purple",
+    "content": "<div className=\"w-10 h-10 border-4 border-[#0A66C2]/20 border-t-purple-600 rounded-full animate-spin\" />"
+  },
+  {
+    "file": "src\\app\\community\\c\\[slug]\\page.tsx",
+    "lineNum": 1058,
+    "term": "text-indigo",
+    "content": "<GraduationCap size={14} className=\"text-indigo-500 shrink-0\" />"
+  },
+  {
+    "file": "src\\app\\community\\c\\[slug]\\page.tsx",
+    "lineNum": 1077,
+    "term": "text-indigo",
+    "content": "<span className=\"inline-flex items-center gap-1 text-[9px] font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-md\">"
+  },
+  {
+    "file": "src\\app\\community\\c\\[slug]\\page.tsx",
+    "lineNum": 1328,
+    "term": "purple",
+    "content": "className: 'bg-[#EAF4FF] border-[#0A66C2]/30 dark:bg-purple-900/20 dark:border-purple-800/60',"
+  },
+  {
+    "file": "src\\app\\community\\c\\[slug]\\page.tsx",
+    "lineNum": 1426,
+    "term": "purple",
+    "content": "<div className=\"w-10 h-10 border-4 border-[#0A66C2]/20 border-t-purple-600 rounded-full animate-spin\" />"
+  },
+  {
+    "file": "src\\app\\community\\client-page.tsx",
+    "lineNum": 1241,
+    "term": "purple",
+    "content": "<span className=\"absolute text-[11px] font-extrabold text-[#004182] dark:text-purple-300\">{pct}%</span>"
+  },
+  {
+    "file": "src\\app\\community\\client-page.tsx",
+    "lineNum": 1248,
+    "term": "purple",
+    "content": "Missing: <span className=\"text-[#0A66C2] dark:text-purple-400 font-semibold\">{missing.join(', ')}</span>"
+  },
+  {
+    "file": "src\\app\\community\\client-page.tsx",
+    "lineNum": 1298,
+    "term": "purple",
+    "content": "className=\"w-10 h-10 sm:w-8 sm:h-8 bg-[#EAF4FF] dark:bg-purple-900/30 hover:bg-[#EAF4FF] dark:hover:bg-purple-900/50 text-[#0A66C2] rounded-full border border-[#0A66C2]/20 dark:border-purple-800 transition-colors flex items-center justify-center cursor-pointer flex-shrink-0\""
+  },
+  {
+    "file": "src\\app\\community\\client-page.tsx",
+    "lineNum": 1313,
+    "term": "text-indigo",
+    "content": "{ key: 'experience', label: 'Experiences', icon: Star, color: 'text-indigo-500' }"
+  },
+  {
+    "file": "src\\app\\community\\client-page.tsx",
+    "lineNum": 1321,
+    "term": "purple",
+    "content": "? 'bg-[#EAF4FF] dark:bg-purple-900/40 text-[#0A66C2] border border-[#0A66C2]/30 dark:border-purple-800'"
+  },
+  {
+    "file": "src\\app\\community\\client-page.tsx",
+    "lineNum": 1335,
+    "term": "purple",
+    "content": "<div className=\"bg-[#EAF4FF] dark:bg-purple-900/20 border border-[#0A66C2]/20 dark:border-purple-800 rounded-md px-3 py-2 flex items-center justify-between text-[11px] font-bold\">"
+  },
+  {
+    "file": "src\\app\\community\\client-page.tsx",
+    "lineNum": 1336,
+    "term": "purple",
+    "content": "<span className=\"text-purple-950 dark:text-purple-200 flex items-center gap-2\">"
+  },
+  {
+    "file": "src\\app\\community\\client-page.tsx",
+    "lineNum": 1492,
+    "term": "purple",
+    "content": "<div className=\"w-10 h-10 border-4 border-[#0A66C2]/20 border-t-purple-600 rounded-full animate-spin\" />"
+  },
+  {
+    "file": "src\\app\\dashboard\\junior\\page.tsx",
+    "lineNum": 294,
+    "term": "purple",
+    "content": "<div className=\"w-12 h-12 border-[3px] border-surface dark:border-[#38434F] border-t-purple-600 rounded-full animate-spin\" />"
+  },
+  {
+    "file": "src\\app\\dashboard\\junior\\page.tsx",
+    "lineNum": 546,
+    "term": "to-indigo",
+    "content": "{ label: 'Doubts Asked', value: u.doubt_count, icon: <HelpCircle size={20} />, trend: '+1 this week', bg: 'from-[#0A66C2]/5 to-indigo-500/5', border: 'hover:border-[#0A66C2]/30', iconColor: 'text-[#0A66C2] bg-[#EAF4FF]' },"
+  },
+  {
+    "file": "src\\app\\dashboard\\junior\\page.tsx",
+    "lineNum": 569,
+    "term": "text-indigo",
+    "content": "<div className=\"w-9 h-9 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600\">"
+  },
+  {
+    "file": "src\\app\\dashboard\\junior\\page.tsx",
+    "lineNum": 794,
+    "term": "purple",
+    "content": "<p className=\"text-purple-100 font-semibold text-xs leading-relaxed mb-6\">Interact directly with verified students and senior alumni from your institute inside your private college discussions board.</p>"
+  },
+  {
+    "file": "src\\app\\dashboard\\senior\\page.tsx",
+    "lineNum": 708,
+    "term": "purple",
+    "content": "className=\"text-[10px] font-bold text-[#0A66C2] dark:text-[#0A66C2]/60 bg-[#EAF4FF] dark:bg-[#EAF4FF]0/20 border border-[#0A66C2]/20 dark:border-purple-500/30 px-2 py-0.5 rounded-full\""
+  },
+  {
+    "file": "src\\app\\dashboard\\senior\\page.tsx",
+    "lineNum": 1128,
+    "term": "text-indigo",
+    "content": "<span className=\"flex items-center gap-1 text-indigo-600\">"
+  },
+  {
+    "file": "src\\app\\dashboard\\senior\\page.tsx",
+    "lineNum": 1503,
+    "term": "purple",
+    "content": "<span className=\"text-[8px] font-extrabold text-[#0A66C2] bg-[#EAF4FF] dark:bg-[#EAF4FF]0/20 px-1.5 py-0.5 rounded border border-[#0A66C2]/20 dark:border-purple-500/30 uppercase tracking-wide\">"
+  },
+  {
+    "file": "src\\app\\globals.css",
+    "lineNum": 266,
+    "term": "purple",
+    "content": ".gradient-text-purple {"
+  },
+  {
+    "file": "src\\app\\groups\\page.tsx",
+    "lineNum": 197,
+    "term": "purple",
+    "content": "<div className=\"relative overflow-hidden rounded-none sm:rounded-2xl lg:rounded-3xl bg-[#0A66C2] shadow-2xl shadow-purple-900/20\">"
+  },
+  {
+    "file": "src\\app\\groups\\page.tsx",
+    "lineNum": 201,
+    "term": "purple",
+    "content": "<div className=\"absolute top-[-80px] right-[-60px] w-[300px] h-[300px] bg-purple-300/15 rounded-full blur-[80px]\" />"
+  },
+  {
+    "file": "src\\app\\groups\\page.tsx",
+    "lineNum": 209,
+    "term": "purple",
+    "content": "<Hash size={10} className=\"text-purple-200\" />"
+  },
+  {
+    "file": "src\\app\\groups\\page.tsx",
+    "lineNum": 210,
+    "term": "purple",
+    "content": "<span className=\"text-[10px] font-bold text-purple-100 uppercase tracking-[0.12em]\">Student Communities</span>"
+  },
+  {
+    "file": "src\\app\\groups\\page.tsx",
+    "lineNum": 218,
+    "term": "purple",
+    "content": "<p className=\"text-[13px] sm:text-[15px] text-purple-200/75 max-w-xl font-normal leading-relaxed mb-4\">"
+  },
+  {
+    "file": "src\\app\\groups\\page.tsx",
+    "lineNum": 238,
+    "term": "purple",
+    "content": "className=\"h-[48px] lg:h-[52px] px-4 lg:px-5 bg-[#0A66C2] hover:from-purple-700 hover:to-fuchsia-700 text-white text-xs lg:text-sm font-bold flex items-center gap-2 transition-all\""
+  },
+  {
+    "file": "src\\app\\groups\\page.tsx",
+    "lineNum": 259,
+    "term": "purple",
+    "content": "<Icon size={11} className=\"text-purple-200\" />"
+  },
+  {
+    "file": "src\\app\\groups\\page.tsx",
+    "lineNum": 263,
+    "term": "purple",
+    "content": "<p className=\"text-[8px] font-semibold text-purple-200/60 uppercase tracking-wider leading-tight hidden sm:block\">{s.label}</p>"
+  },
+  {
+    "file": "src\\app\\groups\\page.tsx",
+    "lineNum": 391,
+    "term": "purple",
+    "content": "className=\"mt-auto w-full py-1.5 rounded-lg text-[11px] font-bold text-white bg-[#0A66C2] hover:from-purple-700 hover:to-fuchsia-700 transition-all shadow-sm\""
+  },
+  {
+    "file": "src\\app\\groups\\page.tsx",
+    "lineNum": 474,
+    "term": "purple",
+    "content": "className=\"w-full py-1.5 rounded-lg text-[11px] font-bold text-white bg-[#0A66C2] hover:from-purple-700 hover:to-fuchsia-700 transition-all shadow-sm\""
+  },
+  {
+    "file": "src\\app\\groups\\page.tsx",
+    "lineNum": 688,
+    "term": "purple",
+    "content": "<p className=\"text-[11px] text-purple-200 font-medium mb-4 leading-relaxed\">"
+  },
+  {
+    "file": "src\\app\\groups\\page.tsx",
+    "lineNum": 709,
+    "term": "purple",
+    "content": "className=\"fixed bottom-6 right-6 z-50 lg:hidden w-14 h-14 rounded-full bg-[#0A66C2] text-white shadow-xl shadow-purple-400/50 flex items-center justify-center hover:scale-105 active:scale-95 transition-all\""
+  },
+  {
+    "file": "src\\app\\jobs\\page.tsx",
+    "lineNum": 75,
+    "term": "9333EA",
+    "content": "'from-[#9333EA] to-[#0A66C2]',"
+  },
+  {
+    "file": "src\\app\\profile\\page.tsx",
+    "lineNum": 629,
+    "term": "to-indigo",
+    "content": "{ icon: <HelpCircle size={14} />, value: user.doubt_count || 0, label: 'Q', color: 'from-blue-500 to-indigo-600' },"
+  },
+  {
+    "file": "src\\app\\profile\\page.tsx",
+    "lineNum": 631,
+    "term": "violet",
+    "content": "{ icon: <Eye size={14} />, value: viewCount, label: 'PV', color: 'from-violet-500 to-[#004182]' },"
+  },
+  {
+    "file": "src\\app\\profile\\page.tsx",
+    "lineNum": 675,
+    "term": "to-indigo",
+    "content": "{ icon: <HelpCircle size={15} />, value: user.doubt_count || 0, label: 'Questions', color: 'from-blue-500 to-indigo-600' },"
+  },
+  {
+    "file": "src\\app\\profile\\page.tsx",
+    "lineNum": 677,
+    "term": "violet",
+    "content": "{ icon: <Eye size={15} />, value: viewCount, label: 'Profile Views', color: 'from-violet-500 to-[#004182]' },"
+  },
+  {
+    "file": "src\\app\\profile\\page.tsx",
+    "lineNum": 825,
+    "term": "purple",
+    "content": "{ emoji: '⭐', label: 'Rise Star', color: 'from-purple-50 to-purple-100/50 dark:from-purple-900/20 dark:to-purple-800/10', textColor: 'text-[#004182] dark:text-purple-400', earned: (user.rise_points || 0) >= 100 },"
+  },
+  {
+    "file": "src\\app\\redirect\\page.tsx",
+    "lineNum": 77,
+    "term": "purple",
+    "content": "<div className=\"w-8 h-8 border-4 border-[#0A66C2]/30 border-t-purple-600 rounded-full animate-spin\" />"
+  },
+  {
+    "file": "src\\app\\redirect\\page.tsx",
+    "lineNum": 149,
+    "term": "purple",
+    "content": "<div className=\"w-8 h-8 border-4 border-[#0A66C2]/30 border-t-purple-600 rounded-full animate-spin\"></div>"
+  },
+  {
+    "file": "src\\app\\terms\\page.tsx",
+    "lineNum": 80,
+    "term": "purple",
+    "content": "<a href=\"mailto:claspire.community@gmail.com\" className=\"text-[#0A66C2] hover:text-[#0A66C2] dark:text-purple-400 dark:hover:text-purple-300 transition-colors\">"
+  },
+  {
+    "file": "src\\components\\admin\\email\\DirectOutreach.tsx",
+    "lineNum": 232,
+    "term": "purple",
+    "content": "? 'border-[#0A66C2] bg-[#EAF4FF] dark:bg-purple-900/20 ring-2 ring-[#0A66C2]/20'"
+  },
+  {
+    "file": "src\\components\\admin\\email\\DirectOutreach.tsx",
+    "lineNum": 344,
+    "term": "purple",
+    "content": "className=\"text-xs text-[#0A66C2] dark:text-purple-400 hover:underline\""
+  },
+  {
+    "file": "src\\components\\admin\\email\\DirectOutreach.tsx",
+    "lineNum": 401,
+    "term": "purple",
+    "content": "<div className=\"rounded-xl border border-[#0A66C2]/20 dark:border-purple-900/50 bg-white dark:bg-[#1D2226] overflow-hidden shadow-sm\">"
+  },
+  {
+    "file": "src\\components\\admin\\email\\DirectOutreach.tsx",
+    "lineNum": 402,
+    "term": "purple",
+    "content": "<div className=\"p-6 bg-[#EAF4FF]/50 dark:bg-purple-900/10 border-b border-[#0A66C2]/20 dark:border-purple-900/50\">"
+  },
+  {
+    "file": "src\\components\\admin\\email\\DirectOutreach.tsx",
+    "lineNum": 403,
+    "term": "purple",
+    "content": "<h2 className=\"text-xl font-semibold text-[#004182] dark:text-purple-400\">Send</h2>"
+  },
+  {
+    "file": "src\\components\\AdminSidebar.tsx",
+    "lineNum": 131,
+    "term": "purple",
+    "content": "? 'bg-[#EAF4FF] dark:bg-purple-900/20 text-[#004182] dark:text-purple-300'"
+  },
+  {
+    "file": "src\\components\\community\\ChatWidget.tsx",
+    "lineNum": 359,
+    "term": "purple",
+    "content": "className=\"mr-1 hover:text-purple-200 transition-colors p-1\""
+  },
+  {
+    "file": "src\\components\\community\\ChatWidget.tsx",
+    "lineNum": 409,
+    "term": "purple",
+    "content": "<div className=\"w-4 h-4 border-2 border-[#0A66C2]/20 border-t-purple-600 rounded-full animate-spin\" />"
+  },
+  {
+    "file": "src\\components\\community\\ChatWidget.tsx",
+    "lineNum": 587,
+    "term": "purple",
+    "content": "<button className=\"text-white hover:text-purple-200 transition-colors\">"
+  },
+  {
+    "file": "src\\components\\community\\ChatWidget.tsx",
+    "lineNum": 624,
+    "term": "purple",
+    "content": "<div className=\"w-3.5 h-3.5 border-2 border-[#0A66C2]/20 border-t-purple-600 rounded-full animate-spin\" />"
+  },
+  {
+    "file": "src\\components\\community\\CommunityActivityCard.tsx",
+    "lineNum": 31,
+    "term": "text-indigo",
+    "content": "{ label: \"Total Communities\", value: totalCommunities || 0, icon: Globe, color: 'text-indigo-500' },"
+  },
+  {
+    "file": "src\\components\\community\\FeedPost.tsx",
+    "lineNum": 269,
+    "term": "purple",
+    "content": "className=\"w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-slate-100 dark:bg-[#283036] flex items-center justify-center font-bold text-slate-800 dark:text-white text-sm overflow-hidden flex-shrink-0 cursor-pointer border border-surface dark:border-[#38434F] ring-2 ring-purple-100 dark:ring-purple-900/40\""
+  },
+  {
+    "file": "src\\components\\community\\FeedPost.tsx",
+    "lineNum": 428,
+    "term": "purple",
+    "content": ": 'bg-transparent border-transparent hover:border-[#0A66C2]/30 hover:bg-[#EAF4FF] dark:hover:bg-purple-900/20 text-slate-500 dark:text-[#B0B7BE] hover:text-[#0A66C2]'"
+  },
+  {
+    "file": "src\\components\\community\\FeedPost.tsx",
+    "lineNum": 462,
+    "term": "purple",
+    "content": "className=\"flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full text-[10px] sm:text-[11px] font-bold text-[#0A66C2] hover:bg-[#EAF4FF] dark:hover:bg-purple-900/20 transition-all duration-200 cursor-pointer\""
+  },
+  {
+    "file": "src\\components\\community\\FeedPost.tsx",
+    "lineNum": 486,
+    "term": "purple",
+    "content": "<div className=\"w-3.5 h-3.5 border-2 border-[#0A66C2]/20 border-t-purple-600 rounded-full animate-spin\" />"
+  },
+  {
+    "file": "src\\components\\community\\LeftSidebar.tsx",
+    "lineNum": 29,
+    "term": "from-indigo",
+    "content": "<div className=\"absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-indigo-500/20 via-transparent to-transparent pointer-events-none\" />"
+  },
+  {
+    "file": "src\\components\\community\\TopContributorsCard.tsx",
+    "lineNum": 48,
+    "term": "purple",
+    "content": "<div className=\"w-7 h-7 rounded-full bg-[#EAF4FF] dark:bg-purple-900/30 border border-surface dark:border-[#38434F] flex items-center justify-center font-bold text-[#0A66C2] overflow-hidden text-[10px] flex-shrink-0\">"
+  },
+  {
+    "file": "src\\components\\community\\YourImpactCard.tsx",
+    "lineNum": 22,
+    "term": "text-indigo",
+    "content": "<MessageCircle className=\"w-4 h-4 text-indigo-500\" />"
+  },
+  {
+    "file": "src\\components\\CreateGroupModal.tsx",
+    "lineNum": 204,
+    "term": "purple",
+    "content": "<div className=\"bg-[#EAF4FF] dark:from-purple-500/10 dark:to-indigo-500/10 p-6 border-b border-[#0A66C2]/20 dark:border-[#38434F]\">"
+  },
+  {
+    "file": "src\\components\\CreateGroupModal.tsx",
+    "lineNum": 207,
+    "term": "purple",
+    "content": "<div className=\"w-12 h-12 bg-[#EAF4FF] dark:bg-purple-500/20 rounded-full flex items-center justify-center\">"
+  },
+  {
+    "file": "src\\components\\CreateGroupModal.tsx",
+    "lineNum": 208,
+    "term": "purple",
+    "content": "<Users size={24} className=\"text-[#0A66C2] dark:text-purple-300\" />"
+  },
+  {
+    "file": "src\\components\\CreateGroupModal.tsx",
+    "lineNum": 308,
+    "term": "purple",
+    "content": "? 'border-[#0A66C2] bg-[#EAF4FF] dark:bg-purple-500/20'"
+  },
+  {
+    "file": "src\\components\\CreateGroupModal.tsx",
+    "lineNum": 350,
+    "term": "purple",
+    "content": "? 'border-[#0A66C2] bg-[#EAF4FF] dark:bg-purple-500/20'"
+  },
+  {
+    "file": "src\\components\\CreateGroupModal.tsx",
+    "lineNum": 384,
+    "term": "purple",
+    "content": "? 'border-[#0A66C2] bg-[#EAF4FF] dark:bg-purple-500/20'"
+  },
+  {
+    "file": "src\\components\\CreateGroupModal.tsx",
+    "lineNum": 433,
+    "term": "purple",
+    "content": "? 'border-[#0A66C2] bg-[#EAF4FF] dark:bg-purple-500/20'"
+  },
+  {
+    "file": "src\\components\\CreateGroupModal.tsx",
+    "lineNum": 465,
+    "term": "to-indigo",
+    "content": "<div className=\"bg-[#EAF4FF] dark:from-blue-500/10 dark:to-indigo-500/10 border border-blue-200 dark:border-blue-500/30 rounded-xl p-4\">"
+  },
+  {
+    "file": "src\\components\\CreatePost\\DesktopFlow.tsx",
+    "lineNum": 31,
+    "term": "purple",
+    "content": "<span className=\"bg-[#EAF4FF] dark:bg-purple-500/20 text-[#004182] dark:text-purple-300 px-3 py-1 rounded-full text-xs font-bold border border-[#0A66C2]/30 dark:border-purple-500/30\">"
+  },
+  {
+    "file": "src\\components\\CreatePost\\DesktopFlow.tsx",
+    "lineNum": 46,
+    "term": "purple",
+    "content": "className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${data.isCollegePost ? 'bg-[#EAF4FF] text-[#004182] dark:bg-purple-500/20 dark:text-purple-300' : 'text-slate-500 hover:text-slate-900 dark:text-white/50 dark:hover:text-white'}`}"
+  },
+  {
+    "file": "src\\components\\CreatePost\\DesktopFlow.tsx",
+    "lineNum": 69,
+    "term": "purple",
+    "content": "? 'border-[#0A66C2] bg-[#EAF4FF] dark:bg-purple-500/10 shadow-[0_0_30px_rgba(139,92,246,0.15)] -translate-y-1'"
+  },
+  {
+    "file": "src\\components\\CreatePost\\DesktopFlow.tsx",
+    "lineNum": 74,
+    "term": "purple",
+    "content": "<span className={`text-xs font-bold ${isSelected ? 'text-[#004182] dark:text-purple-300' : 'text-slate-600 dark:text-white/70'}`}>{t.label}</span>"
+  },
+  {
+    "file": "src\\components\\CreatePost\\DesktopFlow.tsx",
+    "lineNum": 159,
+    "term": "purple",
+    "content": "? 'border-[#0A66C2]/50 bg-[#EAF4FF] dark:bg-purple-500/10'"
+  },
+  {
+    "file": "src\\components\\CreatePost\\DesktopFlow.tsx",
+    "lineNum": 163,
+    "term": "purple",
+    "content": "<Lock className={`mt-0.5 ${data.visibility === 'private' ? 'text-[#0A66C2] dark:text-purple-400' : 'text-slate-400 dark:text-white/50'}`} size={20} />"
+  },
+  {
+    "file": "src\\components\\CreatePost\\DesktopFlow.tsx",
+    "lineNum": 253,
+    "term": "purple",
+    "content": "<span key={t} className=\"text-xs text-[#004182] bg-[#EAF4FF] dark:text-purple-300 dark:bg-purple-500/10 px-2 py-1 rounded-md\">"
+  },
+  {
+    "file": "src\\components\\CreatePost\\ImageUploadZone.tsx",
+    "lineNum": 55,
+    "term": "purple",
+    "content": "? 'border-[#0A66C2] bg-[#EAF4FF] dark:bg-purple-500/10'"
+  },
+  {
+    "file": "src\\components\\CreatePost\\ImageUploadZone.tsx",
+    "lineNum": 60,
+    "term": "purple",
+    "content": "<div className={`p-4 rounded-full mb-4 transition-all duration-300 ${isDragging ? 'bg-[#EAF4FF] dark:bg-purple-500/20 scale-110' : 'bg-slate-200 dark:bg-white/5 group-hover:bg-[#EAF4FF] dark:group-hover:bg-purple-500/20 group-hover:scale-110'}`}>"
+  },
+  {
+    "file": "src\\components\\CreatePost\\ImageUploadZone.tsx",
+    "lineNum": 61,
+    "term": "purple",
+    "content": "<UploadCloud size={32} className={isDragging ? 'text-[#0A66C2] dark:text-purple-400' : 'text-slate-400 dark:text-white/60 group-hover:text-[#0A66C2] dark:group-hover:text-purple-400'} />"
+  },
+  {
+    "file": "src\\components\\CreatePost\\MobileFlow.tsx",
+    "lineNum": 59,
+    "term": "purple",
+    "content": "? 'border-[#0A66C2] bg-[#EAF4FF] dark:bg-purple-500/10 shadow-[0_0_30px_rgba(139,92,246,0.15)] scale-[1.02]'"
+  },
+  {
+    "file": "src\\components\\CreatePost\\MobileFlow.tsx",
+    "lineNum": 65,
+    "term": "purple",
+    "content": "<div className={`font-bold text-lg ${isSelected ? 'text-[#004182] dark:text-purple-300' : 'text-slate-900 dark:text-white'}`}>{t.label}</div>"
+  },
+  {
+    "file": "src\\components\\CreatePost\\MobileFlow.tsx",
+    "lineNum": 157,
+    "term": "purple",
+    "content": "? 'border-[#0A66C2]/50 bg-[#EAF4FF] dark:bg-purple-500/10'"
+  },
+  {
+    "file": "src\\components\\CreatePost\\MobileFlow.tsx",
+    "lineNum": 161,
+    "term": "purple",
+    "content": "<Lock className={`mt-0.5 ${data.visibility === 'private' ? 'text-[#0A66C2] dark:text-purple-400' : 'text-slate-400 dark:text-white/50'}`} size={20} />"
+  },
+  {
+    "file": "src\\components\\CreatePost\\SmartTags.tsx",
+    "lineNum": 33,
+    "term": "purple",
+    "content": "<Hash size={16} className=\"text-[#0A66C2] dark:text-purple-400\" />"
+  },
+  {
+    "file": "src\\components\\CreatePost\\SmartTags.tsx",
+    "lineNum": 44,
+    "term": "purple",
+    "content": "className=\"flex items-center gap-1.5 px-3 py-1.5 bg-[#EAF4FF] dark:bg-purple-500/20 text-[#004182] dark:text-purple-200 text-sm font-medium rounded-lg border border-[#0A66C2]/30 dark:border-purple-500/30\""
+  },
+  {
+    "file": "src\\components\\DashboardMessages.tsx",
+    "lineNum": 556,
+    "term": "purple",
+    "content": "className=\"inline-flex items-center gap-2 px-6 py-3 bg-[#0A66C2] text-white text-sm font-bold rounded-2xl hover:bg-[#004182] transition-colors shadow-lg shadow-purple-100\""
+  },
+  {
+    "file": "src\\components\\groups\\GroupsSidebar.tsx",
+    "lineNum": 113,
+    "term": "purple",
+    "content": "className=\"w-full bg-gray-100 dark:bg-[#1D2226] rounded-xl pl-9 pr-3 py-2 text-sm outline-none focus:ring-2 focus:ring-purple-300 focus:bg-surface dark:bg-[#283036] transition-colors placeholder:text-gray-400 dark:text-[#B0B7BE]\""
+  },
+  {
+    "file": "src\\components\\MyGroupsList.tsx",
+    "lineNum": 339,
+    "term": "text-indigo",
+    "content": "<GraduationCap size={16} className=\"text-indigo-500\" />"
+  },
+  {
+    "file": "src\\components\\network\\DiscoverTab.tsx",
+    "lineNum": 287,
+    "term": "purple",
+    "content": "<div className=\"w-16 h-16 bg-[#EAF4FF] dark:bg-purple-900/20 rounded-2xl flex items-center justify-center mx-auto mb-4\">"
+  },
+  {
+    "file": "src\\components\\network\\DiscoverTab.tsx",
+    "lineNum": 288,
+    "term": "purple",
+    "content": "<Users size={24} className=\"text-[#0A66C2] dark:text-purple-300\" />"
+  },
+  {
+    "file": "src\\components\\network\\FollowingTab.tsx",
+    "lineNum": 157,
+    "term": "purple",
+    "content": "className=\"w-full pl-11 pr-4 py-3 text-sm border border-surface dark:border-[#38434F] rounded-xl bg-surface dark:bg-[#1D2226] text-gray-900 dark:text-white outline-none focus:border-[#0A66C2]/50 focus:ring-2 focus:ring-purple-50 dark:focus:ring-purple-900/30 transition-all font-medium\""
+  },
+  {
+    "file": "src\\components\\network\\MyNetworkTab.tsx",
+    "lineNum": 91,
+    "term": "purple",
+    "content": "<div className=\"w-14 h-14 bg-[#EAF4FF] dark:bg-purple-900/20 rounded-2xl flex items-center justify-center mx-auto mb-3\">"
+  },
+  {
+    "file": "src\\components\\network\\MyNetworkTab.tsx",
+    "lineNum": 92,
+    "term": "purple",
+    "content": "<Users size={22} className=\"text-[#0A66C2] dark:text-purple-300\" />"
+  },
+  {
+    "file": "src\\components\\network\\MyNetworkTab.tsx",
+    "lineNum": 199,
+    "term": "purple",
+    "content": "className=\"w-full pl-10 pr-3 py-2.5 text-sm border border-surface dark:border-[#38434F] rounded-xl bg-surface dark:bg-[#283036] text-gray-900 dark:text-white outline-none focus:border-[#0A66C2]/50 focus:ring-2 focus:ring-purple-50 dark:focus:ring-purple-900/30 transition-all font-medium\""
+  },
+  {
+    "file": "src\\components\\profile\\SeniorProfileEditor.tsx",
+    "lineNum": 114,
+    "term": "to-indigo",
+    "content": "const projectColors = ['from-blue-500 to-indigo-600', 'from-emerald-500 to-teal-600', 'from-amber-500 to-orange-600', 'from-[#0A66C2] to-pink-600', 'from-cyan-500 to-blue-600', 'from-rose-500 to-red-600']"
+  },
+  {
+    "file": "src\\components\\profile\\StudentProfileEditor.tsx",
+    "lineNum": 109,
+    "term": "to-indigo",
+    "content": "const projectColors = ['from-blue-500 to-indigo-600', 'from-emerald-500 to-teal-600', 'from-amber-500 to-orange-600', 'from-[#0A66C2] to-pink-600', 'from-cyan-500 to-blue-600', 'from-rose-500 to-red-600']"
+  },
+  {
+    "file": "src\\components\\RPNotification.tsx",
+    "lineNum": 36,
+    "term": "purple",
+    "content": "<div className=\"absolute top-0 right-0 w-24 h-24 bg-[#EAF4FF] dark:bg-purple-900/20 rounded-full -mr-12 -mt-12 opacity-50\" />"
+  },
+  {
+    "file": "src\\components\\search\\SearchBar.tsx",
+    "lineNum": 207,
+    "term": "text-indigo",
+    "content": "return <GraduationCap className=\"w-4 h-4 text-indigo-600\" />"
+  },
+  {
+    "file": "src\\components\\search\\SearchBar.tsx",
+    "lineNum": 228,
+    "term": "text-indigo",
+    "content": "return 'bg-indigo-50 border-indigo-100 text-indigo-700'"
+  },
+  {
+    "file": "src\\components\\search\\SearchCard.tsx",
+    "lineNum": 59,
+    "term": "text-indigo",
+    "content": "return { bg: 'bg-indigo-50 border-indigo-100 text-indigo-700', label: 'College' }"
+  },
+  {
+    "file": "src\\components\\search\\SearchCard.tsx",
+    "lineNum": 92,
+    "term": "text-indigo",
+    "content": "return <GraduationCap className=\"w-5 h-5 text-indigo-600\" />"
+  }
+]

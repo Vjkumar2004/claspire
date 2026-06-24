@@ -41,7 +41,7 @@ export default function HowItWorks() {
   };
 
   return (
-    <section id="the-process" className="bg-[#FFF8EE] py-24 overflow-hidden border-b border-[#E8DFD0]">
+    <section id="the-process" className="bg-[#F4F2EE] py-24 overflow-hidden border-b border-[#D9E2EC]">
       <div className="container">
         {/* Header */}
         <motion.div
@@ -51,11 +51,11 @@ export default function HowItWorks() {
           transition={{ duration: 0.6 }}
           className="text-center"
         >
-          <div className="text-xs font-semibold tracking-wider uppercase text-[#1B4F72] mb-3">
+          <div className="text-xs font-semibold tracking-wider uppercase text-[#004182] mb-3">
             THE PROCESS
           </div>
-          <h2 className="font-extrabold text-[clamp(28px,3.5vw,40px)] leading-[1.2] text-[#0A2540] tracking-tight">
-            From confused junior <span className="text-[#F4A01C]">to placed senior</span><br />
+          <h2 className="font-extrabold text-[clamp(28px,3.5vw,40px)] leading-[1.2] text-[#191919] tracking-tight">
+            From confused junior <span className="text-[#0A66C2]">to placed senior</span><br />
             in 3 simple steps.
           </h2>
         </motion.div>
@@ -70,7 +70,7 @@ export default function HowItWorks() {
           {/* Desktop Layout */}
           <div className="hidden lg:flex justify-between items-start relative">
             {/* Elegant connecting line */}
-            <div className="absolute top-6 left-[10%] right-[10%] h-0.5 bg-[#E8DFD0] z-0"></div>
+            <div className="absolute top-6 left-[10%] right-[10%] h-0.5 bg-[#D9E2EC] z-0"></div>
 
             {steps.map((step, index) => (
               <div key={index} className="flex-1 text-center relative z-10">
@@ -79,17 +79,17 @@ export default function HowItWorks() {
                   className="max-w-xs mx-auto"
                 >
                   {/* Step Number */}
-                  <div className="w-12 h-12 rounded-full bg-[#F4A01C] text-[#0A2540] font-bold text-lg flex items-center justify-center mx-auto mb-6 shadow-sm border-4 border-white">
+                  <div className="w-12 h-12 rounded-full bg-[#0A66C2] text-white font-bold text-lg flex items-center justify-center mx-auto mb-6 shadow-sm border-4 border-white">
                     {step.number}
                   </div>
                   
                   {/* Title */}
-                  <h3 className="text-base font-bold text-[#0A2540] mb-2 px-2 tracking-tight">
+                  <h3 className="text-base font-bold text-[#0A66C2] mb-2 px-2 tracking-tight">
                     {step.title}
                   </h3>
                   
                   {/* Description */}
-                  <p className="text-[13px] text-[#5A7184] leading-relaxed font-medium px-4">
+                  <p className="text-[13px] text-[#666666] leading-relaxed font-medium px-4">
                     {step.description}
                   </p>
                 </motion.div>
@@ -100,7 +100,7 @@ export default function HowItWorks() {
           {/* Tablet & Mobile Layout */}
           <div className="lg:hidden flex flex-col gap-10 relative pl-8 max-w-md mx-auto">
             {/* Elegant vertical track line */}
-            <div className="absolute top-2 bottom-8 left-[17px] w-0.5 bg-[#E8DFD0] z-0"></div>
+            <div className="absolute top-2 bottom-8 left-[17px] w-0.5 bg-[#D9E2EC] z-0"></div>
 
             {steps.map((step, index) => (
               <motion.div
@@ -109,15 +109,15 @@ export default function HowItWorks() {
                 className="relative z-10 flex items-start gap-4"
               >
                 {/* Step Circle */}
-                <div className="w-9 h-9 rounded-full bg-[#F4A01C] text-[#0A2540] font-bold text-sm flex items-center justify-center flex-shrink-0 border-4 border-white shadow-sm">
+                <div className="w-9 h-9 rounded-full bg-[#0A66C2] text-white font-bold text-sm flex items-center justify-center flex-shrink-0 border-4 border-white shadow-sm">
                   {step.number}
                 </div>
                 
                 <div className="pt-1">
-                  <h3 className="text-base font-bold text-[#0A2540] mb-1 tracking-tight">
+                  <h3 className="text-base font-bold text-[#0A66C2] mb-1 tracking-tight">
                     {step.title}
                   </h3>
-                  <p className="text-[13px] text-[#5A7184] leading-relaxed font-medium">
+                  <p className="text-[13px] text-[#666666] leading-relaxed font-medium">
                     {step.description}
                   </p>
                 </div>

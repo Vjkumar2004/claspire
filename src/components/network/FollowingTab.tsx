@@ -154,7 +154,7 @@ export default function FollowingTab({ refreshKey = 0 }: FollowingTabProps) {
           placeholder="Search who you follow..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full pl-11 pr-4 py-3 text-sm border border-surface dark:border-[#38434F] rounded-xl bg-surface dark:bg-[#1D2226] text-gray-900 dark:text-white outline-none focus:border-[#F4A01C]/50 focus:ring-2 focus:ring-purple-50 dark:focus:ring-purple-900/30 transition-all font-medium"
+          className="w-full pl-11 pr-4 py-3 text-sm border border-surface dark:border-[#38434F] rounded-xl bg-surface dark:bg-[#1D2226] text-gray-900 dark:text-white outline-none focus:border-[#0A66C2]/50 focus:ring-2 focus:ring-purple-50 dark:focus:ring-purple-900/30 transition-all font-medium"
         />
       </div>
 

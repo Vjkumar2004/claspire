@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { supabase } from '@/lib/supabase'
@@ -30,11 +30,11 @@ const timeAgo = (dateStr: string) => {
 }
 
 const getRPLevel = (points: number) => {
-  if (points >= 5000) return { label: 'Legend', emoji: 'ðŸ‘‘', next: null, color: '#F59E0B' }
-  if (points >= 1500) return { label: 'Champion', emoji: 'ðŸ†', next: 5000, color: '#F4A01C' }
+  if (points >= 5000) return { label: 'Legend', emoji: 'ðŸ‘‘', next: null, color: '#0A66C2' }
+  if (points >= 1500) return { label: 'Champion', emoji: 'ðŸ†', next: 5000, color: '#0A66C2' }
   if (points >= 500) return { label: 'Mentor', emoji: 'ðŸ’Ž', next: 1500, color: '#06B6D4' }
   if (points >= 100) return { label: 'Contributor', emoji: 'ðŸŒŸ', next: 500, color: '#16A34A' }
-  return { label: 'Explorer', emoji: 'ðŸŒ±', next: 100, color: '#F4A01C' }
+  return { label: 'Explorer', emoji: 'ðŸŒ±', next: 100, color: '#0A66C2' }
 }
 
 export default function SeniorDashboardPage() {
@@ -375,7 +375,7 @@ export default function SeniorDashboardPage() {
         <div className="flex-1 overflow-y-auto flex flex-col custom-scrollbar pt-4">
           {/* User Card */}
           <div className="p-4 border-b border-surface dark:border-[#38434F] flex items-center gap-2.5">
-            <div className={`w-9 h-9 rounded-full ${dashData?.user?.avatar_url ? 'bg-transparent' : 'bg-gradient-to-br from-[#0A2540] to-[#1B4F72]'} text-white text-xs font-black flex items-center justify-center flex-shrink-0 overflow-hidden`}>
+            <div className={`w-9 h-9 rounded-full ${dashData?.user?.avatar_url ? 'bg-transparent' : 'bg-[#0A66C2]'} text-white text-xs font-black flex items-center justify-center flex-shrink-0 overflow-hidden`}>
               {dashData?.user?.avatar_url ? (
                 <img src={dashData.user.avatar_url} alt={dashData.user.full_name} className="w-full h-full object-cover" />
               ) : (
@@ -398,7 +398,7 @@ export default function SeniorDashboardPage() {
           </div>
 
           {/* Rise Points Card */}
-          <div className="m-3 bg-gradient-to-br from-[#0A2540] to-[#1B4F72] rounded-xl p-3">
+          <div className="m-3 bg-[#0A66C2] rounded-xl p-3">
             <div className="text-[10px] font-black text-white/75 tracking-wider uppercase mb-1 flex items-center gap-1">
               <Zap size={10} />
               Rise Points
@@ -436,7 +436,7 @@ export default function SeniorDashboardPage() {
                   setMobileSidebarOpen(false)
                 }}
                 className={`flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold transition-colors ${activeNav === "my-posts"
-                    ? "bg-[#FFF3D6] text-[#F4A01C]"
+                    ? "bg-[#EAF4FF] text-[#0A66C2]"
                     : "text-gray-500 dark:text-[#B0B7BE] hover:bg-app dark:hover:bg-[#1D2226] hover:text-gray-700 dark:hover:text-white"
                   }`}
               >
@@ -462,7 +462,7 @@ export default function SeniorDashboardPage() {
                   setMobileSidebarOpen(false)
                 }}
                 className={`flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold transition-colors ${activeNav === "overview"
-                    ? "bg-[#FFF3D6] text-[#F4A01C]"
+                    ? "bg-[#EAF4FF] text-[#0A66C2]"
                     : "text-gray-500 dark:text-[#B0B7BE] hover:bg-app dark:hover:bg-[#1D2226] hover:text-gray-700 dark:hover:text-white"
                   }`}
               >
@@ -491,14 +491,14 @@ export default function SeniorDashboardPage() {
                   setMobileSidebarOpen(false)
                 }}
                 className={`flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer text-xs font-semibold transition-colors ${activeNav === "jobs"
-                    ? "bg-[#FFF3D6] text-[#F4A01C]"
+                    ? "bg-[#EAF4FF] text-[#0A66C2]"
                     : "text-gray-500 dark:text-[#B0B7BE] hover:bg-app dark:hover:bg-[#1D2226] hover:text-gray-700 dark:hover:text-white"
                   }`}
               >
                 <Briefcase size={16} className="flex-shrink-0" />
                 <span>My Jobs</span>
                 {dashData?.myJobs?.length > 0 && (
-                  <span className="ml-auto bg-[#F4A01C] text-white rounded-full px-1.5 py-0 text-[10px] font-black">
+                  <span className="ml-auto bg-[#0A66C2] text-white rounded-full px-1.5 py-0 text-[10px] font-black">
                     {dashData.myJobs.length}
                   </span>
                 )}
@@ -511,7 +511,7 @@ export default function SeniorDashboardPage() {
                 <Handshake size={16} className="flex-shrink-0" />
                 <span>Referral Requests</span>
                 {dashData?.pendingReferrals?.length > 0 && (
-                  <span className="ml-auto w-4 h-4 rounded-full bg-[#F4A01C] text-white text-[8px] flex items-center justify-center">
+                  <span className="ml-auto w-4 h-4 rounded-full bg-[#0A66C2] text-white text-[8px] flex items-center justify-center">
                     {dashData.pendingReferrals.length}
                   </span>
                 )}
@@ -612,7 +612,7 @@ export default function SeniorDashboardPage() {
         <div className="flex justify-between items-center mb-7">
           <div>
             <h1 className="font-instrument-serif font-normal text-2xl text-black dark:text-white">
-              Welcome back, {dashData?.user?.full_name || 'Senior'} ðŸ‘‹
+              Welcome back, {dashData?.user?.full_name || 'Senior'} 👋
             </h1>
             <p className="text-xs text-gray-400 dark:text-[#B0B7BE] mt-0.5">
               Wednesday, Mar 5 Â· {dashData?.user?.designation || 'SDE-2'} @ {dashData?.user?.company || 'Company'}
@@ -622,7 +622,7 @@ export default function SeniorDashboardPage() {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setShowCreateGroupModal(true)}
-              className="hidden sm:flex items-center gap-2 bg-gradient-to-r from-[#0A2540] to-[#1B4F72] text-white px-4 py-2 rounded-xl text-xs font-black hover:shadow-lg transition-all"
+              className="hidden sm:flex items-center gap-2 bg-[#0A66C2] text-white px-4 py-2 rounded-xl text-xs font-black hover:shadow-lg transition-all"
             >
               Create Group
             </button>
@@ -636,7 +636,7 @@ export default function SeniorDashboardPage() {
         <div className="lg:hidden mb-6">
           <button
             onClick={() => setShowCreateGroupModal(true)}
-            className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-[#0A2540] to-[#1B4F72] text-white px-4 py-3 rounded-xl text-xs font-black hover:shadow-lg transition-all"
+            className="w-full flex items-center justify-center gap-2 bg-[#0A66C2] text-white px-4 py-3 rounded-xl text-xs font-black hover:shadow-lg transition-all"
           >
             Create Student Group
           </button>
@@ -651,7 +651,7 @@ export default function SeniorDashboardPage() {
               </div>
               <button
                 onClick={() => router.push('/community?create=true')}
-                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#0A2540] to-[#1B4F72] text-white rounded-xl text-xs font-black hover:shadow-lg transition-all"
+                className="flex items-center gap-2 px-4 py-2 bg-[#0A66C2] text-white rounded-xl text-xs font-black hover:shadow-lg transition-all"
               >
                 <Plus size={14} /> Create Post
               </button>
@@ -680,7 +680,7 @@ export default function SeniorDashboardPage() {
                             <div className="flex items-center gap-2 flex-shrink-0">
                               <button
                                 onClick={() => router.push(`/dashboard/senior/edit-post/${post.id}`)}
-                                className="p-2 bg-[#FFF3D6] text-[#F4A01C] hover:bg-[#FFF3D6] rounded-lg transition-colors"
+                                className="p-2 bg-[#EAF4FF] text-[#0A66C2] hover:bg-[#EAF4FF] rounded-lg transition-colors"
                                 title="Edit Post"
                               >
                                 <Pencil size={14} />
@@ -705,7 +705,7 @@ export default function SeniorDashboardPage() {
                               {post.tags.map((tag: string) => (
                                 <span
                                   key={tag}
-                                  className="text-[10px] font-bold text-[#F4A01C] dark:text-[#F4A01C]/60 bg-[#FFF3D6] dark:bg-[#FFF3D6]0/20 border border-[#F4A01C]/20 dark:border-purple-500/30 px-2 py-0.5 rounded-full"
+                                  className="text-[10px] font-bold text-[#0A66C2] dark:text-[#0A66C2]/60 bg-[#EAF4FF] dark:bg-[#EAF4FF]0/20 border border-[#0A66C2]/20 dark:border-purple-500/30 px-2 py-0.5 rounded-full"
                                 >
                                   #{tag}
                                 </span>
@@ -727,13 +727,13 @@ export default function SeniorDashboardPage() {
                             <span className="flex items-center gap-1.5"><TrendingUp size={14} /> {post.upvote_count || 0} Upvotes</span>
                             <button
                               onClick={() => handleOpenAnswersModal(post)}
-                              className="flex items-center gap-1.5 hover:text-[#F4A01C] transition-colors"
+                              className="flex items-center gap-1.5 hover:text-[#0A66C2] transition-colors"
                             >
                               <MessageSquare size={14} /> {post.answer_count || 0} Answers
                             </button>
                           </div>
                           {post.communities && (
-                            <span className="text-[#F4A01C]">in {post.communities.display_name}</span>
+                            <span className="text-[#0A66C2]">in {post.communities.display_name}</span>
                           )}
                         </div>
                       </div>
@@ -746,7 +746,7 @@ export default function SeniorDashboardPage() {
                           {/* Upvotes section */}
                           <div className="mb-4">
                             <div className="flex items-center gap-1.5 text-sm font-bold text-gray-800 dark:text-white mb-1.5">
-                              <TrendingUp size={14} className="text-[#F4A01C]" />
+                              <TrendingUp size={14} className="text-[#0A66C2]" />
                               <span>{post.upvote_count || 0} Upvotes</span>
                             </div>
                             {/* Avatar stack of recent upvoters */}
@@ -782,7 +782,7 @@ export default function SeniorDashboardPage() {
                             className="w-full text-left group hover:opacity-80 transition-opacity"
                           >
                             <div className="flex items-center gap-1.5 text-sm font-bold text-gray-800 dark:text-white mb-1">
-                              <MessageSquare size={14} className="text-[#F4A01C]" />
+                              <MessageSquare size={14} className="text-[#0A66C2]" />
                               <span>{post.answer_count || 0} Answers</span>
                             </div>
                             {postInsights[post.id]?.latestAnswer ? (
@@ -805,7 +805,7 @@ export default function SeniorDashboardPage() {
                         </div>
 
                         {post.communities && (
-                          <div className="text-[11px] font-bold text-[#F4A01C] dark:text-[#F4A01C]/60 mt-4">
+                          <div className="text-[11px] font-bold text-[#0A66C2] dark:text-[#0A66C2]/60 mt-4">
                             in {post.communities.display_name}
                           </div>
                         )}
@@ -839,7 +839,7 @@ export default function SeniorDashboardPage() {
               <button
                 type="button"
                 onClick={() => setJobModalOpen(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#0A2540] to-[#1B4F72] text-white rounded-xl text-xs font-black hover:shadow-lg transition-all"
+                className="flex items-center gap-2 px-4 py-2 bg-[#0A66C2] text-white rounded-xl text-xs font-black hover:shadow-lg transition-all"
               >
                 <Plus size={14} /> Post a Job
               </button>
@@ -852,13 +852,13 @@ export default function SeniorDashboardPage() {
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
-                          <span className="bg-[#FFF3D6] text-[#E09410] px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">{job.job_type?.replace('_', ' ')}</span>
+                          <span className="bg-[#EAF4FF] text-[#004182] px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">{job.job_type?.replace('_', ' ')}</span>
                           <span className="text-[10px] text-gray-400 dark:text-[#B0B7BE]">{timeAgo(job.created_at)}</span>
                           <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${job.is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                             {job.is_active ? 'Active' : 'Closed'}
                           </span>
                           {job.referral_available && (
-                            <span className="bg-cyan-50 text-cyan-700 px-2 py-0.5 rounded text-[10px] font-bold">Referral Open</span>
+                            <span className="bg-cyan-50 text-[#0A66C2] px-2 py-0.5 rounded text-[10px] font-bold">Referral Open</span>
                           )}
                         </div>
                         <h3 className="text-base font-bold text-gray-900 dark:text-white leading-tight mb-1">{job.role}</h3>
@@ -872,7 +872,7 @@ export default function SeniorDashboardPage() {
                       <div className="flex items-center gap-2 flex-shrink-0">
                         <button
                           onClick={() => router.push(`/dashboard/senior/edit-job/${job.id}`)}
-                          className="p-2 bg-[#FFF3D6] text-[#F4A01C] hover:bg-[#FFF3D6] rounded-lg transition-colors"
+                          className="p-2 bg-[#EAF4FF] text-[#0A66C2] hover:bg-[#EAF4FF] rounded-lg transition-colors"
                           title="Edit Job"
                         >
                           <Pencil size={14} />
@@ -923,7 +923,7 @@ export default function SeniorDashboardPage() {
             <div className="bg-surface dark:bg-[#283036] border border-surface dark:border-[#38434F] rounded-xl overflow-hidden">
               <div className="p-4 border-b border-surface dark:border-[#38434F] flex justify-between items-center">
                 <div className="flex items-center gap-3">
-                  <HelpCircle size={16} className="text-[#F4A01C]" />
+                  <HelpCircle size={16} className="text-[#0A66C2]" />
                   <div className="text-sm font-black text-black dark:text-white">Unanswered Doubts</div>
                 </div>
                 <div className="text-[10px] font-bold text-gray-400 dark:text-[#B0B7BE]">SYNCED</div>
@@ -940,7 +940,7 @@ export default function SeniorDashboardPage() {
                           <div className="flex items-center gap-3">
                             <div
                               onClick={() => router.push(`/u/${post.users?.unique_id}`)}
-                              className={`w-8 h-8 rounded-lg flex-shrink-0 ${post.users?.avatar_url ? 'bg-transparent' : 'bg-[#FFF3D6]'} flex items-center justify-center text-[#F4A01C] font-bold text-[10px] overflow-hidden cursor-pointer hover:scale-105 transition-transform`}
+                              className={`w-8 h-8 rounded-lg flex-shrink-0 ${post.users?.avatar_url ? 'bg-transparent' : 'bg-[#EAF4FF]'} flex items-center justify-center text-[#0A66C2] font-bold text-[10px] overflow-hidden cursor-pointer hover:scale-105 transition-transform`}
                             >
                               {post.users?.avatar_url ? (
                                 <img src={post.users.avatar_url} alt={post.users.full_name} className="w-full h-full object-cover" />
@@ -955,7 +955,7 @@ export default function SeniorDashboardPage() {
                           <div className="flex items-center gap-2 mt-1.5">
                             <span
                               onClick={() => router.push(`/u/${post.users?.unique_id}`)}
-                              className="text-[10px] text-gray-400 dark:text-[#B0B7BE] cursor-pointer hover:text-[#F4A01C] transition-colors"
+                              className="text-[10px] text-gray-400 dark:text-[#B0B7BE] cursor-pointer hover:text-[#0A66C2] transition-colors"
                             >
                               by {post.users?.full_name || 'Student'}
                             </span>
@@ -965,7 +965,7 @@ export default function SeniorDashboardPage() {
                         </div>
                         <Link
                           href={`/community/c/${dashData?.user?.colleges?.[0]?.slug || 'hub'}/p/${post.id}`}
-                          className="bg-[#FFF3D6] text-[#F4A01C] rounded-lg px-3 py-1.5 text-[10px] font-black hover:bg-[#FFF3D6] transition-colors whitespace-nowrap"
+                          className="bg-[#EAF4FF] text-[#0A66C2] rounded-lg px-3 py-1.5 text-[10px] font-black hover:bg-[#EAF4FF] transition-colors whitespace-nowrap"
                         >
                           Answer â†’
                         </Link>
@@ -974,7 +974,7 @@ export default function SeniorDashboardPage() {
                   ))
                 ) : (
                   <div className="flex flex-col items-center justify-center py-12 text-center text-gray-500 dark:text-[#B0B7BE]">
-                    <Sparkles size={24} className="mb-2 text-[#F4A01C]/60" />
+                    <Sparkles size={24} className="mb-2 text-[#0A66C2]/60" />
                     <p className="text-sm font-medium">No pending doubts right now!</p>
                   </div>
                 )}
@@ -999,7 +999,7 @@ export default function SeniorDashboardPage() {
                         <div className="flex items-center gap-3">
                           <div
                             onClick={() => router.push(`/u/${req.requester?.unique_id}`)}
-                            className={`w-9 h-9 rounded-full ${req.requester?.avatar_url ? 'bg-transparent' : 'bg-gradient-to-br from-[#FFF3D6] to-[#E8F1F8]'} text-[#F4A01C] text-xs font-black flex items-center justify-center border border-[#F4A01C]/20 overflow-hidden flex-shrink-0 cursor-pointer hover:scale-105 transition-transform`}
+                            className={`w-9 h-9 rounded-full ${req.requester?.avatar_url ? 'bg-transparent' : 'bg-[#EAF4FF]'} text-[#0A66C2] text-xs font-black flex items-center justify-center border border-[#0A66C2]/20 overflow-hidden flex-shrink-0 cursor-pointer hover:scale-105 transition-transform`}
                           >
                             {req.requester?.avatar_url ? (
                               <img src={req.requester.avatar_url} alt={req.requester.full_name} className="w-full h-full object-cover" />
@@ -1010,7 +1010,7 @@ export default function SeniorDashboardPage() {
                           <div>
                             <p
                               onClick={() => router.push(`/u/${req.requester?.unique_id}`)}
-                              className="text-xs font-black text-black dark:text-white cursor-pointer hover:text-[#F4A01C] transition-colors"
+                              className="text-xs font-black text-black dark:text-white cursor-pointer hover:text-[#0A66C2] transition-colors"
                             >
                               {req.requester?.full_name}
                             </p>
@@ -1058,7 +1058,7 @@ export default function SeniorDashboardPage() {
                     <div key={log.id || i} className="flex gap-4 p-5 items-start hover:bg-app dark:hover:bg-[#1D2226] transition-colors">
                       <div className="flex items-center gap-4">
                         <div className="w-12 h-12 rounded-2xl bg-app dark:bg-[#1D2226] flex items-center justify-center border border-surface dark:border-[#38434F]">
-                          {log.reason?.includes('Posted') ? <Briefcase size={18} className="text-[#F4A01C]" /> : log.reason?.includes('Answering') || log.reason?.includes('Answered') ? <CheckCircle size={18} className="text-green-600" /> : log.reason?.includes('Approved') || log.reason?.includes('referral') ? <Handshake size={18} className="text-cyan-600" /> : <Star size={18} className="text-yellow-500" />}
+                          {log.reason?.includes('Posted') ? <Briefcase size={18} className="text-[#0A66C2]" /> : log.reason?.includes('Answering') || log.reason?.includes('Answered') ? <CheckCircle size={18} className="text-green-600" /> : log.reason?.includes('Approved') || log.reason?.includes('referral') ? <Handshake size={18} className="text-cyan-600" /> : <Star size={18} className="text-yellow-500" />}
                         </div>
                       </div>
                       <div className="flex-1 min-w-0">
@@ -1067,7 +1067,7 @@ export default function SeniorDashboardPage() {
                       </div>
                       <div className="text-right flex-shrink-0">
                         <div className="text-[10px] text-gray-400 dark:text-[#B0B7BE]">{timeAgo(log.created_at)}</div>
-                        <div className="bg-[#FFF3D6]/50 text-[#E09410] rounded-full px-2 py-0.5 text-[9px] font-black mt-1 inline-block">
+                        <div className="bg-[#EAF4FF]/50 text-[#004182] rounded-full px-2 py-0.5 text-[9px] font-black mt-1 inline-block">
                           +{log.points} RP
                         </div>
                       </div>
@@ -1095,13 +1095,13 @@ export default function SeniorDashboardPage() {
               <div className="text-[11px] font-black tracking-wider text-gray-400 dark:text-[#B0B7BE] uppercase">
                 MY GROUPS
               </div>
-              <span className="bg-[#FFF3D6] text-[#F4A01C] rounded-full px-2 py-0.5 text-[10px] font-black">
+              <span className="bg-[#EAF4FF] text-[#0A66C2] rounded-full px-2 py-0.5 text-[10px] font-black">
                 {userGroups.length} created
               </span>
             </div>
             <button
               onClick={() => setShowCreateGroupModal(true)}
-              className="flex items-center gap-2 px-3 py-1.5 bg-[#F4A01C] text-white rounded-lg text-xs font-black hover:bg-[#E09410] transition-colors"
+              className="flex items-center gap-2 px-3 py-1.5 bg-[#0A66C2] text-white rounded-lg text-xs font-black hover:bg-[#004182] transition-colors"
             >
               <Plus size={12} />
               Create New Group
@@ -1148,7 +1148,7 @@ export default function SeniorDashboardPage() {
                       <div className="flex items-center gap-2 flex-shrink-0">
                         <button
                           onClick={() => window.open(`/community/c/${group.college?.name?.toLowerCase().replace(/\s+/g, '-') || 'college'}/group/${group.slug}`, '_blank')}
-                          className="p-2 bg-[#FFF3D6] text-[#F4A01C] hover:bg-[#FFF3D6] rounded-lg transition-colors"
+                          className="p-2 bg-[#EAF4FF] text-[#0A66C2] hover:bg-[#EAF4FF] rounded-lg transition-colors"
                           title="View Group"
                         >
                           <Eye size={14} />
@@ -1215,7 +1215,7 @@ export default function SeniorDashboardPage() {
                         required
                         type="text"
                         placeholder="e.g. Swiggy"
-                        className="w-full bg-app dark:bg-[#1D2226] border border-surface dark:border-[#38434F] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#F4A01C]/20 focus:border-[#F4A01C] transition-all"
+                        className="w-full bg-app dark:bg-[#1D2226] border border-surface dark:border-[#38434F] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#0A66C2]/20 focus:border-[#0A66C2] transition-all"
                         value={jobFormData.company_name}
                         onChange={e => setJobFormData({ ...jobFormData, company_name: e.target.value })}
                       />
@@ -1226,7 +1226,7 @@ export default function SeniorDashboardPage() {
                         required
                         type="text"
                         placeholder="e.g. SDE-1"
-                        className="w-full bg-app dark:bg-[#1D2226] border border-surface dark:border-[#38434F] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#F4A01C]/20 focus:border-[#F4A01C] transition-all"
+                        className="w-full bg-app dark:bg-[#1D2226] border border-surface dark:border-[#38434F] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#0A66C2]/20 focus:border-[#0A66C2] transition-all"
                         value={jobFormData.role}
                         onChange={e => setJobFormData({ ...jobFormData, role: e.target.value })}
                       />
@@ -1240,7 +1240,7 @@ export default function SeniorDashboardPage() {
                       <input
                         type="text"
                         placeholder="e.g. Remote / Bangalore"
-                        className="w-full bg-app dark:bg-[#1D2226] border border-surface dark:border-[#38434F] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#F4A01C]/20 focus:border-[#F4A01C] transition-all"
+                        className="w-full bg-app dark:bg-[#1D2226] border border-surface dark:border-[#38434F] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#0A66C2]/20 focus:border-[#0A66C2] transition-all"
                         value={jobFormData.location}
                         onChange={e => setJobFormData({ ...jobFormData, location: e.target.value })}
                       />
@@ -1248,7 +1248,7 @@ export default function SeniorDashboardPage() {
                     <div className="space-y-1.5">
                       <label className="text-[11px] font-black text-gray-500 dark:text-[#B0B7BE] uppercase tracking-wider">Job Type</label>
                       <select
-                        className="w-full bg-app dark:bg-[#1D2226] border border-surface dark:border-[#38434F] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#F4A01C]/20 focus:border-[#F4A01C] transition-all"
+                        className="w-full bg-app dark:bg-[#1D2226] border border-surface dark:border-[#38434F] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#0A66C2]/20 focus:border-[#0A66C2] transition-all"
                         value={jobFormData.job_type}
                         onChange={e => setJobFormData({ ...jobFormData, job_type: e.target.value })}
                       >
@@ -1266,7 +1266,7 @@ export default function SeniorDashboardPage() {
                       required
                       type="url"
                       placeholder="https://company.com/careers/job123"
-                      className="w-full bg-app dark:bg-[#1D2226] border border-surface dark:border-[#38434F] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#F4A01C]/20 focus:border-[#F4A01C] transition-all"
+                      className="w-full bg-app dark:bg-[#1D2226] border border-surface dark:border-[#38434F] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#0A66C2]/20 focus:border-[#0A66C2] transition-all"
                       value={jobFormData.description}
                       onChange={e => setJobFormData({ ...jobFormData, description: e.target.value })}
                     />
@@ -1278,7 +1278,7 @@ export default function SeniorDashboardPage() {
                       <label className="text-[11px] font-black text-gray-500 dark:text-[#B0B7BE] uppercase tracking-wider">Expiry Date</label>
                       <input
                         type="date"
-                        className="w-full bg-app dark:bg-[#1D2226] border border-surface dark:border-[#38434F] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#F4A01C]/20 focus:border-[#F4A01C] transition-all"
+                        className="w-full bg-app dark:bg-[#1D2226] border border-surface dark:border-[#38434F] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#0A66C2]/20 focus:border-[#0A66C2] transition-all"
                         value={jobFormData.deadline}
                         onChange={e => setJobFormData({ ...jobFormData, deadline: e.target.value })}
                       />
@@ -1288,7 +1288,7 @@ export default function SeniorDashboardPage() {
                       <input
                         type="text"
                         placeholder="e.g. 12-15 LPA"
-                        className="w-full bg-app dark:bg-[#1D2226] border border-surface dark:border-[#38434F] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#F4A01C]/20 focus:border-[#F4A01C] transition-all"
+                        className="w-full bg-app dark:bg-[#1D2226] border border-surface dark:border-[#38434F] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#0A66C2]/20 focus:border-[#0A66C2] transition-all"
                         value={jobFormData.salary_range}
                         onChange={e => setJobFormData({ ...jobFormData, salary_range: e.target.value })}
                       />
@@ -1305,7 +1305,7 @@ export default function SeniorDashboardPage() {
                           checked={jobFormData.referral_available}
                           onChange={e => setJobFormData({ ...jobFormData, referral_available: e.target.checked })}
                         />
-                        <div className="w-10 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#F4A01C]"></div>
+                        <div className="w-10 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#0A66C2]"></div>
                       </div>
                       <span className="text-xs font-semibold text-gray-700 dark:text-[#B0B7BE]">Referral Available?</span>
                     </label>
@@ -1339,7 +1339,7 @@ export default function SeniorDashboardPage() {
                 <button
                   type="submit"
                   form="jobForm"
-                  className="flex-[2] bg-[#F4A01C] text-white border-none rounded-xl py-2.5 text-xs font-black shadow-lg shadow-[#F4A01C]/20 hover:bg-[#E09410] transition-all transform active:scale-[0.98] disabled:opacity-50"
+                  className="flex-[2] bg-[#0A66C2] text-white border-none rounded-xl py-2.5 text-xs font-black shadow-lg shadow-[#0A66C2]/20 hover:bg-[#004182] transition-all transform active:scale-[0.98] disabled:opacity-50"
                   disabled={jobFormLoading}
                 >
                   {jobFormLoading ? 'Posting...' : 'Post Job Opening â†’'}
@@ -1364,7 +1364,7 @@ export default function SeniorDashboardPage() {
               </div>
 
               <div className="p-8 text-center border-b border-gray-50 dark:border-[#38434F]">
-                <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[#FFF3D6] to-[#E8F1F8] text-[#F4A01C] text-2xl font-black flex items-center justify-center border-2 border-white dark:border-[#38434F] shadow-xl mx-auto mb-4">
+                <div className="w-20 h-20 rounded-2xl bg-[#EAF4FF] text-[#0A66C2] text-2xl font-black flex items-center justify-center border-2 border-white dark:border-[#38434F] shadow-xl mx-auto mb-4">
                   {selectedReferral.requester?.full_name?.[0]}
                 </div>
                 <h3 className="text-xl font-black text-black dark:text-white">{selectedReferral.requester?.full_name}</h3>
@@ -1373,7 +1373,7 @@ export default function SeniorDashboardPage() {
                   {selectedReferral.requester?.colleges?.[0]?.name || selectedReferral.requester?.colleges?.name}
                 </p>
 
-                <div className="mt-6 inline-flex items-center gap-2 bg-[#FFF3D6] text-[#F4A01C] px-4 py-2 rounded-full text-xs font-black">
+                <div className="mt-6 inline-flex items-center gap-2 bg-[#EAF4FF] text-[#0A66C2] px-4 py-2 rounded-full text-xs font-black">
                   <Briefcase size={14} />
                   Seeking: {selectedReferral.job?.role} @ {selectedReferral.job?.company_name}
                 </div>
@@ -1394,7 +1394,7 @@ export default function SeniorDashboardPage() {
                   </button>
                   <button
                     onClick={handleApproveReferral}
-                    className="flex-[2] bg-[#F4A01C] text-white rounded-xl py-3 text-sm font-black shadow-lg shadow-[#F4A01C]/20 hover:bg-[#E09410] transition-all active:scale-[0.98] disabled:opacity-50"
+                    className="flex-[2] bg-[#0A66C2] text-white rounded-xl py-3 text-sm font-black shadow-lg shadow-[#0A66C2]/20 hover:bg-[#004182] transition-all active:scale-[0.98] disabled:opacity-50"
                     disabled={referralActionLoading}
                   >
                     {referralActionLoading ? 'Processing...' : 'Confirm & Approve â†’'}
@@ -1489,7 +1489,7 @@ export default function SeniorDashboardPage() {
                       className="bg-surface dark:bg-[#283036] border border-surface dark:border-[#38434F] rounded-xl p-4 shadow-sm"
                     >
                       <div className="flex items-center gap-3 mb-2.5">
-                        <div className={`w-8 h-8 rounded-full ${answer.users?.avatar_url ? 'bg-transparent' : 'bg-[#FFF3D6]'} flex items-center justify-center text-[#F4A01C] font-bold text-xs overflow-hidden border border-surface/60 dark:border-[#38434F]`}>
+                        <div className={`w-8 h-8 rounded-full ${answer.users?.avatar_url ? 'bg-transparent' : 'bg-[#EAF4FF]'} flex items-center justify-center text-[#0A66C2] font-bold text-xs overflow-hidden border border-surface/60 dark:border-[#38434F]`}>
                           {answer.users?.avatar_url ? (
                             <img src={answer.users.avatar_url} alt={answer.users.full_name} className="w-full h-full object-cover" />
                           ) : (
@@ -1500,7 +1500,7 @@ export default function SeniorDashboardPage() {
                           <div className="flex items-center gap-1.5">
                             <span className="text-xs font-bold text-gray-900 dark:text-white">{answer.users?.full_name}</span>
                             {answer.users?.role === 'senior' && (
-                              <span className="text-[8px] font-extrabold text-[#F4A01C] bg-[#FFF3D6] dark:bg-[#FFF3D6]0/20 px-1.5 py-0.5 rounded border border-[#F4A01C]/20 dark:border-purple-500/30 uppercase tracking-wide">
+                              <span className="text-[8px] font-extrabold text-[#0A66C2] bg-[#EAF4FF] dark:bg-[#EAF4FF]0/20 px-1.5 py-0.5 rounded border border-[#0A66C2]/20 dark:border-purple-500/30 uppercase tracking-wide">
                                 Senior
                               </span>
                             )}
