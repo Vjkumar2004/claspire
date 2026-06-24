@@ -599,6 +599,32 @@ h6 {
   background-color: var(--surface-hover) !important;
 }
 
+/* Landing page theme — preserve Navy + Saffron section backgrounds */
+:root:not(.dark) .landing-page,
+:root:not(.dark) .landing-page.min-h-screen {
+  background-color: #FFF8EE !important;
+  background-image: none !important;
+}
+
+.landing-page section.bg-\[\#FFF8EE\] {
+  background-color: #FFF8EE !important;
+  background-image: none !important;
+}
+
+.landing-page section.bg-white {
+  background-color: #FFFFFF !important;
+  background-image: none !important;
+}
+
+.landing-page section.bg-\[\#0A2540\] {
+  background-color: #0A2540 !important;
+  background-image: none !important;
+}
+
+.landing-page footer.bg-\[\#0A2540\] {
+  background-color: #0A2540 !important;
+}
+
 /* Smooth visual transitions for theme changes */
 body,
 main,

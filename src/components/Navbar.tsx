@@ -52,6 +52,8 @@ export default function Navbar() {
     pathname === '/dashboard/junior/messages' ||
     pathname?.startsWith('/community/c/') && pathname?.includes('/group/')
 
+  const isLandingPage = pathname === '/'
+
   // Sync mobile menu state with body class for BottomNavbar visibility
   useEffect(() => {
     if (mobileMenuOpen) {
@@ -78,11 +80,17 @@ export default function Navbar() {
 
   return (
     <>
-    <nav className="fixed top-0 left-0 right-0 h-14 z-[999] bg-surface/90 dark:bg-[#1D2226]/90 border-b border-surface dark:border-[#38434F] backdrop-blur-[12px]">
+    <nav className={`fixed top-0 left-0 right-0 h-14 z-[999] backdrop-blur-[12px] ${
+      isLandingPage
+        ? 'bg-[#0A2540] border-b border-[#1B4F72]'
+        : 'bg-surface/90 dark:bg-[#1D2226]/90 border-b border-surface dark:border-[#38434F]'
+    }`}>
       <div className="flex items-center justify-between h-full px-6 max-w-7xl mx-auto w-full">
         <div className="flex items-center gap-3 flex-shrink-0">
-          <Link href="/" className="font-plus-jakarta-sans font-extrabold text-xl text-black dark:text-white no-underline hover:no-underline tracking-tight flex items-center">
-            cl<span className="text-[#7C3AED]">aspire</span>
+          <Link href="/" className={`font-[family-name:var(--font-inter)] font-extrabold text-xl no-underline hover:no-underline tracking-tight flex items-center ${
+            isLandingPage ? 'text-white' : 'text-black dark:text-white'
+          }`}>
+            cl<span className={isLandingPage ? 'text-[#F4A01C]' : 'text-[#7C3AED]'}>aspire</span>
           </Link>
         </div>
 
@@ -103,32 +111,40 @@ export default function Navbar() {
             }}
             className={`flex items-center gap-1.5 px-2 xl:px-3 h-full text-[13px] font-semibold transition-all border-b-2 ${
             pathname === '/community' 
-              ? 'text-[#7C3AED] border-[#7C3AED]' 
-              : 'text-gray-500 dark:text-[#8B949E] border-transparent hover:text-black dark:hover:text-white hover:border-surface dark:hover:border-[#38434F]'
+              ? isLandingPage ? 'text-[#F4A01C] border-[#F4A01C]' : 'text-[#7C3AED] border-[#7C3AED]'
+              : isLandingPage
+                ? 'text-white/70 border-transparent hover:text-white hover:border-[#F4A01C]/50'
+                : 'text-gray-500 dark:text-[#8B949E] border-transparent hover:text-black dark:hover:text-white hover:border-surface dark:hover:border-[#38434F]'
           }`}>
             <Users size={16} />
             <span className="hidden lg:block">Community</span>
           </Link>
           <Link href="/groups" className={`flex items-center gap-1.5 px-2 xl:px-3 h-full text-[13px] font-semibold transition-all border-b-2 ${
             pathname === '/groups' 
-              ? 'text-[#7C3AED] border-[#7C3AED]' 
-              : 'text-gray-500 dark:text-[#8B949E] border-transparent hover:text-black dark:hover:text-white hover:border-surface dark:hover:border-[#38434F]'
+              ? isLandingPage ? 'text-[#F4A01C] border-[#F4A01C]' : 'text-[#7C3AED] border-[#7C3AED]'
+              : isLandingPage
+                ? 'text-white/70 border-transparent hover:text-white hover:border-[#F4A01C]/50'
+                : 'text-gray-500 dark:text-[#8B949E] border-transparent hover:text-black dark:hover:text-white hover:border-surface dark:hover:border-[#38434F]'
           }`}>
             <Building2 size={16} />
             <span className="hidden lg:block">Groups</span>
           </Link>
           <Link href={user?.role === 'senior' ? '/dashboard/senior' : '/dashboard/junior'} className={`flex items-center gap-1.5 px-2 xl:px-3 h-full text-[13px] font-semibold transition-all border-b-2 ${
             pathname === '/dashboard/senior' || pathname === '/dashboard/junior'
-              ? 'text-[#7C3AED] border-[#7C3AED]' 
-              : 'text-gray-500 dark:text-[#8B949E] border-transparent hover:text-black dark:hover:text-white hover:border-surface dark:hover:border-[#38434F]'
+              ? isLandingPage ? 'text-[#F4A01C] border-[#F4A01C]' : 'text-[#7C3AED] border-[#7C3AED]'
+              : isLandingPage
+                ? 'text-white/70 border-transparent hover:text-white hover:border-[#F4A01C]/50'
+                : 'text-gray-500 dark:text-[#8B949E] border-transparent hover:text-black dark:hover:text-white hover:border-surface dark:hover:border-[#38434F]'
           }`}>
             <LayoutDashboard size={16} />
             <span className="hidden lg:block">Dashboard</span>
           </Link>
           <Link href="/network" className={`relative flex items-center gap-1.5 px-2 xl:px-3 h-full text-[13px] font-semibold transition-all border-b-2 ${
             pathname === '/network' || pathname === '/seniors'
-              ? 'text-[#7C3AED] border-[#7C3AED]' 
-              : 'text-gray-500 dark:text-[#8B949E] border-transparent hover:text-black dark:hover:text-white hover:border-surface dark:hover:border-[#38434F]'
+              ? isLandingPage ? 'text-[#F4A01C] border-[#F4A01C]' : 'text-[#7C3AED] border-[#7C3AED]'
+              : isLandingPage
+                ? 'text-white/70 border-transparent hover:text-white hover:border-[#F4A01C]/50'
+                : 'text-gray-500 dark:text-[#8B949E] border-transparent hover:text-black dark:hover:text-white hover:border-surface dark:hover:border-[#38434F]'
           }`}>
             <span className="relative">
               <Users size={16} />
@@ -142,16 +158,20 @@ export default function Navbar() {
           </Link>
           <Link href="/jobs" className={`flex items-center gap-1.5 px-2 xl:px-3 h-full text-[13px] font-semibold transition-all border-b-2 ${
             pathname === '/jobs' 
-              ? 'text-[#7C3AED] border-[#7C3AED]' 
-              : 'text-gray-500 dark:text-[#8B949E] border-transparent hover:text-black dark:hover:text-white hover:border-surface dark:hover:border-[#38434F]'
+              ? isLandingPage ? 'text-[#F4A01C] border-[#F4A01C]' : 'text-[#7C3AED] border-[#7C3AED]'
+              : isLandingPage
+                ? 'text-white/70 border-transparent hover:text-white hover:border-[#F4A01C]/50'
+                : 'text-gray-500 dark:text-[#8B949E] border-transparent hover:text-black dark:hover:text-white hover:border-surface dark:hover:border-[#38434F]'
           }`}>
             <Briefcase size={16} />
             <span className="hidden lg:block">Jobs</span>
           </Link>
           <Link href="/colleges" className={`flex items-center gap-1.5 px-2 xl:px-3 h-full text-[13px] font-semibold transition-all border-b-2 ${
             pathname === '/colleges' 
-              ? 'text-[#7C3AED] border-[#7C3AED]' 
-              : 'text-gray-500 dark:text-[#8B949E] border-transparent hover:text-black dark:hover:text-white hover:border-surface dark:hover:border-[#38434F]'
+              ? isLandingPage ? 'text-[#F4A01C] border-[#F4A01C]' : 'text-[#7C3AED] border-[#7C3AED]'
+              : isLandingPage
+                ? 'text-white/70 border-transparent hover:text-white hover:border-[#F4A01C]/50'
+                : 'text-gray-500 dark:text-[#8B949E] border-transparent hover:text-black dark:hover:text-white hover:border-surface dark:hover:border-[#38434F]'
           }`}>
             <GraduationCap size={16} />
             <span className="hidden lg:block">Colleges</span>
@@ -354,9 +374,9 @@ export default function Navbar() {
             <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
               <Link href="/login">
                 <button style={{
-                  background: 'white',
-                  color: '#374151',
-                  border: '1px solid #D1D5DB',
+                  background: isLandingPage ? 'transparent' : 'white',
+                  color: isLandingPage ? '#FFFFFF' : '#374151',
+                  border: isLandingPage ? '1px solid rgba(255,255,255,0.35)' : '1px solid #D1D5DB',
                   borderRadius: '6px',
                   padding: '8px 16px',
                   fontSize: '13px',
@@ -364,14 +384,14 @@ export default function Navbar() {
                   cursor: 'pointer',
                   boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
                   transition: 'all 0.15s ease'
-                }} className="hover:bg-app hover:border-gray-400">
+                }} className={isLandingPage ? 'hover:bg-white/10 hover:border-white/50' : 'hover:bg-app hover:border-gray-400'}>
                   Sign In
                 </button>
               </Link>
               <Link href="/signup">
                 <button style={{
-                  background: '#7C3AED',
-                  color: 'white',
+                  background: isLandingPage ? '#F4A01C' : '#7C3AED',
+                  color: isLandingPage ? '#0A2540' : 'white',
                   border: 'none',
                   borderRadius: '6px',
                   padding: '8px 16px',
@@ -380,7 +400,7 @@ export default function Navbar() {
                   cursor: 'pointer',
                   boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
                   transition: 'background-color 0.15s ease'
-                }} className="hover:bg-[#6D28D9]">
+                }} className={isLandingPage ? 'hover:bg-[#E09410]' : 'hover:bg-[#6D28D9]'}>
                   Join Free
                 </button>
               </Link>
@@ -392,7 +412,11 @@ export default function Navbar() {
         <div className="md:hidden flex items-center gap-2">
           <button
             onClick={() => setMobileSearchOpen(true)}
-            className="p-1.5 text-gray-500 hover:text-black rounded-full hover:bg-surface-hover transition-colors cursor-pointer"
+            className={`p-1.5 rounded-full transition-colors cursor-pointer ${
+              isLandingPage
+                ? 'text-white/70 hover:text-white hover:bg-white/10'
+                : 'text-gray-500 hover:text-black hover:bg-surface-hover'
+            }`}
           >
             <Search size={20} />
           </button>
@@ -425,7 +449,11 @@ export default function Navbar() {
             </div>
           ) : (
             <Link href="/signup">
-              <button className="bg-[#7C3AED] text-white px-3 py-1.5 rounded-lg text-sm font-semibold">
+              <button className={`px-3 py-1.5 rounded-lg text-sm font-semibold ${
+                isLandingPage
+                  ? 'bg-[#F4A01C] text-[#0A2540] hover:bg-[#E09410]'
+                  : 'bg-[#7C3AED] text-white'
+              }`}>
                 Join
               </button>
             </Link>
@@ -433,9 +461,13 @@ export default function Navbar() {
 
           <button
             onClick={() => setMobileMenuOpen(true)}
-            className="flex items-center justify-center w-9 h-9 rounded-lg cursor-pointer bg-surface dark:bg-[#283036] border-[1.5px] border-[#E5E7EB] dark:border-[#38434F]"
+            className={`flex items-center justify-center w-9 h-9 rounded-lg cursor-pointer border-[1.5px] ${
+              isLandingPage
+                ? 'bg-[#1B4F72] border-[#1B4F72] text-white'
+                : 'bg-surface dark:bg-[#283036] border-[#E5E7EB] dark:border-[#38434F]'
+            }`}
           >
-            <Menu size={20} className="text-[#374151] dark:text-[#B0B7BE]" />
+            <Menu size={20} className={isLandingPage ? 'text-white' : 'text-[#374151] dark:text-[#B0B7BE]'} />
           </button>
         </div>
       </div>
