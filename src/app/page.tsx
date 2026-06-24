@@ -26,7 +26,7 @@ export const metadata: Metadata = {
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-surface">
+    <div className="landing-page min-h-screen bg-[#FFFFFF] font-[family-name:var(--font-inter)] [&_h1]:font-[family-name:var(--font-inter)] [&_h2]:font-[family-name:var(--font-inter)] [&_h3]:font-[family-name:var(--font-inter)]">
       <Hero />
       <Mission />
       <CollegeBar />

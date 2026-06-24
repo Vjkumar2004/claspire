@@ -8,19 +8,19 @@ const quotes = [
     text: "Connected with amazing mentors during my final year at AAACET. A senior from Kamaraj College shared exact interview questions. Got placed in Wipro!",
     author: "Vijayakumar S.",
     details: "AAACET ECE 2024 → Wipro",
-    color: "#7C3AED"
+    color: "#1a63f1"
   },
   {
     text: "Posted doubt about TCS interview at midnight. Got reply from ANJAC senior immediately. Cleared the interview next week!",
     author: "Kavitha R.",
     details: "VVV College IT 2024 → TCS",
-    color: "#06B6D4"
+    color: "#00BFA5"
   },
   {
     text: "Got referral from Kamaraj alumni for Infosys. The platform connected me with seniors who actually work there!",
     author: "Manikandan P.",
     details: "ANJAC CSE 2024 → Infosys",
-    color: "#7C3AED"
+    color: "#673AB7"
   }
 ];
 
@@ -44,7 +44,7 @@ export default function SocialProof() {
   };
 
   return (
-    <section className="bg-surface dark:bg-[#1D2226] py-24 overflow-hidden border-b border-surface dark:border-[#38434F]">
+    <section className="bg-white py-16 md:py-24 overflow-hidden border-b border-[#F1F5F9]">
       <div className="container">
         {/* Header */}
         <motion.div
@@ -54,10 +54,10 @@ export default function SocialProof() {
           transition={{ duration: 0.6 }}
           className="text-center"
         >
-          <div className="text-xs font-semibold tracking-wider uppercase text-[#7C3AED] mb-3">
+          <div className="text-xs font-bold tracking-wider uppercase text-[#1a63f1] mb-3">
             SUCCESS STORIES
           </div>
-          <h2 className="font-extrabold text-[clamp(28px,3.5vw,40px)] leading-[1.2] text-gray-900 dark:text-white tracking-tight">
+          <h2 className="font-extrabold text-[clamp(28px,3.5vw,40px)] leading-[1.2] text-[#111827] tracking-tight">
             Local students who asked.<br />
             Local students who got placed.
           </h2>
@@ -74,35 +74,38 @@ export default function SocialProof() {
             <motion.div
               key={index}
               variants={itemVariants}
-              whileHover={{ y: -4, borderColor: '#D1D5DB', boxShadow: '0 10px 25px rgba(0, 0, 0, 0.04)' }}
+              whileHover={{ y: -4, boxShadow: '0 10px 25px rgba(10, 37, 64, 0.08)' }}
               transition={{ duration: 0.2 }}
-              className="bg-surface dark:bg-[#283036] border border-surface dark:border-[#38434F] rounded-xl p-6 h-full shadow-[0_1px_3px_rgba(0,0,0,0.05)] transition-all flex flex-col justify-between"
+              className="bg-white border border-[#F1F5F9] rounded-xl p-6 h-full shadow-sm transition-all flex flex-col justify-between"
             >
               <div>
                 {/* Quote Mark */}
-                <div className="text-3xl text-[#7C3AED] leading-none mb-3 font-extrabold font-plus-jakarta-sans">
-                  “
+                <div className="text-3xl text-[#1a63f1] leading-none mb-3 font-extrabold">
+                  "
                 </div>
                 
                 {/* Quote Text */}
-                <div className="text-[13px] text-gray-600 dark:text-[#B0B7BE] leading-relaxed mb-6 font-medium">
+                <div className="text-[13px] text-[#4B5563] leading-relaxed mb-6 font-medium">
                   {quote.text}
                 </div>
               </div>
               
               {/* Author Row */}
-              <div className="flex items-center gap-3 border-t border-surface dark:border-[#38434F] pt-4">
+              <div className="flex items-center gap-3 border-t border-[#F1F5F9] pt-4">
                 <div 
-                  className="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-sm flex-shrink-0"
-                  style={{ backgroundColor: quote.color }}
+                  className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold shadow-sm flex-shrink-0"
+                  style={{
+                    backgroundColor: quote.color,
+                    color: '#FFFFFF'
+                  }}
                 >
                   {quote.author.split(' ').map(n => n[0]).join('')}
                 </div>
                 <div>
-                  <div className="text-sm font-bold text-gray-900 dark:text-white tracking-tight">
+                  <div className="text-sm font-bold text-[#111827] tracking-tight">
                     {quote.author}
                   </div>
-                  <div className="text-xs text-gray-500 dark:text-[#B0B7BE] font-medium">
+                  <div className="text-xs text-[#4B5563] font-medium">
                     {quote.details}
                   </div>
                 </div>
