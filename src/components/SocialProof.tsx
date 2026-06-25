@@ -7,20 +7,20 @@ const quotes = [
   {
     text: "Connected with amazing mentors during my final year at AAACET. A senior from Kamaraj College shared exact interview questions. Got placed in Wipro!",
     author: "Vijayakumar S.",
-    details: "AANCT ECE 2024 — Wipro",
-    color: "#0A66C2"
+    details: "AAACET ECE 2024 → Wipro",
+    color: "#1a63f1"
   },
   {
     text: "Posted doubt about TCS interview at midnight. Got reply from ANJAC senior immediately. Cleared the interview next week!",
     author: "Kavitha R.",
-    details: "VVV College IT 2024 — TCS",
-    color: "#004182"
+    details: "VVV College IT 2024 → TCS",
+    color: "#00BFA5"
   },
   {
     text: "Got referral from Kamaraj alumni for Infosys. The platform connected me with seniors who actually work there!",
     author: "Manikandan P.",
-    details: "ANJAC CSE 2024 — Infosys",
-    color: "#0A66C2"
+    details: "ANJAC CSE 2024 → Infosys",
+    color: "#673AB7"
   }
 ];
 
@@ -44,7 +44,7 @@ export default function SocialProof() {
   };
 
   return (
-    <section className="bg-white py-24 overflow-hidden border-b border-[#D9E2EC]">
+    <section className="bg-white py-16 md:py-24 overflow-hidden border-b border-[#F1F5F9]">
       <div className="container">
         {/* Header */}
         <motion.div
@@ -54,10 +54,10 @@ export default function SocialProof() {
           transition={{ duration: 0.6 }}
           className="text-center"
         >
-          <div className="text-xs font-semibold tracking-wider uppercase text-[#004182] mb-3">
+          <div className="text-xs font-bold tracking-wider uppercase text-[#1a63f1] mb-3">
             SUCCESS STORIES
           </div>
-          <h2 className="font-extrabold text-[clamp(28px,3.5vw,40px)] leading-[1.2] text-[#0A66C2] tracking-tight">
+          <h2 className="font-extrabold text-[clamp(28px,3.5vw,40px)] leading-[1.2] text-[#111827] tracking-tight">
             Local students who asked.<br />
             Local students who got placed.
           </h2>
@@ -76,22 +76,22 @@ export default function SocialProof() {
               variants={itemVariants}
               whileHover={{ y: -4, boxShadow: '0 10px 25px rgba(10, 37, 64, 0.08)' }}
               transition={{ duration: 0.2 }}
-              className="bg-white border border-[#D9E2EC] border-l-[3px] border-l-[#0A66C2] rounded-xl p-6 h-full shadow-[0_1px_3px_rgba(10,37,64,0.05)] transition-all flex flex-col justify-between"
+              className="bg-white border border-[#F1F5F9] rounded-xl p-6 h-full shadow-sm transition-all flex flex-col justify-between"
             >
               <div>
                 {/* Quote Mark */}
-                <div className="text-3xl text-[#0A66C2] leading-none mb-3 font-extrabold">
+                <div className="text-3xl text-[#1a63f1] leading-none mb-3 font-extrabold">
                   "
                 </div>
                 
                 {/* Quote Text */}
-                <div className="text-[13px] text-[#666666] leading-relaxed mb-6 font-medium">
+                <div className="text-[13px] text-[#4B5563] leading-relaxed mb-6 font-medium">
                   {quote.text}
                 </div>
               </div>
               
               {/* Author Row */}
-              <div className="flex items-center gap-3 border-t border-[#D9E2EC] pt-4">
+              <div className="flex items-center gap-3 border-t border-[#F1F5F9] pt-4">
                 <div 
                   className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold shadow-sm flex-shrink-0"
                   style={{
@@ -102,10 +102,10 @@ export default function SocialProof() {
                   {quote.author.split(' ').map(n => n[0]).join('')}
                 </div>
                 <div>
-                  <div className="text-sm font-bold text-[#0A66C2] tracking-tight">
+                  <div className="text-sm font-bold text-[#111827] tracking-tight">
                     {quote.author}
                   </div>
-                  <div className="text-xs text-[#666666] font-medium">
+                  <div className="text-xs text-[#4B5563] font-medium">
                     {quote.details}
                   </div>
                 </div>
