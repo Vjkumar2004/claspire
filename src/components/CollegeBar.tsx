@@ -36,7 +36,7 @@ export default function CollegeBar() {
   if (loading || colleges.length === 0) return null;
 
   return (
-    <section className="bg-app dark:bg-[#1D2226] border-t border-surface dark:border-[#38434F] border-b border-surface dark:border-[#38434F] py-5 overflow-hidden">
+    <section className="bg-[#FFFFFF] border-t border-b border-[#F1F5F9] py-5 overflow-hidden">
       <div className="container">
         {/* Label */}
         <motion.div
@@ -46,7 +46,7 @@ export default function CollegeBar() {
           transition={{ duration: 0.6 }}
           className="text-center mb-3.5"
         >
-          <div className="text-[11px] font-bold tracking-[0.1em] uppercase text-gray-400 dark:text-[#B0B7BE]">
+          <div className="text-[11px] font-bold tracking-[0.1em] uppercase text-[#4B5563]">
             STUDENTS FROM THESE COLLEGES ARE ALREADY ON CLASPIRE
           </div>
         </motion.div>
@@ -66,11 +66,11 @@ export default function CollegeBar() {
             {displayItems.map((college, index) => {
               const logo = getCollegeLogo(college);
               return (
-                <div
+                  <div
                   key={`${college.id}-${index}`}
-                  className="inline-flex items-center gap-2 whitespace-nowrap bg-surface dark:bg-[#283036] border border-surface dark:border-[#38434F] rounded-lg px-3.5 py-2 flex-shrink-0 shadow-sm"
+                  className="inline-flex items-center gap-2 whitespace-nowrap bg-white border border-[#F1F5F9] rounded-full px-4 py-2 flex-shrink-0 shadow-sm"
                 >
-                  <div className="w-7 h-7 rounded-full overflow-hidden flex-shrink-0 bg-app dark:bg-[#1D2226] border border-surface dark:border-[#38434F] flex items-center justify-center">
+                  <div className="w-7 h-7 rounded-full overflow-hidden flex-shrink-0 bg-[#FFFFFF] border border-[#F1F5F9] flex items-center justify-center">
                     {logo ? (
                       <img
                         src={logo}
@@ -78,12 +78,12 @@ export default function CollegeBar() {
                         className="w-full h-full object-contain"
                       />
                     ) : (
-                      <span className="text-[10px] font-black text-purple-600">
+                      <span className="text-[10px] font-black text-[#334155]">
                         {getCollegeInitial(college)}
                       </span>
                     )}
                   </div>
-                  <span className="text-sm font-semibold text-gray-700 dark:text-white whitespace-nowrap">
+                  <span className="text-sm font-semibold text-[#111827] whitespace-nowrap">
                     {college.name}
                   </span>
                 </div>
