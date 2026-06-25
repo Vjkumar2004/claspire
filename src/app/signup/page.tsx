@@ -9,6 +9,7 @@ import { supabase } from '@/lib/supabase'
 import { Eye, EyeOff } from 'lucide-react'
 import GoogleSignInButton from '@/components/auth/GoogleSignInButton'
 import AuthLayout from '@/components/auth/AuthLayout'
+import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile'
 
 export default function SignupPage() {
   const router = useRouter()
@@ -19,6 +20,8 @@ export default function SignupPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [googleId, setGoogleId] = useState<string | null>(null)
+  const [turnstileToken, setTurnstileToken] = useState('')
+  const turnstileRef = useRef<TurnstileInstance>(null)
 
   useEffect(() => {
     const storedEmail = sessionStorage.getItem('google_signup_email')
@@ -86,6 +89,12 @@ export default function SignupPage() {
     setLoading(true)
     setError('')
 
+    if (!turnstileToken) {
+      setError('Please complete the security challenge')
+      setLoading(false)
+      return
+    }
+
     try {
       const profileData = activeRole === 'senior' ? {
         full_name: seniorData.full_name,
@@ -125,7 +134,8 @@ export default function SignupPage() {
           role: activeRole, 
           profileData, 
           password, 
-          google_id: googleId 
+          google_id: googleId,
+          turnstileToken
         })
       })
 
@@ -145,6 +155,8 @@ export default function SignupPage() {
     } catch (err) {
       console.error('Verify error:', err)
       setError('Network error. Try again.')
+      turnstileRef.current?.reset()
+      setTurnstileToken('')
     } finally {
       setLoading(false)
     }
@@ -336,6 +348,12 @@ export default function SignupPage() {
     setLoading(true)
     setError('')
     
+    if (!turnstileToken) {
+      setError('Please complete the security challenge')
+      setLoading(false)
+      return
+    }
+    
     try {
       const checkRes = await fetch('/api/auth/check-account', {
         method: 'POST',
@@ -452,16 +470,21 @@ export default function SignupPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           email: emailToUse,
-          name: activeRole === 'senior' ? seniorData.full_name : studentData.full_name
+          name: activeRole === 'senior' ? seniorData.full_name : studentData.full_name,
+          turnstileToken
         })
       })
 
       const data = await res.json()
       if (!res.ok) {
         setError(data.error || 'Failed to send OTP')
+        turnstileRef.current?.reset()
+        setTurnstileToken('')
         return
       }
 
+      turnstileRef.current?.reset()
+      setTurnstileToken('')
       setOtpSent(true)
       setResendTimer(30)
       const interval = setInterval(() => {
@@ -477,6 +500,8 @@ export default function SignupPage() {
     } catch (err) {
       console.error('Send OTP error:', err)
       setError('Network error. Try again.')
+      turnstileRef.current?.reset()
+      setTurnstileToken('')
     } finally {
       setLoading(false)
     }
@@ -496,6 +521,12 @@ export default function SignupPage() {
 
     setLoading(true)
     setError('')
+
+    if (!turnstileToken) {
+      setError('Please complete the security challenge')
+      setLoading(false)
+      return
+    }
 
     try {
       const verifyRes = await fetch('/api/auth/verify-otp', {
@@ -543,12 +574,14 @@ export default function SignupPage() {
       const createRes = await fetch('/api/auth/create-user', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, role: activeRole, profileData, password })
+        body: JSON.stringify({ email, role: activeRole, profileData, password, turnstileToken })
       })
 
       const createData = await createRes.json()
       if (!createRes.ok) {
         setError(createData.error || 'Failed to create account')
+        turnstileRef.current?.reset()
+        setTurnstileToken('')
         return
       }
 
@@ -559,6 +592,8 @@ export default function SignupPage() {
     } catch (err) {
       console.error('Verify error:', err)
       setError('Network error. Try again.')
+      turnstileRef.current?.reset()
+      setTurnstileToken('')
     } finally {
       setLoading(false)
     }
@@ -1061,10 +1096,20 @@ export default function SignupPage() {
                     </label>
                   </div>
 
+                  <div className="flex justify-center my-4">
+                    <Turnstile
+                      siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+                      onSuccess={(token) => setTurnstileToken(token)}
+                      onError={() => setError('Security challenge failed. Please try again.')}
+                      onExpire={() => setTurnstileToken('')}
+                      ref={turnstileRef}
+                    />
+                  </div>
+
                   <button
                     type="button"
                     onClick={handleSubmit}
-                    disabled={loading || !agreedToTerms}
+                    disabled={loading || !agreedToTerms || !turnstileToken}
                     className="w-full h-11 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-400 text-white text-sm font-semibold rounded-xl transition-all duration-150 flex items-center justify-center gap-2 border-none cursor-pointer disabled:cursor-not-allowed shadow-sm"
                   >
                     {loading ? (
@@ -1355,10 +1400,20 @@ export default function SignupPage() {
                         </label>
                       </div>
 
+                      <div className="flex justify-center my-4">
+                        <Turnstile
+                          siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+                          onSuccess={(token) => setTurnstileToken(token)}
+                          onError={() => setError('Security challenge failed. Please try again.')}
+                          onExpire={() => setTurnstileToken('')}
+                          ref={turnstileRef}
+                        />
+                      </div>
+
                       <button
                         type="button"
                         onClick={handleSubmit}
-                        disabled={loading || !verifyMethod || !agreedToTerms}
+                        disabled={loading || !verifyMethod || !agreedToTerms || !turnstileToken}
                         className="w-full h-11 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-400 text-white text-sm font-semibold rounded-xl transition-all duration-150 flex items-center justify-center gap-2 border-none cursor-pointer disabled:cursor-not-allowed shadow-sm"
                       >
                         {loading ? (
@@ -1416,9 +1471,19 @@ export default function SignupPage() {
                 </div>
               )}
 
+              <div className="flex justify-center my-4">
+                <Turnstile
+                  siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+                  onSuccess={(token) => setTurnstileToken(token)}
+                  onError={() => setError('Security challenge failed. Please try again.')}
+                  onExpire={() => setTurnstileToken('')}
+                  ref={turnstileRef}
+                />
+              </div>
+
               <button
                 onClick={verifyAndCreate}
-                disabled={loading}
+                disabled={loading || !turnstileToken}
                 className="w-full h-11 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-400 text-white text-sm font-semibold rounded-xl transition-all duration-150 flex items-center justify-center gap-2 border-none cursor-pointer disabled:cursor-not-allowed shadow-sm"
               >
                 {loading ? (

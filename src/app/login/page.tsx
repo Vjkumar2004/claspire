@@ -1,12 +1,13 @@
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
+import { useState, useEffect, Suspense, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import Link from 'next/link'
 import { Eye, EyeOff } from 'lucide-react'
 import GoogleSignInButton from '@/components/auth/GoogleSignInButton'
 import AuthLayout from '@/components/auth/AuthLayout'
+import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile'
 
 function LoginPageContent() {
   const router = useRouter()
@@ -18,6 +19,8 @@ function LoginPageContent() {
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [turnstileToken, setTurnstileToken] = useState('')
+  const turnstileRef = useRef<TurnstileInstance>(null)
 
   const handleGoogleSuccess = async (credential: string) => {
     setLoading(true)
@@ -89,6 +92,11 @@ function LoginPageContent() {
       return
     }
 
+    if (!turnstileToken) {
+      setError('Please complete the security challenge')
+      return
+    }
+
     setLoading(true)
     setError('')
 
@@ -96,13 +104,15 @@ function LoginPageContent() {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ email, password, turnstileToken })
       })
 
       const data = await res.json()
 
       if (!res.ok) {
         setError(data.error || 'Login failed')
+        turnstileRef.current?.reset()
+        setTurnstileToken('')
         return
       }
 
@@ -208,9 +218,19 @@ function LoginPageContent() {
             </div>
           )}
 
+          <div className="flex justify-center">
+            <Turnstile
+              siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+              onSuccess={(token) => setTurnstileToken(token)}
+              onError={() => setError('Security challenge failed. Please try again.')}
+              onExpire={() => setTurnstileToken('')}
+              ref={turnstileRef}
+            />
+          </div>
+
           <button
             onClick={handleLogin}
-            disabled={loading}
+            disabled={loading || !turnstileToken}
             className="w-full h-11 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-400 text-white text-sm font-semibold rounded-xl transition-all duration-150 flex items-center justify-center gap-2 border-none cursor-pointer disabled:cursor-not-allowed shadow-sm"
           >
             {loading ? (

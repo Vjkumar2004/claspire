@@ -1,8 +1,9 @@
 'use client'
-import { useState } from 'react'
+import React, { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Mail, ArrowLeft, CheckCircle, Key } from 'lucide-react'
+import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile'
 
 // Note: This is a client component, so we don't export Next.js routing config
 
@@ -14,9 +15,16 @@ export default function ForgotPasswordPage() {
   const [success, setSuccess] = useState(false)
   const [step, setStep] = useState<'email' | 'otp'>('email')
   const [resetToken, setResetToken] = useState('')
+  const [turnstileToken, setTurnstileToken] = useState('')
+  const turnstileRef = React.useRef<TurnstileInstance>(null)
 
   const handleSendOTP = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!turnstileToken) {
+      setError('Please complete the security challenge')
+      return
+    }
+
     setLoading(true)
     setError('')
 
@@ -26,7 +34,7 @@ export default function ForgotPasswordPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email: email.toLowerCase().trim() }),
+        body: JSON.stringify({ email: email.toLowerCase().trim(), turnstileToken }),
       })
 
       const data = await response.json()
@@ -34,6 +42,8 @@ export default function ForgotPasswordPage() {
       if (response.ok) {
         setStep('otp')
       } else {
+        turnstileRef.current?.reset()
+        setTurnstileToken('')
         if (data.requiresMigration) {
           setError('Database setup required. Please contact the administrator to complete the password reset feature setup.')
         } else {
@@ -41,6 +51,8 @@ export default function ForgotPasswordPage() {
         }
       }
     } catch (err) {
+      turnstileRef.current?.reset()
+      setTurnstileToken('')
       setError('Something went wrong. Please try again.')
     } finally {
       setLoading(false)
@@ -180,9 +192,19 @@ export default function ForgotPasswordPage() {
                 />
               </div>
 
+              <div className="flex justify-center my-4">
+                <Turnstile
+                  siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+                  onSuccess={(token) => setTurnstileToken(token)}
+                  onError={() => setError('Security challenge failed. Please try again.')}
+                  onExpire={() => setTurnstileToken('')}
+                  ref={turnstileRef}
+                />
+              </div>
+
               <button
                 type="submit"
-                disabled={loading || !email}
+                disabled={loading || !email || !turnstileToken}
                 className="w-full bg-black text-white py-3 rounded-lg text-sm font-semibold hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {loading ? (
