@@ -135,7 +135,7 @@ export async function POST(req: NextRequest) {
       google_id: user.google_id,
     }
 
-    console.log('Google login user data:', userData)
+    // Log removed for privacy
 
     const response = NextResponse.json({
       success: true,

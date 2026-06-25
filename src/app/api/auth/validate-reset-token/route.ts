@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { applyRateLimit } from '@/lib/rateLimitRedis'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
@@ -8,6 +9,11 @@ const supabase = createClient(
 
 export async function POST(request: NextRequest) {
   try {
+    const rateLimitResult = await applyRateLimit(request, 'passwordReset')
+    if (!rateLimitResult.success && rateLimitResult.response) {
+      return rateLimitResult.response
+    }
+
     const { token, email } = await request.json()
 
     if (!token || !email) {

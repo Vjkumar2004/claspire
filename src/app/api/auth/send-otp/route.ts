@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 import { applyRateLimit, getClientIdentifier } from '@/lib/rateLimitRedis'
 import { sendEmail } from '@/services/emailService'
 import { verifyTurnstileToken } from '@/lib/turnstile'
+import bcrypt from 'bcryptjs'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -48,6 +49,8 @@ export async function POST(req: NextRequest) {
       100000 + Math.random() * 900000
     ).toString()
 
+    const hashedOtp = await bcrypt.hash(otp, 10)
+
     const expiresAt = new Date(
       Date.now() + 10 * 60 * 1000
     ).toISOString()
@@ -63,7 +66,7 @@ export async function POST(req: NextRequest) {
       .from('otp_store')
       .insert({
         email,
-        otp,
+        otp: hashedOtp,
         expires_at: expiresAt,
         verified: false
       })

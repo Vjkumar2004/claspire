@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { requireAdmin } from '@/lib/admin';
+import { applyRateLimit } from '@/lib/rateLimitRedis';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -12,6 +13,11 @@ export async function GET(req: NextRequest) {
     const adminAuth = await requireAdmin(req);
     if ('error' in adminAuth) {
       return NextResponse.json({ error: adminAuth.error }, { status: adminAuth.status });
+    }
+
+    const rateLimitResult = await applyRateLimit(req, 'general', `admin_${(adminAuth as any).id || 'anon'}`);
+    if (!rateLimitResult.success && rateLimitResult.response) {
+      return rateLimitResult.response;
     }
 
     const { searchParams } = new URL(req.url);

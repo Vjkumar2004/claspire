@@ -86,8 +86,7 @@ export async function POST(req: NextRequest) {
       is_premium: user.is_premium || false,
     }
 
-    // Debug log to show session data
-    console.log('Login user data:', userData)
+    // Log removed for privacy
 
     const response = NextResponse.json({
       success: true,

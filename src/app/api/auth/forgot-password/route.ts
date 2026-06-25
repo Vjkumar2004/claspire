@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { sendEmail } from '@/services/emailService'
+import { generateOTP } from '@/lib/auth'
+import { sendOTPviaSMTP } from '@/services/emailService'
 import { applyRateLimit } from '@/lib/rateLimitRedis'
 import { verifyTurnstileToken } from '@/lib/turnstile'
+import bcrypt from 'bcryptjs'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
@@ -171,13 +173,14 @@ export async function POST(request: NextRequest) {
 
     // Generate 6-digit OTP
     const otp = generateOTP()
+    const hashedOtp = await bcrypt.hash(otp, 10)
     const otpExpiry = new Date(Date.now() + 600000) // 10 minutes from now
 
     // Store OTP in database
     const { error: updateError } = await supabase
       .from('users')
       .update({
-        reset_otp: otp,
+        reset_otp: hashedOtp,
         reset_otp_expiry: otpExpiry.toISOString()
       })
       .eq('email', email.toLowerCase())
@@ -197,8 +200,7 @@ export async function POST(request: NextRequest) {
       // For now, return success even without email for testing
       return NextResponse.json({
         success: true,
-        message: 'An OTP has been sent to your email address.',
-        debugInfo: 'SMTP not configured - check console for OTP'
+        message: 'An OTP has been sent to your email address.'
       })
     }
     

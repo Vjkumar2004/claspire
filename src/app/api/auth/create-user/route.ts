@@ -112,8 +112,7 @@ export async function POST(req: NextRequest) {
       ? collegeId 
       : null  // ← null if not valid UUID
 
-    // Debug log to verify college_id
-    console.log('Creating user with college_id:', collegeId, '-> safeCollegeId:', safeCollegeId)
+    // Log removed for privacy
 
     // Insert user
     const { data: user, error: userError } = await supabaseAdmin
@@ -230,8 +229,7 @@ export async function POST(req: NextRequest) {
       auth_provider: google_id ? 'email_google' : 'email',
     }
 
-    // Debug log to show session data
-    console.log('User data being stored:', userData)
+    // Log removed for privacy
 
     // Clean up OTP
     await supabaseAnon
@@ -255,7 +253,7 @@ export async function POST(req: NextRequest) {
       }
     )
 
-    console.log('Session cookie set:', userData.email, userData.role)
+    // Log removed for privacy
 
     // Welcome notification
     try {

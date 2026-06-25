@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { randomBytes } from 'crypto'
 import { applyRateLimit, getClientIdentifier, checkOtpLockout, recordFailedOtpAttempt, clearOtpAttempts } from '@/lib/rateLimitRedis'
+import bcrypt from 'bcryptjs'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
@@ -74,7 +75,16 @@ export async function POST(request: NextRequest) {
         )
       }
 
-      if (!user.reset_otp || String(user.reset_otp) !== normalizedOtp) {
+      if (!user.reset_otp) {
+        await recordFailedOtpAttempt(normalizedEmail)
+        return NextResponse.json(
+          { error: 'Invalid OTP' },
+          { status: 400 }
+        )
+      }
+
+      const isMatch = await bcrypt.compare(normalizedOtp, String(user.reset_otp))
+      if (!isMatch) {
         await recordFailedOtpAttempt(normalizedEmail)
         return NextResponse.json(
           { error: 'Invalid OTP' },
@@ -140,11 +150,19 @@ export async function POST(request: NextRequest) {
       .from('otp_store')
       .select('otp, expires_at, verified')
       .eq('email', normalizedEmail)
-      .eq('otp', normalizedOtp)
       .eq('verified', false)
       .single()
 
     if (otpError || !otpRecord) {
+      await recordFailedOtpAttempt(normalizedEmail)
+      return NextResponse.json(
+        { error: 'Invalid OTP' },
+        { status: 400 }
+      )
+    }
+
+    const isMatchSignup = await bcrypt.compare(normalizedOtp, String(otpRecord.otp))
+    if (!isMatchSignup) {
       await recordFailedOtpAttempt(normalizedEmail)
       return NextResponse.json(
         { error: 'Invalid OTP' },
@@ -167,7 +185,7 @@ export async function POST(request: NextRequest) {
         .from('otp_store')
         .delete()
         .eq('email', normalizedEmail)
-        .eq('otp', normalizedOtp)
+        .eq('otp', otpRecord.otp)
 
       return NextResponse.json(
         { error: 'OTP has expired' },
@@ -182,7 +200,7 @@ export async function POST(request: NextRequest) {
       .from('otp_store')
       .update({ verified: true })
       .eq('email', normalizedEmail)
-      .eq('otp', normalizedOtp)
+      .eq('otp', otpRecord.otp)
 
     return NextResponse.json({
       success: true,

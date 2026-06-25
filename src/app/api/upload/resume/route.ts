@@ -39,6 +39,12 @@ export async function POST(req: NextRequest) {
     }
 
     const buffer = Buffer.from(await file.arrayBuffer())
+    
+    // Validate PDF magic bytes: %PDF- (0x25 0x50 0x44 0x46 0x2D)
+    if (buffer.length < 5 || buffer[0] !== 0x25 || buffer[1] !== 0x50 || buffer[2] !== 0x44 || buffer[3] !== 0x46 || buffer[4] !== 0x2D) {
+      return NextResponse.json({ error: 'Invalid file format. Not a valid PDF.' }, { status: 400 })
+    }
+
     const key = generateSafeFilename(file.name, userId, 'resume')
 
     await r2Client.send(

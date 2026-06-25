@@ -12,6 +12,7 @@ import {
   type UserProfileData,
 } from '@/lib/profile-data'
 import { getAuthenticatedUser } from '@/lib/session'
+import { applyRateLimit, getUserIdentifier } from '@/lib/rateLimitRedis'
 
 export async function PATCH(req: NextRequest) {
   const supabase = createClient(
@@ -26,6 +27,12 @@ export async function PATCH(req: NextRequest) {
     const user = await getAuthenticatedUser(req)
     if (!user) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
+    }
+
+    const userIdentifier = await getUserIdentifier(req)
+    const rateLimitResult = await applyRateLimit(req, 'general', userIdentifier)
+    if (!rateLimitResult.success && rateLimitResult.response) {
+      return rateLimitResult.response
     }
 
     const userId = user.id

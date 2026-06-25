@@ -1,11 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
 import crypto from 'crypto'
 import { getAuthenticatedUser } from '@/lib/session'
+import { applyRateLimit, getUserIdentifier } from '@/lib/rateLimitRedis'
 
 export async function GET(req: NextRequest) {
   const user = await getAuthenticatedUser(req)
   if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  const userIdentifier = await getUserIdentifier(req)
+  const rateLimitResult = await applyRateLimit(req, 'general', userIdentifier)
+  if (!rateLimitResult.success && rateLimitResult.response) {
+    return rateLimitResult.response
   }
 
   const jwtSecret = process.env.SUPABASE_JWT_SECRET
