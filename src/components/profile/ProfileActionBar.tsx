@@ -270,15 +270,11 @@ export default function ProfileActionBar({ profileUser, viewer, isOwnProfile, co
   if (!isSeniorProfile) {
     return (
       <div className="flex flex-wrap gap-2">
-        <button onClick={requestMentorship} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold transition-colors">
-          <GraduationCap size={14} />
-          Request Mentorship
-        </button>
         {connectionButtons()}
         {followButton()}
-        <button onClick={openMessages} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface dark:bg-[#283036] border border-surface dark:border-[#38434F] text-slate-700 dark:text-[#B0B7BE] text-xs font-bold hover:bg-app dark:hover:bg-[#1D2226] transition-colors">
+        <button onClick={openMessages} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface dark:bg-[#283036] border border-surface dark:border-[#38434F] text-slate-700 dark:text-[#B0B7BE] text-xs font-bold hover:bg-gray-50 dark:hover:bg-[#1D2226] transition-colors">
           <MessageSquare size={14} />
-          Ask Question
+          Message
         </button>
       </div>
     )

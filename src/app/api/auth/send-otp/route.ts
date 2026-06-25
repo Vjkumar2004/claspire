@@ -5,9 +5,10 @@ import { sendEmail } from '@/services/emailService'
 import { verifyTurnstileToken } from '@/lib/turnstile'
 import bcrypt from 'bcryptjs'
 
+// otp_store requires service_role — anon key would be blocked by RLS
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  process.env.SUPABASE_SECRET_KEY!
 )
 
 export async function POST(req: NextRequest) {
@@ -158,3 +159,4 @@ export async function POST(req: NextRequest) {
     )
   }
 }
+

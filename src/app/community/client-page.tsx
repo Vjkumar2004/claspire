@@ -394,74 +394,49 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
       // Mark them as fetched IMMEDIATELY before awaiting to prevent race conditions
       newPostIds.forEach(id => fetchedVotePostIds.current.add(id))
 
-      // 3. Fetch recent upvoters ONLY for new posts
       if (newPostIds.length > 0) {
         try {
-          const { data: recentVotes } = await supabase
-            .from('votes')
-            .select('post_id, user_id, created_at, users:user_id ( id, full_name, avatar_url )')
-            .in('post_id', newPostIds)
-            .eq('vote_type', 'upvote')
-            .order('created_at', { ascending: false })
+          const res = await fetch('/api/posts/votes-batch', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ postIds: newPostIds })
+          })
 
-          if (recentVotes) {
-            const upvoterMap: Record<string, RecentUpvoter[]> = {}
-            recentVotes.forEach((vote: any) => {
-              const pid = vote.post_id
-              if (!upvoterMap[pid]) upvoterMap[pid] = []
-              if (upvoterMap[pid].length < 3 && vote.users) {
-                if (!upvoterMap[pid].some(u => u.id === vote.users.id)) {
-                  upvoterMap[pid].push({
-                    id: vote.users.id,
-                    full_name: vote.users.full_name,
-                    avatar_url: vote.users.avatar_url
-                  })
-                }
-              }
-            })
-            setRecentUpvoters(prev => ({ ...prev, ...upvoterMap }))
-          }
-        } catch (err) {
-          console.error('Failed to fetch recent upvoters:', err)
-        }
-      }
-
-      // 4. Fetch user's own votes if logged in
-      // We must fetch this for all visible posts where we haven't fetched it yet for THIS user.
-      if (userId) {
-        // Find posts where userVote is still null (meaning we haven't fetched the user's vote yet)
-        const unvotedPostIds = posts
-          .map(p => p.id)
-          // We rely on the fact that if it was fetched and no vote exists, it's still null, 
-          // but to prevent infinite refetching, we only fetch for newPostIds + any posts if user just loaded.
-          // Simplest approach: fetch for ALL posts if user?.id changed, but we can't track that easily without a ref.
-          // We'll just fetch for newPostIds. To handle the case where user loads AFTER posts, 
-          // we should track fetchedUserVotePostIds per user.
-        
-        // For simplicity and to fix the bug, we'll fetch user votes for ALL posts, 
-        // since this is a lightweight query and ensures correct state.
-        const postIdsToFetchUserVotes = newPostIds.length > 0 ? newPostIds : posts.map(p => p.id)
-
-        try {
-          const { data: userVotes } = await supabase
-            .from('votes')
-            .select('post_id, vote_type')
-            .eq('user_id', userId)
-            .in('post_id', postIdsToFetchUserVotes)
-
-          if (userVotes) {
-            setVotes(prev => {
-              const updated = { ...prev }
-              userVotes.forEach(vote => {
-                if (updated[vote.post_id]) {
-                  updated[vote.post_id].userVote = vote.vote_type as 'upvote' | 'downvote'
+          if (res.ok) {
+            const data = await res.json()
+            
+            if (data.recentVotes) {
+              const upvoterMap: Record<string, RecentUpvoter[]> = {}
+              data.recentVotes.forEach((vote: any) => {
+                const pid = vote.post_id
+                if (!upvoterMap[pid]) upvoterMap[pid] = []
+                if (upvoterMap[pid].length < 3 && vote.users) {
+                  if (!upvoterMap[pid].some((u: any) => u.id === vote.users.id)) {
+                    upvoterMap[pid].push({
+                      id: vote.users.id,
+                      full_name: vote.users.full_name,
+                      avatar_url: vote.users.avatar_url
+                    })
+                  }
                 }
               })
-              return updated
-            })
+              setRecentUpvoters(prev => ({ ...prev, ...upvoterMap }))
+            }
+
+            if (userId && data.userVotes) {
+              setVotes(prev => {
+                const updated = { ...prev }
+                data.userVotes.forEach((vote: any) => {
+                  if (updated[vote.post_id]) {
+                    updated[vote.post_id].userVote = vote.vote_type as 'upvote' | 'downvote'
+                  }
+                })
+                return updated
+              })
+            }
           }
         } catch (error) {
-          console.error('Failed to fetch user votes:', error)
+          console.error('Failed to fetch votes batch:', error)
         }
       }
     }

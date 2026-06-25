@@ -6,11 +6,8 @@ import { applyRateLimit, getClientIdentifier } from '@/lib/rateLimitRedis'
 import { syncCommunityCounts } from '@/lib/community-stats'
 import { verifyTurnstileToken } from '@/lib/turnstile'
 
-const supabaseAnon = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
-
+// All DB operations in this route use service_role
+// Reason: otp_store and rise_points_log must be writable without RLS auth.uid() context
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SECRET_KEY!
@@ -51,7 +48,7 @@ export async function POST(req: NextRequest) {
 
     // Check OTP was verified (only if NOT signing up with Google)
     if (!google_id) {
-      const { data: otpData, error: otpError } = await supabaseAnon
+      const { data: otpData, error: otpError } = await supabaseAdmin
         .from('otp_store')
         .select('*')
         .eq('email', email)
@@ -146,14 +143,14 @@ export async function POST(req: NextRequest) {
     }
 
     // Log rise points
-    await supabaseAnon.from('rise_points_log').insert({
+    await supabaseAdmin.from('rise_points_log').insert({
       user_id: userId,
       points: 50,
       reason: 'Joined Claspire 🎉'
     })
 
     // Give join bonus +1 RP
-    await supabaseAnon
+    await supabaseAdmin
       .from('rise_points_log')
       .insert({
         user_id: userId,
@@ -176,7 +173,7 @@ export async function POST(req: NextRequest) {
     // Auto-join own college community
     if (safeCollegeId) {
       // Get community id
-      const { data: comm } = await supabaseAnon
+      const { data: comm } = await supabaseAdmin
         .from('communities')
         .select('id')
         .eq('college_id', safeCollegeId)
@@ -184,7 +181,7 @@ export async function POST(req: NextRequest) {
 
       if (comm) {
         // Check if already a member
-        const { data: existingMember } = await supabaseAnon
+        const { data: existingMember } = await supabaseAdmin
           .from('community_members')
           .select('id')
           .eq('community_id', comm.id)
@@ -194,7 +191,7 @@ export async function POST(req: NextRequest) {
         // Only insert if not already a member
         if (!existingMember) {
           // Insert member
-          await supabaseAnon
+          await supabaseAdmin
             .from('community_members')
             .insert({
               community_id: comm.id,
@@ -232,7 +229,7 @@ export async function POST(req: NextRequest) {
     // Log removed for privacy
 
     // Clean up OTP
-    await supabaseAnon
+    await supabaseAdmin
       .from('otp_store')
       .delete()
       .eq('email', email)
@@ -308,3 +305,5 @@ export async function POST(req: NextRequest) {
     )
   }
 }
+
+

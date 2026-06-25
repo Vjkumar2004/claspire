@@ -18,6 +18,30 @@ interface RecentUpvoter {
   avatar_url: string | null
 }
 
+const convertUrlsToLinks = (text: string) => {
+  if (!text) return text
+  const urlRegex = /(https?:\/\/[^\s]+)/g
+  const parts = text.split(urlRegex)
+  
+  return parts.map((part, i) => {
+    if (part.match(urlRegex)) {
+      return (
+        <a 
+          key={i} 
+          href={part} 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="text-[#7C3AED] hover:underline"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {part}
+        </a>
+      )
+    }
+    return part
+  })
+}
+
 const timeAgo = (date: string) => {
   const now = new Date()
   const past = new Date(date)
@@ -98,54 +122,22 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
   const fetchPost = async () => {
     setLoading(true)
     try {
-      // 🚀 Optimize: Fetch post, answers, votes, and user auth in parallel
-      const [postRes, answersRes, recentVotesRes, authRes] = await Promise.all([
-        supabase
-          .from('posts')
-          .select(`
-            *,
-            users!posts_author_id_fkey (
-              id, full_name, unique_id,
-              role, is_verified, avatar_url
-            ),
-              communities (
-                slug,
-                display_name,
-                member_count,
-                colleges ( name, short_name, logo_url )
-              ),
-              is_college_post
-          `)
-          .eq('id', postId)
-          .single(),
-        supabase
-          .from('answers')
-          .select(`
-            *,
-            users!answers_author_id_fkey (
-              id, full_name, unique_id,
-              role, is_verified, avatar_url
-            )
-          `)
-          .eq('post_id', postId)
-          .order('is_accepted', { ascending: false })
-          .order('upvote_count', { ascending: false })
-          .order('created_at', { ascending: true })
-          .limit(50),
-        supabase
-          .from('votes')
-          .select('user_id, created_at, users:user_id ( id, full_name, avatar_url )')
-          .eq('post_id', postId)
-          .eq('vote_type', 'upvote')
-          .order('created_at', { ascending: false })
-          .limit(10),
+      // 🚀 Optimize: Fetch post, answers, votes, and user auth via secure API
+      const [apiRes, authRes] = await Promise.all([
+        fetch(`/api/posts/${postId}/public`),
         fetch('/api/auth/me').catch(() => null)
       ])
 
-      const { data: postData, error: postError } = postRes
+      if (!apiRes.ok) {
+        console.error('Post fetch error:', apiRes.statusText)
+        router.push(`/community/c/${slug}`)
+        return
+      }
 
-      if (postError || !postData) {
-        console.error('Post fetch error:', postError)
+      const { post: postData, answers: answersData, recentVotes: recentVotesData, userVote: apiUserVote } = await apiRes.json()
+
+      if (!postData) {
+        console.error('Post fetch error')
         router.push(`/community/c/${slug}`)
         return
       }
@@ -154,37 +146,29 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
       setViewCount(postData.view_count || 0)
       recordView(postId)
 
-      setAnswers(answersRes.data || [])
+      setAnswers(answersData || [])
 
-      if (recentVotesRes.data) {
+      if (recentVotesData) {
         const seen = new Set<string>()
-        const upvoters: RecentUpvoter[] = []
-        recentVotesRes.data.forEach((vote: any) => {
-          if (vote.users && !seen.has(vote.users.id) && upvoters.length < 3) {
-            seen.add(vote.users.id)
-            upvoters.push({
+        const formattedVoters: RecentUpvoter[] = []
+        for (const vote of recentVotesData) {
+          if (!seen.has(vote.user_id) && vote.users) {
+            seen.add(vote.user_id)
+            formattedVoters.push({
               id: vote.users.id,
               full_name: vote.users.full_name,
-              avatar_url: vote.users.avatar_url,
+              avatar_url: vote.users.avatar_url
             })
           }
-        })
-        setRecentUpvoters(upvoters)
+        }
+        setRecentUpvoters(formattedVoters.slice(0, 3))
       }
 
       if (authRes && authRes.ok) {
         const authData = await authRes.json()
         if (authData.user) {
           setCurrentUser(authData.user)
-          const { data: voteData } = await supabase
-            .from('votes')
-            .select('vote_type')
-            .eq('post_id', postId)
-            .eq('user_id', authData.user.id)
-            .single()
-          if (voteData) {
-            setUserVote(voteData.vote_type as 'upvote' | 'downvote')
-          }
+          setUserVote(apiUserVote)
         }
       }
     } catch (err) {

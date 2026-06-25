@@ -21,7 +21,7 @@ const supabaseAdmin = createClient(
 )
 
 async function getLiveStatsForCollege(collegeId: string, communityId?: string) {
-  const { data: users } = await supabase
+  const { data: users } = await supabaseAdmin
     .from('users')
     .select('role')
     .eq('college_id', collegeId)
@@ -31,7 +31,7 @@ async function getLiveStatsForCollege(collegeId: string, communityId?: string) {
 
   let postCount = 0
   if (communityId) {
-    const { count } = await supabase
+    const { count } = await supabaseAdmin
       .from('posts')
       .select('*', { count: 'exact', head: true })
       .eq('community_id', communityId)
@@ -75,7 +75,7 @@ async function isCommunityMember(userId: string, communityId: string, collegeId:
 
 async function getCollegeBySlug(slug: string) {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('communities')
       .select(`
         *,
@@ -101,7 +101,7 @@ async function getCollegeBySlug(slug: string) {
       return data
     }
 
-    const { data: college, error: collegeError } = await supabase
+    const { data: college, error: collegeError } = await supabaseAdmin
       .from('colleges')
       .select('*')
       .eq('slug', slug)
@@ -167,7 +167,7 @@ async function getCollegeSeniors(collegeId: string) {
 async function getCollegePosts(communityId: string) {
   try {
     // Try to fetch posts directly with correct schema
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('posts')
       .select(`
         id,
@@ -382,7 +382,7 @@ export default async function CollegePage({ params }: { params: Promise<{ slug: 
                     {Object.entries(community.colleges.social_links).map(([platform, url]) => (
                       <a
                         key={platform}
-                        href={url}
+                        href={url as string}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="w-8 h-8 rounded-full bg-gray-100 dark:bg-[#283036] hover:bg-[#7C3AED]/10 dark:hover:bg-[#7C3AED]/20 flex items-center justify-center text-gray-500 dark:text-[#B0B7BE] hover:text-[#7C3AED] transition-all border border-surface dark:border-[#38434F]"

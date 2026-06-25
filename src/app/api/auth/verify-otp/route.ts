@@ -4,14 +4,15 @@ import { randomBytes } from 'crypto'
 import { applyRateLimit, getClientIdentifier, checkOtpLockout, recordFailedOtpAttempt, clearOtpAttempts } from '@/lib/rateLimitRedis'
 import bcrypt from 'bcryptjs'
 
+// anon key for non-privileged reads only; otp_store operations use supabaseAdmin
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder'
+  process.env.SUPABASE_SECRET_KEY || 'placeholder'
 )
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
-  process.env.SUPABASE_SECRET_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder'
+  process.env.SUPABASE_SECRET_KEY || 'placeholder'
 )
 
 export async function POST(request: NextRequest) {
@@ -213,3 +214,4 @@ export async function POST(request: NextRequest) {
     )
   }
 }
+

@@ -1,14 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { generateOTP } from '@/lib/auth'
-import { sendOTPviaSMTP } from '@/services/emailService'
+import { sendEmail } from '@/services/emailService'
 import { applyRateLimit } from '@/lib/rateLimitRedis'
 import { verifyTurnstileToken } from '@/lib/turnstile'
 import bcrypt from 'bcryptjs'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
-  process.env.SUPABASE_SECRET_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder'
+  process.env.SUPABASE_SECRET_KEY || 'placeholder'
 )
 
 // Generate 6-digit OTP
@@ -229,3 +228,4 @@ export async function POST(request: NextRequest) {
     )
   }
 }
+

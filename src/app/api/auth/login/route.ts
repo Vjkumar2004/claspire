@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
     // Get user
     const { data: user, error } = await supabase
       .from('users')
-      .select('*')
+      .select('id, email, password_hash, role, unique_id, full_name, avatar_url, college_id, is_verified, is_premium')
       .eq('email', email)
       .single()
 
@@ -116,3 +116,4 @@ export async function POST(req: NextRequest) {
     )
   }
 }
+

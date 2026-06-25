@@ -77,7 +77,7 @@ export async function POST(req: NextRequest) {
     // 2. Query user by email first to support safe Google Account Linking
     const { data: user, error: dbError } = await supabase
       .from('users')
-      .select('*')
+      .select('id, email, role, unique_id, full_name, avatar_url, college_id, is_verified, is_premium, google_id, auth_provider')
       .eq('email', email)
       .maybeSingle()
 
@@ -165,3 +165,4 @@ export async function POST(req: NextRequest) {
     )
   }
 }
+
