@@ -42,7 +42,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const cleanContent = stripHtml(post.content || '')
   
   const title = post.title || (cleanContent.slice(0, 80) + (cleanContent.length > 80 ? '...' : '')) || 'Claspire Post'
-  const description = cleanContent.slice(0, 150) + (cleanContent.length > 150 ? '...' : '')
+  const description = cleanContent.slice(0, 200) + (cleanContent.length > 200 ? '...' : '')
 
   let parsedUrls: string[] = []
   if (post.image_url) {

@@ -18,6 +18,21 @@ interface RecentUpvoter {
   avatar_url: string | null
 }
 
+const stripHtml = (html: string) => {
+  if (!html) return ''
+  return html
+    .replace(/<br\s*\/?>/gi, ' ')
+    .replace(/<\/p>/gi, ' ')
+    .replace(/<[^>]*>?/gm, '')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&nbsp;/g, ' ')
+    .trim()
+}
+
 const convertUrlsToLinks = (text: string) => {
   if (!text) return text
   const urlRegex = /(https?:\/\/[^\s]+)/g
@@ -316,7 +331,8 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
   const handleShare = async () => {
     const url = `${window.location.origin}/community/c/${slug}/p/${postId}`
     const title = post?.title || 'Claspire post'
-    const text = post?.content?.slice(0, 120) || 'Check out this post on Claspire'
+    const cleanContent = stripHtml(post?.content || '')
+    const text = cleanContent.slice(0, 120) || 'Check out this post on Claspire'
 
     if (typeof navigator !== 'undefined' && navigator.share) {
       try {

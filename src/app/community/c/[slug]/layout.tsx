@@ -40,11 +40,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       url: `https://claspire.in/community/c/${slug}`,
       type: 'website',
       siteName: 'Claspire',
+      images: [{ url: 'https://claspire.in/og-image.png', width: 1200, height: 630, alt: title }],
     },
     twitter: {
       card: 'summary_large_image',
       title,
       description,
+      images: ['https://claspire.in/og-image.png'],
     },
   }
 }

@@ -13,6 +13,7 @@ import {
   ChevronUp, ChevronDown, Award, GraduationCap, MapPin, UserCheck, Activity,
   ArrowUp
 } from 'lucide-react'
+import { showToast } from '@/components/Toast'
 import { motion, AnimatePresence } from 'framer-motion'
 import PostModal from '@/components/PostModal'
 import { calculateProfileCompletion } from '@/lib/profileCompletion'
@@ -55,6 +56,22 @@ import FeedPost from '@/components/community/FeedPost'
 import LeftSidebar from '@/components/community/LeftSidebar'
 import RightSidebar from '@/components/community/RightSidebar'
 import LikesModal from '@/components/community/LikesModal'
+
+// Utility: strip HTML tags from rich text for clean sharing
+const stripHtml = (html: string) => {
+  if (!html) return ''
+  return html
+    .replace(/<br\s*\/?>/gi, ' ')
+    .replace(/<\/p>/gi, ' ')
+    .replace(/<[^>]*>?/gm, '')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&nbsp;/g, ' ')
+    .trim()
+}
 
 // Utility function to convert URLs to clickable links and preserve line breaks
 
@@ -667,7 +684,8 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
 
     const url = `${window.location.origin}/community/c/${slug}/p/${post.id}`
     const title = post.title || 'Claspire post'
-    const text = post.content?.slice(0, 120) || 'Check out this post on Claspire'
+    const cleanContent = stripHtml(post.content || '')
+    const text = cleanContent.slice(0, 120) || 'Check out this post on Claspire'
 
     if (typeof navigator !== 'undefined' && navigator.share) {
       try {
@@ -693,13 +711,54 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
 
   const submitInlineAnswer = async (postId: string, text: string, parentAnswerId?: string, gifUrl?: string | null) => {
     const trimmed = text.trim()
-    if (!trimmed && !gifUrl) return false
+    if (!trimmed && !gifUrl) return
 
     if (!user?.id) {
       router.push('/login')
-      return false
+      return
     }
 
+    const tempId = `temp-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`
+
+    const tempAnswer = {
+      id: tempId,
+      post_id: postId,
+      author_id: user.id,
+      content: trimmed,
+      gif_url: gifUrl || null,
+      parent_answer_id: parentAnswerId || null,
+      created_at: new Date().toISOString(),
+      users: {
+        id: user.id,
+        full_name: user.full_name,
+        unique_id: user.unique_id,
+        role: user.role,
+        is_verified: user.is_verified,
+        avatar_url: user.avatar_url,
+      },
+      _temp: true,
+    }
+
+    // Optimistic insert
+    setPostAnswers(prev => ({
+      ...prev,
+      [postId]: [...(prev[postId] || []), tempAnswer]
+    }))
+
+    if (!parentAnswerId) {
+      setPosts(prev => prev.map((p: any) => {
+        if (p.id === postId) {
+          return {
+            ...p,
+            answer_count: (p.answer_count || 0) + 1,
+            is_answered: true,
+          }
+        }
+        return p
+      }))
+    }
+
+    // Fire API request in background
     try {
       const response = await fetch('/api/answers/create', {
         method: 'POST',
@@ -727,23 +786,38 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
           }
         }
 
-        setPostAnswers(prev => ({ ...prev, [postId]: [...(prev[postId] || []), enrichedAnswer] }))
+        // Replace temp with real answer
+        setPostAnswers(prev => ({
+          ...prev,
+          [postId]: (prev[postId] || []).map(a => a.id === tempId ? enrichedAnswer : a)
+        }))
+      } else {
+        throw new Error('Invalid response')
+      }
+    } catch (err) {
+      console.error(err)
+
+      // Rollback optimistic insert on failure
+      setPostAnswers(prev => ({
+        ...prev,
+        [postId]: (prev[postId] || []).filter(a => a.id !== tempId)
+      }))
+
+      if (!parentAnswerId) {
         setPosts(prev => prev.map((p: any) => {
           if (p.id === postId) {
-            return {
-              ...p,
-              answer_count: !parentAnswerId ? (p.answer_count || 0) + 1 : p.answer_count,
-              is_answered: true
-            }
+            const newCount = Math.max(0, (p.answer_count || 0) - 1)
+            return { ...p, answer_count: newCount, is_answered: newCount > 0 }
           }
           return p
         }))
-        return true
       }
-      return false
-    } catch (err) {
-      console.error(err)
-      return false
+
+      showToast({
+        type: 'error',
+        title: 'Failed to post comment',
+        message: 'Please try again',
+      })
     }
   }
 

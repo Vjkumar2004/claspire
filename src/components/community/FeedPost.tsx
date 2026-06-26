@@ -62,7 +62,7 @@ export interface FeedPostProps {
   onVote: (postId: string, voteType: 'upvote' | 'downvote') => void
   onToggleAnswerSection: (postId: string) => void
   onSharePost: (post: any) => void
-  onSubmitInlineAnswer: (postId: string, text: string, parentAnswerId?: string, gifUrl?: string | null) => Promise<boolean> | void
+  onSubmitInlineAnswer: (postId: string, text: string, parentAnswerId?: string, gifUrl?: string | null) => void
   onDeleteInlineAnswer?: (postId: string, answerId: string, parentAnswerId?: string) => Promise<boolean> | void
   onUpvotersClick?: (postId: string) => void
   currentUserId?: string | null
@@ -102,28 +102,30 @@ export default function FeedPost({
     setExpandedReplies(prev => ({ ...prev, [answerId]: !prev[answerId] }))
   }
 
-  const handleSubmitAnswer = async () => {
+  const handleSubmitAnswer = () => {
     const trimmed = answerText.trim()
     if (!trimmed && !selectedGif) return
-    
+    if (isSubmittingAnswer) return
+
     setIsSubmittingAnswer(true)
-    try {
-      const success = await onSubmitInlineAnswer(post.id, trimmed, replyToAnswerId || undefined, selectedGif)
-      if (success !== false) {
-        setAnswerText('') // clear only on success
-        setSelectedGif(null)
-        setShowEmojiPicker(false)
-        setShowGifPicker(false)
-        if (replyToAnswerId) {
-          setExpandedReplies(prev => ({ ...prev, [replyToAnswerId as string]: true }))
-        }
-        setReplyToAnswerId(null)
-      }
-    } catch (err) {
-      console.error(err)
-    } finally {
-      setIsSubmittingAnswer(false)
+
+    const currentReplyTo = replyToAnswerId
+    const currentGif = selectedGif
+
+    // Clear composer immediately (optimistic) — never wait for API
+    setAnswerText('')
+    setSelectedGif(null)
+    setShowEmojiPicker(false)
+    setShowGifPicker(false)
+    setReplyToAnswerId(null)
+
+    if (currentReplyTo) {
+      setExpandedReplies(prev => ({ ...prev, [currentReplyTo]: true }))
     }
+
+    // Fire optimistic submit in background — GIF loads independently via browser
+    Promise.resolve(onSubmitInlineAnswer(post.id, trimmed, currentReplyTo || undefined, currentGif))
+      .finally(() => setIsSubmittingAnswer(false))
   }
 
   const topLevelAnswers = postAnswers?.filter((a: any) => !a.parent_answer_id) || []

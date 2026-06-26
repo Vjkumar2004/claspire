@@ -12,6 +12,9 @@ const RECENT_GIFS_KEY = 'gif_recent'             // localStorage key
 const CACHE_TTL_MS = 5 * 60 * 1000              // 5 minutes
 const MAX_RECENT = 10
 
+// ─── In-memory search result cache (session-scoped, cleared on page refresh) ──
+const searchCache = new Map<string, any[]>()
+
 // ─── sessionStorage cache helpers ─────────────────────────────────────────────
 function getTrendingCache(): any[] | null {
   try {
@@ -85,12 +88,23 @@ function GifPicker({ onSelect, onClose }: GifPickerProps) {
     try {
       const isSearch = searchQuery.trim().length > 0
       const url = isSearch
-        ? `${GIPHY_SEARCH_URL}?api_key=${GIPHY_API_KEY}&q=${encodeURIComponent(searchQuery)}&limit=${RESULT_LIMIT}&rating=g`
-        : `${GIPHY_TRENDING_URL}?api_key=${GIPHY_API_KEY}&limit=${RESULT_LIMIT}&rating=g`
+        ? `${GIPHY_SEARCH_URL}?api_key=${GIPHY_API_KEY}&q=${encodeURIComponent(searchQuery)}&limit=${RESULT_LIMIT}`
+        : `${GIPHY_TRENDING_URL}?api_key=${GIPHY_API_KEY}&limit=${RESULT_LIMIT}`
 
       const res = await fetch(url, { signal: abortCtrl.current.signal })
+
+      if (!res.ok) {
+        setGifs([])
+        return
+      }
+
       const data = await res.json()
-      const results: any[] = data.data || []
+
+      const results: any[] = Array.isArray(data.data) ? data.data : []
+
+      if (isSearch) {
+        searchCache.set(searchQuery, results)
+      }
 
       setGifs(results)
 
@@ -126,8 +140,29 @@ function GifPicker({ onSelect, onClose }: GifPickerProps) {
       return
     }
     if (debounceTimer.current) clearTimeout(debounceTimer.current)
-    // 400ms debounce: user types "f u n n y" → only "funny" fires a request
-    debounceTimer.current = setTimeout(() => fetchGifs(query), 400)
+
+    const trimmed = query.trim()
+
+    // Empty query → go back to trending
+    if (trimmed.length === 0) {
+      fetchGifs('')
+      return
+    }
+
+    // Ignore queries shorter than 2 characters (Instagram/Discord behaviour)
+    if (trimmed.length < 2) return
+
+    // In-memory cache hit → return instantly, skip network
+    const cached = searchCache.get(query)
+    if (cached) {
+      setGifs(cached)
+      setLoading(false)
+      return
+    }
+
+    // Show loading skeleton immediately, then debounce the fetch
+    setLoading(true)
+    debounceTimer.current = setTimeout(() => fetchGifs(query), 250)
     return () => {
       if (debounceTimer.current) clearTimeout(debounceTimer.current)
     }
@@ -142,7 +177,7 @@ function GifPicker({ onSelect, onClose }: GifPickerProps) {
       // Store fixed_height (≤500 KB) NOT original (5–20 MB) — same as Instagram
       const selectedUrl: string =
         gif.images?.fixed_height?.url ||
-        gif.images?.fixed_height_small?.url ||
+        gif.images?.preview_webp?.url ||
         gif.images?.preview_gif?.url ||
         ''
       if (!selectedUrl) return
@@ -152,9 +187,8 @@ function GifPicker({ onSelect, onClose }: GifPickerProps) {
         id: gif.id,
         title: gif.title || '',
         images: {
-          fixed_height:       gif.images?.fixed_height       ? { url: gif.images.fixed_height.url }       : undefined,
-          fixed_height_small: gif.images?.fixed_height_small ? { url: gif.images.fixed_height_small.url } : undefined,
-          preview_gif:        gif.images?.preview_gif        ? { url: gif.images.preview_gif.url }        : undefined,
+          fixed_height: gif.images?.fixed_height ? { url: gif.images.fixed_height.url } : undefined,
+          preview_gif:  gif.images?.preview_gif  ? { url: gif.images.preview_gif.url }  : undefined,
         },
       })
       // Refresh the recent panel immediately (optimistic update)
@@ -218,8 +252,13 @@ function GifPicker({ onSelect, onClose }: GifPickerProps) {
             <div className="grid grid-cols-2 gap-1.5">
               {recentGifs.slice(0, 4).map(gif => {
                 const previewUrl =
+                  gif.images?.fixed_height_small?.webp ||
                   gif.images?.fixed_height_small?.url ||
-                  gif.images?.preview_gif?.url || ''
+                  gif.images?.fixed_height?.webp ||
+                  gif.images?.fixed_height?.url ||
+                  gif.images?.preview_webp?.url ||
+                  gif.images?.preview_gif?.url ||
+                  gif.images?.fixed_height_still?.url || ''
                 if (!previewUrl) return null
                 return (
                   <GifTile key={gif.id} gif={gif} previewUrl={previewUrl} onSelect={handleSelect} />
@@ -257,16 +296,21 @@ function GifPicker({ onSelect, onClose }: GifPickerProps) {
         )}
 
         {/* GIF grid
-            ▸ Previews use fixed_height_small (lightest format, ~20-80 KB)
-            ▸ loading="lazy" + decoding="async" → browser handles IntersectionObserver natively
+            ▸ Previews use fixed_height_small.webp (fastest GIPHY asset, <100 KB), rich fallback chain
+            ▸ loading="eager" + fetchPriority="high" + decoding="async" → no lazy delay in picker
             ▸ onSelect stores fixed_height (NOT original) → ≤500 KB per selected GIF
         */}
         {!loading && gifs.length > 0 && (
           <div className="grid grid-cols-2 gap-1.5">
             {gifs.map(gif => {
               const previewUrl: string =
+                gif.images?.fixed_height_small?.webp ||
                 gif.images?.fixed_height_small?.url ||
-                gif.images?.preview_gif?.url || ''
+                gif.images?.fixed_height?.webp ||
+                gif.images?.fixed_height?.url ||
+                gif.images?.preview_webp?.url ||
+                gif.images?.preview_gif?.url ||
+                gif.images?.fixed_height_still?.url || ''
               if (!previewUrl) return null
               return (
                 <GifTile key={gif.id} gif={gif} previewUrl={previewUrl} onSelect={handleSelect} />
@@ -305,7 +349,8 @@ const GifTile = memo(function GifTile({
       <img
         src={previewUrl}
         alt={gif.title || 'GIF'}
-        loading="lazy"
+        loading="eager"
+        fetchPriority="high"
         decoding="async"
         className="w-full h-auto object-cover"
       />
