@@ -6,6 +6,20 @@ const supabase = createClient(
   process.env.SUPABASE_SECRET_KEY!
 )
 
+const stripHtml = (html: string) => {
+  if (!html) return ''
+  let text = html.replace(/<br\s*\/?>/gi, '\n')
+  text = text.replace(/<\/p>/gi, '\n')
+  text = text.replace(/<[^>]*>?/gm, '')
+  text = text.replace(/&amp;/g, '&')
+             .replace(/&lt;/g, '<')
+             .replace(/&gt;/g, '>')
+             .replace(/&quot;/g, '"')
+             .replace(/&#39;/g, "'")
+             .replace(/&nbsp;/g, ' ')
+  return text.trim()
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string; postId: string }> }): Promise<Metadata> {
   const { postId, slug } = await params
 
@@ -25,13 +39,22 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     }
   }
 
-  const authorName = (post.users as any)?.full_name || 'Someone'
-  const communityName = (post.communities as any)?.display_name || 'Community'
-  const cleanContent = post.content?.replace(/<[^>]*>/g, '').trim() || ''
-  const description = cleanContent.slice(0, 160)
+  const cleanContent = stripHtml(post.content || '')
+  
+  const title = post.title || (cleanContent.slice(0, 80) + (cleanContent.length > 80 ? '...' : '')) || 'Claspire Post'
+  const description = cleanContent.slice(0, 150) + (cleanContent.length > 150 ? '...' : '')
 
-  const title = `${post.title} | ${communityName} | Claspire`
-  const ogImage = post.image_url?.[0] || '/og-image.png'
+  let parsedUrls: string[] = []
+  if (post.image_url) {
+    try {
+      parsedUrls = typeof post.image_url === 'string' && post.image_url.startsWith('[')
+        ? JSON.parse(post.image_url)
+        : typeof post.image_url === 'string' ? [post.image_url] : post.image_url
+    } catch {
+      parsedUrls = typeof post.image_url === 'string' ? [post.image_url] : []
+    }
+  }
+  const ogImage = parsedUrls.length > 0 ? parsedUrls[0] : 'https://claspire.in/og-image.png'
 
   return {
     title,
@@ -45,7 +68,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       url: `https://claspire.in/community/c/${slug}/p/${postId}`,
       type: 'article',
       siteName: 'Claspire',
-      images: [{ url: ogImage, width: 1200, height: 630, alt: post.title }],
+      images: [{ url: ogImage, width: 1200, height: 630, alt: title }],
     },
     twitter: {
       card: 'summary_large_image',

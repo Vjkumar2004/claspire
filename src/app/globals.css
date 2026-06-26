@@ -27,6 +27,15 @@
   box-sizing: border-box;
 }
 
+button,
+a,
+[role="button"],
+input[type="button"],
+input[type="submit"],
+input[type="reset"] {
+  cursor: pointer;
+}
+
 html,
 body {
   overflow-x: hidden;
