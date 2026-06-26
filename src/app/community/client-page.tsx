@@ -130,6 +130,9 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
 
   const hasInitialData = useRef(!!(initialCommunities?.length || initialPosts?.length))
   const fetchedVotePostIds = useRef<Set<string>>(new Set())
+  // Tracks which user ID we last fetched personal vote state for.
+  // Undefined = never fetched. Null = fetched for logged-out session.
+  const lastFetchedUserId = useRef<string | null | undefined>(undefined)
 
   const getValidCache = () => {
     if (!communityFeedCache) return null
@@ -391,53 +394,78 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
         .map(p => p.id)
         .filter(id => !fetchedVotePostIds.current.has(id))
 
-      // Mark them as fetched IMMEDIATELY before awaiting to prevent race conditions
+      // 3. Detect if the authenticated user changed (e.g. auth resolved after posts loaded)
+      const userChanged = userId !== lastFetchedUserId.current
+
+      // Mark new posts as fetched IMMEDIATELY before awaiting to prevent race conditions
       newPostIds.forEach(id => fetchedVotePostIds.current.add(id))
 
-      if (newPostIds.length > 0) {
-        try {
-          const res = await fetch('/api/posts/votes-batch', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ postIds: newPostIds })
-          })
+      // Update the tracked user ID before any await so concurrent runs don't double-fetch
+      if (userChanged) {
+        lastFetchedUserId.current = userId
+      }
 
-          if (res.ok) {
-            const data = await res.json()
-            
-            if (data.recentVotes) {
-              const upvoterMap: Record<string, RecentUpvoter[]> = {}
-              data.recentVotes.forEach((vote: any) => {
-                const pid = vote.post_id
-                if (!upvoterMap[pid]) upvoterMap[pid] = []
-                if (upvoterMap[pid].length < 3 && vote.users) {
-                  if (!upvoterMap[pid].some((u: any) => u.id === vote.users.id)) {
-                    upvoterMap[pid].push({
-                      id: vote.users.id,
-                      full_name: vote.users.full_name,
-                      avatar_url: vote.users.avatar_url
-                    })
+      // Fetch if: there are new posts (need upvoters) OR the authenticated user changed
+      // (need to apply their personal vote state to already-loaded posts).
+      const shouldFetch = newPostIds.length > 0 || (userChanged && !!userId)
+      if (!shouldFetch) return
+
+      // When the user identity changed, request ALL current post IDs so the API
+      // can return their vote state for every post visible in the feed.
+      // For new posts only, newPostIds is sufficient.
+      const postIdsForBatch = (userChanged && !!userId)
+        ? posts.map(p => p.id)
+        : newPostIds
+
+      try {
+        const res = await fetch('/api/posts/votes-batch', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ postIds: postIdsForBatch })
+        })
+
+        if (res.ok) {
+          const data = await res.json()
+
+          // Only update upvoter avatars for newly fetched posts to avoid
+          // overwriting optimistic updates on already-rendered posts.
+          if (data.recentVotes && newPostIds.length > 0) {
+            const newPostIdSet = new Set(newPostIds)
+            const upvoterMap: Record<string, RecentUpvoter[]> = {}
+            data.recentVotes.forEach((vote: any) => {
+              if (!newPostIdSet.has(vote.post_id)) return
+              const pid = vote.post_id
+              if (!upvoterMap[pid]) upvoterMap[pid] = []
+              if (upvoterMap[pid].length < 3 && vote.users) {
+                if (!upvoterMap[pid].some((u: any) => u.id === vote.users.id)) {
+                  upvoterMap[pid].push({
+                    id: vote.users.id,
+                    full_name: vote.users.full_name,
+                    avatar_url: vote.users.avatar_url
+                  })
+                }
+              }
+            })
+            setRecentUpvoters(prev => ({ ...prev, ...upvoterMap }))
+          }
+
+          if (userId && data.userVotes) {
+            setVotes(prev => {
+              const updated = { ...prev }
+              data.userVotes.forEach((vote: any) => {
+                if (updated[vote.post_id]) {
+                  updated[vote.post_id] = {
+                    ...updated[vote.post_id],
+                    userVote: vote.vote_type as 'upvote' | 'downvote'
                   }
                 }
               })
-              setRecentUpvoters(prev => ({ ...prev, ...upvoterMap }))
-            }
-
-            if (userId && data.userVotes) {
-              setVotes(prev => {
-                const updated = { ...prev }
-                data.userVotes.forEach((vote: any) => {
-                  if (updated[vote.post_id]) {
-                    updated[vote.post_id].userVote = vote.vote_type as 'upvote' | 'downvote'
-                  }
-                })
-                return updated
-              })
-            }
+              return updated
+            })
           }
-        } catch (error) {
-          console.error('Failed to fetch votes batch:', error)
         }
+      } catch (error) {
+        console.error('Failed to fetch votes batch:', error)
       }
     }
 
@@ -548,8 +576,8 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
         ...prev,
         [postId]: {
           ...prev[postId],
-          upvotes: result.upvotes || prev[postId].upvotes,
-          downvotes: result.downvotes || prev[postId].downvotes,
+          upvotes: result.upvotes !== undefined ? result.upvotes : prev[postId].upvotes,
+          downvotes: result.downvotes !== undefined ? result.downvotes : prev[postId].downvotes,
           isLoading: false,
           error: null,
           userVote: result.action === 'removed' ? null : voteType

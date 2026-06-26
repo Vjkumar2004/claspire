@@ -213,45 +213,37 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
 
       if (response.ok) {
         const result = await response.json()
-        if (result.success) {
-          const { data: updatedPost } = await supabase
-            .from('posts')
-            .select('upvote_count, downvote_count')
-            .eq('id', postId)
-            .single()
 
-          if (updatedPost) {
-            setPost((prev: any) => ({
-              ...prev,
-              upvote_count: updatedPost.upvote_count,
-              downvote_count: updatedPost.downvote_count,
-            }))
-          }
-          setUserVote(result.action === 'removed' ? null : voteType)
+        setPost((prev: any) => ({
+          ...prev,
+          upvote_count: result.upvotes !== undefined ? result.upvotes : prev?.upvote_count || 0,
+          downvote_count: result.downvotes !== undefined ? result.downvotes : prev?.downvote_count || 0,
+        }))
+        setUserVote(result.action === 'removed' ? null : voteType)
 
-          const { data: recentVotes } = await supabase
-            .from('votes')
-            .select('user_id, created_at, users:user_id ( id, full_name, avatar_url )')
-            .eq('post_id', postId)
-            .eq('vote_type', 'upvote')
-            .order('created_at', { ascending: false })
-            .limit(10)
+        // Refresh recent upvoters from API response or re-fetch
+        const { data: recentVotes } = await supabase
+          .from('votes')
+          .select('user_id, created_at, users:user_id ( id, full_name, avatar_url )')
+          .eq('post_id', postId)
+          .eq('vote_type', 'upvote')
+          .order('created_at', { ascending: false })
+          .limit(10)
 
-          if (recentVotes) {
-            const seen = new Set<string>()
-            const upvoters: RecentUpvoter[] = []
-            recentVotes.forEach((vote: any) => {
-              if (vote.users && !seen.has(vote.users.id) && upvoters.length < 3) {
-                seen.add(vote.users.id)
-                upvoters.push({
-                  id: vote.users.id,
-                  full_name: vote.users.full_name,
-                  avatar_url: vote.users.avatar_url,
-                })
-              }
-            })
-            setRecentUpvoters(upvoters)
-          }
+        if (recentVotes) {
+          const seen = new Set<string>()
+          const upvoters: RecentUpvoter[] = []
+          recentVotes.forEach((vote: any) => {
+            if (vote.users && !seen.has(vote.users.id) && upvoters.length < 3) {
+              seen.add(vote.users.id)
+              upvoters.push({
+                id: vote.users.id,
+                full_name: vote.users.full_name,
+                avatar_url: vote.users.avatar_url,
+              })
+            }
+          })
+          setRecentUpvoters(upvoters)
         }
       }
     } catch (err) {
