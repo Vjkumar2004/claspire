@@ -35,13 +35,26 @@ const convertUrlsToLinks = (html: string) => {
         return ''
       })
       const cleanDomain = getDisplayDomain(cleanUrl)
-      return '<a href="/redirect?url=' + encodeURIComponent(cleanUrl) + '" target="_blank" rel="noopener noreferrer" class="text-[#7C3AED] hover:underline font-medium inline-flex items-center gap-0.5">' + cleanDomain + ' <span class="text-[10px] opacity-70">↗</span></a>' + trailing
+      const linkHtml = '<a href="/redirect?url=' + encodeURIComponent(cleanUrl) + '" target="_blank" rel="noopener noreferrer" class="text-[#7C3AED] hover:underline font-medium inline-flex items-center gap-0.5">' + cleanDomain + ' <span class="text-[10px] opacity-70">↗</span></a>'
+      anchors.push(linkHtml)
+      return `\x00A${anchors.length - 1}\x00` + trailing
     }
-    return '<a href="mailto:' + email + '" class="text-[#7C3AED] hover:underline font-medium">' + email + '</a>'
+    const emailHtml = '<a href="mailto:' + email + '" class="text-[#7C3AED] hover:underline font-medium">' + email + '</a>'
+    anchors.push(emailHtml)
+    return `\x00A${anchors.length - 1}\x00`
+  })
+
+  // Convert hashtags to links
+  const hashtagRegex = /(^|\s|>|&nbsp;)(#\w+)/g
+  const withHashtags = withLinks.replace(hashtagRegex, (match, prefix, tag) => {
+    const tagName = tag.substring(1) // remove '#'
+    const hashtagHtml = `<a href="/community?search=${encodeURIComponent(tagName)}" class="text-[#7C3AED] hover:bg-purple-50 dark:hover:bg-purple-900/20 rounded px-0.5 font-semibold transition-colors">${tag}</a>`
+    anchors.push(hashtagHtml)
+    return `${prefix}\x00A${anchors.length - 1}\x00`
   })
 
   // Restore protected anchor tags
-  return withLinks.replace(/\x00A(\d+)\x00/g, (_, idx) => anchors[parseInt(idx)])
+  return withHashtags.replace(/\x00A(\d+)\x00/g, (_, idx) => anchors[parseInt(idx)])
 }
 
 interface PostContentRendererProps {

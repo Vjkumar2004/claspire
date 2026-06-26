@@ -158,7 +158,15 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
   const [isCollegeAdmin, setIsCollegeAdmin] = useState(false)
 
   // Phase 2 optimization states
-  const [feedSearchQuery, setFeedSearchQuery] = useState(() => validCache?.feedSearchQuery || '')
+  const [feedSearchQuery, setFeedSearchQuery] = useState(() => searchParams.get('search') || validCache?.feedSearchQuery || '')
+
+  // Sync search param from URL (e.g. from hashtag clicks)
+  useEffect(() => {
+    const urlSearch = searchParams.get('search')
+    if (urlSearch) {
+      setFeedSearchQuery(urlSearch)
+    }
+  }, [searchParams])
 
 
 

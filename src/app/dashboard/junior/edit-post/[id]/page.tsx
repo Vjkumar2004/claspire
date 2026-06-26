@@ -7,20 +7,8 @@ import {
   Globe, Lock, AlertCircle
 } from 'lucide-react'
 import { compressImage, needsCompression } from '@/lib/imageCompression'
+import RichEditor from '@/components/CreatePost/RichEditor'
 
-const stripHtml = (html: string) => {
-  if (!html) return ''
-  let text = html.replace(/<br\s*\/?>/gi, '\n')
-  text = text.replace(/<\/p>/gi, '\n')
-  text = text.replace(/<[^>]*>?/gm, '')
-  text = text.replace(/&amp;/g, '&')
-             .replace(/&lt;/g, '<')
-             .replace(/&gt;/g, '>')
-             .replace(/&quot;/g, '"')
-             .replace(/&#39;/g, "'")
-             .replace(/&nbsp;/g, ' ')
-  return text
-}
 
 const POST_TYPES = [
   { key: 'doubt', icon: '❓', label: 'Doubt', desc: 'Ask a question', color: '#7C3AED', bg: '#F5F3FF', border: '#DDD6FE' },
@@ -77,7 +65,7 @@ export default function EditPostPage() {
         const post = data.post
 
         setTitle(post.title || '')
-        setContent(stripHtml(post.content || ''))
+        setContent(post.content || '')
         setType(post.type || 'doubt')
         setVisibility(post.visibility || 'public')
         setTags(post.tags || [])
@@ -404,12 +392,10 @@ export default function EditPostPage() {
           <label className="block text-xs font-black text-gray-500 uppercase tracking-wider mb-2">
             Content
           </label>
-          <textarea
+          <RichEditor
             value={content}
-            onChange={e => setContent(e.target.value)}
+            onChange={setContent}
             placeholder="Write your content here..."
-            rows={8}
-            className="w-full border border-surface rounded-xl px-4 py-3 text-sm font-medium text-gray-900 leading-relaxed focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-400 transition-all placeholder:text-gray-300 resize-none"
           />
           <p className="text-[10px] text-gray-400 mt-1.5 text-right">{content.length} characters</p>
         </div>
