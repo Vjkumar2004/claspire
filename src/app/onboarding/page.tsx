@@ -19,10 +19,13 @@ import {
   UserPlus,
   Star,
   Shield,
+  Bell,
 } from 'lucide-react'
 import { calculateProfileCompletion } from '@/lib/profileCompletion'
+import OneSignal from 'react-onesignal'
+import { savePlayerIdWithRetry, pollForSubscriptionId } from '@/lib/onesignal-utils'
 
-const TOTAL_STEPS = 5
+const TOTAL_STEPS = 6
 
 const stepVariants = {
   enter: (dir: number) => ({
@@ -663,7 +666,96 @@ function StepCommunity({
         </>
       )}
 
-      <ActionBar onBack={onBack} onNext={onNext} onSkip={onSkip} nextLabel="Finish & Enter Claspire" showSkip={joinedIds.size === 0} nextPrimary />
+      <ActionBar onBack={onBack} onNext={onNext} onSkip={onSkip} nextLabel="Continue" showSkip={joinedIds.size === 0} nextPrimary />
+    </div>
+  )
+}
+
+// ── Step 6 ─── Notifications
+function StepNotifications({
+  onNext,
+  onSkip,
+}: {
+  onNext: () => void
+  onSkip: () => void
+}) {
+  const [requesting, setRequesting] = useState(false)
+  const [errorText, setErrorText] = useState('')
+
+  const handleEnable = async () => {
+    setRequesting(true)
+    setErrorText('')
+    try {
+      await OneSignal.Notifications.requestPermission()
+      const subId = await pollForSubscriptionId(10, 800)
+      if (subId) {
+        const currentStored = (window as any).__claspire_onesignal_id__ || null
+        const saved = await savePlayerIdWithRetry(subId, currentStored)
+        if (saved) (window as any).__claspire_onesignal_id__ = subId
+        onNext()
+      } else {
+        setErrorText('Notifications can be enabled later from Settings.')
+      }
+    } catch (err) {
+      console.error('Notification setup failed:', err)
+      setErrorText('Notifications can be enabled later from Settings.')
+    } finally {
+      setRequesting(false)
+    }
+  }
+
+  const benefits = [
+    'Referral updates',
+    'Job alerts',
+    'Direct messages',
+    'Community replies',
+    'College announcements'
+  ]
+
+  return (
+    <div className="flex flex-col items-center w-full">
+      <div className="w-14 h-14 bg-purple-100 dark:bg-purple-900/30 rounded-2xl flex items-center justify-center mb-5">
+        <Bell size={24} className="text-purple-600" />
+      </div>
+      <h1 className="text-2xl font-extrabold text-gray-900 dark:text-white mb-2">Stay Updated 🔔</h1>
+      <p className="text-gray-500 dark:text-gray-400 text-sm mb-6 text-center max-w-xs">
+        Enable notifications to receive:
+      </p>
+
+      <div className="bg-white/60 dark:bg-[#1D2226]/60 border border-gray-100 dark:border-[#2D3744] rounded-2xl p-5 mb-6 w-full max-w-sm">
+        <ul className="space-y-3">
+          {benefits.map(b => (
+            <li key={b} className="flex items-center gap-3 text-sm text-gray-700 dark:text-gray-300 font-medium">
+              <span className="w-1.5 h-1.5 rounded-full bg-purple-600" />
+              {b}
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {errorText && (
+        <div className="mb-6 text-sm font-semibold text-gray-500 dark:text-gray-400 text-center">
+          {errorText}
+        </div>
+      )}
+
+      <div className="flex flex-col gap-3 w-full max-w-sm">
+        <button
+          onClick={handleEnable}
+          disabled={requesting}
+          className="w-full py-3.5 bg-purple-600 hover:bg-purple-700 active:bg-purple-800 text-white font-bold text-sm rounded-xl transition-all duration-200 shadow-md shadow-purple-600/20 flex items-center justify-center gap-2 disabled:opacity-60"
+        >
+          {requesting ? <Loader2 size={16} className="animate-spin" /> : null}
+          {requesting ? 'Enabling...' : 'Enable Notifications & Continue'}
+        </button>
+        <button
+          onClick={onSkip}
+          disabled={requesting}
+          className="w-full py-3 rounded-xl text-gray-500 dark:text-gray-400 font-semibold text-sm hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#1D2226] transition-colors disabled:opacity-50"
+        >
+          Continue without notifications
+        </button>
+      </div>
     </div>
   )
 }
@@ -801,7 +893,7 @@ function ActionBar({
 }
 
 // ── Progress Header
-const STEP_TITLES = ['', 'Profile Photo', 'Headline & Bio', 'Connect with People', 'Join Communities']
+const STEP_TITLES = ['', 'Profile Photo', 'Headline & Bio', 'Connect with People', 'Join Communities', 'Notifications']
 
 function ProgressHeader({ step, total }: { step: number; total: number }) {
   const pct = Math.round(((step - 1) / total) * 100)
@@ -1181,8 +1273,14 @@ function OnboardingPageContent() {
                     joiningId={joiningId}
                     userCollegeCommunityId={userCollegeCommunityId}
                     onJoin={handleJoinCommunity}
-                    onNext={saving ? () => {} : handleFinish}
+                    onNext={goNext}
                     onBack={goBack}
+                    onSkip={goSkip}
+                  />
+                )}
+                {step === 6 && (
+                  <StepNotifications
+                    onNext={saving ? () => {} : handleFinish}
                     onSkip={saving ? () => {} : handleFinish}
                   />
                 )}

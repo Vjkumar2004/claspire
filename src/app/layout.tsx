@@ -23,8 +23,8 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://claspire.in'),
-  title: "Claspire | College Senior Community Platform for Indian Students",
-  description: "Connect with verified seniors from your own college for real guidance, referrals & mentorship. India's campus peer network — built for college students across Tamil Nadu, Maharashtra, Karnataka and beyond.",
+  title: "Claspire | Connect with Seniors, Find Jobs & Get Referrals",
+  description: "Claspire helps college students connect with verified seniors, discover jobs, get referrals, and grow their professional network within their campus community.",
   keywords: [
     "college senior community platform",
     "campus mentorship India",
@@ -34,27 +34,30 @@ export const metadata: Metadata = {
     "senior student connect"
   ],
   openGraph: {
-    title: "Claspire | College Senior Community Platform for Indian Students",
-    description: "Connect with verified seniors from your own college for real guidance, referrals & mentorship.",
+    title: "Claspire | Connect with Seniors, Find Jobs & Get Referrals",
+    description: "Claspire helps college students connect with verified seniors, discover jobs, get referrals, and grow their professional network within their campus community.",
     url: "https://claspire.in",
     siteName: "Claspire",
     type: "website",
     locale: 'en_IN',
     images: [{
-      url: '/og-image.png',
+      url: 'https://claspire.in/og-image.png',
       width: 1200,
       height: 630,
-      alt: 'Claspire - College Senior Community'
+      alt: 'Claspire - Connect with Seniors, Find Jobs & Get Referrals'
     }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Claspire | College Senior Community Platform for Indian Students",
-    description: "Connect with verified seniors from your own college for real guidance, referrals & mentorship.",
-    images: ['/og-image.png'],
+    title: "Claspire | Connect with Seniors, Find Jobs & Get Referrals",
+    description: "Claspire helps college students connect with verified seniors, discover jobs, get referrals, and grow their professional network within their campus community.",
+    images: ['https://claspire.in/og-image.png'],
   },
   verification: {
     google: 'IOVKErCFX8A3eEZWlSVPpO-TDKxbIQap9sY-NILpRaE',
+  },
+  alternates: {
+    canonical: 'https://claspire.in'
   },
   robots: {
     index: true,
@@ -96,19 +99,31 @@ export default function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "Organization",
-              "name": "Claspire",
-              "url": "https://claspire.in",
-              "logo": "https://claspire.in/favicon.ico",
-              "description": "India's college senior-student community platform connecting students with verified seniors for placement guidance and mentorship.",
-              "sameAs": [
-                "https://x.com/claspire",
-                "https://linkedin.com/company/claspire",
-                "https://instagram.com/claspire"
-              ]
-            })
+            __html: JSON.stringify([
+              {
+                "@context": "https://schema.org",
+                "@type": "Organization",
+                "name": "Claspire",
+                "url": "https://claspire.in",
+                "logo": "https://claspire.in/logo.png",
+                "sameAs": [
+                  "https://x.com/claspire",
+                  "https://linkedin.com/company/claspire",
+                  "https://instagram.com/claspire"
+                ]
+              },
+              {
+                "@context": "https://schema.org",
+                "@type": "WebSite",
+                "name": "Claspire",
+                "url": "https://claspire.in",
+                "potentialAction": {
+                  "@type": "SearchAction",
+                  "target": "https://claspire.in/search?q={search_term_string}",
+                  "query-input": "required name=search_term_string"
+                }
+              }
+            ])
           }}
         />
         <script

@@ -6,7 +6,7 @@ import {
   Briefcase, MapPin, Search, Building2, Eye,
   ArrowRight, Zap, Lock, CheckCircle, Clock, Sparkles,
   ExternalLink, ChevronDown, Loader2,
-  DollarSign, UserCheck, Globe, Filter, Award
+  IndianRupee, UserCheck, Globe, Filter, Award
 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 
@@ -440,7 +440,7 @@ export default function JobsPage() {
                         {/* Middle: Location, Salary, Date, Type */}
                         <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-2.5 text-[10px] text-slate-400 dark:text-[#B0B7BE]">
                           <span className="inline-flex items-center gap-1 bg-app dark:bg-[#283036] px-2 py-0.5 rounded-md"><MapPin size={10} /> {job.location}</span>
-                          <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 font-semibold px-2 py-0.5 rounded-md"><DollarSign size={10} /> {job.salary_range}</span>
+                          <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 font-semibold px-2 py-0.5 rounded-md"><IndianRupee size={10} /> {job.salary_range}</span>
                           <span className="inline-flex items-center gap-1"><Clock size={10} /> {timeAgo(job.created_at)}</span>
                           <span className="px-2 py-0.5 rounded bg-slate-100 dark:bg-[#283036] text-slate-500 dark:text-[#B0B7BE] text-[9px] font-semibold">
                             {jobTypeLabels[job.job_type.toLowerCase()] || job.job_type}
@@ -890,7 +890,7 @@ export default function JobsPage() {
                             {/* Meta row — salary highlighted */}
                             <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 mt-1.5 text-[11px] text-slate-400 dark:text-[#B0B7BE]">
                               <span className="inline-flex items-center gap-1"><MapPin size={11} /> {job.location}</span>
-                              <span className="inline-flex items-center gap-1 font-bold text-emerald-600"><DollarSign size={11} /> {job.salary_range}</span>
+                              <span className="inline-flex items-center gap-1 font-bold text-emerald-600"><IndianRupee size={11} /> {job.salary_range}</span>
                               <span className="inline-flex items-center gap-1"><Clock size={11} /> {timeAgo(job.created_at)}</span>
                               <span className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-[#283036] text-slate-500 dark:text-[#B0B7BE] text-[9px] font-semibold">
                                 {jobTypeLabels[job.job_type.toLowerCase()] || job.job_type}

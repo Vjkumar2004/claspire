@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   const collegeName = (community.colleges as any)?.name || community.display_name
   const collegeShort = (community.colleges as any)?.short_name || ''
-  const title = `${collegeName} Community — Placement Help & Mentorship | Claspire`
+  const title = `${community.display_name} Community | Claspire`
   const description = community.description
     ? community.description.slice(0, 160)
     : `${collegeName}${collegeShort ? ` (${collegeShort})` : ''} community — connect with verified seniors for placement guidance, job referrals and mentorship.`

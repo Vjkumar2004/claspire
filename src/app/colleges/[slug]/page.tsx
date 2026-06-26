@@ -216,7 +216,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const collegeName = community.colleges?.name || community.display_name
 
   return {
-    title: `${collegeName} Community — Seniors, Placement Help | Claspire`,
+    title: `${collegeName} Students & Seniors Community | Claspire`,
     description: `${collegeName} students — connect with verified seniors for placement guidance, job referrals and mentorship. Free on Claspire.`,
     alternates: {
       canonical: `https://claspire.in/colleges/${slug}`,

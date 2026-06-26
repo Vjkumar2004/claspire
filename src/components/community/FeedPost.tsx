@@ -92,15 +92,6 @@ export default function FeedPost({
   const plainText = post.content ? post.content.replace(/<img[^>]*>/gi, '').replace(/<[^>]*>/g, '') : ''
   const isLongContent = plainText.length > 50
 
-  console.log('[FeedPost DEBUG]', {
-    postId: post.id,
-    rawContent: post.content,
-    plainText,
-    plainTextLength: plainText.length,
-    isLongContent,
-    expanded: expandedContent,
-  })
-
   const toggleReplies = (answerId: string) => {
     setExpandedReplies(prev => ({ ...prev, [answerId]: !prev[answerId] }))
   }
@@ -349,7 +340,6 @@ export default function FeedPost({
 
         {(() => {
           const show = isLongContent
-          console.log('[FeedPost RENDER] Read More button:', { postId: post.id, isLongContent: show, expanded: expandedContent })
           return show && (
             <button
               onClick={() => onToggleContent(post.id)}

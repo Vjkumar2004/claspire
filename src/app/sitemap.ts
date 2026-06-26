@@ -190,11 +190,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.4,
   }))
 
+  // Blog pages
+  const blogPages: MetadataRoute.Sitemap = blogPosts.map((post) => ({
+    url: `${baseUrl}/blog/${post.slug}`,
+    lastModified: staticLastMod,
+    changeFrequency: 'weekly' as const,
+    priority: 0.6,
+  }))
+
   return [
     ...staticPages,
     ...communityPages,
     ...collegePages,
     ...postPages,
     ...profilePages,
+    ...blogPages,
   ]
 }

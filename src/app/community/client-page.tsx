@@ -486,6 +486,7 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
 
   useEffect(() => {
     if (shouldCreate) {
+      setShowPostModal(true)
       window.history.replaceState({}, '', window.location.pathname)
     }
   }, [shouldCreate])

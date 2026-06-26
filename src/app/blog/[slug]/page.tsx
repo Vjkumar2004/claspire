@@ -16,6 +16,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return {
     title: `${post.title} | Claspire Blog`,
     description: post.description,
+    alternates: {
+      canonical: `https://claspire.in/blog/${slug}`,
+    },
   }
 }
 

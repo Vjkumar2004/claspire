@@ -3,7 +3,11 @@ import { createClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
 import { verifySessionCookie } from '@/lib/session'
 import AdminSidebar from '@/components/AdminSidebar'
+import { Metadata } from 'next'
 
+export const metadata: Metadata = {
+  robots: { index: false, follow: false }
+}
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const cookieStore = await cookies()
   const sessionCookie = cookieStore.get('claspire_session')?.value
