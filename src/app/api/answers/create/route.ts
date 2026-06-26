@@ -28,17 +28,35 @@ export async function POST(req: NextRequest) {
 
     const userId = user.id
 
-    const { post_id, content, is_senior_answer, parent_answer_id } = await req.json()
+    const { post_id, content, is_senior_answer, parent_answer_id, gif_url } = await req.json()
 
-    if (!content?.trim()) {
-      return NextResponse.json({ error: 'Answer required' }, { status: 400 })
+    if (!content?.trim() && !gif_url?.trim()) {
+      console.log('[DEBUG] 400 Error: Answer or GIF required');
+      return NextResponse.json({ error: 'Answer or GIF required' }, { status: 400 })
+    }
+
+    let finalGifUrl = null;
+    if (gif_url?.trim()) {
+      try {
+        const url = new URL(gif_url);
+        const allowedDomains = ['media.giphy.com', 'i.giphy.com', 'media0.giphy.com', 'media1.giphy.com', 'media2.giphy.com', 'media3.giphy.com', 'media4.giphy.com'];
+        if (!allowedDomains.includes(url.hostname)) {
+          console.log('[DEBUG] 400 Error: Invalid GIF domain', url.hostname);
+          return NextResponse.json({ error: 'Invalid GIF domain' }, { status: 400 })
+        }
+        finalGifUrl = gif_url.trim();
+      } catch (e) {
+        console.log('[DEBUG] 400 Error: Invalid GIF URL', gif_url);
+        return NextResponse.json({ error: 'Invalid GIF URL' }, { status: 400 })
+      }
     }
 
     // Insert answer
     const insertPayload: any = {
       post_id,
       author_id: userId,
-      content: content.trim(),
+      content: content?.trim() || '',
+      gif_url: finalGifUrl,
       is_senior_answer: is_senior_answer || false,
       upvote_count: 0,
       created_at: new Date().toISOString()
@@ -173,7 +191,7 @@ export async function POST(req: NextRequest) {
         .eq('id', userId)
         .single()
 
-      const rpAmount = content.trim().length >= 20 ? 5 : 0
+      const rpAmount = (content?.trim()?.length || 0) >= 20 ? 5 : 0
 
       if (rpAmount > 0) {
         await supabase

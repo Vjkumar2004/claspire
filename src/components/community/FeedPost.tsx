@@ -1,10 +1,12 @@
 'use client'
 import React from 'react'
 import { motion } from 'framer-motion'
-import { ArrowBigUp, MessageSquare, Share2, CheckCircle, ArrowRight, Trash2 } from 'lucide-react'
+import { ArrowBigUp, MessageSquare, Share2, CheckCircle, ArrowRight, Trash2, Smile, Image as ImageIcon, X as XIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import MediaGallery from '@/components/MediaGallery'
 import PostContentRenderer from '@/components/PostContentRenderer'
+import EmojiPicker from 'emoji-picker-react'
+import GifPicker from './GifPicker'
 
 const getTypeStyle = (type: string) => {
   switch (type) {
@@ -59,7 +61,7 @@ export interface FeedPostProps {
   onVote: (postId: string, voteType: 'upvote' | 'downvote') => void
   onToggleAnswerSection: (postId: string) => void
   onSharePost: (post: any) => void
-  onSubmitInlineAnswer: (postId: string, text: string, parentAnswerId?: string) => Promise<boolean> | void
+  onSubmitInlineAnswer: (postId: string, text: string, parentAnswerId?: string, gifUrl?: string | null) => Promise<boolean> | void
   onDeleteInlineAnswer?: (postId: string, answerId: string, parentAnswerId?: string) => Promise<boolean> | void
   onUpvotersClick?: (postId: string) => void
   currentUserId?: string | null
@@ -88,6 +90,9 @@ export default function FeedPost({
   const [answerText, setAnswerText] = React.useState('')
   const [isSubmittingAnswer, setIsSubmittingAnswer] = React.useState(false)
   const [replyToAnswerId, setReplyToAnswerId] = React.useState<string | null>(null)
+  const [showEmojiPicker, setShowEmojiPicker] = React.useState(false)
+  const [showGifPicker, setShowGifPicker] = React.useState(false)
+  const [selectedGif, setSelectedGif] = React.useState<string | null>(null)
 
   const plainText = post.content ? post.content.replace(/<img[^>]*>/gi, '').replace(/<[^>]*>/g, '') : ''
   const isLongContent = plainText.length > 50
@@ -98,13 +103,16 @@ export default function FeedPost({
 
   const handleSubmitAnswer = async () => {
     const trimmed = answerText.trim()
-    if (!trimmed || isSubmittingAnswer) return
+    if (!trimmed && !selectedGif) return
     
     setIsSubmittingAnswer(true)
     try {
-      const success = await onSubmitInlineAnswer(post.id, trimmed, replyToAnswerId || undefined)
+      const success = await onSubmitInlineAnswer(post.id, trimmed, replyToAnswerId || undefined, selectedGif)
       if (success !== false) {
         setAnswerText('') // clear only on success
+        setSelectedGif(null)
+        setShowEmojiPicker(false)
+        setShowGifPicker(false)
         if (replyToAnswerId) {
           setExpandedReplies(prev => ({ ...prev, [replyToAnswerId as string]: true }))
         }
@@ -139,7 +147,37 @@ export default function FeedPost({
             </button>
           </div>
         )}
-        <div className="flex items-end gap-2">
+        {selectedGif && (
+          <div className="relative inline-block mb-2 ml-1">
+            <img src={selectedGif} alt="Selected GIF" className="h-24 rounded object-cover border border-surface dark:border-[#38434F]" />
+            <button 
+              onClick={() => setSelectedGif(null)}
+              className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-0.5 hover:bg-red-600 shadow-md"
+            >
+              <XIcon className="w-3 h-3" />
+            </button>
+          </div>
+        )}
+        <div className="flex items-end gap-2 relative">
+          <div className="flex flex-col sm:flex-row gap-1 pb-1">
+            <button
+              type="button"
+              onClick={() => { setShowEmojiPicker(!showEmojiPicker); setShowGifPicker(false); }}
+              className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-[#B0B7BE] rounded-full hover:bg-slate-100 dark:hover:bg-[#283036] transition-colors"
+              title="Emoji"
+            >
+              <Smile className="w-[14px] h-[14px]" />
+            </button>
+            <button
+              type="button"
+              onClick={() => { setShowGifPicker(!showGifPicker); setShowEmojiPicker(false); }}
+              className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-[#B0B7BE] rounded-full hover:bg-slate-100 dark:hover:bg-[#283036] transition-colors"
+              title="GIF"
+            >
+              <ImageIcon className="w-[14px] h-[14px]" />
+            </button>
+          </div>
+          
           <textarea
             value={answerText}
             onChange={e => setAnswerText(e.target.value)}
@@ -149,11 +187,35 @@ export default function FeedPost({
           />
           <button
             onClick={handleSubmitAnswer}
-            disabled={!answerText.trim() || isSubmittingAnswer}
-            className="px-3 py-1.5 bg-[#7C3AED] hover:bg-[#6D28D9] disabled:bg-slate-200 dark:disabled:bg-[#283036] text-white rounded font-bold text-[10px] cursor-pointer transition-colors flex-shrink-0"
+            disabled={(!answerText.trim() && !selectedGif) || isSubmittingAnswer}
+            className="px-3 py-1.5 bg-[#7C3AED] hover:bg-[#6D28D9] disabled:bg-slate-200 dark:disabled:bg-[#283036] text-white rounded font-bold text-[10px] cursor-pointer transition-colors flex-shrink-0 mb-[1px]"
           >
             {!isTopLevel ? 'Reply' : 'Send'}
           </button>
+          
+          {showEmojiPicker && (
+            <div className="absolute bottom-full left-0 mb-2 z-50">
+              <EmojiPicker
+                onEmojiClick={(emojiData) => {
+                  setAnswerText(prev => prev + emojiData.emoji)
+                }}
+                width={300}
+                height={400}
+              />
+            </div>
+          )}
+          
+          {showGifPicker && (
+            <div className="absolute bottom-full left-0 sm:left-6 mb-2 z-50">
+              <GifPicker 
+                onSelect={(url) => {
+                  setSelectedGif(url)
+                  setShowGifPicker(false)
+                }}
+                onClose={() => setShowGifPicker(false)}
+              />
+            </div>
+          )}
         </div>
       </div>
     )
@@ -202,7 +264,14 @@ export default function FeedPost({
             </button>
           )}
         </div>
-        <p className="text-[10px] text-slate-600 dark:text-[#B0B7BE] leading-normal font-semibold mt-0.5">{answer.content}</p>
+        {answer.content && (
+          <p className="text-[10px] text-slate-600 dark:text-[#B0B7BE] leading-normal font-semibold mt-0.5 whitespace-pre-wrap">{answer.content}</p>
+        )}
+        {answer.gif_url && (
+          <div className="mt-1.5 max-w-full">
+            <img src={answer.gif_url} alt="GIF" className="max-w-[200px] sm:max-w-[250px] rounded object-cover" loading="lazy" />
+          </div>
+        )}
         
         {!isReply && (
           <div className="mt-1 flex items-center gap-3">

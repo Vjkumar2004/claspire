@@ -691,9 +691,9 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
     setLikesModalOpen(true)
   }
 
-  const submitInlineAnswer = async (postId: string, text: string, parentAnswerId?: string) => {
+  const submitInlineAnswer = async (postId: string, text: string, parentAnswerId?: string, gifUrl?: string | null) => {
     const trimmed = text.trim()
-    if (!trimmed) return false
+    if (!trimmed && !gifUrl) return false
 
     if (!user?.id) {
       router.push('/login')
@@ -704,7 +704,7 @@ function CommunityPageContent({ initialCommunities = [], initialPosts = [], init
       const response = await fetch('/api/answers/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ post_id: postId, content: trimmed, parent_answer_id: parentAnswerId })
+        body: JSON.stringify({ post_id: postId, content: trimmed, parent_answer_id: parentAnswerId, gif_url: gifUrl })
       })
 
       if (!response.ok) throw new Error('Answer creation failed')

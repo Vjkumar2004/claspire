@@ -12,14 +12,14 @@ export async function GET(req: NextRequest) {
     const user = await getAuthenticatedUser(req)
     // Allow unauthenticated users to view jobs, but referral actions are protected in the UI
 
-    // Auto-delete jobs older than 2 days (lazy cleanup)
-    const twoDaysAgo = new Date()
-    twoDaysAgo.setDate(twoDaysAgo.getDate() - 2)
+    // Auto-delete jobs older than 7 days (lazy cleanup)
+    const sevenDaysAgo = new Date()
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
 
     await supabase
       .from('jobs')
       .delete()
-      .lt('created_at', twoDaysAgo.toISOString())
+      .lt('created_at', sevenDaysAgo.toISOString())
 
     // Fetch jobs with senior and community data
     const { data: jobs, error } = await supabase
