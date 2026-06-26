@@ -1,12 +1,13 @@
 'use client'
 import React from 'react'
 import { motion } from 'framer-motion'
-import { ArrowBigUp, MessageSquare, Share2, CheckCircle, ArrowRight, Trash2, Smile, Image as ImageIcon, X as XIcon } from 'lucide-react'
+import { ArrowBigUp, MessageSquare, Share2, CheckCircle, ArrowRight, Trash2, Smile, X as XIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import MediaGallery from '@/components/MediaGallery'
 import PostContentRenderer from '@/components/PostContentRenderer'
 import EmojiPicker from 'emoji-picker-react'
 import GifPicker from './GifPicker'
+import LazyGif from './LazyGif'
 
 const getTypeStyle = (type: string) => {
   switch (type) {
@@ -129,94 +130,144 @@ export default function FeedPost({
   const replies = postAnswers?.filter((a: any) => a.parent_answer_id) || []
 
   const renderComposer = (isTopLevel: boolean, targetAnswerId?: string) => {
-    if (isTopLevel && replyToAnswerId) return null; // Don't show global composer if replying inline
-    if (!isTopLevel && replyToAnswerId !== targetAnswerId) return null;
+    if (isTopLevel && replyToAnswerId) return null
+    if (!isTopLevel && replyToAnswerId !== targetAnswerId) return null
+
+    const replyTarget = topLevelAnswers.find((a: any) => a.id === targetAnswerId)
 
     return (
-      <div className={`flex flex-col gap-2 ${isTopLevel ? 'pt-1.5 mt-2 border-t border-surface dark:border-[#38434F]' : 'mt-2 mb-2 pl-2'}`}>
+      <div className={`flex flex-col gap-2 ${isTopLevel ? 'pt-2 mt-2 border-t border-surface dark:border-[#38434F]' : 'mt-2 mb-2 pl-2'}`}>
+
+        {/* Reply context banner */}
         {!isTopLevel && (
-          <div className="flex items-center justify-between bg-app dark:bg-[#1D2226] p-2 rounded-md">
+          <div className="flex items-center justify-between bg-purple-50 dark:bg-purple-900/20 border border-purple-100 dark:border-purple-800/30 px-2.5 py-1.5 rounded-lg">
             <span className="text-[10px] text-slate-600 dark:text-[#B0B7BE] font-medium">
-              Replying to <span className="font-bold text-slate-800 dark:text-white">{topLevelAnswers.find((a: any) => a.id === targetAnswerId)?.users?.full_name}</span>
+              Replying to{' '}
+              <span className="font-bold text-[#7C3AED]">{replyTarget?.users?.full_name}</span>
             </span>
-            <button 
+            <button
               onClick={() => setReplyToAnswerId(null)}
-              className="text-[10px] text-slate-400 dark:text-[#B0B7BE] hover:text-slate-600 dark:text-[#B0B7BE] font-bold px-2 py-0.5"
+              className="text-[10px] text-slate-400 hover:text-red-500 font-bold px-1.5 py-0.5 rounded hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
             >
               Cancel
             </button>
           </div>
         )}
+
+        {/* Selected GIF preview with remove button */}
         {selectedGif && (
-          <div className="relative inline-block mb-2 ml-1">
-            <img src={selectedGif} alt="Selected GIF" className="h-24 rounded object-cover border border-surface dark:border-[#38434F]" />
-            <button 
+          <div className="relative inline-block">
+            <img
+              src={selectedGif}
+              alt="Selected GIF"
+              loading="lazy"
+              decoding="async"
+              className="h-20 rounded-lg object-cover border border-slate-200 dark:border-[#38434F] shadow-sm"
+            />
+            <button
               onClick={() => setSelectedGif(null)}
-              className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-0.5 hover:bg-red-600 shadow-md"
+              className="absolute -top-1.5 -right-1.5 bg-red-500 hover:bg-red-600 text-white rounded-full p-0.5 shadow-md transition-colors"
+              aria-label="Remove GIF"
             >
-              <XIcon className="w-3 h-3" />
+              <XIcon className="w-2.5 h-2.5" />
             </button>
           </div>
         )}
-        <div className="flex items-end gap-2 relative">
-          <div className="flex flex-col sm:flex-row gap-1 pb-1">
-            <button
-              type="button"
-              onClick={() => { setShowEmojiPicker(!showEmojiPicker); setShowGifPicker(false); }}
-              className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-[#B0B7BE] rounded-full hover:bg-slate-100 dark:hover:bg-[#283036] transition-colors"
-              title="Emoji"
-            >
-              <Smile className="w-[14px] h-[14px]" />
-            </button>
-            <button
-              type="button"
-              onClick={() => { setShowGifPicker(!showGifPicker); setShowEmojiPicker(false); }}
-              className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-[#B0B7BE] rounded-full hover:bg-slate-100 dark:hover:bg-[#283036] transition-colors"
-              title="GIF"
-            >
-              <ImageIcon className="w-[14px] h-[14px]" />
-            </button>
-          </div>
-          
+
+        {/* ── Composer card (Discord / Slack style) ── */}
+        <div className="relative rounded-xl border border-slate-200 dark:border-[#38434F] bg-white dark:bg-[#1D2226] focus-within:border-[#7C3AED] focus-within:ring-2 focus-within:ring-[#7C3AED]/10 transition-all duration-200 shadow-sm">
+
+          {/* Text input */}
           <textarea
             value={answerText}
             onChange={e => setAnswerText(e.target.value)}
-            placeholder={!isTopLevel ? "Write a reply..." : "Help by writing an answer..."}
-            rows={1}
-            className="flex-1 border border-surface dark:border-[#38434F] hover:border-slate-300 dark:hover:border-[#38434F] rounded p-2 text-[10px] font-semibold focus:outline-none focus:border-[#7C3AED] resize-none"
+            placeholder={!isTopLevel ? 'Write a reply…' : 'Share your knowledge or experience…'}
+            rows={2}
+            onKeyDown={e => {
+              if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+                e.preventDefault()
+                handleSubmitAnswer()
+              }
+            }}
+            className="w-full bg-transparent border-none outline-none px-3 pt-2.5 pb-1.5 text-[11px] font-medium dark:text-white placeholder-slate-400 dark:placeholder-slate-500 resize-none leading-relaxed"
           />
-          <button
-            onClick={handleSubmitAnswer}
-            disabled={(!answerText.trim() && !selectedGif) || isSubmittingAnswer}
-            className="px-3 py-1.5 bg-[#7C3AED] hover:bg-[#6D28D9] disabled:bg-slate-200 dark:disabled:bg-[#283036] text-white rounded font-bold text-[10px] cursor-pointer transition-colors flex-shrink-0 mb-[1px]"
-          >
-            {!isTopLevel ? 'Reply' : 'Send'}
-          </button>
-          
+
+          {/* ── Toolbar ── */}
+          <div className="flex items-center justify-between px-2 pb-2 pt-1 border-t border-slate-100 dark:border-[#38434F]/60">
+
+            {/* Left: Emoji + GIF buttons */}
+            <div className="flex items-center gap-0.5">
+              <button
+                type="button"
+                onClick={() => { setShowEmojiPicker(!showEmojiPicker); setShowGifPicker(false) }}
+                className={`flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-semibold transition-all duration-150 ${
+                  showEmojiPicker
+                    ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400'
+                    : 'text-slate-500 dark:text-[#B0B7BE] hover:bg-slate-100 dark:hover:bg-[#283036] hover:text-slate-700 dark:hover:text-white'
+                }`}
+                title="Add emoji"
+              >
+                <Smile className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Emoji</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => { setShowGifPicker(!showGifPicker); setShowEmojiPicker(false) }}
+                className={`flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold transition-all duration-150 ${
+                  showGifPicker
+                    ? 'bg-purple-50 dark:bg-purple-900/20 text-[#7C3AED]'
+                    : 'text-slate-500 dark:text-[#B0B7BE] hover:bg-slate-100 dark:hover:bg-[#283036] hover:text-slate-700 dark:hover:text-white'
+                }`}
+                title="Add GIF"
+              >
+                <span className="text-[9px] font-black tracking-tight border border-current rounded px-0.5 leading-tight">GIF</span>
+                <span className="hidden sm:inline text-[10px]">GIF</span>
+              </button>
+            </div>
+
+            {/* Right: Submit button */}
+            <button
+              onClick={handleSubmitAnswer}
+              disabled={(!answerText.trim() && !selectedGif) || isSubmittingAnswer}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-[#7C3AED] to-[#6D28D9] hover:from-[#6D28D9] hover:to-[#5B21B6] disabled:from-slate-200 disabled:to-slate-200 dark:disabled:from-[#283036] dark:disabled:to-[#283036] disabled:text-slate-400 text-white rounded-full text-[10px] font-bold cursor-pointer transition-all duration-200 shadow-sm disabled:shadow-none disabled:cursor-not-allowed"
+            >
+              {isSubmittingAnswer ? (
+                <span className="w-3 h-3 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+              ) : (
+                <ArrowRight className="w-3 h-3" />
+              )}
+              <span>{!isTopLevel ? 'Reply' : 'Answer'}</span>
+            </button>
+          </div>
+
+          {/* ── Popups (positioned relative to composer card) ── */}
           {showEmojiPicker && (
             <div className="absolute bottom-full left-0 mb-2 z-50">
               <EmojiPicker
-                onEmojiClick={(emojiData) => {
-                  setAnswerText(prev => prev + emojiData.emoji)
-                }}
+                onEmojiClick={emojiData => setAnswerText(prev => prev + emojiData.emoji)}
                 width={300}
-                height={400}
+                height={380}
               />
             </div>
           )}
-          
+
           {showGifPicker && (
-            <div className="absolute bottom-full left-0 sm:left-6 mb-2 z-50">
-              <GifPicker 
-                onSelect={(url) => {
-                  setSelectedGif(url)
-                  setShowGifPicker(false)
-                }}
+            <div className="absolute bottom-full left-0 mb-2 z-50">
+              <GifPicker
+                onSelect={url => { setSelectedGif(url); setShowGifPicker(false) }}
                 onClose={() => setShowGifPicker(false)}
               />
             </div>
           )}
         </div>
+
+        {/* Keyboard shortcut hint — desktop only */}
+        {isTopLevel && answerText.trim() && (
+          <p className="hidden sm:block text-[9px] text-slate-400 dark:text-[#B0B7BE] text-right -mt-1 pr-1">
+            ⌘↵ to send
+          </p>
+        )}
       </div>
     )
   }
@@ -268,9 +319,11 @@ export default function FeedPost({
           <p className="text-[10px] text-slate-600 dark:text-[#B0B7BE] leading-normal font-semibold mt-0.5 whitespace-pre-wrap">{answer.content}</p>
         )}
         {answer.gif_url && (
-          <div className="mt-1.5 max-w-full">
-            <img src={answer.gif_url} alt="GIF" className="max-w-[200px] sm:max-w-[250px] rounded object-cover" loading="lazy" />
-          </div>
+          <LazyGif
+            src={answer.gif_url}
+            alt="GIF comment"
+            maxWidth="220px"
+          />
         )}
         
         {!isReply && (
