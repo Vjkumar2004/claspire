@@ -3,6 +3,7 @@ import { MDXRemote } from 'next-mdx-remote/rsc'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { Metadata } from 'next'
+import remarkGfm from 'remark-gfm'
 
 export async function generateStaticParams() {
   const posts = getAllPosts()
@@ -52,7 +53,10 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
         <div className="border-t border-surface pt-10">
           <div className="prose prose-lg prose-gray max-w-none prose-headings:font-semibold prose-headings:text-gray-900 prose-a:text-purple-600 prose-a:no-underline hover:prose-a:underline prose-strong:text-gray-900 prose-li:text-gray-600">
-            <MDXRemote source={post.content} />
+            <MDXRemote 
+              source={post.content}
+              options={{ mdxOptions: { remarkPlugins: [remarkGfm] } }}
+            />
           </div>
         </div>
 
