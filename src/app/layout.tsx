@@ -33,6 +33,26 @@ export const metadata: Metadata = {
     "internship referral platform",
     "senior student connect"
   ],
+  icons: {
+    icon: [
+      {
+        url: "/favicon.ico"
+      },
+      {
+        url: "/favicon-16x16.png",
+        sizes: "16x16",
+        type: "image/png"
+      },
+      {
+        url: "/favicon-32x32.png",
+        sizes: "32x32",
+        type: "image/png"
+      }
+    ],
+    shortcut: "/favicon.ico",
+    apple: "/apple-touch-icon.png"
+  },
+  manifest: "/site.webmanifest",
   openGraph: {
     title: "Claspire | Connect with Seniors, Find Jobs & Get Referrals",
     description: "Claspire helps college students connect with verified seniors, discover jobs, get referrals, and grow their professional network within their campus community.",
@@ -41,9 +61,9 @@ export const metadata: Metadata = {
     type: "website",
     locale: 'en_IN',
     images: [{
-      url: 'https://claspire.in/og-image.png',
-      width: 1200,
-      height: 630,
+      url: 'https://claspire.in/android-chrome-512x512.png',
+      width: 512,
+      height: 512,
       alt: 'Claspire - Connect with Seniors, Find Jobs & Get Referrals'
     }],
   },
@@ -51,7 +71,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Claspire | Connect with Seniors, Find Jobs & Get Referrals",
     description: "Claspire helps college students connect with verified seniors, discover jobs, get referrals, and grow their professional network within their campus community.",
-    images: ['https://claspire.in/og-image.png'],
+    images: ['https://claspire.in/android-chrome-512x512.png'],
   },
   verification: {
     google: 'IOVKErCFX8A3eEZWlSVPpO-TDKxbIQap9sY-NILpRaE',
@@ -91,11 +111,6 @@ export default function RootLayout({
             `
           }}
         />
-        <link rel="icon" href="/favicon.ico" sizes="any" />
-        <link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png" />
-        <link rel="icon" href="/favicon-16x16.png" sizes="16x16" type="image/png" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-        <link rel="manifest" href="/site.webmanifest" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -105,7 +120,7 @@ export default function RootLayout({
                 "@type": "Organization",
                 "name": "Claspire",
                 "url": "https://claspire.in",
-                "logo": "https://claspire.in/logo.png",
+                "logo": "https://claspire.in/android-chrome-512x512.png",
                 "sameAs": [
                   "https://x.com/claspire",
                   "https://linkedin.com/company/claspire",

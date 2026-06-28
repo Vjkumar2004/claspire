@@ -54,7 +54,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       parsedUrls = typeof post.image_url === 'string' ? [post.image_url] : []
     }
   }
-  const ogImage = parsedUrls.length > 0 ? parsedUrls[0] : 'https://claspire.in/og-image.png'
+  const ogImage = parsedUrls.length > 0 ? parsedUrls[0] : 'https://claspire.in/android-chrome-512x512.png'
 
   return {
     title,

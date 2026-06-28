@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: { params: Promise<{ uniqueId:
   const description = user.bio
     ? user.bio.slice(0, 160)
     : `${roleLabel} profile on Claspire — connect with ${user.full_name} for mentorship and guidance.`
-  const ogImage = user.avatar_url || '/og-image.png'
+  const ogImage = user.avatar_url || '/android-chrome-512x512.png'
 
   return {
     title,

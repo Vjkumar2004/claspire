@@ -270,7 +270,7 @@ function StepWelcome({ onNext }: { onNext: () => void }) {
       >
         <div className="w-16 h-16 rounded-2xl overflow-hidden shadow-xl shadow-purple-500/20 bg-white mx-auto">
           <img
-            src="/claspire-logo.jpeg"
+            src="/android-chrome-192x192.png"
             alt="Claspire"
             className="w-full h-full object-cover"
             onError={(e) => {
@@ -791,7 +791,7 @@ function SuccessScreen({
       {/* Logo */}
       <div className="w-16 h-16 rounded-2xl overflow-hidden shadow-xl shadow-purple-500/25 bg-white mb-5 mx-auto">
         <img
-          src="/claspire-logo.jpeg"
+          src="/android-chrome-192x192.png"
           alt="Claspire"
           className="w-full h-full object-cover"
           onError={(e) => {
@@ -903,7 +903,7 @@ function ProgressHeader({ step, total }: { step: number; total: number }) {
         <div className="flex items-center gap-2">
           <div className="w-6 h-6 rounded-lg overflow-hidden bg-white shadow-sm">
             <img
-              src="/claspire-logo.jpeg"
+              src="/android-chrome-192x192.png"
               alt="Claspire"
               className="w-full h-full object-cover"
               onError={(e) => {

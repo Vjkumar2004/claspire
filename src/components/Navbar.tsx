@@ -81,8 +81,12 @@ export default function Navbar() {
     <nav className="fixed top-0 left-0 right-0 h-14 z-[999] bg-surface/90 dark:bg-[#1D2226]/90 border-b border-surface dark:border-[#38434F] backdrop-blur-[12px]">
       <div className="flex items-center justify-between h-full px-6 max-w-7xl mx-auto w-full">
         <div className="flex items-center gap-3 flex-shrink-0">
-          <Link href="/" className="font-plus-jakarta-sans font-extrabold text-xl text-black dark:text-white no-underline hover:no-underline tracking-tight flex items-center">
-            cl<span className="text-[#7C3AED]">aspire</span>
+          <Link href="/" className="flex items-center no-underline hover:no-underline">
+            <img
+              src="/navbar-logo.svg"
+              alt="Claspire"
+              className="w-10 h-10 object-contain"
+            />
           </Link>
         </div>
 
@@ -473,9 +477,13 @@ export default function Navbar() {
             <Link
               href="/"
               onClick={() => setMobileMenuOpen(false)}
-              className="text-[18px] font-extrabold text-[#0A0A0A] dark:text-white no-underline font-plus-jakarta-sans"
+              className="flex items-center no-underline hover:no-underline"
             >
-              cl<span style={{ color: '#7C3AED' }}>aspire</span>
+              <img
+                src="/navbar-logo.svg"
+                alt="Claspire"
+                className="w-10 h-10 object-contain"
+              />
             </Link>
 
             {/* Close button */}

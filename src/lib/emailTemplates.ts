@@ -31,7 +31,7 @@ const CLASPIRE_HEADER = `
         <tr>
           <td style="width:52px; vertical-align:middle;">
             <img
-              src="https://claspire.in/claspire-logo.jpeg"
+              src="https://claspire.in/apple-touch-icon.png"
               alt=""
               width="48"
               height="48"
