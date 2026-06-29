@@ -566,6 +566,8 @@ export default async function CollegePage({ params }: { params: Promise<{ slug: 
                   collegeName={collegeName}
                   collegeDomain={community.colleges?.email_domain}
                   isVerified={community.colleges?.is_verified || false}
+                  claimedBy={community.colleges?.claimed_by || null}
+                  claimedAt={community.colleges?.claimed_at || null}
                 />
               </div>
 

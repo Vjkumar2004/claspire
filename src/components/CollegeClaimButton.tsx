@@ -10,9 +10,11 @@ type Props = {
   collegeName: string
   collegeDomain?: string | null
   isVerified: boolean
+  claimedBy?: string | null
+  claimedAt?: string | null
 }
 
-export default function CollegeClaimButton({ collegeId, collegeSlug, collegeName, collegeDomain, isVerified }: Props) {
+export default function CollegeClaimButton({ collegeId, collegeSlug, collegeName, collegeDomain, isVerified, claimedBy, claimedAt }: Props) {
   const [isOpen, setIsOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -102,6 +104,9 @@ export default function CollegeClaimButton({ collegeId, collegeSlug, collegeName
 
   if (checking) return null
 
+  // Check if college is claimed by an official representative
+  const isClaimed = claimedBy !== null && claimedAt !== null
+
   if (existingClaim?.status === 'approved') {
     return (
       <Link
@@ -157,7 +162,7 @@ export default function CollegeClaimButton({ collegeId, collegeSlug, collegeName
     )
   }
 
-  if (isVerified && !existingClaim) {
+  if (isClaimed && !existingClaim) {
     return (
       <div className="flex items-center gap-2 text-gray-500 dark:text-[#B0B7BE]">
         <Shield size={16} className="text-emerald-500" />
@@ -168,7 +173,7 @@ export default function CollegeClaimButton({ collegeId, collegeSlug, collegeName
 
   return (
     <div>
-      {!isVerified && !user && (
+      {!isClaimed && !user && (
         <div>
           <Link
             href="/signup"
@@ -207,7 +212,7 @@ export default function CollegeClaimButton({ collegeId, collegeSlug, collegeName
         </div>
       )}
 
-      {!isVerified && user && (
+      {!isClaimed && user && (
         <div>
           <button
             onClick={() => setIsOpen(!isOpen)}

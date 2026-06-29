@@ -67,7 +67,6 @@ export async function POST(
     const { error: collegeUpdateError } = await supabase
       .from('colleges')
       .update({
-        is_verified: true,
         claimed_by: claim.user_id,
         claimed_at: new Date().toISOString()
       })
