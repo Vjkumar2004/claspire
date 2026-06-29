@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { getAuthenticatedUser } from '@/lib/session'
+import { revalidatePath } from 'next/cache'
 
 const ALLOWED_FIELDS = ['banner_url', 'logo_url', 'description', 'website_url', 'social_links', 'avg_package', 'highest_package', 'placement_rate', 'nirf_rank', 'rating']
 
@@ -64,6 +65,11 @@ export async function POST(
       console.error('College update error:', updateError)
       return NextResponse.json({ error: updateError.message }, { status: 500 })
     }
+
+    // Revalidate college pages and list
+    revalidatePath('/colleges')
+    revalidatePath(`/colleges/${slug}`)
+    revalidatePath('/api/colleges')
 
     return NextResponse.json({
       success: true,

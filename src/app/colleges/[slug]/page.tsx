@@ -10,6 +10,8 @@ import CollegeClaimButton from '@/components/CollegeClaimButton'
 import PostContentRenderer from '@/components/PostContentRenderer'
 import { verifySessionCookie } from '@/lib/session'
 
+export const revalidate = 300
+
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder'

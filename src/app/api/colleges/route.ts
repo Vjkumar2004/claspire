@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { logCacheFetch, logCacheHit } from '@/lib/cache-logger'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -9,6 +10,7 @@ const supabase = createClient(
 export const revalidate = 300
 
 export async function GET() {
+  const startTime = Date.now()
   try {
     const [
       collegesResult,
@@ -115,6 +117,9 @@ export async function GET() {
         senior_count: c.senior_count,
       })
     })
+
+    const duration = Date.now() - startTime
+    logCacheFetch('colleges-list', duration, { count: mergedColleges.length })
 
     return NextResponse.json({
       success: true,

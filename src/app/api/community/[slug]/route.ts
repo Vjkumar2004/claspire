@@ -2,16 +2,20 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { getCommunityDisplayCounts, syncCommunityCounts, resolveCommunityCollegeId } from '@/lib/community-stats'
 import { getAuthenticatedUser } from '@/lib/session'
+import { logCacheFetch } from '@/lib/cache-logger'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SECRET_KEY!
 )
 
+// No ISR - includes user-specific data (membership status, permissions)
+
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
 ) {
+  const startTime = Date.now()
   try {
     const { slug } = await params
 
@@ -417,6 +421,9 @@ export async function GET(
       canViewJobs,
       canViewWebinars,
     })
+
+    const duration = Date.now() - startTime
+    logCacheFetch(`community-${slug}`, duration, { userRole, isAlreadyMember })
 
   } catch (err: any) {
     console.error('Community fetch error:', err)

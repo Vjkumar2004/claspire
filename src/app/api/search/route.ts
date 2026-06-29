@@ -2,11 +2,14 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { sanitizeSearchInput } from '@/lib/sanitize'
 import { applyRateLimit } from '@/lib/rateLimitRedis'
+import { logCacheFetch } from '@/lib/cache-logger'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SECRET_KEY!
 )
+
+// No ISR - search includes dynamic data (posts, users, communities, jobs)
 
 interface SearchResult {
   id: string
@@ -59,6 +62,7 @@ function getSimilarity(a: string, b: string): number {
 }
 
 export async function GET(req: NextRequest) {
+  const startTime = Date.now()
   try {
     // Rate limiting: 30 requests per minute per IP
     const rateLimitResult = await applyRateLimit(req, 'search')
@@ -717,6 +721,9 @@ export async function GET(req: NextRequest) {
 
     // Paginate in memory after sorting
     const paginatedResults = finalResults.slice(offset, offset + limit)
+
+    const duration = Date.now() - startTime
+    logCacheFetch(`search-${query}`, duration, { resultsCount: finalResults.length })
 
     return NextResponse.json({
       results: paginatedResults,

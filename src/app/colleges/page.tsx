@@ -1,30 +1,56 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { Search, MapPin, Users, GraduationCap, Building2, ChevronRight, MessageSquare, TrendingUp, Zap, Clock, ArrowUpRight, Sparkles, Filter } from 'lucide-react'
 import { getCollegeLogo, getCollegeInitial } from '@/lib/college-utils'
+import { useQuery } from '@tanstack/react-query'
 
 export default function CollegesPage() {
   const router = useRouter()
   const [searchQuery, setSearchQuery] = useState('')
-  const [data, setData] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await fetch('/api/colleges')
-        const json = await res.json()
-        if (json.success) setData(json)
-      } catch (err) {
-        console.error('Failed to fetch colleges:', err)
-      } finally {
-        setLoading(false)
-      }
+  // Static college data (cached for 5 minutes)
+  const { data: staticData, isLoading } = useQuery({
+    queryKey: ['colleges-static'],
+    queryFn: async () => {
+      const res = await fetch('/api/colleges')
+      const json = await res.json()
+      if (json.success) return json
+      throw new Error('Failed to fetch colleges')
+    },
+    staleTime: 5 * 60 * 1000, // 5 minutes for static data
+  })
+
+  // Dynamic stats (cached for 1 minute - member counts, senior counts, etc.)
+  const { data: dynamicStats } = useQuery({
+    queryKey: ['colleges-dynamic'],
+    queryFn: async () => {
+      const res = await fetch('/api/colleges')
+      const json = await res.json()
+      if (json.success) return json
+      throw new Error('Failed to fetch colleges')
+    },
+    staleTime: 60 * 1000, // 1 minute for dynamic data
+  })
+
+  // Merge static and dynamic data
+  const data = useMemo(() => {
+    if (!staticData) return null
+    if (!dynamicStats) return staticData
+    
+    // Merge dynamic stats into static data
+    return {
+      ...staticData,
+      colleges: staticData.colleges?.map((college: any, index: number) => ({
+        ...college,
+        member_count: dynamicStats.colleges?.[index]?.member_count ?? college.member_count,
+        senior_count: dynamicStats.colleges?.[index]?.senior_count ?? college.senior_count,
+        doubt_count: dynamicStats.colleges?.[index]?.doubt_count ?? college.doubt_count,
+      })),
+      heroStats: dynamicStats.heroStats || staticData.heroStats,
     }
-    fetchData()
-  }, [])
+  }, [staticData, dynamicStats])
 
   const filtered = (data?.colleges || []).filter((c: any) =>
     c.colleges?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -240,7 +266,7 @@ export default function CollegesPage() {
               )}
             </div>
 
-            {loading ? (
+            {isLoading ? (
               <div>
                 {/* Mobile skeleton */}
                 <div className="flex sm:hidden flex-col gap-3">
