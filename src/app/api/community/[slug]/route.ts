@@ -34,7 +34,8 @@ export async function GET(
           id, name, short_name, slug,
           type, location, state, logo_url,
           banner_url, avg_package, description,
-          website_url, is_verified, email_domain
+          website_url, is_verified, email_domain,
+          rating, highest_package, placement_rate, nirf_rank
         )
       `)
       .eq('slug', slug)
@@ -54,7 +55,8 @@ export async function GET(
               id, name, short_name, slug,
               type, location, state, logo_url,
               banner_url, avg_package, description,
-              website_url, is_verified, email_domain
+              website_url, is_verified, email_domain,
+              rating, highest_package, placement_rate, nirf_rank
             )
           )
         `)

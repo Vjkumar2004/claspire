@@ -4,7 +4,7 @@ import { createClient } from '@supabase/supabase-js'
 import Link from 'next/link'
 import Image from 'next/image'
 import { cookies } from 'next/headers'
-import { Users, MessageCircle, Star, ArrowRight, CheckCircle, TrendingUp, Award, HelpCircle, MessageSquare, FileText, Sparkles, Globe, Shield, ExternalLink } from 'lucide-react'
+import { Users, MessageCircle, Star, ArrowRight, CheckCircle, TrendingUp, Award, HelpCircle, MessageSquare, FileText, Sparkles, Globe, Shield, ExternalLink, BarChart3 } from 'lucide-react'
 import ProfileImage from '@/components/ProfileImage'
 import CollegeClaimButton from '@/components/CollegeClaimButton'
 import PostContentRenderer from '@/components/PostContentRenderer'
@@ -103,7 +103,7 @@ async function getCollegeBySlug(slug: string) {
 
     const { data: college, error: collegeError } = await supabaseAdmin
       .from('colleges')
-      .select('*')
+      .select('id, name, short_name, slug, type, location, state, logo_url, banner_url, description, website_url, social_links, email_domain, is_verified, rating, avg_package, highest_package, placement_rate, nirf_rank, claimed_by, claimed_at')
       .eq('slug', slug)
       .single()
 
@@ -440,13 +440,21 @@ export default async function CollegePage({ params }: { params: Promise<{ slug: 
                       <span className="text-sm font-bold text-gray-900 dark:text-white bg-surface dark:bg-[#283036] px-2 py-0.5 rounded border border-surface dark:border-[#38434F] shadow-sm">{community.doubt_count || 0}+</span>
                     </div>
 
-                    {community.colleges?.avg_package && (
+                    {community.colleges?.avg_package ? (
                       <div className="flex items-center justify-between group">
                         <div className="flex items-center gap-2.5 text-gray-600 dark:text-[#B0B7BE]">
                           <TrendingUp size={16} className="text-gray-400 dark:text-[#B0B7BE] group-hover:text-emerald-500 transition-colors" />
                           <span className="text-sm font-semibold">Avg. Package</span>
                         </div>
                         <span className="text-sm font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-800 shadow-sm">₹{Number(community.colleges.avg_package).toFixed(1)} LPA</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-between group">
+                        <div className="flex items-center gap-2.5 text-gray-600 dark:text-[#B0B7BE]">
+                          <TrendingUp size={16} className="text-gray-400 dark:text-[#B0B7BE]" />
+                          <span className="text-sm font-semibold">Avg. Package</span>
+                        </div>
+                        <span className="text-sm font-bold text-gray-500 dark:text-[#B0B7BE] bg-gray-50 dark:bg-[#1D2226] px-2 py-0.5 rounded border border-gray-200 dark:border-[#38434F]">Not Available</span>
                       </div>
                     )}
                   </div>
@@ -476,7 +484,7 @@ export default async function CollegePage({ params }: { params: Promise<{ slug: 
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="bg-surface dark:bg-[#283036] rounded-md p-4 sm:p-5 border border-surface dark:border-[#38434F] hover:shadow-md transition-all shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-blue-50 rounded-md flex items-center justify-center border border-blue-100">
@@ -488,18 +496,62 @@ export default async function CollegePage({ params }: { params: Promise<{ slug: 
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="bg-surface dark:bg-[#283036] rounded-md p-4 sm:p-5 border border-surface dark:border-[#38434F] hover:shadow-md transition-all shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-green-50 rounded-md flex items-center justify-center border border-green-100">
                       <Star className="w-5 h-5 text-green-600" />
                     </div>
                     <div>
-                      <p className="text-lg font-bold text-gray-900 dark:text-white leading-tight">4.8/5</p>
+                      <p className="text-lg font-bold text-gray-900 dark:text-white leading-tight">
+                        {community.colleges?.rating ? `${community.colleges.rating}/5` : 'Not Rated Yet'}
+                      </p>
                       <p className="text-xs text-gray-500 dark:text-[#B0B7BE] font-semibold mt-0.5">Student Rating</p>
                     </div>
                   </div>
                 </div>
+
+                {community.colleges?.highest_package && (
+                  <div className="bg-surface dark:bg-[#283036] rounded-md p-4 sm:p-5 border border-surface dark:border-[#38434F] hover:shadow-md transition-all shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-amber-50 rounded-md flex items-center justify-center border border-amber-100">
+                        <TrendingUp className="w-5 h-5 text-amber-600" />
+                      </div>
+                      <div>
+                        <p className="text-lg font-bold text-gray-900 dark:text-white leading-tight">₹{community.colleges.highest_package} LPA</p>
+                        <p className="text-xs text-gray-500 dark:text-[#B0B7BE] font-semibold mt-0.5">Highest Package</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {community.colleges?.placement_rate && (
+                  <div className="bg-surface dark:bg-[#283036] rounded-md p-4 sm:p-5 border border-surface dark:border-[#38434F] hover:shadow-md transition-all shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-cyan-50 rounded-md flex items-center justify-center border border-cyan-100">
+                        <BarChart3 className="w-5 h-5 text-cyan-600" />
+                      </div>
+                      <div>
+                        <p className="text-lg font-bold text-gray-900 dark:text-white leading-tight">{community.colleges.placement_rate}%</p>
+                        <p className="text-xs text-gray-500 dark:text-[#B0B7BE] font-semibold mt-0.5">Placement Rate</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {community.colleges?.nirf_rank && (
+                  <div className="bg-surface dark:bg-[#283036] rounded-md p-4 sm:p-5 border border-surface dark:border-[#38434F] hover:shadow-md transition-all shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-rose-50 rounded-md flex items-center justify-center border border-rose-100">
+                        <Award className="w-5 h-5 text-rose-600" />
+                      </div>
+                      <div>
+                        <p className="text-lg font-bold text-gray-900 dark:text-white leading-tight">#{community.colleges.nirf_rank}</p>
+                        <p className="text-xs text-gray-500 dark:text-[#B0B7BE] font-semibold mt-0.5">NIRF Rank</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Recent Posts */}

@@ -16,10 +16,10 @@ export async function GET() {
       usersResult,
       connectionsResult,
     ] = await Promise.all([
-      supabase.from('colleges').select('id, name, short_name, slug, location, state, type, logo_url, is_verified, website_url, description').order('name', { ascending: true }),
+      supabase.from('colleges').select('id, name, short_name, slug, location, state, type, logo_url, is_verified, website_url, description, rating, avg_package, highest_package, placement_rate, nirf_rank').order('name', { ascending: true }),
       supabase.from('communities').select(`
         id, slug, display_name, member_count, senior_count, doubt_count, last_activity_at, college_id,
-        colleges ( id, name, short_name, slug, location, state, type, logo_url, is_verified, website_url, description )
+        colleges ( id, name, short_name, slug, location, state, type, logo_url, is_verified, website_url, description, rating, avg_package, highest_package, placement_rate, nirf_rank )
       `).eq('is_active', true).order('member_count', { ascending: false }).limit(200),
       supabase.from('users').select('college_id, role'),
       supabase.from('connections').select('id', { count: 'exact', head: true }).eq('status', 'accepted'),

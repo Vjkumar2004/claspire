@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { getAuthenticatedUser } from '@/lib/session'
 
-const ALLOWED_FIELDS = ['banner_url', 'logo_url', 'description', 'website_url', 'social_links', 'avg_package']
+const ALLOWED_FIELDS = ['banner_url', 'logo_url', 'description', 'website_url', 'social_links', 'avg_package', 'highest_package', 'placement_rate', 'nirf_rank', 'rating']
 
 export async function POST(
   req: NextRequest,
