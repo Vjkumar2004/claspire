@@ -47,7 +47,11 @@ export default function CollegeAdminDashboard() {
 
   const [description, setDescription] = useState('')
   const [websiteUrl, setWebsiteUrl] = useState('')
+  const [rating, setRating] = useState('')
   const [avgPackage, setAvgPackage] = useState('')
+  const [highestPackage, setHighestPackage] = useState('')
+  const [placementRate, setPlacementRate] = useState('')
+  const [nirfRank, setNirfRank] = useState('')
   const [socialLinks, setSocialLinks] = useState<Record<string, string>>({})
   const [logoPreview, setLogoPreview] = useState<string | null>(null)
   const [bannerPreview, setBannerPreview] = useState<string | null>(null)
@@ -157,7 +161,11 @@ export default function CollegeAdminDashboard() {
         body: JSON.stringify({
           description,
           website_url: websiteUrl,
+          rating: rating ? parseFloat(rating) : null,
           avg_package: avgPackage ? parseFloat(avgPackage) : null,
+          highest_package: highestPackage ? parseFloat(highestPackage) : null,
+          placement_rate: placementRate ? parseFloat(placementRate) : null,
+          nirf_rank: nirfRank ? parseInt(nirfRank) : null,
           social_links: socialLinks
         })
       })
@@ -377,10 +385,30 @@ export default function CollegeAdminDashboard() {
                 </div>
               </div>
 
+              {/* Rating */}
+              <div className="mb-6">
+                <label className="block text-xs font-bold text-gray-600 dark:text-[#B0B7BE] mb-2 uppercase tracking-wider">
+                  College Rating (out of 5)
+                </label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    max="5"
+                    value={rating}
+                    onChange={(e) => setRating(e.target.value)}
+                    placeholder="4.5"
+                    className="w-full px-4 py-2.5 bg-app dark:bg-[#1D2226] border border-surface dark:border-[#38434F] rounded-lg text-sm font-medium outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
+                  />
+                </div>
+                <p className="text-[10px] text-gray-400 mt-1">Overall college rating on a scale of 0 to 5.</p>
+              </div>
+
               {/* Average Package */}
               <div className="mb-6">
                 <label className="block text-xs font-bold text-gray-600 dark:text-[#B0B7BE] mb-2 uppercase tracking-wider">
-                  Highest / Average Package (LPA)
+                  Average Package (LPA)
                 </label>
                 <div className="relative">
                   <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-bold">₹</span>
@@ -390,11 +418,70 @@ export default function CollegeAdminDashboard() {
                     min="0"
                     value={avgPackage}
                     onChange={(e) => setAvgPackage(e.target.value)}
-                    placeholder="12.5"
+                    placeholder="8.5"
                     className="w-full pl-10 pr-4 py-2.5 bg-app dark:bg-[#1D2226] border border-surface dark:border-[#38434F] rounded-lg text-sm font-medium outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
                   />
                 </div>
-                <p className="text-[10px] text-gray-400 mt-1">The highest or average placement package for this college.</p>
+                <p className="text-[10px] text-gray-400 mt-1">The average placement package for this college.</p>
+              </div>
+
+              {/* Highest Package */}
+              <div className="mb-6">
+                <label className="block text-xs font-bold text-gray-600 dark:text-[#B0B7BE] mb-2 uppercase tracking-wider">
+                  Highest Package (LPA)
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-bold">₹</span>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={highestPackage}
+                    onChange={(e) => setHighestPackage(e.target.value)}
+                    placeholder="25.0"
+                    className="w-full pl-10 pr-4 py-2.5 bg-app dark:bg-[#1D2226] border border-surface dark:border-[#38434F] rounded-lg text-sm font-medium outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
+                  />
+                </div>
+                <p className="text-[10px] text-gray-400 mt-1">The highest placement package offered at this college.</p>
+              </div>
+
+              {/* Placement Rate */}
+              <div className="mb-6">
+                <label className="block text-xs font-bold text-gray-600 dark:text-[#B0B7BE] mb-2 uppercase tracking-wider">
+                  Placement Rate (%)
+                </label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    max="100"
+                    value={placementRate}
+                    onChange={(e) => setPlacementRate(e.target.value)}
+                    placeholder="85.5"
+                    className="w-full px-4 py-2.5 bg-app dark:bg-[#1D2226] border border-surface dark:border-[#38434F] rounded-lg text-sm font-medium outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
+                  />
+                  <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-bold">%</span>
+                </div>
+                <p className="text-[10px] text-gray-400 mt-1">The percentage of students placed through campus placements.</p>
+              </div>
+
+              {/* NIRF Rank */}
+              <div className="mb-6">
+                <label className="block text-xs font-bold text-gray-600 dark:text-[#B0B7BE] mb-2 uppercase tracking-wider">
+                  NIRF Rank
+                </label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    min="1"
+                    value={nirfRank}
+                    onChange={(e) => setNirfRank(e.target.value)}
+                    placeholder="45"
+                    className="w-full px-4 py-2.5 bg-app dark:bg-[#1D2226] border border-surface dark:border-[#38434F] rounded-lg text-sm font-medium outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
+                  />
+                </div>
+                <p className="text-[10px] text-gray-400 mt-1">National Institutional Ranking Framework rank (if applicable).</p>
               </div>
 
               {/* Social Links */}
