@@ -83,7 +83,7 @@ export default function Navbar() {
         <div className="flex items-center gap-3 flex-shrink-0">
           <Link href="/" className="flex items-center no-underline hover:no-underline">
             <img
-              src="/navbar-logo.svg"
+              src="/navbar-logo.png"
               alt="Claspire"
               className="w-10 h-10 object-contain"
             />
@@ -480,7 +480,7 @@ export default function Navbar() {
               className="flex items-center no-underline hover:no-underline"
             >
               <img
-                src="/navbar-logo.svg"
+                src="/navbar-logo.png"
                 alt="Claspire"
                 className="w-10 h-10 object-contain"
               />
