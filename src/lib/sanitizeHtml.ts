@@ -2,6 +2,7 @@ const ALLOWED_TAGS = new Set([
   'p', 'br', 'strong', 'em', 'u', 's',
   'ul', 'ol', 'li',
   'a', 'blockquote', 'img',
+  'div', 'span', 'code',
 ])
 
 export function sanitizeHtml(html: string): string {
@@ -38,17 +39,12 @@ export function sanitizeHtml(html: string): string {
     html = html.replace(new RegExp(`</h${i}>`, 'gi'), '</strong>')
   }
 
-  // 4. Convert div -> p, unwrap span / font / pre / code
-  html = html.replace(/<div\b[^>]*>/gi, '<p>')
-  html = html.replace(/<\/div>/gi, '</p>')
-  html = html.replace(/<span\b[^>]*>/gi, '')
-  html = html.replace(/<\/span>/gi, '')
+  // 4. Convert div -> p (only if not preserving div structure), unwrap font / pre
+  // Note: div, span, code are now allowed to preserve RichEditor formatting
   html = html.replace(/<font\b[^>]*>/gi, '')
   html = html.replace(/<\/font>/gi, '')
   html = html.replace(/<pre\b[^>]*>/gi, '<p>')
   html = html.replace(/<\/pre>/gi, '</p>')
-  html = html.replace(/<code\b[^>]*>/gi, '')
-  html = html.replace(/<\/code>/gi, '')
 
   // 5. Normalize br
   html = html.replace(/<br\s*\/?>/gi, '<br>')
@@ -92,10 +88,6 @@ export function sanitizeHtml(html: string): string {
 
   // 11. Limit consecutive br to max 2
   html = html.replace(/(<br>\s*){3,}/g, '<br><br>')
-
-  // 12. Collapse multiple spaces (from unwrapped tags)
-  html = html.replace(/[ \t]+/g, ' ')
-  html = html.replace(/\n\s*\n/g, '\n')
 
   return html.trim()
 }

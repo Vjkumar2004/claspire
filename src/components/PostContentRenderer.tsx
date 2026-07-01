@@ -77,7 +77,7 @@ export default function PostContentRenderer({ content, clamp }: PostContentRende
     : clamp === 6 ? 'line-clamp-6'
     : ''
 
-  const finalClassName = `text-[13px] sm:text-sm text-slate-700 dark:text-[#CBD5E1] leading-[1.65] font-normal [&>blockquote]:border-l-4 [&>blockquote]:border-[#7C3AED] [&>blockquote]:pl-4 [&>blockquote]:text-slate-500 [&>ul]:list-disc [&>ul]:pl-5 [&>ol]:list-decimal [&>ol]:pl-5 [&_a]:text-[#7C3AED] [&_a]:hover:underline [&_a]:font-medium ${clampClass}`
+  const finalClassName = `text-[13px] sm:text-sm text-slate-700 dark:text-[#CBD5E1] leading-[1.65] font-normal whitespace-pre-wrap break-words [&>blockquote]:border-l-4 [&>blockquote]:border-[#7C3AED] [&>blockquote]:pl-4 [&>blockquote]:text-slate-500 [&>ul]:list-disc [&>ul]:pl-5 [&>ol]:list-decimal [&>ol]:pl-5 [&_a]:text-[#7C3AED] [&_a]:hover:underline [&_a]:font-medium ${clampClass}`
 
   return (
     <div
