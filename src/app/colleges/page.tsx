@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Search, MapPin, Users, GraduationCap, Building2, ChevronRight, MessageSquare, TrendingUp, Zap, Clock, ArrowUpRight, Sparkles, Filter } from 'lucide-react'
 import { getCollegeLogo, getCollegeInitial } from '@/lib/college-utils'
@@ -9,55 +9,47 @@ import { useQuery } from '@tanstack/react-query'
 export default function CollegesPage() {
   const router = useRouter()
   const [searchQuery, setSearchQuery] = useState('')
+  const [renderStartTime, setRenderStartTime] = useState<number>(0)
 
-  // Static college data (cached for 5 minutes)
-  const { data: staticData, isLoading } = useQuery({
-    queryKey: ['colleges-static'],
-    queryFn: async () => {
-      const res = await fetch('/api/colleges')
-      const json = await res.json()
-      if (json.success) return json
-      throw new Error('Failed to fetch colleges')
-    },
-    staleTime: 5 * 60 * 1000, // 5 minutes for static data
-  })
-
-  // Dynamic stats (cached for 1 minute - member counts, senior counts, etc.)
-  const { data: dynamicStats } = useQuery({
-    queryKey: ['colleges-dynamic'],
-    queryFn: async () => {
-      const res = await fetch('/api/colleges')
-      const json = await res.json()
-      if (json.success) return json
-      throw new Error('Failed to fetch colleges')
-    },
-    staleTime: 60 * 1000, // 1 minute for dynamic data
-  })
-
-  // Merge static and dynamic data
-  const data = useMemo(() => {
-    if (!staticData) return null
-    if (!dynamicStats) return staticData
-    
-    // Merge dynamic stats into static data
-    return {
-      ...staticData,
-      colleges: staticData.colleges?.map((college: any, index: number) => ({
-        ...college,
-        member_count: dynamicStats.colleges?.[index]?.member_count ?? college.member_count,
-        senior_count: dynamicStats.colleges?.[index]?.senior_count ?? college.senior_count,
-        doubt_count: dynamicStats.colleges?.[index]?.doubt_count ?? college.doubt_count,
-      })),
-      heroStats: dynamicStats.heroStats || staticData.heroStats,
+  // Performance measurement
+  useEffect(() => {
+    setRenderStartTime(performance.now())
+    return () => {
+      const renderDuration = performance.now() - renderStartTime
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`[Colleges Page] Render duration: ${renderDuration.toFixed(2)}ms`)
+      }
     }
-  }, [staticData, dynamicStats])
+  }, [])
 
-  const filtered = (data?.colleges || []).filter((c: any) =>
-    c.colleges?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    c.slug?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    c.colleges?.short_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    c.display_name?.toLowerCase().includes(searchQuery.toLowerCase())
-  )
+  // Single fetch for all college data (cached for 5 minutes)
+  const { data: allData, isLoading } = useQuery({
+    queryKey: ['colleges'],
+    queryFn: async () => {
+      const apiStartTime = performance.now()
+      const res = await fetch('/api/colleges')
+      const json = await res.json()
+      const apiDuration = performance.now() - apiStartTime
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`[Colleges Page] API fetch: ${apiDuration.toFixed(2)}ms`)
+      }
+      if (json.success) return json
+      throw new Error('Failed to fetch colleges')
+    },
+    staleTime: 5 * 60 * 1000, // 5 minutes cache
+  })
+
+  // Use the single data source
+  const data = allData
+
+  const filtered = useMemo(() => {
+    return (data?.colleges || []).filter((c: any) =>
+      c.colleges?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      c.slug?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      c.colleges?.short_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      c.display_name?.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+  }, [data?.colleges, searchQuery])
 
   const heroStats = data?.heroStats
 
@@ -120,7 +112,7 @@ export default function CollegesPage() {
       {/* ===== HERO (desktop only) ===== */}
       <section className="hidden lg:block relative rounded-2xl overflow-hidden lg:h-[280px] mx-3 sm:mx-6 lg:mx-8 mt-3 sm:mt-6 lg:mt-8 mb-6 lg:mb-0 max-w-7xl lg:mx-auto shadow-xl">
         {/* Background image */}
-        <img src="/college-banner.png" alt="" className="absolute inset-0 w-full h-full object-cover" />
+        <img src="/college-banner.png" alt="" className="absolute inset-0 w-full h-full object-cover" loading="eager" />
         {/* Dark overlay */}
         <div className="absolute inset-0" style={{ backgroundColor: 'rgba(0,0,0,0.45)' }} />
 
@@ -324,7 +316,7 @@ export default function CollegesPage() {
                         <div className="flex justify-center pt-7">
                           <div className="w-[68px] h-[68px] rounded-xl border border-surface dark:border-[#38434F] bg-surface flex items-center justify-center overflow-hidden shadow-sm">
                             {logoUrl ? (
-                              <img src={logoUrl} alt={c.colleges?.short_name || c.slug} className="w-full h-full object-contain p-2" />
+                              <img src={logoUrl} alt={c.colleges?.short_name || c.slug} className="w-full h-full object-contain p-2" loading="lazy" />
                             ) : (
                               <span className="text-lg font-black bg-gradient-to-br from-purple-600 to-fuchsia-600 bg-clip-text text-transparent">
                                 {getCollegeInitial(c.colleges)}
@@ -390,7 +382,7 @@ export default function CollegesPage() {
                         {/* Left: Logo */}
                         <div className="w-12 h-12 rounded-xl border border-surface dark:border-[#38434F] bg-surface flex-shrink-0 flex items-center justify-center overflow-hidden shadow-sm">
                           {logoUrl ? (
-                            <img src={logoUrl} alt={c.colleges?.short_name || c.slug} className="w-full h-full object-contain p-1.5" />
+                            <img src={logoUrl} alt={c.colleges?.short_name || c.slug} className="w-full h-full object-contain p-1.5" loading="lazy" />
                           ) : (
                             <span className="text-sm font-black bg-gradient-to-br from-purple-600 to-fuchsia-600 bg-clip-text text-transparent">
                               {getCollegeInitial(c.colleges)}
@@ -495,7 +487,7 @@ export default function CollegesPage() {
                         >
                           <div className="w-9 h-9 rounded-xl bg-gray-100 dark:bg-[#283036] flex items-center justify-center overflow-hidden flex-shrink-0 ring-2 ring-gray-100 dark:ring-[#38434F] group-hover:ring-purple-300 transition-all text-[10px] font-black text-gray-400 dark:text-[#B0B7BE]">
                             {logoUrl ? (
-                              <img src={logoUrl} alt="" className="w-full h-full object-contain p-1" />
+                              <img src={logoUrl} alt="" className="w-full h-full object-contain p-1" loading="lazy" />
                             ) : (
                               getCollegeInitial(college.colleges)
                             )}
@@ -538,7 +530,7 @@ export default function CollegesPage() {
                         >
                           <div className="w-9 h-9 rounded-xl bg-gray-100 dark:bg-[#283036] flex items-center justify-center overflow-hidden flex-shrink-0 ring-2 ring-gray-100 dark:ring-[#38434F] group-hover:ring-emerald-300 transition-all text-[10px] font-black text-gray-400 dark:text-[#B0B7BE]">
                             {logoUrl ? (
-                              <img src={logoUrl} alt="" className="w-full h-full object-contain p-1" />
+                              <img src={logoUrl} alt="" className="w-full h-full object-contain p-1" loading="lazy" />
                             ) : (
                               getCollegeInitial(college.colleges)
                             )}
@@ -581,7 +573,7 @@ export default function CollegesPage() {
                         >
                           <div className="w-9 h-9 rounded-xl bg-gray-100 dark:bg-[#283036] flex items-center justify-center overflow-hidden flex-shrink-0 ring-2 ring-gray-100 dark:ring-[#38434F] group-hover:ring-blue-300 transition-all text-[10px] font-black text-gray-400 dark:text-[#B0B7BE]">
                             {logoUrl ? (
-                              <img src={logoUrl} alt="" className="w-full h-full object-contain p-1" />
+                              <img src={logoUrl} alt="" className="w-full h-full object-contain p-1" loading="lazy" />
                             ) : (
                               getCollegeInitial(college.colleges)
                             )}

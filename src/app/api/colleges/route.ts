@@ -11,7 +11,13 @@ export const revalidate = 300
 
 export async function GET() {
   const startTime = Date.now()
+  const dbStartTime = Date.now()
+  
   try {
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`[API /colleges] Starting database queries...`)
+    }
+
     const [
       collegesResult,
       communitiesResult,
@@ -27,6 +33,11 @@ export async function GET() {
       supabase.from('connections').select('id', { count: 'exact', head: true }).eq('status', 'accepted'),
     ])
 
+    const dbDuration = Date.now() - dbStartTime
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`[API /colleges] Database queries completed: ${dbDuration.toFixed(2)}ms`)
+    }
+
     if (collegesResult.error) throw collegesResult.error
     if (communitiesResult.error) throw communitiesResult.error
     if (usersResult.error) throw usersResult.error
@@ -36,7 +47,12 @@ export async function GET() {
     const users = usersResult.data || []
     const totalConnections = connectionsResult.count ?? 0
 
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`[API /colleges] Data fetched - Colleges: ${colleges.length}, Communities: ${communities.length}, Users: ${users.length}`)
+    }
+
     // Stats by college from users
+    const processingStartTime = Date.now()
     const statsByCollege = new Map<string, { member_count: number; senior_count: number }>()
     for (const college of colleges) {
       statsByCollege.set(college.id, { member_count: 0, senior_count: 0 })
@@ -55,6 +71,11 @@ export async function GET() {
     // Total stats
     const totalStudents = users.filter(u => u.role === 'student').length
     const totalSeniors = users.filter(u => u.role === 'senior').length
+
+    const processingDuration = Date.now() - processingStartTime
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`[API /colleges] User stats processing: ${processingDuration.toFixed(2)}ms`)
+    }
 
     // Merge communities with college data
     const existingByCollegeId = new Map(
@@ -91,6 +112,7 @@ export async function GET() {
     })
 
     // Recently active: use communities with non-null last_activity_at, sorted desc
+    const sortingStartTime = Date.now()
     const withActivity = mergedColleges.filter(c => c.last_activity_at)
     const recentlyActive = [...withActivity]
       .sort((a, b) => new Date(b.last_activity_at!).getTime() - new Date(a.last_activity_at!).getTime())
@@ -111,15 +133,18 @@ export async function GET() {
       .sort((a, b) => b.member_count - a.member_count)
       .slice(0, 5)
 
-    mergedColleges.forEach((c: any) => {
-      console.log('Campus Leaders API:', c.slug, {
-        member_count: c.member_count,
-        senior_count: c.senior_count,
-      })
-    })
+    const sortingDuration = Date.now() - sortingStartTime
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`[API /colleges] Sorting operations: ${sortingDuration.toFixed(2)}ms`)
+    }
 
     const duration = Date.now() - startTime
     logCacheFetch('colleges-list', duration, { count: mergedColleges.length })
+    
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`[API /colleges] Total API duration: ${duration.toFixed(2)}ms`)
+      console.log(`[API /colleges] Breakdown - DB: ${dbDuration.toFixed(2)}ms, Processing: ${processingDuration.toFixed(2)}ms, Sorting: ${sortingDuration.toFixed(2)}ms`)
+    }
 
     return NextResponse.json({
       success: true,

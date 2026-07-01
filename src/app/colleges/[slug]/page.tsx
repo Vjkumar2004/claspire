@@ -22,26 +22,7 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SECRET_KEY!
 )
 
-async function getLiveStatsForCollege(collegeId: string, communityId?: string) {
-  const { data: users } = await supabaseAdmin
-    .from('users')
-    .select('role')
-    .eq('college_id', collegeId)
-
-  const memberCount = users?.length || 0
-  const seniorCount = users?.filter((user: any) => user.role === 'senior').length || 0
-
-  let postCount = 0
-  if (communityId) {
-    const { count } = await supabaseAdmin
-      .from('posts')
-      .select('*', { count: 'exact', head: true })
-      .eq('community_id', communityId)
-    postCount = count || 0
-  }
-
-  return { memberCount, seniorCount, postCount }
-}
+// Removed getLiveStatsForCollege - dynamic stats now fetched client-side via React Query
 
 async function getCurrentUserId(): Promise<string | null> {
   try {
@@ -75,32 +56,35 @@ async function isCommunityMember(userId: string, communityId: string, collegeId:
   return !!data
 }
 
+function normalizeCollegeRelation(colleges: any) {
+  if (!colleges) return null
+  if (Array.isArray(colleges)) {
+    return colleges[0] || null
+  }
+  return colleges
+}
+
+function getCollegeProperty(community: any, property: string, fallback: any = null) {
+  const college = normalizeCollegeRelation(community.colleges)
+  return college?.[property] ?? fallback
+}
+
 async function getCollegeBySlug(slug: string) {
   try {
     const { data, error } = await supabaseAdmin
       .from('communities')
       .select(`
-        *,
-        colleges (*)
+        id, slug, display_name, college_id, member_count, senior_count, doubt_count, last_activity_at,
+        colleges (id, name, short_name, slug, type, location, state, logo_url, banner_url, description, website_url, social_links, email_domain, is_verified, rating, avg_package, highest_package, placement_rate, nirf_rank, claimed_by, claimed_at)
       `)
       .eq('slug', slug)
       .single()
 
     if (data) {
-      const collegeId = data.college_id || data.colleges?.id
-      if (collegeId) {
-        const { memberCount, seniorCount, postCount } = await getLiveStatsForCollege(
-          collegeId,
-          data.id
-        )
-        return {
-          ...data,
-          member_count: Math.max(data.member_count || 0, memberCount),
-          senior_count: Math.max(data.senior_count || 0, seniorCount),
-          doubt_count: Math.max(data.doubt_count || 0, postCount),
-        }
+      return {
+        ...data,
+        colleges: normalizeCollegeRelation(data.colleges)
       }
-      return data
     }
 
     const { data: college, error: collegeError } = await supabaseAdmin
@@ -113,16 +97,14 @@ async function getCollegeBySlug(slug: string) {
       return null
     }
 
-    const { memberCount, seniorCount, postCount } = await getLiveStatsForCollege(college.id)
-
     return {
       id: college.id,
       slug: college.slug,
       display_name: college.short_name || college.name,
       description: `${college.name} community on Claspire`,
-      member_count: memberCount,
-      senior_count: seniorCount,
-      doubt_count: postCount,
+      member_count: 0, // Will be fetched client-side
+      senior_count: 0, // Will be fetched client-side
+      doubt_count: 0, // Will be fetched client-side
       colleges: college
     }
   } catch (error) {
@@ -215,7 +197,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     }
   }
 
-  const collegeName = community.colleges?.name || community.display_name
+  const collegeName = getCollegeProperty(community, 'name') || community.display_name
 
   return {
     title: `${collegeName} Students & Seniors Community | Claspire`,
@@ -252,17 +234,17 @@ export default async function CollegePage({ params }: { params: Promise<{ slug: 
     notFound()
   }
 
-  const collegeName = community.colleges?.name || community.display_name
+  const collegeName = getCollegeProperty(community, 'name') || community.display_name
 
   // Check if current user is a community member
   const currentUserId = await getCurrentUserId()
-  const collegeId = community.colleges?.id || null
+  const collegeId = getCollegeProperty(community, 'id') || null
   const isMember = currentUserId && community.id
     ? await isCommunityMember(currentUserId, community.id, collegeId)
     : false
 
   const [seniors, posts] = await Promise.all([
-    getCollegeSeniors(community.colleges?.id || community.id),
+    getCollegeSeniors(getCollegeProperty(community, 'id') || community.id),
     getCollegePosts(community.id)
   ])
 
@@ -279,7 +261,7 @@ export default async function CollegePage({ params }: { params: Promise<{ slug: 
     }
   }
 
-  const collegeLogo = community.colleges?.logo_url || null
+  const collegeLogo = getCollegeProperty(community, 'logo_url') || null
 
   return (
     <>
@@ -290,10 +272,10 @@ export default async function CollegePage({ params }: { params: Promise<{ slug: 
       
       <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#1D2226]">
         {/* Banner Hero */}
-        {community.colleges?.banner_url && (
+        {getCollegeProperty(community, 'banner_url') && (
           <div className="h-48 sm:h-56 md:h-64 w-full overflow-hidden bg-gradient-to-br from-purple-600 to-indigo-700">
             <img
-              src={community.colleges.banner_url}
+              src={getCollegeProperty(community, 'banner_url')}
               alt={`${collegeName} banner`}
               className="w-full h-full object-cover"
             />
@@ -338,7 +320,7 @@ export default async function CollegePage({ params }: { params: Promise<{ slug: 
               {/* Center Section: Community Information */}
               <div className="md:col-span-5 flex flex-col items-center md:items-start text-center md:text-left pt-1 md:pt-0">
                 <div className="flex flex-wrap items-center justify-center md:justify-start gap-2.5 mb-4">
-                  {community.colleges?.is_verified && (
+                  {getCollegeProperty(community, 'is_verified') && (
                     <span className="bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2.5 py-1 rounded border border-emerald-100 uppercase tracking-wider flex items-center gap-1.5 shadow-sm">
                       <Shield size={12} />
                       Verified College
@@ -357,31 +339,31 @@ export default async function CollegePage({ params }: { params: Promise<{ slug: 
                 <h2 className="text-base sm:text-lg font-bold text-gray-800 dark:text-white tracking-tight mb-2.5">
                   Welcome to the {collegeName} Community.
                 </h2>
-                {community.colleges?.description && (
+                {getCollegeProperty(community, 'description') && (
                   <p className="text-gray-500 dark:text-[#B0B7BE] text-sm leading-relaxed max-w-xl font-medium mb-3">
-                    {community.colleges.description}
+                    {getCollegeProperty(community, 'description')}
                   </p>
                 )}
-                {!community.colleges?.description && (
+                {!getCollegeProperty(community, 'description') && (
                   <p className="text-gray-500 dark:text-[#B0B7BE] text-sm leading-relaxed max-w-xl font-medium mb-3">
                     Connect with verified seniors, alumni, and students for placements, mentorship, discussions, and exclusive career opportunities. Join our growing ecosystem of professionals today.
                   </p>
                 )}
-                {community.colleges?.website_url && (
+                {getCollegeProperty(community, 'website_url') && (
                   <a
-                    href={community.colleges.website_url}
+                    href={getCollegeProperty(community, 'website_url')}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1.5 text-[#7C3AED] hover:text-[#6D28D9] text-xs font-bold no-underline"
                   >
                     <Globe size={14} />
-                    {community.colleges.website_url.replace(/^https?:\/\//, '').replace(/\/$/, '')}
+                    {getCollegeProperty(community, 'website_url').replace(/^https?:\/\//, '').replace(/\/$/, '')}
                     <ExternalLink size={10} />
                   </a>
                 )}
-                {community.colleges?.social_links && Object.keys(community.colleges.social_links).length > 0 && (
+                {getCollegeProperty(community, 'social_links') && Object.keys(getCollegeProperty(community, 'social_links')).length > 0 && (
                   <div className="flex items-center gap-2 mt-3">
-                    {Object.entries(community.colleges.social_links).map(([platform, url]) => (
+                    {Object.entries(getCollegeProperty(community, 'social_links')).map(([platform, url]) => (
                       <a
                         key={platform}
                         href={url as string}
@@ -442,13 +424,13 @@ export default async function CollegePage({ params }: { params: Promise<{ slug: 
                       <span className="text-sm font-bold text-gray-900 dark:text-white bg-surface dark:bg-[#283036] px-2 py-0.5 rounded border border-surface dark:border-[#38434F] shadow-sm">{community.doubt_count || 0}+</span>
                     </div>
 
-                    {community.colleges?.avg_package ? (
+                    {getCollegeProperty(community, 'avg_package') ? (
                       <div className="flex items-center justify-between group">
                         <div className="flex items-center gap-2.5 text-gray-600 dark:text-[#B0B7BE]">
                           <TrendingUp size={16} className="text-gray-400 dark:text-[#B0B7BE] group-hover:text-emerald-500 transition-colors" />
                           <span className="text-sm font-semibold">Avg. Package</span>
                         </div>
-                        <span className="text-sm font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-800 shadow-sm">₹{Number(community.colleges.avg_package).toFixed(1)} LPA</span>
+                        <span className="text-sm font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-800 shadow-sm">₹{Number(getCollegeProperty(community, 'avg_package')).toFixed(1)} LPA</span>
                       </div>
                     ) : (
                       <div className="flex items-center justify-between group">
@@ -506,49 +488,49 @@ export default async function CollegePage({ params }: { params: Promise<{ slug: 
                     </div>
                     <div>
                       <p className="text-lg font-bold text-gray-900 dark:text-white leading-tight">
-                        {community.colleges?.rating ? `${community.colleges.rating}/5` : 'Not Rated Yet'}
+                        {getCollegeProperty(community, 'rating') ? `${getCollegeProperty(community, 'rating')}/5` : 'Not Rated Yet'}
                       </p>
                       <p className="text-xs text-gray-500 dark:text-[#B0B7BE] font-semibold mt-0.5">Student Rating</p>
                     </div>
                   </div>
                 </div>
 
-                {community.colleges?.highest_package && (
+                {getCollegeProperty(community, 'highest_package') && (
                   <div className="bg-surface dark:bg-[#283036] rounded-md p-4 sm:p-5 border border-surface dark:border-[#38434F] hover:shadow-md transition-all shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-amber-50 rounded-md flex items-center justify-center border border-amber-100">
                         <TrendingUp className="w-5 h-5 text-amber-600" />
                       </div>
                       <div>
-                        <p className="text-lg font-bold text-gray-900 dark:text-white leading-tight">₹{community.colleges.highest_package} LPA</p>
+                        <p className="text-lg font-bold text-gray-900 dark:text-white leading-tight">₹{getCollegeProperty(community, 'highest_package')} LPA</p>
                         <p className="text-xs text-gray-500 dark:text-[#B0B7BE] font-semibold mt-0.5">Highest Package</p>
                       </div>
                     </div>
                   </div>
                 )}
 
-                {community.colleges?.placement_rate && (
+                {getCollegeProperty(community, 'placement_rate') && (
                   <div className="bg-surface dark:bg-[#283036] rounded-md p-4 sm:p-5 border border-surface dark:border-[#38434F] hover:shadow-md transition-all shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-cyan-50 rounded-md flex items-center justify-center border border-cyan-100">
                         <BarChart3 className="w-5 h-5 text-cyan-600" />
                       </div>
                       <div>
-                        <p className="text-lg font-bold text-gray-900 dark:text-white leading-tight">{community.colleges.placement_rate}%</p>
+                        <p className="text-lg font-bold text-gray-900 dark:text-white leading-tight">{getCollegeProperty(community, 'placement_rate')}%</p>
                         <p className="text-xs text-gray-500 dark:text-[#B0B7BE] font-semibold mt-0.5">Placement Rate</p>
                       </div>
                     </div>
                   </div>
                 )}
 
-                {community.colleges?.nirf_rank && (
+                {getCollegeProperty(community, 'nirf_rank') && (
                   <div className="bg-surface dark:bg-[#283036] rounded-md p-4 sm:p-5 border border-surface dark:border-[#38434F] hover:shadow-md transition-all shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-rose-50 rounded-md flex items-center justify-center border border-rose-100">
                         <Award className="w-5 h-5 text-rose-600" />
                       </div>
                       <div>
-                        <p className="text-lg font-bold text-gray-900 dark:text-white leading-tight">#{community.colleges.nirf_rank}</p>
+                        <p className="text-lg font-bold text-gray-900 dark:text-white leading-tight">#{getCollegeProperty(community, 'nirf_rank')}</p>
                         <p className="text-xs text-gray-500 dark:text-[#B0B7BE] font-semibold mt-0.5">NIRF Rank</p>
                       </div>
                     </div>
@@ -615,13 +597,13 @@ export default async function CollegePage({ params }: { params: Promise<{ slug: 
               {/* Claim Card / Admin Dashboard Link */}
               <div className="bg-surface dark:bg-[#283036] rounded-md border border-surface dark:border-[#38434F] p-4 sm:p-5 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
                 <CollegeClaimButton
-                  collegeId={community.colleges?.id || community.id}
+                  collegeId={getCollegeProperty(community, 'id') || community.id}
                   collegeSlug={slug}
                   collegeName={collegeName}
-                  collegeDomain={community.colleges?.email_domain}
-                  isVerified={community.colleges?.is_verified || false}
-                  claimedBy={community.colleges?.claimed_by || null}
-                  claimedAt={community.colleges?.claimed_at || null}
+                  collegeDomain={getCollegeProperty(community, 'email_domain')}
+                  isVerified={getCollegeProperty(community, 'is_verified') || false}
+                  claimedBy={getCollegeProperty(community, 'claimed_by') || null}
+                  claimedAt={getCollegeProperty(community, 'claimed_at') || null}
                 />
               </div>
 

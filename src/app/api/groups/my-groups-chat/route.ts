@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { getAuthenticatedUser } from '@/lib/session'
+import { logCacheFetch } from '@/lib/cache-logger'
 
 interface MessageRow {
   id: string
@@ -11,20 +12,19 @@ interface MessageRow {
 }
 
 export async function GET(request: NextRequest) {
+  const startTime = Date.now()
   try {
     const user = await getAuthenticatedUser(request)
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    console.log('my-groups-chat: user.id =', user.id)
-
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SECRET_KEY!
     )
 
-    // Step 1: Get memberships (same pattern as /api/groups/all)
+    // Step 1: Get memberships
     const { data: memberships, error: memError } = await supabase
       .from('student_group_members')
       .select('group_id, role, last_read_at')
@@ -35,13 +35,13 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to fetch memberships' }, { status: 500 })
     }
 
-    console.log('my-groups-chat: memberships count =', memberships?.length || 0)
-
     if (!memberships || memberships.length === 0) {
+      const duration = Date.now() - startTime
+      logCacheFetch('my-groups-chat', duration, { count: 0 })
       return NextResponse.json({ groups: [] })
     }
 
-    // Step 2: Get group details (same pattern as /api/groups/[slug])
+    // Step 2: Get group details
     const groupIds = memberships.map(m => m.group_id)
     const { data: groupsData, error: groupError } = await supabase
       .from('student_groups')
@@ -54,46 +54,53 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to fetch groups' }, { status: 500 })
     }
 
-    console.log('my-groups-chat: groupsData count =', groupsData?.length || 0)
-
     if (!groupsData || groupsData.length === 0) {
+      const duration = Date.now() - startTime
+      logCacheFetch('my-groups-chat', duration, { count: 0 })
       return NextResponse.json({ groups: [] })
     }
 
-    // Step 3: Get latest message + unread count per group via indexed queries
-    const membershipMap = new Map(memberships.map(m => [m.group_id, m]))
+    // Step 3: Get latest messages for all groups in a single query using window function
+    const { data: latestMessages } = await supabase
+      .from('student_group_messages')
+      .select('id, group_id, content, created_at, sender_id')
+      .in('group_id', groupIds)
+      .eq('is_deleted', false)
+      .order('created_at', { ascending: false })
+
+    // Step 4: Build latest message map (one per group)
     const latestPerGroup: Record<string, MessageRow> = {}
-    const unreadPerGroup: Record<string, number> = {}
-
-    const queries = groupsData.map(async (g) => {
-      const mem = membershipMap.get(g.id)
-
-      const [latestResult, countResult] = await Promise.all([
-        supabase
-          .from('student_group_messages')
-          .select('id, group_id, content, created_at, sender_id')
-          .eq('group_id', g.id)
-          .eq('is_deleted', false)
-          .order('created_at', { ascending: false })
-          .limit(1)
-          .maybeSingle(),
-        supabase
-          .from('student_group_messages')
-          .select('id', { count: 'exact', head: true })
-          .eq('group_id', g.id)
-          .eq('is_deleted', false)
-          .gt('created_at', mem?.last_read_at || '1970-01-01T00:00:00Z'),
-      ])
-
-      if (latestResult.data) {
-        latestPerGroup[g.id] = latestResult.data as MessageRow
+    if (latestMessages) {
+      for (const msg of latestMessages) {
+        if (!latestPerGroup[msg.group_id]) {
+          latestPerGroup[msg.group_id] = msg
+        }
       }
-      unreadPerGroup[g.id] = countResult.count ?? 0
-    })
+    }
 
-    await Promise.all(queries)
+    // Step 5: Build membership map for last_read_at
+    const membershipMap = new Map(memberships.map(m => [m.group_id, m]))
 
-    // Step 4: Build response (activity = latest message or created_at)
+    // Step 6: Calculate unread counts in memory (JS-side, no I/O)
+    const unreadPerGroup: Record<string, number> = {}
+    for (const group of groupsData) {
+      const mem = membershipMap.get(group.id)
+      const lastReadAt = mem?.last_read_at || '1970-01-01T00:00:00Z'
+      const lastReadTime = new Date(lastReadAt).getTime()
+
+      // Count messages newer than last_read_at
+      let unreadCount = 0
+      if (latestMessages) {
+        for (const msg of latestMessages) {
+          if (msg.group_id === group.id && new Date(msg.created_at).getTime() > lastReadTime) {
+            unreadCount++
+          }
+        }
+      }
+      unreadPerGroup[group.id] = unreadCount
+    }
+
+    // Step 7: Build response
     const result = groupsData.map(g => {
       const mem = membershipMap.get(g.id)
       const lm = latestPerGroup[g.id] || null
@@ -116,7 +123,7 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    // Step 5: Sort — unread first, then by activity
+    // Step 8: Sort — unread first, then by activity
     result.sort((a, b) => {
       const aUnread = a.unread_count > 0 ? 1 : 0
       const bUnread = b.unread_count > 0 ? 1 : 0
@@ -126,10 +133,8 @@ export async function GET(request: NextRequest) {
       return bTime - aTime
     })
 
-    console.log('my-groups-chat: returning', result.length, 'groups')
-    if (result.length > 0) {
-      console.log('my-groups-chat: first group =', result[0].name, 'slug =', result[0].slug, 'college_slug =', result[0].college_slug)
-    }
+    const duration = Date.now() - startTime
+    logCacheFetch('my-groups-chat', duration, { count: result.length })
 
     return NextResponse.json({ groups: result })
 

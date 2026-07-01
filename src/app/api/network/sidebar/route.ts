@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { getUserIdFromRequest } from '@/lib/session'
-import { getCommunityDisplayCounts, resolveCommunityCollegeId, normalizeCollegeRelation } from '@/lib/community-stats'
+import { logCacheFetch } from '@/lib/cache-logger'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -9,6 +9,7 @@ const supabase = createClient(
 )
 
 export async function GET(req: NextRequest) {
+  const startTime = Date.now()
   try {
     const userId = getUserIdFromRequest(req)
     if (!userId) {
@@ -17,7 +18,7 @@ export async function GET(req: NextRequest) {
 
     const fourteenDaysAgo = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString()
 
-    // Fire all independent queries in parallel
+    // Fire all independent queries in parallel (no N+1 patterns)
     const [
       connectedResult,
       mentorsResult,
@@ -99,23 +100,16 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    // Enrich communities with live counts from getCommunityDisplayCounts
-    const rawCommunities = communitiesResult.data || []
-    const enrichedCommunities = await Promise.all(
-      rawCommunities.map(async (comm: any) => {
-        const collegeId = await resolveCommunityCollegeId(
-          supabase,
-          comm,
-          normalizeCollegeRelation((comm as { colleges?: unknown }).colleges)
-        )
-        const { totalMembers, seniorCount } = await getCommunityDisplayCounts(
-          supabase,
-          comm.id,
-          collegeId
-        )
-        return { ...comm, member_count: totalMembers, senior_count: seniorCount }
-      })
-    )
+    // Use communities table member_count and senior_count directly (kept up-to-date by syncCommunityCounts)
+    // No N+1 queries needed
+    const enrichedCommunities = (communitiesResult.data || []).map((comm: any) => ({
+      ...comm,
+      member_count: comm.member_count || 0,
+      senior_count: comm.senior_count || 0,
+    }))
+
+    const duration = Date.now() - startTime
+    logCacheFetch('network-sidebar', duration, { userId, communitiesCount: enrichedCommunities.length })
 
     return NextResponse.json({
       mentors: filteredMentors,
